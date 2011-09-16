@@ -1,0 +1,32 @@
+
+This file should give a really smal overview how all the stuff is connected
+
+Folders:
+nbib     	=> bibtex ontology for nepomuk
+src      	=> source code ;)
++ 
++- core  	=> all stuff not connected to a gui element
+|
++-+ ui    	=> all the ui stuff
+  |
+  +-documents	=> all widgets to show and manipulate document informations
+  |
+  +- project	=> all widgets to show project files
+  |
+  +- semantic	=> Set of general widgets to easily manipulate nupomuk meta data
+                   for example a new QLineEdit class etc.
+
+Function:
+The idea is, that nepomuk does all the work.
+This program creates a nepomuk tag and some folder structure.
+All the data can but don't have to be placed in the project folder
+
+Strigi/Nepomuk collect all data outside the project fodler and make them available
+
+Conquierer is only used to manipulate metadata and collection handling
+Also it allows to start external programs to work with the data itself
+*Okular for pdf files
+*Kmail for mails
+*Konquerer for bookmarks
+ and so on
+maybe someday everything will be imbedded via kparts into one program

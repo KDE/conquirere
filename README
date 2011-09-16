@@ -1,0 +1,53 @@
+
+Conquirere
+
+This program use the power of Nepomuk and the Semantic Desktop to create and maintain collections of data.
+Its main purpose is the help in research specific topics.
+
+When a new project is created it also creates a new Nepomuk tag. From now on all data (documents, notes,
+emails,contacs,bookmarks) tagged with the project tag is listed in a central way in Conquirere.
+
+This allows to easily keep an overview of all data connected to the project topic.
+
+Furthermore this program allows to add additional metadata to each file.
+
+* Already working:
+** BibTex data to documents to generate .bib files automatically
+
+* Future ideas:
+** List annotations for exmple specific parts of a pdf document tagged via Okular
+** List bookmarks and save the wepage to disk if necessary
+** Fetch BibTex data automatically via libkbibtexio
+** Recomend new webpages/documents based on tagclouds generated from existing data
+** possible many other things
+
+#################################################################
+# install with to the system
+
+mkdir build
+cd build
+cmake ../ -DCMAKE_INSTALL_PREFIX=`kde4-config --prefix` -DCMAKE_BUILD_TYPE=release
+make
+make install
+
+and start via conquirere
+
+#################################################################
+# install with to the homefolder for testing purpose
+
+mkdir build
+cd build
+cmake ../ -DCMAKE_INSTALL_PREFIX=$HOME -DCMAKE_BUILD_TYPE=release
+make
+make install
+
+and start via $HOME/bin/conquirere
+
+#################################################################
+# install necessary ontology
+copy
+nbib/nbib.trig
+nbib/nbib.ontology
+
+into
+/usr/share/ontology/nie

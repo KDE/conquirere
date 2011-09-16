@@ -1,0 +1,31 @@
+cmake_minimum_required(VERSION 2.6)
+
+project(conquirere)
+
+# search packages used by KDE
+find_package(KDE4 REQUIRED)
+find_package(Nepomuk REQUIRED)
+include(NepomukAddOntologyClasses)
+include (KDE4Defaults)
+include (MacroLibrary)
+
+# local cmake modules
+set(CMAKE_MODULE_PATH
+    ${CMAKE_MODULE_PATH}
+    ${CMAKE_SOURCE_DIR}/cmake/modules
+)
+
+add_definitions (${QT_DEFINITIONS} ${KDE4_DEFINITIONS} -DQT_STRICT_ITERATORS )
+add_definitions( -DQT_NO_CAST_FROM_ASCII )
+add_definitions( -DQT_NO_CAST_TO_ASCII )
+add_definitions(-DQT_USE_FAST_CONCATENATION -DQT_USE_FAST_OPERATOR_PLUS)
+
+include_directories (${CMAKE_SOURCE_DIR}
+                     ${CMAKE_BINARY_DIR}
+                     ${KDE4_INCLUDES}
+                     ${NEPOMUK_INCLUDE_DIR}
+                     ${NEPOMUKEXTRAS_INCLUDE_DIR}
+)
+
+add_subdirectory( src )
+
