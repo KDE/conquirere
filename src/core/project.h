@@ -45,6 +45,8 @@ public:
 
     Nepomuk::Tag projectTag() const;
 
+    bool isInPath(const QString &filename);
+
     void addDocument(const QFileInfo &fileInfo);
     void document();
 

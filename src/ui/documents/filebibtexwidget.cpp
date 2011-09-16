@@ -18,6 +18,7 @@
 #include "filebibtexwidget.h"
 #include "../semantic/labeledit.h"
 #include "../semantic/contactedit.h"
+#include "../semantic/addressedit.h"
 
 #include "nbib.h"
 #include <Soprano/Vocabulary/NAO>
@@ -373,6 +374,19 @@ void FileBibTexWidget::setupWidget()
     addressWidget = new QWidget;
     QLabel *address = new QLabel(i18n("Address:"));
     address->setToolTip(i18n("Publisher's address (usually just the city, but can be the full address for lesser-known publishers)"));
+
+    AddressEdit *addressData = new AddressEdit();
+    addressData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::Address() );
+    address->setBuddy(addressData);
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), addressData, SLOT(setResource(Nepomuk::Resource&)));
+
+    QHBoxLayout *layoutAddress = new QHBoxLayout;
+    layoutAddress->setMargin(0);
+    layoutAddress->setSpacing(0);
+    layoutAddress->addWidget(address);
+    layoutAddress->addWidget(addressData);
+    addressWidget->setLayout(layoutAddress);
+    layoutMain->addWidget(addressWidget);
 
     //####################################################################
 

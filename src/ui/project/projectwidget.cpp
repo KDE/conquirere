@@ -55,15 +55,19 @@ void ProjectWidget::setProject(Project *p)
     m_project = p;
     m_documentModel = new ResourceModel;
     m_documentModel->setProjectTag(m_project->projectTag());
+    m_documentModel->setProject(m_project);
     m_documentModel->setResourceType(Resource_Document);
     m_mailModel = new ResourceModel;
     m_mailModel->setProjectTag(m_project->projectTag());
+    m_mailModel->setProject(m_project);
     m_mailModel->setResourceType(Resource_Mail);
     m_mediaModel = new ResourceModel;
     m_mediaModel->setProjectTag(m_project->projectTag());
+    m_mediaModel->setProject(m_project);
     m_mediaModel->setResourceType(Resource_Media);
     m_websiteModel = new ResourceModel;
     m_websiteModel->setProjectTag(m_project->projectTag());
+    m_websiteModel->setProject(m_project);
     m_websiteModel->setResourceType(Resource_Website);
 }
 

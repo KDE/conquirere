@@ -101,6 +101,12 @@ Nepomuk::Tag Project::projectTag() const
     return m_projectTag;
 }
 
+
+bool Project::isInPath(const QString &filename)
+{
+    return filename.contains(m_path);
+}
+
 void Project::addDocument(const QFileInfo &fileInfo)
 {
     // first check if the file is in the project path

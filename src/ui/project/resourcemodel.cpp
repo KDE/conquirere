@@ -68,6 +68,11 @@ void ResourceModel::setProjectTag(Nepomuk::Tag tag)
     m_projectTag = tag;
 }
 
+void ResourceModel::setProject(Project *p)
+{
+    m_project = p;
+}
+
 void ResourceModel::setResourceType(ResourceSelection selection)
 {
     m_selection = selection;
@@ -129,8 +134,9 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
         case 0:
             return KIcon(QLatin1String("dialog-ok-apply"));
         case 1:
-            if(document.isFile()) {
-                return  KIcon(QLatin1String("bookmarks-organize"));
+            if(m_project->isInPath(document.property(Nepomuk::Vocabulary::NIE::url()).toString())) {
+                    return  KIcon(QLatin1String("bookmarks-organize"));
+
             }
         }
     }

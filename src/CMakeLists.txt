@@ -18,6 +18,7 @@ set(conquirere_SRCS
 
     ui/semantic/labeledit.cpp
     ui/semantic/contactedit.cpp
+    ui/semantic/addressedit.cpp
 )
 
 kde4_add_ui_files( conquirere_SRCS

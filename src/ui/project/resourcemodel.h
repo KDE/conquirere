@@ -19,6 +19,7 @@
 #define RESOURCEMODEL_H
 
 #include "../../globals.h"
+#include "../../core/project.h"
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Tag>
@@ -37,6 +38,7 @@ public:
     ~ResourceModel();
 
     void setProjectTag(Nepomuk::Tag tag);
+    void setProject(Project *p);
     void setResourceType(ResourceSelection selection);
 
     int rowCount(const QModelIndex &parent) const;
@@ -64,6 +66,7 @@ private slots:
 
 private:
     Nepomuk::Tag m_projectTag;
+    Project *m_project;
     ResourceSelection m_selection;
     Nepomuk::Query::QueryServiceClient *m_queryClient;
     QList<Nepomuk::Resource> m_fileList;
