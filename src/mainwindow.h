@@ -37,6 +37,7 @@ public slots:
     void openProject(Project *p);
     void deleteProject();
     void closeProject();
+    void exportBibTex();
 
 private:
     void setupActions();

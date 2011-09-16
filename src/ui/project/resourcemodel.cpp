@@ -228,7 +228,6 @@ void ResourceModel::addData(const QList< Nepomuk::Query::Result > &entries)
 {
     // two loops are necessary because addData is not only called on new entries, but with all changes
     // must be a bug in nepomuk
-    // also the entries list has always the size 1 ...
     int insertItems = 0;
     foreach(Nepomuk::Query::Result r, entries) {
         if( !m_fileList.contains(r.resource()) ) {
@@ -251,7 +250,6 @@ void ResourceModel::removeData( const QList< QUrl > &entries )
 {
     // two loops are necessary because removeData is not only called on removed entries, but with all changes
     // must be a bug in nepomuk
-    // also the entries list has always the size 1 ...
 
     Nepomuk::Resource muh(entries.first());
     if(muh.tags().contains(m_projectTag)) {

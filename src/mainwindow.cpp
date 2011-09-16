@@ -17,6 +17,7 @@
 
 #include "mainwindow.h"
 #include "core/project.h"
+#include "core/bibtexexporter.h"
 
 #include "ui/project/newprojectdialog.h"
 #include "ui/project/welcomewidget.h"
@@ -68,6 +69,10 @@ void MainWindow::loadProject()
     //select name and path of the project
     QString fileNameFromDialog = KFileDialog::getOpenFileName(KGlobalSettings::documentPath(), QLatin1String("*.ini|Conquirere project (*.ini)"));
 
+    if(fileNameFromDialog.isEmpty()) {
+        return;
+    }
+
     Project *project = new Project();
     project->loadProject(fileNameFromDialog);
 
@@ -87,6 +92,7 @@ void MainWindow::openProject(Project *p)
 
     actionCollection()->action(QLatin1String("delete_project"))->setEnabled(true);
     actionCollection()->action(QLatin1String("close_project"))->setEnabled(true);
+    actionCollection()->action(QLatin1String("export_bibtex"))->setEnabled(true);
 }
 
 void MainWindow::deleteProject()
@@ -117,6 +123,22 @@ void MainWindow::closeProject()
 
     actionCollection()->action(QLatin1String("delete_project"))->setEnabled(false);
     actionCollection()->action(QLatin1String("close_project"))->setEnabled(false);
+    actionCollection()->action(QLatin1String("export_bibtex"))->setEnabled(false);
+}
+
+void MainWindow::exportBibTex()
+{
+    // get all documents in the project
+    ProjectWidget *projectWidget = qobject_cast<ProjectWidget *>(centralWidget());
+
+    if(projectWidget) {
+        Project *p = projectWidget->project();
+
+        BibTexExporter expBibTex;
+        expBibTex.setResource(p->projectTag());
+
+        expBibTex.exportReferences(p->path() + QLatin1String("bibtex.bib"));
+    }
 }
 
 void MainWindow::setupActions()
@@ -150,6 +172,14 @@ void MainWindow::setupActions()
 
     actionCollection()->addAction(QLatin1String("close_project"), closeProjectAction);
     connect(closeProjectAction, SIGNAL(triggered(bool)),this, SLOT(closeProject()));
+
+    KAction* exportBibTexAction = new KAction(this);
+    exportBibTexAction->setText(i18n("&Export to BibTex"));
+    exportBibTexAction->setIcon(KIcon(QLatin1String("document-export")));
+    exportBibTexAction->setEnabled(false);
+
+    actionCollection()->addAction(QLatin1String("export_bibtex"), exportBibTexAction);
+    connect(exportBibTexAction, SIGNAL(triggered(bool)),this, SLOT(exportBibTex()));
 
     KStandardAction::quit(kapp, SLOT(quit()),actionCollection());
 

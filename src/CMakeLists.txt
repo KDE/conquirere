@@ -4,6 +4,7 @@ set(conquirere_SRCS
     mainwindow.cpp
 
     core/project.cpp
+    core/bibtexexporter.cpp
 
     ui/documents/documentinfowidget.cpp
     ui/documents/filebibtexwidget.cpp

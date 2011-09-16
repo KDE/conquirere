@@ -255,7 +255,8 @@ nbib: {
           rdfs:domain nbib:BibReference ;
           rdfs:comment "The key of the cross-referenced entry." ;
           rdfs:label "Crossref" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     nbib:DOI
           a       rdf:Property ;
@@ -347,9 +348,9 @@ nbib: {
     nbib:Month
           a       rdf:Property ;
           rdfs:domain nbib:BibReference ;
-          rdfs:comment "The month of publication (or, if unpublished, the month of creation)." ;
+          rdfs:comment "The month of publication (or, if unpublished, the month of creation). Saved as two digit numer MM" ;
           rdfs:label "Month" ;
-          rdfs:range xsd:string ;
+          rdfs:range xsd:nonNegativeInteger ;
           nrl:maxCardinality 1 .
 
     nbib:MRNumber
@@ -366,7 +367,8 @@ nbib: {
           rdfs:comment "Miscellaneous extra information." ;
           rdfs:label "Note" ;
           rdfs:range xsd:string ;
-          rdfs:subPropertyOf nie:description, dc:description .
+          rdfs:subPropertyOf nie:description, dc:description ;
+          nrl:maxCardinality 1 .
 
     nbib:Number
           a       rdf:Property ;
@@ -381,14 +383,16 @@ nbib: {
           rdfs:domain nbib:BibReference ;
           rdfs:comment "The conference sponsor." ;
           rdfs:label "Organization" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     nbib:Pages
           a       rdf:Property ;
           rdfs:domain nbib:BibReference ;
           rdfs:comment "Page numbers, separated either by commas or double-hyphens." ;
           rdfs:label "Pages" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     nbib:Publisher
           a       rdf:Property ;
@@ -396,21 +400,24 @@ nbib: {
           rdfs:comment "The publisher's name." ;
           rdfs:label "Publisher" ;
           rdfs:range nco:Contact ;
-          rdfs:subPropertyOf nco:publisher .
+          rdfs:subPropertyOf nco:publisher ;
+          nrl:maxCardinality 1 .
 
     nbib:School
           a       rdf:Property ;
           rdfs:domain nbib:BibReference ;
           rdfs:comment "The school where the thesis was written." ;
           rdfs:label "School" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     nbib:Series
           a       rdf:Property ;
           rdfs:domain nbib:BibReference ;
           rdfs:comment "The series of books the book was published in." ;
           rdfs:label "Series" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     nbib:Title
           a       rdf:Property ;
@@ -426,7 +433,8 @@ nbib: {
           rdfs:domain nbib:BibReference ;
           rdfs:comment "The type of tech-report, for example, 'Research Note'." ;
           rdfs:label "Type" ;
-          rdfs:range xsd:string .
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     nbib:Url
           a       rdf:Property ;
@@ -434,7 +442,8 @@ nbib: {
           rdfs:comment "The WWW address." ;
           rdfs:label "Url" ;
           rdfs:range xsd:string ;
-          rdfs:subClassOf nco:url .
+          rdfs:subClassOf nco:url ;
+          nrl:maxCardinality 1 .
 
     nbib:Volume
           a       rdf:Property ;
