@@ -26,6 +26,7 @@
 #include <Nepomuk/Query/ResourceTerm>
 #include <Nepomuk/Query/ComparisonTerm>
 #include <Nepomuk/Query/AndTerm>
+#include <Nepomuk/Query/NegationTerm>
 #include <Nepomuk/Vocabulary/NFO>
 #include <Nepomuk/Vocabulary/NMO>
 #include <Nepomuk/Vocabulary/NCO>
@@ -39,16 +40,37 @@
 
 bool nameAscending(const Nepomuk::Resource &s1, const Nepomuk::Resource &s2)
 {
-    return s1.genericLabel() < s2.genericLabel();
+    QString title1 = s1.property(Nepomuk::Vocabulary::NBIB::Title()).toString();
+    QString title2 = s2.property(Nepomuk::Vocabulary::NBIB::Title()).toString();
+
+    if(title1.isEmpty()) {
+        title1 = s1.genericLabel();
+    }
+    if(title2.isEmpty()) {
+        title2 = s2.genericLabel();
+    }
+
+    return title1 < title2;
 }
 
 bool nameDescending(const Nepomuk::Resource &s1, const Nepomuk::Resource &s2)
 {
-    return s1.genericLabel() > s2.genericLabel();
+    QString title1 = s1.property(Nepomuk::Vocabulary::NBIB::Title()).toString();
+    QString title2 = s2.property(Nepomuk::Vocabulary::NBIB::Title()).toString();
+
+    if(title1.isEmpty()) {
+        title1 = s1.genericLabel();
+    }
+    if(title2.isEmpty()) {
+        title2 = s2.genericLabel();
+    }
+
+    return title1 > title2;
 }
 
 ResourceModel::ResourceModel(QObject *parent)
     : QAbstractTableModel(parent)
+    , m_project(0)
 {
     m_queryClient = new Nepomuk::Query::QueryServiceClient();
     connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addData(QList<Nepomuk::Query::Result>)));
@@ -102,6 +124,9 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
 
     Nepomuk::Resource document = m_fileList.at(index.row());
 
+    if(!document.isValid())
+        return QVariant();
+
     if (role == Qt::DisplayRole) {
         if(index.column() == 2) {
             switch(m_selection)
@@ -134,9 +159,8 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
         case 0:
             return KIcon(QLatin1String("dialog-ok-apply"));
         case 1:
-            if(m_project->isInPath(document.property(Nepomuk::Vocabulary::NIE::url()).toString())) {
+            if(m_project && m_project->isInPath(document.property(Nepomuk::Vocabulary::NIE::url()).toString())) {
                 return  KIcon(QLatin1String("bookmarks-organize"));
-
             }
         }
     }
@@ -170,7 +194,7 @@ QVariant ResourceModel::headerData(int section, Qt::Orientation orientation, int
         case 2:
             return tr("Author");
         case 3:
-            return tr("Document Data");
+            return tr("Title");
         default:
             return QVariant();
         }
@@ -185,7 +209,7 @@ QVariant ResourceModel::headerData(int section, Qt::Orientation orientation, int
         case 2:
             return tr("Document Author");
         case 3:
-            return tr("Document Data");
+            return tr("Document Title");
         default:
             return QVariant();
         }
@@ -200,8 +224,13 @@ void ResourceModel::startFetchData()
 
     switch(m_selection)
     {
-    case Resource_Document:
+    case Resource_Document: {
         andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Document() ) );
+
+        // exclude source code
+        // is not interresting here and slows down way to much
+        andTerm.addSubTerm(  !Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::SourceCode() ) );
+    }
         break;
     case Resource_Mail:
         andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NMO::Email() ) );
@@ -210,19 +239,23 @@ void ResourceModel::startFetchData()
         andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Media() ) );
         break;
     case Resource_Website:
-        andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::PlainTextDocument() ) );
+        andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Website() ) );
         break;
     case Resource_Reference:
         andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::BibReference() ) );
         break;
     }
 
-    andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
-                                                        Nepomuk::Query::ResourceTerm( m_projectTag ) ) );
+    if(m_project) {
+        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
+                                                            Nepomuk::Query::ResourceTerm( m_projectTag ) ) );
+    }
 
     // build the query
     Nepomuk::Query::Query query( andTerm );
+    query.setLimit(500);
     m_queryClient->query(query);
+
 }
 
 void ResourceModel::stopFetchData()
@@ -250,13 +283,14 @@ void ResourceModel::addData(const QList< Nepomuk::Query::Result > &entries)
         }
         endInsertRows();
     }
+
+    emit dataSizeChaged(m_fileList.size());
 }
 
 void ResourceModel::removeData( const QList< QUrl > &entries )
 {
     // two loops are necessary because removeData is not only called on removed entries, but with all changes
     // must be a bug in nepomuk
-
     Nepomuk::Resource muh(entries.first());
     if(muh.tags().contains(m_projectTag)) {
         return;
@@ -267,6 +301,8 @@ void ResourceModel::removeData( const QList< QUrl > &entries )
     beginRemoveRows(QModelIndex(), removedRow, removedRow);
     m_fileList.removeOne(muh);
     endRemoveRows();
+
+    emit dataSizeChaged(m_fileList.size());
 }
 
 void ResourceModel::sort ( int column, Qt::SortOrder order )
@@ -290,6 +326,10 @@ Nepomuk::Resource ResourceModel::documentResource(const QModelIndex &selection)
 
 void ResourceModel::removeSelected(const QModelIndexList & indexes)
 {
+    // ignore removal of system wide documents
+    if(!m_project)
+        return;
+
     foreach(QModelIndex index, indexes) {
         // get the nepomuk data at the row
         Nepomuk::Resource nr = m_fileList.at(index.row());

@@ -18,7 +18,19 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include <Qt>
+
+enum ProjectTreeRole {
+    Role_Library = Qt::UserRole,
+    Role_ResourceType
+};
+
+enum LibraryType {
+    Library_System,
+    Library_Project
+};
 enum ResourceSelection {
+    Resource_Library,
     Resource_Document,
     Resource_Mail,
     Resource_Media,

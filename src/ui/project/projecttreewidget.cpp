@@ -18,18 +18,31 @@
 #include "projecttreewidget.h"
 #include "ui_projecttreewidget.h"
 
+#include "../../core/project.h"
+
+#include <KStandardDirs>
+
 #include <QTreeWidgetItem>
 #include <QVariant>
 #include <QDebug>
 
-ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::ProjectTreeWidget)
+ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::ProjectTreeWidget)
+    , m_project(0)
 {
     ui->setupUi(this);
 
-    setupWidget();
+    QTreeWidgetItem *root = new QTreeWidgetItem();
+    root->setText(0, i18n("System Library"));
+    root->setData(0,Role_Library,Library_System);
+    root->setData(0,Role_ResourceType,Resource_Library);
+    root->setIcon(0, KIcon(QLatin1String("document-multiple")));
+    ui->sourceTreeWidget->addTopLevelItem(root);
 
+    setupLibraryTree(root);
+
+    connect(ui->sourceTreeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(selectionchanged()));
 }
 
 ProjectTreeWidget::~ProjectTreeWidget()
@@ -37,50 +50,82 @@ ProjectTreeWidget::~ProjectTreeWidget()
     delete ui;
 }
 
-void ProjectTreeWidget::selectionchanged()
+void ProjectTreeWidget::setProject(Project *p)
 {
-    ResourceSelection ss = ResourceSelection(ui->sourceTreeWidget->currentItem()->data(0,Qt::UserRole).toInt());
+    QTreeWidgetItem *root;
+    if(m_project) {
+        root = ui->sourceTreeWidget->topLevelItem(0);
+    }
+    else {
+        root = new QTreeWidgetItem();
+        root->setData(0,Role_Library,Library_Project);
+        root->setData(0,Role_ResourceType,Resource_Library);
+        root->setIcon(0, KIcon(QLatin1String("document-multiple")));
+        ui->sourceTreeWidget->insertTopLevelItem(0,root);
+    }
 
-    emit newSelection(ss);
+    m_project = p;
+
+    root->setText(0, m_project->name());
+    root->setExpanded(true);
+
+    setupLibraryTree(root);
 }
 
-void ProjectTreeWidget::setupWidget()
+void ProjectTreeWidget::selectionchanged()
+{
+    LibraryType library = LibraryType(ui->sourceTreeWidget->currentItem()->data(0,Role_Library).toInt());
+
+    ResourceSelection rs = ResourceSelection(ui->sourceTreeWidget->currentItem()->data(0,Role_ResourceType).toInt());
+    emit newSelection(library, rs);
+}
+
+void ProjectTreeWidget::updateDataSize(int size)
+{
+
+}
+
+void ProjectTreeWidget::setupLibraryTree(QTreeWidgetItem *root)
 {
     QTreeWidgetItem *twi1 = new QTreeWidgetItem();
-    twi1->setText(0, tr("Documents"));
-    twi1->setData(0,Qt::UserRole,Resource_Document);
+    twi1->setText(0, i18n("Documents"));
+    twi1->setData(0,Role_Library,root->data(0,Role_Library));
+    twi1->setData(0,Role_ResourceType,Resource_Document);
     twi1->setIcon(0, KIcon(QLatin1String("document-multiple")));
-    ui->sourceTreeWidget->addTopLevelItem(twi1);
+    root->addChild(twi1);
 
     QTreeWidgetItem *twi2 = new QTreeWidgetItem();
-    twi2->setText(0, tr("Mails"));
-    twi2->setData(0,Qt::UserRole,Resource_Mail);
+    twi2->setText(0, i18n("Mails"));
+    twi2->setData(0,Role_Library,root->data(0,Role_Library));
+    twi2->setData(0,Role_ResourceType,Resource_Mail);
     twi2->setIcon(0, KIcon(QLatin1String("mail-flag")));
-    ui->sourceTreeWidget->addTopLevelItem(twi2);
+    root->addChild(twi2);
 
     QTreeWidgetItem *twi3 = new QTreeWidgetItem();
-    twi3->setText(0, tr("Websites"));
-    twi3->setData(0,Qt::UserRole,Resource_Website);
+    twi3->setText(0, i18n("Websites"));
+    twi3->setData(0,Role_Library,root->data(0,Role_Library));
+    twi3->setData(0,Role_ResourceType,Resource_Website);
     twi3->setIcon(0, KIcon(QLatin1String("view-web-browser-dom-tree")));
-    ui->sourceTreeWidget->addTopLevelItem(twi3);
+    root->addChild(twi3);
 
     QTreeWidgetItem *twi4 = new QTreeWidgetItem();
-    twi4->setText(0, tr("References"));
-    twi4->setData(0,Qt::UserRole,Resource_Reference);
+    twi4->setText(0, i18n("References"));
+    twi4->setData(0,Role_Library,root->data(0,Role_Library));
+    twi4->setData(0,Role_ResourceType,Resource_Reference);
     twi4->setIcon(0, KIcon(QLatin1String("user-identity")));
-    ui->sourceTreeWidget->addTopLevelItem(twi4);
+    root->addChild(twi4);
 
     QTreeWidgetItem *twi5 = new QTreeWidgetItem();
-    twi5->setText(0, tr("Media"));
-    twi5->setData(0,Qt::UserRole,Resource_Media);
+    twi5->setText(0, i18n("Media"));
+    twi5->setData(0,Role_Library,root->data(0,Role_Library));
+    twi5->setData(0,Role_ResourceType,Resource_Media);
     twi5->setIcon(0, KIcon(QLatin1String("applications-multimedia")));
-    ui->sourceTreeWidget->addTopLevelItem(twi5);
+    root->addChild(twi5);
 
     QTreeWidgetItem *twi6 = new QTreeWidgetItem();
-    twi6->setText(0, tr("Notes"));
-    twi6->setData(0,Qt::UserRole,Resource_Note);
+    twi6->setText(0, i18n("Notes"));
+    twi6->setData(0,Role_Library,root->data(0,Role_Library));
+    twi6->setData(0,Role_ResourceType,Resource_Note);
     twi6->setIcon(0, KIcon(QLatin1String("knotes")));
-    ui->sourceTreeWidget->addTopLevelItem(twi6);
-
-    connect(ui->sourceTreeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(selectionchanged()));
+    root->addChild(twi6);
 }

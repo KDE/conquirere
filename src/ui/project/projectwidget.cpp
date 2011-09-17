@@ -43,16 +43,26 @@ ProjectWidget::ProjectWidget(QWidget *parent)
     , m_documentInfo(0)
 {
     setupWidget();
+
+    // fetch information about system wide files
+    m_systemDocumentModel = new ResourceModel;
+    m_systemDocumentModel->setResourceType(Resource_Document);
+    m_systemMailModel = new ResourceModel;
+    m_systemMailModel->setResourceType(Resource_Mail);
+    m_systemMediaModel = new ResourceModel;
+    m_systemMediaModel->setResourceType(Resource_Media);
+    m_systemWebsiteModel = new ResourceModel;
+    m_systemWebsiteModel->setResourceType(Resource_Website);
 }
 
 ProjectWidget::~ProjectWidget()
 {
     delete m_project;
     delete m_projectTree;
-    delete m_documentModel;
-    delete m_mailModel;
-    delete m_mediaModel;
-    delete m_websiteModel;
+    delete m_projectDocumentModel;
+    delete m_projectMailModel;
+    delete m_projectMediaModel;
+    delete m_projectWebsiteModel;
     delete m_documentView;
     delete m_documentInfo;
 }
@@ -60,22 +70,25 @@ ProjectWidget::~ProjectWidget()
 void ProjectWidget::setProject(Project *p)
 {
     m_project = p;
-    m_documentModel = new ResourceModel;
-    m_documentModel->setProjectTag(m_project->projectTag());
-    m_documentModel->setProject(m_project);
-    m_documentModel->setResourceType(Resource_Document);
-    m_mailModel = new ResourceModel;
-    m_mailModel->setProjectTag(m_project->projectTag());
-    m_mailModel->setProject(m_project);
-    m_mailModel->setResourceType(Resource_Mail);
-    m_mediaModel = new ResourceModel;
-    m_mediaModel->setProjectTag(m_project->projectTag());
-    m_mediaModel->setProject(m_project);
-    m_mediaModel->setResourceType(Resource_Media);
-    m_websiteModel = new ResourceModel;
-    m_websiteModel->setProjectTag(m_project->projectTag());
-    m_websiteModel->setProject(m_project);
-    m_websiteModel->setResourceType(Resource_Website);
+
+    m_projectTree->setProject(m_project);
+
+    m_projectDocumentModel = new ResourceModel;
+    m_projectDocumentModel->setProjectTag(m_project->projectTag());
+    m_projectDocumentModel->setProject(m_project);
+    m_projectDocumentModel->setResourceType(Resource_Document);
+    m_projectMailModel = new ResourceModel;
+    m_projectMailModel->setProjectTag(m_project->projectTag());
+    m_projectMailModel->setProject(m_project);
+    m_projectMailModel->setResourceType(Resource_Mail);
+    m_projectMediaModel = new ResourceModel;
+    m_projectMediaModel->setProjectTag(m_project->projectTag());
+    m_projectMediaModel->setProject(m_project);
+    m_projectMediaModel->setResourceType(Resource_Media);
+    m_projectWebsiteModel = new ResourceModel;
+    m_projectWebsiteModel->setProjectTag(m_project->projectTag());
+    m_projectWebsiteModel->setProject(m_project);
+    m_projectWebsiteModel->setResourceType(Resource_Website);
 }
 
 Project *ProjectWidget::project() const
@@ -83,39 +96,75 @@ Project *ProjectWidget::project() const
     return m_project;
 }
 
-void ProjectWidget::switchView(ResourceSelection selection)
+void ProjectWidget::switchView(LibraryType library, ResourceSelection selection)
 {
-    switch(selection) {
-    case Resource_Document:
-    {
-        m_documentView->setModel(m_documentModel);
-        QHeaderView *qhv = m_documentView->horizontalHeader();
-        qhv->resizeSection(0,25);
-        qhv->resizeSection(1,25);
-        m_documentInfo->clear();
-        break;
+    disconnect(m_documentView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(selectedResource(QModelIndex,QModelIndex)));
+
+    if(library == Library_Project) {
+        switch(selection) {
+        case Resource_Document:
+        {
+            m_documentView->setModel(m_projectDocumentModel);
+            m_documentInfo->clear();
+            break;
+        }
+        case Resource_Mail:
+            m_documentView->setModel(m_projectMailModel);
+            m_documentInfo->clear();
+            break;
+        case Resource_Media:
+            m_documentView->setModel(m_projectMediaModel);
+            m_documentInfo->clear();
+            break;
+        case Resource_Website:
+            m_documentView->setModel(m_projectWebsiteModel);
+            m_documentInfo->clear();
+            break;
+            //    case References:
+            //    case Notes:
+        }
     }
-    case Resource_Mail:
-        m_documentView->setModel(m_mailModel);
-        m_documentInfo->clear();
-        break;
-    case Resource_Media:
-        m_documentView->setModel(m_mediaModel);
-        m_documentInfo->clear();
-        break;
-    case Resource_Website:
-        m_documentView->setModel(m_websiteModel);
-        m_documentInfo->clear();
-        break;
-        //    case References:
-        //    case Notes:
+    else {
+        switch(selection) {
+        case Resource_Document:
+        {
+            m_documentView->setModel(m_systemDocumentModel);
+            m_documentInfo->clear();
+            break;
+        }
+        case Resource_Mail:
+            m_documentView->setModel(m_systemMailModel);
+            m_documentInfo->clear();
+            break;
+        case Resource_Media:
+            m_documentView->setModel(m_systemMediaModel);
+            m_documentInfo->clear();
+            break;
+        case Resource_Website:
+            m_documentView->setModel(m_systemWebsiteModel);
+            m_documentInfo->clear();
+            break;
+            //    case References:
+            //    case Notes:
+        }
+
     }
+    //shrink first 2 colums (review icon / document in project path icon)
+    QHeaderView *qhv = m_documentView->horizontalHeader();
+    qhv->resizeSection(0,25);
+    qhv->resizeSection(1,25);
+
+    connect(m_documentView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(selectedResource(QModelIndex,QModelIndex)));
+
+    m_documentView->selectRow(0);
 }
 
-void ProjectWidget::selectedResource( const QModelIndex & index )
+void ProjectWidget::selectedResource( const QModelIndex & current, const QModelIndex & previous )
 {
+    Q_UNUSED(previous);
+
     ResourceModel *rm = qobject_cast<ResourceModel *>(m_documentView->model());
-    Nepomuk::Resource nr = rm->documentResource(index);
+    Nepomuk::Resource nr = rm->documentResource(current);
 
     m_documentInfo->setResource(nr);
 }
@@ -163,7 +212,7 @@ void ProjectWidget::setupWidget()
     QSplitter *splitter = new QSplitter(this);
     // the left project bar
     m_projectTree = new ProjectTreeWidget;
-    connect(m_projectTree, SIGNAL(newSelection(ResourceSelection)), this, SLOT(switchView(ResourceSelection)));
+    connect(m_projectTree, SIGNAL(newSelection(LibraryType,ResourceSelection)), this, SLOT(switchView(LibraryType,ResourceSelection)));
 
     // view that holds the table models for selection
     m_documentView = new QTableView;
@@ -175,7 +224,6 @@ void ProjectWidget::setupWidget()
     m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_documentView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(m_documentView, SIGNAL(activated(QModelIndex)), this, SLOT(selectedResource(QModelIndex)));
     connect(m_documentView, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(tableContextMenu(const QPoint &)));
 

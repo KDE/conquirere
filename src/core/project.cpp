@@ -80,6 +80,7 @@ void Project::loadProject(const QString & projectFile)
     m_settings = new QSettings(projectFile,QSettings::IniFormat);
     m_settings->beginGroup(QLatin1String("Conquirere"));
     m_path = m_settings->value(QLatin1String("path")).toString();
+    m_name = m_settings->value(QLatin1String("name")).toString();
     m_projectTag = Nepomuk::Tag(m_settings->value(QLatin1String("tag")).toString());
     m_settings->endGroup();
 
@@ -170,6 +171,7 @@ void Project::initializeProjectFolder()
     // create the project .ini file
     m_settings = new QSettings(m_path + QLatin1String("/conquirere.ini"),QSettings::IniFormat);
     m_settings->beginGroup(QLatin1String("Conquirere"));
+    m_settings->setValue(QLatin1String("name"), name());
     m_settings->setValue(QLatin1String("path"), m_path);
     m_settings->setValue(QLatin1String("tag"), m_projectTag.uri());
     m_settings->endGroup();

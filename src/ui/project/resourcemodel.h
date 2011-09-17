@@ -56,6 +56,9 @@ public slots:
     void startFetchData();
     void stopFetchData();
 
+signals:
+    void dataSizeChaged(int size);
+
 private slots:
     /**
       * @bug does not work efficient because addData(QList<Nepomuk::Query::Result>) from Nepomuk::Query::QueryServiceClient returns wrong values

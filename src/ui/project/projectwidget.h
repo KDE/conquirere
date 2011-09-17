@@ -42,8 +42,8 @@ public:
     Project *project() const;
 
 public slots:
-    void switchView(ResourceSelection selection);
-    void selectedResource( const QModelIndex & index );
+    void switchView(LibraryType library, ResourceSelection selection);
+    void selectedResource( const QModelIndex & current, const QModelIndex & previous );
 
     void removeSelected();
     void openSelected();
@@ -58,11 +58,15 @@ private:
     Project* m_project;
     ProjectTreeWidget *m_projectTree;
 
-    ResourceModel *m_documentModel;
-    ResourceModel *m_mailModel;
-    ResourceModel *m_mediaModel;
-    ResourceModel *m_websiteModel;
     QTableView    *m_documentView;
+    ResourceModel *m_projectDocumentModel;
+    ResourceModel *m_projectMailModel;
+    ResourceModel *m_projectMediaModel;
+    ResourceModel *m_projectWebsiteModel;
+    ResourceModel *m_systemDocumentModel;
+    ResourceModel *m_systemMailModel;
+    ResourceModel *m_systemMediaModel;
+    ResourceModel *m_systemWebsiteModel;
 
     DocumentInfoWidget *m_documentInfo;
 

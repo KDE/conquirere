@@ -22,6 +22,9 @@
 
 #include "../../globals.h"
 
+class Project;
+class QTreeWidgetItem;
+
 namespace Ui {
     class ProjectTreeWidget;
 }
@@ -34,15 +37,21 @@ public:
     explicit ProjectTreeWidget(QWidget *parent = 0);
     ~ProjectTreeWidget();
 
+    void setProject(Project *p);
+
 signals:
-    void newSelection(ResourceSelection selection);
+    void newSelection(LibraryType library, ResourceSelection selection);
+
+public slots:
+    void updateDataSize(int size);
 
 private slots:
     void selectionchanged();
 
 private:
-    void setupWidget();
+    void setupLibraryTree(QTreeWidgetItem *root);
 
+    Project *m_project;
     Ui::ProjectTreeWidget *ui;
 };
 
