@@ -135,7 +135,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             return KIcon(QLatin1String("dialog-ok-apply"));
         case 1:
             if(m_project->isInPath(document.property(Nepomuk::Vocabulary::NIE::url()).toString())) {
-                    return  KIcon(QLatin1String("bookmarks-organize"));
+                return  KIcon(QLatin1String("bookmarks-organize"));
 
             }
         }
@@ -286,4 +286,17 @@ void ResourceModel::sort ( int column, Qt::SortOrder order )
 Nepomuk::Resource ResourceModel::documentResource(const QModelIndex &selection)
 {
     return m_fileList.at(selection.row());
+}
+
+void ResourceModel::removeSelected(const QModelIndexList & indexes)
+{
+    foreach(QModelIndex index, indexes) {
+        // get the nepomuk data at the row
+        Nepomuk::Resource nr = m_fileList.at(index.row());
+
+        // remove project tag
+        nr.removeProperty(Soprano::Vocabulary::NAO::hasTag(), m_projectTag);
+
+        //Nepomuk query client will call the slot to remove the file from the index
+    }
 }

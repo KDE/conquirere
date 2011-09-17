@@ -17,16 +17,23 @@
 
 #include "projectwidget.h"
 #include "projecttreewidget.h"
+#include "mainwindow.h"
 #include "../../core/project.h"
 #include "../documents/documentinfowidget.h"
 #include "../project/resourcemodel.h"
 
 #include <Nepomuk/Resource>
+#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk/Variant>
+#include <KDE/KAction>
 
 #include <QHBoxLayout>
 #include <QSplitter>
 #include <QTableView>
 #include <QHeaderView>
+#include <QMenu>
+#include <QProcess>
+#include <QDesktopServices>
 
 #include <QDebug>
 
@@ -113,6 +120,44 @@ void ProjectWidget::selectedResource( const QModelIndex & index )
     m_documentInfo->setResource(nr);
 }
 
+void ProjectWidget::removeSelected()
+{
+    QItemSelectionModel *sm = m_documentView->selectionModel();
+    QModelIndexList indexes = sm->selectedRows();
+
+    ResourceModel *rm = qobject_cast<ResourceModel *>(m_documentView->model());
+    rm->removeSelected(indexes);
+}
+
+void ProjectWidget::openSelected()
+{
+    QItemSelectionModel *sm = m_documentView->selectionModel();
+    QModelIndexList indexes = sm->selectedRows();
+
+    ResourceModel *rm = qobject_cast<ResourceModel *>(m_documentView->model());
+    Nepomuk::Resource nr = rm->documentResource(indexes.first());
+
+    QUrl file = nr.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+
+    QDesktopServices::openUrl(file);
+}
+
+void ProjectWidget::exportSelectedToBibTeX()
+{
+    QItemSelectionModel *sm = m_documentView->selectionModel();
+    QModelIndexList indexes = sm->selectedRows();
+}
+
+void ProjectWidget::tableContextMenu(const QPoint & pos)
+{
+    QMenu menu(this);
+    menu.addAction(m_openExternal);
+    menu.addSeparator();
+    //menu.addAction(m_exportToBibTeX);
+    menu.addAction(m_removeFromProject);
+    menu.exec(mapToGlobal(pos));
+}
+
 void ProjectWidget::setupWidget()
 {
     QSplitter *splitter = new QSplitter(this);
@@ -128,8 +173,11 @@ void ProjectWidget::setupWidget()
     m_documentView->verticalHeader()->hide();
     m_documentView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_documentView->setContextMenuPolicy(Qt::CustomContextMenu);
 
     connect(m_documentView, SIGNAL(activated(QModelIndex)), this, SLOT(selectedResource(QModelIndex)));
+    connect(m_documentView, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(tableContextMenu(const QPoint &)));
 
     //add panel for the document info
     m_documentInfo = new DocumentInfoWidget;
@@ -146,4 +194,19 @@ void ProjectWidget::setupWidget()
     layout->addWidget(splitter);
 
     setLayout(layout);
+
+    m_removeFromProject = new KAction(this);
+    m_removeFromProject->setText(i18n("Remove from project"));
+    m_removeFromProject->setIcon(KIcon(QLatin1String("document-new")));
+    connect(m_removeFromProject, SIGNAL(triggered()), this, SLOT(removeSelected()));
+
+    m_exportToBibTeX = new KAction(this);
+    m_exportToBibTeX->setText(i18n("Export to BibTex"));
+    m_exportToBibTeX->setIcon(KIcon(QLatin1String("document-export")));
+    connect(m_exportToBibTeX, SIGNAL(triggered()), this, SLOT(exportSelectedToBibTeX()));
+
+    m_openExternal = new KAction(this);
+    m_openExternal->setText(i18n("Open external"));
+    m_openExternal->setIcon(KIcon(QLatin1String("document-new")));
+    connect(m_openExternal, SIGNAL(triggered()), this, SLOT(openSelected()));
 }

@@ -84,7 +84,7 @@ void MainWindow::openProject(Project *p)
     //remove current widget
     QWidget *w = centralWidget();
 
-    ProjectWidget *projectWidget = new ProjectWidget();
+    ProjectWidget *projectWidget = new ProjectWidget(this);
     projectWidget->setProject(p);
     setCentralWidget(projectWidget);
 

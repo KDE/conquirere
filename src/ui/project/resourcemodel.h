@@ -50,6 +50,8 @@ public:
 
     Nepomuk::Resource documentResource(const QModelIndex &selection);
 
+    void removeSelected(const QModelIndexList & indexes);
+
 public slots:
     void startFetchData();
     void stopFetchData();

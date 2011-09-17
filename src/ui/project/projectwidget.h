@@ -28,6 +28,7 @@ class Project;
 class QTableView;
 class ResourceModel;
 class DocumentInfoWidget;
+class KAction;
 
 class ProjectWidget : public QWidget
 {
@@ -44,6 +45,13 @@ public slots:
     void switchView(ResourceSelection selection);
     void selectedResource( const QModelIndex & index );
 
+    void removeSelected();
+    void openSelected();
+    void exportSelectedToBibTeX();
+
+private slots:
+    void tableContextMenu(const QPoint & pos);
+
 private:
     void setupWidget();
 
@@ -57,6 +65,10 @@ private:
     QTableView    *m_documentView;
 
     DocumentInfoWidget *m_documentInfo;
+
+    KAction* m_removeFromProject;
+    KAction* m_exportToBibTeX;
+    KAction* m_openExternal;
 };
 
 #endif // PROJECTWIDGET_H
