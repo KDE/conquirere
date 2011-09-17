@@ -44,15 +44,19 @@ signals:
 
 public slots:
     void updateDataSize(int size);
+    void fetchDataFor(LibraryType library, ResourceSelection selection, bool start);
 
 private slots:
     void selectionchanged();
+    void updateFetchAnimation();
 
 private:
     void setupLibraryTree(QTreeWidgetItem *root);
 
     Project *m_project;
+    QList<QTreeWidgetItem *> m_items;
     Ui::ProjectTreeWidget *ui;
+    bool m_fetchingInProgress;
 };
 
 #endif // PROJECTTREEWIDGET_H

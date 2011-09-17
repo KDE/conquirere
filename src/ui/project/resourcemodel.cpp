@@ -75,6 +75,7 @@ ResourceModel::ResourceModel(QObject *parent)
     m_queryClient = new Nepomuk::Query::QueryServiceClient();
     connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addData(QList<Nepomuk::Query::Result>)));
     connect(m_queryClient, SIGNAL(entriesRemoved(QList<QUrl>)), this, SLOT(removeData(QList<QUrl>)));
+    connect(m_queryClient, SIGNAL(resultCount(int)), this, SLOT(listingsFinished(int)));
 }
 
 ResourceModel::~ResourceModel()
@@ -98,7 +99,6 @@ void ResourceModel::setProject(Project *p)
 void ResourceModel::setResourceType(ResourceSelection selection)
 {
     m_selection = selection;
-    startFetchData();
 }
 
 int ResourceModel::rowCount(const QModelIndex &parent) const
@@ -220,6 +220,13 @@ QVariant ResourceModel::headerData(int section, Qt::Orientation orientation, int
 
 void ResourceModel::startFetchData()
 {
+    if(m_project) {
+        emit updatefetchDataFor(Library_Project,m_selection,true);
+    }
+    else {
+        emit updatefetchDataFor(Library_System,m_selection,true);
+    }
+
     Nepomuk::Query::AndTerm andTerm;
 
     switch(m_selection)
@@ -253,7 +260,7 @@ void ResourceModel::startFetchData()
 
     // build the query
     Nepomuk::Query::Query query( andTerm );
-    query.setLimit(500);
+    query.setLimit(100);
     m_queryClient->query(query);
 
 }
@@ -265,26 +272,34 @@ void ResourceModel::stopFetchData()
 
 void ResourceModel::addData(const QList< Nepomuk::Query::Result > &entries)
 {
+    qDebug() << "addData(...)" << entries.size();
     // two loops are necessary because addData is not only called on new entries, but with all changes
     // must be a bug in nepomuk
     int insertItems = 0;
+    QList< Nepomuk::Resource > newEntries;
     foreach(Nepomuk::Query::Result r, entries) {
         if( !m_fileList.contains(r.resource()) ) {
-            insertItems++;
+            newEntries.append(r.resource());
         }
     }
 
-    if(insertItems > 0) {
-        beginInsertRows(QModelIndex(), m_fileList.size(), m_fileList.size());
-        foreach(Nepomuk::Query::Result r, entries) {
-            if( !m_fileList.contains(r.resource()) ) {
-                m_fileList.append(r.resource());
-            }
-        }
+    if(newEntries.size() > 0) {
+        beginInsertRows(QModelIndex(), m_fileList.size(), m_fileList.size() + newEntries.size()-1);
+        m_fileList.append(newEntries);
         endInsertRows();
     }
 
     emit dataSizeChaged(m_fileList.size());
+
+    //@bug m_queryClient->isListingFinished()
+    if(m_queryClient->isListingFinished()) {
+        if(m_project) {
+            emit updatefetchDataFor(Library_Project,m_selection,false);
+        }
+        else {
+            emit updatefetchDataFor(Library_System,m_selection,false);
+        }
+    }
 }
 
 void ResourceModel::removeData( const QList< QUrl > &entries )
@@ -338,5 +353,31 @@ void ResourceModel::removeSelected(const QModelIndexList & indexes)
         nr.removeProperty(Soprano::Vocabulary::NAO::hasTag(), m_projectTag);
 
         //Nepomuk query client will call the slot to remove the file from the index
+    }
+}
+
+void ResourceModel::listingsFinished(int number)
+{
+    //BUG this is never called from the query client.
+    qDebug() << "listingsFinished" << number;
+    if(number == 0) {
+        if(m_project) {
+            emit updatefetchDataFor(Library_Project,m_selection,false);
+        }
+        else {
+            emit updatefetchDataFor(Library_System,m_selection,false);
+        }
+    }
+}
+
+void ResourceModel::listingsError(const QString & errorMessage)
+{
+    qDebug() << errorMessage;
+
+    if(m_project) {
+        emit updatefetchDataFor(Library_Project,m_selection,false);
+    }
+    else {
+        emit updatefetchDataFor(Library_System,m_selection,false);
     }
 }

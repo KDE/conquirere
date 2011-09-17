@@ -13,6 +13,7 @@ set(conquirere_SRCS
     ui/project/newprojectdialog.cpp
     ui/project/welcomewidget.cpp
     ui/project/projecttreewidget.cpp
+    ui/project/projecttreedelegate.cpp
     ui/project/projectwidget.cpp
     ui/project/resourcemodel.cpp
 

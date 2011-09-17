@@ -58,6 +58,7 @@ public slots:
 
 signals:
     void dataSizeChaged(int size);
+    void updatefetchDataFor(LibraryType library, ResourceSelection selection, bool start);
 
 private slots:
     /**
@@ -68,6 +69,9 @@ private slots:
       * @bug does not work because removeData(QList<QUrl>) from Nepomuk::Query::QueryServiceClient returns wrong values
       */
     void removeData( const QList< QUrl > &entries );
+
+    void listingsFinished(int number);
+    void listingsError(const QString & 	errorMessage);
 
 private:
     Nepomuk::Tag m_projectTag;
