@@ -50,7 +50,7 @@ nbib: {
           a       rdfs:Class ;
           rdfs:comment "A bibliographic reference" ;
           rdfs:label "Bibliographic Reference" ;
-          rdfs:subClassOf nfo:PlainTextDocument .
+          rdfs:subClassOf nie:InformationElement .
 
     nbib:BibResource
           a       rdfs:Class ;
@@ -64,11 +64,17 @@ nbib: {
           rdfs:label "Article" ;
           rdfs:subClassOf nbib:BibResource .
 
+    nbib:Thesis
+          a       rdfs:Class ;
+          rdfs:comment "A general thesis." ;
+          rdfs:label "Theses" ;
+          rdfs:subClassOf nbib:BibResource .
+
     nbib:Bachelorthesis
           a       rdfs:Class ;
           rdfs:comment "A Bachelor thesis." ;
           rdfs:label "Bachelorthesis" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:subClassOf nbib:Thesis .
 
     nbib:Book
           a       rdfs:Class ;
@@ -82,17 +88,18 @@ nbib: {
           rdfs:label "Booklet" ;
           rdfs:subClassOf nbib:BibResource .
 
-    nbib:Conference
+    nbib:Electronic
           a       rdfs:Class ;
-          rdfs:comment "The same as inproceedings, included for Scribe compatibility" ;
-          rdfs:label "Conference" ;
+          rdfs:comment "A website." ;
+          rdfs:label "Website" ;
           rdfs:subClassOf nbib:BibResource .
 
-    nbib:Inbook
-          a       rdfs:Class ;
-          rdfs:comment "A part of a book, which may be a chapter (or section or whatever) and/or a range of pages." ;
-          rdfs:label "Inbook" ;
-          rdfs:subClassOf nbib:BibResource .
+# automatically determined by book with chapters/pages as BibReference
+#   nbib:Inbook
+#         a       rdfs:Class ;
+#         rdfs:comment "A part of a book, usually untitled. May be a chapter (or section or whatever) and/or a range of pages." ;
+#         rdfs:label "Inbook" ;
+#         rdfs:subClassOf nbib:BibResource .
 
     nbib:Inproceedings
           a       rdfs:Class ;
@@ -106,6 +113,12 @@ nbib: {
           rdfs:label "Incollection" ;
           rdfs:subClassOf nbib:BibResource .
 
+    nbib:Journal
+          a       rdfs:Class ;
+          rdfs:comment "A journal for serious, scholarly publications" ;
+          rdfs:label "Journal" ;
+          rdfs:subClassOf nco:Contact .
+
     nbib:Manual
           a       rdfs:Class ;
           rdfs:comment "Technical documentation." ;
@@ -116,7 +129,7 @@ nbib: {
           a       rdfs:Class ;
           rdfs:comment "A Master's thesis." ;
           rdfs:label "Mastersthesis" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:subClassOf nbib:Thesis .
 
     nbib:Misc
           a       rdfs:Class ;
@@ -128,7 +141,7 @@ nbib: {
           a       rdfs:Class ;
           rdfs:comment "A PhD thesis." ;
           rdfs:label "Phdthesis" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:subClassOf nbib:Thesis .
 
     nbib:Proceedings
           a       rdfs:Class ;
@@ -154,239 +167,204 @@ nbib: {
           rdfs:label "Patent" ;
           rdfs:subClassOf nbib:BibResource .
 
-    nbib:Website
+    nbib:Chapter
           a       rdfs:Class ;
-          rdfs:comment "A website." ;
-          rdfs:label "Website" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:comment "A chapter of a book." ;
+          rdfs:label "Chapter" ;
+          rdfs:subClassOf nie:InformationElement .
 
-    nbib:BibResourceType
+    nbib:Journal
+          a       rdfs:Class ;
+          rdfs:comment "A journal." ;
+          rdfs:label "Journal" ;
+          rdfs:subClassOf nie:InformationElement .
+
+    nbib:Series
+          a       rdfs:Class ;
+          rdfs:comment "The series of a book." ;
+          rdfs:label "Series" ;
+          rdfs:subClassOf nie:InformationElement .
+
+
+####################################################################
+#
+# Properties
+
+    nbib:bibResourceType
           a       rdf:Property ;
           rdfs:domain nbib:BibReference ;
-          rdfs:comment "The type of the reference entry. of of the many BibResource" ;
+          rdfs:comment "The type of the reference entry. one of the many BibResource types" ;
           rdfs:label "Bibliographic resource type" ;
           rdfs:range nbib:BibResource ;
           nrl:maxCardinality 1 .
 
-    nbib:CiteKey
+    nbib:citeKey
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:BibResource ;
           rdfs:comment "Used to identify the reference." ;
           rdfs:label "CiteKey" ;
           rdfs:subPropertyOf nie:identifier ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:AccessDate
+    nbib:abstract
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
-          rdfs:comment "The date the website was accessed (for example 2001-10-26)" ;
-          rdfs:label "AccessDate" ;
-          rdfs:range xsd:date ;
-          rdfs:subPropertyOf nie:plainTextContent ;
-          nrl:maxCardinality 1 .
-
-    nbib:Abstract
-          a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:BibResource ;
           rdfs:comment "An abstract of the work." ;
           rdfs:label "Abstract" ;
           rdfs:range xsd:string ;
-          rdfs:subPropertyOf nie:plainTextContent ;
+          rdfs:subPropertyOf nao:description ;
           nrl:maxCardinality 1 .
 
-    nbib:Address
-          a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
-          rdfs:comment "Publisher's address (usually just the city, but can be the full address for lesser-known publishers)." ;
-          rdfs:label "Address" ;
-          rdfs:range nco:PostalAddress ;
-          nrl:maxCardinality 1 .
-
-    nbib:Annote
+    nbib:annote
           a       rdf:Property ;
           rdfs:domain nbib:BibReference ;
           rdfs:comment "An annotation for annotated bibliography styles (not typical)." ;
           rdfs:label "Annote" ;
           rdfs:range xsd:string .
 
-    nbib:Author
-          a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
-          rdfs:comment "The name(s) of the author(s) (in the case of more than one author, separated by and)." ;
-          rdfs:label "Author" ;
-          rdfs:range nco:Contact .
-
-    nbib:Booktitle
-          a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
-          rdfs:comment "The title of the book, if only part of it is being cited." ;
-          rdfs:label "Booktitle" ;
-          rdfs:range xsd:string ;
-          nrl:maxCardinality 1 .
-
-    nbib:Chapter
+    nbib:hasChapter
           a       rdf:Property ;
           rdfs:domain nbib:BibReference ;
           rdfs:comment "The chapter number." ;
           rdfs:label "Chapter" ;
-          rdfs:range xsd:string ;
+          rdfs:range nbib:Chapter ;
+          nie:isLogicalPartOf nbib:Book ;
           nrl:maxCardinality 1 .
 
-    nbib:Contents
+    nbib:contents
           a       rdf:Property ;
           rdfs:domain nbib:BibReference ;
           rdfs:comment "A Table of Contents." ;
           rdfs:label "Contents" ;
           rdfs:range xsd:string ;
-          rdfs:subPropertyOf nie:plainTextContent ;
           nrl:maxCardinality 1 .
 
-    nbib:Copyright
+    nbib:crossref
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
-          rdfs:comment "Copyright information." ;
-          rdfs:label "Copyright" ;
-          rdfs:range xsd:string ;
-          rdfs:subClassOf nie:copyright .
-
-    nbib:Crossref
-          a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
-          rdfs:comment "The key of the cross-referenced entry." ;
+          rdfs:domain nbib:BibResource ;
+          rdfs:comment "The citekey of the cross-referenced entry." ;
           rdfs:label "Crossref" ;
-          rdfs:range xsd:string ;
+          rdfs:range nbib:BibReference ;
           nrl:maxCardinality 1 .
 
-    nbib:DOI
+    nbib:doi
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
-          rdfs:comment "The Digital object identifier." ;
+          rdfs:domain nbib:BibResource ;
+          rdfs:comment "The Digital object identifier. see http://www.doi.org/ for more information" ;
           rdfs:label "DOI" ;
           rdfs:range xsd:string ;
+          rdfs:subPropertyOf nao:identifier ;
           nrl:maxCardinality 1 .
 
-    nbib:Edition
+    nbib:edition
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:Book, nbib:Manual ;
           rdfs:comment "The edition of a book, long form (such as 'first' or 'second')." ;
           rdfs:label "Edition" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:Editor
+    nco:editor
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:BibResource ;
           rdfs:comment "The name(s) of the editor(s)." ;
           rdfs:label "Editor" ;
           rdfs:range nco:Contact .
 
-    nbib:Eprint
+    nbib:eprint
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:BibResource ;
           rdfs:comment "A specification of an electronic publication, often a preprint or a technical report." ;
           rdfs:label "Eprint" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:HowPublished
+    nbib:howPublished
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:BibResource ;
           rdfs:comment "How it was published, if the publishing method is nonstandard." ;
           rdfs:label "HowPublished" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:Institution
+    nbib:institution
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:BibResource ;
           rdfs:comment "The institution that was involved in the publishing, but not necessarily the publisher." ;
           rdfs:label "Institution" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:ISBN
+    nbib:isbn
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:BibResource ;
           rdfs:comment "The International Standard Book Number." ;
           rdfs:label "ISBN" ;
           rdfs:range xsd:string ;
+          rdfs:subPropertyOf nao:identifier ;
           nrl:maxCardinality 1 .
 
-    nbib:ISSN
+    nbib:issn
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:BibResource ;
           rdfs:comment "The International Standard Serial Number. Used to identify a journal." ;
           rdfs:label "ISSN" ;
           rdfs:range xsd:string ;
+          rdfs:subPropertyOf nao:identifier ;
           nrl:maxCardinality 1 .
 
-    nbib:Journal
+    nbib:inJournal
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:Article ;
           rdfs:comment "The journal or magazine the work was published in." ;
-          rdfs:label "Journal" ;
-          rdfs:range xsd:string ;
+          rdfs:label "iuJournal" ;
+          rdfs:range nbib:Journal ;
           nrl:maxCardinality 1 .
 
-    nbib:Language
+    nbib:lccn
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
-          rdfs:comment "The language the document is in." ;
-          rdfs:label "Language" ;
-          rdfs:range xsd:string ;
-          rdfs:subClassOf nie:language .
-
-    nbib:LCCN
-          a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:BibResource ;
           rdfs:comment "The Library of Congress Call Number." ;
           rdfs:label "LCCN" ;
           rdfs:range xsd:string ;
+          rdfs:subPropertyOf nao:identifier ;
           nrl:maxCardinality 1 .
 
-    nbib:Month
+    nbib:mrnumber
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
-          rdfs:comment "The month of publication (or, if unpublished, the month of creation). Saved as two digit numer MM" ;
-          rdfs:label "Month" ;
-          rdfs:range xsd:nonNegativeInteger ;
-          nrl:maxCardinality 1 .
-
-    nbib:MRNumber
-          a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:BibResource ;
           rdfs:comment "The Mathematical Reviews number." ;
           rdfs:label "MRNumber" ;
           rdfs:range xsd:string ;
+          rdfs:subPropertyOf nao:identifier ;
           nrl:maxCardinality 1 .
 
-    nbib:Note
+    nbib:note
           a       rdf:Property ;
           rdfs:domain nbib:BibReference ;
           rdfs:comment "Miscellaneous extra information." ;
           rdfs:label "Note" ;
           rdfs:range xsd:string ;
-          rdfs:subPropertyOf nie:description, dc:description ;
-          nrl:maxCardinality 1 .
+          rdfs:subPropertyOf nie:description, dc:description .
 
-    nbib:Number
+    nbib:number
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:Article, nbib:Techreport ;
           rdfs:comment "The '(issue) number' of a journal, magazine, or tech-report, if applicable. (Most publications have a 'volume', but no 'number' field.)." ;
           rdfs:label "Number" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:Organization
+    nbib:organization
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:BibResource ;
           rdfs:comment "The conference sponsor." ;
           rdfs:label "Organization" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:Pages
+    nbib:pages
           a       rdf:Property ;
           rdfs:domain nbib:BibReference ;
           rdfs:comment "Page numbers, separated either by commas or double-hyphens." ;
@@ -394,73 +372,54 @@ nbib: {
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:Publisher
+    nbib:publicationDate
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
-          rdfs:comment "The publisher's name." ;
-          rdfs:label "Publisher" ;
-          rdfs:range nco:Contact ;
-          rdfs:subPropertyOf nco:publisher ;
+          rdfs:domain nbib:BibResource ;
+          rdfs:comment "The date of the publication (or, if unpublished, the month of creation)" ;
+          rdfs:label "Publication Date" ;
+          rdfs:range xsd:date ;
           nrl:maxCardinality 1 .
 
-    nbib:School
+    nbib:school
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:Thesis ;
           rdfs:comment "The school where the thesis was written." ;
           rdfs:label "School" ;
-          rdfs:range xsd:string ;
+          rdfs:range nco:Contact ;
           nrl:maxCardinality 1 .
 
-    nbib:Series
+    nbib:inSeries
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:Book ;
           rdfs:comment "The series of books the book was published in." ;
-          rdfs:label "Series" ;
-          rdfs:range xsd:string ;
+          rdfs:label "inSeries" ;
+          rdfs:range nbib:Series ;
           nrl:maxCardinality 1 .
 
-    nbib:Title
+    nbib:type
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
-          rdfs:comment "The title of the work." ;
-          rdfs:label "Title" ;
-          rdfs:subPropertyOf nie:title ;
-          rdfs:range xsd:string ;
-          nrl:maxCardinality 1 .
-
-    nbib:Type
-          a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:Techreport, nbib:Misc ;
           rdfs:comment "The type of tech-report, for example, 'Research Note'." ;
           rdfs:label "Type" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:Url
+    nbib:url
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:Electronic ;
           rdfs:comment "The WWW address." ;
           rdfs:label "Url" ;
           rdfs:range xsd:string ;
           rdfs:subClassOf nco:url ;
           nrl:maxCardinality 1 .
 
-    nbib:Volume
+    nbib:volume
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
-          rdfs:comment "The WWW address." ;
+          rdfs:domain nbib:Book, nbib:Article  ;
+          rdfs:comment "The volume of a journal or multi-volume book." ;
           rdfs:label "Volume" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
-
-    nbib:Year
-          a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
-          rdfs:comment "The WWW address." ;
-          rdfs:label "Year" ;
-          rdfs:range xsd:nonNegativeInteger ;
-          nrl:maxCardinality 1 .
-
 }
 
 <http://www.example.com/nbib_metadata#>
@@ -479,6 +438,8 @@ nbib:  a       nrl:Ontology ;
           nao:status "Unstable" ;
           nao:updatable "0 " ;
           nao:version "0.1" ;
+          nao:prefLabel "Nepomuk BibTex Ontology" ;
+          nao:description "The Nepomuk BibTex Ontology provides vocabulary to express bibliografic information" .
 
 }
 

@@ -1,0 +1,55 @@
+
+
+small overview how this ontology should work and can be used
+
+should be converted into the docbook description later on.
+
+
+##################################################################
+#
+# Conversion nbib <=> BibTeX
+
+The table contains standard BibTeX and several extensions and their Nepomuk counterpart.
+
+  BibTeX	|  Nepomuk ontology	| Type range
+--------------------------------------
+@Type		|  nbib:bibResourceType | nbib:Book, nbib:Article, nbib:Techreport etc
+CITEKEY		|  nbib:citeKey		| xsd:string
+abstract	|  nbib:abstract	| xsd:string
+address		|  nco:publisher	| nco:Contact -> nco:hasPostalAddress
+*annote		|  nbib:annote		| xsd:string
+author		|  nco:creator		| nco:Contact -> nco:fullname
+booktitle	|  nie:title		| xsd:string
+*chapter	|  nbib:chapter		|
+contents	|  nbib:contents	| xsd:string
+copyright	|  nie:copyright	| xsd:string
+crossref	|  nbib:crossref	| nbib:BibReference -> nbib:citeKey
+doi		|  nbib:doi		| xsd:string
+*edition	|  nbib:edition		| xsd:string
+editor		|  nco:editor		| nco:Contact -> nco:fullname
+eprint		|  nbib:eprint		| xsd:string
+howpublished	|  nbib:howPublished	| xsd:string
+*institution	|  nbib:institution	| xsd:string
+isbn		|  nbib:isbn		| xsd:string
+issn		|  nbib:issn		| xsd:string
+*journal	|  nbib:journal		|
+key		|  ---
+language	|  nie:language		| xsd:string
+lccn		|  nbib:lccn		| xsd:string
+month		|  nbib:publicationDate	| xsd:date
+mrnumber	|  nbib:mrnumber	| xsd:string
+note		|  nbib:note		| xsd:string
+number		|  nbib:number		|
+organization	|  nbib:organization	| xsd:string
+pages		|  nbib:pages		|
+publisher	|  nco:publisher	| nco:Contact -> nco:fullname
+school		|  nco:school           | nco:Contact -> nco:fullname
+*series		|  nbib:series		| xsd:string
+title		|  nie:title		| xsd:string
+type		|  nbib:type		| xsd:string
+url		|  
+volume		|  nbib:volume		| xsd:string
+year		|  nbib:publicationDate	| xsd:date
+weblastAccess   |  nuao:lastUsage       | xsd:dateTime
+
+Now some examples how this relates to real world examples:
