@@ -126,9 +126,7 @@ private:
     QWidget *volumeWidget;
     QWidget *numberWidget;
     QWidget *pagesWidget;
-    QWidget *monthWidget;
     QWidget *publisherWidget;
-    QWidget *addressWidget;
     QWidget *booktitleWidget;
     QWidget *chapterWidget;
     QWidget *editionWidget;

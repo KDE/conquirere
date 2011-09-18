@@ -223,15 +223,6 @@ nbib: {
           rdfs:label "Annote" ;
           rdfs:range xsd:string .
 
-    nbib:hasChapter
-          a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
-          rdfs:comment "The chapter number." ;
-          rdfs:label "Chapter" ;
-          rdfs:range nbib:Chapter ;
-          nie:isLogicalPartOf nbib:Book ;
-          nrl:maxCardinality 1 .
-
     nbib:contents
           a       rdf:Property ;
           rdfs:domain nbib:BibReference ;
@@ -278,6 +269,23 @@ nbib: {
           rdfs:comment "A specification of an electronic publication, often a preprint or a technical report." ;
           rdfs:label "Eprint" ;
           rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
+
+    nbib:hasChapter
+          a       rdf:Property ;
+          rdfs:domain nbib:BibReference ;
+          rdfs:comment "The chapter number." ;
+          rdfs:label "Chapter" ;
+          rdfs:range nbib:Chapter ;
+          nie:isLogicalPartOf nbib:Book ;
+          nrl:maxCardinality 1 .
+
+    nbib:hasResource
+          a       rdf:Property ;
+          rdfs:domain nbib:BibReference ;
+          rdfs:comment "The bib resource of the reference" ;
+          rdfs:label "hasResource" ;
+          rdfs:range nbib:BibResource ;
           nrl:maxCardinality 1 .
 
     nbib:howPublished

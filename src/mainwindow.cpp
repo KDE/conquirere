@@ -135,7 +135,7 @@ void MainWindow::exportBibTex()
         Project *p = projectWidget->project();
 
         BibTexExporter expBibTex;
-        expBibTex.setResource(p->pimoProject());
+        expBibTex.setIsRelatedTo(p->pimoProject());
 
         expBibTex.exportReferences(p->path() + QLatin1String("bibtex.bib"));
     }

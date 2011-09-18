@@ -41,8 +41,8 @@
 
 bool nameAscending(const Nepomuk::Resource &s1, const Nepomuk::Resource &s2)
 {
-    QString title1 = s1.property(Nepomuk::Vocabulary::NBIB::Title()).toString();
-    QString title2 = s2.property(Nepomuk::Vocabulary::NBIB::Title()).toString();
+    QString title1 = s1.property(Nepomuk::Vocabulary::NIE::title()).toString();
+    QString title2 = s2.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
     if(title1.isEmpty()) {
         title1 = s1.genericLabel();
@@ -56,8 +56,8 @@ bool nameAscending(const Nepomuk::Resource &s1, const Nepomuk::Resource &s2)
 
 bool nameDescending(const Nepomuk::Resource &s1, const Nepomuk::Resource &s2)
 {
-    QString title1 = s1.property(Nepomuk::Vocabulary::NBIB::Title()).toString();
-    QString title2 = s2.property(Nepomuk::Vocabulary::NBIB::Title()).toString();
+    QString title1 = s1.property(Nepomuk::Vocabulary::NIE::title()).toString();
+    QString title2 = s2.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
     if(title1.isEmpty()) {
         title1 = s1.genericLabel();
@@ -134,13 +134,13 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
                 return nv.toResource().label();
             }
             default:
-                Nepomuk::Variant nv = document.property(Nepomuk::Vocabulary::NBIB::Author());
+                Nepomuk::Variant nv = document.property(Nepomuk::Vocabulary::NCO::creator());
 
                 return nv.toResource().genericLabel();
             }
         }
         if(index.column() == 3) {
-            QString nv = document.property(Nepomuk::Vocabulary::NBIB::Title()).toString();
+            QString nv = document.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
             if(!nv.isEmpty()) {
                 return nv;
@@ -229,11 +229,11 @@ void ResourceModel::startFetchData()
     switch(m_selection)
     {
     case Resource_Document: {
-        andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Document() ) );
+        //andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Document() ) );
 
         // exclude source code
         // is not interresting here and slows down way to much
-        andTerm.addSubTerm(  !Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::SourceCode() ) );
+        //andTerm.addSubTerm(  !Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::SourceCode() ) );
     }
         break;
     case Resource_Mail:

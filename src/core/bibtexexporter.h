@@ -43,23 +43,21 @@ public:
     bool exportReferences(const QString &filename);
 
 private:
-    QString getAddress(const Nepomuk::Resource &document);
     QString getAnnote(const Nepomuk::Resource &document);
-    QString getAuthor(const Nepomuk::Resource &document);
-    QString getBooktitle(const Nepomuk::Resource &document);
-    QString getChapter(const Nepomuk::Resource &document);
     QString getCrossref(const Nepomuk::Resource &document);
     QString getEdition(const Nepomuk::Resource &document);
     QString getEditor(const Nepomuk::Resource &document);
     QString getEprint(const Nepomuk::Resource &document);
+    QString getHasChapter(const Nepomuk::Resource &document);
     QString getHowpublished(const Nepomuk::Resource &document);
     QString getInstitution(const Nepomuk::Resource &document);
-    QString getJournal(const Nepomuk::Resource &document);
-    QString getMonth(const Nepomuk::Resource &document);
+    QString getInJournal(const Nepomuk::Resource &document);
+    QString getLCCN(const Nepomuk::Resource &document);
     QString getNote(const Nepomuk::Resource &document);
     QString getNumber(const Nepomuk::Resource &document);
     QString getOrganization(const Nepomuk::Resource &document);
     QString getPages(const Nepomuk::Resource &document);
+    QString getPublicationDate(const Nepomuk::Resource &document);
     QString getPublisher(const Nepomuk::Resource &document);
     QString getSchool(const Nepomuk::Resource &document);
     QString getSeries(const Nepomuk::Resource &document);
@@ -67,7 +65,6 @@ private:
     QString getType(const Nepomuk::Resource &document);
     QString getUrl(const Nepomuk::Resource &document);
     QString getVolume(const Nepomuk::Resource &document);
-    QString getYear(const Nepomuk::Resource &document);
     QString getISBN(const Nepomuk::Resource &document);
     QString getISSN(const Nepomuk::Resource &document);
     QString getDOI(const Nepomuk::Resource &document);
