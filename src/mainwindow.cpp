@@ -103,7 +103,7 @@ void MainWindow::deleteProject()
         Project *p = projectWidget->project();
         int ret = KMessageBox::warningYesNo(this,
                                             QLatin1String("Do you really want to remove the project tag :<br><b>") +
-                                            p->projectTag().genericLabel() +
+                                            p->pimoProject().genericLabel() +
                                             QLatin1String("</b><br><br> and delete the folder :<br><b>") +
                                             p->path(),
                                             QLatin1String("Delete project ") + p->name());
@@ -135,7 +135,7 @@ void MainWindow::exportBibTex()
         Project *p = projectWidget->project();
 
         BibTexExporter expBibTex;
-        expBibTex.setResource(p->projectTag());
+        expBibTex.setResource(p->pimoProject());
 
         expBibTex.exportReferences(p->path() + QLatin1String("bibtex.bib"));
     }

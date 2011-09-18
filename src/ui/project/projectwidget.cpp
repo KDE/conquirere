@@ -49,25 +49,25 @@ ProjectWidget::ProjectWidget(QWidget *parent)
     m_systemDocumentModel->setResourceType(Resource_Document);
     connect(m_systemDocumentModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
             m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_systemDocumentModel->startFetchData();
+    //m_systemDocumentModel->startFetchData();
 
     m_systemMailModel = new ResourceModel;
     m_systemMailModel->setResourceType(Resource_Mail);
     connect(m_systemMailModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
             m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_systemMailModel->startFetchData();
+    //m_systemMailModel->startFetchData();
 
     m_systemMediaModel = new ResourceModel;
     m_systemMediaModel->setResourceType(Resource_Media);
     connect(m_systemMediaModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
             m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_systemMediaModel->startFetchData();
+    //m_systemMediaModel->startFetchData();
 
     m_systemWebsiteModel = new ResourceModel;
     m_systemWebsiteModel->setResourceType(Resource_Website);
     connect(m_systemWebsiteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
             m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_systemWebsiteModel->startFetchData();
+    //m_systemWebsiteModel->startFetchData();
 
 }
 
@@ -90,7 +90,6 @@ void ProjectWidget::setProject(Project *p)
     m_projectTree->setProject(m_project);
 
     m_projectDocumentModel = new ResourceModel;
-    m_projectDocumentModel->setProjectTag(m_project->projectTag());
     m_projectDocumentModel->setProject(m_project);
     m_projectDocumentModel->setResourceType(Resource_Document);
     connect(m_projectDocumentModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
@@ -98,7 +97,6 @@ void ProjectWidget::setProject(Project *p)
     m_projectDocumentModel->startFetchData();
 
     m_projectMailModel = new ResourceModel;
-    m_projectMailModel->setProjectTag(m_project->projectTag());
     m_projectMailModel->setProject(m_project);
     m_projectMailModel->setResourceType(Resource_Mail);
     connect(m_projectMailModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
@@ -106,7 +104,6 @@ void ProjectWidget::setProject(Project *p)
     m_projectMailModel->startFetchData();
 
     m_projectMediaModel = new ResourceModel;
-    m_projectMediaModel->setProjectTag(m_project->projectTag());
     m_projectMediaModel->setProject(m_project);
     m_projectMediaModel->setResourceType(Resource_Media);
     connect(m_projectMediaModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
@@ -114,7 +111,6 @@ void ProjectWidget::setProject(Project *p)
     m_projectMediaModel->startFetchData();
 
     m_projectWebsiteModel = new ResourceModel;
-    m_projectWebsiteModel->setProjectTag(m_project->projectTag());
     m_projectWebsiteModel->setProject(m_project);
     m_projectWebsiteModel->setResourceType(Resource_Website);
     connect(m_projectWebsiteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),

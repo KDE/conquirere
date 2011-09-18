@@ -31,6 +31,7 @@
 #include <Nepomuk/Tag>
 #include <Nepomuk/Types/Property>
 #include <Soprano/Vocabulary/NAO>
+#include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/PIMO>
 
 #include <KDE/KIO/DeleteJob>
@@ -41,6 +42,9 @@ const QString NOTEPATH = QLatin1String("notes");
 Project::Project(QObject *parent) :
     QObject(parent)
 {
+    // create global nepomuk pimo:thing for this program
+    // in case it does not exist yet
+    Nepomuk::Resource project(QLatin1String("Conquirere Project"), Nepomuk::Vocabulary::PIMO::Thing());
 }
 
 Project::~Project()
@@ -72,6 +76,20 @@ QString Project::path() const
 
 void Project::createProject()
 {
+    // when a new project is created it is realized as pimo:Project
+    QString identifier = QLatin1String("Conquirere Project:") + m_name;
+
+    m_pimoProject = Nepomuk::Resource(identifier, Nepomuk::Vocabulary::PIMO::Project());
+
+    m_pimoProject.setProperty( Nepomuk::Vocabulary::NIE::title() , m_name);
+
+    // relate each project to the conquiere pimo:thing
+    // this allows us to find all existing projects
+    Nepomuk::Resource cp(QLatin1String("Conquirere Project"));
+
+    m_pimoProject.setProperty( Nepomuk::Vocabulary::PIMO::isRelated() , cp);
+
+    // scan the project folder and add all documents to this project
     initializeProjectFolder();
 }
 
@@ -81,7 +99,7 @@ void Project::loadProject(const QString & projectFile)
     m_settings->beginGroup(QLatin1String("Conquirere"));
     m_path = m_settings->value(QLatin1String("path")).toString();
     m_name = m_settings->value(QLatin1String("name")).toString();
-    m_projectTag = Nepomuk::Tag(m_settings->value(QLatin1String("tag")).toString());
+    m_pimoProject = Nepomuk::Resource(m_settings->value(QLatin1String("pimoProject")).toString());
     m_settings->endGroup();
 
     // add new files in the folders
@@ -97,9 +115,9 @@ void Project::deleteProject()
     KIO::del(m_path);
 }
 
-Nepomuk::Tag Project::projectTag() const
+Nepomuk::Resource Project::pimoProject() const
 {
-    return m_projectTag;
+    return m_pimoProject;
 }
 
 
@@ -111,7 +129,7 @@ bool Project::isInPath(const QString &filename)
 void Project::addDocument(const QFileInfo &fileInfo)
 {
     // first check if the file is in the project path
-    QString projectDocPath = m_path + DOCPATH;
+    QString projectDocPath = m_path + QLatin1String("/") + DOCPATH;
     if(fileInfo.absolutePath() != projectDocPath) {
         qDebug() << "file" << fileInfo.fileName() << "not in project path ask to copy it?";
     }
@@ -119,8 +137,13 @@ void Project::addDocument(const QFileInfo &fileInfo)
     //now if the files do not already have the project tag, add it
     Nepomuk::Resource res( fileInfo.absoluteFilePath() );
 
-    if( !res.tags().contains(m_projectTag) ) {
-        res.addTag( m_projectTag );
+    Nepomuk::Resource relatesTo = res.property( Nepomuk::Vocabulary::PIMO::isRelated()).toResource();
+
+    if ( relatesTo == m_pimoProject) {
+        qDebug() << "document " <<  fileInfo.fileName() << "is alread related to ::" << m_pimoProject.genericLabel();
+    }
+    else {
+        res.setProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_pimoProject);
     }
 }
 
@@ -173,7 +196,7 @@ void Project::initializeProjectFolder()
     m_settings->beginGroup(QLatin1String("Conquirere"));
     m_settings->setValue(QLatin1String("name"), name());
     m_settings->setValue(QLatin1String("path"), m_path);
-    m_settings->setValue(QLatin1String("tag"), m_projectTag.uri());
+    m_settings->setValue(QLatin1String("pimoProject"), m_pimoProject.uri());
     m_settings->endGroup();
     m_settings->beginGroup(QLatin1String("Settings"));
     m_settings->setValue(QLatin1String("copytoprojectfolder"), true);

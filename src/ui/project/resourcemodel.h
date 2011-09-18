@@ -37,7 +37,6 @@ public:
     explicit ResourceModel(QObject *parent = 0);
     ~ResourceModel();
 
-    void setProjectTag(Nepomuk::Tag tag);
     void setProject(Project *p);
     void setResourceType(ResourceSelection selection);
 
@@ -70,11 +69,11 @@ private slots:
       */
     void removeData( const QList< QUrl > &entries );
 
-    void listingsFinished(int number);
+    void resultCount(int number);
+    void listingsFinished();
     void listingsError(const QString & 	errorMessage);
 
 private:
-    Nepomuk::Tag m_projectTag;
     Project *m_project;
     ResourceSelection m_selection;
     Nepomuk::Query::QueryServiceClient *m_queryClient;

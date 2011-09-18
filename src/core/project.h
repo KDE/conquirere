@@ -43,7 +43,7 @@ public:
     void loadProject(const QString & projectFile);
     void deleteProject();
 
-    Nepomuk::Tag projectTag() const;
+    Nepomuk::Resource pimoProject() const;
 
     bool isInPath(const QString &filename);
 
@@ -60,6 +60,9 @@ private:
 
     QString m_name;
     QString m_path;
+
+    Nepomuk::Resource m_pimoProject;
+
     Nepomuk::Tag m_projectTag;
     QSettings *m_settings;
 };

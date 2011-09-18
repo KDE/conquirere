@@ -18,7 +18,23 @@
 #include "bibtexexporter.h"
 
 #include <Nepomuk/Variant>
+
+#include <Nepomuk/Query/Term>
+#include <Nepomuk/Query/ResourceTerm>
+#include <Nepomuk/Query/ResourceTypeTerm>
+#include <Nepomuk/Query/ComparisonTerm>
+#include <Nepomuk/Query/AndTerm>
+#include <Nepomuk/Query/NegationTerm>
+#include <Nepomuk/Query/QueryServiceClient>
+#include <Nepomuk/Query/Result>
+#include <Nepomuk/Query/QueryParser>
+
+#include <Nepomuk/Vocabulary/NFO>
+#include <Nepomuk/Vocabulary/NMO>
 #include <Nepomuk/Vocabulary/NCO>
+#include <Nepomuk/Vocabulary/NIE>
+#include <Soprano/Vocabulary/NAO>
+#include <Nepomuk/Vocabulary/PIMO>
 
 #include "nbib.h"
 #include <QFile>
@@ -35,9 +51,9 @@ BibTexExporter::BibTexExporter(QObject *parent)
 {
 }
 
-void BibTexExporter::setResource(Nepomuk::Tag usedTag)
+void BibTexExporter::setIsRelatedTo(Nepomuk::Resource relatedResource)
 {
-    m_resources = usedTag.tagOf();
+    m_isRelatedTo = relatedResource;
 }
 
 void BibTexExporter::setResource(Nepomuk::Resource usedResource)
@@ -57,6 +73,24 @@ void BibTexExporter::setStyle(BibTexStyle style)
 
 bool BibTexExporter::exportReferences(const QString &filename)
 {
+    // fetcha data when nothing is available
+    if(m_resources.isEmpty()) {
+        Nepomuk::Query::AndTerm andTerm;
+        andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Document() ) );
+
+        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(), Nepomuk::Query::ResourceTerm(m_isRelatedTo) ) );
+
+        Nepomuk::Query::Query query( andTerm );
+
+        QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
+
+
+        foreach(Nepomuk::Query::Result r, queryResult) {
+            m_resources.append(r.resource());
+        }
+    }
+
+
     QFile bibFile(filename);
     if (!bibFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         return false;
@@ -297,12 +331,12 @@ bool BibTexExporter::exportReferences(const QString &filename)
         }
 
         if(!fullstring.isEmpty()) {
-                out << "@" << entryString << "{ " << citeKey << ",\n";
-                out << fullstring << "\n";
-                out << "}\n\n";
+            out << "@" << entryString << "{ " << citeKey << ",\n";
+            out << fullstring << "\n";
+            out << "}\n\n";
 
-                citeKeyNumer++;
-            }
+            citeKeyNumer++;
+        }
     }
 
     bibFile.close();

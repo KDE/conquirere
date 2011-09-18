@@ -34,7 +34,7 @@ class BibTexExporter : public QObject
 public:
     explicit BibTexExporter(QObject *parent = 0);
 
-    void setResource(Nepomuk::Tag usedTag);
+    void setIsRelatedTo(Nepomuk::Resource relatedResource);
     void setResource(Nepomuk::Resource usedResource);
     void setResource(QList <Nepomuk::Resource> usedResources);
 
@@ -93,6 +93,7 @@ private:
 
     BibTexStyle m_style;
     QList<Nepomuk::Resource> m_resources;
+    Nepomuk::Resource m_isRelatedTo;
 };
 
 #endif // BIBTEXEXPORTER_H

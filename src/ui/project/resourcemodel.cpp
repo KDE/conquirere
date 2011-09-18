@@ -32,6 +32,7 @@
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
+#include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Variant>
 
 #include <QModelIndex>
@@ -75,7 +76,8 @@ ResourceModel::ResourceModel(QObject *parent)
     m_queryClient = new Nepomuk::Query::QueryServiceClient();
     connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addData(QList<Nepomuk::Query::Result>)));
     connect(m_queryClient, SIGNAL(entriesRemoved(QList<QUrl>)), this, SLOT(removeData(QList<QUrl>)));
-    connect(m_queryClient, SIGNAL(resultCount(int)), this, SLOT(listingsFinished(int)));
+    connect(m_queryClient, SIGNAL(resultCount(int)), this, SLOT(resultCount(int)));
+    connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(listingsFinished()));
 }
 
 ResourceModel::~ResourceModel()
@@ -84,11 +86,6 @@ ResourceModel::~ResourceModel()
     delete m_queryClient;
 
     m_fileList.clear();
-}
-
-void ResourceModel::setProjectTag(Nepomuk::Tag tag)
-{
-    m_projectTag = tag;
 }
 
 void ResourceModel::setProject(Project *p)
@@ -254,8 +251,8 @@ void ResourceModel::startFetchData()
     }
 
     if(m_project) {
-        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
-                                                            Nepomuk::Query::ResourceTerm( m_projectTag ) ) );
+        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(),
+                                                            Nepomuk::Query::ResourceTerm(m_project->pimoProject()) ) );
     }
 
     // build the query
@@ -291,15 +288,15 @@ void ResourceModel::addData(const QList< Nepomuk::Query::Result > &entries)
 
     emit dataSizeChaged(m_fileList.size());
 
-    //@bug m_queryClient->isListingFinished()
-    if(m_queryClient->isListingFinished()) {
-        if(m_project) {
-            emit updatefetchDataFor(Library_Project,m_selection,false);
-        }
-        else {
-            emit updatefetchDataFor(Library_System,m_selection,false);
-        }
-    }
+//    qDebug() << "is listing finished?" << m_queryClient->isListingFinished();
+//    if(true || m_queryClient->isListingFinished()) {
+//        if(m_project) {
+//            emit updatefetchDataFor(Library_Project,m_selection,false);
+//        }
+//        else {
+//            emit updatefetchDataFor(Library_System,m_selection,false);
+//        }
+//    }
 }
 
 void ResourceModel::removeData( const QList< QUrl > &entries )
@@ -307,7 +304,9 @@ void ResourceModel::removeData( const QList< QUrl > &entries )
     // two loops are necessary because removeData is not only called on removed entries, but with all changes
     // must be a bug in nepomuk
     Nepomuk::Resource muh(entries.first());
-    if(muh.tags().contains(m_projectTag)) {
+    Nepomuk::Resource relatesTo = muh.property( Nepomuk::Vocabulary::PIMO::isRelated()).toResource();
+
+    if ( relatesTo == m_project->pimoProject()) {
         return;
     }
 
@@ -350,13 +349,13 @@ void ResourceModel::removeSelected(const QModelIndexList & indexes)
         Nepomuk::Resource nr = m_fileList.at(index.row());
 
         // remove project tag
-        nr.removeProperty(Soprano::Vocabulary::NAO::hasTag(), m_projectTag);
+        nr.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), m_project->pimoProject());
 
         //Nepomuk query client will call the slot to remove the file from the index
     }
 }
 
-void ResourceModel::listingsFinished(int number)
+void ResourceModel::resultCount(int number)
 {
     //BUG this is never called from the query client.
     qDebug() << "listingsFinished" << number;
@@ -368,6 +367,18 @@ void ResourceModel::listingsFinished(int number)
             emit updatefetchDataFor(Library_System,m_selection,false);
         }
     }
+}
+
+void ResourceModel::listingsFinished()
+{
+    //BUG this is never called from the query client.
+    qDebug() << "listingsFinished" << "added something? oO" << m_fileList.size();
+        if(m_project) {
+            emit updatefetchDataFor(Library_Project,m_selection,false);
+        }
+        else {
+            emit updatefetchDataFor(Library_System,m_selection,false);
+        }
 }
 
 void ResourceModel::listingsError(const QString & errorMessage)
