@@ -75,7 +75,7 @@ nbib: {
           rdfs:label "Thesis" ;
           rdfs:subClassOf nbib:BibResource .
 
-    nbib:Bachelorthesis
+    nbib:BachelorThesis
           a       rdfs:Class ;
           rdfs:comment "A Bachelor thesis." ;
           rdfs:label "Bachelorthesis" ;
@@ -101,24 +101,17 @@ nbib: {
 
     nbib:Electronic
           a       rdfs:Class ;
-          rdfs:comment "A website." ;
+          rdfs:comment "An electronic publication (for example website or presentations)" ;
           rdfs:label "Website" ;
           rdfs:subClassOf nbib:BibResource .
 
-# automatically determined by book with chapters/pages as BibReference
-#   nbib:Inbook
-#         a       rdfs:Class ;
-#         rdfs:comment "A part of a book, usually untitled. May be a chapter (or section or whatever) and/or a range of pages." ;
-#         rdfs:label "Inbook" ;
-#         rdfs:subClassOf nbib:BibResource .
-
-    nbib:Inproceedings
+    nbib:InProceedings
           a       rdfs:Class ;
           rdfs:comment "An article in a conference proceedings." ;
           rdfs:label "Inproceedings" ;
           rdfs:subClassOf nbib:BibResource .
 
-    nbib:Incollection
+    nbib:InCollection
           a       rdfs:Class ;
           rdfs:comment "A part of a book having its own title." ;
           rdfs:label "Incollection" ;
@@ -130,19 +123,13 @@ nbib: {
           rdfs:label "Manual" ;
           rdfs:subClassOf nbib:BibResource .
 
-    nbib:Mastersthesis
+    nbib:MastersThesis
           a       rdfs:Class ;
           rdfs:comment "A Master's thesis." ;
           rdfs:label "Mastersthesis" ;
           rdfs:subClassOf nbib:Thesis .
 
-    nbib:Misc
-          a       rdfs:Class ;
-          rdfs:comment "Use this type when nothing else fits." ;
-          rdfs:label "Misc" ;
-          rdfs:subClassOf nbib:BibResource .
-
-    nbib:Phdthesis
+    nbib:PhdThesis
           a       rdfs:Class ;
           rdfs:comment "A PhD thesis." ;
           rdfs:label "Phdthesis" ;
@@ -182,11 +169,11 @@ nbib: {
           rdfs:label "Chapter" ;
           rdfs:subClassOf nie:InformationElement .
 
-    nbib:Journal
+    nbib:JournalIssue
           a       rdfs:Class ;
-          rdfs:comment "A journal for serious, scholarly publications" ;
+          rdfs:comment "A journal issue for serious, scholarly publications" ;
           rdfs:label "Journal" ;
-          rdfs:subClassOf nco:Contact .
+          rdfs:subClassOf nbib:Collection .
 
     nbib:Series
           a       rdfs:Class ;
@@ -199,14 +186,6 @@ nbib: {
 #
 # Properties
 
-    nbib:bibResourceType
-          a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
-          rdfs:comment "The type of the reference entry. one of the many BibResource types" ;
-          rdfs:label "Bibliographic resource type" ;
-          rdfs:range nbib:BibResource ;
-          nrl:maxCardinality 1 .
-
     nbib:citeKey
           a       rdf:Property ;
           rdfs:domain nbib:BibReference ;
@@ -216,7 +195,7 @@ nbib: {
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:abstract
+    nie:abstract
           a       rdf:Property ;
           rdfs:domain nbib:BibResource ;
           rdfs:comment "An abstract of the work." ;
@@ -283,10 +262,9 @@ nbib: {
     nbib:hasChapter
           a       rdf:Property ;
           rdfs:domain nbib:BibReference ;
-          rdfs:comment "The chapter number." ;
+          rdfs:comment "The chapter number of the reference." ;
           rdfs:label "Chapter" ;
           rdfs:range nbib:Chapter ;
-          nie:isLogicalPartOf nbib:Book ;
           nrl:maxCardinality 1 .
 
     nbib:hasResource
@@ -310,7 +288,7 @@ nbib: {
           rdfs:domain nbib:BibResource ;
           rdfs:comment "The institution that was involved in the publishing, but not necessarily the publisher." ;
           rdfs:label "Institution" ;
-          rdfs:range xsd:string ;
+          rdfs:range nco:Contact ;
           nrl:maxCardinality 1 .
 
     nbib:isbn
@@ -331,12 +309,20 @@ nbib: {
           rdfs:subPropertyOf nao:identifier ;
           nrl:maxCardinality 1 .
 
-    nbib:inJournal
+    nbib:inJournalIssue
           a       rdf:Property ;
           rdfs:domain nbib:Article ;
-          rdfs:comment "The journal or magazine the work was published in." ;
-          rdfs:label "iuJournal" ;
-          rdfs:range nbib:Journal ;
+          rdfs:comment "The journal issue or magazine the work was published in." ;
+          rdfs:label "inJournalIssue" ;
+          rdfs:range nbib:JournalIssue ;
+          nrl:maxCardinality 1 .
+
+    nbib:journal
+          a       rdf:Property ;
+          rdfs:domain nbib:Article ;
+          rdfs:comment "The journal which publish the journal issues" ;
+          rdfs:label "inJournal" ;
+          rdfs:range nco: ;
           nrl:maxCardinality 1 .
 
     nbib:lccn
@@ -348,7 +334,7 @@ nbib: {
           rdfs:subPropertyOf nao:identifier ;
           nrl:maxCardinality 1 .
 
-    nbib:mrnumber
+    nbib:mrNumber
           a       rdf:Property ;
           rdfs:domain nbib:BibResource ;
           rdfs:comment "The Mathematical Reviews number." ;
@@ -373,14 +359,6 @@ nbib: {
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:organization
-          a       rdf:Property ;
-          rdfs:domain nbib:BibResource ;
-          rdfs:comment "The conference sponsor." ;
-          rdfs:label "Organization" ;
-          rdfs:range xsd:string ;
-          nrl:maxCardinality 1 .
-
     nbib:pages
           a       rdf:Property ;
           rdfs:domain nbib:BibReference ;
@@ -389,7 +367,7 @@ nbib: {
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:publicationDate
+    nie:publicationDate
           a       rdf:Property ;
           rdfs:domain nbib:BibResource ;
           rdfs:comment "The date of the publication (or, if unpublished, the month of creation)" ;
