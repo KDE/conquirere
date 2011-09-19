@@ -15,45 +15,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LABELEDIT_H
-#define LABELEDIT_H
+#ifndef SIDEBARWIDGET_H
+#define SIDEBARWIDGET_H
+
+#include <QWidget>
+
+#include "../../globals.h"
 
 #include <Nepomuk/Resource>
 
-#include <QWidget>
-#include <QUrl>
+class SidebarComponent;
 
-class QLabel;
-class QLineEdit;
-
-class LabelEdit : public QWidget
+class SidebarWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LabelEdit(QWidget *parent = 0);
-    virtual ~LabelEdit();
+    explicit SidebarWidget(QWidget *parent = 0);
 
-    Nepomuk::Resource resource();
-
-    void setPropertyUrl(const QUrl & m_propertyUrl);
-    QUrl propertyUrl();
+    virtual void setResource(Nepomuk::Resource & resource);
 
 public slots:
-    void setResource(Nepomuk::Resource & resource);
+    /* called when somethinh is selected in the project view */
+    void clear();
 
-protected:
-    void mousePressEvent ( QMouseEvent * e );
-    void enterEvent ( QEvent * event );
-    void leaveEvent ( QEvent * event );
-
-private slots:
-    void editingFinished();
+    /* called when something is selected in the project tree */
+    void newSelection(LibraryType library, ResourceSelection selection);
 
 private:
-    QLabel    *m_label;
-    QLineEdit *m_lineEdit;
-    Nepomuk::Resource m_resource;
-    QUrl m_propertyUrl;
+    SidebarComponent *m_currentWidget;
 };
 
-#endif // LABELEDIT_H
+#endif // SIDEBARWIDGET_H

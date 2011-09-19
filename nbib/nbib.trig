@@ -57,7 +57,7 @@ nbib: {
 # Resource Types
 # these can be translated back into BibTeX entries
 
-    nbib:BibResource
+    nbib:Publication
           a       rdfs:Class ;
           rdfs:comment "A bibliographic reference resource type (article, book, paper and such)" ;
           rdfs:label "Bibliographic Resource" ;
@@ -186,6 +186,23 @@ nbib: {
 #
 # Properties
 
+   nbib:publishedAs
+         a       rdf:Property ;
+         rdfs:domain nfo:Document ;
+         rdfs:comment "Links a document to its publication information." ;
+         rdfs:label "hasPublication" ;
+         rdfs:range nbib:Publication ;
+         nrl:maxCardinality 1 .
+
+   nbib:isPublicationOf
+         a       rdf:Property ;
+         rdfs:domain nbib:Publication ;
+         rdfs:comment "Links a publication to its document." ;
+         rdfs:label "isPublicationOf" ;
+         rdfs:range nfo:Document ;
+         nrl:inverseProperty nbib:publishedAs ;
+         nrl:maxCardinality 1 .
+
     nbib:citeKey
           a       rdf:Property ;
           rdfs:domain nbib:BibReference ;
@@ -197,7 +214,7 @@ nbib: {
 
     nie:abstract
           a       rdf:Property ;
-          rdfs:domain nbib:BibResource ;
+          rdfs:domain nie:InformationElement ;
           rdfs:comment "An abstract of the work." ;
           rdfs:label "Abstract" ;
           rdfs:range xsd:string ;
@@ -246,7 +263,7 @@ nbib: {
 
     nco:editor
           a       rdf:Property ;
-          rdfs:domain nbib:BibResource ;
+          rdfs:domain nie:InformationElement ;
           rdfs:comment "The name(s) of the editor(s)." ;
           rdfs:label "Editor" ;
           rdfs:range nco:Contact .
@@ -322,7 +339,7 @@ nbib: {
           rdfs:domain nbib:Article ;
           rdfs:comment "The journal which publish the journal issues" ;
           rdfs:label "inJournal" ;
-          rdfs:range nco: ;
+          rdfs:range nco:Contact;
           nrl:maxCardinality 1 .
 
     nbib:lccn
@@ -369,10 +386,10 @@ nbib: {
 
     nie:publicationDate
           a       rdf:Property ;
-          rdfs:domain nbib:BibResource ;
+          rdfs:domain nie:InformationElement ;
           rdfs:comment "The date of the publication (or, if unpublished, the month of creation)" ;
           rdfs:label "Publication Date" ;
-          rdfs:range xsd:date ;
+          rdfs:range xsd:dateTime ;
           nrl:maxCardinality 1 .
 
     nbib:school

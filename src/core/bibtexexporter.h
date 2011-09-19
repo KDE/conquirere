@@ -54,7 +54,6 @@ private:
     QString getInJournal(const Nepomuk::Resource &document);
     QString getLCCN(const Nepomuk::Resource &document);
     QString getNote(const Nepomuk::Resource &document);
-    QString getNumber(const Nepomuk::Resource &document);
     QString getOrganization(const Nepomuk::Resource &document);
     QString getPages(const Nepomuk::Resource &document);
     QString getPublicationDate(const Nepomuk::Resource &document);
@@ -64,7 +63,6 @@ private:
     QString getTitle(const Nepomuk::Resource &document);
     QString getType(const Nepomuk::Resource &document);
     QString getUrl(const Nepomuk::Resource &document);
-    QString getVolume(const Nepomuk::Resource &document);
     QString getISBN(const Nepomuk::Resource &document);
     QString getISSN(const Nepomuk::Resource &document);
     QString getDOI(const Nepomuk::Resource &document);

@@ -140,7 +140,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             }
         }
         if(index.column() == 3) {
-            Nepomuk::Resource bibResource = document.property(Nepomuk::Vocabulary::NBIB::bibResourceType()).toResource();
+            Nepomuk::Resource bibResource = document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
             if(bibResource.isValid()) {
                 return bibResource.genericLabel();
             }

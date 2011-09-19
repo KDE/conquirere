@@ -6,9 +6,6 @@ set(conquirere_SRCS
     core/project.cpp
     core/bibtexexporter.cpp
 
-    ui/documents/documentinfowidget.cpp
-    ui/documents/filebibtexwidget.cpp
-
     ui/project/newprojectdialog.cpp
     ui/project/newprojectdialog.cpp
     ui/project/welcomewidget.cpp
@@ -20,6 +17,10 @@ set(conquirere_SRCS
     ui/semantic/labeledit.cpp
     ui/semantic/contactedit.cpp
     ui/semantic/addressedit.cpp
+
+    ui/sidebar/sidebarwidget.cpp
+    ui/sidebar/sidebarcomponent.cpp
+    ui/sidebar/publicationwidget.cpp
 )
 
 kde4_add_ui_files( conquirere_SRCS

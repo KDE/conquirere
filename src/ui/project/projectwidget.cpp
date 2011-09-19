@@ -19,8 +19,8 @@
 #include "projecttreewidget.h"
 #include "mainwindow.h"
 #include "../../core/project.h"
-#include "../documents/documentinfowidget.h"
 #include "../project/resourcemodel.h"
+#include "../sidebar/sidebarwidget.h"
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Vocabulary/NIE>
@@ -40,7 +40,7 @@
 ProjectWidget::ProjectWidget(QWidget *parent)
     : QWidget(parent)
     , m_documentView(0)
-    , m_documentInfo(0)
+    , m_sidebarWidget(0)
 {
     setupWidget();
 
@@ -68,11 +68,11 @@ ProjectWidget::ProjectWidget(QWidget *parent)
     connect(m_systemWebsiteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
             m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
     m_systemWebsiteModel->startFetchData();
-
 }
 
 ProjectWidget::~ProjectWidget()
 {
+    delete m_sidebarWidget;
     delete m_project;
     delete m_projectTree;
     delete m_projectDocumentModel;
@@ -80,7 +80,6 @@ ProjectWidget::~ProjectWidget()
     delete m_projectMediaModel;
     delete m_projectWebsiteModel;
     delete m_documentView;
-    delete m_documentInfo;
 }
 
 void ProjectWidget::setProject(Project *p)
@@ -125,58 +124,55 @@ Project *ProjectWidget::project() const
 
 void ProjectWidget::switchView(LibraryType library, ResourceSelection selection)
 {
-    disconnect(m_documentView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(selectedResource(QModelIndex,QModelIndex)));
+    if(m_documentView->selectionModel()) {
+        disconnect(m_documentView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(selectedResource(QModelIndex,QModelIndex)));
+    }
 
     if(library == Library_Project) {
         switch(selection) {
         case Resource_Document:
-        {
             m_documentView->setModel(m_projectDocumentModel);
-            m_documentInfo->clear();
             break;
-        }
         case Resource_Mail:
             m_documentView->setModel(m_projectMailModel);
-            m_documentInfo->clear();
             break;
         case Resource_Media:
             m_documentView->setModel(m_projectMediaModel);
-            m_documentInfo->clear();
             break;
         case Resource_Website:
             m_documentView->setModel(m_projectWebsiteModel);
-            m_documentInfo->clear();
             break;
-            //    case References:
+        case Resource_Reference:
+            m_documentView->setModel(m_projectMediaModel);
+            break;
             //    case Notes:
         }
     }
     else {
         switch(selection) {
         case Resource_Document:
-        {
             m_documentView->setModel(m_systemDocumentModel);
-            m_documentInfo->clear();
             break;
-        }
         case Resource_Mail:
             m_documentView->setModel(m_systemMailModel);
-            m_documentInfo->clear();
             break;
         case Resource_Media:
             m_documentView->setModel(m_systemMediaModel);
-            m_documentInfo->clear();
             break;
         case Resource_Website:
             m_documentView->setModel(m_systemWebsiteModel);
-            m_documentInfo->clear();
             break;
-            //    case References:
+        case Resource_Reference:
+            m_documentView->setModel(m_systemWebsiteModel);
+            break;
             //    case Notes:
         }
 
     }
+    m_sidebarWidget->newSelection(library, selection);
+
     //shrink first 2 colums (review icon / document in project path icon)
+    //TODO why is it here? seems to work, but must be wrong
     QHeaderView *qhv = m_documentView->horizontalHeader();
     qhv->resizeSection(0,25);
     qhv->resizeSection(1,25);
@@ -193,7 +189,7 @@ void ProjectWidget::selectedResource( const QModelIndex & current, const QModelI
     ResourceModel *rm = qobject_cast<ResourceModel *>(m_documentView->model());
     Nepomuk::Resource nr = rm->documentResource(current);
 
-    m_documentInfo->setResource(nr);
+    m_sidebarWidget->setResource(nr);
 }
 
 void ProjectWidget::removeSelected()
@@ -255,11 +251,11 @@ void ProjectWidget::setupWidget()
             this, SLOT(tableContextMenu(const QPoint &)));
 
     //add panel for the document info
-    m_documentInfo = new DocumentInfoWidget;
+    m_sidebarWidget = new SidebarWidget;
 
     splitter->addWidget(m_projectTree);
     splitter->addWidget(m_documentView);
-    splitter->addWidget(m_documentInfo);
+    splitter->addWidget(m_sidebarWidget);
 
     QList<int> sizes;
     sizes << 150 << 500 << 200;

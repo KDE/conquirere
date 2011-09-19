@@ -27,7 +27,7 @@
 class Project;
 class QTableView;
 class ResourceModel;
-class DocumentInfoWidget;
+class SidebarWidget;
 class KAction;
 
 class ProjectWidget : public QWidget
@@ -68,7 +68,7 @@ private:
     ResourceModel *m_systemMediaModel;
     ResourceModel *m_systemWebsiteModel;
 
-    DocumentInfoWidget *m_documentInfo;
+    SidebarWidget *m_sidebarWidget;
 
     KAction* m_removeFromProject;
     KAction* m_exportToBibTeX;
