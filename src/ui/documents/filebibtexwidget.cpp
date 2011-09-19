@@ -60,14 +60,17 @@ void FileBibTexWidget::setResource(Nepomuk::Resource & resource)
     // what we want is the connected nbib::BibResource
     Nepomuk::Resource nr = resource.property(Nepomuk::Vocabulary::NBIB::bibResourceType()).toResource();
     if(!nr.isValid()) {
-        qDebug() << "non valid bibresourceType" << nr;
-        Nepomuk::Resource nb = Nepomuk::Resource(resource.toFile().url(), Nepomuk::Vocabulary::NBIB::BibResource());
-        resource.setProperty(Nepomuk::Vocabulary::NBIB::bibResourceType(), nb);
-        nr = resource.property(Nepomuk::Vocabulary::NBIB::bibResourceType()).toResource();
+        //create a new resource if nothing is connected
+        Nepomuk::Resource nb;
+        QList<QUrl> types;
+        types.append(Nepomuk::Vocabulary::NBIB::BibResource());
+        nb.setTypes(types);
+
+        // link document to resource
+        resource.setProperty( Nepomuk::Vocabulary::NBIB::bibResourceType(), nb);
     }
 
-
-    m_resource = nr;
+    m_resource  = resource.property(Nepomuk::Vocabulary::NBIB::bibResourceType()).toResource();
 
     emit resourceChanged(m_resource);
 
@@ -96,10 +99,14 @@ void FileBibTexWidget::newBibEntryTypeSelected(int index)
     // update resource
     QUrl newEntryUrl = EnumToResourceType(entryType);
     if(newEntryUrl.isValid()) {
-        m_resource.setProperty( Nepomuk::Vocabulary::NBIB::bibResourceType(), newEntryUrl );
+        QList<QUrl>newtype;
+        newtype.append(newEntryUrl);
+        m_resource.setTypes(newtype);
     }
     else {
-        m_resource.removeProperty( Nepomuk::Vocabulary::NBIB::bibResourceType() );
+        QList<QUrl>newtype;
+        newtype.append(Nepomuk::Vocabulary::NBIB::BibResource());
+        m_resource.setTypes(newtype);
     }
 }
 
@@ -119,19 +126,19 @@ void FileBibTexWidget::setupWidget()
     entryTypeData->addItem(i18n("Article"),BibType_Article);
     entryTypeData->addItem(i18n("Book"),BibType_Book);
     entryTypeData->addItem(i18n("Booklet"),BibType_Booklet);
-    entryTypeData->addItem(i18n("Conference"),BibType_Conference);
-    entryTypeData->addItem(i18n("Inbook"),BibType_Inbook);
+    entryTypeData->addItem(i18n("Proceedings"),BibType_Proceedings);
     entryTypeData->addItem(i18n("Inproceedings"),BibType_Inproceedings);
+    entryTypeData->addItem(i18n("Collection"),BibType_Collection);
     entryTypeData->addItem(i18n("Incollection"),BibType_Incollection);
     entryTypeData->addItem(i18n("Manual"),BibType_Manual);
     entryTypeData->addItem(i18n("Mastersthesis"),BibType_Mastersthesis);
+    entryTypeData->addItem(i18n("Bachelorhesis"),BibType_Bachelorthesis);
     entryTypeData->addItem(i18n("Misc"),BibType_Misc);
     entryTypeData->addItem(i18n("Patent"),BibType_Patent);
     entryTypeData->addItem(i18n("Phdthesis"),BibType_Phdthesis);
-    entryTypeData->addItem(i18n("Proceedings"),BibType_Proceedings);
     entryTypeData->addItem(i18n("Techreport"),BibType_Techreport);
     entryTypeData->addItem(i18n("Unpublished"),BibType_Unpublished);
-    entryTypeData->addItem(i18n("Website"),BibType_Website);
+    entryTypeData->addItem(i18n("Electronic"),BibType_Electronic);
     entryType->setBuddy(entryTypeData);
 
     connect(entryTypeData, SIGNAL(currentIndexChanged(int)), this, SLOT(newBibEntryTypeSelected(int)));
@@ -172,44 +179,10 @@ void FileBibTexWidget::setupWidget()
 
     //####################################################################
 
-    QLabel *citekey = new QLabel(i18n("CiteKey:"));
-    citekey->setToolTip(i18n("Used to identify the reference."));
-
-    LabelEdit *citekeyData = new LabelEdit();
-    citekeyData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::citeKey() );
-    citekey->setBuddy(citekeyData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), citekeyData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutcitekey = new QHBoxLayout;
-    layoutcitekey->addWidget(citekey);
-    layoutcitekey->addWidget(citekeyData);
-    layoutMain->addLayout(layoutcitekey);
-
-    //####################################################################
-
     QFrame *headerLine = new QFrame();
     headerLine->setFrameShape(QFrame::HLine);
     headerLine->setFrameShadow(QFrame::Sunken);
     layoutMain->addWidget(headerLine);
-
-    //####################################################################
-
-    booktitleWidget = new QWidget;
-    QLabel *booktitle = new QLabel(i18n("Booktitle:"));
-    booktitle->setToolTip(i18n("The title of the book, if only part of it is being cited"));
-
-    LabelEdit *booktitleData = new LabelEdit();
-    booktitleData->setPropertyUrl( Nepomuk::Vocabulary::NIE::title() );
-    booktitle->setBuddy(booktitleData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), booktitleData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutBooktitle = new QHBoxLayout;
-    layoutBooktitle->setMargin(0);
-    layoutBooktitle->setSpacing(0);
-    layoutBooktitle->addWidget(booktitle);
-    layoutBooktitle->addWidget(booktitleData);
-    booktitleWidget->setLayout(layoutBooktitle);
-    layoutMain->addWidget(booktitleWidget);
 
     //####################################################################
 
@@ -251,7 +224,7 @@ void FileBibTexWidget::setupWidget()
 
     //####################################################################
 
-    yearWidget = new QWidget;
+    publicationDateWidget = new QWidget;
     QLabel *year = new QLabel(i18n("Publication Date:"));
     year->setToolTip(i18n("The year of publication (or, if unpublished, the year of creation)"));
 
@@ -266,8 +239,8 @@ void FileBibTexWidget::setupWidget()
     layoutYear->setSpacing(0);
     layoutYear->addWidget(year);
     layoutYear->addWidget(yearData);
-    yearWidget->setLayout(layoutYear);
-    layoutMain->addWidget(yearWidget);
+    publicationDateWidget->setLayout(layoutYear);
+    layoutMain->addWidget(publicationDateWidget);
 
     //####################################################################
 
@@ -275,8 +248,9 @@ void FileBibTexWidget::setupWidget()
     QLabel *journal = new QLabel(i18n("Journal:"));
     journal->setToolTip(i18n("The journal or magazine the work was published in"));
 
-    LabelEdit *journalData = new LabelEdit();
-    journalData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::Journal() );
+
+    ContactEdit *journalData = new ContactEdit();
+    journalData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::inJournal() );
     journal->setBuddy(journalData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), journalData, SLOT(setResource(Nepomuk::Resource&)));
 
@@ -325,25 +299,6 @@ void FileBibTexWidget::setupWidget()
     layoutNumber->addWidget(numberData);
     numberWidget->setLayout(layoutNumber);
     layoutMain->addWidget(numberWidget);
-
-    //####################################################################
-
-    pagesWidget = new QWidget;
-    QLabel *pages = new QLabel(i18n("Pages:"));
-    pages->setToolTip(i18n("Page numbers, separated either by commas or double-hyphens."));
-
-    LabelEdit *pagesData = new LabelEdit();
-    pagesData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::pages() );
-    pages->setBuddy(pagesData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), pagesData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutPages = new QHBoxLayout;
-    layoutPages->setMargin(0);
-    layoutPages->setSpacing(0);
-    layoutPages->addWidget(pages);
-    layoutPages->addWidget(pagesData);
-    pagesWidget->setLayout(layoutPages);
-    layoutMain->addWidget(pagesWidget);
 
     //####################################################################
 
@@ -444,6 +399,7 @@ void FileBibTexWidget::setupWidget()
     QLabel *institution = new QLabel(i18n("Institution:"));
     institution->setToolTip(i18n("The institution that was involved in the publishing, but not necessarily the publisher"));
 
+    //Todo institution part of publisher as role
     LabelEdit *institutionData = new LabelEdit();
     institutionData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::institution() );
     institution->setBuddy(institutionData);
@@ -539,6 +495,25 @@ void FileBibTexWidget::setupWidget()
     identifierLine->setFrameShape(QFrame::HLine);
     identifierLine->setFrameShadow(QFrame::Sunken);
     layoutMain->addWidget(identifierLine);
+
+    //####################################################################
+
+    crossrefWidget = new QWidget;
+    QLabel *crossref = new QLabel(i18n("Crossref:"));
+    crossref->setToolTip(i18n("The International Standard Book Number."));
+
+    LabelEdit *crossrefData = new LabelEdit();
+    crossrefData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::crossref() );
+    crossref->setBuddy(crossrefData);
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), crossrefData, SLOT(setResource(Nepomuk::Resource&)));
+
+    QHBoxLayout *layoutcrossref = new QHBoxLayout;
+    layoutcrossref->setMargin(0);
+    layoutcrossref->setSpacing(0);
+    layoutcrossref->addWidget(crossref);
+    layoutcrossref->addWidget(crossrefData);
+    crossrefWidget->setLayout(layoutcrossref);
+    layoutMain->addWidget(crossrefWidget);
 
     //####################################################################
 
@@ -662,7 +637,10 @@ void FileBibTexWidget::setupWidget()
 
 BibEntryType FileBibTexWidget::resourceTypeToEnum(Nepomuk::Resource & resource)
 {
-    QString resourceLabel = resource.property(Nepomuk::Vocabulary::NBIB::bibResourceType()).toResource().genericLabel();
+    Nepomuk::Resource checkType( resource.resourceType() );
+    QString resourceLabel = checkType.genericLabel();
+    qDebug() << "resourceTypeToEnum" << resourceLabel;
+    //QString resourceLabel = resource.property(Nepomuk::Vocabulary::NBIB::bibResourceType()).toResource().genericLabel();
 
     if(resourceLabel == QLatin1String("Article")) {
         return BibType_Article;
@@ -713,7 +691,7 @@ BibEntryType FileBibTexWidget::resourceTypeToEnum(Nepomuk::Resource & resource)
         return BibType_Patent;
     }
     if(resourceLabel == QLatin1String("Website")) {
-        return BibType_Website;
+        return BibType_Electronic;
     }
     return BibType_Unknown;
 }
@@ -735,6 +713,9 @@ QUrl FileBibTexWidget::EnumToResourceType(BibEntryType entryType)
         break;
     case BibType_Inproceedings:
         return Nepomuk::Vocabulary::NBIB::Inproceedings();
+        break;
+    case BibType_Collection:
+        return Nepomuk::Vocabulary::NBIB::Collection();
         break;
     case BibType_Incollection:
         return Nepomuk::Vocabulary::NBIB::Incollection();
@@ -763,12 +744,14 @@ QUrl FileBibTexWidget::EnumToResourceType(BibEntryType entryType)
     case BibType_Patent:
         return Nepomuk::Vocabulary::NBIB::Patent();
         break;
-    case BibType_Website:
+    case BibType_Electronic:
         return Nepomuk::Vocabulary::NBIB::Electronic();
         break;
     case BibType_Unknown:
-        return QUrl();
+        return Nepomuk::Vocabulary::NBIB::BibResource();
         break;
+    case BibType_Inbook:
+        return QUrl();
     }
 
     return QUrl();
@@ -785,12 +768,6 @@ void FileBibTexWidget::selectLayout(BibEntryType entryType)
         break;
     case BibType_Booklet:
         layoutBooklet();
-        break;
-    case BibType_Conference:
-        layoutConference();
-        break;
-    case BibType_Inbook:
-        layoutInbook();
         break;
     case BibType_Inproceedings:
         layoutInproceedings();
@@ -822,8 +799,8 @@ void FileBibTexWidget::selectLayout(BibEntryType entryType)
     case BibType_Patent:
         layoutPatent();
         break;
-    case BibType_Website:
-        layoutWebsite();
+    case BibType_Electronic:
+        layoutElectronic();
         break;
     default:
         isbnWidget->setVisible(true);
@@ -831,14 +808,12 @@ void FileBibTexWidget::selectLayout(BibEntryType entryType)
         copyrightWidget->setVisible(true);
 
         journalWidget->setVisible(true);
-        yearWidget->setVisible(true);
+        publicationDateWidget->setVisible(true);
         volumeWidget->setVisible(true);
 
         publisherWidget->setVisible(true);
 
         numberWidget->setVisible(true);
-        pagesWidget->setVisible(true);
-        booktitleWidget->setVisible(true);
         chapterWidget->setVisible(true);
         editionWidget->setVisible(true);
         editorWidget->setVisible(true);
@@ -861,15 +836,14 @@ void FileBibTexWidget::layoutArticle()
     isbnWidget->setVisible(true);
     issnWidget->setVisible(true);
     copyrightWidget->setVisible(true);
+
     journalWidget->setVisible(true);
-    yearWidget->setVisible(true);
+    publicationDateWidget->setVisible(true);
     volumeWidget->setVisible(true);
     numberWidget->setVisible(true);
-    pagesWidget->setVisible(true);
 
 
     publisherWidget->setVisible(false);
-    booktitleWidget->setVisible(false);
     chapterWidget->setVisible(false);
     editionWidget->setVisible(false);
     editorWidget->setVisible(false);
@@ -893,17 +867,14 @@ void FileBibTexWidget::layoutBook()
     copyrightWidget->setVisible(true);
 
     journalWidget->setVisible(false);
-    yearWidget->setVisible(true);
+    publicationDateWidget->setVisible(true);
     volumeWidget->setVisible(true);
-
     publisherWidget->setVisible(true);
+    editionWidget->setVisible(true);
+    chapterWidget->setVisible(true);
+    editorWidget->setVisible(true);
 
     numberWidget->setVisible(false);
-    pagesWidget->setVisible(false);
-    booktitleWidget->setVisible(false);
-    chapterWidget->setVisible(false);
-    editionWidget->setVisible(false);
-    editorWidget->setVisible(false);
     eprintWidget->setVisible(false);
     howpublishedWidget->setVisible(false);
     institutionWidget->setVisible(false);
@@ -923,7 +894,7 @@ void FileBibTexWidget::layoutBooklet()
     issnWidget->setVisible(true);
     copyrightWidget->setVisible(true);
 
-    yearWidget->setVisible(true);
+    publicationDateWidget->setVisible(true);
 
     howpublishedWidget->setVisible(true);
     publisherWidget->setVisible(true);
@@ -931,8 +902,6 @@ void FileBibTexWidget::layoutBooklet()
     journalWidget->setVisible(false);
     volumeWidget->setVisible(false);
     numberWidget->setVisible(false);
-    pagesWidget->setVisible(false);
-    booktitleWidget->setVisible(false);
     chapterWidget->setVisible(false);
     editionWidget->setVisible(false);
     editorWidget->setVisible(false);
@@ -945,7 +914,7 @@ void FileBibTexWidget::layoutBooklet()
     typeWidget->setVisible(false);
 }
 
-void FileBibTexWidget::layoutConference()
+void FileBibTexWidget::layoutCollection()
 {
     mrnumberWidget->setVisible(true);
     lccnWidget->setVisible(true);
@@ -954,53 +923,22 @@ void FileBibTexWidget::layoutConference()
     issnWidget->setVisible(true);
     copyrightWidget->setVisible(true);
 
-    yearWidget->setVisible(true);
+    publicationDateWidget->setVisible(true);
 
-    howpublishedWidget->setVisible(false);
+    howpublishedWidget->setVisible(true);
     publisherWidget->setVisible(true);
+
     journalWidget->setVisible(false);
     volumeWidget->setVisible(false);
     numberWidget->setVisible(false);
-    pagesWidget->setVisible(false);
-    booktitleWidget->setVisible(true);
     chapterWidget->setVisible(false);
     editionWidget->setVisible(false);
-    editorWidget->setVisible(true);
-    eprintWidget->setVisible(false);
-    institutionWidget->setVisible(false);
-    organizationWidget->setVisible(true);
-    schoolWidget->setVisible(false);
-    seriesWidget->setVisible(false);
-    urlWidget->setVisible(false);
-    typeWidget->setVisible(false);
-}
-
-void FileBibTexWidget::layoutInbook()
-{
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(true);
-    issnWidget->setVisible(true);
-    copyrightWidget->setVisible(true);
-
-    yearWidget->setVisible(true);
-
-    howpublishedWidget->setVisible(false);
-    publisherWidget->setVisible(true);
-    journalWidget->setVisible(false);
-    volumeWidget->setVisible(true);
-    numberWidget->setVisible(false);
-    pagesWidget->setVisible(true);
-    booktitleWidget->setVisible(false);
-    chapterWidget->setVisible(true);
-    editionWidget->setVisible(true);
-    editorWidget->setVisible(true);
+    editorWidget->setVisible(false);
     eprintWidget->setVisible(false);
     institutionWidget->setVisible(false);
     organizationWidget->setVisible(false);
     schoolWidget->setVisible(false);
-    seriesWidget->setVisible(true);
+    seriesWidget->setVisible(false);
     urlWidget->setVisible(false);
     typeWidget->setVisible(false);
 }
@@ -1014,15 +952,13 @@ void FileBibTexWidget::layoutIncollection()
     issnWidget->setVisible(true);
     copyrightWidget->setVisible(true);
 
-    yearWidget->setVisible(true);
+    publicationDateWidget->setVisible(true);
 
     howpublishedWidget->setVisible(false);
     publisherWidget->setVisible(true);
     journalWidget->setVisible(false);
     volumeWidget->setVisible(false);
     numberWidget->setVisible(false);
-    pagesWidget->setVisible(true);
-    booktitleWidget->setVisible(true);
     chapterWidget->setVisible(false);
     editionWidget->setVisible(false);
     editorWidget->setVisible(true);
@@ -1044,15 +980,13 @@ void FileBibTexWidget::layoutInproceedings()
     issnWidget->setVisible(true);
     copyrightWidget->setVisible(true);
 
-    yearWidget->setVisible(true);
+    publicationDateWidget->setVisible(true);
 
     howpublishedWidget->setVisible(false);
     publisherWidget->setVisible(true);
     journalWidget->setVisible(false);
     volumeWidget->setVisible(false);
     numberWidget->setVisible(false);
-    pagesWidget->setVisible(true);
-    booktitleWidget->setVisible(true);
     chapterWidget->setVisible(false);
     editionWidget->setVisible(false);
     editorWidget->setVisible(true);
@@ -1074,15 +1008,13 @@ void FileBibTexWidget::layoutManual()
     issnWidget->setVisible(true);
     copyrightWidget->setVisible(true);
 
-    yearWidget->setVisible(true);
+    publicationDateWidget->setVisible(true);
 
     howpublishedWidget->setVisible(false);
     publisherWidget->setVisible(false);
     journalWidget->setVisible(false);
     volumeWidget->setVisible(false);
     numberWidget->setVisible(false);
-    pagesWidget->setVisible(false);
-    booktitleWidget->setVisible(false);
     chapterWidget->setVisible(false);
     editionWidget->setVisible(true);
     editorWidget->setVisible(false);
@@ -1090,6 +1022,33 @@ void FileBibTexWidget::layoutManual()
     institutionWidget->setVisible(false);
     organizationWidget->setVisible(true);
     schoolWidget->setVisible(false);
+    seriesWidget->setVisible(false);
+    urlWidget->setVisible(false);
+    typeWidget->setVisible(false);
+}
+void FileBibTexWidget::layoutBachelorthesis()
+{
+    mrnumberWidget->setVisible(true);
+    lccnWidget->setVisible(true);
+    doiWidget->setVisible(true);
+    isbnWidget->setVisible(true);
+    issnWidget->setVisible(true);
+    copyrightWidget->setVisible(true);
+
+    publicationDateWidget->setVisible(true);
+    schoolWidget->setVisible(true);
+
+    howpublishedWidget->setVisible(false);
+    publisherWidget->setVisible(false);
+    journalWidget->setVisible(false);
+    volumeWidget->setVisible(false);
+    numberWidget->setVisible(false);
+    chapterWidget->setVisible(false);
+    editionWidget->setVisible(false);
+    editorWidget->setVisible(false);
+    eprintWidget->setVisible(false);
+    institutionWidget->setVisible(false);
+    organizationWidget->setVisible(false);
     seriesWidget->setVisible(false);
     urlWidget->setVisible(false);
     typeWidget->setVisible(false);
@@ -1104,22 +1063,20 @@ void FileBibTexWidget::layoutMastersthesis()
     issnWidget->setVisible(true);
     copyrightWidget->setVisible(true);
 
-    yearWidget->setVisible(true);
+    publicationDateWidget->setVisible(true);
+    schoolWidget->setVisible(true);
 
     howpublishedWidget->setVisible(false);
     publisherWidget->setVisible(false);
     journalWidget->setVisible(false);
     volumeWidget->setVisible(false);
     numberWidget->setVisible(false);
-    pagesWidget->setVisible(false);
-    booktitleWidget->setVisible(false);
     chapterWidget->setVisible(false);
     editionWidget->setVisible(false);
     editorWidget->setVisible(false);
     eprintWidget->setVisible(false);
     institutionWidget->setVisible(false);
     organizationWidget->setVisible(false);
-    schoolWidget->setVisible(true);
     seriesWidget->setVisible(false);
     urlWidget->setVisible(false);
     typeWidget->setVisible(false);
@@ -1134,15 +1091,13 @@ void FileBibTexWidget::layoutMisc()
     issnWidget->setVisible(true);
     copyrightWidget->setVisible(true);
 
-    yearWidget->setVisible(true);
+    publicationDateWidget->setVisible(true);
 
     howpublishedWidget->setVisible(true);
     publisherWidget->setVisible(true);
     journalWidget->setVisible(true);
     volumeWidget->setVisible(true);
     numberWidget->setVisible(true);
-    pagesWidget->setVisible(true);
-    booktitleWidget->setVisible(true);
     chapterWidget->setVisible(true);
     editionWidget->setVisible(true);
     editorWidget->setVisible(true);
@@ -1164,22 +1119,20 @@ void FileBibTexWidget::layoutPhdthesis()
     issnWidget->setVisible(true);
     copyrightWidget->setVisible(true);
 
-    yearWidget->setVisible(true);
+    publicationDateWidget->setVisible(true);
+    schoolWidget->setVisible(true);
 
     howpublishedWidget->setVisible(false);
     publisherWidget->setVisible(false);
     journalWidget->setVisible(false);
     volumeWidget->setVisible(false);
     numberWidget->setVisible(false);
-    pagesWidget->setVisible(false);
-    booktitleWidget->setVisible(false);
     chapterWidget->setVisible(false);
     editionWidget->setVisible(false);
     editorWidget->setVisible(false);
     eprintWidget->setVisible(false);
     institutionWidget->setVisible(false);
     organizationWidget->setVisible(false);
-    schoolWidget->setVisible(true);
     seriesWidget->setVisible(false);
     urlWidget->setVisible(false);
     typeWidget->setVisible(false);
@@ -1194,21 +1147,19 @@ void FileBibTexWidget::layoutProceedings()
     issnWidget->setVisible(true);
     copyrightWidget->setVisible(true);
 
-    yearWidget->setVisible(true);
+    publicationDateWidget->setVisible(true);
+    organizationWidget->setVisible(true);
 
     howpublishedWidget->setVisible(false);
     publisherWidget->setVisible(true);
     journalWidget->setVisible(false);
     volumeWidget->setVisible(false);
     numberWidget->setVisible(false);
-    pagesWidget->setVisible(false);
-    booktitleWidget->setVisible(false);
     chapterWidget->setVisible(false);
     editionWidget->setVisible(false);
     editorWidget->setVisible(true);
     eprintWidget->setVisible(false);
     institutionWidget->setVisible(false);
-    organizationWidget->setVisible(true);
     schoolWidget->setVisible(false);
     seriesWidget->setVisible(false);
     urlWidget->setVisible(false);
@@ -1224,25 +1175,23 @@ void FileBibTexWidget::layoutTechreport()
     issnWidget->setVisible(true);
     copyrightWidget->setVisible(true);
 
-    yearWidget->setVisible(true);
+    publicationDateWidget->setVisible(true);
+    institutionWidget->setVisible(true);
+    typeWidget->setVisible(true);
+    numberWidget->setVisible(true);
 
     howpublishedWidget->setVisible(false);
     publisherWidget->setVisible(false);
     journalWidget->setVisible(false);
     volumeWidget->setVisible(false);
-    numberWidget->setVisible(true);
-    pagesWidget->setVisible(false);
-    booktitleWidget->setVisible(false);
     chapterWidget->setVisible(false);
     editionWidget->setVisible(false);
     editorWidget->setVisible(false);
     eprintWidget->setVisible(false);
-    institutionWidget->setVisible(true);
     organizationWidget->setVisible(false);
     schoolWidget->setVisible(false);
     seriesWidget->setVisible(false);
     urlWidget->setVisible(false);
-    typeWidget->setVisible(true);
 }
 
 void FileBibTexWidget::layoutUnpublished()
@@ -1254,15 +1203,13 @@ void FileBibTexWidget::layoutUnpublished()
     issnWidget->setVisible(false);
     copyrightWidget->setVisible(true);
 
-    yearWidget->setVisible(true);
+    publicationDateWidget->setVisible(true);
 
     howpublishedWidget->setVisible(false);
     publisherWidget->setVisible(false);
     journalWidget->setVisible(false);
     volumeWidget->setVisible(false);
     numberWidget->setVisible(false);
-    pagesWidget->setVisible(false);
-    booktitleWidget->setVisible(false);
     chapterWidget->setVisible(false);
     editionWidget->setVisible(false);
     editorWidget->setVisible(false);
@@ -1284,28 +1231,27 @@ void FileBibTexWidget::layoutPatent()
     issnWidget->setVisible(false);
     copyrightWidget->setVisible(false);
 
-    yearWidget->setVisible(true);
+    publicationDateWidget->setVisible(true);
 
     howpublishedWidget->setVisible(true);
     publisherWidget->setVisible(true);
+    institutionWidget->setVisible(true);
+    organizationWidget->setVisible(true);
+
     journalWidget->setVisible(false);
     volumeWidget->setVisible(false);
     numberWidget->setVisible(false);
-    pagesWidget->setVisible(false);
-    booktitleWidget->setVisible(false);
     chapterWidget->setVisible(false);
     editionWidget->setVisible(false);
     editorWidget->setVisible(false);
     eprintWidget->setVisible(false);
-    institutionWidget->setVisible(true);
-    organizationWidget->setVisible(true);
     schoolWidget->setVisible(false);
     seriesWidget->setVisible(false);
     urlWidget->setVisible(false);
     typeWidget->setVisible(false);
 }
 
-void FileBibTexWidget::layoutWebsite()
+void FileBibTexWidget::layoutElectronic()
 {
     mrnumberWidget->setVisible(true);
     lccnWidget->setVisible(true);
@@ -1314,23 +1260,21 @@ void FileBibTexWidget::layoutWebsite()
     issnWidget->setVisible(false);
     copyrightWidget->setVisible(true);
 
-    yearWidget->setVisible(true);
-
+    publicationDateWidget->setVisible(true);
     howpublishedWidget->setVisible(true);
     publisherWidget->setVisible(true);
+    institutionWidget->setVisible(true);
+    organizationWidget->setVisible(true);
+    urlWidget->setVisible(true);
+
     journalWidget->setVisible(false);
     volumeWidget->setVisible(false);
     numberWidget->setVisible(false);
-    pagesWidget->setVisible(false);
-    booktitleWidget->setVisible(false);
     chapterWidget->setVisible(false);
     editionWidget->setVisible(false);
     editorWidget->setVisible(false);
     eprintWidget->setVisible(false);
-    institutionWidget->setVisible(true);
-    organizationWidget->setVisible(true);
     schoolWidget->setVisible(false);
     seriesWidget->setVisible(false);
-    urlWidget->setVisible(true);
     typeWidget->setVisible(false);
 }

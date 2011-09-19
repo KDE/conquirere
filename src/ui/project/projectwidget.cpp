@@ -49,25 +49,25 @@ ProjectWidget::ProjectWidget(QWidget *parent)
     m_systemDocumentModel->setResourceType(Resource_Document);
     connect(m_systemDocumentModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
             m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    //m_systemDocumentModel->startFetchData();
+    m_systemDocumentModel->startFetchData();
 
     m_systemMailModel = new ResourceModel;
     m_systemMailModel->setResourceType(Resource_Mail);
     connect(m_systemMailModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
             m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    //m_systemMailModel->startFetchData();
+    m_systemMailModel->startFetchData();
 
     m_systemMediaModel = new ResourceModel;
     m_systemMediaModel->setResourceType(Resource_Media);
     connect(m_systemMediaModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
             m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    //m_systemMediaModel->startFetchData();
+    m_systemMediaModel->startFetchData();
 
     m_systemWebsiteModel = new ResourceModel;
     m_systemWebsiteModel->setResourceType(Resource_Website);
     connect(m_systemWebsiteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
             m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    //m_systemWebsiteModel->startFetchData();
+    m_systemWebsiteModel->startFetchData();
 
 }
 

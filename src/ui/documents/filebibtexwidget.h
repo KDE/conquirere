@@ -28,7 +28,7 @@ enum BibEntryType {
     BibType_Bachelorthesis,    /**< A Bachelor thesis. */
     BibType_Book,              /**< A book with an explicit publisher. */
     BibType_Booklet,           /**< A work that is printed and bound, but without a named publisher or sponsoring institution. */
-    BibType_Conference,        /**< The same as inproceedings. */
+    BibType_Collection,        /**< A collection of different publications */
     BibType_Inbook,            /**< A part of a book, which may be a chapter (or section or whatever) and/or a range of pages. */
     BibType_Incollection,      /**< A part of a book having its own title.. */
     BibType_Inproceedings,     /**< An article in a conference proceedings. */
@@ -40,7 +40,7 @@ enum BibEntryType {
     BibType_Techreport,        /**< A report published by a school or other institution, usually numbered within a series. */
     BibType_Unpublished,       /**< A document having an author and title, but not formally published. */
     BibType_Patent,            /**< A patent. */
-    BibType_Website            /**< A website. */
+    BibType_Electronic         /**< A electronic publication */
 };
 
 enum BibDataType {
@@ -76,6 +76,9 @@ class QVBoxLayout;
 class KComboBox;
 class QHBoxLayout;
 
+//todo rename to BibResourceWidget
+// we really just create/manipulate the bibresource of a nfo:document
+// the reference to the BibResource is handlet in a different widget
 class FileBibTexWidget : public QWidget
 {
     Q_OBJECT
@@ -103,48 +106,54 @@ private:
     void selectLayout(BibEntryType entryType);
     void layoutArticle();
     void layoutBook();
+    void layoutBachelorthesis();
     void layoutBooklet();
-    void layoutConference();
+    void layoutCollection();
     void layoutInbook();
+    void layoutProceedings();
     void layoutInproceedings();
     void layoutIncollection();
     void layoutManual();
     void layoutMastersthesis();
     void layoutMisc();
     void layoutPhdthesis();
-    void layoutProceedings();
     void layoutTechreport();
     void layoutUnpublished();
     void layoutPatent();
-    void layoutWebsite();
+    void layoutElectronic();
 
     Nepomuk::Resource m_resource;
 
     KComboBox *entryTypeData;
-    QWidget *journalWidget;
-    QWidget *yearWidget;
-    QWidget *volumeWidget;
-    QWidget *numberWidget;
-    QWidget *pagesWidget;
-    QWidget *publisherWidget;
-    QWidget *booktitleWidget;
-    QWidget *chapterWidget;
+    QWidget *copyrightWidget;
+    QWidget *crossrefWidget;
+    QWidget *doiWidget;
     QWidget *editionWidget;
     QWidget *editorWidget;
     QWidget *eprintWidget;
     QWidget *howpublishedWidget;
     QWidget *institutionWidget;
-    QWidget *organizationWidget;
-    QWidget *schoolWidget;
-    QWidget *seriesWidget;
-    QWidget *urlWidget;
-    QWidget *typeWidget;
     QWidget *isbnWidget;
     QWidget *issnWidget;
-    QWidget *copyrightWidget;
-    QWidget *mrnumberWidget;
+    QWidget *journalWidget;
     QWidget *lccnWidget;
-    QWidget *doiWidget;
+    QWidget *mrnumberWidget;
+    QWidget *numberWidget;
+    QWidget *organizationWidget;
+    QWidget *publicationDateWidget;
+    QWidget *publisherWidget;
+    QWidget *schoolWidget;
+    QWidget *typeWidget;
+    QWidget *urlWidget;
+    QWidget *volumeWidget;
+
+    // wrong inplementation at the moment
+    // need own edit widget t ocope
+    // with the resource creation/linking
+    QWidget *seriesWidget;
+    QWidget *chapterWidget;
+    //QWidget *procceedingsWidget;
+    //QWidget *collectionWidget;
 };
 
 #endif // FILEBIBTEXWIDGET_H

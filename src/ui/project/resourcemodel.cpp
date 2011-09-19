@@ -140,6 +140,11 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             }
         }
         if(index.column() == 3) {
+            Nepomuk::Resource bibResource = document.property(Nepomuk::Vocabulary::NBIB::bibResourceType()).toResource();
+            if(bibResource.isValid()) {
+                return bibResource.genericLabel();
+            }
+
             QString nv = document.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
             if(!nv.isEmpty()) {
@@ -229,11 +234,11 @@ void ResourceModel::startFetchData()
     switch(m_selection)
     {
     case Resource_Document: {
-        //andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Document() ) );
+        andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Document() ) );
 
         // exclude source code
         // is not interresting here and slows down way to much
-        //andTerm.addSubTerm(  !Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::SourceCode() ) );
+        andTerm.addSubTerm(  !Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::SourceCode() ) );
     }
         break;
     case Resource_Mail:
@@ -255,6 +260,11 @@ void ResourceModel::startFetchData()
                                                             Nepomuk::Query::ResourceTerm(m_project->pimoProject()) ) );
     }
 
+    //sort result by edit date to get only the newest if we have to many results
+    //Nepomuk::Query::ComparisonTerm term(Soprano::Vocabulary::NAO::lastModified(), Nepomuk::Query::Term());
+    //term.setSortWeight(1, Qt::DescendingOrder);
+    //andTerm.addSubTerm(term);
+
     // build the query
     Nepomuk::Query::Query query( andTerm );
     query.setLimit(100);
@@ -269,10 +279,9 @@ void ResourceModel::stopFetchData()
 
 void ResourceModel::addData(const QList< Nepomuk::Query::Result > &entries)
 {
-    qDebug() << "addData(...)" << entries.size();
+    //qDebug() << "addData(...)" << entries.size();
     // two loops are necessary because addData is not only called on new entries, but with all changes
     // must be a bug in nepomuk
-    int insertItems = 0;
     QList< Nepomuk::Resource > newEntries;
     foreach(Nepomuk::Query::Result r, entries) {
         if( !m_fileList.contains(r.resource()) ) {
@@ -301,22 +310,23 @@ void ResourceModel::addData(const QList< Nepomuk::Query::Result > &entries)
 
 void ResourceModel::removeData( const QList< QUrl > &entries )
 {
+    //qDebug() << "remove data :: " << entries;
     // two loops are necessary because removeData is not only called on removed entries, but with all changes
     // must be a bug in nepomuk
-    Nepomuk::Resource muh(entries.first());
-    Nepomuk::Resource relatesTo = muh.property( Nepomuk::Vocabulary::PIMO::isRelated()).toResource();
+//    Nepomuk::Resource muh(entries.first());
+//    Nepomuk::Resource relatesTo = muh.property( Nepomuk::Vocabulary::PIMO::isRelated()).toResource();
 
-    if ( relatesTo == m_project->pimoProject()) {
-        return;
-    }
+//    if ( relatesTo == m_project->pimoProject()) {
+//        return;
+//    }
 
-    int removedRow  = m_fileList.indexOf(muh);
+//    int removedRow  = m_fileList.indexOf(muh);
 
-    beginRemoveRows(QModelIndex(), removedRow, removedRow);
-    m_fileList.removeOne(muh);
-    endRemoveRows();
+//    beginRemoveRows(QModelIndex(), removedRow, removedRow);
+//    m_fileList.removeOne(muh);
+//    endRemoveRows();
 
-    emit dataSizeChaged(m_fileList.size());
+//    emit dataSizeChaged(m_fileList.size());
 }
 
 void ResourceModel::sort ( int column, Qt::SortOrder order )

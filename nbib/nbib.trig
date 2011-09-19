@@ -52,6 +52,11 @@ nbib: {
           rdfs:label "Bibliographic Reference" ;
           rdfs:subClassOf nie:InformationElement .
 
+####################################################################
+#
+# Resource Types
+# these can be translated back into BibTeX entries
+
     nbib:BibResource
           a       rdfs:Class ;
           rdfs:comment "A bibliographic reference resource type (article, book, paper and such)" ;
@@ -67,7 +72,7 @@ nbib: {
     nbib:Thesis
           a       rdfs:Class ;
           rdfs:comment "A general thesis." ;
-          rdfs:label "Theses" ;
+          rdfs:label "Thesis" ;
           rdfs:subClassOf nbib:BibResource .
 
     nbib:Bachelorthesis
@@ -86,6 +91,12 @@ nbib: {
           a       rdfs:Class ;
           rdfs:comment "A work that is printed and bound, but without a named publisher or sponsoring institution." ;
           rdfs:label "Booklet" ;
+          rdfs:subClassOf nbib:BibResource .
+
+    nbib:Collection
+          a       rdfs:Class ;
+          rdfs:comment "A collection of different publications." ;
+          rdfs:label "Collection" ;
           rdfs:subClassOf nbib:BibResource .
 
     nbib:Electronic
@@ -112,12 +123,6 @@ nbib: {
           rdfs:comment "A part of a book having its own title." ;
           rdfs:label "Incollection" ;
           rdfs:subClassOf nbib:BibResource .
-
-    nbib:Journal
-          a       rdfs:Class ;
-          rdfs:comment "A journal for serious, scholarly publications" ;
-          rdfs:label "Journal" ;
-          rdfs:subClassOf nco:Contact .
 
     nbib:Manual
           a       rdfs:Class ;
@@ -167,6 +172,10 @@ nbib: {
           rdfs:label "Patent" ;
           rdfs:subClassOf nbib:BibResource .
 
+####################################################################
+#
+# Helper classes
+
     nbib:Chapter
           a       rdfs:Class ;
           rdfs:comment "A chapter of a book." ;
@@ -175,9 +184,9 @@ nbib: {
 
     nbib:Journal
           a       rdfs:Class ;
-          rdfs:comment "A journal." ;
+          rdfs:comment "A journal for serious, scholarly publications" ;
           rdfs:label "Journal" ;
-          rdfs:subClassOf nie:InformationElement .
+          rdfs:subClassOf nco:Contact .
 
     nbib:Series
           a       rdfs:Class ;
@@ -200,7 +209,7 @@ nbib: {
 
     nbib:citeKey
           a       rdf:Property ;
-          rdfs:domain nbib:BibResource ;
+          rdfs:domain nbib:BibReference ;
           rdfs:comment "Used to identify the reference." ;
           rdfs:label "CiteKey" ;
           rdfs:subPropertyOf nie:identifier ;
