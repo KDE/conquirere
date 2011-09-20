@@ -18,42 +18,25 @@
 #ifndef CONTACTEDIT_H
 #define CONTACTEDIT_H
 
+#include "labeledit.h"
+
 #include <Nepomuk/Resource>
 
-#include <QWidget>
-#include <QUrl>
+class QWidget;
 
-class QLabel;
-class QLineEdit;
-
-class ContactEdit : public QWidget
+/**
+  * @todo add pushbutton + dialog to edit contacts in full detail (address and so on)
+  */
+class ContactEdit : public LabelEdit
 {
     Q_OBJECT
 public:
     explicit ContactEdit(QWidget *parent = 0);
     ~ContactEdit();
 
-    Nepomuk::Resource resource();
-
-    void setPropertyUrl(const QUrl & m_propertyUrl);
-    QUrl propertyUrl();
-
 public slots:
-    void setResource(Nepomuk::Resource & resource);
-
-protected:
-    void mousePressEvent ( QMouseEvent * e );
-    void enterEvent ( QEvent * event );
-    void leaveEvent ( QEvent * event );
-
-private slots:
-    void editingFinished();
-
-private:
-    QLabel    *m_label;
-    QLineEdit *m_lineEdit;
-    Nepomuk::Resource m_resource;
-    QUrl m_propertyUrl;
+    virtual void updateResource(const QString & text);
+    virtual void updateLabel();
 
 };
 

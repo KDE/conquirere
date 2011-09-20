@@ -38,12 +38,10 @@
 PublicationWidget::PublicationWidget(QWidget *parent) :
     SidebarComponent(parent)
 {
-    //hide();
     setFont(KGlobalSettings::smallestReadableFont());
 
     setupWidget();
     showCreatePublication(true);
-    //show();
 }
 
 PublicationWidget::~PublicationWidget()
@@ -108,7 +106,7 @@ void PublicationWidget::clear()
 void PublicationWidget::showCreatePublication(bool showIt)
 {
     m_newPublicationWidget->setVisible(showIt);
-    // handle Publication parts
+
     m_publicationWidget->setVisible(!showIt);
 }
 
@@ -147,9 +145,9 @@ void PublicationWidget::newPublication()
     nb.setTypes(types);
 
     // link document to resource
-    m_publication.setProperty( Nepomuk::Vocabulary::NBIB::publishedAs(), nb);
+    m_document.setProperty( Nepomuk::Vocabulary::NBIB::publishedAs(), nb);
 
-    setResource(m_publication);
+    setResource(m_document);
 }
 
 void PublicationWidget::removePublication()
@@ -286,13 +284,6 @@ void PublicationWidget::setupWidget()
     layoutYear->addWidget(yearData);
     publicationDateWidget->setLayout(layoutYear);
     layoutPublication->addWidget(publicationDateWidget);
-
-    //####################################################################
-
-    QFrame *headerLine = new QFrame();
-    headerLine->setFrameShape(QFrame::HLine);
-    headerLine->setFrameShadow(QFrame::Sunken);
-    layoutPublication->addWidget(headerLine);
 
     //####################################################################
 

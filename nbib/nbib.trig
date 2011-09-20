@@ -190,7 +190,7 @@ nbib: {
          a       rdf:Property ;
          rdfs:domain nfo:Document ;
          rdfs:comment "Links a document to its publication information." ;
-         rdfs:label "hasPublication" ;
+         rdfs:label "publishedAs" ;
          rdfs:range nbib:Publication ;
          nrl:maxCardinality 1 .
 

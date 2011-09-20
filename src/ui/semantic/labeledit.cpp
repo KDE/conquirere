@@ -17,12 +17,19 @@
 
 #include "labeledit.h"
 
+#include <Nepomuk/Query/Term>
+#include <Nepomuk/Query/QueryServiceClient>
+#include <Nepomuk/Query/Result>
+#include <Nepomuk/Query/ResourceTypeTerm>
 #include <Nepomuk/Variant>
 
+#include <KDE/KLineEdit>
+
 #include <QLabel>
-#include <QLineEdit>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+
+#include <QDebug>
 
 LabelEdit::LabelEdit(QWidget *parent) :
     QWidget(parent)
@@ -30,11 +37,14 @@ LabelEdit::LabelEdit(QWidget *parent) :
     m_label = new QLabel();
     m_label->setWordWrap(true);
     m_label->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+    m_label->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
 
-    m_lineEdit = new QLineEdit();
+    m_lineEdit = new KLineEdit();
     m_lineEdit->hide();
 
     connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
+    connect(this, SIGNAL(resourceNeedsUpdate(QString)), this, SLOT(updateResource(QString)));
+    connect(this, SIGNAL(labelNeedsUpdate()), this, SLOT(updateLabel()));
 
     QHBoxLayout *layout = new QHBoxLayout;
     layout->addWidget(m_label);
@@ -44,19 +54,42 @@ LabelEdit::LabelEdit(QWidget *parent) :
     setMouseTracking(true);
 
     setMaximumHeight(m_lineEdit->size().height());
+
+    //create the query client to fetch resource data for the autocompletion
+    m_queryClient = new Nepomuk::Query::QueryServiceClient();
+    connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addCompletionData(QList<Nepomuk::Query::Result>)));
 }
 
 LabelEdit::~LabelEdit()
 {
     delete m_label;
     delete m_lineEdit;
+    delete m_queryClient;
 }
 
 void LabelEdit::setResource(Nepomuk::Resource & resource)
 {
-   m_resource = resource;
+    m_resource = resource;
 
-   m_label->setText( m_resource.property( m_propertyUrl ).toString() );
+    emit labelNeedsUpdate();
+}
+
+void LabelEdit::updateResource(const QString & text)
+{
+    // easy as this is only a string to enter
+    // can internelly be xsd:dateTime or something else
+    // here we don't check what was entered
+    m_resource.setProperty(m_propertyUrl, text);
+}
+
+void LabelEdit::updateLabel()
+{
+    setLabelText( m_resource.property( m_propertyUrl ).toString() );
+}
+
+void LabelEdit::setLabelText(const QString & text)
+{
+    m_label->setText(text );
 }
 
 Nepomuk::Resource LabelEdit::resource()
@@ -67,6 +100,30 @@ Nepomuk::Resource LabelEdit::resource()
 void LabelEdit::setPropertyUrl(const QUrl & propertyUrl)
 {
     m_propertyUrl = propertyUrl;
+
+    // now create a completion model
+    // this will look through all nepomuk resources from a specific type and complete
+    // it for the user
+
+    //get the range of the property (so what we are allowed to enter)
+    Nepomuk::Resource nr(m_propertyUrl);
+    Nepomuk::Resource range = nr.property(QLatin1String("http://www.w3.org/2000/01/rdf-schema#range")).toResource();
+
+    if(range.isValid() && range.resourceUri().isValid()) {
+        qDebug() << "range of" << nr.genericLabel() << " is " << range.genericLabel();
+
+        // get all resources of type range
+        Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( range.resourceUri() ) );
+        m_queryClient->blockingQuery(query);
+    }
+    // if we can't use the range for the check
+    // get all entries for the propertyUrl tha texist, maybe there is something in it we could reuse
+    else {
+        // get all resources of type range
+        //Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( range.resourceUri() ) );
+        //m_queryClient->blockingQuery(query);
+    }
+
 }
 
 QUrl LabelEdit::propertyUrl()
@@ -91,26 +148,30 @@ void LabelEdit::mousePressEvent ( QMouseEvent * e )
     }
 }
 
-void LabelEdit::enterEvent ( QEvent * event )
-{
-    m_label->setAutoFillBackground(true);
-    m_label->setBackgroundRole(QPalette::Dark);
-}
-
-void LabelEdit::leaveEvent ( QEvent * event )
-{
-    m_label->setAutoFillBackground(false);
-    m_label->setBackgroundRole(QPalette::NoRole);
-}
-
 void LabelEdit::editingFinished()
 {
     if(m_label->text() != m_lineEdit->text()) {
         m_label->setText(m_lineEdit->text());
 
-        m_resource.setProperty(m_propertyUrl, m_label->text());
+        emit resourceNeedsUpdate(m_lineEdit->text());
 
     }
+
     m_lineEdit->hide();
     m_label->show();
+}
+
+void LabelEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entries)
+{
+    if(!entries.isEmpty()) {
+        KCompletion *kc = m_lineEdit->completionObject(true);
+
+        // as we have a blocking query, here are all result at once
+
+        foreach(Nepomuk::Query::Result result, entries) {
+            kc->addItem(result.resource().genericLabel());
+
+            qDebug() << result.resource().genericLabel();
+        }
+    }
 }

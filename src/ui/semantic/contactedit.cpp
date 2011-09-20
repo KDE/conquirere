@@ -28,112 +28,45 @@
 #include <QDebug>
 
 ContactEdit::ContactEdit(QWidget *parent) :
-    QWidget(parent)
+    LabelEdit(parent)
 {
-    m_label = new QLabel();
-    m_label->setWordWrap(true);
-    m_label->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-    m_label->setToolTip(i18n("Split several authors by semicolon ';'"));
-
-    m_lineEdit = new QLineEdit();
-    m_lineEdit->hide();
-
-    connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
-
-    QHBoxLayout *layout = new QHBoxLayout;
-    layout->addWidget(m_label);
-    layout->addWidget(m_lineEdit);
-    setLayout(layout);
-
-    setMouseTracking(true);
-
-    setMaximumHeight(m_lineEdit->size().height());
 }
 
 ContactEdit::~ContactEdit()
 {
-    delete m_label;
-    delete m_lineEdit;
 }
 
-void ContactEdit::setResource(Nepomuk::Resource & resource)
+void ContactEdit::updateResource(const QString & text)
 {
-    m_resource = resource;
+    //BUG removeing all old authors and creating new resource of the inserted authors
+    // will lead to duplicated persons with different resourceuri's!
+    // remove all author informations
+    resource().removeProperty( propertyUrl() );
 
-    QList<Nepomuk::Resource> authors = m_resource.property( m_propertyUrl ).toResourceList();
+    // create new contact resources for each fullname seperated by a ;
+    //TODO make seperator configarable?
+    QStringList contacts = text.split(QLatin1String(";"));
+
+    foreach(QString s, contacts) {
+        Nepomuk::Resource c(s, Nepomuk::Vocabulary::NCO::Contact());
+        c.setProperty( Nepomuk::Vocabulary::NCO::fullname() , s);
+        resource().addProperty( propertyUrl(), c);
+    }
+}
+
+void ContactEdit::updateLabel()
+{
+    QList<Nepomuk::Resource> authors = resource().property( propertyUrl() ).toResourceList();
 
     QString labelText;
     foreach(Nepomuk::Resource r, authors) {
+        //TODO don't use fullname() of contact but something else?
+
         labelText.append( r.property( Nepomuk::Vocabulary::NCO::fullname() ).toString() );
         labelText.append(QLatin1String("; "));
     }
 
     labelText.chop(2); // removes the last unused "; "
 
-    m_label->setText( labelText );
-}
-
-Nepomuk::Resource ContactEdit::resource()
-{
-    return m_resource;
-}
-
-void ContactEdit::setPropertyUrl(const QUrl & propertyUrl)
-{
-    m_propertyUrl = propertyUrl;
-}
-
-QUrl ContactEdit::propertyUrl()
-{
-    return m_propertyUrl;
-}
-
-void ContactEdit::mousePressEvent ( QMouseEvent * e )
-{
-    if(m_label->isVisible()) {
-        m_lineEdit->setText(m_label->text());
-        m_label->hide();
-        m_lineEdit->show();
-        m_lineEdit->setFocus();
-    }
-    else {
-        if(m_label->text() != m_lineEdit->text()) {
-            m_label->setText(m_lineEdit->text());
-        }
-        m_lineEdit->hide();
-        m_label->show();
-    }
-}
-
-void ContactEdit::enterEvent ( QEvent * event )
-{
-    m_label->setAutoFillBackground(true);
-    m_label->setBackgroundRole(QPalette::Dark);
-}
-
-void ContactEdit::leaveEvent ( QEvent * event )
-{
-    m_label->setAutoFillBackground(false);
-    m_label->setBackgroundRole(QPalette::NoRole);
-}
-
-void ContactEdit::editingFinished()
-{
-    if(m_label->text() != m_lineEdit->text()) {
-        m_label->setText(m_lineEdit->text());
-
-        // remove all author informations
-        m_resource.removeProperty( m_propertyUrl );
-
-        // create new contact resources for each fullname seperated by a ;
-        QStringList contacts = m_lineEdit->text().split(QLatin1String(";"));
-
-        foreach(QString s, contacts) {
-            Nepomuk::Resource c(s, Nepomuk::Vocabulary::NCO::Contact());
-            c.setProperty( Nepomuk::Vocabulary::NCO::fullname() , s);
-            m_resource.addProperty( m_propertyUrl, c);
-        }
-    }
-    m_lineEdit->hide();
-    m_label->show();
+    setLabelText( labelText );
 }

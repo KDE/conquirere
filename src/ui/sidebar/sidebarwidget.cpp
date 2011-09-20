@@ -19,6 +19,7 @@
 
 #include "publicationwidget.h"
 #include "sidebarcomponent.h"
+#include "referencewidget.h"
 
 #include <QVBoxLayout>
 
@@ -61,6 +62,7 @@ void SidebarWidget::newSelection(LibraryType library, ResourceSelection selectio
     case Resource_Media:
         break;
     case Resource_Reference:
+        m_currentWidget = new ReferenceWidget();
         break;
     case Resource_Website:
         break;

@@ -21,14 +21,16 @@ set(conquirere_SRCS
     ui/sidebar/sidebarwidget.cpp
     ui/sidebar/sidebarcomponent.cpp
     ui/sidebar/publicationwidget.cpp
+    ui/sidebar/referencewidget.cpp
 )
 
 kde4_add_ui_files( conquirere_SRCS
-                   ui/documents/documentinfowidget.ui
 
                    ui/project/newprojectdialog.ui
                    ui/project/welcomewidget.ui
                    ui/project/projecttreewidget.ui
+
+                   ui/sidebar/referencewidget.ui
 )
 
 

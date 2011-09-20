@@ -19,12 +19,14 @@
 #define LABELEDIT_H
 
 #include <Nepomuk/Resource>
+#include <Nepomuk/Query/QueryServiceClient>
+#include <Nepomuk/Query/Result>
 
 #include <QWidget>
 #include <QUrl>
 
 class QLabel;
-class QLineEdit;
+class KLineEdit;
 
 class LabelEdit : public QWidget
 {
@@ -38,22 +40,55 @@ public:
     void setPropertyUrl(const QUrl & m_propertyUrl);
     QUrl propertyUrl();
 
+    void setLabelText(const QString & text);
+
+signals:
+    void resourceNeedsUpdate(const QString & text);
+    void labelNeedsUpdate();
+
 public slots:
     void setResource(Nepomuk::Resource & resource);
 
+    /**
+      * Called when the user edited the contend.
+      *
+      * This function has to be inplemented if the range of the property url
+      * is not a simple string but rather a resource on its own.
+      *
+      * In this function a new Resource (for example nco:Contact) could be created
+      * The @p text added to it (as nco:fullname for example) and than the
+      * new Resource inserted into the property of the resource
+    */
+    virtual void updateResource(const QString & text);
+
+    /**
+      * Called when the user edited the contend
+      *
+      * This allows reimplemented functions to change the appereance of the property content
+      *
+      * For example split the list of authors with fullname by a ";" and display then all of them
+      *
+      * You have to call setLabelText() at the end of the function to display your results
+      */
+    virtual void updateLabel();
+
+
 protected:
     void mousePressEvent ( QMouseEvent * e );
-    void enterEvent ( QEvent * event );
-    void leaveEvent ( QEvent * event );
 
 private slots:
     void editingFinished();
+    void addCompletionData(const QList< Nepomuk::Query::Result > &entries);
 
 private:
     QLabel    *m_label;
-    QLineEdit *m_lineEdit;
+    KLineEdit *m_lineEdit;
+
     Nepomuk::Resource m_resource;
     QUrl m_propertyUrl;
+
+
+    Nepomuk::Query::QueryServiceClient *m_queryClient;
 };
 
 #endif // LABELEDIT_H

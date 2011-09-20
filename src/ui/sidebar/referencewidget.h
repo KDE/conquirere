@@ -15,38 +15,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DOCUMENTINFOWIDGET_H
-#define DOCUMENTINFOWIDGET_H
+#ifndef REFERENCEWIDGET_H
+#define REFERENCEWIDGET_H
 
-#include <QWidget>
+#include "sidebarcomponent.h"
 #include <Nepomuk/Resource>
 
 namespace Ui {
-    class DocumentInfoWidget;
+    class ReferenceWidget;
 }
 
-class KFileMetaDataWidget;
-class QScrollArea;
-class FileBibTexWidget;
-
-class DocumentInfoWidget : public QWidget
+class QWidget;
+class ReferenceWidget : public SidebarComponent
 {
     Q_OBJECT
-
 public:
-    explicit DocumentInfoWidget(QWidget *parent = 0);
-    ~DocumentInfoWidget();
+    explicit ReferenceWidget(QWidget *parent = 0);
 
 public slots:
-    void setResource(Nepomuk::Resource &resource);
-    void clear();
+    virtual void setResource(Nepomuk::Resource & resource);
+    virtual void clear();
+    void showCreateReference(bool showIt);
+
+signals:
+    /* notify connected editwidgets to update their info */
+    void resourceChanged(Nepomuk::Resource & resource);
+
+private slots:
+    void showPublicationList();
+    void createReference();
+    void removeReference();
 
 private:
-    Ui::DocumentInfoWidget *ui;
+    Nepomuk::Resource m_reference;
 
-    QScrollArea* m_metaDataArea;
-    KFileMetaDataWidget *m_metaDataWidget;
-    FileBibTexWidget * m_fileBibTexWidget;
+    Ui::ReferenceWidget *ui;
+
+    QWidget *m_newReferenceWidget;
+    QWidget *m_referenceWidget;
 };
 
-#endif // DOCUMENTINFOWIDGET_H
+#endif // REFERENCEWIDGET_H
