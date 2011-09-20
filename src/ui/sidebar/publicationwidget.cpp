@@ -19,7 +19,6 @@
 
 #include "../semantic/labeledit.h"
 #include "../semantic/contactedit.h"
-#include "../semantic/addressedit.h"
 
 #include "nbib.h"
 #include <KComboBox>

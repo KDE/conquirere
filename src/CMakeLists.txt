@@ -16,7 +16,6 @@ set(conquirere_SRCS
 
     ui/semantic/labeledit.cpp
     ui/semantic/contactedit.cpp
-    ui/semantic/addressedit.cpp
 
     ui/sidebar/sidebarwidget.cpp
     ui/sidebar/sidebarcomponent.cpp
