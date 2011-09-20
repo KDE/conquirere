@@ -3,6 +3,11 @@ set(conquirere_SRCS
     main.cpp
     mainwindow.cpp
 
+    propertywidgets/propertyedit.cpp
+    propertywidgets/contactedit.cpp
+    propertywidgets/stringedit.cpp
+    propertywidgets/publicationedit.cpp
+
     core/project.cpp
     core/bibtexexporter.cpp
 
@@ -14,8 +19,6 @@ set(conquirere_SRCS
     ui/project/projectwidget.cpp
     ui/project/resourcemodel.cpp
 
-    ui/semantic/labeledit.cpp
-    ui/semantic/contactedit.cpp
 
     ui/sidebar/sidebarwidget.cpp
     ui/sidebar/sidebarcomponent.cpp

@@ -284,12 +284,12 @@ nbib: {
           rdfs:range nbib:Chapter ;
           nrl:maxCardinality 1 .
 
-    nbib:hasResource
+    nbib:usePublication
           a       rdf:Property ;
           rdfs:domain nbib:BibReference ;
-          rdfs:comment "The bib resource of the reference" ;
-          rdfs:label "hasResource" ;
-          rdfs:range nbib:BibResource ;
+          rdfs:comment "The publication used for this reference" ;
+          rdfs:label "usePublication" ;
+          rdfs:range nbib:Publication ;
           nrl:maxCardinality 1 .
 
     nbib:howPublished

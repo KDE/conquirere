@@ -28,12 +28,12 @@
 class QLabel;
 class KLineEdit;
 
-class LabelEdit : public QWidget
+class StringEdit : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LabelEdit(QWidget *parent = 0);
-    virtual ~LabelEdit();
+    explicit StringEdit(QWidget *parent = 0);
+    virtual ~StringEdit();
 
     Nepomuk::Resource resource();
 
@@ -41,6 +41,7 @@ public:
     QUrl propertyUrl();
 
     void setLabelText(const QString & text);
+    QString getLabelText();
 
 signals:
     void resourceNeedsUpdate(const QString & text);
@@ -78,6 +79,10 @@ protected:
 
 private slots:
     void editingFinished();
+
+    /**
+      * @bug don't just add genericLabel() for autocompletion offer a way to map the completed string back to the nepomuk:/res uri
+      */
     void addCompletionData(const QList< Nepomuk::Query::Result > &entries);
 
 private:

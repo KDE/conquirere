@@ -112,7 +112,7 @@ bool BibTexExporter::exportReferences(const QString &filename)
         if(document.hasType( Nepomuk::Vocabulary::NBIB::Publication() )) {
             // we have a BibReference
             reference = document;
-            publication = reference.property(Nepomuk::Vocabulary::NBIB::hasResource()).toResource();
+            publication = reference.property(Nepomuk::Vocabulary::NBIB::usePublication()).toResource();
         }
         else {
             //we have a Document with attached BibResource

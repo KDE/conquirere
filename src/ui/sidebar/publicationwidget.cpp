@@ -17,8 +17,8 @@
 
 #include "publicationwidget.h"
 
-#include "../semantic/labeledit.h"
-#include "../semantic/contactedit.h"
+#include "../../propertywidgets/stringedit.h"
+#include "../../propertywidgets/contactedit.h"
 
 #include "nbib.h"
 #include <KComboBox>
@@ -239,7 +239,7 @@ void PublicationWidget::setupWidget()
     QLabel *title = new QLabel(i18n("Title:"));
     title->setToolTip(i18n("The title of the work"));
 
-    LabelEdit *titleData = new LabelEdit();
+    StringEdit *titleData = new StringEdit();
     titleData->setPropertyUrl( Nepomuk::Vocabulary::NIE::title() );
     title->setBuddy(titleData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), titleData, SLOT(setResource(Nepomuk::Resource&)));
@@ -271,7 +271,7 @@ void PublicationWidget::setupWidget()
     year->setToolTip(i18n("The year of publication (or, if unpublished, the year of creation)"));
 
     //TODO date edit
-    LabelEdit *yearData = new LabelEdit();
+    StringEdit *yearData = new StringEdit();
     yearData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationDate() );
     year->setBuddy(yearData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), yearData, SLOT(setResource(Nepomuk::Resource&)));
@@ -330,7 +330,7 @@ void PublicationWidget::setupWidget()
     QLabel *volume = new QLabel(i18n("Volume:"));
     volume->setToolTip(i18n("The volume of a multi-volume book"));
 
-    LabelEdit *volumeData = new LabelEdit();
+    StringEdit *volumeData = new StringEdit();
     volumeData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::volume() );
     volume->setBuddy(volumeData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), volumeData, SLOT(setResource(Nepomuk::Resource&)));
@@ -350,7 +350,7 @@ void PublicationWidget::setupWidget()
     QLabel *number = new QLabel(i18n("Number:"));
     number->setToolTip(i18n("The &quot;(issue) number&quot; of a tech-report, if applicable. (Most publications have a &quot;volume&quot;, but no &quot;number&quot; field.)"));
 
-    LabelEdit *numberData = new LabelEdit();
+    StringEdit *numberData = new StringEdit();
     numberData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::number() );
     number->setBuddy(numberData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), numberData, SLOT(setResource(Nepomuk::Resource&)));
@@ -388,7 +388,7 @@ void PublicationWidget::setupWidget()
     QLabel *edition = new QLabel(i18n("Edition:"));
     edition->setToolTip(i18n("The edition of a book, long form (such as &quot;first&quot; or &quot;second&quot;)"));
 
-    LabelEdit *editionData = new LabelEdit();
+    StringEdit *editionData = new StringEdit();
     editionData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::edition() );
     edition->setBuddy(editionData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), editionData, SLOT(setResource(Nepomuk::Resource&)));
@@ -424,7 +424,7 @@ void PublicationWidget::setupWidget()
     QLabel *eprint = new QLabel(i18n("E-print:"));
     eprint->setToolTip(i18n("A specification of an electronic publication, often a preprint or a technical report"));
 
-    LabelEdit *eprintData = new LabelEdit();
+    StringEdit *eprintData = new StringEdit();
     eprintData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::eprint() );
     eprint->setBuddy(eprintData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), eprintData, SLOT(setResource(Nepomuk::Resource&)));
@@ -443,7 +443,7 @@ void PublicationWidget::setupWidget()
     QLabel *howpublished = new QLabel(i18n("How published:"));
     howpublished->setToolTip(i18n("How it was published, if the publishing method is nonstandard"));
 
-    LabelEdit *howpublishedData = new LabelEdit();
+    StringEdit *howpublishedData = new StringEdit();
     howpublishedData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::howPublished() );
     howpublished->setBuddy(howpublishedData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), howpublishedData, SLOT(setResource(Nepomuk::Resource&)));
@@ -481,7 +481,7 @@ void PublicationWidget::setupWidget()
     QLabel *url = new QLabel(i18n("Url:"));
     url->setToolTip(i18n("The WWW address"));
 
-    LabelEdit *urlData = new LabelEdit();
+    StringEdit *urlData = new StringEdit();
     urlData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::url() );
     url->setBuddy(urlData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), urlData, SLOT(setResource(Nepomuk::Resource&)));
@@ -500,7 +500,7 @@ void PublicationWidget::setupWidget()
     QLabel *type = new QLabel(i18n("Type:"));
     type->setToolTip(i18n("The type of tech-report, for example, &quot;Research Note&quot;"));
 
-    LabelEdit *typeData = new LabelEdit();
+    StringEdit *typeData = new StringEdit();
     typeData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::type() );
     type->setBuddy(typeData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), typeData, SLOT(setResource(Nepomuk::Resource&)));
@@ -526,7 +526,7 @@ void PublicationWidget::setupWidget()
     QLabel *crossref = new QLabel(i18n("Crossref:"));
     crossref->setToolTip(i18n("References found in the publication"));
 
-    LabelEdit *crossrefData = new LabelEdit();
+    StringEdit *crossrefData = new StringEdit();
     crossrefData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::crossref() );
     crossref->setBuddy(crossrefData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), crossrefData, SLOT(setResource(Nepomuk::Resource&)));
@@ -545,7 +545,7 @@ void PublicationWidget::setupWidget()
     QLabel *isbn = new QLabel(i18n("ISBN:"));
     isbn->setToolTip(i18n("The International Standard Book Number."));
 
-    LabelEdit *isbnData = new LabelEdit();
+    StringEdit *isbnData = new StringEdit();
     isbnData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isbn() );
     isbn->setBuddy(isbnData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), isbnData, SLOT(setResource(Nepomuk::Resource&)));
@@ -564,7 +564,7 @@ void PublicationWidget::setupWidget()
     QLabel *issn = new QLabel(i18n("ISSN:"));
     issn->setToolTip(i18n("The International Standard Serial Number. Used to identify a journal."));
 
-    LabelEdit *issnData = new LabelEdit();
+    StringEdit *issnData = new StringEdit();
     issnData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::issn() );
     issn->setBuddy(issnData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), issnData, SLOT(setResource(Nepomuk::Resource&)));
@@ -583,7 +583,7 @@ void PublicationWidget::setupWidget()
     QLabel *lccn = new QLabel(i18n("LCCN:"));
     lccn->setToolTip(i18n("The Library of Congress Call Number."));
 
-    LabelEdit *lccnData = new LabelEdit();
+    StringEdit *lccnData = new StringEdit();
     lccnData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::lccn() );
     lccn->setBuddy(lccnData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), lccnData, SLOT(setResource(Nepomuk::Resource&)));
@@ -602,7 +602,7 @@ void PublicationWidget::setupWidget()
     QLabel *mrnumber = new QLabel(i18n("MRNumber:"));
     mrnumber->setToolTip(i18n("The Mathematical Reviews number."));
 
-    LabelEdit *mrnumberData = new LabelEdit();
+    StringEdit *mrnumberData = new StringEdit();
     mrnumberData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::mrNumber() );
     mrnumber->setBuddy(mrnumberData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), mrnumberData, SLOT(setResource(Nepomuk::Resource&)));
@@ -621,7 +621,7 @@ void PublicationWidget::setupWidget()
     QLabel *doi = new QLabel(i18n("DOI:"));
     doi->setToolTip(i18n("The Digital object identifier."));
 
-    LabelEdit *doiData = new LabelEdit();
+    StringEdit *doiData = new StringEdit();
     doiData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::doi() );
     doi->setBuddy(doiData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), doiData, SLOT(setResource(Nepomuk::Resource&)));
@@ -640,7 +640,7 @@ void PublicationWidget::setupWidget()
     QLabel *copyright = new QLabel(i18n("Copyright:"));
     copyright->setToolTip(i18n("Copyright information."));
 
-    LabelEdit *copyrightData = new LabelEdit();
+    StringEdit *copyrightData = new StringEdit();
     copyrightData->setPropertyUrl( Nepomuk::Vocabulary::NIE::copyright() );
     copyright->setBuddy(copyrightData);
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), copyrightData, SLOT(setResource(Nepomuk::Resource&)));

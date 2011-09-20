@@ -24,6 +24,7 @@
 #include <Nepomuk/Variant>
 
 #include <KDE/KLineEdit>
+#include <kshortcut.h>
 
 #include <QLabel>
 #include <QHBoxLayout>
@@ -31,7 +32,7 @@
 
 #include <QDebug>
 
-LabelEdit::LabelEdit(QWidget *parent) :
+StringEdit::StringEdit(QWidget *parent) :
     QWidget(parent)
 {
     m_label = new QLabel();
@@ -60,21 +61,21 @@ LabelEdit::LabelEdit(QWidget *parent) :
     connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addCompletionData(QList<Nepomuk::Query::Result>)));
 }
 
-LabelEdit::~LabelEdit()
+StringEdit::~StringEdit()
 {
     delete m_label;
     delete m_lineEdit;
     delete m_queryClient;
 }
 
-void LabelEdit::setResource(Nepomuk::Resource & resource)
+void StringEdit::setResource(Nepomuk::Resource & resource)
 {
     m_resource = resource;
 
     emit labelNeedsUpdate();
 }
 
-void LabelEdit::updateResource(const QString & text)
+void StringEdit::updateResource(const QString & text)
 {
     // easy as this is only a string to enter
     // can internelly be xsd:dateTime or something else
@@ -82,22 +83,27 @@ void LabelEdit::updateResource(const QString & text)
     m_resource.setProperty(m_propertyUrl, text);
 }
 
-void LabelEdit::updateLabel()
+void StringEdit::updateLabel()
 {
     setLabelText( m_resource.property( m_propertyUrl ).toString() );
 }
 
-void LabelEdit::setLabelText(const QString & text)
+void StringEdit::setLabelText(const QString & text)
 {
     m_label->setText(text );
 }
 
-Nepomuk::Resource LabelEdit::resource()
+QString StringEdit::getLabelText()
+{
+    return m_label->text();
+}
+
+Nepomuk::Resource StringEdit::resource()
 {
     return m_resource;
 }
 
-void LabelEdit::setPropertyUrl(const QUrl & propertyUrl)
+void StringEdit::setPropertyUrl(const QUrl & propertyUrl)
 {
     m_propertyUrl = propertyUrl;
 
@@ -126,12 +132,12 @@ void LabelEdit::setPropertyUrl(const QUrl & propertyUrl)
 
 }
 
-QUrl LabelEdit::propertyUrl()
+QUrl StringEdit::propertyUrl()
 {
     return m_propertyUrl;
 }
 
-void LabelEdit::mousePressEvent ( QMouseEvent * e )
+void StringEdit::mousePressEvent ( QMouseEvent * e )
 {
     if(m_label->isVisible()) {
         m_lineEdit->setText(m_label->text());
@@ -148,7 +154,7 @@ void LabelEdit::mousePressEvent ( QMouseEvent * e )
     }
 }
 
-void LabelEdit::editingFinished()
+void StringEdit::editingFinished()
 {
     if(m_label->text() != m_lineEdit->text()) {
         m_label->setText(m_lineEdit->text());
@@ -161,13 +167,13 @@ void LabelEdit::editingFinished()
     m_label->show();
 }
 
-void LabelEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entries)
+void StringEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entries)
 {
     if(!entries.isEmpty()) {
         KCompletion *kc = m_lineEdit->completionObject(true);
+        m_lineEdit->setKeyBinding(KCompletionBase::SubstringCompletion, KShortcut(Qt::CTRL + Qt::Key_E));
 
         // as we have a blocking query, here are all result at once
-
         foreach(Nepomuk::Query::Result result, entries) {
             kc->addItem(result.resource().genericLabel());
 

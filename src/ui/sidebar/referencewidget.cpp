@@ -18,8 +18,8 @@
 #include "referencewidget.h"
 #include "ui_referencewidget.h"
 
-#include "../semantic/labeledit.h"
-#include "../semantic/contactedit.h"
+#include "../../propertywidgets/stringedit.h"
+#include "../../propertywidgets/contactedit.h"
 
 #include "nbib.h"
 #include <Nepomuk/Variant>
@@ -47,7 +47,7 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     ui->chapterEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::hasChapter() );
     ui->citeKeyEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::citeKey() );
     ui->pagesEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::pages() );
-    ui->publicationEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::hasResource() );
+    ui->publicationEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::usePublication() );
 
     //connect signal/slots
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->chapterEdit, SLOT(setResource(Nepomuk::Resource&)));
@@ -66,12 +66,12 @@ void ReferenceWidget::setResource(Nepomuk::Resource & resource)
         m_reference = resource;
         showCreateReference(false);
 
+        emit resourceChanged(m_reference);
     }
     else {
         showCreateReference(true);
     }
 
-    emit resourceChanged(m_reference);
 }
 
 void ReferenceWidget::clear()
@@ -82,14 +82,12 @@ void ReferenceWidget::clear()
 void ReferenceWidget::showCreateReference(bool createRef)
 {
     if(createRef) {
-        //ui->newRefSpacer->setVisible(true);
         ui->createRefLabel->setVisible(true);
         ui->createButton->setVisible(true);
         ui->removeButton->setVisible(false);
     }
     else {
         ui->createRefLabel->setVisible(false);
-        //ui->newRefSpacer->setVisible(false);
         ui->createButton->setVisible(false);
         ui->removeButton->setVisible(true);
     }
@@ -103,6 +101,34 @@ void ReferenceWidget::showPublicationList()
 void ReferenceWidget::createReference()
 {
     qDebug() << "create ref";
+
+    /*
+    // create a new reference
+    QList<QUrl> types;
+    types.append( Nepomuk::Vocabulary::NBIB::BibReference() );
+
+    Nepomuk::Resource ref;
+    ref.setTypes(types); // set it to the type BibReference
+
+    QString citeKey = ui->chapterEdit->getLabelText();
+    if(!citeKey.isEmpty()) {
+        ref.setProperty( Nepomuk::Vocabulary::NBIB::citeKey(), citeKey );
+    }
+
+    QString pages = ui->pagesEdit->getLabelText();
+    if(!pages.isEmpty()) {
+        ref.setProperty( Nepomuk::Vocabulary::NBIB::citeKey(), pages );
+    }
+
+    QString publication = ui->publicationEdit->getLabelText();
+    if(!publication.isEmpty()) {
+        ref.setProperty( Nepomuk::Vocabulary::NBIB::citeKey(), pages );
+    }
+
+
+    QString chapter = ui->chapterEdit->getLabelText();
+    */
+
 }
 
 void ReferenceWidget::removeReference()

@@ -18,40 +18,25 @@
 #ifndef CONTACTEDIT_H
 #define CONTACTEDIT_H
 
-#include "labeledit.h"
+#include "propertyedit.h"
 
-#include <Nepomuk/Resource>
-
-#include <QUrl>
-class QWidget;
-
-/**
-  * @todo add pushbutton + dialog to edit contacts in full detail (address and so on)
-  */
-class ContactEdit : public StringEdit
+class ContactEdit : public PropertyEdit
 {
-    Q_OBJECT
 public:
-    explicit ContactEdit(QWidget *parent = 0);
-    ~ContactEdit();
+    ContactEdit(QWidget *parent = 0);
+    virtual ~ContactEdit();
+
+protected:
+    void setupLabel();
+    /**
+      * Has to be reimplemented for any subclass
+      */
+    virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     /**
-      * denotes if this one can be deleted if empty or not
+      * update the resource with the @p text from the edit field
       */
-    void isMaster(bool master);
-
-    QUrl oldUri();
-
-public slots:
-    virtual void updateResource(const QString & text);
-
-    virtual void updateLabel();
-
-private:
-    bool m_master;
-    QUrl m_oldContact;
-
-    QList<ContactEdit *> m_otherAuthors;
+    virtual void updateResource( const QString & text );
 };
 
 #endif // CONTACTEDIT_H

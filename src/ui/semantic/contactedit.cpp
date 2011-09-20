@@ -36,6 +36,16 @@ ContactEdit::~ContactEdit()
 {
 }
 
+void ContactEdit::isMaster(bool master)
+{
+    m_master = master;
+}
+
+QUrl ContactEdit::oldUri()
+{
+    return m_oldContact;
+}
+
 void ContactEdit::updateResource(const QString & text)
 {
     //BUG removeing all old authors and creating new resource of the inserted authors
@@ -43,7 +53,7 @@ void ContactEdit::updateResource(const QString & text)
     // remove all author informations
     resource().removeProperty( propertyUrl() );
 
-    // create new contact resources for each fullname seperated by a ;
+    // create new contact resources for each fullname separated by a ;
     //TODO make seperator configarable?
     QStringList contacts = text.split(QLatin1String(";"));
 
@@ -56,7 +66,27 @@ void ContactEdit::updateResource(const QString & text)
 
 void ContactEdit::updateLabel()
 {
+    // at this point the resource is already changed with the new data
     QList<Nepomuk::Resource> authors = resource().property( propertyUrl() ).toResourceList();
+
+//    Nepomuk::Resource oldAuthor;
+//    if(authors.size() > 1) {
+//        // check if there are slave contact edit fields, that handle some of the authors already
+//        foreach(ContactEdit *ce, m_otherAuthors) {
+//            foreach(Nepomuk::Resource r, authors) {
+//                if(r.resourceUri() == ce.oldUri()) {
+//                    authors.removeOne(r);
+//                }
+//                if(r.resourceUri() == oldUri()) {
+//                    oldAuthor = r;
+//                }
+//            }
+//        }
+//    }
+
+    //ok now we ignored all authors listed in other contact fields
+
+
 
     QString labelText;
     foreach(Nepomuk::Resource r, authors) {
