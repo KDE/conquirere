@@ -141,6 +141,30 @@ void ProjectTreeWidget::setupLibraryTree(QTreeWidgetItem *root)
     root->addChild(twi1);
     m_items.append(twi1);
 
+    QTreeWidgetItem *twi1a = new QTreeWidgetItem();
+    twi1a->setText(0, i18n("Publications"));
+    twi1a->setData(0,Role_Library,root->data(0,Role_Library));
+    twi1a->setData(0,Role_ResourceType,Resource_Publication);
+    twi1a->setIcon(0, KIcon(QLatin1String("document-open-remote")));
+    root->addChild(twi1a);
+    m_items.append(twi1a);
+
+    QTreeWidgetItem *twi4 = new QTreeWidgetItem();
+    twi4->setText(0, i18n("References"));
+    twi4->setData(0,Role_Library,root->data(0,Role_Library));
+    twi4->setData(0,Role_ResourceType,Resource_Reference);
+    twi4->setIcon(0, KIcon(QLatin1String("user-identity")));
+    root->addChild(twi4);
+    m_items.append(twi4);
+
+    QTreeWidgetItem *twi6 = new QTreeWidgetItem();
+    twi6->setText(0, i18n("Notes"));
+    twi6->setData(0,Role_Library,root->data(0,Role_Library));
+    twi6->setData(0,Role_ResourceType,Resource_Note);
+    twi6->setIcon(0, KIcon(QLatin1String("knotes")));
+    root->addChild(twi6);
+    m_items.append(twi6);
+
     QTreeWidgetItem *twi2 = new QTreeWidgetItem();
     twi2->setText(0, i18n("Mails"));
     twi2->setData(0,Role_Library,root->data(0,Role_Library));
@@ -157,26 +181,10 @@ void ProjectTreeWidget::setupLibraryTree(QTreeWidgetItem *root)
     root->addChild(twi3);
     m_items.append(twi3);
 
-    QTreeWidgetItem *twi4 = new QTreeWidgetItem();
-    twi4->setText(0, i18n("References"));
-    twi4->setData(0,Role_Library,root->data(0,Role_Library));
-    twi4->setData(0,Role_ResourceType,Resource_Reference);
-    twi4->setIcon(0, KIcon(QLatin1String("user-identity")));
-    root->addChild(twi4);
-    m_items.append(twi4);
-
     QTreeWidgetItem *twi5 = new QTreeWidgetItem();
     twi5->setText(0, i18n("Media"));
     twi5->setData(0,Role_Library,root->data(0,Role_Library));
     twi5->setData(0,Role_ResourceType,Resource_Media);
     twi5->setIcon(0, KIcon(QLatin1String("applications-multimedia")));
     root->addChild(twi5);
-
-    QTreeWidgetItem *twi6 = new QTreeWidgetItem();
-    twi6->setText(0, i18n("Notes"));
-    twi6->setData(0,Role_Library,root->data(0,Role_Library));
-    twi6->setData(0,Role_ResourceType,Resource_Note);
-    twi6->setIcon(0, KIcon(QLatin1String("knotes")));
-    root->addChild(twi6);
-    m_items.append(twi6);
 }

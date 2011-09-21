@@ -15,28 +15,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GLOBALS_H
-#define GLOBALS_H
+#ifndef CHAPTEREDIT_H
+#define CHAPTEREDIT_H
 
-#include <Qt>
+#include "propertyedit.h"
 
-enum ProjectTreeRole {
-    Role_Library = Qt::UserRole,
-    Role_ResourceType
+/**
+  * Used to add a chapter to a bibreference
+  *
+  * setResource must be a nbib:BibPublication and the resource
+  * must have a nbib:Book as nbib:usePublication
+  */
+class ChapterEdit : public PropertyEdit
+{
+public:
+    ChapterEdit(QWidget *parent = 0);
+
+protected:
+    void setupLabel();
+    /**
+      * Has to be reimplemented for any subclass
+      */
+    virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+
+    /**
+      * update the resource with the @p text from the edit field
+      */
+    virtual void updateResource( const QString & text );
 };
 
-enum LibraryType {
-    Library_System,
-    Library_Project
-};
-enum ResourceSelection {
-    Resource_Library,
-    Resource_Document,
-    Resource_Mail,
-    Resource_Media,
-    Resource_Reference,
-    Resource_Publication,
-    Resource_Website,
-    Resource_Note
-};
-#endif // GLOBALS_H
+#endif // CHAPTEREDIT_H

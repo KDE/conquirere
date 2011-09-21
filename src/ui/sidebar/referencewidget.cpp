@@ -49,14 +49,15 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     ui->pagesEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::pages() );
     ui->publicationEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::usePublication() );
 
+    showCreateReference(true);
+
     //connect signal/slots
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->chapterEdit, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->citeKeyEdit, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->pagesEdit, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->publicationEdit, SLOT(setResource(Nepomuk::Resource&)));
 
-
-    showCreateReference(true);
+    connect(ui->publicationEdit, SIGNAL(textChanged(QString)), this, SLOT(showChapter()));
 }
 
 void ReferenceWidget::setResource(Nepomuk::Resource & resource)
@@ -85,11 +86,29 @@ void ReferenceWidget::showCreateReference(bool createRef)
         ui->createRefLabel->setVisible(true);
         ui->createButton->setVisible(true);
         ui->removeButton->setVisible(false);
+        ui->chapterEdit->setVisible(false);
+        ui->citeKeyEdit->setVisible(false);
+        ui->pagesEdit->setVisible(false);
+        ui->publicationEdit->setVisible(false);
+
+        ui->label_Chapter->setVisible(false);
+        ui->label_CiteKey->setVisible(false);
+        ui->label_Pages->setVisible(false);
+        ui->label_Publication->setVisible(false);
     }
     else {
         ui->createRefLabel->setVisible(false);
         ui->createButton->setVisible(false);
         ui->removeButton->setVisible(true);
+        ui->citeKeyEdit->setVisible(true);
+        ui->pagesEdit->setVisible(true);
+        ui->publicationEdit->setVisible(true);
+
+        ui->label_CiteKey->setVisible(true);
+        ui->label_Pages->setVisible(true);
+        ui->label_Publication->setVisible(true);
+
+        showChapter();
     }
 }
 
@@ -98,41 +117,42 @@ void ReferenceWidget::showPublicationList()
 
 }
 
+void ReferenceWidget::showChapter()
+{
+    // show chapter is called when the label of the publication edit widget
+    // changes, which only happens when the resource is adapted first
+    // so check the resource
+    QList<Nepomuk::Resource> list = ui->publicationEdit->propertyResources();
+
+    if(list.isEmpty()) {
+        ui->chapterEdit->setVisible(false);
+        ui->label_Chapter->setVisible(false);
+        return;
+    }
+
+    Nepomuk::Resource publication = list.first();
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Book())) {
+        ui->chapterEdit->show();
+        ui->chapterEdit->setVisible(true);
+        ui->label_Chapter->setVisible(true);
+    }
+    else {
+        ui->chapterEdit->setVisible(false);
+        ui->label_Chapter->setVisible(false);
+    }
+}
+
 void ReferenceWidget::createReference()
 {
-    qDebug() << "create ref";
-
-    /*
     // create a new reference
-    QList<QUrl> types;
-    types.append( Nepomuk::Vocabulary::NBIB::BibReference() );
+    Nepomuk::Resource newReference(QUrl(), Nepomuk::Vocabulary::NBIB::BibReference());
 
-    Nepomuk::Resource ref;
-    ref.setTypes(types); // set it to the type BibReference
-
-    QString citeKey = ui->chapterEdit->getLabelText();
-    if(!citeKey.isEmpty()) {
-        ref.setProperty( Nepomuk::Vocabulary::NBIB::citeKey(), citeKey );
-    }
-
-    QString pages = ui->pagesEdit->getLabelText();
-    if(!pages.isEmpty()) {
-        ref.setProperty( Nepomuk::Vocabulary::NBIB::citeKey(), pages );
-    }
-
-    QString publication = ui->publicationEdit->getLabelText();
-    if(!publication.isEmpty()) {
-        ref.setProperty( Nepomuk::Vocabulary::NBIB::citeKey(), pages );
-    }
-
-
-    QString chapter = ui->chapterEdit->getLabelText();
-    */
-
+    setResource(newReference);
 }
 
 void ReferenceWidget::removeReference()
 {
-
+    m_reference.remove();
+    showCreateReference(true);
 }
 

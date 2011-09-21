@@ -58,15 +58,22 @@ void SidebarWidget::newSelection(LibraryType library, ResourceSelection selectio
         m_currentWidget = new PublicationWidget();
         break;
     case Resource_Mail:
+        m_currentWidget = new PublicationWidget();
         break;
     case Resource_Media:
+        m_currentWidget = new PublicationWidget();
         break;
     case Resource_Reference:
         m_currentWidget = new ReferenceWidget();
         break;
     case Resource_Website:
+        m_currentWidget = new PublicationWidget();
         break;
     case Resource_Note:
+        m_currentWidget = new PublicationWidget();
+        break;
+    case Resource_Publication:
+        m_currentWidget = new PublicationWidget();
         break;
     }
 

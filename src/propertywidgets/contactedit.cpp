@@ -24,27 +24,59 @@
 
 ContactEdit::ContactEdit(QWidget *parent)
     : PropertyEdit(parent)
+    , m_useInternalDialog(true)
 {
+    setUseDetailDialog(false); //not used right now anyway
 }
 
 ContactEdit::~ContactEdit()
 {
 }
 
+void ContactEdit::setUseInternalDialog(bool useIt)
+{
+    m_useInternalDialog = useIt;
+}
+
+void ContactEdit::detailEditRequested()
+{
+//    if(m_useInternalDialog) {
+
+//    }
+
+    // TODO there should be some kind of "default dialog"
+    // best thing would be a list of authors left and
+    // the kaddressbook dialog to manipulate the contact
+    // as kpart right next to it.
+
+    // this does mean, shuch a dialog must be able to operate on a given
+    // nepomuk resource instead of the akonadi/vcard backend
+}
+
 void ContactEdit::setupLabel()
 {
-    QList<Nepomuk::Resource> authorList = resource().property(propertyUrl()).toResourceList();
-
     QString labelText;
-    foreach(Nepomuk::Resource r, authorList) {
-        QString fullname = r.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
-        labelText.append(fullname);
-        addPropertryEntry(fullname, r.resourceUri());
 
-        labelText.append(QLatin1String("; "));
+    if(hasMultipleCardinality()) {
+        QList<Nepomuk::Resource> authorList = resource().property(propertyUrl()).toResourceList();
+
+        foreach(Nepomuk::Resource r, authorList) {
+            QString fullname = r.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+            labelText.append(fullname);
+            addPropertryEntry(fullname, r.resourceUri());
+
+            labelText.append(QLatin1String("; "));
+        }
+
+        labelText.chop(2);
     }
+    else {
+        Nepomuk::Resource author = resource().property(propertyUrl()).toResource();
 
-    labelText.chop(2);
+        QString fullname = author.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+        labelText.append(fullname);
+        addPropertryEntry(fullname, author.resourceUri());
+    }
 
     setLabelText(labelText);
 }
@@ -54,12 +86,16 @@ void ContactEdit::updateResource(const QString & text)
     // remove allexisting contacts
     resource().removeProperty( propertyUrl() );
 
-    qDebug() << "update resource with " << text;
-
-    // for the contact we get a list of contact names divided by ;
-    // where each contact is also available as nepomuk:/res in the cache
-    // if not, a new contact with the full name of "string" will be created
-    QStringList entryList = text.split(QLatin1String(";"));
+    QStringList entryList;
+    if(hasMultipleCardinality()) {
+        // for the contact we get a list of contact names divided by ;
+        // where each contact is also available as nepomuk:/res in the cache
+        // if not, a new contact with the full name of "string" will be created
+        entryList = text.split(QLatin1String(";"));
+    }
+    else {
+        entryList.append(text);
+    }
 
     foreach(QString s, entryList) {
         s = s.trimmed();
@@ -67,7 +103,6 @@ void ContactEdit::updateResource(const QString & text)
         QUrl propUrl = propertyEntry(s);
         if(propUrl.isValid()) {
             resource().addProperty( propertyUrl(), Nepomuk::Resource(propUrl));
-            qDebug() << "add existing resource" << propUrl;
         }
         else {
             // create a new contact with the string s as fullname

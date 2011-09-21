@@ -39,10 +39,13 @@ void StringEdit::updateResource(const QString & text)
     // remove all existing string entries of this property
     resource().removeProperty( propertyUrl() );
 
-    // for the contact we get a list of contact names divided by ;
-    // where each contact is also available as nepomuk:/res in the cache
-    // if not, a new contact with the full name of "string" will be created
-    QStringList entryList = text.split(QLatin1String(";"));
+    QStringList entryList;
+    if(hasMultipleCardinality()) {
+        entryList = text.split(QLatin1String(";"));
+    }
+    else {
+        entryList.append(text);
+    }
 
     foreach(QString s, entryList) {
         s = s.trimmed();
@@ -52,5 +55,7 @@ void StringEdit::updateResource(const QString & text)
 
 void StringEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
-
+    // this needs a change in the propertyedit class
+    // so we can fetch any value of a certain property
+    // instead of searching for all occurences of a Resourcetype
 }

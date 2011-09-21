@@ -43,6 +43,9 @@ signals:
 
 private slots:
     void showPublicationList();
+
+    //enables/disbales the chapter widget if the publication is valida valid book or not
+    void showChapter();
     void createReference();
     void removeReference();
 

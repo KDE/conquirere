@@ -31,32 +31,85 @@ class QLabel;
 class QLineEdit;
 class QCompleter;
 class QAbstractItemModel;
+class QFocusEvent;
+class QToolButton;
 
 class PropertyEdit : public QWidget
 {
     Q_OBJECT
 public:
+    enum Cardinality {
+        UNIQUE_PROPERTY,
+        MULTIPLE_PROPERTY
+    };
+
     explicit PropertyEdit(QWidget *parent = 0);
     virtual ~PropertyEdit();
 
+    /**
+      * returns the resource that is beeing manipulated by this edit widget
+      */
     Nepomuk::Resource resource();
+
+    /**
+      * returns a list of resources for all propertys inserted into the edit widget
+      */
+    QList<Nepomuk::Resource> propertyResources();
     QUrl propertyUrl();
     QString labelText();
 
-public slots:
-    void setResource(Nepomuk::Resource & resource);
+    /**
+      * Defines if the values are one single entry or various.
+      *
+      * This is multiple by default.
+      * The default delimiter is ';'.
+      */
+    void setPropertyCardinality(PropertyEdit::Cardinality cardinality);
+    bool hasMultipleCardinality();
 
     /**
       * Sets the property of the resource that should be changed
       */
     void setPropertyUrl(const QUrl & m_propertyUrl);
 
+    void setUseDetailDialog(bool useIt);
+
+signals:
+    /**
+      * emitted when detailEditRequested() is called
+      * can be used to implement your own dialog t ochange the property
+      * 
+      * when the resource was editied update the PropertyEdit via setResource
+      */
+    void externalEditRequested(Nepomuk::Resource & resource, const QUrl & m_propertyUrl);
+
+    // emits the text of the label
+    void textChanged(const QString & newText);
+
+public slots:
+    void setResource(Nepomuk::Resource & resource);
+
     void setLabelText(const QString & text);
+
+    /**
+      * When someone clicks on the detail button next to the editline
+      *
+      * Used to open a dialog where the property (Contact for example)
+      * can be specified in greater detail
+      *
+      * calls externalEditRequested()
+      */
+    virtual void detailEditRequested();
 
 protected:
     virtual void setupLabel() = 0;
+
     /**
       * Has to be reimplemented for any subclass
+      *
+      * Creates the ItemModel for the QCompleter based on the result @p entries from nepomuk
+      *
+      * @see setCompletionModel();
       */
     virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries ) = 0;
 
@@ -75,17 +128,22 @@ private slots:
     void insertCompletion(const QModelIndex & index);
     void addCompletionData(const QList< Nepomuk::Query::Result > &entries);
 
-    //needed because blockingquery has a bug
+    // called when all values have been announced in addCompletionData
+    // quits the queryservice and calls createCompletionModel()
     void queryFinished();
+
+    void editingFinished();
+    void editingAborted();
 
 private:
     void mousePressEvent ( QMouseEvent * event );
     void keyPressEvent(QKeyEvent * e);
-    void editingFinished();
-    void editingAborted();
 
     QLabel    *m_label;
     QLineEdit *m_lineEdit;
+    QToolButton *m_detailView;
+    bool m_isListEdit;
+    bool m_useDetailDialog;
 
     Nepomuk::Resource m_resource;
     QUrl m_propertyUrl;

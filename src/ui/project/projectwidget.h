@@ -63,10 +63,14 @@ private:
     ResourceModel *m_projectMailModel;
     ResourceModel *m_projectMediaModel;
     ResourceModel *m_projectWebsiteModel;
+    ResourceModel *m_projectReferencesModel;
+    ResourceModel *m_projectPublicationModel;
     ResourceModel *m_systemDocumentModel;
     ResourceModel *m_systemMailModel;
     ResourceModel *m_systemMediaModel;
     ResourceModel *m_systemWebsiteModel;
+    ResourceModel *m_systemReferencesModel;
+    ResourceModel *m_systemPublicationModel;
 
     SidebarWidget *m_sidebarWidget;
 

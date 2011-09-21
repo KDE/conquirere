@@ -253,6 +253,9 @@ void ResourceModel::startFetchData()
     case Resource_Reference:
         andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::BibReference() ) );
         break;
+    case Resource_Publication:
+        andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Publication() ) );
+        break;
     }
 
     if(m_project) {

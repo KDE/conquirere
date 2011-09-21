@@ -7,6 +7,7 @@ set(conquirere_SRCS
     propertywidgets/contactedit.cpp
     propertywidgets/stringedit.cpp
     propertywidgets/publicationedit.cpp
+    propertywidgets/chapteredit.cpp
 
     core/project.cpp
     core/bibtexexporter.cpp

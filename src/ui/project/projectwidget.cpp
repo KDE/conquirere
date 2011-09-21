@@ -68,6 +68,18 @@ ProjectWidget::ProjectWidget(QWidget *parent)
     connect(m_systemWebsiteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
             m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
     m_systemWebsiteModel->startFetchData();
+
+    m_systemReferencesModel = new ResourceModel;
+    m_systemReferencesModel->setResourceType(Resource_Reference);
+    connect(m_systemReferencesModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+    m_systemReferencesModel->startFetchData();
+
+    m_systemPublicationModel = new ResourceModel;
+    m_systemPublicationModel->setResourceType(Resource_Publication);
+    connect(m_systemPublicationModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+    m_systemPublicationModel->startFetchData();
 }
 
 ProjectWidget::~ProjectWidget()
@@ -115,6 +127,20 @@ void ProjectWidget::setProject(Project *p)
     connect(m_projectWebsiteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
             m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
     m_projectWebsiteModel->startFetchData();
+
+    m_projectReferencesModel = new ResourceModel;
+    m_projectReferencesModel->setProject(m_project);
+    m_projectReferencesModel->setResourceType(Resource_Reference);
+    connect(m_projectReferencesModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+    m_projectReferencesModel->startFetchData();
+
+    m_projectPublicationModel = new ResourceModel;
+    m_projectPublicationModel->setProject(m_project);
+    m_projectPublicationModel->setResourceType(Resource_Publication);
+    connect(m_projectPublicationModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+    m_projectPublicationModel->startFetchData();
 }
 
 Project *ProjectWidget::project() const
@@ -143,9 +169,15 @@ void ProjectWidget::switchView(LibraryType library, ResourceSelection selection)
             m_documentView->setModel(m_projectWebsiteModel);
             break;
         case Resource_Reference:
-            m_documentView->setModel(m_projectMediaModel);
+            m_documentView->setModel(m_projectReferencesModel);
             break;
-            //    case Notes:
+        case Resource_Publication:
+            m_documentView->setModel(m_projectPublicationModel);
+            break;
+        case Resource_Note:
+            qDebug() << "note panel not implemeneted yet";
+            m_documentView->setModel(m_projectDocumentModel);
+            break;
         }
     }
     else {
@@ -163,12 +195,19 @@ void ProjectWidget::switchView(LibraryType library, ResourceSelection selection)
             m_documentView->setModel(m_systemWebsiteModel);
             break;
         case Resource_Reference:
-            m_documentView->setModel(m_systemWebsiteModel);
+            m_documentView->setModel(m_systemReferencesModel);
             break;
-            //    case Notes:
+        case Resource_Publication:
+            m_documentView->setModel(m_systemPublicationModel);
+            break;
+        case Resource_Note:
+            qDebug() << "note panel not implemeneted yet";
+            m_documentView->setModel(m_systemDocumentModel);
+            break;
         }
 
     }
+
     m_sidebarWidget->newSelection(library, selection);
 
     //shrink first 2 colums (review icon / document in project path icon)

@@ -49,7 +49,6 @@ void PublicationEdit::updateResource(const QString & text)
 
     if(propUrl.isValid()) {
         resource().addProperty( propertyUrl(), Nepomuk::Resource(propUrl));
-        qDebug() << "add existing resource" << propUrl;
     }
     else {
         // create a new publication with the string s as title

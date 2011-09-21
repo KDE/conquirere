@@ -17,6 +17,7 @@
 
 #include "propertyedit.h"
 
+#include <KDE/KIcon>
 #include <Nepomuk/Query/Term>
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Result>
@@ -25,6 +26,7 @@
 
 #include <QLabel>
 #include <QLineEdit>
+#include <QToolButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QCompleter>
@@ -33,8 +35,10 @@
 
 #include <QDebug>
 
-PropertyEdit::PropertyEdit(QWidget *parent) :
-    QWidget(parent)
+PropertyEdit::PropertyEdit(QWidget *parent)
+    : QWidget(parent)
+    , m_isListEdit(true)
+    , m_useDetailDialog(false)
 {
     m_label = new QLabel();
     m_label->setWordWrap(true);
@@ -44,11 +48,21 @@ PropertyEdit::PropertyEdit(QWidget *parent) :
     m_lineEdit = new QLineEdit();
     m_lineEdit->hide();
     connect(m_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(updateCompleter()));
+    connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
 
-    QHBoxLayout *layout = new QHBoxLayout;
-    layout->addWidget(m_label);
-    layout->addWidget(m_lineEdit);
-    setLayout(layout);
+    m_detailView = new QToolButton();
+    m_detailView->setIcon(KIcon(QLatin1String("document-edit-verify")));
+    connect(m_detailView, SIGNAL(clicked()), this, SLOT(detailEditRequested()));
+
+    QVBoxLayout *hlayout = new QVBoxLayout;
+    hlayout->addWidget(m_label);
+    hlayout->addWidget(m_lineEdit);
+
+    QHBoxLayout *vlayout = new QHBoxLayout;
+    vlayout->addLayout(hlayout);
+    vlayout->addWidget(m_detailView);
+
+    setLayout(vlayout);
 
     setMouseTracking(true);
 
@@ -63,6 +77,8 @@ PropertyEdit::PropertyEdit(QWidget *parent) :
     m_completer->setWidget(m_lineEdit);
     m_completer->setCaseSensitivity ( Qt::CaseInsensitive );
     connect(m_completer, SIGNAL(activated(QModelIndex)), this, SLOT(insertCompletion(QModelIndex)));
+
+    setUseDetailDialog(false);
 }
 
 PropertyEdit::~PropertyEdit()
@@ -92,11 +108,40 @@ Nepomuk::Resource PropertyEdit::resource()
 void PropertyEdit::setLabelText(const QString & text)
 {
     m_label->setText(text );
+
+    emit textChanged(text);
 }
 
 QString PropertyEdit::labelText()
 {
     return m_label->text();
+}
+
+void PropertyEdit::setPropertyCardinality(PropertyEdit::Cardinality cardinality)
+{
+    if(cardinality == PropertyEdit::MULTIPLE_PROPERTY) {
+        m_isListEdit = true;
+    }
+    else {
+        m_isListEdit = false;
+    }
+}
+
+bool PropertyEdit::hasMultipleCardinality()
+{
+    return m_isListEdit;
+}
+
+void PropertyEdit::setUseDetailDialog(bool useIt)
+{
+    m_useDetailDialog = useIt;
+
+    if(m_useDetailDialog) {
+        m_detailView->show();
+    }
+    else {
+        m_detailView->hide();
+    }
 }
 
 void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
@@ -111,14 +156,14 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
         // get all resources of type range
         resultCache.clear();
         Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( range.resourceUri() ) );
-        m_queryClient->blockingQuery(query);
+        m_queryClient->query(query);
     }
     // if we can't use the range for the check
     // get all entries for the propertyUrl that exist, maybe there is something in it we could reuse
     else {
         // get all resources of type range
         //Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( range.resourceUri() ) );
-        //m_queryClient->blockingQuery(query);
+        //m_queryClient->query(query);
     }
 
     // if we set the resource before the property
@@ -126,6 +171,11 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
     if(m_resource.isValid()) {
         setupLabel();
     }
+}
+
+QList<Nepomuk::Resource> PropertyEdit::propertyResources()
+{
+    return resource().property(propertyUrl()).toResourceList();
 }
 
 QUrl PropertyEdit::propertyUrl()
@@ -190,32 +240,38 @@ void PropertyEdit::updateCompleter()
 {
     QAbstractItemView* completionView = m_completer->popup();
 
-    //we take full string and split it at delimiter
-    QStringList entrylist = m_lineEdit->text().split(QLatin1String(";"));
-
-    // get the position of the cursor
-    int pos = m_lineEdit->cursorPosition();
-
-    int tempLength = 0;
-    int substringPos;
     QString subString;
-    // find the substring that is beeing manipulated
-    foreach(QString s, entrylist) {
-        tempLength += s.length();
-        if(tempLength >= pos-1) {
-            subString = s;
-            if(tempLength != pos) {
-                substringPos = tempLength - pos;
-            }
-            else {
-                substringPos = tempLength;
-            }
-            break;
-        }
-    }
 
-    //remove any string after text position
-    subString = subString.left(substringPos).trimmed();
+    if(m_isListEdit) {
+        //we take full string and split it at delimiter
+        QStringList entrylist = m_lineEdit->text().split(QLatin1String(";"));
+
+        // get the position of the cursor
+        int pos = m_lineEdit->cursorPosition();
+
+        int tempLength = 0;
+        int substringPos;
+        // find the substring that is beeing manipulated
+        foreach(QString s, entrylist) {
+            tempLength += s.length();
+            if(tempLength >= pos-1) {
+                subString = s;
+                if(tempLength != pos) {
+                    substringPos = tempLength - pos;
+                }
+                else {
+                    substringPos = tempLength;
+                }
+                break;
+            }
+        }
+
+        //remove any string after text position
+        subString = subString.left(substringPos).trimmed();
+    }
+    else {
+        subString = m_lineEdit->text();
+    }
 
     //ok we have the string that needs autocompletion
     if(!subString.isEmpty()) {
@@ -228,32 +284,38 @@ void PropertyEdit::updateCompleter()
 
 void PropertyEdit::insertCompletion(const QModelIndex & index)
 {
-    // get current list
-    QStringList entrylist = m_lineEdit->text().split(QLatin1String(";"));
     QString exitString;
+    // get current list
+    if(m_isListEdit) {
+        QStringList entrylist = m_lineEdit->text().split(QLatin1String(";"));
 
-    // get the position of the cursor
-    int pos = m_lineEdit->cursorPosition();
+        // get the position of the cursor
+        int pos = m_lineEdit->cursorPosition();
 
-    int tempLength = 0;
-    // find the substring that is beeing manipulated and replace it with the selected suggestion
-    bool inserted = false;
-    foreach(QString s, entrylist) {
-        tempLength += s.length();
-        if( !inserted && tempLength >= pos-1) {
-            exitString.append(index.data().toString());
+        int tempLength = 0;
+        // find the substring that is beeing manipulated and replace it with the selected suggestion
+        bool inserted = false;
+        foreach(QString s, entrylist) {
+            tempLength += s.length();
+            if( !inserted && tempLength >= pos-1) {
+                exitString.append(index.data().toString());
 
-            addPropertryEntry(index.data().toString(), index.data(Qt::UserRole + 1).toString());
-            inserted = true;
+                addPropertryEntry(index.data().toString(), index.data(Qt::UserRole + 1).toString());
+                inserted = true;
+            }
+            else {
+                exitString.append(s);
+            }
+
+            exitString.append(QLatin1String("; "));
         }
-        else {
-            exitString.append(s);
-        }
 
-        exitString.append(QLatin1String("; "));
+        exitString.chop(2);
     }
-
-    exitString.chop(2);
+    else {
+        exitString = index.data().toString();
+        addPropertryEntry(index.data().toString(), index.data(Qt::UserRole + 1).toString());
+    }
 
     m_lineEdit->setText(exitString);
 }
@@ -275,6 +337,11 @@ void PropertyEdit::editingAborted()
     m_label->show();
 }
 
+void PropertyEdit::detailEditRequested()
+{
+    emit externalEditRequested(m_resource, m_propertyUrl);
+}
+
 void PropertyEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entries)
 {
     if(!entries.isEmpty()) {
@@ -284,5 +351,6 @@ void PropertyEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entr
 
 void PropertyEdit::queryFinished()
 {
+    m_queryClient->close();
     createCompletionModel(resultCache);
 }

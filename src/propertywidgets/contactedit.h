@@ -26,6 +26,11 @@ public:
     ContactEdit(QWidget *parent = 0);
     virtual ~ContactEdit();
 
+    void setUseInternalDialog(bool useIt);
+
+public slots:
+    void detailEditRequested();
+
 protected:
     void setupLabel();
     /**
@@ -37,6 +42,9 @@ protected:
       * update the resource with the @p text from the edit field
       */
     virtual void updateResource( const QString & text );
+
+private:
+    bool m_useInternalDialog;
 };
 
 #endif // CONTACTEDIT_H
