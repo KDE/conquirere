@@ -18,6 +18,7 @@
 #include "referencewidget.h"
 #include "ui_referencewidget.h"
 
+#include "../../core/project.h"
 #include "../../propertywidgets/stringedit.h"
 #include "../../propertywidgets/contactedit.h"
 
@@ -25,6 +26,7 @@
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NCO>
+#include <Nepomuk/Vocabulary/PIMO>
 #include <KGlobalSettings>
 
 #include <QHBoxLayout>
@@ -45,9 +47,14 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
 
     //set propertyURL of the edit elements
     ui->chapterEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::hasChapter() );
+    ui->chapterEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
     ui->citeKeyEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::citeKey() );
+    ui->citeKeyEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
     ui->pagesEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::pages() );
+    ui->pagesEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
     ui->publicationEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::usePublication() );
+    ui->publicationEdit->setUseDetailDialog(true);
+    ui->publicationEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
 
     showCreateReference(true);
 
@@ -58,6 +65,7 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->publicationEdit, SLOT(setResource(Nepomuk::Resource&)));
 
     connect(ui->publicationEdit, SIGNAL(textChanged(QString)), this, SLOT(showChapter()));
+    connect(ui->publicationEdit, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showPublicationList()));
 }
 
 void ReferenceWidget::setResource(Nepomuk::Resource & resource)
@@ -66,6 +74,7 @@ void ReferenceWidget::setResource(Nepomuk::Resource & resource)
     if (resource.hasType(Nepomuk::Vocabulary::NBIB::BibReference()) ) {
         m_reference = resource;
         showCreateReference(false);
+        showChapter();
 
         emit resourceChanged(m_reference);
     }
@@ -114,7 +123,7 @@ void ReferenceWidget::showCreateReference(bool createRef)
 
 void ReferenceWidget::showPublicationList()
 {
-
+    qDebug() << "show publication list";
 }
 
 void ReferenceWidget::showChapter()
@@ -132,7 +141,7 @@ void ReferenceWidget::showChapter()
 
     Nepomuk::Resource publication = list.first();
     if(publication.hasType(Nepomuk::Vocabulary::NBIB::Book())) {
-        ui->chapterEdit->show();
+        ui->chapterEdit->setVisible(true);
         ui->chapterEdit->setVisible(true);
         ui->label_Chapter->setVisible(true);
     }
@@ -147,6 +156,10 @@ void ReferenceWidget::createReference()
     // create a new reference
     Nepomuk::Resource newReference(QUrl(), Nepomuk::Vocabulary::NBIB::BibReference());
 
+    if(libraryType() == Library_Project && project()) {
+        //relate the ref to the project
+        newReference.setProperty(Nepomuk::Vocabulary::PIMO::isRelated() , project()->pimoProject());
+    }
     setResource(newReference);
 }
 

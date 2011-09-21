@@ -44,6 +44,16 @@ void SidebarWidget::clear()
 
 }
 
+void SidebarWidget::setProject(Project *p)
+{
+    m_project = p;
+}
+
+Project *SidebarWidget::project()
+{
+    return m_project;
+}
+
 void SidebarWidget::newSelection(LibraryType library, ResourceSelection selection)
 {
     layout()->removeWidget(m_currentWidget);
@@ -52,6 +62,7 @@ void SidebarWidget::newSelection(LibraryType library, ResourceSelection selectio
 
     switch(selection) {
     case Resource_Library:
+        //TODO do something when the library header is clicked (show welcome page? statistic page?)
         //m_currentWidget = new QWidget();
         break;
     case Resource_Document:
@@ -77,5 +88,7 @@ void SidebarWidget::newSelection(LibraryType library, ResourceSelection selectio
         break;
     }
 
+    m_currentWidget->setLibraryType(library);
+    m_currentWidget->setProject(m_project);
     layout()->addWidget(m_currentWidget);
 }

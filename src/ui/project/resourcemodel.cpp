@@ -108,7 +108,7 @@ int ResourceModel::rowCount(const QModelIndex &parent) const
 int ResourceModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 4;
+    return 5;
 }
 
 QVariant ResourceModel::data(const QModelIndex &index, int role) const
@@ -125,42 +125,149 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     if (role == Qt::DisplayRole) {
+
+        // Display Author
         if(index.column() == 2) {
-            switch(m_selection)
-            {
+            switch(m_selection) {
             case Resource_Mail:
             {
                 Nepomuk::Variant nv = document.property(Nepomuk::Vocabulary::NMO::from());
                 return nv.toResource().label();
             }
-            default:
-                Nepomuk::Variant nv = document.property(Nepomuk::Vocabulary::NCO::creator());
+            case Resource_Reference:
+            {
+                QString authorSting;
+                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::usePublication()).toResource();
+                QList<Nepomuk::Resource> authorList = publication.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
 
-                return nv.toResource().genericLabel();
+                foreach(Nepomuk::Resource a, authorList) {
+                    authorSting.append(a.genericLabel());
+                    authorSting.append(QLatin1String("; "));
+                }
+                authorSting.chop(2);
+
+                return authorSting;
+            }
+            case Resource_Document:
+            {
+                QString authorSting;
+                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
+                QList<Nepomuk::Resource> authorList = publication.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
+
+                foreach(Nepomuk::Resource a, authorList) {
+                    authorSting.append(a.genericLabel());
+                    authorSting.append(QLatin1String("; "));
+                }
+                authorSting.chop(2);
+
+                return authorSting;
+            }
+            default:
+                QString authorSting;
+                QList<Nepomuk::Resource> authorList = document.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
+
+                foreach(Nepomuk::Resource a, authorList) {
+                    authorSting.append(a.genericLabel());
+                    authorSting.append(QLatin1String("; "));
+                }
+                authorSting.chop(2);
+
+                return authorSting;
             }
         }
+
+        // Display Titel
         if(index.column() == 3) {
-            Nepomuk::Resource bibResource = document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
-            if(bibResource.isValid()) {
-                return bibResource.genericLabel();
+            switch(m_selection) {
+            case Resource_Mail:
+            {
+                Nepomuk::Resource mail = document.property(Nepomuk::Vocabulary::NMO::messageFrom()).toResource();
+                return mail.genericLabel();
             }
+            case Resource_Reference:
+            {
+                QString titleString;
+                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::usePublication()).toResource();
+                titleString = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
-            QString nv = document.property(Nepomuk::Vocabulary::NIE::title()).toString();
+                if(titleString.isEmpty()) {
+                    Nepomuk::Resource fileDocument = publication.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResource();
 
-            if(!nv.isEmpty()) {
-                return nv;
+                    if(fileDocument.isValid()) {
+                        titleString = fileDocument.genericLabel();
+                    }
+                    else {
+                        titleString = i18n("publication not named");
+                    }
+                }
+
+                return titleString;
             }
-            else {
+            case Resource_Document:
+            {
+                Nepomuk::Resource bibResource = document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
+                if(bibResource.isValid()) {
+                    return bibResource.genericLabel();
+                }
+                else {
+                    return document.genericLabel();
+                }
+            }
+            default:
                 return document.genericLabel();
+            }
+        }
+
+        // display date (creation or published)
+        if(index.column() == 4) {
+            switch(m_selection) {
+            case Resource_Mail:
+            {
+                QString date = document.property(Nepomuk::Vocabulary::NMO::receivedDate()).toString();
+                return date;
+            }
+            case Resource_Reference:
+            {
+                QString dateString;
+                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::usePublication()).toResource();
+                dateString = publication.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
+
+                if(dateString.isEmpty()) {
+                    Nepomuk::Resource fileDocument = publication.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResource();
+
+                    if(fileDocument.isValid()) {
+                        dateString = fileDocument.property(Nepomuk::Vocabulary::NIE::contentLastModified()).toString();
+                    }
+                }
+
+                return dateString;
+            }
+            case Resource_Document:
+            {
+                QString dateString;
+
+                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
+                if(publication.isValid()) {
+                    dateString = publication.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
+
+                    if(!dateString.isEmpty()) {
+                        return dateString;
+                    }
+                }
+                return document.property(Nepomuk::Vocabulary::NIE::contentLastModified()).toString();
+
+            }
+            default:
+                return document.property(Nepomuk::Vocabulary::NIE::contentLastModified()).toString();
             }
         }
     }
 
     if (role == Qt::DecorationRole) {
         switch(index.column()) {
-        case 0:
+        case 0: //display "reviewed icon"
             return KIcon(QLatin1String("dialog-ok-apply"));
-        case 1:
+        case 1: //display "is file availabe either in the system or even in project path"
             if(m_project && m_project->isInPath(document.property(Nepomuk::Vocabulary::NIE::url()).toString())) {
                 return  KIcon(QLatin1String("bookmarks-organize"));
             }
@@ -197,6 +304,8 @@ QVariant ResourceModel::headerData(int section, Qt::Orientation orientation, int
             return tr("Author");
         case 3:
             return tr("Title");
+        case 4:
+            return tr("Date");
         default:
             return QVariant();
         }
@@ -207,11 +316,13 @@ QVariant ResourceModel::headerData(int section, Qt::Orientation orientation, int
         case 0:
             return tr("Reviewed");
         case 1:
-            return tr("File in Project path available");
+            return tr("File available (Either in the project folder or on the system)");
         case 2:
-            return tr("Document Author");
+            return tr("The Author of the document");
         case 3:
-            return tr("Document Title");
+            return tr("The document title");
+        case 4:
+            return tr("The date of creation or publishing");
         default:
             return QVariant();
         }
@@ -300,15 +411,6 @@ void ResourceModel::addData(const QList< Nepomuk::Query::Result > &entries)
 
     emit dataSizeChaged(m_fileList.size());
 
-//    qDebug() << "is listing finished?" << m_queryClient->isListingFinished();
-//    if(true || m_queryClient->isListingFinished()) {
-//        if(m_project) {
-//            emit updatefetchDataFor(Library_Project,m_selection,false);
-//        }
-//        else {
-//            emit updatefetchDataFor(Library_System,m_selection,false);
-//        }
-//    }
 }
 
 void ResourceModel::removeData( const QList< QUrl > &entries )
@@ -316,20 +418,20 @@ void ResourceModel::removeData( const QList< QUrl > &entries )
     //qDebug() << "remove data :: " << entries;
     // two loops are necessary because removeData is not only called on removed entries, but with all changes
     // must be a bug in nepomuk
-//    Nepomuk::Resource muh(entries.first());
-//    Nepomuk::Resource relatesTo = muh.property( Nepomuk::Vocabulary::PIMO::isRelated()).toResource();
+    //    Nepomuk::Resource muh(entries.first());
+    //    Nepomuk::Resource relatesTo = muh.property( Nepomuk::Vocabulary::PIMO::isRelated()).toResource();
 
-//    if ( relatesTo == m_project->pimoProject()) {
-//        return;
-//    }
+    //    if ( relatesTo == m_project->pimoProject()) {
+    //        return;
+    //    }
 
-//    int removedRow  = m_fileList.indexOf(muh);
+    //    int removedRow  = m_fileList.indexOf(muh);
 
-//    beginRemoveRows(QModelIndex(), removedRow, removedRow);
-//    m_fileList.removeOne(muh);
-//    endRemoveRows();
+    //    beginRemoveRows(QModelIndex(), removedRow, removedRow);
+    //    m_fileList.removeOne(muh);
+    //    endRemoveRows();
 
-//    emit dataSizeChaged(m_fileList.size());
+    //    emit dataSizeChaged(m_fileList.size());
 }
 
 void ResourceModel::sort ( int column, Qt::SortOrder order )
@@ -370,8 +472,6 @@ void ResourceModel::removeSelected(const QModelIndexList & indexes)
 
 void ResourceModel::resultCount(int number)
 {
-    //BUG this is never called from the query client.
-    qDebug() << "listingsFinished" << number;
     if(number == 0) {
         if(m_project) {
             emit updatefetchDataFor(Library_Project,m_selection,false);
@@ -386,12 +486,12 @@ void ResourceModel::listingsFinished()
 {
     //BUG this is never called from the query client.
     qDebug() << "listingsFinished" << "added something? oO" << m_fileList.size();
-        if(m_project) {
-            emit updatefetchDataFor(Library_Project,m_selection,false);
-        }
-        else {
-            emit updatefetchDataFor(Library_System,m_selection,false);
-        }
+    if(m_project) {
+        emit updatefetchDataFor(Library_Project,m_selection,false);
+    }
+    else {
+        emit updatefetchDataFor(Library_System,m_selection,false);
+    }
 }
 
 void ResourceModel::listingsError(const QString & errorMessage)

@@ -98,6 +98,8 @@ void ProjectWidget::setProject(Project *p)
 {
     m_project = p;
 
+    m_sidebarWidget->setProject(m_project);
+
     m_projectTree->setProject(m_project);
 
     m_projectDocumentModel = new ResourceModel;
@@ -210,11 +212,14 @@ void ProjectWidget::switchView(LibraryType library, ResourceSelection selection)
 
     m_sidebarWidget->newSelection(library, selection);
 
-    //shrink first 2 colums (review icon / document in project path icon)
-    //TODO why is it here? seems to work, but must be wrong
-    QHeaderView *qhv = m_documentView->horizontalHeader();
-    qhv->resizeSection(0,25);
-    qhv->resizeSection(1,25);
+    m_documentView->horizontalHeader()->setResizeMode(0, QHeaderView::Fixed);
+    m_documentView->horizontalHeader()->setResizeMode(1, QHeaderView::Fixed);
+    m_documentView->horizontalHeader()->setResizeMode(2, QHeaderView::Interactive);
+    m_documentView->horizontalHeader()->setResizeMode(3, QHeaderView::Stretch);
+    m_documentView->horizontalHeader()->setResizeMode(4, QHeaderView::Fixed);
+    m_documentView->horizontalHeader()->resizeSection(0,25);
+    m_documentView->horizontalHeader()->resizeSection(1,25);
+    m_documentView->horizontalHeader()->resizeSection(4,100);
 
     connect(m_documentView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(selectedResource(QModelIndex,QModelIndex)));
 
@@ -280,11 +285,15 @@ void ProjectWidget::setupWidget()
     m_documentView = new QTableView;
     m_documentView->setSortingEnabled(true);
     m_documentView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_documentView->horizontalHeader()->setStretchLastSection(true);
+    m_documentView->horizontalHeader()->setStretchLastSection(false);
     m_documentView->verticalHeader()->hide();
     m_documentView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_documentView->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    //m_documentView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+   // m_documentView->horizontalHeader()->setResizeMode(3, QHeaderView::Interactive);
+
 
     connect(m_documentView, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(tableContextMenu(const QPoint &)));

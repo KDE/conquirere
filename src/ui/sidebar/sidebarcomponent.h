@@ -21,6 +21,10 @@
 #include <QWidget>
 #include <Nepomuk/Resource>
 
+#include "../../globals.h"
+
+class Project;
+
 class SidebarComponent : public QWidget
 {
     Q_OBJECT
@@ -28,10 +32,18 @@ public:
     explicit SidebarComponent(QWidget *parent = 0);
     virtual ~SidebarComponent() {}
 
+    void setLibraryType(LibraryType type) { m_libraryType = type; }
+    LibraryType libraryType() { return m_libraryType; }
+    void setProject(Project *p) { m_project = p; }
+    Project *project() { return m_project; }
+
 public slots:
     virtual void setResource(Nepomuk::Resource & resource) = 0;
     virtual void clear() = 0;
 
+private:
+    LibraryType m_libraryType;
+    Project *m_project;
 };
 
 #endif // SIDEBARCOMPONENT_H

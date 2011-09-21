@@ -226,6 +226,7 @@ void PropertyEdit::keyPressEvent(QKeyEvent * e)
     case Qt::Key_Return:
     case Qt::Key_Enter:
         editingFinished();
+        //insreting the completin via Enter is done by signal activated()
         break;
     case Qt::Key_Left:
     case Qt::Key_Right:
@@ -322,6 +323,10 @@ void PropertyEdit::insertCompletion(const QModelIndex & index)
 
 void PropertyEdit::editingFinished()
 {
+    //don't switch to label view when enter is pressed for the completion
+    if(m_completer->popup()->isVisible() )
+        return;
+
     if(m_label->text() != m_lineEdit->text()) {
         updateResource(m_lineEdit->text());
         m_label->setText(m_lineEdit->text());

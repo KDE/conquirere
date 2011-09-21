@@ -25,6 +25,7 @@
 #include <Nepomuk/Resource>
 
 class SidebarComponent;
+class Project;
 
 class SidebarWidget : public QWidget
 {
@@ -33,6 +34,9 @@ public:
     explicit SidebarWidget(QWidget *parent = 0);
 
     virtual void setResource(Nepomuk::Resource & resource);
+
+    void setProject(Project *p);
+    Project *project();
 
 public slots:
     /* called when somethinh is selected in the project view */
@@ -43,6 +47,7 @@ public slots:
 
 private:
     SidebarComponent *m_currentWidget;
+    Project *m_project;
 };
 
 #endif // SIDEBARWIDGET_H
