@@ -111,12 +111,6 @@ nbib: {
           rdfs:label "Inproceedings" ;
           rdfs:subClassOf nbib:Publication .
 
-    nbib:InCollection
-          a       rdfs:Class ;
-          rdfs:comment "A part of a book having its own title." ;
-          rdfs:label "Incollection" ;
-          rdfs:subClassOf nbib:Publication .
-
     nbib:Manual
           a       rdfs:Class ;
           rdfs:comment "Technical documentation." ;
@@ -363,7 +357,7 @@ nbib: {
 
     nbib:number
           a       rdf:Property ;
-          rdfs:domain nbib:Article, nbib:Techreport ;
+          rdfs:domain nbib:Publication ;
           rdfs:comment "The '(issue) number' of a journal, magazine, or tech-report, if applicable. (Most publications have a 'volume', but no 'number' field.)." ;
           rdfs:label "Number" ;
           rdfs:range xsd:string ;
@@ -412,7 +406,7 @@ nbib: {
 
     nbib:type
           a       rdf:Property ;
-          rdfs:domain nbib:Techreport, nbib:Misc ;
+          rdfs:domain nbib:Publication ;
           rdfs:comment "The type of tech-report, for example, 'Research Note'." ;
           rdfs:label "Type" ;
           rdfs:range xsd:string ;
@@ -429,7 +423,7 @@ nbib: {
 
     nbib:volume
           a       rdf:Property ;
-          rdfs:domain nbib:Book, nbib:Article  ;
+          rdfs:domain nbib:Publication  ;
           rdfs:comment "The volume of a journal or multi-volume book." ;
           rdfs:label "Volume" ;
           rdfs:range xsd:string ;
