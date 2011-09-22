@@ -157,9 +157,9 @@ void PublicationWidget::setupWidget()
     ui->editEntryType->addItem(i18n("Book"),BibType_Book);
     ui->editEntryType->addItem(i18n("Booklet"),BibType_Booklet);
     ui->editEntryType->addItem(i18n("Collection"),BibType_Collection);
-    ui->editEntryType->addItem(i18n("Incollection"),BibType_Incollection);
     ui->editEntryType->addItem(i18n("Proceedings"),BibType_Proceedings);
     ui->editEntryType->addItem(i18n("Inproceedings"),BibType_Inproceedings);
+    ui->editEntryType->addItem(i18n("Journal Issue"),BibType_JournalIssue);
     ui->editEntryType->addItem(i18n("Bachelorhesis"),BibType_Bachelorthesis);
     ui->editEntryType->addItem(i18n("Mastersthesis"),BibType_Mastersthesis);
     ui->editEntryType->addItem(i18n("Phdthesis"),BibType_Phdthesis);
@@ -168,7 +168,6 @@ void PublicationWidget::setupWidget()
     ui->editEntryType->addItem(i18n("Unpublished"),BibType_Unpublished);
     ui->editEntryType->addItem(i18n("Electronic"),BibType_Electronic);
     ui->editEntryType->addItem(i18n("Patent"),BibType_Patent);
-    ui->editEntryType->addItem(i18n("Journal Issue"),BibType_JournalIssue);
 
     connect(ui->editEntryType, SIGNAL(currentIndexChanged(int)), this, SLOT(newBibEntryTypeSelected(int)));
 
@@ -240,9 +239,6 @@ BibEntryType PublicationWidget::resourceTypeToEnum(Nepomuk::Resource & resource)
     if(resourceLabel == QLatin1String("InProceedings")) {
         return BibType_Inproceedings;
     }
-    if(resourceLabel == QLatin1String("InCollection")) {
-        return BibType_Incollection;
-    }
     if(resourceLabel == QLatin1String("Manual")) {
         return BibType_Manual;
     }
@@ -294,9 +290,6 @@ QUrl PublicationWidget::EnumToResourceType(BibEntryType entryType)
     case BibType_Collection:
         return Nepomuk::Vocabulary::NBIB::Collection();
         break;
-    case BibType_Incollection:
-        return Nepomuk::Vocabulary::NBIB::InCollection();
-        break;
     case BibType_Manual:
         return Nepomuk::Vocabulary::NBIB::Manual();
         break;
@@ -346,9 +339,6 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
         break;
     case BibType_Inproceedings:
         layoutInproceedings();
-        break;
-    case BibType_Incollection:
-        layoutIncollection();
         break;
     case BibType_Manual:
         layoutManual();
@@ -491,34 +481,6 @@ void PublicationWidget::layoutCollection()
 
     ui->editEdition->setEnabled(false);
     ui->editEditor->setEnabled(false);
-    ui->editEprint->setEnabled(false);
-
-
-    ui->editSchool->setEnabled(false);
-    ui->editSeries->setEnabled(false);
-    ui->editUrl->setEnabled(false);
-    ui->editType->setEnabled(false);
-}
-
-void PublicationWidget::layoutIncollection()
-{
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
-    ui->editISBN->setEnabled(true);
-    ui->editISSN->setEnabled(true);
-    ui->editCopyright->setEnabled(true);
-
-    ui->editDate->setEnabled(true);
-
-    ui->editHowPublished->setEnabled(false);
-    ui->editPublisher->setEnabled(true);
-    ui->editJournal->setEnabled(false);
-    ui->editVolume->setEnabled(false);
-    ui->editNumber->setEnabled(false);
-
-    ui->editEdition->setEnabled(false);
-    ui->editEditor->setEnabled(true);
     ui->editEprint->setEnabled(false);
 
 

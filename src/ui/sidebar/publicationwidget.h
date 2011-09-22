@@ -29,7 +29,6 @@ enum BibEntryType {
     BibType_Book,              /**< A book with an explicit publisher. */
     BibType_Booklet,           /**< A work that is printed and bound, but without a named publisher or sponsoring institution. */
     BibType_Collection,        /**< A collection of different publications */
-    BibType_Incollection,      /**< A part of a book having its own title.. */
     BibType_Inproceedings,     /**< An article in a conference proceedings. */
     BibType_Manual,            /**< Technical documentation. */
     BibType_Mastersthesis,     /**< A Master's thesis. */
@@ -113,7 +112,6 @@ private:
     void layoutCollection();
     void layoutProceedings();
     void layoutInproceedings();
-    void layoutIncollection();
     void layoutManual();
     void layoutMastersthesis();
     void layoutMisc();
