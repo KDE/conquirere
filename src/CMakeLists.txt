@@ -29,6 +29,7 @@ set(conquirere_SRCS
     sidebar/publicationwidget.cpp
     sidebar/referencewidget.cpp
     sidebar/listpublicationsdialog.cpp
+    sidebar/documentwidget.cpp
 )
 
 kde4_add_ui_files( conquirere_SRCS
@@ -40,6 +41,7 @@ kde4_add_ui_files( conquirere_SRCS
                    sidebar/referencewidget.ui
                    sidebar/listpublicationsdialog.ui
                    sidebar/publicationwidget.ui
+                   sidebar/documentwidget.ui
 )
 
 

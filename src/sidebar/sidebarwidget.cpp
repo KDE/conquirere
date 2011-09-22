@@ -20,6 +20,7 @@
 #include "publicationwidget.h"
 #include "sidebarcomponent.h"
 #include "referencewidget.h"
+#include "documentwidget.h"
 
 #include <QVBoxLayout>
 
@@ -66,7 +67,7 @@ void SidebarWidget::newSelection(LibraryType library, ResourceSelection selectio
         m_currentWidget = new PublicationWidget();
         break;
     case Resource_Document:
-        m_currentWidget = new PublicationWidget();
+        m_currentWidget = new DocumentWidget();
         break;
     case Resource_Mail:
         m_currentWidget = new PublicationWidget();

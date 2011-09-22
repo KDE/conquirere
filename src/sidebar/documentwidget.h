@@ -15,46 +15,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef REFERENCEWIDGET_H
-#define REFERENCEWIDGET_H
+#ifndef DOCUMENTWIDGET_H
+#define DOCUMENTWIDGET_H
 
 #include "sidebarcomponent.h"
 #include <Nepomuk/Resource>
 
+#include <QWidget>
+
 namespace Ui {
-    class ReferenceWidget;
+    class DocumentWidget;
 }
 
-class QWidget;
-class ReferenceWidget : public SidebarComponent
+class KFileMetaDataWidget;
+
+class DocumentWidget : public SidebarComponent
 {
     Q_OBJECT
-public:
-    explicit ReferenceWidget(QWidget *parent = 0);
 
-    void setDialogMode(bool dialogMode);
+public:
+    explicit DocumentWidget(QWidget *parent = 0);
+    ~DocumentWidget();
 
 public slots:
     virtual void setResource(Nepomuk::Resource & resource);
     virtual void clear();
-    void showCreateReference(bool showIt);
-
-signals:
-    /* notify connected editwidgets to update their info */
-    void resourceChanged(Nepomuk::Resource & resource);
 
 private slots:
-    void showPublicationList();
-
-    //enables/disbales the chapter widget if the publication is valida valid book or not
-    void showChapter();
-    void createReference();
-    void removeReference();
+    void createPublication();
+    void removePublication();
 
 private:
-    Nepomuk::Resource m_reference;
+    Nepomuk::Resource m_document;
 
-    Ui::ReferenceWidget *ui;
+    Ui::DocumentWidget *ui;
+    KFileMetaDataWidget *m_kfmd;
 };
 
-#endif // REFERENCEWIDGET_H
+#endif // DOCUMENTWIDGET_H
