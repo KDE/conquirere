@@ -84,7 +84,7 @@ void ReferenceWidget::setDialogMode(bool dialogMode)
 void ReferenceWidget::setResource(Nepomuk::Resource & resource)
 {
     // what we get is a nbib::BibReference
-    if (resource.hasType(Nepomuk::Vocabulary::NBIB::BibReference()) ) {
+    if (resource.hasType(Nepomuk::Vocabulary::NBIB::Reference()) ) {
         m_reference = resource;
         showCreateReference(false);
         showChapter();
@@ -175,7 +175,7 @@ void ReferenceWidget::showChapter()
 void ReferenceWidget::createReference()
 {
     // create a new reference
-    Nepomuk::Resource newReference(QUrl(), Nepomuk::Vocabulary::NBIB::BibReference());
+    Nepomuk::Resource newReference(QUrl(), Nepomuk::Vocabulary::NBIB::Reference());
 
     if(libraryType() == Library_Project && project()) {
         //relate the ref to the project

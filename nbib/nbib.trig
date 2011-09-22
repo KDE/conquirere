@@ -46,7 +46,7 @@
 @prefix nao:     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
 
 nbib: {
-    nbib:BibReference
+    nbib:Reference
           a       rdfs:Class ;
           rdfs:comment "A bibliographic reference" ;
           rdfs:label "Bibliographic Reference" ;
@@ -200,7 +200,7 @@ nbib: {
 
     nbib:citeKey
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:Reference ;
           rdfs:comment "Used to identify the reference." ;
           rdfs:label "CiteKey" ;
           rdfs:subPropertyOf nie:identifier ;
@@ -218,14 +218,14 @@ nbib: {
 
     nbib:annote
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:Reference ;
           rdfs:comment "An annotation for annotated bibliography styles (not typical)." ;
           rdfs:label "Annote" ;
           rdfs:range xsd:string .
 
     nbib:contents
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:Reference ;
           rdfs:comment "A Table of Contents." ;
           rdfs:label "Contents" ;
           rdfs:range xsd:string ;
@@ -233,15 +233,15 @@ nbib: {
 
     nbib:crossref
           a       rdf:Property ;
-          rdfs:domain nbib:BibResource ;
+          rdfs:domain nbib:Publication ;
           rdfs:comment "The citekey of the cross-referenced entry." ;
           rdfs:label "Crossref" ;
-          rdfs:range nbib:BibReference ;
+          rdfs:range nbib:Reference ;
           nrl:maxCardinality 1 .
 
     nbib:doi
           a       rdf:Property ;
-          rdfs:domain nbib:BibResource ;
+          rdfs:domain nbib:Publication ;
           rdfs:comment "The Digital object identifier. see http://www.doi.org/ for more information" ;
           rdfs:label "DOI" ;
           rdfs:range xsd:string ;
@@ -265,7 +265,7 @@ nbib: {
 
     nbib:eprint
           a       rdf:Property ;
-          rdfs:domain nbib:BibResource ;
+          rdfs:domain nbib:Publication ;
           rdfs:comment "A specification of an electronic publication, often a preprint or a technical report." ;
           rdfs:label "Eprint" ;
           rdfs:range xsd:string ;
@@ -273,7 +273,7 @@ nbib: {
 
     nbib:hasChapter
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:Reference ;
           rdfs:comment "The chapter number of the reference." ;
           rdfs:label "Chapter" ;
           rdfs:range nbib:Chapter ;
@@ -281,7 +281,7 @@ nbib: {
 
     nbib:usePublication
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:Reference ;
           rdfs:comment "The publication used for this reference" ;
           rdfs:label "usePublication" ;
           rdfs:range nbib:Publication ;
@@ -289,7 +289,7 @@ nbib: {
 
     nbib:howPublished
           a       rdf:Property ;
-          rdfs:domain nbib:BibResource ;
+          rdfs:domain nbib:Publication ;
           rdfs:comment "How it was published, if the publishing method is nonstandard." ;
           rdfs:label "HowPublished" ;
           rdfs:range xsd:string ;
@@ -297,7 +297,7 @@ nbib: {
 
     nbib:institution
           a       rdf:Property ;
-          rdfs:domain nbib:BibResource ;
+          rdfs:domain nbib:Publication ;
           rdfs:comment "The institution that was involved in the publishing, but not necessarily the publisher." ;
           rdfs:label "Institution" ;
           rdfs:range nco:Contact ;
@@ -305,7 +305,7 @@ nbib: {
 
     nbib:isbn
           a       rdf:Property ;
-          rdfs:domain nbib:BibResource ;
+          rdfs:domain nbib:Publication ;
           rdfs:comment "The International Standard Book Number." ;
           rdfs:label "ISBN" ;
           rdfs:range xsd:string ;
@@ -314,7 +314,7 @@ nbib: {
 
     nbib:issn
           a       rdf:Property ;
-          rdfs:domain nbib:BibResource ;
+          rdfs:domain nbib:Publication ;
           rdfs:comment "The International Standard Serial Number. Used to identify a journal." ;
           rdfs:label "ISSN" ;
           rdfs:range xsd:string ;
@@ -331,7 +331,7 @@ nbib: {
 
     nbib:lccn
           a       rdf:Property ;
-          rdfs:domain nbib:BibResource ;
+          rdfs:domain nbib:Publication ;
           rdfs:comment "The Library of Congress Call Number." ;
           rdfs:label "LCCN" ;
           rdfs:range xsd:string ;
@@ -340,7 +340,7 @@ nbib: {
 
     nbib:mrNumber
           a       rdf:Property ;
-          rdfs:domain nbib:BibResource ;
+          rdfs:domain nbib:Publication ;
           rdfs:comment "The Mathematical Reviews number." ;
           rdfs:label "MRNumber" ;
           rdfs:range xsd:string ;
@@ -349,7 +349,7 @@ nbib: {
 
     nbib:note
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:Reference ;
           rdfs:comment "Miscellaneous extra information." ;
           rdfs:label "Note" ;
           rdfs:range xsd:string ;
@@ -365,7 +365,7 @@ nbib: {
 
     nbib:pages
           a       rdf:Property ;
-          rdfs:domain nbib:BibReference ;
+          rdfs:domain nbib:Reference ;
           rdfs:comment "Page numbers, separated either by commas or double-hyphens." ;
           rdfs:label "Pages" ;
           rdfs:range xsd:string ;

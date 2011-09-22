@@ -153,7 +153,7 @@ void PublicationWidget::createReference()
 {
     KDialog showRefWidget;
 
-    Nepomuk::Resource tempRef(QUrl(), Nepomuk::Vocabulary::NBIB::BibReference());
+    Nepomuk::Resource tempRef(QUrl(), Nepomuk::Vocabulary::NBIB::Reference());
     tempRef.setProperty(Nepomuk::Vocabulary::NBIB::usePublication(), m_publication);
 
     ReferenceWidget *rw = new ReferenceWidget();
