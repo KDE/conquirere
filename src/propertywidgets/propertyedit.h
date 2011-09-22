@@ -86,6 +86,8 @@ signals:
     // emits the text of the label
     void textChanged(const QString & newText);
 
+    void widgetEnabled(bool enabled);
+
 public slots:
     void setResource(Nepomuk::Resource & resource);
 
@@ -100,6 +102,12 @@ public slots:
       * calls externalEditRequested()
       */
     virtual void detailEditRequested();
+
+    /**
+      * When the resource is changed externally
+      * For example by an externalEditRequested() Dialog
+      */
+    void resourceUpdatedExternally();
 
 protected:
     virtual void setupLabel() = 0;
@@ -122,6 +130,8 @@ protected:
 
     void addPropertryEntry(const QString &entryname,const QUrl & propertyUrl);
     QUrl propertyEntry(const QString &entryname);
+
+    void changeEvent( QEvent * event );
 
 private slots:
     void updateCompleter();

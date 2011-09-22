@@ -790,8 +790,8 @@ QString BibTexExporter::getInJournal(const Nepomuk::Resource &document)
     QString journalNumber = journalIssue.property(Nepomuk::Vocabulary::NBIB::number()).toString();
     QString journalVolume = journalIssue.property(Nepomuk::Vocabulary::NBIB::volume()).toString();
 
-    Nepomuk::Resource journal = document.property(Nepomuk::Vocabulary::NBIB::journal()).toResource();
-    QString journalName = journal.property(Nepomuk::Vocabulary::NCO::fullname()).toString();;
+    //Nepomuk::Resource journal = document.property(Nepomuk::Vocabulary::NBIB::journal()).toResource();
+    QString journalName = QString(); //journal.property(Nepomuk::Vocabulary::NCO::fullname()).toString();;
 
     if(!journalNumber.isEmpty()) {
         journalNumber.prepend(QLatin1String("\tnumber = \""));

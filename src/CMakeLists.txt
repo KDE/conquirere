@@ -8,6 +8,9 @@ set(conquirere_SRCS
     propertywidgets/stringedit.cpp
     propertywidgets/publicationedit.cpp
     propertywidgets/chapteredit.cpp
+    propertywidgets/seriesedit.cpp
+    propertywidgets/journaledit.cpp
+    propertywidgets/volumenumberedit.cpp
 
     core/project.cpp
     core/bibtexexporter.cpp
@@ -25,6 +28,7 @@ set(conquirere_SRCS
     ui/sidebar/sidebarcomponent.cpp
     ui/sidebar/publicationwidget.cpp
     ui/sidebar/referencewidget.cpp
+    ui/sidebar/listpublicationsdialog.cpp
 )
 
 kde4_add_ui_files( conquirere_SRCS
@@ -34,6 +38,8 @@ kde4_add_ui_files( conquirere_SRCS
                    ui/project/projecttreewidget.ui
 
                    ui/sidebar/referencewidget.ui
+                   ui/sidebar/listpublicationsdialog.ui
+                   ui/sidebar/publicationwidget.ui
 )
 
 

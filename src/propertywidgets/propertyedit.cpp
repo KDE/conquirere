@@ -217,6 +217,14 @@ QUrl PropertyEdit::propertyEntry(const QString &entryname)
     return m_listCache.value(entryname, QUrl());
 }
 
+void PropertyEdit::changeEvent( QEvent * event )
+{
+    if(event->type() == QEvent::EnabledChange)
+    {
+        emit widgetEnabled(isEnabled());
+    }
+}
+
 void PropertyEdit::keyPressEvent(QKeyEvent * e)
 {
     switch(e->key()){
@@ -345,6 +353,11 @@ void PropertyEdit::editingAborted()
 void PropertyEdit::detailEditRequested()
 {
     emit externalEditRequested(m_resource, m_propertyUrl);
+}
+
+void PropertyEdit::resourceUpdatedExternally()
+{
+    setupLabel();
 }
 
 void PropertyEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entries)

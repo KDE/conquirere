@@ -124,6 +124,23 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
     if(!document.isValid())
         return QVariant();
 
+    //    if (role == Qt::ToolTipRole) {
+    //        switch(m_selection) {
+    //        case Resource_Mail:
+    //        {
+    //            return QVariant();
+    //        }
+    //        case Resource_Reference:
+    //        {
+
+    //        }
+    //        case Resource_Document:
+    //        {
+
+    //        }
+    //        }
+    //    }
+
     if (role == Qt::DisplayRole) {
 
         // Display Author
@@ -415,23 +432,33 @@ void ResourceModel::addData(const QList< Nepomuk::Query::Result > &entries)
 
 void ResourceModel::removeData( const QList< QUrl > &entries )
 {
-    //qDebug() << "remove data :: " << entries;
-    // two loops are necessary because removeData is not only called on removed entries, but with all changes
-    // must be a bug in nepomuk
-    //    Nepomuk::Resource muh(entries.first());
-    //    Nepomuk::Resource relatesTo = muh.property( Nepomuk::Vocabulary::PIMO::isRelated()).toResource();
+    // remove data is a bug by default
+    // must change inplementation in the nepomuk query service
 
-    //    if ( relatesTo == m_project->pimoProject()) {
-    //        return;
-    //    }
+    // we just search through all data and remove the ones that are not valid anymore
+    // this function gets called when new entries are created, some are removed or modified
+    // sooner or later all deleted entries will be deleted
 
-    //    int removedRow  = m_fileList.indexOf(muh);
+    QList<int> noValidEntries;
+    for(int i = 0; i < m_fileList.size(); i++) {
+            if(!m_fileList.at(i).isValid()) {
+                noValidEntries.append(i);
+            }
+        }
 
-    //    beginRemoveRows(QModelIndex(), removedRow, removedRow);
-    //    m_fileList.removeOne(muh);
-    //    endRemoveRows();
+    if(noValidEntries.isEmpty()) {
+        return;
+    }
 
-    //    emit dataSizeChaged(m_fileList.size());
+    qDebug() << "remove values" << noValidEntries << "list size" << m_fileList.size();
+    qDebug() << noValidEntries.first() << noValidEntries.last();
+    beginRemoveRows(QModelIndex(), noValidEntries.first(), noValidEntries.last() );
+    for(int j = 0; j < noValidEntries.size(); j++) {
+        m_fileList.removeAt(noValidEntries.at(j) - j);
+    }
+    endRemoveRows();
+
+    emit dataSizeChaged(m_fileList.size());
 }
 
 void ResourceModel::sort ( int column, Qt::SortOrder order )
@@ -455,10 +482,6 @@ Nepomuk::Resource ResourceModel::documentResource(const QModelIndex &selection)
 
 void ResourceModel::removeSelected(const QModelIndexList & indexes)
 {
-    // ignore removal of system wide documents
-    if(!m_project)
-        return;
-
     foreach(QModelIndex index, indexes) {
         // get the nepomuk data at the row
         Nepomuk::Resource nr = m_fileList.at(index.row());
@@ -484,7 +507,6 @@ void ResourceModel::resultCount(int number)
 
 void ResourceModel::listingsFinished()
 {
-    //BUG this is never called from the query client.
     qDebug() << "listingsFinished" << "added something? oO" << m_fileList.size();
     if(m_project) {
         emit updatefetchDataFor(Library_Project,m_selection,false);
@@ -496,12 +518,5 @@ void ResourceModel::listingsFinished()
 
 void ResourceModel::listingsError(const QString & errorMessage)
 {
-    qDebug() << errorMessage;
-
-    if(m_project) {
-        emit updatefetchDataFor(Library_Project,m_selection,false);
-    }
-    else {
-        emit updatefetchDataFor(Library_System,m_selection,false);
-    }
+    qDebug() << "query in rescourcemodel failed" << errorMessage;
 }

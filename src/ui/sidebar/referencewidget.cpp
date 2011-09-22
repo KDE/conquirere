@@ -21,6 +21,7 @@
 #include "../../core/project.h"
 #include "../../propertywidgets/stringedit.h"
 #include "../../propertywidgets/contactedit.h"
+#include "listpublicationsdialog.h"
 
 #include "nbib.h"
 #include <Nepomuk/Variant>
@@ -28,6 +29,7 @@
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/PIMO>
 #include <KGlobalSettings>
+#include <KIcon>
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -44,6 +46,9 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     ui->setupUi(this);
 
     setFont(KGlobalSettings::smallestReadableFont());
+
+    ui->createButton->setIcon(KIcon(QLatin1String("document-new")));
+    ui->removeButton->setIcon(KIcon(QLatin1String("document-close")));
 
     //set propertyURL of the edit elements
     ui->chapterEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::hasChapter() );
@@ -92,9 +97,7 @@ void ReferenceWidget::clear()
 void ReferenceWidget::showCreateReference(bool createRef)
 {
     if(createRef) {
-        ui->createRefLabel->setVisible(true);
-        ui->createButton->setVisible(true);
-        ui->removeButton->setVisible(false);
+        ui->removeButton->setEnabled(false);
         ui->chapterEdit->setVisible(false);
         ui->citeKeyEdit->setVisible(false);
         ui->pagesEdit->setVisible(false);
@@ -106,9 +109,7 @@ void ReferenceWidget::showCreateReference(bool createRef)
         ui->label_Publication->setVisible(false);
     }
     else {
-        ui->createRefLabel->setVisible(false);
-        ui->createButton->setVisible(false);
-        ui->removeButton->setVisible(true);
+        ui->removeButton->setEnabled(true);
         ui->citeKeyEdit->setVisible(true);
         ui->pagesEdit->setVisible(true);
         ui->publicationEdit->setVisible(true);
@@ -123,7 +124,18 @@ void ReferenceWidget::showCreateReference(bool createRef)
 
 void ReferenceWidget::showPublicationList()
 {
-    qDebug() << "show publication list";
+    ListPublicationsDialog lpd;
+    lpd.setProject(project());
+
+    int ret = lpd.exec();
+
+    if(ret == QDialog::Accepted) {
+        Nepomuk::Resource publication = lpd.selectedPublication();
+
+        m_reference.setProperty(Nepomuk::Vocabulary::NBIB::usePublication(), publication );
+
+        ui->publicationEdit->resourceUpdatedExternally();
+    }
 }
 
 void ReferenceWidget::showChapter()

@@ -39,7 +39,8 @@ enum BibEntryType {
     BibType_Techreport,        /**< A report published by a school or other institution, usually numbered within a series. */
     BibType_Unpublished,       /**< A document having an author and title, but not formally published. */
     BibType_Patent,            /**< A patent. */
-    BibType_Electronic         /**< A electronic publication */
+    BibType_Electronic ,        /**< A electronic publication */
+    BibType_JournalIssue         /**< An issue of a journal or magazine */
 };
 
 enum BibDataType {
@@ -64,6 +65,10 @@ enum BibDataType {
     BibData_Url
 };
 
+namespace Ui {
+    class PublicationWidget;
+}
+
 class KComboBox;
 class PublicationWidget : public SidebarComponent
 {
@@ -73,19 +78,25 @@ public:
     virtual ~PublicationWidget();
 
 public slots:
-    /* called when somethinh is selected in the project view */
+    /* called when something is selected in the project view */
     void setResource(Nepomuk::Resource & resource);
     void clear();
-    void showCreatePublication(bool showIt);
 
 signals:
     /* notify connected editwidgets to update their info */
     void resourceChanged(Nepomuk::Resource & resource);
 
 private slots:
+    /**
+      * @todo check how the chain of all types are assigned to a resource
+      *       currently i create a new resource of the type i want, check .types() and
+      *       assign all returned types to the new item
+      *
+      * @todo clean publication data when nbib:Publication type is changed. For example move nbib:volume data
+      */
     void newBibEntryTypeSelected(int index);
     void selectPublication();
-    void newPublication();
+    void createPublication();
     void removePublication();
 
 private:
@@ -111,39 +122,11 @@ private:
     void layoutUnpublished();
     void layoutPatent();
     void layoutElectronic();
+    void layoutJournalIssue();
 
     Nepomuk::Resource m_publication;
-    Nepomuk::Resource m_document;
 
-    QWidget *m_newPublicationWidget;
-    QWidget *m_publicationWidget;
-    KComboBox *entryTypeData;
-    QWidget *copyrightWidget;
-    QWidget *crossrefWidget;
-    QWidget *doiWidget;
-    QWidget *editionWidget;
-    QWidget *editorWidget;
-    QWidget *eprintWidget;
-    QWidget *howpublishedWidget;
-    QWidget *isbnWidget;
-    QWidget *issnWidget;
-    QWidget *journalWidget;
-    QWidget *lccnWidget;
-    QWidget *mrnumberWidget;
-    QWidget *publicationDateWidget;
-    QWidget *publisherWidget;
-    QWidget *schoolWidget;
-    QWidget *typeWidget;
-    QWidget *urlWidget;
-    QWidget *numberWidget; //not journal number
-    QWidget *volumeWidget;  //not journal volume
-
-    // wrong inplementation at the moment
-    // need own edit widget t ocope
-    // with the resource creation/linking
-    QWidget *seriesWidget;
-    //QWidget *procceedingsWidget;
-    //QWidget *collectionWidget;
+    Ui::PublicationWidget *ui;
 };
 
 #endif // PUBLICATIONWIDGET_H

@@ -63,7 +63,7 @@ void SidebarWidget::newSelection(LibraryType library, ResourceSelection selectio
     switch(selection) {
     case Resource_Library:
         //TODO do something when the library header is clicked (show welcome page? statistic page?)
-        //m_currentWidget = new QWidget();
+        m_currentWidget = new PublicationWidget();
         break;
     case Resource_Document:
         m_currentWidget = new PublicationWidget();

@@ -67,13 +67,13 @@ nbib: {
           a       rdfs:Class ;
           rdfs:comment "An article from a journal or magazine." ;
           rdfs:label "Article" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:subClassOf nbib:Publication .
 
     nbib:Thesis
           a       rdfs:Class ;
           rdfs:comment "A general thesis." ;
           rdfs:label "Thesis" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:subClassOf nbib:Publication .
 
     nbib:BachelorThesis
           a       rdfs:Class ;
@@ -85,43 +85,43 @@ nbib: {
           a       rdfs:Class ;
           rdfs:comment "A book with an explicit publisher." ;
           rdfs:label "Book" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:subClassOf nbib:Publication .
 
     nbib:Booklet
           a       rdfs:Class ;
           rdfs:comment "A work that is printed and bound, but without a named publisher or sponsoring institution." ;
           rdfs:label "Booklet" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:subClassOf nbib:Publication .
 
     nbib:Collection
           a       rdfs:Class ;
           rdfs:comment "A collection of different publications." ;
           rdfs:label "Collection" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:subClassOf nbib:Publication .
 
     nbib:Electronic
           a       rdfs:Class ;
           rdfs:comment "An electronic publication (for example website or presentations)" ;
           rdfs:label "Website" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:subClassOf nbib:Publication .
 
     nbib:InProceedings
           a       rdfs:Class ;
           rdfs:comment "An article in a conference proceedings." ;
           rdfs:label "Inproceedings" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:subClassOf nbib:Publication .
 
     nbib:InCollection
           a       rdfs:Class ;
           rdfs:comment "A part of a book having its own title." ;
           rdfs:label "Incollection" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:subClassOf nbib:Publication .
 
     nbib:Manual
           a       rdfs:Class ;
           rdfs:comment "Technical documentation." ;
           rdfs:label "Manual" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:subClassOf nbib:Publication .
 
     nbib:MastersThesis
           a       rdfs:Class ;
@@ -139,25 +139,25 @@ nbib: {
           a       rdfs:Class ;
           rdfs:comment "The proceedings of a conference." ;
           rdfs:label "Proceedings" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:subClassOf nbib:Publication .
 
     nbib:Techreport
           a       rdfs:Class ;
           rdfs:comment "A report published by a school or other institution, usually numbered within a series." ;
           rdfs:label "Techreport" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:subClassOf nbib:Publication .
 
     nbib:Unpublished
           a       rdfs:Class ;
           rdfs:comment "A document having an author and title, but not formally published." ;
           rdfs:label "Unpublished" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:subClassOf nbib:Publication .
 
     nbib:Patent
           a       rdfs:Class ;
           rdfs:comment "A patent." ;
           rdfs:label "Patent" ;
-          rdfs:subClassOf nbib:BibResource .
+          rdfs:subClassOf nbib:Publication .
 
 ####################################################################
 #
@@ -172,7 +172,7 @@ nbib: {
     nbib:JournalIssue
           a       rdfs:Class ;
           rdfs:comment "A journal issue for serious, scholarly publications" ;
-          rdfs:label "Journal" ;
+          rdfs:label "JournalIssue" ;
           rdfs:subClassOf nbib:Collection .
 
     nbib:Series
@@ -192,6 +192,7 @@ nbib: {
          rdfs:comment "Links a document to its publication information." ;
          rdfs:label "publishedAs" ;
          rdfs:range nbib:Publication ;
+         nrl:inverseProperty nbib:isPublicationOf ;
          nrl:maxCardinality 1 .
 
    nbib:isPublicationOf
@@ -334,14 +335,6 @@ nbib: {
           rdfs:range nbib:JournalIssue ;
           nrl:maxCardinality 1 .
 
-    nbib:journal
-          a       rdf:Property ;
-          rdfs:domain nbib:Article ;
-          rdfs:comment "The journal which publish the journal issues" ;
-          rdfs:label "inJournal" ;
-          rdfs:range nco:Contact;
-          nrl:maxCardinality 1 .
-
     nbib:lccn
           a       rdf:Property ;
           rdfs:domain nbib:BibResource ;
@@ -406,7 +399,16 @@ nbib: {
           rdfs:comment "The series of books the book was published in." ;
           rdfs:label "inSeries" ;
           rdfs:range nbib:Series ;
+          nrl:inverseProperty nbib:seriesOf ;
           nrl:maxCardinality 1 .
+
+    nbib:seriesOf
+          a       rdf:Property ;
+          rdfs:domain nbib:Series ;
+          rdfs:comment "The book this series belongs to" ;
+          rdfs:label "seriesOf" ;
+          rdfs:range nbib:Book ;
+          nrl:inverseProperty nbib:inSeries .
 
     nbib:type
           a       rdf:Property ;

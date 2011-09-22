@@ -16,6 +16,7 @@
  */
 
 #include "publicationwidget.h"
+#include "ui_publicationwidget.h"
 
 #include "../../propertywidgets/stringedit.h"
 #include "../../propertywidgets/contactedit.h"
@@ -34,79 +35,50 @@
 #include <QDebug>
 #include <QSpacerItem>
 
-PublicationWidget::PublicationWidget(QWidget *parent) :
-    SidebarComponent(parent)
+PublicationWidget::PublicationWidget(QWidget *parent)
+    : SidebarComponent(parent)
+    , ui(new Ui::PublicationWidget)
 {
+    ui->setupUi(this);
+
     setFont(KGlobalSettings::smallestReadableFont());
 
     setupWidget();
-    showCreatePublication(true);
+    ui->removeButton->setEnabled(false);
+    ui->tabWidget->setEnabled(false);
 }
 
 PublicationWidget::~PublicationWidget()
 {
-    delete entryTypeData;
-    delete copyrightWidget;
-    delete crossrefWidget;
-    delete doiWidget;
-    delete editionWidget;
-    delete editorWidget;
-    delete eprintWidget;
-    delete howpublishedWidget;
-    delete isbnWidget;
-    delete issnWidget;
-    delete journalWidget;
-    delete lccnWidget;
-    delete mrnumberWidget;
-    delete publicationDateWidget;
-    delete publisherWidget;
-    delete schoolWidget;
-    delete typeWidget;
-    delete urlWidget;
-    delete numberWidget; //not journal number
-    delete volumeWidget;  //not journal volume
-    delete m_publicationWidget;
-    delete m_newPublicationWidget;
+    delete ui;
 }
 
 void PublicationWidget::setResource(Nepomuk::Resource & resource)
 {
-    m_document = resource;
-
-    // what we get is a nfo::document or similar
-    // what we want is the connected nbib::Publication
-    Nepomuk::Resource nr = resource.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
+    m_publication = resource;
 
     //check if the resource has a publication attached
-    if(!nr.isValid()) {
-        showCreatePublication(true);
-        m_publication  = resource;
+    if(!m_publication.isValid()) {
+        ui->removeButton->setEnabled(false);
+        ui->tabWidget->setEnabled(false);
     }
     else {
-        showCreatePublication(false);
-        m_publication  = nr;
+        ui->removeButton->setEnabled(true);
+        ui->tabWidget->setEnabled(true);
     }
 
     emit resourceChanged(m_publication);
 
     BibEntryType entryType = resourceTypeToEnum(m_publication);
 
-    int index = entryTypeData->findData(entryType);
-    entryTypeData->setCurrentIndex(index);
+    int index = ui->editEntryType->findData(entryType);
+    ui->editEntryType->setCurrentIndex(index);
 
     selectLayout(entryType);
 }
 
 void PublicationWidget::clear()
 {
-    showCreatePublication(true);
-}
-
-void PublicationWidget::showCreatePublication(bool showIt)
-{
-    m_newPublicationWidget->setVisible(showIt);
-
-    m_publicationWidget->setVisible(!showIt);
 }
 
 void PublicationWidget::newBibEntryTypeSelected(int index)
@@ -119,14 +91,32 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
     // update resource
     QUrl newEntryUrl = EnumToResourceType(entryType);
     if(newEntryUrl.isValid()) {
+        // create the full hierarchy
+        //DEBUG this seems wrong, but is currently the only way to preserve type hierarchy
         QList<QUrl>newtype;
+        newtype.append(Nepomuk::Vocabulary::NIE::InformationElement());
+        newtype.append(Nepomuk::Vocabulary::NBIB::Publication());
         newtype.append(newEntryUrl);
+
+        // add another hierarchy if the newEntryUrl is not a direct subclass of NBIB::Publication()
+        switch(entryType) {
+        case BibType_JournalIssue:
+            newtype.append(Nepomuk::Vocabulary::NBIB::Collection());
+            break;
+        case BibType_Mastersthesis:
+        case BibType_Bachelorthesis:
+        case BibType_Phdthesis:
+            newtype.append(Nepomuk::Vocabulary::NBIB::Thesis());
+            break;
+        }
+
         m_publication.setTypes(newtype);
     }
     else {
-        QList<QUrl>newtype;
-        newtype.append(Nepomuk::Vocabulary::NBIB::Publication());
-        m_publication.setTypes(newtype);
+        //QList<QUrl>newtype;
+        //newtype.append(Nepomuk::Vocabulary::NBIB::Publication());
+        //m_publication.setTypes(newtype);
+        qDebug() << "unknwon newEntryUrl url. this should never happen";
     }
 }
 
@@ -135,7 +125,7 @@ void PublicationWidget::selectPublication()
     qDebug() << "select from a list of systemwide publications";
 }
 
-void PublicationWidget::newPublication()
+void PublicationWidget::createPublication()
 {
     //create a new resource if nothing is connected
     Nepomuk::Resource nb;
@@ -143,526 +133,91 @@ void PublicationWidget::newPublication()
     types.append(Nepomuk::Vocabulary::NBIB::Publication());
     nb.setTypes(types);
 
-    // link document to resource
-    m_document.setProperty( Nepomuk::Vocabulary::NBIB::publishedAs(), nb);
-
-    setResource(m_document);
+    setResource(nb);
 }
 
 void PublicationWidget::removePublication()
 {
     // link document to resource
-    m_document.removeProperty( Nepomuk::Vocabulary::NBIB::publishedAs() );
+    m_publication.remove();
 
-    setResource(m_document);
+    setResource(m_publication);
 }
 
 void PublicationWidget::setupWidget()
 {
-    QVBoxLayout *layoutMain = new QVBoxLayout;
-    layoutMain->setMargin(0);
-    layoutMain->setSpacing(0);
-    setLayout(layoutMain);
-
-    //shown when new nbib:Publication is available
-    m_newPublicationWidget = new QWidget();
-    QVBoxLayout *layoutNewPublication = new QVBoxLayout;
-    layoutNewPublication->setMargin(0);
-    layoutNewPublication->setSpacing(0);
-    m_newPublicationWidget->setLayout(layoutNewPublication);
-    layoutMain->addWidget(m_newPublicationWidget);
-
-
-    QLabel *newPublicationLabel = new QLabel();
-    newPublicationLabel->setText(i18n("No Publication assigned to this document\nPlease select an existing one or create a new one."));
-    newPublicationLabel->setWordWrap(true);
-    layoutNewPublication->addWidget(newPublicationLabel);
-
-    QPushButton *selectPublication = new QPushButton();
-    selectPublication->setText(i18n("select"));
-    layoutNewPublication->addWidget(selectPublication);
-    connect(selectPublication, SIGNAL(clicked()), this, SLOT(selectPublication()));
-
-
-    QPushButton *newPublication = new QPushButton();
-    newPublication->setText(i18n("new"));
-    layoutNewPublication->addWidget(newPublication);
-    connect(newPublication, SIGNAL(clicked()), this, SLOT(newPublication()));
-
-    QSpacerItem *s = new QSpacerItem(10,10,QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding);
-    layoutNewPublication->insertSpacerItem(-1,s);
-
-
-    //####################################################################
-
-
-    // Actual nbib:Publication section
-    m_publicationWidget = new QWidget();
-    QVBoxLayout *layoutPublication = new QVBoxLayout;
-    layoutPublication->setMargin(0);
-    layoutPublication->setSpacing(0);
-    m_publicationWidget->setLayout(layoutPublication);
-
-    layoutMain->addWidget(m_publicationWidget);
-
-    QLabel *entryType = new QLabel(i18n("Entry type:"));
-    entryType->setToolTip(i18n("The type of this document"));
-
-    entryTypeData = new KComboBox();
-    entryTypeData->setProperty("datatype", BibData_EntryType);
-    entryTypeData->addItem(i18n("Misc"),BibType_Misc);
-    entryTypeData->addItem(i18n("Article"),BibType_Article);
-    entryTypeData->addItem(i18n("Book"),BibType_Book);
-    entryTypeData->addItem(i18n("Booklet"),BibType_Booklet);
-    entryTypeData->addItem(i18n("Collection"),BibType_Collection);
-    entryTypeData->addItem(i18n("Incollection"),BibType_Incollection);
-    entryTypeData->addItem(i18n("Proceedings"),BibType_Proceedings);
-    entryTypeData->addItem(i18n("Inproceedings"),BibType_Inproceedings);
-    entryTypeData->addItem(i18n("Bachelorhesis"),BibType_Bachelorthesis);
-    entryTypeData->addItem(i18n("Mastersthesis"),BibType_Mastersthesis);
-    entryTypeData->addItem(i18n("Phdthesis"),BibType_Phdthesis);
-    entryTypeData->addItem(i18n("Manual"),BibType_Manual);
-    entryTypeData->addItem(i18n("Techreport"),BibType_Techreport);
-    entryTypeData->addItem(i18n("Unpublished"),BibType_Unpublished);
-    entryTypeData->addItem(i18n("Electronic"),BibType_Electronic);
-    entryTypeData->addItem(i18n("Patent"),BibType_Patent);
-    entryType->setBuddy(entryTypeData);
-
-    connect(entryTypeData, SIGNAL(currentIndexChanged(int)), this, SLOT(newBibEntryTypeSelected(int)));
-
-    QHBoxLayout *layoutEntry = new QHBoxLayout;
-    layoutEntry->addWidget(entryType);
-    layoutEntry->addWidget(entryTypeData);
-    layoutPublication->addLayout(layoutEntry);
-
-    //####################################################################
-    QLabel *title = new QLabel(i18n("Title:"));
-    title->setToolTip(i18n("The title of the work"));
-
-    StringEdit *titleData = new StringEdit();
-    titleData->setPropertyUrl( Nepomuk::Vocabulary::NIE::title() );
-    title->setBuddy(titleData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), titleData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutTitle = new QHBoxLayout;
-    layoutTitle->addWidget(title);
-    layoutTitle->addWidget(titleData);
-    layoutPublication->addLayout(layoutTitle);
-
-    //####################################################################
-
-    QLabel *author = new QLabel(i18n("Authors:"));
-    author->setToolTip(i18n("The name(s) of the author(s)"));
-
-    ContactEdit *authorData = new ContactEdit();
-    authorData->setPropertyUrl( Nepomuk::Vocabulary::NCO::creator() );
-    author->setBuddy(authorData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), authorData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutAuthor = new QHBoxLayout;
-    layoutAuthor->addWidget(author);
-    layoutAuthor->addWidget(authorData);
-    layoutPublication->addLayout(layoutAuthor);
-
-    //####################################################################
-
-    publicationDateWidget = new QWidget;
-    QLabel *year = new QLabel(i18n("Publication Date:"));
-    year->setToolTip(i18n("The year of publication (or, if unpublished, the year of creation)"));
-
-    //TODO date edit
-    StringEdit *yearData = new StringEdit();
-    yearData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationDate() );
-    year->setBuddy(yearData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), yearData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutYear = new QHBoxLayout;
-    layoutYear->setMargin(0);
-    layoutYear->setSpacing(0);
-    layoutYear->addWidget(year);
-    layoutYear->addWidget(yearData);
-    publicationDateWidget->setLayout(layoutYear);
-    layoutPublication->addWidget(publicationDateWidget);
-
-    //####################################################################
-
-    seriesWidget = new QWidget;
-    QLabel *series = new QLabel(i18n("Series:"));
-    series->setToolTip(i18n("The series of books the book was published in"));
-
-//    LabelEdit *seriesData = new LabelEdit();
-//    seriesData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::series() );
-//    series->setBuddy(seriesData);
-//    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), seriesData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutSeries = new QHBoxLayout;
-    layoutSeries->setMargin(0);
-    layoutSeries->setSpacing(0);
-    layoutSeries->addWidget(series);
-    //layoutSeries->addWidget(seriesData);
-    seriesWidget->setLayout(layoutSeries);
-    layoutPublication->addWidget(seriesWidget);
-
-    //####################################################################
-
-    journalWidget = new QWidget;
-    QLabel *journal = new QLabel(i18n("Journal:"));
-    journal->setToolTip(i18n("The journal or magazine the work was published in"));
-
-    //TODO change journal to its own edit widget
-    ContactEdit *journalData = new ContactEdit();
-    journalData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::inJournalIssue() );
-    journal->setBuddy(journalData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), journalData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutJournal = new QHBoxLayout;
-    layoutJournal->setMargin(0);
-    layoutJournal->setSpacing(0);
-    layoutJournal->addWidget(journal);
-    layoutJournal->addWidget(journalData);
-    journalWidget->setLayout(layoutJournal);
-    layoutPublication->addWidget(journalWidget);
-
-    //####################################################################
-
-    // volume of a journal is handlet by the JournalIssue
-    volumeWidget = new QWidget;
-    QLabel *volume = new QLabel(i18n("Volume:"));
-    volume->setToolTip(i18n("The volume of a multi-volume book"));
-
-    StringEdit *volumeData = new StringEdit();
-    volumeData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::volume() );
-    volume->setBuddy(volumeData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), volumeData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutVolume = new QHBoxLayout;
-    layoutVolume->setMargin(0);
-    layoutVolume->setSpacing(0);
-    layoutVolume->addWidget(volume);
-    layoutVolume->addWidget(volumeData);
-    volumeWidget->setLayout(layoutVolume);
-    layoutPublication->addWidget(volumeWidget);
-
-    //####################################################################
-
-    // number of a journal is handlet by the JournalIssue
-    numberWidget = new QWidget;
-    QLabel *number = new QLabel(i18n("Number:"));
-    number->setToolTip(i18n("The &quot;(issue) number&quot; of a tech-report, if applicable. (Most publications have a &quot;volume&quot;, but no &quot;number&quot; field.)"));
-
-    StringEdit *numberData = new StringEdit();
-    numberData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::number() );
-    number->setBuddy(numberData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), numberData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutNumber = new QHBoxLayout;
-    layoutNumber->setMargin(0);
-    layoutNumber->setSpacing(0);
-    layoutNumber->addWidget(number);
-    layoutNumber->addWidget(numberData);
-    numberWidget->setLayout(layoutNumber);
-    layoutPublication->addWidget(numberWidget);
-
-    //####################################################################
-
-    publisherWidget = new QWidget;
-    QLabel *publisher = new QLabel(i18n("Publisher:"));
-    publisher->setToolTip(i18n("The publisher's name"));
-
-    ContactEdit *publisherData = new ContactEdit();
-    publisherData->setPropertyUrl( Nepomuk::Vocabulary::NCO::publisher() );
-    publisher->setBuddy(publisherData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), publisherData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutPublisher = new QHBoxLayout;
-    layoutPublisher->setMargin(0);
-    layoutPublisher->setSpacing(0);
-    layoutPublisher->addWidget(publisher);
-    layoutPublisher->addWidget(publisherData);
-    publisherWidget->setLayout(layoutPublisher);
-    layoutPublication->addWidget(publisherWidget);
-
-    //####################################################################
-
-    editionWidget = new QWidget;
-    QLabel *edition = new QLabel(i18n("Edition:"));
-    edition->setToolTip(i18n("The edition of a book, long form (such as &quot;first&quot; or &quot;second&quot;)"));
-
-    StringEdit *editionData = new StringEdit();
-    editionData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::edition() );
-    edition->setBuddy(editionData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), editionData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutEdition = new QHBoxLayout;
-    layoutEdition->setMargin(0);
-    layoutEdition->setSpacing(0);
-    layoutEdition->addWidget(edition);
-    layoutEdition->addWidget(editionData);
-    editionWidget->setLayout(layoutEdition);
-    layoutPublication->addWidget(editionWidget);
-
-    //####################################################################
-
-    editorWidget = new QWidget;
-    QLabel *editor = new QLabel(i18n("Editor:"));
-    editor->setToolTip(i18n("The name(s) of the editor(s)"));
-
-    ContactEdit *editorData = new ContactEdit();
-    editorData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::editor() );
-    editor->setBuddy(editorData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), editorData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layouteditor = new QHBoxLayout;
-    layouteditor->addWidget(editor);
-    layouteditor->addWidget(editorData);
-    editorWidget->setLayout(layouteditor);
-    layoutPublication->addWidget(editorWidget);
-
-    //####################################################################
-
-    eprintWidget = new QWidget;
-    QLabel *eprint = new QLabel(i18n("E-print:"));
-    eprint->setToolTip(i18n("A specification of an electronic publication, often a preprint or a technical report"));
-
-    StringEdit *eprintData = new StringEdit();
-    eprintData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::eprint() );
-    eprint->setBuddy(eprintData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), eprintData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutEprint = new QHBoxLayout;
-    layoutEprint->setMargin(0);
-    layoutEprint->setSpacing(0);
-    layoutEprint->addWidget(eprint);
-    layoutEprint->addWidget(eprintData);
-    eprintWidget->setLayout(layoutEprint);
-    layoutPublication->addWidget(eprintWidget);
-
-    //####################################################################
-
-    howpublishedWidget = new QWidget;
-    QLabel *howpublished = new QLabel(i18n("How published:"));
-    howpublished->setToolTip(i18n("How it was published, if the publishing method is nonstandard"));
-
-    StringEdit *howpublishedData = new StringEdit();
-    howpublishedData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::howPublished() );
-    howpublished->setBuddy(howpublishedData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), howpublishedData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutHowpublished = new QHBoxLayout;
-    layoutHowpublished->setMargin(0);
-    layoutHowpublished->setSpacing(0);
-    layoutHowpublished->addWidget(howpublished);
-    layoutHowpublished->addWidget(howpublishedData);
-    howpublishedWidget->setLayout(layoutHowpublished);
-    layoutPublication->addWidget(howpublishedWidget);
-
-    //####################################################################
-
-    schoolWidget = new QWidget;
-    QLabel *school = new QLabel(i18n("School:"));
-    school->setToolTip(i18n("The school where the thesis was written"));
-
-    ContactEdit *schoolData = new ContactEdit();
-    schoolData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::school() );
-    school->setBuddy(schoolData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), schoolData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutSchool = new QHBoxLayout;
-    layoutSchool->setMargin(0);
-    layoutSchool->setSpacing(0);
-    layoutSchool->addWidget(school);
-    layoutSchool->addWidget(schoolData);
-    schoolWidget->setLayout(layoutSchool);
-    layoutPublication->addWidget(schoolWidget);
-
-    //####################################################################
-
-    urlWidget = new QWidget;
-    QLabel *url = new QLabel(i18n("Url:"));
-    url->setToolTip(i18n("The WWW address"));
-
-    StringEdit *urlData = new StringEdit();
-    urlData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::url() );
-    url->setBuddy(urlData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), urlData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutUrl = new QHBoxLayout;
-    layoutUrl->setMargin(0);
-    layoutUrl->setSpacing(0);
-    layoutUrl->addWidget(url);
-    layoutUrl->addWidget(urlData);
-    urlWidget->setLayout(layoutUrl);
-    layoutPublication->addWidget(urlWidget);
-
-    //####################################################################
-
-    typeWidget = new QWidget;
-    QLabel *type = new QLabel(i18n("Type:"));
-    type->setToolTip(i18n("The type of tech-report, for example, &quot;Research Note&quot;"));
-
-    StringEdit *typeData = new StringEdit();
-    typeData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::type() );
-    type->setBuddy(typeData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), typeData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutType = new QHBoxLayout;
-    layoutType->setMargin(0);
-    layoutType->setSpacing(0);
-    layoutType->addWidget(type);
-    layoutType->addWidget(urlData);
-    typeWidget->setLayout(layoutType);
-    layoutPublication->addWidget(typeWidget);
-
-    //####################################################################
-
-    QFrame *identifierLine = new QFrame();
-    identifierLine->setFrameShape(QFrame::HLine);
-    identifierLine->setFrameShadow(QFrame::Sunken);
-    layoutPublication->addWidget(identifierLine);
-
-    //####################################################################
-
-    crossrefWidget = new QWidget;
-    QLabel *crossref = new QLabel(i18n("Crossref:"));
-    crossref->setToolTip(i18n("References found in the publication"));
-
-    StringEdit *crossrefData = new StringEdit();
-    crossrefData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::crossref() );
-    crossref->setBuddy(crossrefData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), crossrefData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutcrossref = new QHBoxLayout;
-    layoutcrossref->setMargin(0);
-    layoutcrossref->setSpacing(0);
-    layoutcrossref->addWidget(crossref);
-    layoutcrossref->addWidget(crossrefData);
-    crossrefWidget->setLayout(layoutcrossref);
-    layoutPublication->addWidget(crossrefWidget);
-
-    //####################################################################
-
-    isbnWidget = new QWidget;
-    QLabel *isbn = new QLabel(i18n("ISBN:"));
-    isbn->setToolTip(i18n("The International Standard Book Number."));
-
-    StringEdit *isbnData = new StringEdit();
-    isbnData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isbn() );
-    isbn->setBuddy(isbnData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), isbnData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutIsbn = new QHBoxLayout;
-    layoutIsbn->setMargin(0);
-    layoutIsbn->setSpacing(0);
-    layoutIsbn->addWidget(isbn);
-    layoutIsbn->addWidget(isbnData);
-    isbnWidget->setLayout(layoutIsbn);
-    layoutPublication->addWidget(isbnWidget);
-
-    //####################################################################
-
-    issnWidget = new QWidget;
-    QLabel *issn = new QLabel(i18n("ISSN:"));
-    issn->setToolTip(i18n("The International Standard Serial Number. Used to identify a journal."));
-
-    StringEdit *issnData = new StringEdit();
-    issnData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::issn() );
-    issn->setBuddy(issnData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), issnData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutIssn = new QHBoxLayout;
-    layoutIssn->setMargin(0);
-    layoutIssn->setSpacing(0);
-    layoutIssn->addWidget(issn);
-    layoutIssn->addWidget(issnData);
-    issnWidget->setLayout(layoutIssn);
-    layoutPublication->addWidget(issnWidget);
-
-    //####################################################################
-
-    lccnWidget = new QWidget;
-    QLabel *lccn = new QLabel(i18n("LCCN:"));
-    lccn->setToolTip(i18n("The Library of Congress Call Number."));
-
-    StringEdit *lccnData = new StringEdit();
-    lccnData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::lccn() );
-    lccn->setBuddy(lccnData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), lccnData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutlccn = new QHBoxLayout;
-    layoutlccn->setMargin(0);
-    layoutlccn->setSpacing(0);
-    layoutlccn->addWidget(lccn);
-    layoutlccn->addWidget(lccnData);
-    lccnWidget->setLayout(layoutlccn);
-    layoutPublication->addWidget(lccnWidget);
-
-    //####################################################################
-
-    mrnumberWidget = new QWidget;
-    QLabel *mrnumber = new QLabel(i18n("MRNumber:"));
-    mrnumber->setToolTip(i18n("The Mathematical Reviews number."));
-
-    StringEdit *mrnumberData = new StringEdit();
-    mrnumberData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::mrNumber() );
-    mrnumber->setBuddy(mrnumberData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), mrnumberData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutmrnumber = new QHBoxLayout;
-    layoutmrnumber->setMargin(0);
-    layoutmrnumber->setSpacing(0);
-    layoutmrnumber->addWidget(mrnumber);
-    layoutmrnumber->addWidget(mrnumberData);
-    mrnumberWidget->setLayout(layoutmrnumber);
-    layoutPublication->addWidget(mrnumberWidget);
-
-    //####################################################################
-
-    doiWidget = new QWidget;
-    QLabel *doi = new QLabel(i18n("DOI:"));
-    doi->setToolTip(i18n("The Digital object identifier."));
-
-    StringEdit *doiData = new StringEdit();
-    doiData->setPropertyUrl( Nepomuk::Vocabulary::NBIB::doi() );
-    doi->setBuddy(doiData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), doiData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutdoi = new QHBoxLayout;
-    layoutdoi->setMargin(0);
-    layoutdoi->setSpacing(0);
-    layoutdoi->addWidget(doi);
-    layoutdoi->addWidget(doiData);
-    doiWidget->setLayout(layoutdoi);
-    layoutPublication->addWidget(doiWidget);
-
-    //####################################################################
-
-    copyrightWidget = new QWidget;
-    QLabel *copyright = new QLabel(i18n("Copyright:"));
-    copyright->setToolTip(i18n("Copyright information."));
-
-    StringEdit *copyrightData = new StringEdit();
-    copyrightData->setPropertyUrl( Nepomuk::Vocabulary::NIE::copyright() );
-    copyright->setBuddy(copyrightData);
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), copyrightData, SLOT(setResource(Nepomuk::Resource&)));
-
-    QHBoxLayout *layoutCopyright = new QHBoxLayout;
-    layoutCopyright->setMargin(0);
-    layoutCopyright->setSpacing(0);
-    layoutCopyright->addWidget(copyright);
-    layoutCopyright->addWidget(issnData);
-    copyrightWidget->setLayout(layoutCopyright);
-    layoutPublication->addWidget(copyrightWidget);
-
-    //####################################################################
-
-    QSpacerItem *s1 = new QSpacerItem(10,10,QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding);
-    layoutPublication->insertSpacerItem(-1,s1);
-
-    QPushButton *removePublication = new QPushButton();
-    removePublication->setText(i18n("remove Publication"));
-    layoutNewPublication->addWidget(removePublication);
-    connect(removePublication, SIGNAL(clicked()), this, SLOT(removePublication()));
-    layoutPublication->addWidget(removePublication);
+    ui->createButton->setIcon(KIcon(QLatin1String("document-new")));
+    ui->removeButton->setIcon(KIcon(QLatin1String("document-close")));
+    connect(ui->createButton, SIGNAL(clicked()), this, SLOT(createPublication()));
+    connect(ui->removeButton, SIGNAL(clicked()), this, SLOT(removePublication()));
+
+    ui->editEntryType->setProperty("datatype", BibData_EntryType);
+    ui->editEntryType->addItem(i18n("Misc"),BibType_Misc);
+    ui->editEntryType->addItem(i18n("Article"),BibType_Article);
+    ui->editEntryType->addItem(i18n("Book"),BibType_Book);
+    ui->editEntryType->addItem(i18n("Booklet"),BibType_Booklet);
+    ui->editEntryType->addItem(i18n("Collection"),BibType_Collection);
+    ui->editEntryType->addItem(i18n("Incollection"),BibType_Incollection);
+    ui->editEntryType->addItem(i18n("Proceedings"),BibType_Proceedings);
+    ui->editEntryType->addItem(i18n("Inproceedings"),BibType_Inproceedings);
+    ui->editEntryType->addItem(i18n("Bachelorhesis"),BibType_Bachelorthesis);
+    ui->editEntryType->addItem(i18n("Mastersthesis"),BibType_Mastersthesis);
+    ui->editEntryType->addItem(i18n("Phdthesis"),BibType_Phdthesis);
+    ui->editEntryType->addItem(i18n("Manual"),BibType_Manual);
+    ui->editEntryType->addItem(i18n("Techreport"),BibType_Techreport);
+    ui->editEntryType->addItem(i18n("Unpublished"),BibType_Unpublished);
+    ui->editEntryType->addItem(i18n("Electronic"),BibType_Electronic);
+    ui->editEntryType->addItem(i18n("Patent"),BibType_Patent);
+    ui->editEntryType->addItem(i18n("Journal Issue"),BibType_JournalIssue);
+
+    connect(ui->editEntryType, SIGNAL(currentIndexChanged(int)), this, SLOT(newBibEntryTypeSelected(int)));
+
+    ui->editAuthors->setPropertyUrl( Nepomuk::Vocabulary::NCO::creator() );
+    ui->editCopyright->setPropertyUrl( Nepomuk::Vocabulary::NIE::copyright() );
+    ui->editCrossref->setPropertyUrl( Nepomuk::Vocabulary::NBIB::crossref() );
+    ui->editDate->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationDate() );
+    ui->editDOI->setPropertyUrl( Nepomuk::Vocabulary::NBIB::doi() );
+    ui->editEdition->setPropertyUrl( Nepomuk::Vocabulary::NBIB::edition() );
+    ui->editEditor->setPropertyUrl( Nepomuk::Vocabulary::NBIB::editor() );
+    ui->editEprint->setPropertyUrl( Nepomuk::Vocabulary::NBIB::eprint() );
+    ui->editHowPublished->setPropertyUrl( Nepomuk::Vocabulary::NBIB::howPublished() );
+    ui->editISBN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isbn() );
+    ui->editISSN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::issn() );
+    ui->editJournal->setPropertyUrl( Nepomuk::Vocabulary::NBIB::inJournalIssue() );
+    ui->editLCCN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::lccn() );
+    ui->editMRNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::mrNumber() );
+    ui->editNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::number() );
+    ui->editPublisher->setPropertyUrl( Nepomuk::Vocabulary::NCO::publisher() );
+    ui->editSchool->setPropertyUrl( Nepomuk::Vocabulary::NBIB::school() );
+    ui->editSeries->setPropertyUrl( Nepomuk::Vocabulary::NBIB::inSeries() );
+    ui->editTitle->setPropertyUrl( Nepomuk::Vocabulary::NIE::title() );
+    ui->editType->setPropertyUrl( Nepomuk::Vocabulary::NBIB::type() );
+    ui->editUrl->setPropertyUrl(  Nepomuk::Vocabulary::NBIB::url() );
+    ui->editVolume->setPropertyUrl( Nepomuk::Vocabulary::NBIB::volume() );
+
+    //connect signal/slots
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editAuthors, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editCopyright, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editCrossref, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editDate, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editDOI, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editEdition, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editEditor, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editEprint, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editHowPublished, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editISBN, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editISSN, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editJournal, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLCCN, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editMRNumber, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editNumber, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPublisher, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editSchool, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editSeries, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editTitle, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editType, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editUrl, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editVolume, SLOT(setResource(Nepomuk::Resource&)));
 }
 
 BibEntryType PublicationWidget::resourceTypeToEnum(Nepomuk::Resource & resource)
@@ -711,6 +266,9 @@ BibEntryType PublicationWidget::resourceTypeToEnum(Nepomuk::Resource & resource)
     }
     if(resourceLabel == QLatin1String("Website")) {
         return BibType_Electronic;
+    }
+    if(resourceLabel == QLatin1String("JournalIssue")) {
+        return BibType_JournalIssue;
     }
     return BibType_Misc;
 }
@@ -766,6 +324,9 @@ QUrl PublicationWidget::EnumToResourceType(BibEntryType entryType)
     case BibType_Electronic:
         return Nepomuk::Vocabulary::NBIB::Electronic();
         break;
+    case BibType_JournalIssue:
+        return Nepomuk::Vocabulary::NBIB::JournalIssue();
+        break;
     }
 
     return QUrl();
@@ -817,478 +378,488 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
         layoutElectronic();
         break;
     default:
-        isbnWidget->setVisible(true);
-        issnWidget->setVisible(true);
-        copyrightWidget->setVisible(true);
-
-        journalWidget->setVisible(true);
-        publicationDateWidget->setVisible(true);
-        volumeWidget->setVisible(true);
-
-        publisherWidget->setVisible(true);
-
-        numberWidget->setVisible(true);
-
-        editionWidget->setVisible(true);
-        editorWidget->setVisible(true);
-        eprintWidget->setVisible(true);
-        howpublishedWidget->setVisible(true);
-
-
-        schoolWidget->setVisible(true);
-        seriesWidget->setVisible(true);
-        urlWidget->setVisible(true);
-        typeWidget->setVisible(true);
+    case BibType_JournalIssue:
+        layoutJournalIssue();
+        break;
+        layoutMisc();
     }
 }
 
 void PublicationWidget::layoutArticle()
 {
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(true);
-    issnWidget->setVisible(true);
-    copyrightWidget->setVisible(true);
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(true);
+    ui->editISSN->setEnabled(true);
+    ui->editCopyright->setEnabled(true);
 
-    journalWidget->setVisible(true);
-    publicationDateWidget->setVisible(true);
-    volumeWidget->setVisible(true);
-    numberWidget->setVisible(true);
-
-
-    publisherWidget->setVisible(false);
-
-    editionWidget->setVisible(false);
-    editorWidget->setVisible(false);
-    eprintWidget->setVisible(false);
-    howpublishedWidget->setVisible(false);
+    ui->editJournal->setEnabled(true);
+    ui->editDate->setEnabled(true);
+    ui->editVolume->setEnabled(true);
+    ui->editNumber->setEnabled(true);
 
 
-    schoolWidget->setVisible(false);
-    seriesWidget->setVisible(false);
-    urlWidget->setVisible(false);
-    typeWidget->setVisible(false);
+    ui->editPublisher->setEnabled(false);
+
+    ui->editEdition->setEnabled(false);
+    ui->editEditor->setEnabled(false);
+    ui->editEprint->setEnabled(false);
+    ui->editHowPublished->setEnabled(false);
+
+
+    ui->editSchool->setEnabled(false);
+    ui->editSeries->setEnabled(false);
+    ui->editUrl->setEnabled(false);
+    ui->editType->setEnabled(false);
 }
 
 void PublicationWidget::layoutBook()
 {
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(true);
-    issnWidget->setVisible(true);
-    copyrightWidget->setVisible(true);
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(true);
+    ui->editISSN->setEnabled(true);
+    ui->editCopyright->setEnabled(true);
 
-    journalWidget->setVisible(false);
-    publicationDateWidget->setVisible(true);
-    volumeWidget->setVisible(true);
-    publisherWidget->setVisible(true);
-    editionWidget->setVisible(true);
+    ui->editJournal->setEnabled(false);
+    ui->editDate->setEnabled(true);
+    ui->editVolume->setEnabled(true);
+    ui->editPublisher->setEnabled(true);
+    ui->editEdition->setEnabled(true);
 
-    editorWidget->setVisible(true);
+    ui->editEditor->setEnabled(true);
 
-    numberWidget->setVisible(false);
-    eprintWidget->setVisible(false);
-    howpublishedWidget->setVisible(false);
+    ui->editNumber->setEnabled(false);
+    ui->editEprint->setEnabled(false);
+    ui->editHowPublished->setEnabled(false);
 
 
-    schoolWidget->setVisible(false);
-    seriesWidget->setVisible(false);
-    urlWidget->setVisible(false);
-    typeWidget->setVisible(false);
+    ui->editSchool->setEnabled(false);
+    ui->editSeries->setEnabled(false);
+    ui->editUrl->setEnabled(false);
+    ui->editType->setEnabled(false);
 }
 
 void PublicationWidget::layoutBooklet()
 {
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(true);
-    issnWidget->setVisible(true);
-    copyrightWidget->setVisible(true);
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(true);
+    ui->editISSN->setEnabled(true);
+    ui->editCopyright->setEnabled(true);
 
-    publicationDateWidget->setVisible(true);
+    ui->editDate->setEnabled(true);
 
-    howpublishedWidget->setVisible(true);
-    publisherWidget->setVisible(true);
+    ui->editHowPublished->setEnabled(true);
+    ui->editPublisher->setEnabled(true);
 
-    journalWidget->setVisible(false);
-    volumeWidget->setVisible(false);
-    numberWidget->setVisible(false);
+    ui->editJournal->setEnabled(false);
+    ui->editVolume->setEnabled(false);
+    ui->editNumber->setEnabled(false);
 
-    editionWidget->setVisible(false);
-    editorWidget->setVisible(false);
-    eprintWidget->setVisible(false);
+    ui->editEdition->setEnabled(false);
+    ui->editEditor->setEnabled(false);
+    ui->editEprint->setEnabled(false);
 
 
-    schoolWidget->setVisible(false);
-    seriesWidget->setVisible(false);
-    urlWidget->setVisible(false);
-    typeWidget->setVisible(false);
+    ui->editSchool->setEnabled(false);
+    ui->editSeries->setEnabled(false);
+    ui->editUrl->setEnabled(false);
+    ui->editType->setEnabled(false);
 }
 
 void PublicationWidget::layoutCollection()
 {
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(true);
-    issnWidget->setVisible(true);
-    copyrightWidget->setVisible(true);
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(true);
+    ui->editISSN->setEnabled(true);
+    ui->editCopyright->setEnabled(true);
 
-    publicationDateWidget->setVisible(true);
+    ui->editDate->setEnabled(true);
 
-    howpublishedWidget->setVisible(true);
-    publisherWidget->setVisible(true);
+    ui->editHowPublished->setEnabled(true);
+    ui->editPublisher->setEnabled(true);
 
-    journalWidget->setVisible(false);
-    volumeWidget->setVisible(false);
-    numberWidget->setVisible(false);
+    ui->editJournal->setEnabled(false);
+    ui->editVolume->setEnabled(false);
+    ui->editNumber->setEnabled(false);
 
-    editionWidget->setVisible(false);
-    editorWidget->setVisible(false);
-    eprintWidget->setVisible(false);
+    ui->editEdition->setEnabled(false);
+    ui->editEditor->setEnabled(false);
+    ui->editEprint->setEnabled(false);
 
 
-    schoolWidget->setVisible(false);
-    seriesWidget->setVisible(false);
-    urlWidget->setVisible(false);
-    typeWidget->setVisible(false);
+    ui->editSchool->setEnabled(false);
+    ui->editSeries->setEnabled(false);
+    ui->editUrl->setEnabled(false);
+    ui->editType->setEnabled(false);
 }
 
 void PublicationWidget::layoutIncollection()
 {
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(true);
-    issnWidget->setVisible(true);
-    copyrightWidget->setVisible(true);
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(true);
+    ui->editISSN->setEnabled(true);
+    ui->editCopyright->setEnabled(true);
 
-    publicationDateWidget->setVisible(true);
+    ui->editDate->setEnabled(true);
 
-    howpublishedWidget->setVisible(false);
-    publisherWidget->setVisible(true);
-    journalWidget->setVisible(false);
-    volumeWidget->setVisible(false);
-    numberWidget->setVisible(false);
+    ui->editHowPublished->setEnabled(false);
+    ui->editPublisher->setEnabled(true);
+    ui->editJournal->setEnabled(false);
+    ui->editVolume->setEnabled(false);
+    ui->editNumber->setEnabled(false);
 
-    editionWidget->setVisible(false);
-    editorWidget->setVisible(true);
-    eprintWidget->setVisible(false);
+    ui->editEdition->setEnabled(false);
+    ui->editEditor->setEnabled(true);
+    ui->editEprint->setEnabled(false);
 
 
-    schoolWidget->setVisible(false);
-    seriesWidget->setVisible(false);
-    urlWidget->setVisible(false);
-    typeWidget->setVisible(false);
+    ui->editSchool->setEnabled(false);
+    ui->editSeries->setEnabled(false);
+    ui->editUrl->setEnabled(false);
+    ui->editType->setEnabled(false);
 }
 
 void PublicationWidget::layoutInproceedings()
 {
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(true);
-    issnWidget->setVisible(true);
-    copyrightWidget->setVisible(true);
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(true);
+    ui->editISSN->setEnabled(true);
+    ui->editCopyright->setEnabled(true);
 
-    publicationDateWidget->setVisible(true);
+    ui->editDate->setEnabled(true);
 
-    howpublishedWidget->setVisible(false);
-    publisherWidget->setVisible(true);
-    journalWidget->setVisible(false);
-    volumeWidget->setVisible(false);
-    numberWidget->setVisible(false);
+    ui->editHowPublished->setEnabled(false);
+    ui->editPublisher->setEnabled(true);
+    ui->editJournal->setEnabled(false);
+    ui->editVolume->setEnabled(false);
+    ui->editNumber->setEnabled(false);
 
-    editionWidget->setVisible(false);
-    editorWidget->setVisible(true);
-    eprintWidget->setVisible(false);
+    ui->editEdition->setEnabled(false);
+    ui->editEditor->setEnabled(true);
+    ui->editEprint->setEnabled(false);
 
 
-    schoolWidget->setVisible(false);
-    seriesWidget->setVisible(true);
-    urlWidget->setVisible(false);
-    typeWidget->setVisible(false);
+    ui->editSchool->setEnabled(false);
+    ui->editSeries->setEnabled(true);
+    ui->editUrl->setEnabled(false);
+    ui->editType->setEnabled(false);
 }
 
 void PublicationWidget::layoutManual()
 {
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(true);
-    issnWidget->setVisible(true);
-    copyrightWidget->setVisible(true);
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(true);
+    ui->editISSN->setEnabled(true);
+    ui->editCopyright->setEnabled(true);
 
-    publicationDateWidget->setVisible(true);
+    ui->editDate->setEnabled(true);
 
-    howpublishedWidget->setVisible(false);
-    publisherWidget->setVisible(false);
-    journalWidget->setVisible(false);
-    volumeWidget->setVisible(false);
-    numberWidget->setVisible(false);
+    ui->editHowPublished->setEnabled(false);
+    ui->editPublisher->setEnabled(false);
+    ui->editJournal->setEnabled(false);
+    ui->editVolume->setEnabled(false);
+    ui->editNumber->setEnabled(false);
 
-    editionWidget->setVisible(true);
-    editorWidget->setVisible(false);
-    eprintWidget->setVisible(false);
+    ui->editEdition->setEnabled(true);
+    ui->editEditor->setEnabled(false);
+    ui->editEprint->setEnabled(false);
 
 
-    schoolWidget->setVisible(false);
-    seriesWidget->setVisible(false);
-    urlWidget->setVisible(false);
-    typeWidget->setVisible(false);
+    ui->editSchool->setEnabled(false);
+    ui->editSeries->setEnabled(false);
+    ui->editUrl->setEnabled(false);
+    ui->editType->setEnabled(false);
 }
+
 void PublicationWidget::layoutBachelorthesis()
 {
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(true);
-    issnWidget->setVisible(true);
-    copyrightWidget->setVisible(true);
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(true);
+    ui->editISSN->setEnabled(true);
+    ui->editCopyright->setEnabled(true);
 
-    publicationDateWidget->setVisible(true);
-    schoolWidget->setVisible(true);
+    ui->editDate->setEnabled(true);
+    ui->editSchool->setEnabled(true);
 
-    howpublishedWidget->setVisible(false);
-    publisherWidget->setVisible(false);
-    journalWidget->setVisible(false);
-    volumeWidget->setVisible(false);
-    numberWidget->setVisible(false);
+    ui->editHowPublished->setEnabled(false);
+    ui->editPublisher->setEnabled(false);
+    ui->editJournal->setEnabled(false);
+    ui->editVolume->setEnabled(false);
+    ui->editNumber->setEnabled(false);
 
-    editionWidget->setVisible(false);
-    editorWidget->setVisible(false);
-    eprintWidget->setVisible(false);
+    ui->editEdition->setEnabled(false);
+    ui->editEditor->setEnabled(false);
+    ui->editEprint->setEnabled(false);
 
 
-    seriesWidget->setVisible(false);
-    urlWidget->setVisible(false);
-    typeWidget->setVisible(false);
+    ui->editSeries->setEnabled(false);
+    ui->editUrl->setEnabled(false);
+    ui->editType->setEnabled(false);
 }
 
 void PublicationWidget::layoutMastersthesis()
 {
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(true);
-    issnWidget->setVisible(true);
-    copyrightWidget->setVisible(true);
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(true);
+    ui->editISSN->setEnabled(true);
+    ui->editCopyright->setEnabled(true);
 
-    publicationDateWidget->setVisible(true);
-    schoolWidget->setVisible(true);
+    ui->editDate->setEnabled(true);
+    ui->editSchool->setEnabled(true);
 
-    howpublishedWidget->setVisible(false);
-    publisherWidget->setVisible(false);
-    journalWidget->setVisible(false);
-    volumeWidget->setVisible(false);
-    numberWidget->setVisible(false);
+    ui->editHowPublished->setEnabled(false);
+    ui->editPublisher->setEnabled(false);
+    ui->editJournal->setEnabled(false);
+    ui->editVolume->setEnabled(false);
+    ui->editNumber->setEnabled(false);
 
-    editionWidget->setVisible(false);
-    editorWidget->setVisible(false);
-    eprintWidget->setVisible(false);
+    ui->editEdition->setEnabled(false);
+    ui->editEditor->setEnabled(false);
+    ui->editEprint->setEnabled(false);
 
 
-    seriesWidget->setVisible(false);
-    urlWidget->setVisible(false);
-    typeWidget->setVisible(false);
+    ui->editSeries->setEnabled(false);
+    ui->editUrl->setEnabled(false);
+    ui->editType->setEnabled(false);
 }
 
 void PublicationWidget::layoutMisc()
 {
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(true);
-    issnWidget->setVisible(true);
-    copyrightWidget->setVisible(true);
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(true);
+    ui->editISSN->setEnabled(true);
+    ui->editCopyright->setEnabled(true);
 
-    publicationDateWidget->setVisible(true);
+    ui->editDate->setEnabled(true);
 
-    howpublishedWidget->setVisible(true);
-    publisherWidget->setVisible(true);
-    journalWidget->setVisible(true);
-    volumeWidget->setVisible(true);
-    numberWidget->setVisible(true);
+    ui->editHowPublished->setEnabled(true);
+    ui->editPublisher->setEnabled(true);
+    ui->editJournal->setEnabled(true);
+    ui->editVolume->setEnabled(true);
+    ui->editNumber->setEnabled(true);
 
-    editionWidget->setVisible(true);
-    editorWidget->setVisible(true);
-    eprintWidget->setVisible(true);
+    ui->editEdition->setEnabled(true);
+    ui->editEditor->setEnabled(true);
+    ui->editEprint->setEnabled(true);
 
 
-    schoolWidget->setVisible(true);
-    seriesWidget->setVisible(true);
-    urlWidget->setVisible(true);
-    typeWidget->setVisible(true);
+    ui->editSchool->setEnabled(true);
+    ui->editSeries->setEnabled(true);
+    ui->editUrl->setEnabled(true);
+    ui->editType->setEnabled(true);
 }
 
 void PublicationWidget::layoutPhdthesis()
 {
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(true);
-    issnWidget->setVisible(true);
-    copyrightWidget->setVisible(true);
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(true);
+    ui->editISSN->setEnabled(true);
+    ui->editCopyright->setEnabled(true);
 
-    publicationDateWidget->setVisible(true);
-    schoolWidget->setVisible(true);
+    ui->editDate->setEnabled(true);
+    ui->editSchool->setEnabled(true);
 
-    howpublishedWidget->setVisible(false);
-    publisherWidget->setVisible(false);
-    journalWidget->setVisible(false);
-    volumeWidget->setVisible(false);
-    numberWidget->setVisible(false);
+    ui->editHowPublished->setEnabled(false);
+    ui->editPublisher->setEnabled(false);
+    ui->editJournal->setEnabled(false);
+    ui->editVolume->setEnabled(false);
+    ui->editNumber->setEnabled(false);
 
-    editionWidget->setVisible(false);
-    editorWidget->setVisible(false);
-    eprintWidget->setVisible(false);
+    ui->editEdition->setEnabled(false);
+    ui->editEditor->setEnabled(false);
+    ui->editEprint->setEnabled(false);
 
 
-    seriesWidget->setVisible(false);
-    urlWidget->setVisible(false);
-    typeWidget->setVisible(false);
+    ui->editSeries->setEnabled(false);
+    ui->editUrl->setEnabled(false);
+    ui->editType->setEnabled(false);
 }
 
 void PublicationWidget::layoutProceedings()
 {
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(true);
-    issnWidget->setVisible(true);
-    copyrightWidget->setVisible(true);
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(true);
+    ui->editISSN->setEnabled(true);
+    ui->editCopyright->setEnabled(true);
 
-    publicationDateWidget->setVisible(true);
+    ui->editDate->setEnabled(true);
 
 
-    howpublishedWidget->setVisible(false);
-    publisherWidget->setVisible(true);
-    journalWidget->setVisible(false);
-    volumeWidget->setVisible(false);
-    numberWidget->setVisible(false);
+    ui->editHowPublished->setEnabled(false);
+    ui->editPublisher->setEnabled(true);
+    ui->editJournal->setEnabled(false);
+    ui->editVolume->setEnabled(false);
+    ui->editNumber->setEnabled(false);
 
-    editionWidget->setVisible(false);
-    editorWidget->setVisible(true);
-    eprintWidget->setVisible(false);
+    ui->editEdition->setEnabled(false);
+    ui->editEditor->setEnabled(true);
+    ui->editEprint->setEnabled(false);
 
-    schoolWidget->setVisible(false);
-    seriesWidget->setVisible(false);
-    urlWidget->setVisible(false);
-    typeWidget->setVisible(false);
+    ui->editSchool->setEnabled(false);
+    ui->editSeries->setEnabled(false);
+    ui->editUrl->setEnabled(false);
+    ui->editType->setEnabled(false);
 }
 
 void PublicationWidget::layoutTechreport()
 {
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(true);
-    issnWidget->setVisible(true);
-    copyrightWidget->setVisible(true);
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(true);
+    ui->editISSN->setEnabled(true);
+    ui->editCopyright->setEnabled(true);
 
-    publicationDateWidget->setVisible(true);
+    ui->editDate->setEnabled(true);
 
-    typeWidget->setVisible(true);
-    numberWidget->setVisible(true);
+    ui->editType->setEnabled(true);
+    ui->editNumber->setEnabled(true);
 
-    howpublishedWidget->setVisible(false);
-    publisherWidget->setVisible(false);
-    journalWidget->setVisible(false);
-    volumeWidget->setVisible(false);
+    ui->editHowPublished->setEnabled(false);
+    ui->editPublisher->setEnabled(false);
+    ui->editJournal->setEnabled(false);
+    ui->editVolume->setEnabled(false);
 
-    editionWidget->setVisible(false);
-    editorWidget->setVisible(false);
-    eprintWidget->setVisible(false);
+    ui->editEdition->setEnabled(false);
+    ui->editEditor->setEnabled(false);
+    ui->editEprint->setEnabled(false);
 
-    schoolWidget->setVisible(false);
-    seriesWidget->setVisible(false);
-    urlWidget->setVisible(false);
+    ui->editSchool->setEnabled(false);
+    ui->editSeries->setEnabled(false);
+    ui->editUrl->setEnabled(false);
 }
 
 void PublicationWidget::layoutUnpublished()
 {
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(false);
-    issnWidget->setVisible(false);
-    copyrightWidget->setVisible(true);
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(false);
+    ui->editISSN->setEnabled(false);
+    ui->editCopyright->setEnabled(true);
 
-    publicationDateWidget->setVisible(true);
+    ui->editDate->setEnabled(true);
 
-    howpublishedWidget->setVisible(false);
-    publisherWidget->setVisible(false);
-    journalWidget->setVisible(false);
-    volumeWidget->setVisible(false);
-    numberWidget->setVisible(false);
+    ui->editHowPublished->setEnabled(false);
+    ui->editPublisher->setEnabled(false);
+    ui->editJournal->setEnabled(false);
+    ui->editVolume->setEnabled(false);
+    ui->editNumber->setEnabled(false);
 
-    editionWidget->setVisible(false);
-    editorWidget->setVisible(false);
-    eprintWidget->setVisible(false);
+    ui->editEdition->setEnabled(false);
+    ui->editEditor->setEnabled(false);
+    ui->editEprint->setEnabled(false);
 
 
-    schoolWidget->setVisible(false);
-    seriesWidget->setVisible(false);
-    urlWidget->setVisible(false);
-    typeWidget->setVisible(false);
+    ui->editSchool->setEnabled(false);
+    ui->editSeries->setEnabled(false);
+    ui->editUrl->setEnabled(false);
+    ui->editType->setEnabled(false);
 }
 
 void PublicationWidget::layoutPatent()
 {
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(false);
-    issnWidget->setVisible(false);
-    copyrightWidget->setVisible(false);
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(false);
+    ui->editISSN->setEnabled(false);
+    ui->editCopyright->setEnabled(false);
 
-    publicationDateWidget->setVisible(true);
+    ui->editDate->setEnabled(true);
 
-    howpublishedWidget->setVisible(true);
-    publisherWidget->setVisible(true);
+    ui->editHowPublished->setEnabled(true);
+    ui->editPublisher->setEnabled(true);
 
 
 
-    journalWidget->setVisible(false);
-    volumeWidget->setVisible(false);
-    numberWidget->setVisible(false);
+    ui->editJournal->setEnabled(false);
+    ui->editVolume->setEnabled(false);
+    ui->editNumber->setEnabled(false);
 
-    editionWidget->setVisible(false);
-    editorWidget->setVisible(false);
-    eprintWidget->setVisible(false);
-    schoolWidget->setVisible(false);
-    seriesWidget->setVisible(false);
-    urlWidget->setVisible(false);
-    typeWidget->setVisible(false);
+    ui->editEdition->setEnabled(false);
+    ui->editEditor->setEnabled(false);
+    ui->editEprint->setEnabled(false);
+    ui->editSchool->setEnabled(false);
+    ui->editSeries->setEnabled(false);
+    ui->editUrl->setEnabled(false);
+    ui->editType->setEnabled(false);
 }
 
 void PublicationWidget::layoutElectronic()
 {
-    mrnumberWidget->setVisible(true);
-    lccnWidget->setVisible(true);
-    doiWidget->setVisible(true);
-    isbnWidget->setVisible(false);
-    issnWidget->setVisible(false);
-    copyrightWidget->setVisible(true);
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(false);
+    ui->editISSN->setEnabled(false);
+    ui->editCopyright->setEnabled(true);
 
-    publicationDateWidget->setVisible(true);
-    howpublishedWidget->setVisible(true);
-    publisherWidget->setVisible(true);
+    ui->editDate->setEnabled(true);
+    ui->editHowPublished->setEnabled(true);
+    ui->editPublisher->setEnabled(true);
 
 
-    urlWidget->setVisible(true);
+    ui->editUrl->setEnabled(true);
 
-    journalWidget->setVisible(false);
-    volumeWidget->setVisible(false);
-    numberWidget->setVisible(false);
+    ui->editJournal->setEnabled(false);
+    ui->editVolume->setEnabled(false);
+    ui->editNumber->setEnabled(false);
 
-    editionWidget->setVisible(false);
-    editorWidget->setVisible(false);
-    eprintWidget->setVisible(false);
-    schoolWidget->setVisible(false);
-    seriesWidget->setVisible(false);
-    typeWidget->setVisible(false);
+    ui->editEdition->setEnabled(false);
+    ui->editEditor->setEnabled(false);
+    ui->editEprint->setEnabled(false);
+    ui->editSchool->setEnabled(false);
+    ui->editSeries->setEnabled(false);
+    ui->editType->setEnabled(false);
+}
+
+void PublicationWidget::layoutJournalIssue()
+{
+    ui->editMRNumber->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editDOI->setEnabled(true);
+    ui->editISBN->setEnabled(false);
+    ui->editISSN->setEnabled(false);
+    ui->editCopyright->setEnabled(true);
+
+    ui->editDate->setEnabled(true);
+    ui->editHowPublished->setEnabled(true);
+    ui->editPublisher->setEnabled(true);
+
+    ui->editUrl->setEnabled(true);
+
+    ui->editJournal->setEnabled(false);
+    ui->editVolume->setEnabled(true);
+    ui->editNumber->setEnabled(true);
+
+    ui->editEdition->setEnabled(false);
+    ui->editEditor->setEnabled(false);
+    ui->editEprint->setEnabled(true);
+    ui->editSchool->setEnabled(false);
+    ui->editSeries->setEnabled(false);
+    ui->editType->setEnabled(false);
 }
