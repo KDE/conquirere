@@ -18,7 +18,7 @@
 #include "listpublicationsdialog.h"
 #include "ui_listpublicationsdialog.h"
 
-#include "../../core/project.h"
+#include "core/project.h"
 
 #include "nbib.h"
 #include <Nepomuk/Query/Term>

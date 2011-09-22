@@ -32,6 +32,8 @@ class ReferenceWidget : public SidebarComponent
 public:
     explicit ReferenceWidget(QWidget *parent = 0);
 
+    void setDialogMode(bool dialogMode);
+
 public slots:
     virtual void setResource(Nepomuk::Resource & resource);
     virtual void clear();

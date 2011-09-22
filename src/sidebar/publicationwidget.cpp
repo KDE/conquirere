@@ -18,11 +18,14 @@
 #include "publicationwidget.h"
 #include "ui_publicationwidget.h"
 
-#include "../../propertywidgets/stringedit.h"
-#include "../../propertywidgets/contactedit.h"
+#include "propertywidgets/stringedit.h"
+#include "propertywidgets/contactedit.h"
+
+#include "referencewidget.h"
 
 #include "nbib.h"
 #include <KComboBox>
+#include <KDialog>
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NCO>
@@ -46,6 +49,8 @@ PublicationWidget::PublicationWidget(QWidget *parent)
     setupWidget();
     ui->removeButton->setEnabled(false);
     ui->tabWidget->setEnabled(false);
+
+    connect(ui->createReference, SIGNAL(clicked()), this, SLOT(createReference()));
 }
 
 PublicationWidget::~PublicationWidget()
@@ -142,6 +147,37 @@ void PublicationWidget::removePublication()
     m_publication.remove();
 
     setResource(m_publication);
+}
+
+void PublicationWidget::createReference()
+{
+    KDialog showRefWidget;
+
+    Nepomuk::Resource tempRef(QUrl(), Nepomuk::Vocabulary::NBIB::BibReference());
+    tempRef.setProperty(Nepomuk::Vocabulary::NBIB::usePublication(), m_publication);
+
+    ReferenceWidget *rw = new ReferenceWidget();
+    rw->setDialogMode(true);
+    rw->setResource(tempRef);
+    rw->setProject(project());
+
+    showRefWidget.setMainWidget(rw);
+    showRefWidget.setInitialSize(QSize(300,300));
+
+    int ret = showRefWidget.exec();
+
+    if(ret == KDialog::Accepted) {
+        qDebug() << "acceptet";
+    }
+    else {
+        // remove temp citation again
+        tempRef.remove();
+    }
+}
+
+void PublicationWidget::connectToFile()
+{
+
 }
 
 void PublicationWidget::setupWidget()

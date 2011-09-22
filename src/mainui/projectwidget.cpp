@@ -18,9 +18,9 @@
 #include "projectwidget.h"
 #include "projecttreewidget.h"
 #include "mainwindow.h"
-#include "../../core/project.h"
-#include "../project/resourcemodel.h"
-#include "../sidebar/sidebarwidget.h"
+#include "core/project.h"
+#include "mainui/resourcemodel.h"
+#include "sidebar/sidebarwidget.h"
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Vocabulary/NIE>

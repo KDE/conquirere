@@ -18,9 +18,9 @@
 #include "referencewidget.h"
 #include "ui_referencewidget.h"
 
-#include "../../core/project.h"
-#include "../../propertywidgets/stringedit.h"
-#include "../../propertywidgets/contactedit.h"
+#include "core/project.h"
+#include "propertywidgets/stringedit.h"
+#include "propertywidgets/contactedit.h"
 #include "listpublicationsdialog.h"
 
 #include "nbib.h"
@@ -73,6 +73,14 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     connect(ui->publicationEdit, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showPublicationList()));
 }
 
+void ReferenceWidget::setDialogMode(bool dialogMode)
+{
+
+    ui->createButton->setVisible(false);
+    ui->removeButton->setVisible(false);
+    ui->line->setVisible(false);
+}
+
 void ReferenceWidget::setResource(Nepomuk::Resource & resource)
 {
     // what we get is a nbib::BibReference
@@ -85,6 +93,7 @@ void ReferenceWidget::setResource(Nepomuk::Resource & resource)
     }
     else {
         showCreateReference(true);
+        qDebug() << "nonvalid resource for the referencewidget";
     }
 
 }

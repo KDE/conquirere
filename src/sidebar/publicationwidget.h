@@ -38,8 +38,8 @@ enum BibEntryType {
     BibType_Techreport,        /**< A report published by a school or other institution, usually numbered within a series. */
     BibType_Unpublished,       /**< A document having an author and title, but not formally published. */
     BibType_Patent,            /**< A patent. */
-    BibType_Electronic ,        /**< A electronic publication */
-    BibType_JournalIssue         /**< An issue of a journal or magazine */
+    BibType_Electronic ,       /**< A electronic publication */
+    BibType_JournalIssue       /**< An issue of a journal or magazine */
 };
 
 enum BibDataType {
@@ -97,6 +97,9 @@ private slots:
     void selectPublication();
     void createPublication();
     void removePublication();
+
+    void createReference();
+    void connectToFile();
 
 private:
     void setupWidget();

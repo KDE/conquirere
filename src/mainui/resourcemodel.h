@@ -18,8 +18,8 @@
 #ifndef RESOURCEMODEL_H
 #define RESOURCEMODEL_H
 
-#include "../../globals.h"
-#include "../../core/project.h"
+#include "../globals.h"
+#include "core/project.h"
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Tag>

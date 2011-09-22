@@ -19,9 +19,9 @@
 #include "core/project.h"
 #include "core/bibtexexporter.h"
 
-#include "ui/project/newprojectdialog.h"
-#include "ui/project/welcomewidget.h"
-#include "ui/project/projectwidget.h"
+#include "mainui/newprojectdialog.h"
+#include "mainui/welcomewidget.h"
+#include "mainui/projectwidget.h"
 
 #include <Nepomuk/File>
 #include <KDE/KApplication>

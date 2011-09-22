@@ -88,7 +88,6 @@ void SidebarWidget::newSelection(LibraryType library, ResourceSelection selectio
         break;
     }
 
-    m_currentWidget->setLibraryType(library);
     m_currentWidget->setProject(m_project);
     layout()->addWidget(m_currentWidget);
 }

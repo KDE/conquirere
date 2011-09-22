@@ -15,31 +15,31 @@ set(conquirere_SRCS
     core/project.cpp
     core/bibtexexporter.cpp
 
-    ui/project/newprojectdialog.cpp
-    ui/project/newprojectdialog.cpp
-    ui/project/welcomewidget.cpp
-    ui/project/projecttreewidget.cpp
-    ui/project/projecttreedelegate.cpp
-    ui/project/projectwidget.cpp
-    ui/project/resourcemodel.cpp
+    mainui/newprojectdialog.cpp
+    mainui/newprojectdialog.cpp
+    mainui/welcomewidget.cpp
+    mainui/projecttreewidget.cpp
+    mainui/projecttreedelegate.cpp
+    mainui/projectwidget.cpp
+    mainui/resourcemodel.cpp
 
 
-    ui/sidebar/sidebarwidget.cpp
-    ui/sidebar/sidebarcomponent.cpp
-    ui/sidebar/publicationwidget.cpp
-    ui/sidebar/referencewidget.cpp
-    ui/sidebar/listpublicationsdialog.cpp
+    sidebar/sidebarwidget.cpp
+    sidebar/sidebarcomponent.cpp
+    sidebar/publicationwidget.cpp
+    sidebar/referencewidget.cpp
+    sidebar/listpublicationsdialog.cpp
 )
 
 kde4_add_ui_files( conquirere_SRCS
 
-                   ui/project/newprojectdialog.ui
-                   ui/project/welcomewidget.ui
-                   ui/project/projecttreewidget.ui
+                   mainui/newprojectdialog.ui
+                   mainui/welcomewidget.ui
+                   mainui/projecttreewidget.ui
 
-                   ui/sidebar/referencewidget.ui
-                   ui/sidebar/listpublicationsdialog.ui
-                   ui/sidebar/publicationwidget.ui
+                   sidebar/referencewidget.ui
+                   sidebar/listpublicationsdialog.ui
+                   sidebar/publicationwidget.ui
 )
 
 

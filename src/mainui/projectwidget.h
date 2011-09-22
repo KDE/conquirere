@@ -19,7 +19,7 @@
 #define PROJECTWIDGET_H
 
 #include "projecttreewidget.h"
-#include "../../globals.h"
+#include "../globals.h"
 
 #include <QWidget>
 #include <QModelIndex>

@@ -20,7 +20,7 @@
 
 #include <QWidget>
 
-#include "../../globals.h"
+#include "../globals.h"
 
 #include <Nepomuk/Resource>
 

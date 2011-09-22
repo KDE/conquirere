@@ -18,7 +18,7 @@
 #include "projecttreewidget.h"
 #include "ui_projecttreewidget.h"
 
-#include "../../core/project.h"
+#include "core/project.h"
 #include "projecttreedelegate.h"
 
 #include <KStandardDirs>
