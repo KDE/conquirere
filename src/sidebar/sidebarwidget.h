@@ -35,6 +35,8 @@ public:
 
     virtual void setResource(Nepomuk::Resource & resource);
 
+    virtual void setDialogMode(bool dialogMode) { }
+
     void setProject(Project *p);
     Project *project();
 

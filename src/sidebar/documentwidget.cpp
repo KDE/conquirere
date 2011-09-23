@@ -18,6 +18,9 @@
 #include "documentwidget.h"
 #include "ui_documentwidget.h"
 
+#include "publicationwidget.h"
+
+#include "nbib.h"
 #include <KGlobalSettings>
 #include <KMimeType>
 #include <KIconLoader>
@@ -44,6 +47,8 @@ DocumentWidget::DocumentWidget(QWidget *parent) :
     m_kfmd->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     m_kfmd->show();
 
+    connect(ui->createPublication, SIGNAL(clicked()), this, SLOT(createPublication()));
+    connect(ui->removePublication, SIGNAL(clicked()), this, SLOT(removePublication()));
 }
 
 DocumentWidget::~DocumentWidget()
@@ -73,6 +78,16 @@ void DocumentWidget::setResource(Nepomuk::Resource & resource)
         KFileItemList kfil;
         kfil.append(kf);
         m_kfmd->setItems(kfil);
+
+        Nepomuk::Resource pa = m_document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
+        if(pa.isValid()) {
+                 ui->createPublication->setVisible(false);
+                 ui->removePublication->setVisible(true);
+        }
+        else {
+            ui->createPublication->setVisible(true);
+            ui->removePublication->setVisible(false);
+        }
     }
 }
 
@@ -82,11 +97,45 @@ void DocumentWidget::clear()
 
 void DocumentWidget::createPublication()
 {
+    //TODO don't jus tcreate a publication, also select from existing ones
+    KDialog showPublicationWidget;
 
+    // create a temporary Publication object
+    Nepomuk::Resource tempRef(QUrl(), Nepomuk::Vocabulary::NBIB::Publication());
+    tempRef.setProperty(Nepomuk::Vocabulary::NBIB::isPublicationOf(), m_document);
+
+    PublicationWidget *rw = new PublicationWidget();
+    rw->setDialogMode(true);
+    rw->setResource(tempRef);
+    rw->setProject(project());
+
+    showPublicationWidget.setMainWidget(rw);
+    showPublicationWidget.setInitialSize(QSize(300,300));
+
+    int ret = showPublicationWidget.exec();
+
+    if(ret == KDialog::Accepted) {
+        // add backreference
+        m_document.setProperty(Nepomuk::Vocabulary::NBIB::publishedAs(), tempRef);
+    }
+    else {
+        // remove temp publication again
+        tempRef.remove();
+    }
+
+    //update
+    setResource(m_document);
 }
 
 void DocumentWidget::removePublication()
 {
+    //TODO ask if publication should be deleted or just the link removed
+    Nepomuk::Resource pa = m_document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
+    pa.remove();
 
+    m_document.removeProperty(Nepomuk::Vocabulary::NBIB::publishedAs());
+
+    //update
+    setResource(m_document);
 }
 

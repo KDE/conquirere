@@ -149,6 +149,16 @@ void PublicationWidget::removePublication()
     setResource(m_publication);
 }
 
+void PublicationWidget::setDialogMode(bool dialogMode)
+{
+    ui->createButton->setVisible(false);
+    ui->removeButton->setVisible(false);
+    ui->line->setVisible(false);
+
+    ui->createReference->setVisible(false);
+    ui->setDocument->setVisible(false);
+}
+
 void PublicationWidget::createReference()
 {
     KDialog showRefWidget;
@@ -167,7 +177,7 @@ void PublicationWidget::createReference()
     int ret = showRefWidget.exec();
 
     if(ret == KDialog::Accepted) {
-        qDebug() << "acceptet";
+        //m_publication.setProperty(Nepomuk::Vocabulary::NBIB::, tempRef);
     }
     else {
         // remove temp citation again

@@ -76,6 +76,8 @@ public:
     explicit PublicationWidget(QWidget *parent = 0);
     virtual ~PublicationWidget();
 
+    void setDialogMode(bool dialogMode);
+
 public slots:
     /* called when something is selected in the project view */
     void setResource(Nepomuk::Resource & resource);
