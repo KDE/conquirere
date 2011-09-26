@@ -80,6 +80,12 @@ ProjectWidget::ProjectWidget(QWidget *parent)
     connect(m_systemPublicationModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
             m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
     m_systemPublicationModel->startFetchData();
+
+    m_systemNoteModel = new ResourceModel;
+    m_systemNoteModel->setResourceType(Resource_Note);
+    connect(m_systemNoteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+    m_systemNoteModel->startFetchData();
 }
 
 ProjectWidget::~ProjectWidget()
@@ -91,6 +97,7 @@ ProjectWidget::~ProjectWidget()
     delete m_projectMailModel;
     delete m_projectMediaModel;
     delete m_projectWebsiteModel;
+    delete m_projectNoteModel;
     delete m_documentView;
 }
 
@@ -143,6 +150,13 @@ void ProjectWidget::setProject(Project *p)
     connect(m_projectPublicationModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
             m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
     m_projectPublicationModel->startFetchData();
+
+    m_projectNoteModel = new ResourceModel;
+    m_projectNoteModel->setProject(m_project);
+    m_projectNoteModel->setResourceType(Resource_Note);
+    connect(m_projectNoteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+    m_projectNoteModel->startFetchData();
 }
 
 Project *ProjectWidget::project() const
@@ -177,8 +191,7 @@ void ProjectWidget::switchView(LibraryType library, ResourceSelection selection)
             m_documentView->setModel(m_projectPublicationModel);
             break;
         case Resource_Note:
-            qDebug() << "note panel not implemeneted yet";
-            m_documentView->setModel(m_projectDocumentModel);
+            m_documentView->setModel(m_projectNoteModel);
             break;
         }
     }
@@ -203,8 +216,7 @@ void ProjectWidget::switchView(LibraryType library, ResourceSelection selection)
             m_documentView->setModel(m_systemPublicationModel);
             break;
         case Resource_Note:
-            qDebug() << "note panel not implemeneted yet";
-            m_documentView->setModel(m_systemDocumentModel);
+            m_documentView->setModel(m_systemNoteModel);
             break;
         }
 
