@@ -22,12 +22,12 @@
 #include <Nepomuk/Variant>
 
 #include <QStandardItemModel>
+#include <QUrl>
 
 JournalEdit::JournalEdit(QWidget *parent)
     :PropertyEdit(parent)
 {
 }
-
 
 void JournalEdit::setupLabel()
 {
@@ -53,10 +53,21 @@ void JournalEdit::updateResource(const QString & text)
         resource().addProperty( propertyUrl(), Nepomuk::Resource(propUrl));
     }
     else {
-        // create a new journal with the string s as title
-        Nepomuk::Resource newJournal(propUrl, Nepomuk::Vocabulary::NBIB::JournalIssue());
+        // create a new journalisiue with the string s as journal title
+        Nepomuk::Resource newJournalIssue(QUrl(), Nepomuk::Vocabulary::NBIB::JournalIssue());
+        newJournalIssue.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
+
+        Nepomuk::Resource newJournal(QUrl(), Nepomuk::Vocabulary::NBIB::Journal());
         newJournal.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-        resource().addProperty( propertyUrl(), newJournal);
+
+        // connect journal and journalIssue
+        newJournalIssue.setProperty(Nepomuk::Vocabulary::NBIB::fromJournal(), newJournal);
+        newJournal.addProperty(Nepomuk::Vocabulary::NBIB::hasIssue(), newJournalIssue);
+
+        resource().addProperty( propertyUrl(), newJournalIssue);
+
+        //connect article back to journal issue
+        newJournalIssue.addProperty(Nepomuk::Vocabulary::NBIB::hasArticle(), resource());
     }
 }
 

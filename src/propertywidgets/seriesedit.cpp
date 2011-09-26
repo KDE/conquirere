@@ -52,9 +52,12 @@ void SeriesEdit::updateResource(const QString & text)
     }
     else {
         // create a new series with the string s as title
-        Nepomuk::Resource newSeries(propUrl, Nepomuk::Vocabulary::NBIB::Series());
+        Nepomuk::Resource newSeries(propUrl, Nepomuk::Vocabulary::NBIB::BookSeries());
         newSeries.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
         resource().addProperty( propertyUrl(), newSeries);
+
+        //add backlink
+        newSeries.setProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), resource());
     }
 }
 

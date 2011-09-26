@@ -171,9 +171,21 @@ nbib: {
 
     nbib:Series
           a       rdfs:Class ;
-          rdfs:comment "The series of a book." ;
+          rdfs:comment "Superclass to represent a series of some published data. (Book Series, Journal with several issues etc)" ;
           rdfs:label "Series" ;
           rdfs:subClassOf nie:InformationElement .
+
+    nbib:BookSeries
+          a       rdfs:Class ;
+          rdfs:comment "The series of a book." ;
+          rdfs:label "BookSeries" ;
+          rdfs:subClassOf nbib:Series .
+
+    nbib:Journal
+          a       rdfs:Class ;
+          rdfs:comment "A Journal which publish single journal issues." ;
+          rdfs:label "Journal" ;
+          rdfs:subClassOf nbib:Series .
 
 
 ####################################################################
@@ -271,11 +283,18 @@ nbib: {
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
+    nbib:hasArticle
+          a       rdf:Property ;
+          rdfs:domain nbib:JournalIssue ;
+          rdfs:comment "Connects an article to its journal issue" ;
+          rdfs:label "hasArticle" ;
+          rdfs:range nbib:Article .
+
     nbib:hasChapter
           a       rdf:Property ;
           rdfs:domain nbib:Reference ;
           rdfs:comment "The chapter number of the reference." ;
-          rdfs:label "Chapter" ;
+          rdfs:label "hasChapter" ;
           rdfs:range nbib:Chapter ;
           nrl:maxCardinality 1 .
 
@@ -300,7 +319,7 @@ nbib: {
           rdfs:domain nbib:Publication ;
           rdfs:comment "The institution that was involved in the publishing, but not necessarily the publisher." ;
           rdfs:label "Institution" ;
-          rdfs:range nco:Contact ;
+          rdfs:range nco:OrganizationContact ;
           nrl:maxCardinality 1 .
 
     nbib:isbn
@@ -328,6 +347,21 @@ nbib: {
           rdfs:label "inJournalIssue" ;
           rdfs:range nbib:JournalIssue ;
           nrl:maxCardinality 1 .
+
+    nbib:fromJournal
+          a       rdf:Property ;
+          rdfs:domain nbib:JournalIssue ;
+          rdfs:comment "The journal this issue was published in." ;
+          rdfs:label "fromJournal" ;
+          rdfs:range nbib:Journal ;
+          nrl:maxCardinality 1 .
+
+    nbib:hasIssue
+          a       rdf:Property ;
+          rdfs:domain nbib:Journal ;
+          rdfs:comment "Connects one or more issues from the journal they are published from" ;
+          rdfs:label "hasIssue" ;
+          rdfs:range nbib:JournalIssue .
 
     nbib:lccn
           a       rdf:Property ;
@@ -363,6 +397,14 @@ nbib: {
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
+    nbib:organization
+          a       rdf:Property ;
+          rdfs:domain nbib:Proceedings ;
+          rdfs:comment "The organization that held the conference whre the proceedings comes from" ;
+          rdfs:label "Organization" ;
+          rdfs:range nco:OrganizationContact ;
+          nrl:maxCardinality 1 .
+
     nbib:pages
           a       rdf:Property ;
           rdfs:domain nbib:Reference ;
@@ -392,13 +434,13 @@ nbib: {
           rdfs:domain nbib:Book ;
           rdfs:comment "The series of books the book was published in." ;
           rdfs:label "inSeries" ;
-          rdfs:range nbib:Series ;
+          rdfs:range nbib:BookSeries ;
           nrl:inverseProperty nbib:seriesOf ;
           nrl:maxCardinality 1 .
 
     nbib:seriesOf
           a       rdf:Property ;
-          rdfs:domain nbib:Series ;
+          rdfs:domain nbib:BookSeries ;
           rdfs:comment "The book this series belongs to" ;
           rdfs:label "seriesOf" ;
           rdfs:range nbib:Book ;

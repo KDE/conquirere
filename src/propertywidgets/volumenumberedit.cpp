@@ -48,20 +48,21 @@ void VolumeNumberEdit::setupLabel()
 
 void VolumeNumberEdit::updateResource(const QString & text)
 {
+    // the volume /number can eithe rbe attached directly to an nbib:Publication entity
+    // happens for techreport for example
+
+    // or it marks the volume/number of an Journalissue where an article was published in.
+
     // check if the resource has a journalissue attaced to it
     Nepomuk::Resource journalIssue = resource().property(Nepomuk::Vocabulary::NBIB::inJournalIssue()).toResource();
 
     if(journalIssue.isValid()) {
-        // remove all existing string entries of this property
-        journalIssue.removeProperty( propertyUrl() );
+        // in this case attach volume/number to the issue rather than the publication from resource()
 
-        journalIssue.addProperty(propertyUrl(), text);
+        journalIssue.setProperty(propertyUrl(), text);
     }
     else {
-        // remove all existing string entries of this property
-        resource().removeProperty( propertyUrl() );
-
-        resource().addProperty(propertyUrl(), text);
+        resource().setProperty(propertyUrl(), text);
     }
 }
 
