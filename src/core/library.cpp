@@ -16,8 +16,11 @@
  */
 
 #include "library.h"
-#include "../core/resourcemodel.h"
 #include "../mainui/projecttreewidget.h"
+#include "../core/nepomukmodel.h"
+#include "../core/publicationmodel.h"
+
+#include "../core/resourcemodel.h"
 
 #include <KDE/KUrl>
 #include <QtCore/QDir>
@@ -229,7 +232,7 @@ void Library::connectFetchIndicator(ProjectTreeWidget *treeWidget)
         case Resource_Website:
         case Resource_Note:
         {
-            ResourceModel *m = qobject_cast<ResourceModel *>(model);
+            NepomukModel *m = qobject_cast<NepomukModel *>(model);
             connect(m, SIGNAL(updatefetchDataFor(ResourceSelection,bool, Library *)),
                     treeWidget, SLOT(fetchDataFor(ResourceSelection,bool, Library *)));
 
@@ -269,15 +272,15 @@ void Library::setupModels()
     WebsiteModel->setResourceType(Resource_Website);
     m_resources.insert(Resource_Website, WebsiteModel);
 
-    ResourceModel *ReferencesModel = new ResourceModel;
+    PublicationModel *ReferencesModel = new PublicationModel;
     ReferencesModel->setLibrary(this);
     ReferencesModel->setResourceType(Resource_Reference);
     m_resources.insert(Resource_Reference, ReferencesModel);
 
-    ResourceModel *PublicationModel = new ResourceModel;
-    PublicationModel->setLibrary(this);
-    PublicationModel->setResourceType(Resource_Publication);
-    m_resources.insert(Resource_Publication, PublicationModel);
+    PublicationModel *publicationModel = new PublicationModel;
+    publicationModel->setLibrary(this);
+    publicationModel->setResourceType(Resource_Publication);
+    m_resources.insert(Resource_Publication, publicationModel);
 
     ResourceModel *NoteModel = new ResourceModel;
     NoteModel->setLibrary(this);

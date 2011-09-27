@@ -18,7 +18,7 @@
 #include "mainwidget.h"
 #include "projecttreewidget.h"
 #include "core/library.h"
-#include "../core/resourcemodel.h"
+#include "../core/nepomukmodel.h"
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Vocabulary/NIE>
@@ -55,9 +55,10 @@ void MainWidget::switchView(ResourceSelection selection, Library *p)
 
     m_documentView->horizontalHeader()->setResizeMode(0, QHeaderView::Fixed);
     m_documentView->horizontalHeader()->setResizeMode(1, QHeaderView::Fixed);
-    m_documentView->horizontalHeader()->setResizeMode(2, QHeaderView::Interactive);
-    m_documentView->horizontalHeader()->setResizeMode(3, QHeaderView::Stretch);
-    m_documentView->horizontalHeader()->setResizeMode(4, QHeaderView::Fixed);
+    m_documentView->horizontalHeader()->setResizeMode(2, QHeaderView::Stretch);
+    m_documentView->horizontalHeader()->setResizeMode(3, QHeaderView::Interactive);
+    m_documentView->horizontalHeader()->setResizeMode(4, QHeaderView::Stretch);
+    m_documentView->horizontalHeader()->setResizeMode(5, QHeaderView::Fixed);
     m_documentView->horizontalHeader()->resizeSection(0,25);
     m_documentView->horizontalHeader()->resizeSection(1,25);
     m_documentView->horizontalHeader()->resizeSection(4,100);
@@ -71,7 +72,7 @@ void MainWidget::selectedResource( const QModelIndex & current, const QModelInde
 {
     Q_UNUSED(previous);
 
-    ResourceModel *rm = qobject_cast<ResourceModel *>(m_documentView->model());
+    NepomukModel *rm = qobject_cast<NepomukModel *>(m_documentView->model());
     Nepomuk::Resource nr = rm->documentResource(current);
 
     emit selectedResource(nr);
@@ -82,7 +83,7 @@ void MainWidget::removeSelected()
     QItemSelectionModel *sm = m_documentView->selectionModel();
     QModelIndexList indexes = sm->selectedRows();
 
-    ResourceModel *rm = qobject_cast<ResourceModel *>(m_documentView->model());
+    NepomukModel *rm = qobject_cast<NepomukModel *>(m_documentView->model());
     rm->removeSelected(indexes);
 }
 
@@ -91,7 +92,7 @@ void MainWidget::openSelected()
     QItemSelectionModel *sm = m_documentView->selectionModel();
     QModelIndexList indexes = sm->selectedRows();
 
-    ResourceModel *rm = qobject_cast<ResourceModel *>(m_documentView->model());
+    NepomukModel *rm = qobject_cast<NepomukModel *>(m_documentView->model());
     Nepomuk::Resource nr = rm->documentResource(indexes.first());
 
     QUrl file = nr.property(Nepomuk::Vocabulary::NIE::url()).toUrl();

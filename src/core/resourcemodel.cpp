@@ -70,7 +70,7 @@ bool nameDescending(const Nepomuk::Resource &s1, const Nepomuk::Resource &s2)
 }
 
 ResourceModel::ResourceModel(QObject *parent)
-    : QAbstractTableModel(parent)
+    : NepomukModel(parent)
     , m_project(0)
 {
     m_queryClient = new Nepomuk::Query::QueryServiceClient();

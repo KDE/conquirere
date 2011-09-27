@@ -15,43 +15,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef RESOURCEMODEL_H
-#define RESOURCEMODEL_H
+#ifndef PUBLICATIONMODEL_H
+#define PUBLICATIONMODEL_H
 
 #include "nepomukmodel.h"
-
 #include "../globals.h"
-#include "core/library.h"
 
 #include <Nepomuk/Resource>
-#include <Nepomuk/Tag>
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Result>
 
-#include <QtCore/QAbstractTableModel>
-#include <QtCore/QUrl>
 #include <QtCore/QList>
 
-class ResourceModel : public NepomukModel
+class Library;
+
+/**
+  * Model for any kind of publication data
+  *
+  * Used to display @c nbib:Publication and @c nbib:Reference
+  *
+  */
+class PublicationModel : public NepomukModel
 {
     Q_OBJECT
 public:
-    explicit ResourceModel(QObject *parent = 0);
-    ~ResourceModel();
+    explicit PublicationModel(QObject *parent = 0);
+    ~PublicationModel();
 
-    void setLibrary(Library *p);
+    void setLibrary(Library *library);
     void setResourceType(ResourceSelection selection);
-
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    void sort ( int column, Qt::SortOrder order = Qt::AscendingOrder );
 
     Nepomuk::Resource documentResource(const QModelIndex &selection);
 
     void removeSelected(const QModelIndexList & indexes);
+
+    // implemented from QAbstractTableModel
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
+    QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 public slots:
     void startFetchData();
@@ -59,7 +61,7 @@ public slots:
 
 signals:
     void dataSizeChaged(int size);
-    void updatefetchDataFor(ResourceSelection selection, bool start, Library *p);
+    void updatefetchDataFor(ResourceSelection selection, bool start, Library *library);
 
 private slots:
     /**
@@ -76,10 +78,11 @@ private slots:
     void listingsError(const QString & 	errorMessage);
 
 private:
-    Library *m_project;
+    Library *m_library;
     ResourceSelection m_selection;
     Nepomuk::Query::QueryServiceClient *m_queryClient;
     QList<Nepomuk::Resource> m_fileList;
+
 };
 
-#endif // RESOURCEMODEL_H
+#endif // PUBLICATIONMODEL_H

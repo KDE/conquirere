@@ -28,7 +28,7 @@
 
 class Library;
 class QTableView;
-class ResourceModel;
+class PublicationModel;
 class SidebarWidget;
 class KAction;
 
