@@ -15,27 +15,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PROJECT_H
-#define PROJECT_H
-
-#include <QObject>
-#include <QFileInfo>
-#include <QString>
-
-#include <Nepomuk/Tag>
+#ifndef LIBRARY_H
+#define LIBRARY_H
 
 #include "../globals.h"
 
-class QSettings;
-class QAbstractTableModel;
-class ProjectTreeWidget;
+#include <QObject>
+#include <Nepomuk/Resource>
+#include <Nepomuk/Tag>
+#include <QFileInfo>
+#include <QString>
 
-class Project : public QObject
+class QSettings;
+class ProjectTreeWidget;
+class QAbstractTableModel;
+
+class Library : public QObject
 {
     Q_OBJECT
 public:
-    explicit Project(QObject *parent = 0);
-    ~Project();
+    explicit Library(LibraryType type);
+
+    LibraryType libraryType() const;
 
     void setName(const QString & name);
     QString name() const;
@@ -43,29 +44,28 @@ public:
     void setPath(const QString & path);
     QString path() const;
 
-    void createProject();
-    void loadProject(const QString & projectFile);
-    void deleteProject();
+    void createLibrary();
+    void loadLibrary(const QString & projectFile);
+    void deleteLibrary();
 
-    Nepomuk::Resource pimoProject() const;
+    Nepomuk::Resource pimoLibrary() const;
 
     bool isInPath(const QString &filename);
 
+    void addResource(Nepomuk::Resource & res);
     void addDocument(const QFileInfo &fileInfo);
-    void document();
-
-    QList<Nepomuk::File> getProjectFiles();
 
     QAbstractTableModel* viewModel(ResourceSelection selection);
     void connectFetchIndicator(ProjectTreeWidget *treeWidget);
 
 public slots:
-    void scanProjectFolders();
+    void scanLibraryFolders();
 
 private:
-    void initializeProjectFolder();
+    void initializeLibraryFolder();
     void setupModels();
 
+    LibraryType m_libraryType;
     QString m_name;
     QString m_path;
 
@@ -75,6 +75,7 @@ private:
     QSettings *m_settings;
 
     QMap<ResourceSelection, QAbstractTableModel*> m_resources;
+
 };
 
-#endif // PROJECT_H
+#endif // LIBRARY_H

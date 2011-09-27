@@ -16,7 +16,7 @@
  */
 
 #include "mainwindow.h"
-#include "core/project.h"
+#include "core/library.h"
 #include "core/bibtexexporter.h"
 
 #include "sidebar/sidebarwidget.h"
@@ -50,23 +50,23 @@ MainWindow::~MainWindow()
 {
 }
 
-void MainWindow::createProject()
+void MainWindow::createLibrary()
 {
     NewProjectDialog npd;
 
     int ret = npd.exec();
 
     if(ret == QDialog::Accepted) {
-        Project *project = new Project();
-        project->setName(npd.name());
-        project->setPath(npd.path());
-        project->createProject();
+        Library *customLibrary = new Library(Library_Project);
+        customLibrary->setName(npd.name());
+        customLibrary->setPath(npd.path());
+        customLibrary->createLibrary();
 
-        openProject(project);
+        openLibrary(customLibrary);
     }
 }
 
-void MainWindow::loadProject()
+void MainWindow::loadLibrary()
 {
     //select name and path of the project
     QString fileNameFromDialog = KFileDialog::getOpenFileName(KGlobalSettings::documentPath(), QLatin1String("*.ini|Conquirere project (*.ini)"));
@@ -75,26 +75,28 @@ void MainWindow::loadProject()
         return;
     }
 
-    Project *project = new Project();
-    project->loadProject(fileNameFromDialog);
+    Library *customLibrary = new Library(Library_Project);
+    customLibrary->loadLibrary(fileNameFromDialog);
 
-    openProject(project);
+    openLibrary(customLibrary);
 }
 
-void MainWindow::openProject(Project *p)
+void MainWindow::openLibrary(Library *p)
 {
-    m_projectTree->addProject(p);
-    m_projects.append(p);
+    m_projectTree->addLibrary(p);
+    m_libraries.append(p);
 
     //connect the fetch indicator to the treewidget
+    p->connectFetchIndicator(m_projectTree);
 
     actionCollection()->action(QLatin1String("delete_project"))->setEnabled(true);
     actionCollection()->action(QLatin1String("close_project"))->setEnabled(true);
     actionCollection()->action(QLatin1String("export_bibtex"))->setEnabled(true);
 }
 
-void MainWindow::deleteProject()
+void MainWindow::deleteLibrary()
 {
+    qDebug() << "TODO delete library";
 //    ProjectWidget *projectWidget = qobject_cast<ProjectWidget *>(centralWidget());
 
 //    if(projectWidget) {
@@ -113,11 +115,12 @@ void MainWindow::deleteProject()
 //    }
 }
 
-void MainWindow::closeProject()
+void MainWindow::closeLibrary()
 {
-    m_projectTree->closeProject(m_projects.first());
+    qDebug() << "TODO close library";
+    m_projectTree->closeLibrary(m_libraries.first());
 
-    if(m_projects.isEmpty()) {
+    if(m_libraries.isEmpty()) {
         actionCollection()->action(QLatin1String("delete_project"))->setEnabled(false);
         actionCollection()->action(QLatin1String("close_project"))->setEnabled(false);
         actionCollection()->action(QLatin1String("export_bibtex"))->setEnabled(false);
@@ -146,14 +149,14 @@ void MainWindow::setupActions()
     newProjectAction->setIcon(KIcon(QLatin1String("document-new")));
 
     actionCollection()->addAction(QLatin1String("new_project"), newProjectAction);
-    connect(newProjectAction, SIGNAL(triggered(bool)),this, SLOT(createProject()));
+    connect(newProjectAction, SIGNAL(triggered(bool)),this, SLOT(createLibrary()));
 
     KAction* loadProjectAction = new KAction(this);
     loadProjectAction->setText(i18n("&Load Project"));
     loadProjectAction->setIcon(KIcon(QLatin1String("document-open")));
 
     actionCollection()->addAction(QLatin1String("load_project"), loadProjectAction);
-    connect(loadProjectAction, SIGNAL(triggered(bool)),this, SLOT(loadProject()));
+    connect(loadProjectAction, SIGNAL(triggered(bool)),this, SLOT(loadLibrary()));
 
     KAction* removeProjectAction = new KAction(this);
     removeProjectAction->setText(i18n("&Delete Project"));
@@ -161,7 +164,7 @@ void MainWindow::setupActions()
     removeProjectAction->setEnabled(false);
 
     actionCollection()->addAction(QLatin1String("delete_project"), removeProjectAction);
-    connect(removeProjectAction, SIGNAL(triggered(bool)),this, SLOT(deleteProject()));
+    connect(removeProjectAction, SIGNAL(triggered(bool)),this, SLOT(deleteLibrary()));
 
     KAction* closeProjectAction = new KAction(this);
     closeProjectAction->setText(i18n("&Close Project"));
@@ -169,7 +172,7 @@ void MainWindow::setupActions()
     closeProjectAction->setEnabled(false);
 
     actionCollection()->addAction(QLatin1String("close_project"), closeProjectAction);
-    connect(closeProjectAction, SIGNAL(triggered(bool)),this, SLOT(closeProject()));
+    connect(closeProjectAction, SIGNAL(triggered(bool)),this, SLOT(closeLibrary()));
 
     KAction* exportBibTexAction = new KAction(this);
     exportBibTexAction->setText(i18n("&Export to BibTex"));
@@ -195,14 +198,14 @@ void MainWindow::setupMainWindow()
     //add panel for the document info
     m_sidebarWidget = new SidebarWidget;
 
-    connect(m_projectTree, SIGNAL(newSelection(LibraryType,ResourceSelection,Project*)),
-            m_sidebarWidget, SLOT(newSelection(LibraryType,ResourceSelection,Project*)));
+    connect(m_projectTree, SIGNAL(newSelection(ResourceSelection,Library*)),
+            m_sidebarWidget, SLOT(newSelection(ResourceSelection,Library*)));
 
     connect(m_mainView, SIGNAL(selectedResource(Nepomuk::Resource&)),
             m_sidebarWidget, SLOT(setResource(Nepomuk::Resource&)));
 
-    connect(m_projectTree, SIGNAL(newSelection(LibraryType,ResourceSelection,Project*)),
-            m_mainView, SLOT(switchView(LibraryType,ResourceSelection,Project*)));
+    connect(m_projectTree, SIGNAL(newSelection(ResourceSelection,Library*)),
+            m_mainView, SLOT(switchView(ResourceSelection,Library*)));
 
     splitter->addWidget(m_projectTree);
     splitter->addWidget(m_mainView);
@@ -213,4 +216,8 @@ void MainWindow::setupMainWindow()
     splitter->setSizes(sizes);
 
     setCentralWidget(splitter);
+
+    //now create the system library
+    Library *l = new Library(Library_System);
+    openLibrary(l);
 }

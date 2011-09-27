@@ -18,7 +18,7 @@
 #include "listpublicationsdialog.h"
 #include "ui_listpublicationsdialog.h"
 
-#include "core/project.h"
+#include "core/library.h"
 
 #include "nbib.h"
 #include <Nepomuk/Query/Term>
@@ -55,9 +55,9 @@ ListPublicationsDialog::~ListPublicationsDialog()
     delete m_queryClient;
 }
 
-void ListPublicationsDialog::setProject(Project *p)
+void ListPublicationsDialog::setLibrary(Library *p)
 {
-    m_project = p;
+    m_library = p;
 }
 
 Nepomuk::Resource ListPublicationsDialog::selectedPublication()
@@ -74,9 +74,9 @@ void ListPublicationsDialog::fetchData()
     Nepomuk::Query::AndTerm andTerm;
     andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Publication() ) );
 
-    if(m_project && ui->checkBoxLibrary->isChecked()) {
+    if(m_library && ui->checkBoxLibrary->isChecked()) {
         andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(),
-                                                            Nepomuk::Query::ResourceTerm(m_project->pimoProject()) ) );
+                                                            Nepomuk::Query::ResourceTerm(m_library->pimoLibrary()) ) );
     }
     Nepomuk::Query::Query query( andTerm );
     m_queryClient->query(query);

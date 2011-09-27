@@ -18,7 +18,7 @@
 #include "projecttreewidget.h"
 #include "ui_projecttreewidget.h"
 
-#include "core/project.h"
+#include "core/library.h"
 #include "projecttreedelegate.h"
 
 #include <KStandardDirs>
@@ -38,18 +38,6 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
 
     ui->sourceTreeWidget->setItemDelegate(new ProjectTreeDelegate());
 
-    QTreeWidgetItem *rootsystem = new QTreeWidgetItem();
-    rootsystem->setText(0, i18n("System Library"));
-    rootsystem->setData(0,Role_Library,Library_System);
-    rootsystem->setData(0,Role_ResourceType,Resource_Library);
-    rootsystem->setData(0,81,0);
-    rootsystem->setIcon(0, KIcon(QLatin1String("document-multiple")));
-    ui->sourceTreeWidget->addTopLevelItem(rootsystem);
-    rootsystem->setExpanded(true);
-
-    m_items.append(rootsystem);
-    setupLibraryTree(Library_System, rootsystem);
-
     connect(ui->sourceTreeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(selectionchanged()));
 }
 
@@ -58,11 +46,10 @@ ProjectTreeWidget::~ProjectTreeWidget()
     delete ui;
 }
 
-void ProjectTreeWidget::addProject(Project *p)
-{
-    QTreeWidgetItem *root;
+void ProjectTreeWidget::addLibrary(Library *p)
+{ QTreeWidgetItem *root;
     root = new QTreeWidgetItem();
-    root->setData(0,Role_Library,Library_Project);
+    root->setData(0,Role_Library,p->libraryType());
     root->setData(0,Role_ResourceType,Resource_Library);
     root->setData(0,Role_Project,p->name());
     root->setIcon(0, KIcon(QLatin1String("document-multiple")));
@@ -72,12 +59,12 @@ void ProjectTreeWidget::addProject(Project *p)
     root->setText(0, p->name());
     root->setExpanded(true);
 
-    setupLibraryTree(Library_Project, root);
+    setupLibraryTree(root);
 
-    m_openProjects.append(p);
+    m_openLibraries.append(p);
 }
 
-void ProjectTreeWidget::closeProject(Project *p)
+void ProjectTreeWidget::closeLibrary(Library *p)
 {
     int toplevelItems = ui->sourceTreeWidget->topLevelItemCount();
 
@@ -90,47 +77,34 @@ void ProjectTreeWidget::closeProject(Project *p)
             break;
         }
     }
-    m_openProjects.removeAll(p);
+    m_openLibraries.removeAll(p);
 }
 
 void ProjectTreeWidget::selectionchanged()
 {
-    LibraryType library = LibraryType(ui->sourceTreeWidget->currentItem()->data(0,Role_Library).toInt());
-
     ResourceSelection rs = ResourceSelection(ui->sourceTreeWidget->currentItem()->data(0,Role_ResourceType).toInt());
 
-    Project *selectedProject;
-    selectedProject = 0;
-    foreach(Project *p, m_openProjects) {
+    Library *selectedLibrary;
+    selectedLibrary = 0;
+    foreach(Library *p, m_openLibraries) {
         if(p->name() == ui->sourceTreeWidget->currentItem()->data(0,Role_Project).toString()) {
-            selectedProject = p;
+            selectedLibrary = p;
             break;
         }
     }
 
-    emit newSelection(library, rs, selectedProject);
+    emit newSelection(rs, selectedLibrary);
 }
 
-void ProjectTreeWidget::fetchDataFor(ResourceSelection selection, bool start, Project *p)
+void ProjectTreeWidget::fetchDataFor(ResourceSelection selection, bool start, Library *p)
 {
     foreach(QTreeWidgetItem *twi, m_items) {
         ProjectTreeRole ptr = ProjectTreeRole(twi->data(0,Role_ResourceType).toInt());
 
-        if(ptr == selection) {
-            if(!p) {
-                ProjectTreeRole ptr2 = ProjectTreeRole(twi->data(0,Role_Library).toInt());
-                if(ptr2 == Library_System) {
-                    twi->setData(0,80, start);
-                    break;
-                }
-            }
-            else {
-                QString name = twi->data(0,Role_Project).toString();
-                if(name == p->name()) {
-                    twi->setData(0,80, start);
-                    break;
-                }
-            }
+        QString name = twi->data(0,Role_Project).toString();
+
+        if(p->name() == name && ptr == selection) {
+            twi->setData(0,80, start);
         }
     }
 
@@ -158,11 +132,12 @@ void ProjectTreeWidget::updateFetchAnimation()
         m_fetchingInProgress = false;
 }
 
-void ProjectTreeWidget::setupLibraryTree(LibraryType library, QTreeWidgetItem *root)
+void ProjectTreeWidget::setupLibraryTree(QTreeWidgetItem *root)
 {
     QTreeWidgetItem *twi1 = new QTreeWidgetItem();
     twi1->setText(0, i18n("Documents"));
     twi1->setData(0,Role_Library,root->data(0,Role_Library));
+    twi1->setData(0,Role_Project,root->data(0,Role_Project));
     twi1->setData(0,Role_ResourceType,Resource_Document);
     twi1->setIcon(0, KIcon(QLatin1String("document-multiple")));
     root->addChild(twi1);
@@ -172,6 +147,7 @@ void ProjectTreeWidget::setupLibraryTree(LibraryType library, QTreeWidgetItem *r
     twi1a->setText(0, i18n("Publications"));
     twi1a->setData(0,Role_Library,root->data(0,Role_Library));
     twi1a->setData(0,Role_ResourceType,Resource_Publication);
+    twi1a->setData(0,Role_Project,root->data(0,Role_Project));
     twi1a->setIcon(0, KIcon(QLatin1String("document-open-remote")));
     root->addChild(twi1a);
     m_items.append(twi1a);
@@ -180,6 +156,7 @@ void ProjectTreeWidget::setupLibraryTree(LibraryType library, QTreeWidgetItem *r
     twi4->setText(0, i18n("References"));
     twi4->setData(0,Role_Library,root->data(0,Role_Library));
     twi4->setData(0,Role_ResourceType,Resource_Reference);
+    twi4->setData(0,Role_Project,root->data(0,Role_Project));
     twi4->setIcon(0, KIcon(QLatin1String("user-identity")));
     root->addChild(twi4);
     m_items.append(twi4);
@@ -188,6 +165,7 @@ void ProjectTreeWidget::setupLibraryTree(LibraryType library, QTreeWidgetItem *r
     twi6->setText(0, i18n("Notes"));
     twi6->setData(0,Role_Library,root->data(0,Role_Library));
     twi6->setData(0,Role_ResourceType,Resource_Note);
+    twi6->setData(0,Role_Project,root->data(0,Role_Project));
     twi6->setIcon(0, KIcon(QLatin1String("knotes")));
     root->addChild(twi6);
     m_items.append(twi6);
@@ -196,15 +174,17 @@ void ProjectTreeWidget::setupLibraryTree(LibraryType library, QTreeWidgetItem *r
     twi3->setText(0, i18n("Bookmarks"));
     twi3->setData(0,Role_Library,root->data(0,Role_Library));
     twi3->setData(0,Role_ResourceType,Resource_Website);
+    twi3->setData(0,Role_Project,root->data(0,Role_Project));
     twi3->setIcon(0, KIcon(QLatin1String("view-web-browser-dom-tree")));
     root->addChild(twi3);
     m_items.append(twi3);
 
-    if(library == Library_Project) {
+    if(root->data(0,Role_Library).toInt() == Library_Project) {
         QTreeWidgetItem *twi2 = new QTreeWidgetItem();
         twi2->setText(0, i18n("Mails"));
         twi2->setData(0,Role_Library,root->data(0,Role_Library));
         twi2->setData(0,Role_ResourceType,Resource_Mail);
+        twi2->setData(0,Role_Project,root->data(0,Role_Project));
         twi2->setIcon(0, KIcon(QLatin1String("mail-flag")));
         root->addChild(twi2);
         m_items.append(twi2);
@@ -213,6 +193,7 @@ void ProjectTreeWidget::setupLibraryTree(LibraryType library, QTreeWidgetItem *r
         twi5->setText(0, i18n("Media"));
         twi5->setData(0,Role_Library,root->data(0,Role_Library));
         twi5->setData(0,Role_ResourceType,Resource_Media);
+        twi5->setData(0,Role_Project,root->data(0,Role_Project));
         twi5->setIcon(0, KIcon(QLatin1String("applications-multimedia")));
         root->addChild(twi5);
         m_items.append(twi5);

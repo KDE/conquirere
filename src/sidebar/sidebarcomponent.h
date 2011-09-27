@@ -23,7 +23,7 @@
 
 #include "../globals.h"
 
-class Project;
+class Library;
 
 class SidebarComponent : public QWidget
 {
@@ -32,19 +32,15 @@ public:
     explicit SidebarComponent(QWidget *parent = 0);
     virtual ~SidebarComponent() {}
 
-    void setProject(Project *p);
-    Project *project();
-
-    void setLibraryType(LibraryType type);
-    LibraryType libraryType();
+    void setLibrary(Library *p);
+    Library *library();
 
 public slots:
     virtual void setResource(Nepomuk::Resource & resource) = 0;
     virtual void clear() = 0;
 
 private:
-    LibraryType m_libraryType;
-    Project *m_project;
+    Library *m_library;
 };
 
 #endif // SIDEBARCOMPONENT_H

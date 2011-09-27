@@ -19,32 +19,16 @@
 
 SidebarComponent::SidebarComponent(QWidget *parent)
     : QWidget(parent)
-    , m_project(0)
+    , m_library(0)
 {
 }
 
-void SidebarComponent::setProject(Project *p)
+void SidebarComponent::setLibrary(Library *p)
 {
-    if(p) {
-        m_project = p;
-        m_libraryType == Library_Project;
-    }
-    else {
-        m_project = 0;
-        m_libraryType == Library_System;
-    }
-}
-Project *SidebarComponent::project()
-{
-    return m_project;
+    m_library = p;
 }
 
-void SidebarComponent::setLibraryType(LibraryType type)
+Library *SidebarComponent::library()
 {
-    m_libraryType =type;
-}
-
-LibraryType SidebarComponent::libraryType()
-{
-    return m_libraryType;
+    return m_library;
 }

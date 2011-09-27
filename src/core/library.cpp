@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "project.h"
-#include "../mainui/resourcemodel.h"
+#include "library.h"
+#include "../core/resourcemodel.h"
 #include "../globals.h"
 #include "../mainui/projecttreewidget.h"
 
@@ -42,61 +42,74 @@
 const QString DOCPATH = QLatin1String("documents");
 const QString NOTEPATH = QLatin1String("notes");
 
-Project::Project(QObject *parent) :
-    QObject(parent)
+Library::Library(LibraryType type)
+    : QObject(0)
+    , m_libraryType(type)
 {
-    // create global nepomuk pimo:thing for this program
-    // in case it does not exist yet
-    Nepomuk::Resource project(QLatin1String("Conquirere Project"), Nepomuk::Vocabulary::PIMO::Thing());
+    setupModels();
 }
 
-Project::~Project()
+LibraryType Library::libraryType() const
 {
-    delete m_settings;
+    return m_libraryType;
 }
 
-void Project::setName(const QString & name)
+void Library::setName(const QString & name)
 {
+    if(m_libraryType == Library_System) {
+        qDebug() << "can't set the name for the system library";
+        return;
+    }
     m_name = name;
     m_projectTag = Nepomuk::Tag( m_name );
     m_projectTag.setLabel(m_name);
 }
 
-QString Project::name() const
+QString Library::name() const
 {
-    return m_name;
+    if(m_libraryType == Library_System) {
+        return QLatin1String("System Library");
+    }
+    else {
+        return m_name;
+    }
 }
 
-void Project::setPath(const QString & path)
+void Library::setPath(const QString & path)
 {
     m_path = path;
 }
 
-QString Project::path() const
+QString Library::path() const
 {
     return m_path;
 }
 
-void Project::createProject()
+void Library::createLibrary()
 {
-    // when a new project is created it is realized as pimo:Project
-    QString identifier = QLatin1String("Conquirere Project:") + m_name;
+    if(m_libraryType == Library_System) {
+        qDebug() << "can't create system library";
+        return;
+    }
+
+    // when a new library is created it is realized as pimo:Project
+    QString identifier = QLatin1String("Conquirere Library:") + m_name;
 
     m_pimoProject = Nepomuk::Resource(identifier, Nepomuk::Vocabulary::PIMO::Project());
 
     m_pimoProject.setProperty( Nepomuk::Vocabulary::NIE::title() , m_name);
 
-    // relate each project to the conquiere pimo:thing
+    // relate each library to the conquiere pimo:thing
     // this allows us to find all existing projects
-    Nepomuk::Resource cp(QLatin1String("Conquirere Project"));
+    Nepomuk::Resource cp(QLatin1String("Conquirere Library"));
 
     m_pimoProject.setProperty( Nepomuk::Vocabulary::PIMO::isRelated() , cp);
 
-    // scan the project folder and add all documents to this project
-    initializeProjectFolder();
+    // scan the library folder and add all documents to this project
+    initializeLibraryFolder();
 }
 
-void Project::loadProject(const QString & projectFile)
+void Library::loadLibrary(const QString & projectFile)
 {
     m_settings = new QSettings(projectFile,QSettings::IniFormat);
     m_settings->beginGroup(QLatin1String("Conquirere"));
@@ -106,10 +119,12 @@ void Project::loadProject(const QString & projectFile)
     m_settings->endGroup();
 
     // add new files in the folders
-    scanProjectFolders();
+    scanLibraryFolders();
+
+    m_libraryType = Library_Project;
 }
 
-void Project::deleteProject()
+void Library::deleteLibrary()
 {
     m_projectTag.remove();
 
@@ -118,19 +133,32 @@ void Project::deleteProject()
     KIO::del(m_path);
 }
 
-Nepomuk::Resource Project::pimoProject() const
+Nepomuk::Resource Library::pimoLibrary() const
 {
     return m_pimoProject;
 }
 
-
-bool Project::isInPath(const QString &filename)
+bool Library::isInPath(const QString &filename)
 {
     return filename.contains(m_path);
 }
 
-void Project::addDocument(const QFileInfo &fileInfo)
+void Library::addResource(Nepomuk::Resource & res)
 {
+    if(m_libraryType == Library_System) {
+        qDebug() << "can't add resources to system library";
+    }
+
+    qDebug() << "implement addResource(Nepomuk::Resource)";
+}
+
+void Library::addDocument(const QFileInfo &fileInfo)
+{
+    if(m_libraryType == Library_System) {
+        qDebug() << "can't add documents to system library";
+        return;
+    }
+
     // first check if the file is in the project path
     QString projectDocPath = m_path + QLatin1String("/") + DOCPATH;
     if(fileInfo.absolutePath() != projectDocPath) {
@@ -150,31 +178,12 @@ void Project::addDocument(const QFileInfo &fileInfo)
     }
 }
 
-void Project::document()
-{
-
-}
-
-QList<Nepomuk::File> Project::getProjectFiles()
-{
-    QList<Nepomuk::File> list2;
-
-    foreach(Nepomuk::Resource res, m_projectTag.tagOf()) {
-        if( res.isFile() ) {
-            Nepomuk::File f = res.toFile();
-            list2.append(f);
-        }
-    }
-
-    return list2;
-}
-
-QAbstractTableModel* Project::viewModel(ResourceSelection selection)
+QAbstractTableModel* Library::viewModel(ResourceSelection selection)
 {
     return m_resources.value(selection);
 }
 
-void Project::connectFetchIndicator(ProjectTreeWidget *treeWidget)
+void Library::connectFetchIndicator(ProjectTreeWidget *treeWidget)
 {
     foreach (QAbstractTableModel *model, m_resources) {
         switch(m_resources.key(model)) {
@@ -187,8 +196,8 @@ void Project::connectFetchIndicator(ProjectTreeWidget *treeWidget)
         case Resource_Note:
         {
             ResourceModel *m = qobject_cast<ResourceModel *>(model);
-            connect(m, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-                    treeWidget, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+            connect(m, SIGNAL(updatefetchDataFor(ResourceSelection,bool, Library *)),
+                    treeWidget, SLOT(fetchDataFor(ResourceSelection,bool, Library *)));
 
             m->startFetchData();
         }
@@ -197,7 +206,7 @@ void Project::connectFetchIndicator(ProjectTreeWidget *treeWidget)
     }
 }
 
-void Project::scanProjectFolders()
+void Library::scanLibraryFolders()
 {
     QDir project;
     project.setPath(m_path);
@@ -214,7 +223,7 @@ void Project::scanProjectFolders()
     }
 }
 
-void Project::initializeProjectFolder()
+void Library::initializeLibraryFolder()
 {
     QDir project;
     // first check if the folder exist and create it otherwise
@@ -238,56 +247,46 @@ void Project::initializeProjectFolder()
     project.mkdir(DOCPATH);
 
     //in the case files did exist, scan and add them
-    scanProjectFolders();
+    scanLibraryFolders();
 }
 
-void Project::setupModels()
+void Library::setupModels()
 {
     ResourceModel *DocumentModel = new ResourceModel;
-    DocumentModel->setProject(this);
+    DocumentModel->setLibrary(this);
     DocumentModel->setResourceType(Resource_Document);
-
     m_resources.insert(Resource_Document, DocumentModel);
 
-    //    ResourceModel *MailModel = new ResourceModel;
-    //    MailModel->setProject(this);
-    //    MailModel->setResourceType(Resource_Mail);
-    //    connect(MailModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-    //            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    //    MailModel->startFetchData();
+    ResourceModel *WebsiteModel = new ResourceModel;
+    WebsiteModel->setLibrary(this);
+    WebsiteModel->setResourceType(Resource_Website);
+    m_resources.insert(Resource_Website, WebsiteModel);
 
-    //    m_projectMediaModel = new ResourceModel;
-    //    m_projectMediaModel->setProject(this);
-    //    m_projectMediaModel->setResourceType(Resource_Media);
-    //    connect(m_projectMediaModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-    //            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    //    m_projectMediaModel->startFetchData();
+    ResourceModel *ReferencesModel = new ResourceModel;
+    ReferencesModel->setLibrary(this);
+    ReferencesModel->setResourceType(Resource_Reference);
+    m_resources.insert(Resource_Reference, ReferencesModel);
 
-    //    m_projectWebsiteModel = new ResourceModel;
-    //    m_projectWebsiteModel->setProject(this);
-    //    m_projectWebsiteModel->setResourceType(Resource_Website);
-    //    connect(m_projectWebsiteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-    //            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    //    m_projectWebsiteModel->startFetchData();
+    ResourceModel *PublicationModel = new ResourceModel;
+    PublicationModel->setLibrary(this);
+    PublicationModel->setResourceType(Resource_Publication);
+    m_resources.insert(Resource_Publication, PublicationModel);
 
-    //    m_projectReferencesModel = new ResourceModel;
-    //    m_projectReferencesModel->setProject(this);
-    //    m_projectReferencesModel->setResourceType(Resource_Reference);
-    //    connect(m_projectReferencesModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-    //            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    //    m_projectReferencesModel->startFetchData();
+    ResourceModel *NoteModel = new ResourceModel;
+    NoteModel->setLibrary(this);
+    NoteModel->setResourceType(Resource_Note);
+    m_resources.insert(Resource_Note, NoteModel);
 
-    //    m_projectPublicationModel = new ResourceModel;
-    //    m_projectPublicationModel->setProject(this);
-    //    m_projectPublicationModel->setResourceType(Resource_Publication);
-    //    connect(m_projectPublicationModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-    //            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    //    m_projectPublicationModel->startFetchData();
+    if(m_libraryType == Library_Project) {
+        ResourceModel *MailModel = new ResourceModel;
+        MailModel->setLibrary(this);
+        MailModel->setResourceType(Resource_Mail);
+        m_resources.insert(Resource_Mail, MailModel);
 
-    //    m_projectNoteModel = new ResourceModel;
-    //    m_projectNoteModel->setProject(this);
-    //    m_projectNoteModel->setResourceType(Resource_Note);
-    //    connect(m_projectNoteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-    //            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    //    m_projectNoteModel->startFetchData();
+        ResourceModel *MediaModel = new ResourceModel;
+        MediaModel->setLibrary(this);
+        MediaModel->setResourceType(Resource_Media);
+        m_resources.insert(Resource_Media, MediaModel);
+    }
 }
+

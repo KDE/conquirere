@@ -88,7 +88,7 @@ ResourceModel::~ResourceModel()
     m_fileList.clear();
 }
 
-void ResourceModel::setProject(Project *p)
+void ResourceModel::setLibrary(Library *p)
 {
     m_project = p;
 }
@@ -350,12 +350,7 @@ QVariant ResourceModel::headerData(int section, Qt::Orientation orientation, int
 
 void ResourceModel::startFetchData()
 {
-    if(m_project) {
-        emit updatefetchDataFor(m_selection,true, m_project);
-    }
-    else {
-        emit updatefetchDataFor(m_selection,true, m_project);
-    }
+    emit updatefetchDataFor(m_selection,true, m_project);
 
     Nepomuk::Query::AndTerm andTerm;
 
@@ -389,9 +384,9 @@ void ResourceModel::startFetchData()
         break;
     }
 
-    if(m_project) {
+    if(m_project->libraryType() != Library_System) {
         andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(),
-                                                            Nepomuk::Query::ResourceTerm(m_project->pimoProject()) ) );
+                                                            Nepomuk::Query::ResourceTerm(m_project->pimoLibrary()) ) );
     }
 
     //sort result by edit date to get only the newest if we have to many results
@@ -401,7 +396,7 @@ void ResourceModel::startFetchData()
 
     // build the query
     Nepomuk::Query::Query query( andTerm );
-    query.setLimit(100);
+    //query.setLimit(100);
     m_queryClient->query(query);
 
 }
@@ -444,10 +439,10 @@ void ResourceModel::removeData( const QList< QUrl > &entries )
 
     QList<int> noValidEntries;
     for(int i = 0; i < m_fileList.size(); i++) {
-            if(!m_fileList.at(i).isValid()) {
-                noValidEntries.append(i);
-            }
+        if(!m_fileList.at(i).isValid()) {
+            noValidEntries.append(i);
         }
+    }
 
     if(noValidEntries.isEmpty()) {
         return;
@@ -490,7 +485,7 @@ void ResourceModel::removeSelected(const QModelIndexList & indexes)
         Nepomuk::Resource nr = m_fileList.at(index.row());
 
         // remove project tag
-        nr.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), m_project->pimoProject());
+        nr.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), m_project->pimoLibrary());
 
         //Nepomuk query client will call the slot to remove the file from the index
     }
@@ -499,24 +494,15 @@ void ResourceModel::removeSelected(const QModelIndexList & indexes)
 void ResourceModel::resultCount(int number)
 {
     if(number == 0) {
-        if(m_project) {
-            emit updatefetchDataFor(m_selection,false, m_project);
-        }
-        else {
-            emit updatefetchDataFor(m_selection,false, m_project);
-        }
+        emit updatefetchDataFor(m_selection,false, m_project);
     }
 }
 
 void ResourceModel::listingsFinished()
 {
     qDebug() << "listingsFinished" << "added something? oO" << m_fileList.size();
-    if(m_project) {
-        emit updatefetchDataFor(m_selection,false, m_project);
-    }
-    else {
-        emit updatefetchDataFor(m_selection,false, m_project);
-    }
+
+    emit updatefetchDataFor(m_selection,false, m_project);
 }
 
 void ResourceModel::listingsError(const QString & errorMessage)

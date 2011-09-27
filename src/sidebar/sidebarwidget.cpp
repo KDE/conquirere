@@ -47,17 +47,17 @@ void SidebarWidget::clear()
 
 }
 
-void SidebarWidget::setProject(Project *p)
+void SidebarWidget::setLibrary(Library *p)
 {
     m_project = p;
 }
 
-Project *SidebarWidget::project()
+Library *SidebarWidget::library()
 {
     return m_project;
 }
 
-void SidebarWidget::newSelection(LibraryType library, ResourceSelection selection, Project *p)
+void SidebarWidget::newSelection(ResourceSelection selection, Library *p)
 {
     layout()->removeWidget(m_currentWidget);
 
@@ -91,6 +91,6 @@ void SidebarWidget::newSelection(LibraryType library, ResourceSelection selectio
         break;
     }
 
-    m_currentWidget->setProject(p);
+    m_currentWidget->setLibrary(p);
     layout()->addWidget(m_currentWidget);
 }

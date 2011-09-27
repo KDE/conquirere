@@ -18,8 +18,8 @@
 #include "projectwidget.h"
 #include "projecttreewidget.h"
 #include "mainwindow.h"
-#include "core/project.h"
-#include "mainui/resourcemodel.h"
+#include "core/library.h"
+#include "core/resourcemodel.h"
 #include "sidebar/sidebarwidget.h"
 
 #include <Nepomuk/Resource>
@@ -42,37 +42,6 @@ ProjectWidget::ProjectWidget(QWidget *parent)
     , m_documentView(0)
 {
     setupWidget();
-
-    // fetch information about system wide files
-    m_systemDocumentModel = new ResourceModel;
-    m_systemDocumentModel->setResourceType(Resource_Document);
-//    connect(m_systemDocumentModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-//            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_systemDocumentModel->startFetchData();
-
-    m_systemWebsiteModel = new ResourceModel;
-    m_systemWebsiteModel->setResourceType(Resource_Website);
-//    connect(m_systemWebsiteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-//            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_systemWebsiteModel->startFetchData();
-
-    m_systemReferencesModel = new ResourceModel;
-    m_systemReferencesModel->setResourceType(Resource_Reference);
-//    connect(m_systemReferencesModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-//            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_systemReferencesModel->startFetchData();
-
-    m_systemPublicationModel = new ResourceModel;
-    m_systemPublicationModel->setResourceType(Resource_Publication);
-//    connect(m_systemPublicationModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-//            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_systemPublicationModel->startFetchData();
-
-    m_systemNoteModel = new ResourceModel;
-    m_systemNoteModel->setResourceType(Resource_Note);
-//    connect(m_systemNoteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-//            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_systemNoteModel->startFetchData();
 }
 
 ProjectWidget::~ProjectWidget()
@@ -80,35 +49,13 @@ ProjectWidget::~ProjectWidget()
     delete m_documentView;
 }
 
-void ProjectWidget::switchView(LibraryType library, ResourceSelection selection, Project *p)
+void ProjectWidget::switchView(ResourceSelection selection, Library *p)
 {
     if(m_documentView->selectionModel()) {
         disconnect(m_documentView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(selectedResource(QModelIndex,QModelIndex)));
     }
 
-    if(library == Library_Project) {
-        m_documentView->setModel(p->viewModel(selection));
-    }
-    else {
-        switch(selection) {
-        case Resource_Document:
-            m_documentView->setModel(m_systemDocumentModel);
-            break;
-        case Resource_Website:
-            m_documentView->setModel(m_systemWebsiteModel);
-            break;
-        case Resource_Reference:
-            m_documentView->setModel(m_systemReferencesModel);
-            break;
-        case Resource_Publication:
-            m_documentView->setModel(m_systemPublicationModel);
-            break;
-        case Resource_Note:
-            m_documentView->setModel(m_systemNoteModel);
-            break;
-        }
-
-    }
+    m_documentView->setModel(p->viewModel(selection));
 
     m_documentView->horizontalHeader()->setResizeMode(0, QHeaderView::Fixed);
     m_documentView->horizontalHeader()->setResizeMode(1, QHeaderView::Fixed);

@@ -26,7 +26,7 @@
 
 #include <Nepomuk/Resource>
 
-class Project;
+class Library;
 class QTableView;
 class ResourceModel;
 class SidebarWidget;
@@ -44,7 +44,7 @@ signals:
     void selectedResource(Nepomuk::Resource & nr);
 
 public slots:
-    void switchView(LibraryType library, ResourceSelection selection, Project *p);
+    void switchView(ResourceSelection selection, Library *p);
     void selectedResource( const QModelIndex & current, const QModelIndex & previous );
 
     void removeSelected();
@@ -58,11 +58,6 @@ private:
     void setupWidget();
 
     QTableView    *m_documentView;
-    ResourceModel *m_systemDocumentModel;
-    ResourceModel *m_systemWebsiteModel;
-    ResourceModel *m_systemReferencesModel;
-    ResourceModel *m_systemPublicationModel;
-    ResourceModel *m_systemNoteModel;
 
     KAction* m_removeFromProject;
     KAction* m_exportToBibTeX;

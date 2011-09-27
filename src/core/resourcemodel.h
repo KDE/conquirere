@@ -19,7 +19,7 @@
 #define RESOURCEMODEL_H
 
 #include "../globals.h"
-#include "core/project.h"
+#include "core/library.h"
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Tag>
@@ -37,7 +37,7 @@ public:
     explicit ResourceModel(QObject *parent = 0);
     ~ResourceModel();
 
-    void setProject(Project *p);
+    void setLibrary(Library *p);
     void setResourceType(ResourceSelection selection);
 
     int rowCount(const QModelIndex &parent) const;
@@ -57,7 +57,7 @@ public slots:
 
 signals:
     void dataSizeChaged(int size);
-    void updatefetchDataFor(ResourceSelection selection, bool start, Project *p);
+    void updatefetchDataFor(ResourceSelection selection, bool start, Library *p);
 
 private slots:
     /**
@@ -74,7 +74,7 @@ private slots:
     void listingsError(const QString & 	errorMessage);
 
 private:
-    Project *m_project;
+    Library *m_project;
     ResourceSelection m_selection;
     Nepomuk::Query::QueryServiceClient *m_queryClient;
     QList<Nepomuk::Resource> m_fileList;

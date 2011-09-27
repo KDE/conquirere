@@ -18,7 +18,7 @@
 #include "referencewidget.h"
 #include "ui_referencewidget.h"
 
-#include "core/project.h"
+#include "core/library.h"
 #include "propertywidgets/stringedit.h"
 #include "propertywidgets/contactedit.h"
 #include "listpublicationsdialog.h"
@@ -134,7 +134,7 @@ void ReferenceWidget::showCreateReference(bool createRef)
 void ReferenceWidget::showPublicationList()
 {
     ListPublicationsDialog lpd;
-    lpd.setProject(project());
+    lpd.setLibrary(library());
 
     int ret = lpd.exec();
 
@@ -177,9 +177,9 @@ void ReferenceWidget::createReference()
     // create a new reference
     Nepomuk::Resource newReference(QUrl(), Nepomuk::Vocabulary::NBIB::Reference());
 
-    if(libraryType() == Library_Project && project()) {
+    if(library()->libraryType() == Library_Project) {
         //relate the ref to the project
-        newReference.setProperty(Nepomuk::Vocabulary::PIMO::isRelated() , project()->pimoProject());
+        newReference.setProperty(Nepomuk::Vocabulary::PIMO::isRelated() , library()->pimoLibrary());
     }
     setResource(newReference);
 }

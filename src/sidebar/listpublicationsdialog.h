@@ -28,7 +28,7 @@ namespace Ui {
     class ListPublicationsDialog;
 }
 
-class Project;
+class Library;
 class QListWidgetItem;
 
 class ListPublicationsDialog : public QDialog
@@ -39,7 +39,7 @@ public:
     explicit ListPublicationsDialog(QWidget *parent = 0);
     ~ListPublicationsDialog();
 
-    void setProject(Project *p);
+    void setLibrary(Library *p);
 
     Nepomuk::Resource selectedPublication();
 
@@ -57,7 +57,7 @@ private slots:
 private:
     Ui::ListPublicationsDialog *ui;
 
-    Project *m_project;
+    Library *m_library;
 
     Nepomuk::Query::QueryServiceClient *m_queryClient;
     QHash<QString, QUrl> m_listCache;

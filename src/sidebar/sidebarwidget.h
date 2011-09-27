@@ -25,7 +25,7 @@
 #include <Nepomuk/Resource>
 
 class SidebarComponent;
-class Project;
+class Library;
 
 class SidebarWidget : public QWidget
 {
@@ -36,21 +36,21 @@ public:
 
     virtual void setDialogMode(bool dialogMode) { }
 
-    void setProject(Project *p);
-    Project *project();
+    void setLibrary(Library *p);
+    Library *library();
 
 public slots:
     /* called when somethinh is selected in the project view */
     void clear();
 
     /* called when something is selected in the project tree */
-    void newSelection(LibraryType library, ResourceSelection selection, Project *p=0);
+    void newSelection(ResourceSelection selection, Library *p);
 
     virtual void setResource(Nepomuk::Resource & resource);
 
 private:
     SidebarComponent *m_currentWidget;
-    Project *m_project;
+    Library *m_project;
 };
 
 #endif // SIDEBARWIDGET_H

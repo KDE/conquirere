@@ -107,7 +107,7 @@ void DocumentWidget::createPublication()
     PublicationWidget *rw = new PublicationWidget();
     rw->setDialogMode(true);
     rw->setResource(tempRef);
-    rw->setProject(project());
+    rw->setLibrary(library());
 
     showPublicationWidget.setMainWidget(rw);
     showPublicationWidget.setInitialSize(QSize(300,300));

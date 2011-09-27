@@ -12,7 +12,8 @@ set(conquirere_SRCS
     propertywidgets/journaledit.cpp
     propertywidgets/volumenumberedit.cpp
 
-    core/project.cpp
+    core/library.cpp
+    core/resourcemodel.cpp
     core/bibtexexporter.cpp
 
     mainui/newprojectdialog.cpp
@@ -21,7 +22,6 @@ set(conquirere_SRCS
     mainui/projecttreewidget.cpp
     mainui/projecttreedelegate.cpp
     mainui/projectwidget.cpp
-    mainui/resourcemodel.cpp
 
 
     sidebar/sidebarwidget.cpp

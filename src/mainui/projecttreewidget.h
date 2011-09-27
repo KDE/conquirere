@@ -24,7 +24,7 @@
 
 #include <QList>
 
-class Project;
+class Library;
 class QTreeWidgetItem;
 
 namespace Ui {
@@ -39,23 +39,23 @@ public:
     explicit ProjectTreeWidget(QWidget *parent = 0);
     ~ProjectTreeWidget();
 
-    void addProject(Project *p);
-    void closeProject(Project *p);
+    void addLibrary(Library *p);
+    void closeLibrary(Library *p);
 
 signals:
-    void newSelection(LibraryType library, ResourceSelection selection, Project *p);
+    void newSelection(ResourceSelection selection, Library *p);
 
 public slots:
-    void fetchDataFor(ResourceSelection selection, bool start, Project *p=0);
+    void fetchDataFor(ResourceSelection selection, bool start, Library *p=0);
 
 private slots:
     void selectionchanged();
     void updateFetchAnimation();
 
 private:
-    void setupLibraryTree(LibraryType library, QTreeWidgetItem *root);
+    void setupLibraryTree(QTreeWidgetItem *root);
 
-    QList<Project *> m_openProjects;
+    QList<Library *> m_openLibraries;
     QList<QTreeWidgetItem *> m_items;
     Ui::ProjectTreeWidget *ui;
     bool m_fetchingInProgress;

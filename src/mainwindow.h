@@ -20,7 +20,7 @@
 
 #include <KDE/KXmlGuiWindow>
 
-class Project;
+class Library;
 class ProjectWidget;
 class ProjectTreeWidget;
 class SidebarWidget;
@@ -34,11 +34,11 @@ public:
     ~MainWindow();
 
 public slots:
-    void createProject();
-    void loadProject();
-    void openProject(Project *p);
-    void deleteProject();
-    void closeProject();
+    void createLibrary();
+    void loadLibrary();
+    void openLibrary(Library *p);
+    void deleteLibrary();
+    void closeLibrary();
     void exportBibTex();
 
 private:
@@ -49,7 +49,7 @@ private:
     ProjectWidget *m_mainView;
     SidebarWidget *m_sidebarWidget;
 
-    QList<Project *> m_projects;
+    QList<Library *> m_libraries;
 };
 
 #endif // MAINWINDOW_H

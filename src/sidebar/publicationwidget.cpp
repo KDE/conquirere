@@ -169,7 +169,7 @@ void PublicationWidget::createReference()
     ReferenceWidget *rw = new ReferenceWidget();
     rw->setDialogMode(true);
     rw->setResource(tempRef);
-    rw->setProject(project());
+    rw->setLibrary(library());
 
     showRefWidget.setMainWidget(rw);
     showRefWidget.setInitialSize(QSize(300,300));
