@@ -20,6 +20,11 @@
 
 #include "propertyedit.h"
 
+/**
+  * Used to edit the publication for a specific reference
+  *
+  * Shows/edit the @c nie:title of the @c nbib:Publication
+  */
 class PublicationEdit : public PropertyEdit
 {
 public:
@@ -27,14 +32,9 @@ public:
 
 protected:
     void setupLabel();
-    /**
-      * Has to be reimplemented for any subclass
-      */
+
     virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
-    /**
-      * update the resource with the @p text from the edit field
-      */
     virtual void updateResource( const QString & text );
 };
 

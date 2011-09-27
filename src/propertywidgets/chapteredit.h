@@ -23,8 +23,8 @@
 /**
   * Used to add a chapter to a bibreference
   *
-  * setResource must be a nbib:BibPublication and the resource
-  * must have a nbib:Book as nbib:usePublication
+  * @pre setResource must be a @c nbib:Publication and the resource
+  * must have a @c nbib:Book as @c nbib:usePublication
   */
 class ChapterEdit : public PropertyEdit
 {
@@ -32,14 +32,24 @@ public:
     ChapterEdit(QWidget *parent = 0);
 
 protected:
-    void setupLabel();
     /**
-      * Has to be reimplemented for any subclass
+      * Use nie:title of the @c nbib:Chapter
+      */
+    void setupLabel();
+
+    /**
+      * @p entries consit of all chapters in the nepomuk storage
+      *
+      * Fill the completer with the @c nie:title strings
+      *
+      * @todo restrict to only the available chapters of the current publication (needs filtering and a way to find all chapters beforehand )
       */
     virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     /**
       * update the resource with the @p text from the edit field
+      *
+      * Interprete @p text as @c nie:title of the @c nbib:Chapter
       */
     virtual void updateResource( const QString & text );
 };

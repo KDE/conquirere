@@ -2,19 +2,17 @@
 This file should give a really smal overview how all the stuff is connected
 
 Folders:
-nbib     	=> bibtex ontology for nepomuk
-src      	=> source code ;)
+nbib     		=> bibtex ontology for nepomuk
+src      		=> source code ;)
 + 
-+- core  	=> all stuff not connected to a gui element
++- core  		=> core stuff to define the library and the data models also importer/exporter stuff
 |
-+-+ ui    	=> all the ui stuff
-  |
-  +-documents	=> all widgets to show and manipulate document informations
-  |
-  +- project	=> all widgets to show project files
-  |
-  +- semantic	=> Set of general widgets to easily manipulate nupomuk meta data
-                   for example a new QLineEdit class etc.
++-+ mainui    		=> all the general ui stuff
+|
++-propertywidgets	=> Set of general widgets to easily manipulate nupomuk meta data
+|                          for example a new QLineEdit class etc.
+|
++- sidebar		=> all widgets for the sidebar that shows the connected nepomuk resource data
 
 Function:
 The idea is, that nepomuk does all the work.

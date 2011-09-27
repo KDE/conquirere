@@ -34,6 +34,29 @@ class QAbstractItemModel;
 class QFocusEvent;
 class QToolButton;
 
+/**
+  * Helper class to easily manipulate Nepomuk data
+  *
+  * The Property edit is an abstract base that can't be used directly.
+  *
+  * The idea is that subclasses simply have to implement
+  * setupLabel()
+  * createCompletionModel()
+  * updateResource()
+  *
+  * This class offers than the possibility to show a simple QLabel
+  * with the content of the property from @p propertyUrl() from the resource
+  * @p resource()
+  *
+  * When the user clicks on the label, a QLineEdit field is shown instead.
+  * The user can directly manipulate the data there. In addition nepomuk is
+  * querried in the background to fill the content of a QCompleter object.
+  *
+  * The user will be offered a list of already available resources to select from.
+  * Furthermore if @p hasMultipleCardinality() returns true the user can split each
+  * new entry with a ";" and the completer ofers new selection from this start on
+  *
+  */
 class PropertyEdit : public QWidget
 {
     Q_OBJECT
@@ -72,25 +95,44 @@ public:
       */
     void setPropertyUrl(const QUrl & m_propertyUrl);
 
+    /**
+      * If @p useIt is true a small toolbutton is shown next to the QLabel
+      * When pressed the externalEditRequested() signal is emitted that allows
+      * to open a selection dialog.
+      */
     void setUseDetailDialog(bool useIt);
 
 signals:
     /**
       * emitted when detailEditRequested() is called
-      * can be used to implement your own dialog t ochange the property
+      * can be used to implement your own dialog to change the property
       * 
-      * when the resource was editied update the PropertyEdit via setResource
+      * when the resource was editied update the PropertyEdit via setResource()
       */
     void externalEditRequested(Nepomuk::Resource & resource, const QUrl & m_propertyUrl);
 
-    // emits the text of the label
+    /**
+      * Emits the text of the label
+      */
     void textChanged(const QString & newText);
 
+    /**
+      * Enable / Disable the widget.
+      *
+      * Used to set the setEnabled property of the QLabel/QEditlabel
+      */
     void widgetEnabled(bool enabled);
 
 public slots:
+    /**
+      * Sets the resource tha tshould be shown/manipulated
+      */
     void setResource(Nepomuk::Resource & resource);
 
+    /**
+      * Force the label to set certain text
+      * Used by the subclasses to change the QLabel
+      */
     void setLabelText(const QString & text);
 
     /**
@@ -110,7 +152,24 @@ public slots:
     void resourceUpdatedExternally();
 
 protected:
+    /**
+      * Defines how the Nepomuk::Resource of the widget should be shown.
+      *
+      * Subclasses must implement this. If the property has a fnage of xsd:string a simple call
+      * to setLabelText() is enough. If the propery has a specific resource on its own its possible to define
+      * what values will be shown here. For example fullname() of a nco:Contact
+      */
     virtual void setupLabel() = 0;
+
+    /**
+      * update the resource with the @p text from the edit field
+      *
+      * Must be implemented by any subclass. This defines how the text entered in the editbox will be used
+      * to create the data for the property. If the range of the property is not xsd:string
+      * this function allows to create a new resource type and se tthe proper data on it.
+      * For example interprete the enteret text as fullname for a nco:Contact resource
+      */
+    virtual void updateResource(const QString & text) = 0;
 
     /**
       * Has to be reimplemented for any subclass
@@ -120,11 +179,6 @@ protected:
       * @see setCompletionModel();
       */
     virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries ) = 0;
-
-    /**
-      * update the resource with the @p text from the edit field
-      */
-    virtual void updateResource(const QString & text) = 0;
 
     void setCompletionModel(QAbstractItemModel *model);
 
@@ -164,7 +218,8 @@ private:
 
     QHash<QString, QUrl> m_listCache;
 
-    //local cache to overcome nepomuk bug with blockingquery
+    // local cache to overcome nepomuk bug with blockingquery
+    // todo check if the behaviour is changed when nepomuk from git master is used
     QList< Nepomuk::Query::Result > resultCache;
 };
 

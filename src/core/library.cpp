@@ -17,7 +17,6 @@
 
 #include "library.h"
 #include "../core/resourcemodel.h"
-#include "../globals.h"
 #include "../mainui/projecttreewidget.h"
 
 #include <KDE/KUrl>
@@ -27,26 +26,33 @@
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
 
-#include <Nepomuk/ResourceManager>
-#include <Nepomuk/File>
 #include <Nepomuk/Variant>
-#include <Nepomuk/Types/Class>
 #include <Nepomuk/Tag>
-#include <Nepomuk/Types/Property>
-#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/PIMO>
 
 #include <KDE/KIO/DeleteJob>
 
-const QString DOCPATH = QLatin1String("documents");
-const QString NOTEPATH = QLatin1String("notes");
+const QString DOCPATH = QLatin1String("documents");  /**< @todo make this configurable */
+const QString NOTEPATH = QLatin1String("notes");     /**< @todo make this configurable */
 
 Library::Library(LibraryType type)
     : QObject(0)
+    , m_settings(0)
     , m_libraryType(type)
 {
     setupModels();
+}
+
+Library::~Library()
+{
+    delete m_settings;
+
+    foreach(QAbstractTableModel *atm, m_resources) {
+        delete atm;
+    }
+
+    m_resources.clear();
 }
 
 LibraryType Library::libraryType() const
@@ -57,12 +63,11 @@ LibraryType Library::libraryType() const
 void Library::setName(const QString & name)
 {
     if(m_libraryType == Library_System) {
-        qDebug() << "can't set the name for the system library";
+        qWarning() << "can't set the name for the system library";
         return;
     }
+
     m_name = name;
-    m_projectTag = Nepomuk::Tag( m_name );
-    m_projectTag.setLabel(m_name);
 }
 
 QString Library::name() const
@@ -88,25 +93,48 @@ QString Library::path() const
 void Library::createLibrary()
 {
     if(m_libraryType == Library_System) {
-        qDebug() << "can't create system library";
+        qWarning() << "can't create system library";
         return;
     }
 
     // when a new library is created it is realized as pimo:Project
     QString identifier = QLatin1String("Conquirere Library:") + m_name;
 
-    m_pimoProject = Nepomuk::Resource(identifier, Nepomuk::Vocabulary::PIMO::Project());
+    m_pimoLibrary = Nepomuk::Resource(identifier, Nepomuk::Vocabulary::PIMO::Project());
 
-    m_pimoProject.setProperty( Nepomuk::Vocabulary::NIE::title() , m_name);
+    m_pimoLibrary.setProperty( Nepomuk::Vocabulary::NIE::title() , m_name);
 
     // relate each library to the conquiere pimo:thing
     // this allows us to find all existing projects
     Nepomuk::Resource cp(QLatin1String("Conquirere Library"));
 
-    m_pimoProject.setProperty( Nepomuk::Vocabulary::PIMO::isRelated() , cp);
+    m_pimoLibrary.setProperty( Nepomuk::Vocabulary::PIMO::isRelated() , cp);
 
-    // scan the library folder and add all documents to this project
-    initializeLibraryFolder();
+    m_libraryTag = Nepomuk::Tag( m_name );
+    m_libraryTag.setLabel(m_name);
+
+    QDir project;
+    // first check if the folder exist and create it otherwise
+    project.mkpath(m_path);
+    project.setPath(m_path);
+
+    // create the project .ini file
+    m_settings = new QSettings(m_path + QLatin1String("/conquirere.ini"),QSettings::IniFormat);
+    m_settings->beginGroup(QLatin1String("Conquirere"));
+    m_settings->setValue(QLatin1String("name"), name());
+    m_settings->setValue(QLatin1String("path"), m_path);
+    m_settings->setValue(QLatin1String("pimoProject"), m_pimoLibrary.uri());
+    m_settings->endGroup();
+    m_settings->beginGroup(QLatin1String("Settings"));
+    m_settings->setValue(QLatin1String("copytoprojectfolder"), true);
+    m_settings->endGroup();
+    m_settings->sync();
+
+    // now check if the used structure exist or create it.
+    project.mkdir(DOCPATH);
+
+    //in the case files did exist, scan and add them
+    scanLibraryFolders();
 }
 
 void Library::loadLibrary(const QString & projectFile)
@@ -115,18 +143,22 @@ void Library::loadLibrary(const QString & projectFile)
     m_settings->beginGroup(QLatin1String("Conquirere"));
     m_path = m_settings->value(QLatin1String("path")).toString();
     m_name = m_settings->value(QLatin1String("name")).toString();
-    m_pimoProject = Nepomuk::Resource(m_settings->value(QLatin1String("pimoProject")).toString());
+    m_pimoLibrary = Nepomuk::Resource(m_settings->value(QLatin1String("pimoProject")).toString());
     m_settings->endGroup();
 
     // add new files in the folders
     scanLibraryFolders();
 
     m_libraryType = Library_Project;
+
+    m_libraryTag = Nepomuk::Tag( m_name );
+    m_libraryTag.setLabel(m_name);
 }
 
 void Library::deleteLibrary()
 {
-    m_projectTag.remove();
+    m_pimoLibrary.remove();
+    m_libraryTag.remove();
 
     KUrl path(m_path);
 
@@ -135,7 +167,7 @@ void Library::deleteLibrary()
 
 Nepomuk::Resource Library::pimoLibrary() const
 {
-    return m_pimoProject;
+    return m_pimoLibrary;
 }
 
 bool Library::isInPath(const QString &filename)
@@ -146,16 +178,24 @@ bool Library::isInPath(const QString &filename)
 void Library::addResource(Nepomuk::Resource & res)
 {
     if(m_libraryType == Library_System) {
-        qDebug() << "can't add resources to system library";
+        qWarning() << "can't add resources to system library";
+        return;
     }
 
-    qDebug() << "implement addResource(Nepomuk::Resource)";
+    Nepomuk::Resource relatesTo = res.property( Nepomuk::Vocabulary::PIMO::isRelated()).toResource();
+
+    if ( relatesTo == m_pimoLibrary) {
+        qDebug() << "resource " <<  res.genericLabel() << "is alread related to ::" << m_pimoLibrary.genericLabel();
+    }
+    else {
+        res.setProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_pimoLibrary);
+    }
 }
 
 void Library::addDocument(const QFileInfo &fileInfo)
 {
     if(m_libraryType == Library_System) {
-        qDebug() << "can't add documents to system library";
+        qWarning() << "can't add documents to system library";
         return;
     }
 
@@ -168,14 +208,7 @@ void Library::addDocument(const QFileInfo &fileInfo)
     //now if the files do not already have the project tag, add it
     Nepomuk::Resource res( fileInfo.absoluteFilePath() );
 
-    Nepomuk::Resource relatesTo = res.property( Nepomuk::Vocabulary::PIMO::isRelated()).toResource();
-
-    if ( relatesTo == m_pimoProject) {
-        qDebug() << "document " <<  fileInfo.fileName() << "is alread related to ::" << m_pimoProject.genericLabel();
-    }
-    else {
-        res.setProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_pimoProject);
-    }
+    addResource(res);
 }
 
 QAbstractTableModel* Library::viewModel(ResourceSelection selection)
@@ -185,6 +218,7 @@ QAbstractTableModel* Library::viewModel(ResourceSelection selection)
 
 void Library::connectFetchIndicator(ProjectTreeWidget *treeWidget)
 {
+    //TODO crete different models for each ResourceSelection
     foreach (QAbstractTableModel *model, m_resources) {
         switch(m_resources.key(model)) {
         case Resource_Document:
@@ -221,33 +255,6 @@ void Library::scanLibraryFolders()
             addDocument(fileInfo.absoluteFilePath());
         }
     }
-}
-
-void Library::initializeLibraryFolder()
-{
-    QDir project;
-    // first check if the folder exist and create it otherwise
-    project.mkpath(m_path);
-
-    project.setPath(m_path);
-
-    // create the project .ini file
-    m_settings = new QSettings(m_path + QLatin1String("/conquirere.ini"),QSettings::IniFormat);
-    m_settings->beginGroup(QLatin1String("Conquirere"));
-    m_settings->setValue(QLatin1String("name"), name());
-    m_settings->setValue(QLatin1String("path"), m_path);
-    m_settings->setValue(QLatin1String("pimoProject"), m_pimoProject.uri());
-    m_settings->endGroup();
-    m_settings->beginGroup(QLatin1String("Settings"));
-    m_settings->setValue(QLatin1String("copytoprojectfolder"), true);
-    m_settings->endGroup();
-    m_settings->sync();
-
-    // now check if the used structure exist or create it.
-    project.mkdir(DOCPATH);
-
-    //in the case files did exist, scan and add them
-    scanLibraryFolders();
 }
 
 void Library::setupModels()

@@ -21,7 +21,7 @@
 #include <KDE/KXmlGuiWindow>
 
 class Library;
-class ProjectWidget;
+class MainWidget;
 class ProjectTreeWidget;
 class SidebarWidget;
 
@@ -36,7 +36,7 @@ public:
 public slots:
     void createLibrary();
     void loadLibrary();
-    void openLibrary(Library *p);
+    void openLibrary(Library *l);
     void deleteLibrary();
     void closeLibrary();
     void exportBibTex();
@@ -46,10 +46,10 @@ private:
     void setupMainWindow();
 
     ProjectTreeWidget *m_projectTree;
-    ProjectWidget *m_mainView;
+    MainWidget *m_mainView;
     SidebarWidget *m_sidebarWidget;
 
-    QList<Library *> m_libraries;
+    QList<Library *> m_libraries;   /**< All opened libraries minimum the system library */
 };
 
 #endif // MAINWINDOW_H

@@ -15,12 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "projectwidget.h"
+#include "mainwidget.h"
 #include "projecttreewidget.h"
-#include "mainwindow.h"
 #include "core/library.h"
-#include "core/resourcemodel.h"
-#include "sidebar/sidebarwidget.h"
+#include "../core/resourcemodel.h"
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Vocabulary/NIE>
@@ -28,28 +26,26 @@
 #include <KDE/KAction>
 
 #include <QHBoxLayout>
-#include <QSplitter>
 #include <QTableView>
 #include <QHeaderView>
 #include <QMenu>
-#include <QProcess>
 #include <QDesktopServices>
 
 #include <QDebug>
 
-ProjectWidget::ProjectWidget(QWidget *parent)
+MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent)
     , m_documentView(0)
 {
     setupWidget();
 }
 
-ProjectWidget::~ProjectWidget()
+MainWidget::~MainWidget()
 {
     delete m_documentView;
 }
 
-void ProjectWidget::switchView(ResourceSelection selection, Library *p)
+void MainWidget::switchView(ResourceSelection selection, Library *p)
 {
     if(m_documentView->selectionModel()) {
         disconnect(m_documentView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(selectedResource(QModelIndex,QModelIndex)));
@@ -71,7 +67,7 @@ void ProjectWidget::switchView(ResourceSelection selection, Library *p)
     m_documentView->selectRow(0);
 }
 
-void ProjectWidget::selectedResource( const QModelIndex & current, const QModelIndex & previous )
+void MainWidget::selectedResource( const QModelIndex & current, const QModelIndex & previous )
 {
     Q_UNUSED(previous);
 
@@ -81,7 +77,7 @@ void ProjectWidget::selectedResource( const QModelIndex & current, const QModelI
     emit selectedResource(nr);
 }
 
-void ProjectWidget::removeSelected()
+void MainWidget::removeSelected()
 {
     QItemSelectionModel *sm = m_documentView->selectionModel();
     QModelIndexList indexes = sm->selectedRows();
@@ -90,7 +86,7 @@ void ProjectWidget::removeSelected()
     rm->removeSelected(indexes);
 }
 
-void ProjectWidget::openSelected()
+void MainWidget::openSelected()
 {
     QItemSelectionModel *sm = m_documentView->selectionModel();
     QModelIndexList indexes = sm->selectedRows();
@@ -103,13 +99,13 @@ void ProjectWidget::openSelected()
     QDesktopServices::openUrl(file);
 }
 
-void ProjectWidget::exportSelectedToBibTeX()
+void MainWidget::exportSelectedToBibTeX()
 {
     QItemSelectionModel *sm = m_documentView->selectionModel();
     QModelIndexList indexes = sm->selectedRows();
 }
 
-void ProjectWidget::tableContextMenu(const QPoint & pos)
+void MainWidget::tableContextMenu(const QPoint & pos)
 {
     QMenu menu(this);
     menu.addAction(m_openExternal);
@@ -119,7 +115,7 @@ void ProjectWidget::tableContextMenu(const QPoint & pos)
     menu.exec(mapToGlobal(pos));
 }
 
-void ProjectWidget::setupWidget()
+void MainWidget::setupWidget()
 {
     // view that holds the table models for selection
     m_documentView = new QTableView;

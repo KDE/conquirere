@@ -20,6 +20,9 @@
 
 #include "propertyedit.h"
 
+/**
+  * Very simple edit widget, interpretes all propertys as string
+  */
 class StringEdit : public PropertyEdit
 {
 public:
@@ -27,14 +30,9 @@ public:
 
 protected:
     void setupLabel();
-    /**
-      * Has to be reimplemented for any subclass
-      */
+
     virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
-    /**
-      * update the resource with the @p text from the edit field
-      */
     virtual void updateResource( const QString & text );
 };
 

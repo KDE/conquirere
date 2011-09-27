@@ -24,33 +24,11 @@
 
 ContactEdit::ContactEdit(QWidget *parent)
     : PropertyEdit(parent)
-    , m_useInternalDialog(true)
 {
-    setUseDetailDialog(false); //not used right now anyway
 }
 
 ContactEdit::~ContactEdit()
 {
-}
-
-void ContactEdit::setUseInternalDialog(bool useIt)
-{
-    m_useInternalDialog = useIt;
-}
-
-void ContactEdit::detailEditRequested()
-{
-//    if(m_useInternalDialog) {
-
-//    }
-
-    // TODO there should be some kind of "default dialog"
-    // best thing would be a list of authors left and
-    // the kaddressbook dialog to manipulate the contact
-    // as kpart right next to it.
-
-    // this does mean, shuch a dialog must be able to operate on a given
-    // nepomuk resource instead of the akonadi/vcard backend
 }
 
 void ContactEdit::setupLabel()

@@ -20,31 +20,23 @@
 
 #include "propertyedit.h"
 
+/**
+  * Used to manipulate an @c nco:Contact property.
+  *
+  * The entered/shown text represents the fullname() of the contact
+  */
 class ContactEdit : public PropertyEdit
 {
 public:
     ContactEdit(QWidget *parent = 0);
     virtual ~ContactEdit();
 
-    void setUseInternalDialog(bool useIt);
-
-public slots:
-    void detailEditRequested();
-
 protected:
     void setupLabel();
-    /**
-      * Has to be reimplemented for any subclass
-      */
+
     virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
-    /**
-      * update the resource with the @p text from the edit field
-      */
     virtual void updateResource( const QString & text );
-
-private:
-    bool m_useInternalDialog;
 };
 
 #endif // CONTACTEDIT_H

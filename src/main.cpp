@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mainwindow.h"
+#include "mainui/mainwindow.h"
 
 #include <KDE/KApplication>
 #include <KDE/KAboutData>

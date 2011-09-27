@@ -21,9 +21,11 @@
 #include "propertyedit.h"
 
 /**
-  * Allows to edit the volume/number of either a journalissue or usual publication
+  * Allows to edit the volume/number of either a @c nbib:JournalIssue or usual @c nbib:Publication
   *
   * Multivolume books can have a volume/number too
+  *
+  * Shows manipulates either @c nbib:volume or @c nbib:numer depending on the propertyUrl()
   */
 class VolumeNumberEdit : public PropertyEdit
 {
@@ -32,14 +34,9 @@ public:
 
 protected:
     void setupLabel();
-    /**
-      * Has to be reimplemented for any subclass
-      */
+
     virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
-    /**
-      * update the resource with the @p text from the edit field
-      */
     virtual void updateResource( const QString & text );
 };
 

@@ -24,6 +24,11 @@ namespace Ui {
     class NewProjectDialog;
 }
 
+/**
+  * Dialog to create a new project library
+  *
+  * Lets the user select a name and the path where all files are stored
+  */
 class NewProjectDialog : public QDialog
 {
     Q_OBJECT
@@ -34,7 +39,9 @@ public:
 
     QString name() const;
     QString path() const;
-    QStringList tagCloud() const;
+
+private slots:
+    void selectFolder();
 
 private:
     Ui::NewProjectDialog *ui;

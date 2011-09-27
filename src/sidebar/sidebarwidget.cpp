@@ -31,42 +31,26 @@ SidebarWidget::SidebarWidget(QWidget *parent)
 {
     QVBoxLayout *vbl = new QVBoxLayout();
     setLayout(vbl);
-
 }
 
 void SidebarWidget::setResource(Nepomuk::Resource & resource)
 {
-    qDebug() << "set resource";
-    if(m_currentWidget)
+    if(m_currentWidget) {
         m_currentWidget->setResource(resource);
-
+    }
 }
 
-void SidebarWidget::clear()
-{
-
-}
-
-void SidebarWidget::setLibrary(Library *p)
-{
-    m_project = p;
-}
-
-Library *SidebarWidget::library()
-{
-    return m_project;
-}
-
-void SidebarWidget::newSelection(ResourceSelection selection, Library *p)
+void SidebarWidget::newSelection(ResourceSelection selection, Library *library)
 {
     layout()->removeWidget(m_currentWidget);
 
     delete m_currentWidget;
+    m_currentWidget = 0;
 
     switch(selection) {
     case Resource_Library:
         //TODO do something when the library header is clicked (show welcome page? statistic page?)
-        m_currentWidget = new PublicationWidget();
+        //m_currentWidget = new PublicationWidget();
         break;
     case Resource_Document:
         m_currentWidget = new DocumentWidget();
@@ -91,6 +75,11 @@ void SidebarWidget::newSelection(ResourceSelection selection, Library *p)
         break;
     }
 
-    m_currentWidget->setLibrary(p);
-    layout()->addWidget(m_currentWidget);
+    if(m_currentWidget) {
+        m_currentWidget->setLibrary(library);
+        layout()->addWidget(m_currentWidget);
+    }
+    else {
+        layout()->addWidget(new QWidget());
+    }
 }

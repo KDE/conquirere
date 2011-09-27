@@ -20,11 +20,17 @@
 
 #include <QStyledItemDelegate>
 
+/**
+  * Delegate for an Project Tree Widget Item
+  *
+  * Used to show an animation during data fetching.
+  * Indicates that not all data is currently available
+  */
 class ProjectTreeDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    ProjectTreeDelegate(QWidget *parent = 0) : QStyledItemDelegate(parent) {}
+    ProjectTreeDelegate(QWidget *parent = 0);
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;

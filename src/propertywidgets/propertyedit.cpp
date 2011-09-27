@@ -234,7 +234,7 @@ void PropertyEdit::keyPressEvent(QKeyEvent * e)
     case Qt::Key_Return:
     case Qt::Key_Enter:
         editingFinished();
-        //insreting the completin via Enter is done by signal activated()
+        //inserting the completion via Enter is done by signal activated()
         break;
     case Qt::Key_Left:
     case Qt::Key_Right:

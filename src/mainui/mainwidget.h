@@ -32,13 +32,18 @@ class ResourceModel;
 class SidebarWidget;
 class KAction;
 
-class ProjectWidget : public QWidget
+/**
+  * Widget for the main content
+  *
+  * Shows a TableView with the content of each Library model
+  */
+class MainWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit ProjectWidget(QWidget *parent = 0);
-    ~ProjectWidget();
+    explicit MainWidget(QWidget *parent = 0);
+    ~MainWidget();
 
 signals:
     void selectedResource(Nepomuk::Resource & nr);

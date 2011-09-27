@@ -19,6 +19,7 @@
 #include "ui_newprojectdialog.h"
 
 #include <kglobalsettings.h>
+#include <KFileDialog>
 
 NewProjectDialog::NewProjectDialog(QWidget *parent) :
     QDialog(parent),
@@ -27,6 +28,7 @@ NewProjectDialog::NewProjectDialog(QWidget *parent) :
     ui->setupUi(this);
 
     ui->path_lineEdit->setText(KGlobalSettings::documentPath());
+    ui->path_lineEdit->setEnabled(false);
 }
 
 NewProjectDialog::~NewProjectDialog()
@@ -44,8 +46,11 @@ QString NewProjectDialog::path() const
     return ui->path_lineEdit->text() + QLatin1String("/") + name();
 }
 
-QStringList NewProjectDialog::tagCloud() const
+void NewProjectDialog::selectFolder()
 {
-    //ui->tagCloud_textEdit->document()
-    return QStringList();
+    QString selectedFolder = KFileDialog::getExistingDirectory(KGlobalSettings::documentPath());
+
+    if(!selectedFolder.isEmpty()) {
+        ui->path_lineEdit->setText(selectedFolder);
+    }
 }

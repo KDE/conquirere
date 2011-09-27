@@ -1,16 +1,6 @@
 
 set(conquirere_SRCS
     main.cpp
-    mainwindow.cpp
-
-    propertywidgets/propertyedit.cpp
-    propertywidgets/contactedit.cpp
-    propertywidgets/stringedit.cpp
-    propertywidgets/publicationedit.cpp
-    propertywidgets/chapteredit.cpp
-    propertywidgets/seriesedit.cpp
-    propertywidgets/journaledit.cpp
-    propertywidgets/volumenumberedit.cpp
 
     core/library.cpp
     core/resourcemodel.cpp
@@ -21,8 +11,17 @@ set(conquirere_SRCS
     mainui/welcomewidget.cpp
     mainui/projecttreewidget.cpp
     mainui/projecttreedelegate.cpp
-    mainui/projectwidget.cpp
+    mainui/mainwidget.cpp
+    mainui/mainwindow.cpp
 
+    propertywidgets/propertyedit.cpp
+    propertywidgets/contactedit.cpp
+    propertywidgets/stringedit.cpp
+    propertywidgets/publicationedit.cpp
+    propertywidgets/chapteredit.cpp
+    propertywidgets/seriesedit.cpp
+    propertywidgets/journaledit.cpp
+    propertywidgets/volumenumberedit.cpp
 
     sidebar/sidebarwidget.cpp
     sidebar/sidebarcomponent.cpp

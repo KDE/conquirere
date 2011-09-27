@@ -27,30 +27,44 @@
 class SidebarComponent;
 class Library;
 
+/**
+  * The SidebarWidget contains all contents for the right side widget
+  *
+  * The widget is used to show the DocumentWidget, ReferenceWidget, PublicationWidget and so on.
+  *
+  * When the newSelection() slot is called (usually from the ProjectTreeWidget) the specified selection is shown
+  *
+  * When something is selected in the mainWidget (from the TableView) setResource() is called
+  * The currently active widget receives the newResource and updates its data
+  *
+  * @see SidebarComponent
+  */
 class SidebarWidget : public QWidget
 {
     Q_OBJECT
 public:
     explicit SidebarWidget(QWidget *parent = 0);
 
-
-    virtual void setDialogMode(bool dialogMode) { }
-
-    void setLibrary(Library *p);
-    Library *library();
-
 public slots:
-    /* called when somethinh is selected in the project view */
-    void clear();
+    /**
+      * Called when something is selected in the project tree
+      *
+      * Change the currentwidget to something that can display the @p selection
+      *
+      * @p selection the resource type (Documents, Publications, Mails etc)
+      * @p library the library to use
+      */
+    void newSelection(ResourceSelection selection, Library *library);
 
-    /* called when something is selected in the project tree */
-    void newSelection(ResourceSelection selection, Library *p);
-
+    /**
+      * Called when a Nepomuk::Resource was selected in the MainWidget
+      *
+      * Updates the current widget
+      */
     virtual void setResource(Nepomuk::Resource & resource);
 
 private:
     SidebarComponent *m_currentWidget;
-    Library *m_project;
 };
 
 #endif // SIDEBARWIDGET_H

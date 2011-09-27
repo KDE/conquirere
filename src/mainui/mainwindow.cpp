@@ -23,7 +23,7 @@
 #include "mainui/projecttreewidget.h"
 #include "mainui/newprojectdialog.h"
 #include "mainui/welcomewidget.h"
-#include "mainui/projectwidget.h"
+#include "mainui/mainwidget.h"
 
 #include <KDE/KApplication>
 #include <KDE/KAction>
@@ -48,6 +48,15 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    delete m_projectTree;
+    delete m_mainView;
+    delete m_sidebarWidget;
+
+    foreach(Library *l, m_libraries) {
+        delete l;
+    }
+
+    m_libraries.clear();
 }
 
 void MainWindow::createLibrary()
@@ -81,44 +90,50 @@ void MainWindow::loadLibrary()
     openLibrary(customLibrary);
 }
 
-void MainWindow::openLibrary(Library *p)
+void MainWindow::openLibrary(Library *l)
 {
-    m_projectTree->addLibrary(p);
-    m_libraries.append(p);
+    m_projectTree->addLibrary(l);
+    m_libraries.append(l);
 
     //connect the fetch indicator to the treewidget
-    p->connectFetchIndicator(m_projectTree);
+    l->connectFetchIndicator(m_projectTree);
 
-    actionCollection()->action(QLatin1String("delete_project"))->setEnabled(true);
-    actionCollection()->action(QLatin1String("close_project"))->setEnabled(true);
-    actionCollection()->action(QLatin1String("export_bibtex"))->setEnabled(true);
+    if(m_libraries.size() > 1) {
+        actionCollection()->action(QLatin1String("delete_project"))->setEnabled(true);
+        actionCollection()->action(QLatin1String("close_project"))->setEnabled(true);
+        actionCollection()->action(QLatin1String("export_bibtex"))->setEnabled(true);
+    }
 }
 
 void MainWindow::deleteLibrary()
 {
     qDebug() << "TODO delete library";
-//    ProjectWidget *projectWidget = qobject_cast<ProjectWidget *>(centralWidget());
+    //    ProjectWidget *projectWidget = qobject_cast<ProjectWidget *>(centralWidget());
 
-//    if(projectWidget) {
-//        Project *p = projectWidget->project();
-//        int ret = KMessageBox::warningYesNo(this,
-//                                            QLatin1String("Do you really want to remove the project tag :<br><b>") +
-//                                            p->pimoProject().genericLabel() +
-//                                            QLatin1String("</b><br><br> and delete the folder :<br><b>") +
-//                                            p->path(),
-//                                            QLatin1String("Delete project ") + p->name());
+    //    if(projectWidget) {
+    //        Project *p = projectWidget->project();
+    //        int ret = KMessageBox::warningYesNo(this,
+    //                                            QLatin1String("Do you really want to remove the project tag :<br><b>") +
+    //                                            p->pimoProject().genericLabel() +
+    //                                            QLatin1String("</b><br><br> and delete the folder :<br><b>") +
+    //                                            p->path(),
+    //                                            QLatin1String("Delete project ") + p->name());
 
-//        if(ret == KMessageBox::Yes) {
-//            projectWidget->project()->deleteProject();
-//            closeProject();
-//        }
-//    }
+    //        if(ret == KMessageBox::Yes) {
+    //            projectWidget->project()->deleteProject();
+    //            closeProject();
+    //        }
+    //    }
 }
 
 void MainWindow::closeLibrary()
 {
     qDebug() << "TODO close library";
-    m_projectTree->closeLibrary(m_libraries.first());
+    Library *l = m_libraries.takeLast();
+
+    m_projectTree->closeLibrary(l);
+
+    delete l;
 
     if(m_libraries.isEmpty()) {
         actionCollection()->action(QLatin1String("delete_project"))->setEnabled(false);
@@ -130,16 +145,16 @@ void MainWindow::closeLibrary()
 void MainWindow::exportBibTex()
 {
     // get all documents in the project
-//    ProjectWidget *projectWidget = qobject_cast<ProjectWidget *>(centralWidget());
+    //    ProjectWidget *projectWidget = qobject_cast<ProjectWidget *>(centralWidget());
 
-//    if(projectWidget) {
-//        Project *p = projectWidget->project();
+    //    if(projectWidget) {
+    //        Project *p = projectWidget->project();
 
-//        BibTexExporter expBibTex;
-//        expBibTex.setIsRelatedTo(p->pimoProject());
+    //        BibTexExporter expBibTex;
+    //        expBibTex.setIsRelatedTo(p->pimoProject());
 
-//        expBibTex.exportReferences(p->path() + QLatin1String("bibtex.bib"));
-//    }
+    //        expBibTex.exportReferences(p->path() + QLatin1String("bibtex.bib"));
+    //    }
 }
 
 void MainWindow::setupActions()
@@ -193,7 +208,7 @@ void MainWindow::setupMainWindow()
     // the left project bar
     m_projectTree = new ProjectTreeWidget;
 
-    m_mainView = new ProjectWidget;
+    m_mainView = new MainWidget;
 
     //add panel for the document info
     m_sidebarWidget = new SidebarWidget;
@@ -212,7 +227,7 @@ void MainWindow::setupMainWindow()
     splitter->addWidget(m_sidebarWidget);
 
     QList<int> sizes;
-    sizes << 150 << 500 << 200;
+    sizes << 150 << 600 << 250;
     splitter->setSizes(sizes);
 
     setCentralWidget(splitter);

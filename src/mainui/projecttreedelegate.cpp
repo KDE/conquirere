@@ -17,16 +17,18 @@
 
 #include "projecttreedelegate.h"
 
-#include <QtGui>
+#include <QModelIndex>
 #include <QIcon>
+#include <QPainter>
 
+ProjectTreeDelegate::ProjectTreeDelegate(QWidget *parent)
+    : QStyledItemDelegate(parent)
+{
+}
 
 void ProjectTreeDelegate::timerEvent(QTimerEvent * /*event*/)
 {
     m_angle = (m_angle+30)%360;
-
-    qDebug() << "timer event oO";
-
 }
 
 void ProjectTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
@@ -72,19 +74,12 @@ void ProjectTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 QSize ProjectTreeDelegate::sizeHint(const QStyleOptionViewItem &option,
                                     const QModelIndex &index) const
 {
-    //    if (qVariantCanConvert<StarRating>(index.data())) {
-    //        StarRating starRating = qVariantValue<StarRating>(index.data());
-    //        return starRating.sizeHint();
-    //    } else {
     return QStyledItemDelegate::sizeHint(option, index);
-    //    }
 }
 
 QWidget *ProjectTreeDelegate::createEditor(QWidget *parent,const QStyleOptionViewItem &option,const QModelIndex &index) const
-
 {
     return QStyledItemDelegate::createEditor(parent, option, index);
-
 }
 
 void ProjectTreeDelegate::setEditorData(QWidget *editor,const QModelIndex &index) const

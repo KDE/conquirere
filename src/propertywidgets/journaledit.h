@@ -21,7 +21,9 @@
 #include "propertyedit.h"
 
 /**
-  * @todo journal issue title not nie:title but rather create a journal as subclass from series
+  * Used to edit the Journal of a property.
+  *
+  * Shows/edits the @c nie:title of the @c nbib:Journal from the used @c nbib:JournalIssue
   *
   */
 class JournalEdit : public PropertyEdit
@@ -31,14 +33,9 @@ public:
 
 protected:
     void setupLabel();
-    /**
-      * Has to be reimplemented for any subclass
-      */
+
     virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
-    /**
-      * update the resource with the @p text from the edit field
-      */
     virtual void updateResource( const QString & text );
 };
 
