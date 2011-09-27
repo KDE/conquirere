@@ -22,6 +22,8 @@
 
 class Project;
 class ProjectWidget;
+class ProjectTreeWidget;
+class SidebarWidget;
 
 class MainWindow : public KXmlGuiWindow
 {
@@ -41,6 +43,13 @@ public slots:
 
 private:
     void setupActions();
+    void setupMainWindow();
+
+    ProjectTreeWidget *m_projectTree;
+    ProjectWidget *m_mainView;
+    SidebarWidget *m_sidebarWidget;
+
+    QList<Project *> m_projects;
 };
 
 #endif // MAINWINDOW_H

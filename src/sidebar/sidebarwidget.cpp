@@ -23,6 +23,7 @@
 #include "documentwidget.h"
 
 #include <QVBoxLayout>
+#include <QDebug>
 
 SidebarWidget::SidebarWidget(QWidget *parent)
     : QWidget(parent)
@@ -35,6 +36,7 @@ SidebarWidget::SidebarWidget(QWidget *parent)
 
 void SidebarWidget::setResource(Nepomuk::Resource & resource)
 {
+    qDebug() << "set resource";
     if(m_currentWidget)
         m_currentWidget->setResource(resource);
 
@@ -55,7 +57,7 @@ Project *SidebarWidget::project()
     return m_project;
 }
 
-void SidebarWidget::newSelection(LibraryType library, ResourceSelection selection)
+void SidebarWidget::newSelection(LibraryType library, ResourceSelection selection, Project *p)
 {
     layout()->removeWidget(m_currentWidget);
 
@@ -89,6 +91,6 @@ void SidebarWidget::newSelection(LibraryType library, ResourceSelection selectio
         break;
     }
 
-    m_currentWidget->setProject(m_project);
+    m_currentWidget->setProject(p);
     layout()->addWidget(m_currentWidget);
 }

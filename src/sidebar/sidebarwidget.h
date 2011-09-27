@@ -33,7 +33,6 @@ class SidebarWidget : public QWidget
 public:
     explicit SidebarWidget(QWidget *parent = 0);
 
-    virtual void setResource(Nepomuk::Resource & resource);
 
     virtual void setDialogMode(bool dialogMode) { }
 
@@ -45,7 +44,9 @@ public slots:
     void clear();
 
     /* called when something is selected in the project tree */
-    void newSelection(LibraryType library, ResourceSelection selection);
+    void newSelection(LibraryType library, ResourceSelection selection, Project *p=0);
+
+    virtual void setResource(Nepomuk::Resource & resource);
 
 private:
     SidebarComponent *m_currentWidget;

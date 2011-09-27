@@ -24,7 +24,11 @@
 
 #include <Nepomuk/Tag>
 
+#include "../globals.h"
+
 class QSettings;
+class QAbstractTableModel;
+class ProjectTreeWidget;
 
 class Project : public QObject
 {
@@ -52,11 +56,15 @@ public:
 
     QList<Nepomuk::File> getProjectFiles();
 
+    QAbstractTableModel* viewModel(ResourceSelection selection);
+    void connectFetchIndicator(ProjectTreeWidget *treeWidget);
+
 public slots:
     void scanProjectFolders();
 
 private:
     void initializeProjectFolder();
+    void setupModels();
 
     QString m_name;
     QString m_path;
@@ -65,6 +73,8 @@ private:
 
     Nepomuk::Tag m_projectTag;
     QSettings *m_settings;
+
+    QMap<ResourceSelection, QAbstractTableModel*> m_resources;
 };
 
 #endif // PROJECT_H

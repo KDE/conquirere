@@ -53,7 +53,7 @@
        </rect>
       </property>
       <attribute name="label">
-       <string>Sources</string>
+       <string>Library</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="margin">

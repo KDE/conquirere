@@ -351,10 +351,10 @@ QVariant ResourceModel::headerData(int section, Qt::Orientation orientation, int
 void ResourceModel::startFetchData()
 {
     if(m_project) {
-        emit updatefetchDataFor(Library_Project,m_selection,true);
+        emit updatefetchDataFor(m_selection,true, m_project);
     }
     else {
-        emit updatefetchDataFor(Library_System,m_selection,true);
+        emit updatefetchDataFor(m_selection,true, m_project);
     }
 
     Nepomuk::Query::AndTerm andTerm;
@@ -500,10 +500,10 @@ void ResourceModel::resultCount(int number)
 {
     if(number == 0) {
         if(m_project) {
-            emit updatefetchDataFor(Library_Project,m_selection,false);
+            emit updatefetchDataFor(m_selection,false, m_project);
         }
         else {
-            emit updatefetchDataFor(Library_System,m_selection,false);
+            emit updatefetchDataFor(m_selection,false, m_project);
         }
     }
 }
@@ -512,10 +512,10 @@ void ResourceModel::listingsFinished()
 {
     qDebug() << "listingsFinished" << "added something? oO" << m_fileList.size();
     if(m_project) {
-        emit updatefetchDataFor(Library_Project,m_selection,false);
+        emit updatefetchDataFor(m_selection,false, m_project);
     }
     else {
-        emit updatefetchDataFor(Library_System,m_selection,false);
+        emit updatefetchDataFor(m_selection,false, m_project);
     }
 }
 

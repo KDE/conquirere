@@ -24,6 +24,8 @@
 #include <QWidget>
 #include <QModelIndex>
 
+#include <Nepomuk/Resource>
+
 class Project;
 class QTableView;
 class ResourceModel;
@@ -38,11 +40,11 @@ public:
     explicit ProjectWidget(QWidget *parent = 0);
     ~ProjectWidget();
 
-    void setProject(Project *p);
-    Project *project() const;
+signals:
+    void selectedResource(Nepomuk::Resource & nr);
 
 public slots:
-    void switchView(LibraryType library, ResourceSelection selection);
+    void switchView(LibraryType library, ResourceSelection selection, Project *p);
     void selectedResource( const QModelIndex & current, const QModelIndex & previous );
 
     void removeSelected();
@@ -55,26 +57,12 @@ private slots:
 private:
     void setupWidget();
 
-    Project* m_project;
-    ProjectTreeWidget *m_projectTree;
-
     QTableView    *m_documentView;
-    ResourceModel *m_projectDocumentModel;
-    ResourceModel *m_projectMailModel;
-    ResourceModel *m_projectMediaModel;
-    ResourceModel *m_projectWebsiteModel;
-    ResourceModel *m_projectReferencesModel;
-    ResourceModel *m_projectPublicationModel;
-    ResourceModel *m_projectNoteModel;
     ResourceModel *m_systemDocumentModel;
-    ResourceModel *m_systemMailModel;
-    ResourceModel *m_systemMediaModel;
     ResourceModel *m_systemWebsiteModel;
     ResourceModel *m_systemReferencesModel;
     ResourceModel *m_systemPublicationModel;
     ResourceModel *m_systemNoteModel;
-
-    SidebarWidget *m_sidebarWidget;
 
     KAction* m_removeFromProject;
     KAction* m_exportToBibTeX;

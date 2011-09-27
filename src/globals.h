@@ -22,7 +22,8 @@
 
 enum ProjectTreeRole {
     Role_Library = Qt::UserRole,
-    Role_ResourceType
+    Role_ResourceType,
+    Role_Project
 };
 
 enum LibraryType {

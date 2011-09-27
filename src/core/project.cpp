@@ -16,6 +16,9 @@
  */
 
 #include "project.h"
+#include "../mainui/resourcemodel.h"
+#include "../globals.h"
+#include "../mainui/projecttreewidget.h"
 
 #include <KDE/KUrl>
 #include <QtCore/QDir>
@@ -166,6 +169,34 @@ QList<Nepomuk::File> Project::getProjectFiles()
     return list2;
 }
 
+QAbstractTableModel* Project::viewModel(ResourceSelection selection)
+{
+    return m_resources.value(selection);
+}
+
+void Project::connectFetchIndicator(ProjectTreeWidget *treeWidget)
+{
+    foreach (QAbstractTableModel *model, m_resources) {
+        switch(m_resources.key(model)) {
+        case Resource_Document:
+        case Resource_Mail:
+        case Resource_Media:
+        case Resource_Reference:
+        case Resource_Publication:
+        case Resource_Website:
+        case Resource_Note:
+        {
+            ResourceModel *m = qobject_cast<ResourceModel *>(model);
+            connect(m, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+                    treeWidget, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+
+            m->startFetchData();
+        }
+            break;
+        }
+    }
+}
+
 void Project::scanProjectFolders()
 {
     QDir project;
@@ -208,4 +239,55 @@ void Project::initializeProjectFolder()
 
     //in the case files did exist, scan and add them
     scanProjectFolders();
+}
+
+void Project::setupModels()
+{
+    ResourceModel *DocumentModel = new ResourceModel;
+    DocumentModel->setProject(this);
+    DocumentModel->setResourceType(Resource_Document);
+
+    m_resources.insert(Resource_Document, DocumentModel);
+
+    //    ResourceModel *MailModel = new ResourceModel;
+    //    MailModel->setProject(this);
+    //    MailModel->setResourceType(Resource_Mail);
+    //    connect(MailModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+    //            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+    //    MailModel->startFetchData();
+
+    //    m_projectMediaModel = new ResourceModel;
+    //    m_projectMediaModel->setProject(this);
+    //    m_projectMediaModel->setResourceType(Resource_Media);
+    //    connect(m_projectMediaModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+    //            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+    //    m_projectMediaModel->startFetchData();
+
+    //    m_projectWebsiteModel = new ResourceModel;
+    //    m_projectWebsiteModel->setProject(this);
+    //    m_projectWebsiteModel->setResourceType(Resource_Website);
+    //    connect(m_projectWebsiteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+    //            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+    //    m_projectWebsiteModel->startFetchData();
+
+    //    m_projectReferencesModel = new ResourceModel;
+    //    m_projectReferencesModel->setProject(this);
+    //    m_projectReferencesModel->setResourceType(Resource_Reference);
+    //    connect(m_projectReferencesModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+    //            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+    //    m_projectReferencesModel->startFetchData();
+
+    //    m_projectPublicationModel = new ResourceModel;
+    //    m_projectPublicationModel->setProject(this);
+    //    m_projectPublicationModel->setResourceType(Resource_Publication);
+    //    connect(m_projectPublicationModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+    //            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+    //    m_projectPublicationModel->startFetchData();
+
+    //    m_projectNoteModel = new ResourceModel;
+    //    m_projectNoteModel->setProject(this);
+    //    m_projectNoteModel->setResourceType(Resource_Note);
+    //    connect(m_projectNoteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+    //            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+    //    m_projectNoteModel->startFetchData();
 }

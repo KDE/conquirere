@@ -40,171 +40,59 @@
 ProjectWidget::ProjectWidget(QWidget *parent)
     : QWidget(parent)
     , m_documentView(0)
-    , m_sidebarWidget(0)
 {
     setupWidget();
 
     // fetch information about system wide files
     m_systemDocumentModel = new ResourceModel;
     m_systemDocumentModel->setResourceType(Resource_Document);
-    connect(m_systemDocumentModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+//    connect(m_systemDocumentModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+//            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
     m_systemDocumentModel->startFetchData();
-
-    m_systemMailModel = new ResourceModel;
-    m_systemMailModel->setResourceType(Resource_Mail);
-    connect(m_systemMailModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_systemMailModel->startFetchData();
-
-    m_systemMediaModel = new ResourceModel;
-    m_systemMediaModel->setResourceType(Resource_Media);
-    connect(m_systemMediaModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_systemMediaModel->startFetchData();
 
     m_systemWebsiteModel = new ResourceModel;
     m_systemWebsiteModel->setResourceType(Resource_Website);
-    connect(m_systemWebsiteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+//    connect(m_systemWebsiteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+//            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
     m_systemWebsiteModel->startFetchData();
 
     m_systemReferencesModel = new ResourceModel;
     m_systemReferencesModel->setResourceType(Resource_Reference);
-    connect(m_systemReferencesModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+//    connect(m_systemReferencesModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+//            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
     m_systemReferencesModel->startFetchData();
 
     m_systemPublicationModel = new ResourceModel;
     m_systemPublicationModel->setResourceType(Resource_Publication);
-    connect(m_systemPublicationModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+//    connect(m_systemPublicationModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+//            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
     m_systemPublicationModel->startFetchData();
 
     m_systemNoteModel = new ResourceModel;
     m_systemNoteModel->setResourceType(Resource_Note);
-    connect(m_systemNoteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
+//    connect(m_systemNoteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
+//            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
     m_systemNoteModel->startFetchData();
 }
 
 ProjectWidget::~ProjectWidget()
 {
-    delete m_sidebarWidget;
-    delete m_project;
-    delete m_projectTree;
-    delete m_projectDocumentModel;
-    delete m_projectMailModel;
-    delete m_projectMediaModel;
-    delete m_projectWebsiteModel;
-    delete m_projectNoteModel;
     delete m_documentView;
 }
 
-void ProjectWidget::setProject(Project *p)
-{
-    m_project = p;
-
-    m_sidebarWidget->setProject(m_project);
-
-    m_projectTree->setProject(m_project);
-
-    m_projectDocumentModel = new ResourceModel;
-    m_projectDocumentModel->setProject(m_project);
-    m_projectDocumentModel->setResourceType(Resource_Document);
-    connect(m_projectDocumentModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_projectDocumentModel->startFetchData();
-
-    m_projectMailModel = new ResourceModel;
-    m_projectMailModel->setProject(m_project);
-    m_projectMailModel->setResourceType(Resource_Mail);
-    connect(m_projectMailModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_projectMailModel->startFetchData();
-
-    m_projectMediaModel = new ResourceModel;
-    m_projectMediaModel->setProject(m_project);
-    m_projectMediaModel->setResourceType(Resource_Media);
-    connect(m_projectMediaModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_projectMediaModel->startFetchData();
-
-    m_projectWebsiteModel = new ResourceModel;
-    m_projectWebsiteModel->setProject(m_project);
-    m_projectWebsiteModel->setResourceType(Resource_Website);
-    connect(m_projectWebsiteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_projectWebsiteModel->startFetchData();
-
-    m_projectReferencesModel = new ResourceModel;
-    m_projectReferencesModel->setProject(m_project);
-    m_projectReferencesModel->setResourceType(Resource_Reference);
-    connect(m_projectReferencesModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_projectReferencesModel->startFetchData();
-
-    m_projectPublicationModel = new ResourceModel;
-    m_projectPublicationModel->setProject(m_project);
-    m_projectPublicationModel->setResourceType(Resource_Publication);
-    connect(m_projectPublicationModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_projectPublicationModel->startFetchData();
-
-    m_projectNoteModel = new ResourceModel;
-    m_projectNoteModel->setProject(m_project);
-    m_projectNoteModel->setResourceType(Resource_Note);
-    connect(m_projectNoteModel, SIGNAL(updatefetchDataFor(LibraryType,ResourceSelection,bool)),
-            m_projectTree, SLOT(fetchDataFor(LibraryType,ResourceSelection,bool)));
-    m_projectNoteModel->startFetchData();
-}
-
-Project *ProjectWidget::project() const
-{
-    return m_project;
-}
-
-void ProjectWidget::switchView(LibraryType library, ResourceSelection selection)
+void ProjectWidget::switchView(LibraryType library, ResourceSelection selection, Project *p)
 {
     if(m_documentView->selectionModel()) {
         disconnect(m_documentView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(selectedResource(QModelIndex,QModelIndex)));
     }
 
     if(library == Library_Project) {
-        switch(selection) {
-        case Resource_Document:
-            m_documentView->setModel(m_projectDocumentModel);
-            break;
-        case Resource_Mail:
-            m_documentView->setModel(m_projectMailModel);
-            break;
-        case Resource_Media:
-            m_documentView->setModel(m_projectMediaModel);
-            break;
-        case Resource_Website:
-            m_documentView->setModel(m_projectWebsiteModel);
-            break;
-        case Resource_Reference:
-            m_documentView->setModel(m_projectReferencesModel);
-            break;
-        case Resource_Publication:
-            m_documentView->setModel(m_projectPublicationModel);
-            break;
-        case Resource_Note:
-            m_documentView->setModel(m_projectNoteModel);
-            break;
-        }
+        m_documentView->setModel(p->viewModel(selection));
     }
     else {
         switch(selection) {
         case Resource_Document:
             m_documentView->setModel(m_systemDocumentModel);
-            break;
-        case Resource_Mail:
-            m_documentView->setModel(m_systemMailModel);
-            break;
-        case Resource_Media:
-            m_documentView->setModel(m_systemMediaModel);
             break;
         case Resource_Website:
             m_documentView->setModel(m_systemWebsiteModel);
@@ -221,8 +109,6 @@ void ProjectWidget::switchView(LibraryType library, ResourceSelection selection)
         }
 
     }
-
-    m_sidebarWidget->newSelection(library, selection);
 
     m_documentView->horizontalHeader()->setResizeMode(0, QHeaderView::Fixed);
     m_documentView->horizontalHeader()->setResizeMode(1, QHeaderView::Fixed);
@@ -245,7 +131,7 @@ void ProjectWidget::selectedResource( const QModelIndex & current, const QModelI
     ResourceModel *rm = qobject_cast<ResourceModel *>(m_documentView->model());
     Nepomuk::Resource nr = rm->documentResource(current);
 
-    m_sidebarWidget->setResource(nr);
+    emit selectedResource(nr);
 }
 
 void ProjectWidget::removeSelected()
@@ -288,11 +174,6 @@ void ProjectWidget::tableContextMenu(const QPoint & pos)
 
 void ProjectWidget::setupWidget()
 {
-    QSplitter *splitter = new QSplitter(this);
-    // the left project bar
-    m_projectTree = new ProjectTreeWidget;
-    connect(m_projectTree, SIGNAL(newSelection(LibraryType,ResourceSelection)), this, SLOT(switchView(LibraryType,ResourceSelection)));
-
     // view that holds the table models for selection
     m_documentView = new QTableView;
     m_documentView->setSortingEnabled(true);
@@ -303,26 +184,11 @@ void ProjectWidget::setupWidget()
     m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_documentView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    //m_documentView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
-   // m_documentView->horizontalHeader()->setResizeMode(3, QHeaderView::Interactive);
-
-
     connect(m_documentView, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(tableContextMenu(const QPoint &)));
 
-    //add panel for the document info
-    m_sidebarWidget = new SidebarWidget;
-
-    splitter->addWidget(m_projectTree);
-    splitter->addWidget(m_documentView);
-    splitter->addWidget(m_sidebarWidget);
-
-    QList<int> sizes;
-    sizes << 150 << 500 << 200;
-    splitter->setSizes(sizes);
-
     QHBoxLayout *layout = new QHBoxLayout;
-    layout->addWidget(splitter);
+    layout->addWidget(m_documentView);
 
     setLayout(layout);
 
