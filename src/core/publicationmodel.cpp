@@ -302,6 +302,29 @@ QVariant PublicationModel::headerData(int section, Qt::Orientation orientation, 
         }
     }
 
+    if(role == Qt::SizeHintRole) {
+        switch (section) {
+        case Column_Reviewed:
+            return QSize(25,25);
+        case Column_FileAvailable:
+            return QSize(25,25);
+        case Column_Author:
+            return QSize(100,25);
+        case Column_Title:
+            return QSize(100,25);
+        case Column_Date:
+            return QSize(50,25);
+        case Column_Publisher:
+            return QSize(100,25);
+        case Column_Editor:
+            return QSize(100,25);
+        case Column_CiteKey:
+            return QSize(50,25);
+        default:
+            return QVariant();
+        }
+    }
+
     return QVariant();
 }
 

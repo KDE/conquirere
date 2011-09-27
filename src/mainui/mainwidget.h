@@ -58,11 +58,14 @@ public slots:
 
 private slots:
     void tableContextMenu(const QPoint & pos);
+    void headerContextMenu(const QPoint &pos);
+    void changeHeaderSectionVisibility();
 
 private:
     void setupWidget();
 
     QTableView    *m_documentView;
+    ResourceSelection m_selection;
 
     KAction* m_removeFromProject;
     KAction* m_exportToBibTeX;

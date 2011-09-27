@@ -24,6 +24,8 @@
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Variant>
 #include <KDE/KAction>
+#include <KConfig>
+#include <KConfigGroup>
 
 #include <QHBoxLayout>
 #include <QTableView>
@@ -47,21 +49,48 @@ MainWidget::~MainWidget()
 
 void MainWidget::switchView(ResourceSelection selection, Library *p)
 {
+    m_selection = selection;
+
     if(m_documentView->selectionModel()) {
         disconnect(m_documentView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(selectedResource(QModelIndex,QModelIndex)));
     }
 
     m_documentView->setModel(p->viewModel(selection));
 
-    m_documentView->horizontalHeader()->setResizeMode(0, QHeaderView::Fixed);
-    m_documentView->horizontalHeader()->setResizeMode(1, QHeaderView::Fixed);
-    m_documentView->horizontalHeader()->setResizeMode(2, QHeaderView::Stretch);
-    m_documentView->horizontalHeader()->setResizeMode(3, QHeaderView::Interactive);
-    m_documentView->horizontalHeader()->setResizeMode(4, QHeaderView::Stretch);
-    m_documentView->horizontalHeader()->setResizeMode(5, QHeaderView::Fixed);
-    m_documentView->horizontalHeader()->resizeSection(0,25);
-    m_documentView->horizontalHeader()->resizeSection(1,25);
-    m_documentView->horizontalHeader()->resizeSection(4,100);
+    //load settings for visible/hidden columns
+    KConfig config;
+    QString group = QLatin1String("TableView");
+    group.append((int)m_selection);
+    KConfigGroup tableViewGroup( &config, group );
+
+    QHeaderView *hv = m_documentView->horizontalHeader();
+    int columnCount =m_documentView->model()->columnCount();
+    for(int i=0; i < columnCount; i++) {
+        bool hidden = tableViewGroup.readEntry( QString::number(i), false );
+        hv->setSectionHidden(i, hidden);
+    }
+
+    hv->setResizeMode(QHeaderView::Interactive);
+    switch(m_selection) {
+    case Resource_Library:
+        break;
+    case Resource_Document:
+        break;
+    case Resource_Mail:
+        break;
+    case Resource_Media:
+        break;
+    case Resource_Publication:
+    case Resource_Reference:
+        hv->setResizeMode(4, QHeaderView::Stretch);
+        m_documentView->horizontalHeader()->resizeSection(0,25);
+        m_documentView->horizontalHeader()->resizeSection(1,25);
+        break;
+    case Resource_Website:
+        break;
+    case Resource_Note:
+        break;
+    }
 
     connect(m_documentView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(selectedResource(QModelIndex,QModelIndex)));
 
@@ -108,12 +137,54 @@ void MainWidget::exportSelectedToBibTeX()
 
 void MainWidget::tableContextMenu(const QPoint & pos)
 {
+
     QMenu menu(this);
     menu.addAction(m_openExternal);
     menu.addSeparator();
     //menu.addAction(m_exportToBibTeX);
     menu.addAction(m_removeFromProject);
     menu.exec(mapToGlobal(pos));
+}
+
+void MainWidget::headerContextMenu(const QPoint &pos)
+{
+    QMenu menu(this);
+
+    int columnCount =m_documentView->model()->columnCount();
+
+    //iterate through all available header entries in the current model
+    for(int i=0; i < columnCount; i++) {
+        QString headerName = m_documentView->model()->headerData(i,Qt::Horizontal).toString();
+        if(headerName.isEmpty()) {
+            headerName = m_documentView->model()->headerData(i,Qt::Horizontal, Qt::ToolTipRole).toString();
+        }
+
+        // for each header create a checkable menu entry to change visibility
+        QAction *a = menu.addAction(headerName);
+        connect(a, SIGNAL(triggered()), this, SLOT(changeHeaderSectionVisibility()));
+        a->setData(i);
+        a->setCheckable(true);
+        a->setChecked(!m_documentView->horizontalHeader()->isSectionHidden(i));
+    }
+
+    menu.exec(mapToGlobal(pos));
+}
+
+void MainWidget::changeHeaderSectionVisibility()
+{
+    QAction *a = qobject_cast<QAction *>(sender());
+
+    QHeaderView *hv = m_documentView->horizontalHeader();
+    hv->setSectionHidden(a->data().toInt(),
+                         !hv->isSectionHidden(a->data().toInt()));
+
+    // save selection in the application settings
+    KConfig config;
+    QString group = QLatin1String("TableView");
+    group.append((int)m_selection);
+    KConfigGroup tableViewGroup( &config, group );
+    tableViewGroup.writeEntry( a->data().toString(), hv->isSectionHidden(a->data().toInt()) );
+    tableViewGroup.config()->sync();
 }
 
 void MainWidget::setupWidget()
@@ -130,6 +201,11 @@ void MainWidget::setupWidget()
 
     connect(m_documentView, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(tableContextMenu(const QPoint &)));
+
+    QHeaderView *hv = m_documentView->horizontalHeader();
+    hv->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(hv, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(headerContextMenu(const QPoint &)));
 
     QHBoxLayout *layout = new QHBoxLayout;
     layout->addWidget(m_documentView);
