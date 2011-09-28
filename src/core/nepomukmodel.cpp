@@ -17,7 +17,140 @@
 
 #include "nepomukmodel.h"
 
+#include "library.h"
+
+#include <Nepomuk/Variant>
+#include <Nepomuk/Vocabulary/PIMO>
+
 NepomukModel::NepomukModel(QObject *parent)
     : QAbstractTableModel(parent)
+    , m_library(0)
 {
+    m_queryClient = new Nepomuk::Query::QueryServiceClient();
+    connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addData(QList<Nepomuk::Query::Result>)));
+    connect(m_queryClient, SIGNAL(entriesRemoved(QList<QUrl>)), this, SLOT(removeData(QList<QUrl>)));
+    connect(m_queryClient, SIGNAL(resultCount(int)), this, SLOT(resultCount(int)));
+    connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(listingsFinished()));
+}
+
+NepomukModel::~NepomukModel()
+{
+    m_queryClient->close();
+    delete m_queryClient;
+
+    m_fileList.clear();
+}
+
+int NepomukModel::rowCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+
+    return m_fileList.size();
+}
+
+void NepomukModel::setLibrary(Library *library)
+{
+    m_library = library;
+}
+
+void NepomukModel::setResourceType(ResourceSelection selection)
+{
+    m_selection = selection;
+}
+
+Nepomuk::Resource NepomukModel::documentResource(const QModelIndex &selection)
+{
+    return m_fileList.at(selection.row());
+}
+
+void NepomukModel::stopFetchData()
+{
+    m_queryClient->close();
+}
+
+void NepomukModel::removeSelected(const QModelIndexList & indexes)
+{
+    if(m_library->libraryType() == Library_System) {
+        qWarning() << "try to remove data from the nepomuk system library @ PublicationModel::removeSelected";
+    }
+    foreach(QModelIndex index, indexes) {
+        // get the nepomuk data at the row
+        Nepomuk::Resource nr = m_fileList.at(index.row());
+
+        // remove project relation
+        nr.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), m_library->pimoLibrary());
+
+        //Nepomuk query client will call the slot to remove the file from the index
+    }
+}
+
+void NepomukModel::addData(const QList< Nepomuk::Query::Result > &entries)
+{
+    //qDebug() << "addData(...)" << entries.size();
+    // two loops are necessary because addData is not only called on new entries, but with all changes
+    // must be a bug in nepomuk check git master for different behaviour
+    QList< Nepomuk::Resource > newEntries;
+    foreach(Nepomuk::Query::Result r, entries) {
+        if( !m_fileList.contains(r.resource()) ) {
+            newEntries.append(r.resource());
+        }
+    }
+
+    if(newEntries.size() > 0) {
+        beginInsertRows(QModelIndex(), m_fileList.size(), m_fileList.size() + newEntries.size()-1);
+        m_fileList.append(newEntries);
+        endInsertRows();
+    }
+
+    emit dataSizeChaged(m_fileList.size());
+}
+
+void NepomukModel::removeData( const QList< QUrl > &entries )
+{
+    // remove data is a bug by default
+    // must change inplementation in the nepomuk query service
+
+    // we just search through all data and remove the ones that are not valid anymore
+    // this function gets called when new entries are created, some are removed or modified
+    // sooner or later all deleted entries will be deleted
+
+    QList<int> noValidEntries;
+    for(int i = 0; i < m_fileList.size(); i++) {
+        if(!m_fileList.at(i).isValid()) {
+            noValidEntries.append(i);
+        }
+    }
+
+    if(noValidEntries.isEmpty()) {
+        return;
+    }
+
+    qDebug() << "remove values" << noValidEntries << "list size" << m_fileList.size();
+    qDebug() << noValidEntries.first() << noValidEntries.last();
+    beginRemoveRows(QModelIndex(), noValidEntries.first(), noValidEntries.last() );
+    for(int j = 0; j < noValidEntries.size(); j++) {
+        m_fileList.removeAt(noValidEntries.at(j) - j);
+    }
+    endRemoveRows();
+
+    emit dataSizeChaged(m_fileList.size());
+}
+
+void NepomukModel::resultCount(int number)
+{
+    if(number == 0) {
+        emit updateFetchDataFor(m_selection,false, m_library);
+    }
+}
+
+void NepomukModel::listingsFinished()
+{
+    qDebug() << "listingsFinished" << "added something? oO" << m_fileList.size();
+
+    emit updateFetchDataFor(m_selection,false, m_library);
+}
+
+void NepomukModel::listingsError(const QString & errorMessage)
+{
+    qDebug() << "query in rescourcemodel failed" << errorMessage;
 }

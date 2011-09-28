@@ -350,7 +350,7 @@ QVariant ResourceModel::headerData(int section, Qt::Orientation orientation, int
 
 void ResourceModel::startFetchData()
 {
-    emit updatefetchDataFor(m_selection,true, m_project);
+    emit updateFetchDataFor(m_selection,true, m_project);
 
     Nepomuk::Query::AndTerm andTerm;
 
@@ -494,7 +494,7 @@ void ResourceModel::removeSelected(const QModelIndexList & indexes)
 void ResourceModel::resultCount(int number)
 {
     if(number == 0) {
-        emit updatefetchDataFor(m_selection,false, m_project);
+        emit updateFetchDataFor(m_selection,false, m_project);
     }
 }
 
@@ -502,7 +502,7 @@ void ResourceModel::listingsFinished()
 {
     qDebug() << "listingsFinished" << "added something? oO" << m_fileList.size();
 
-    emit updatefetchDataFor(m_selection,false, m_project);
+    emit updateFetchDataFor(m_selection,false, m_project);
 }
 
 void ResourceModel::listingsError(const QString & errorMessage)

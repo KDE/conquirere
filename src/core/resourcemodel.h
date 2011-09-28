@@ -59,7 +59,7 @@ public slots:
 
 signals:
     void dataSizeChaged(int size);
-    void updatefetchDataFor(ResourceSelection selection, bool start, Library *p);
+    void updateFetchDataFor(ResourceSelection selection, bool start, Library *p);
 
 private slots:
     /**

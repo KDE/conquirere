@@ -16,7 +16,7 @@
  */
 
 #include "publicationmodel.h"
-#include "core/library.h"
+#include "library.h"
 
 #include "nbib.h"
 
@@ -48,49 +48,24 @@ enum ColumnList {
     Column_Title,
     Column_Date,
     Column_Publisher,
-    Column_Editor
+    Column_Editor,
+
+    Max_columns
 };
 
 PublicationModel::PublicationModel(QObject *parent)
     : NepomukModel(parent)
-    , m_library(0)
 {
-    m_queryClient = new Nepomuk::Query::QueryServiceClient();
-    connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addData(QList<Nepomuk::Query::Result>)));
-    connect(m_queryClient, SIGNAL(entriesRemoved(QList<QUrl>)), this, SLOT(removeData(QList<QUrl>)));
-    connect(m_queryClient, SIGNAL(resultCount(int)), this, SLOT(resultCount(int)));
-    connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(listingsFinished()));
 }
 
 PublicationModel::~PublicationModel()
 {
-    m_queryClient->close();
-    delete m_queryClient;
-
-    m_fileList.clear();
-}
-
-void PublicationModel::setLibrary(Library *library)
-{
-    m_library = library;
-}
-
-void PublicationModel::setResourceType(ResourceSelection selection)
-{
-    m_selection = selection;
-}
-
-int PublicationModel::rowCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-
-    return m_fileList.size();
 }
 
 int PublicationModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 8;
+    return Max_columns;
 }
 
 QVariant PublicationModel::data(const QModelIndex &index, int role) const
@@ -206,26 +181,19 @@ QVariant PublicationModel::data(const QModelIndex &index, int role) const
             return titleSting;
 
         }
-        // the next two are availabel as display role only
-        //        else if(index.column() == Column_FileAvailable) {
-
-        //        }
-        //        else if(index.column() == Column_Reviewed) {
-
-        //        }
     }
 
     if (role == Qt::DecorationRole) {
         if(index.column() == Column_FileAvailable) {
             if(m_selection == Resource_Reference) {
                 Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::usePublication()).toResource();
-                Nepomuk::Resource file = publication.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
+                Nepomuk::Resource file = publication.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResource();
                 if(file.isValid()) {
                     return  KIcon(QLatin1String("bookmarks-organize"));
                 }
             }
             else {
-                Nepomuk::Resource file = document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
+                Nepomuk::Resource file = document.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResource();
                 if(file.isValid()) {
                     return  KIcon(QLatin1String("bookmarks-organize"));
                 }
@@ -263,17 +231,17 @@ QVariant PublicationModel::headerData(int section, Qt::Orientation orientation, 
         case Column_FileAvailable:
             return QVariant();
         case Column_Author:
-            return tr("Author");
+            return i18n("Author");
         case Column_Title:
-            return tr("Title");
+            return i18n("Title");
         case Column_Date:
-            return tr("Date");
+            return i18n("Date");
         case Column_Publisher:
-            return tr("Publisher");
+            return i18n("Publisher");
         case Column_Editor:
-            return tr("Editor");
+            return i18n("Editor");
         case Column_CiteKey:
-            return tr("Citekey");
+            return i18n("Citekey");
         default:
             return QVariant();
         }
@@ -286,11 +254,11 @@ QVariant PublicationModel::headerData(int section, Qt::Orientation orientation, 
         case Column_FileAvailable:
             return i18n("File available");
         case Column_Author:
-            return  tr("The author of the document");
+            return  i18n("The author of the document");
         case Column_Title:
             return i18n("The document title");
         case Column_Date:
-            return tr("The date of publishing");
+            return i18n("The date of publishing");
         case Column_Publisher:
             return  i18n("The publisher of the document");
         case Column_Editor:
@@ -302,48 +270,17 @@ QVariant PublicationModel::headerData(int section, Qt::Orientation orientation, 
         }
     }
 
-    if(role == Qt::SizeHintRole) {
-        switch (section) {
-        case Column_Reviewed:
-            return QSize(25,25);
-        case Column_FileAvailable:
-            return QSize(25,25);
-        case Column_Author:
-            return QSize(100,25);
-        case Column_Title:
-            return QSize(100,25);
-        case Column_Date:
-            return QSize(50,25);
-        case Column_Publisher:
-            return QSize(100,25);
-        case Column_Editor:
-            return QSize(100,25);
-        case Column_CiteKey:
-            return QSize(50,25);
-        default:
-            return QVariant();
-        }
-    }
-
     return QVariant();
 }
 
 void PublicationModel::startFetchData()
 {
-    emit updatefetchDataFor(m_selection,true, m_library);
+    emit updateFetchDataFor(m_selection,true, m_library);
 
     Nepomuk::Query::AndTerm andTerm;
 
     switch(m_selection)
     {
-    case Resource_Document: {
-        andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Document() ) );
-
-        // exclude source code
-        // is not interresting here and slows down way to much
-        andTerm.addSubTerm(  !Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::SourceCode() ) );
-    }
-        break;
     case Resource_Reference:
         andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Reference() ) );
         break;
@@ -366,102 +303,4 @@ void PublicationModel::startFetchData()
     Nepomuk::Query::Query query( andTerm );
     //query.setLimit(100);
     m_queryClient->query(query);
-}
-
-void PublicationModel::stopFetchData()
-{
-    m_queryClient->close();
-}
-
-void PublicationModel::addData(const QList< Nepomuk::Query::Result > &entries)
-{
-    //qDebug() << "addData(...)" << entries.size();
-    // two loops are necessary because addData is not only called on new entries, but with all changes
-    // must be a bug in nepomuk
-    QList< Nepomuk::Resource > newEntries;
-    foreach(Nepomuk::Query::Result r, entries) {
-        if( !m_fileList.contains(r.resource()) ) {
-            newEntries.append(r.resource());
-        }
-    }
-
-    if(newEntries.size() > 0) {
-        beginInsertRows(QModelIndex(), m_fileList.size(), m_fileList.size() + newEntries.size()-1);
-        m_fileList.append(newEntries);
-        endInsertRows();
-    }
-
-    emit dataSizeChaged(m_fileList.size());
-
-}
-
-void PublicationModel::removeData( const QList< QUrl > &entries )
-{
-    // remove data is a bug by default
-    // must change inplementation in the nepomuk query service
-
-    // we just search through all data and remove the ones that are not valid anymore
-    // this function gets called when new entries are created, some are removed or modified
-    // sooner or later all deleted entries will be deleted
-
-    QList<int> noValidEntries;
-    for(int i = 0; i < m_fileList.size(); i++) {
-        if(!m_fileList.at(i).isValid()) {
-            noValidEntries.append(i);
-        }
-    }
-
-    if(noValidEntries.isEmpty()) {
-        return;
-    }
-
-    qDebug() << "remove values" << noValidEntries << "list size" << m_fileList.size();
-    qDebug() << noValidEntries.first() << noValidEntries.last();
-    beginRemoveRows(QModelIndex(), noValidEntries.first(), noValidEntries.last() );
-    for(int j = 0; j < noValidEntries.size(); j++) {
-        m_fileList.removeAt(noValidEntries.at(j) - j);
-    }
-    endRemoveRows();
-
-    emit dataSizeChaged(m_fileList.size());
-}
-
-Nepomuk::Resource PublicationModel::documentResource(const QModelIndex &selection)
-{
-    return m_fileList.at(selection.row());
-}
-
-void PublicationModel::removeSelected(const QModelIndexList & indexes)
-{
-    if(m_library->libraryType() == Library_System) {
-        qWarning() << "try to remove data from the nepomuk system library @ PublicationModel::removeSelected";
-    }
-    foreach(QModelIndex index, indexes) {
-        // get the nepomuk data at the row
-        Nepomuk::Resource nr = m_fileList.at(index.row());
-
-        // remove project relation
-        nr.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), m_library->pimoLibrary());
-
-        //Nepomuk query client will call the slot to remove the file from the index
-    }
-}
-
-void PublicationModel::resultCount(int number)
-{
-    if(number == 0) {
-        emit updatefetchDataFor(m_selection,false, m_library);
-    }
-}
-
-void PublicationModel::listingsFinished()
-{
-    qDebug() << "listingsFinished" << "added something? oO" << m_fileList.size();
-
-    emit updatefetchDataFor(m_selection,false, m_library);
-}
-
-void PublicationModel::listingsError(const QString & errorMessage)
-{
-    qDebug() << "query in rescourcemodel failed" << errorMessage;
 }

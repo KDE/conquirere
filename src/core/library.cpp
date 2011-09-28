@@ -17,8 +17,10 @@
 
 #include "library.h"
 #include "../mainui/projecttreewidget.h"
-#include "../core/nepomukmodel.h"
-#include "../core/publicationmodel.h"
+#include "nepomukmodel.h"
+#include "publicationmodel.h"
+#include "documentmodel.h"
+#include "notemodel.h"
 
 #include "../core/resourcemodel.h"
 
@@ -221,25 +223,12 @@ QAbstractTableModel* Library::viewModel(ResourceSelection selection)
 
 void Library::connectFetchIndicator(ProjectTreeWidget *treeWidget)
 {
-    //TODO crete different models for each ResourceSelection
     foreach (QAbstractTableModel *model, m_resources) {
-        switch(m_resources.key(model)) {
-        case Resource_Document:
-        case Resource_Mail:
-        case Resource_Media:
-        case Resource_Reference:
-        case Resource_Publication:
-        case Resource_Website:
-        case Resource_Note:
-        {
-            NepomukModel *m = qobject_cast<NepomukModel *>(model);
-            connect(m, SIGNAL(updatefetchDataFor(ResourceSelection,bool, Library *)),
-                    treeWidget, SLOT(fetchDataFor(ResourceSelection,bool, Library *)));
+        NepomukModel *m = qobject_cast<NepomukModel *>(model);
+        connect(m, SIGNAL(updatefetchDataFor(ResourceSelection,bool, Library *)),
+                treeWidget, SLOT(fetchDataFor(ResourceSelection,bool, Library *)));
 
-            m->startFetchData();
-        }
-            break;
-        }
+        m->startFetchData();
     }
 }
 
@@ -262,10 +251,10 @@ void Library::scanLibraryFolders()
 
 void Library::setupModels()
 {
-    ResourceModel *DocumentModel = new ResourceModel;
-    DocumentModel->setLibrary(this);
-    DocumentModel->setResourceType(Resource_Document);
-    m_resources.insert(Resource_Document, DocumentModel);
+    DocumentModel *documentModel = new DocumentModel;
+    documentModel->setLibrary(this);
+    documentModel->setResourceType(Resource_Document);
+    m_resources.insert(Resource_Document, documentModel);
 
     ResourceModel *WebsiteModel = new ResourceModel;
     WebsiteModel->setLibrary(this);
@@ -282,10 +271,10 @@ void Library::setupModels()
     publicationModel->setResourceType(Resource_Publication);
     m_resources.insert(Resource_Publication, publicationModel);
 
-    ResourceModel *NoteModel = new ResourceModel;
-    NoteModel->setLibrary(this);
-    NoteModel->setResourceType(Resource_Note);
-    m_resources.insert(Resource_Note, NoteModel);
+    NoteModel *noteModel = new NoteModel;
+    noteModel->setLibrary(this);
+    noteModel->setResourceType(Resource_Note);
+    m_resources.insert(Resource_Note, noteModel);
 
     if(m_libraryType == Library_Project) {
         ResourceModel *MailModel = new ResourceModel;

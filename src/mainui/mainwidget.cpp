@@ -75,6 +75,9 @@ void MainWidget::switchView(ResourceSelection selection, Library *p)
     case Resource_Library:
         break;
     case Resource_Document:
+        hv->setResizeMode(4, QHeaderView::Stretch);
+        m_documentView->horizontalHeader()->resizeSection(0,25);
+        m_documentView->horizontalHeader()->resizeSection(1,25);
         break;
     case Resource_Mail:
         break;
@@ -89,6 +92,7 @@ void MainWidget::switchView(ResourceSelection selection, Library *p)
     case Resource_Website:
         break;
     case Resource_Note:
+        hv->setResizeMode(0, QHeaderView::Stretch);
         break;
     }
 

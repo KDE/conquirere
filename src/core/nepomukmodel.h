@@ -20,6 +20,8 @@
 
 #include "../globals.h"
 #include <Nepomuk/Resource>
+#include <Nepomuk/Query/QueryServiceClient>
+#include <Nepomuk/Query/Result>
 
 #include <QAbstractTableModel>
 
@@ -31,18 +33,40 @@ class NepomukModel : public QAbstractTableModel
     Q_OBJECT
 public:
     explicit NepomukModel(QObject *parent = 0);
+    virtual ~NepomukModel();
 
-    virtual void setLibrary(Library *library) = 0;
-    virtual void setResourceType(ResourceSelection selection) = 0;
-    virtual Nepomuk::Resource documentResource(const QModelIndex &selection) = 0;
+    int rowCount(const QModelIndex &parent) const;
+    virtual void setLibrary(Library *library);
+    virtual void setResourceType(ResourceSelection selection);
+    virtual Nepomuk::Resource documentResource(const QModelIndex &selection);
+    virtual void removeSelected(const QModelIndexList & indexes);
 
+public slots:
     virtual void startFetchData() = 0;
-    virtual void stopFetchData() = 0;
-    virtual void removeSelected(const QModelIndexList & indexes) = 0;
+    virtual void stopFetchData();
 
-//signals:
-//    void dataSizeChaged(int size);
-//    void updatefetchDataFor(ResourceSelection selection, bool start, Library *library);
+protected slots:
+    /**
+      * @bug does not work efficient because addData(QList<Nepomuk::Query::Result>) from Nepomuk::Query::QueryServiceClient returns wrong values
+      */
+    void addData(const QList< Nepomuk::Query::Result > &entries);
+    /**
+      * @bug does not work because removeData(QList<QUrl>) from Nepomuk::Query::QueryServiceClient returns wrong values
+      */
+    void removeData( const QList< QUrl > &entries );
 
+    void resultCount(int number);
+    void listingsFinished();
+    void listingsError(const QString & 	errorMessage);
+
+signals:
+    void dataSizeChaged(int size);
+    void updateFetchDataFor(ResourceSelection selection, bool start, Library *library);
+
+protected:
+    Library *m_library;
+    ResourceSelection m_selection;
+    Nepomuk::Query::QueryServiceClient *m_queryClient;
+    QList<Nepomuk::Resource> m_fileList;
 };
 #endif // NEPOMUKMODEL_H

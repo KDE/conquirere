@@ -4,9 +4,11 @@ set(conquirere_SRCS
 
     core/library.cpp
     core/bibtexexporter.cpp
+    core/nepomukmodel.cpp
     core/resourcemodel.cpp
     core/publicationmodel.cpp
-    core/nepomukmodel.cpp
+    core/documentmodel.cpp
+    core/notemodel.cpp
 
     mainui/newprojectdialog.cpp
     mainui/newprojectdialog.cpp

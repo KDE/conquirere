@@ -15,23 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PUBLICATIONMODEL_H
-#define PUBLICATIONMODEL_H
+#ifndef NOTEMODEL_H
+#define NOTEMODEL_H
 
 #include "nepomukmodel.h"
 
-/**
-  * Model for any kind of publication data
-  *
-  * Used to display @c nbib:Publication and @c nbib:Reference
-  *
-  */
-class PublicationModel : public NepomukModel
+class NoteModel : public NepomukModel
 {
     Q_OBJECT
 public:
-    explicit PublicationModel(QObject *parent = 0);
-    ~PublicationModel();
+    explicit NoteModel(QObject *parent = 0);
+    ~NoteModel();
+
 
     // implemented from QAbstractTableModel
     int columnCount(const QModelIndex &parent) const;
@@ -40,6 +35,7 @@ public:
 
 public slots:
     void startFetchData();
+
 };
 
-#endif // PUBLICATIONMODEL_H
+#endif // NOTEMODEL_H
