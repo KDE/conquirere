@@ -34,7 +34,7 @@ void VolumeNumberEdit::setupLabel()
 {
     QString string;
     // check if the resource has a journalissue attaced to it
-    Nepomuk::Resource journalIssue = resource().property(Nepomuk::Vocabulary::NBIB::inJournalIssue()).toResource();
+    Nepomuk::Resource journalIssue = resource().property(Nepomuk::Vocabulary::NBIB::journalIssue()).toResource();
 
     if(journalIssue.isValid()) {
         string = journalIssue.property(propertyUrl()).toString();
@@ -54,7 +54,7 @@ void VolumeNumberEdit::updateResource(const QString & text)
     // or it marks the volume/number of an Journalissue where an article was published in.
 
     // check if the resource has a journalissue attaced to it
-    Nepomuk::Resource journalIssue = resource().property(Nepomuk::Vocabulary::NBIB::inJournalIssue()).toResource();
+    Nepomuk::Resource journalIssue = resource().property(Nepomuk::Vocabulary::NBIB::journalIssue()).toResource();
 
     if(journalIssue.isValid()) {
         // in this case attach volume/number to the issue rather than the publication from resource()

@@ -154,7 +154,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             case Resource_Reference:
             {
                 QString authorSting;
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::usePublication()).toResource();
+                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
                 QList<Nepomuk::Resource> authorList = publication.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
 
                 foreach(Nepomuk::Resource a, authorList) {
@@ -204,7 +204,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             case Resource_Reference:
             {
                 QString titleString;
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::usePublication()).toResource();
+                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
                 titleString = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
                 if(titleString.isEmpty()) {
@@ -246,7 +246,7 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
             case Resource_Reference:
             {
                 QString dateString;
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::usePublication()).toResource();
+                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
                 dateString = publication.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
 
                 if(dateString.isEmpty()) {

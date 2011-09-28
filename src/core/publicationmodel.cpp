@@ -87,7 +87,7 @@ QVariant PublicationModel::data(const QModelIndex &index, int role) const
             QList<Nepomuk::Resource> authorList;
 
             if(m_selection == Resource_Reference) {
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::usePublication()).toResource();
+                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
                 authorList = publication.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
             }
             else {
@@ -105,7 +105,7 @@ QVariant PublicationModel::data(const QModelIndex &index, int role) const
             QString titleSting;
 
             if(m_selection == Resource_Reference) {
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::usePublication()).toResource();
+                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
                 titleSting = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
             }
             else {
@@ -118,7 +118,7 @@ QVariant PublicationModel::data(const QModelIndex &index, int role) const
             QString dateSting;
 
             if(m_selection == Resource_Reference) {
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::usePublication()).toResource();
+                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
                 dateSting = publication.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
             }
             else {
@@ -132,7 +132,7 @@ QVariant PublicationModel::data(const QModelIndex &index, int role) const
             QList<Nepomuk::Resource> authorList;
 
             if(m_selection == Resource_Reference) {
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::usePublication()).toResource();
+                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
                 authorList = publication.property(Nepomuk::Vocabulary::NBIB::editor()).toResourceList();
             }
             else {
@@ -151,7 +151,7 @@ QVariant PublicationModel::data(const QModelIndex &index, int role) const
             QList<Nepomuk::Resource> authorList;
 
             if(m_selection == Resource_Reference) {
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::usePublication()).toResource();
+                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
                 authorList = publication.property(Nepomuk::Vocabulary::NCO::publisher()).toResourceList();
             }
             else {
@@ -186,7 +186,7 @@ QVariant PublicationModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DecorationRole) {
         if(index.column() == Column_FileAvailable) {
             if(m_selection == Resource_Reference) {
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::usePublication()).toResource();
+                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
                 Nepomuk::Resource file = publication.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResource();
                 if(file.isValid()) {
                     return  KIcon(QLatin1String("bookmarks-organize"));

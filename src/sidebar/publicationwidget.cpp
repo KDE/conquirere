@@ -164,7 +164,7 @@ void PublicationWidget::createReference()
     KDialog showRefWidget;
 
     Nepomuk::Resource tempRef(QUrl(), Nepomuk::Vocabulary::NBIB::Reference());
-    tempRef.setProperty(Nepomuk::Vocabulary::NBIB::usePublication(), m_publication);
+    tempRef.setProperty(Nepomuk::Vocabulary::NBIB::publication(), m_publication);
 
     ReferenceWidget *rw = new ReferenceWidget();
     rw->setDialogMode(true);
@@ -219,16 +219,16 @@ void PublicationWidget::setupWidget()
 
     ui->editAuthors->setPropertyUrl( Nepomuk::Vocabulary::NCO::creator() );
     ui->editCopyright->setPropertyUrl( Nepomuk::Vocabulary::NIE::copyright() );
-    ui->editCrossref->setPropertyUrl( Nepomuk::Vocabulary::NBIB::crossref() );
+    ui->editCrossref->setPropertyUrl( Nepomuk::Vocabulary::NIE::links() );
     ui->editDate->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationDate() );
     ui->editDOI->setPropertyUrl( Nepomuk::Vocabulary::NBIB::doi() );
     ui->editEdition->setPropertyUrl( Nepomuk::Vocabulary::NBIB::edition() );
     ui->editEditor->setPropertyUrl( Nepomuk::Vocabulary::NBIB::editor() );
     ui->editEprint->setPropertyUrl( Nepomuk::Vocabulary::NBIB::eprint() );
-    ui->editHowPublished->setPropertyUrl( Nepomuk::Vocabulary::NBIB::howPublished() );
+    ui->editHowPublished->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationMethod() );
     ui->editISBN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isbn() );
     ui->editISSN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::issn() );
-    ui->editJournal->setPropertyUrl( Nepomuk::Vocabulary::NBIB::inJournalIssue() );
+    ui->editJournal->setPropertyUrl( Nepomuk::Vocabulary::NBIB::journalIssue() );
     ui->editLCCN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::lccn() );
     ui->editMRNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::mrNumber() );
     ui->editNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::number() );

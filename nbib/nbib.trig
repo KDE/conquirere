@@ -102,7 +102,7 @@ nbib: {
     nbib:Electronic
           a       rdfs:Class ;
           rdfs:comment "An electronic publication (for example website or presentations)" ;
-          rdfs:label "Website" ;
+          rdfs:label "Electronic source" ;
           rdfs:subClassOf nbib:Publication .
 
     nbib:InProceedings
@@ -198,8 +198,7 @@ nbib: {
          rdfs:comment "Links a document to its publication information." ;
          rdfs:label "publishedAs" ;
          rdfs:range nbib:Publication ;
-         nrl:inverseProperty nbib:isPublicationOf ;
-         nrl:maxCardinality 1 .
+         nrl:inverseProperty nbib:isPublicationOf .
 
    nbib:isPublicationOf
          a       rdf:Property ;
@@ -207,8 +206,7 @@ nbib: {
          rdfs:comment "Links a publication to its document." ;
          rdfs:label "isPublicationOf" ;
          rdfs:range nfo:Document ;
-         nrl:inverseProperty nbib:publishedAs ;
-         nrl:maxCardinality 1 .
+         nrl:inverseProperty nbib:publishedAs .
 
     nbib:citeKey
           a       rdf:Property ;
@@ -217,6 +215,7 @@ nbib: {
           rdfs:label "CiteKey" ;
           rdfs:subPropertyOf nie:identifier ;
           rdfs:range xsd:string ;
+          nrl:cardinality 1 ;
           nrl:maxCardinality 1 .
 
     nie:abstract
@@ -241,14 +240,6 @@ nbib: {
           rdfs:comment "A Table of Contents." ;
           rdfs:label "Contents" ;
           rdfs:range xsd:string ;
-          nrl:maxCardinality 1 .
-
-    nbib:crossref
-          a       rdf:Property ;
-          rdfs:domain nbib:Publication ;
-          rdfs:comment "The citekey of the cross-referenced entry." ;
-          rdfs:label "Crossref" ;
-          rdfs:range nbib:Reference ;
           nrl:maxCardinality 1 .
 
     nbib:doi
@@ -288,6 +279,8 @@ nbib: {
           rdfs:domain nbib:JournalIssue ;
           rdfs:comment "Connects an article to its journal issue" ;
           rdfs:label "hasArticle" ;
+          rdfs:subPropertyOf nie:hasLogicalPart ;
+          nrl:inverseProperty nbib:journalIssue ;
           rdfs:range nbib:Article .
 
     nbib:hasChapter
@@ -296,30 +289,23 @@ nbib: {
           rdfs:comment "The chapter number of the reference." ;
           rdfs:label "hasChapter" ;
           rdfs:range nbib:Chapter ;
+          rdfs:subPropertyOf nie:hasLogicalPart ;
           nrl:maxCardinality 1 .
 
-    nbib:usePublication
+    nbib:publication
           a       rdf:Property ;
           rdfs:domain nbib:Reference ;
           rdfs:comment "The publication used for this reference" ;
-          rdfs:label "usePublication" ;
+          rdfs:label "publication" ;
           rdfs:range nbib:Publication ;
           nrl:maxCardinality 1 .
 
-    nbib:howPublished
+    nbib:publicationMethod
           a       rdf:Property ;
           rdfs:domain nbib:Publication ;
           rdfs:comment "How it was published, if the publishing method is nonstandard." ;
-          rdfs:label "HowPublished" ;
+          rdfs:label "publicationMethod" ;
           rdfs:range xsd:string ;
-          nrl:maxCardinality 1 .
-
-    nbib:institution
-          a       rdf:Property ;
-          rdfs:domain nbib:Publication ;
-          rdfs:comment "The institution that was involved in the publishing, but not necessarily the publisher." ;
-          rdfs:label "Institution" ;
-          rdfs:range nco:OrganizationContact ;
           nrl:maxCardinality 1 .
 
     nbib:isbn
@@ -340,20 +326,24 @@ nbib: {
           rdfs:subPropertyOf nao:identifier ;
           nrl:maxCardinality 1 .
 
-    nbib:inJournalIssue
+    nbib:journalIssue
           a       rdf:Property ;
           rdfs:domain nbib:Article ;
           rdfs:comment "The journal issue or magazine the work was published in." ;
           rdfs:label "inJournalIssue" ;
           rdfs:range nbib:JournalIssue ;
+          nrl:inverseProperty nbib:hasArticle ;
+          nrl:cardinality 1 ;
           nrl:maxCardinality 1 .
 
-    nbib:fromJournal
+    nbib:journal
           a       rdf:Property ;
           rdfs:domain nbib:JournalIssue ;
           rdfs:comment "The journal this issue was published in." ;
-          rdfs:label "fromJournal" ;
+          rdfs:label "journal" ;
           rdfs:range nbib:Journal ;
+          nrl:inverseProperty nbib:hasIssue ;
+          nrl:cardinality 1 ;
           nrl:maxCardinality 1 .
 
     nbib:hasIssue
@@ -361,6 +351,7 @@ nbib: {
           rdfs:domain nbib:Journal ;
           rdfs:comment "Connects one or more issues from the journal they are published from" ;
           rdfs:label "hasIssue" ;
+          nrl:inverseProperty nbib:journal ;
           rdfs:range nbib:JournalIssue .
 
     nbib:lccn
@@ -380,14 +371,6 @@ nbib: {
           rdfs:range xsd:string ;
           rdfs:subPropertyOf nao:identifier ;
           nrl:maxCardinality 1 .
-
-    nbib:note
-          a       rdf:Property ;
-          rdfs:domain nbib:Reference ;
-          rdfs:comment "Miscellaneous extra information." ;
-          rdfs:label "Note" ;
-          rdfs:range xsd:string ;
-          rdfs:subPropertyOf nie:description, dc:description .
 
     nbib:number
           a       rdf:Property ;
@@ -426,7 +409,7 @@ nbib: {
           rdfs:domain nbib:Thesis ;
           rdfs:comment "The school where the thesis was written." ;
           rdfs:label "School" ;
-          rdfs:range nco:Contact ;
+          rdfs:range nco:OrganizationContact ;
           nrl:maxCardinality 1 .
 
     nbib:inSeries
@@ -468,7 +451,7 @@ nbib: {
           rdfs:domain nbib:Publication  ;
           rdfs:comment "The volume of a journal or multi-volume book." ;
           rdfs:label "Volume" ;
-          rdfs:range xsd:string ;
+          rdfs:range xsd:integer ;
           nrl:maxCardinality 1 .
 }
 

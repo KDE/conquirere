@@ -57,7 +57,7 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     ui->citeKeyEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
     ui->pagesEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::pages() );
     ui->pagesEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
-    ui->publicationEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::usePublication() );
+    ui->publicationEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publication() );
     ui->publicationEdit->setUseDetailDialog(true);
     ui->publicationEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
 
@@ -141,7 +141,7 @@ void ReferenceWidget::showPublicationList()
     if(ret == QDialog::Accepted) {
         Nepomuk::Resource publication = lpd.selectedPublication();
 
-        m_reference.setProperty(Nepomuk::Vocabulary::NBIB::usePublication(), publication );
+        m_reference.setProperty(Nepomuk::Vocabulary::NBIB::publication(), publication );
 
         ui->publicationEdit->resourceUpdatedExternally();
     }

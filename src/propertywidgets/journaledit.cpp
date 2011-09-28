@@ -61,7 +61,7 @@ void JournalEdit::updateResource(const QString & text)
         newJournal.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
 
         // connect journal and journalIssue
-        newJournalIssue.setProperty(Nepomuk::Vocabulary::NBIB::fromJournal(), newJournal);
+        newJournalIssue.setProperty(Nepomuk::Vocabulary::NBIB::journal(), newJournal);
         newJournal.addProperty(Nepomuk::Vocabulary::NBIB::hasIssue(), newJournalIssue);
 
         resource().addProperty( propertyUrl(), newJournalIssue);

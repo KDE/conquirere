@@ -112,7 +112,7 @@ bool BibTexExporter::exportReferences(const QString &filename)
         if(document.hasType( Nepomuk::Vocabulary::NBIB::Publication() )) {
             // we have a BibReference
             reference = document;
-            publication = reference.property(Nepomuk::Vocabulary::NBIB::usePublication()).toResource();
+            publication = reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
         }
         else {
             //we have a Document with attached BibResource
@@ -219,7 +219,7 @@ bool BibTexExporter::exportReferences(const QString &filename)
 
         //now adopt entryString if we have a book with pages or chapter to Inbook
         if( fullstring.contains(QLatin1String("pages =")) ||
-            fullstring.contains(QLatin1String("chapter =")) ) {
+                fullstring.contains(QLatin1String("chapter =")) ) {
             entryString = QLatin1String("Inbook");
         }
 
@@ -640,12 +640,17 @@ QString BibTexExporter::getAnnote(const Nepomuk::Resource &document)
 
 QString BibTexExporter::getCrossref(const Nepomuk::Resource &document)
 {
-    Nepomuk::Resource crossRef = document.property(Nepomuk::Vocabulary::NBIB::crossref()).toResource();
+    QList<Nepomuk::Resource> crossRef = document.property(Nepomuk::Vocabulary::NIE::links()).toResourceList();
 
     QString crossRefString;
-    if(crossRef.isValid()) {
-        crossRefString = crossRef.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
+    foreach(Nepomuk::Resource nr, crossRef) {
+        QString citeKey = nr.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
+        if(!citeKey.isEmpty()) {
+            crossRefString.append(citeKey);
+            crossRefString.append(QLatin1String("; "));
+        }
     }
+    crossRefString.chop(2);
 
     if(!crossRefString.isEmpty()) {
         crossRefString.prepend(QLatin1String("\tcrossref = \""));
@@ -732,7 +737,7 @@ QString BibTexExporter::getHasChapter(const Nepomuk::Resource &document)
 
 QString BibTexExporter::getHowpublished(const Nepomuk::Resource &document)
 {
-    QString hpString = document.property(Nepomuk::Vocabulary::NBIB::howPublished()).toString();
+    QString hpString = document.property(Nepomuk::Vocabulary::NBIB::publicationMethod()).toString();
 
     if(!hpString.isEmpty()) {
         hpString.prepend(QLatin1String("\thowpublished = \""));
@@ -744,11 +749,11 @@ QString BibTexExporter::getHowpublished(const Nepomuk::Resource &document)
 
 QString BibTexExporter::getInstitution(const Nepomuk::Resource &document)
 {
-    QString institutionString = document.property(Nepomuk::Vocabulary::NBIB::institution()).toString();
+    QString institutionString;// = document.property(Nepomuk::Vocabulary::NBIB::institution()).toString();
 
     if(!institutionString.isEmpty()) {
         institutionString.prepend(QLatin1String("\tinstitution = \""));
-        institutionString.append(QLatin1String("\""));
+        institutionString.append(QLatin1String("TODO\""));
     }
 
     return institutionString;
@@ -780,7 +785,7 @@ QString BibTexExporter::getISSN(const Nepomuk::Resource &document)
 
 QString BibTexExporter::getInJournal(const Nepomuk::Resource &document)
 {
-    Nepomuk::Resource journalIssue = document.property(Nepomuk::Vocabulary::NBIB::inJournalIssue()).toResource();
+    Nepomuk::Resource journalIssue = document.property(Nepomuk::Vocabulary::NBIB::journalIssue()).toResource();
 
     if(!journalIssue.isValid()) {
         return QString(); // no journal available for his resource
@@ -837,7 +842,7 @@ QString BibTexExporter::getMrNumber(const Nepomuk::Resource &document)
 
 QString BibTexExporter::getNote(const Nepomuk::Resource &document)
 {
-    QString noteString = document.property(Nepomuk::Vocabulary::NBIB::note()).toString();
+    QString noteString = document.property(Nepomuk::Vocabulary::NIE::description()).toString();
 
     if(!noteString.isEmpty()) {
         noteString.prepend(QLatin1String("\tnote = \""));
@@ -855,12 +860,12 @@ QString BibTexExporter::getOrganization(const Nepomuk::Resource &document)
     //be the nco:affiliation of the publisher nco:[Person]Contact.
     //QString orgString = document.property(Nepomuk::Vocabulary::NBIB::organization()).toString();
 
-//    if(!orgString.isEmpty()) {
-//        orgString.prepend(QLatin1String("\torganization = \""));
-//        orgString.append(QLatin1String("\""));
-//    }
+    //    if(!orgString.isEmpty()) {
+    //        orgString.prepend(QLatin1String("\torganization = \""));
+    //        orgString.append(QLatin1String("\""));
+    //    }
 
-//    return orgString;
+    //    return orgString;
     return QString();
 }
 
@@ -882,7 +887,7 @@ QString BibTexExporter::getPublisher(const Nepomuk::Resource &document)
     Nepomuk::Resource publisher = document.property(Nepomuk::Vocabulary::NCO::creator()).toResource();
 
     //TODO don't rely only on fullname of NC::Contact
-   QString publisherString = publisher.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+    QString publisherString = publisher.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
 
     if(!publisherString.isEmpty()) {
         publisherString.prepend(QLatin1String("\tpublisher = \""));
@@ -900,11 +905,11 @@ QString BibTexExporter::getPublicationDate(const Nepomuk::Resource &document)
     QString year;
     QString month;
     QString day;
-      if (rx.indexIn(pdString) != -1) {
-          year = rx.cap(1);
-          month = rx.cap(2);
-          day = rx.cap(3);
-      }
+    if (rx.indexIn(pdString) != -1) {
+        year = rx.cap(1);
+        month = rx.cap(2);
+        day = rx.cap(3);
+    }
 
     QString publicationDate;
     if(!month.isEmpty()) {
@@ -972,7 +977,7 @@ QString BibTexExporter::getSchool(const Nepomuk::Resource &document)
     Nepomuk::Resource school = document.property(Nepomuk::Vocabulary::NBIB::school()).toResource();
 
     //TODO don't rely only on fullname of NC::Contact
-   QString schoolString = school.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+    QString schoolString = school.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
 
     if(!schoolString.isEmpty()) {
         schoolString.prepend(QLatin1String("\tschool = \""));
