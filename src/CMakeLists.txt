@@ -9,6 +9,7 @@ set(conquirere_SRCS
     core/publicationmodel.cpp
     core/documentmodel.cpp
     core/notemodel.cpp
+    core/bookmarkmodel.cpp
 
     mainui/newprojectdialog.cpp
     mainui/newprojectdialog.cpp

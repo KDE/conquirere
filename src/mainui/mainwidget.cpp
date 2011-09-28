@@ -90,6 +90,7 @@ void MainWidget::switchView(ResourceSelection selection, Library *p)
         m_documentView->horizontalHeader()->resizeSection(1,25);
         break;
     case Resource_Website:
+        hv->setResizeMode(0, QHeaderView::Stretch);
         break;
     case Resource_Note:
         hv->setResizeMode(0, QHeaderView::Stretch);

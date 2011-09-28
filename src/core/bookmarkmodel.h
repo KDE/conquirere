@@ -15,17 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NOTEMODEL_H
-#define NOTEMODEL_H
+#ifndef BOOKMARKMODEL_H
+#define BOOKMARKMODEL_H
 
 #include "nepomukmodel.h"
 
-class NoteModel : public NepomukModel
+class BookmarkModel : public NepomukModel
 {
     Q_OBJECT
 public:
-    explicit NoteModel(QObject *parent = 0);
-    ~NoteModel();
+    explicit BookmarkModel(QObject *parent = 0);
+    ~BookmarkModel();
 
     // implemented from QAbstractTableModel
     int columnCount(const QModelIndex &parent) const;
@@ -34,7 +34,6 @@ public:
 
 public slots:
     void startFetchData();
-
 };
 
-#endif // NOTEMODEL_H
+#endif // BOOKMARKMODEL_H

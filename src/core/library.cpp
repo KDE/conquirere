@@ -21,6 +21,7 @@
 #include "publicationmodel.h"
 #include "documentmodel.h"
 #include "notemodel.h"
+#include "bookmarkmodel.h"
 
 #include "../core/resourcemodel.h"
 
@@ -256,10 +257,10 @@ void Library::setupModels()
     documentModel->setResourceType(Resource_Document);
     m_resources.insert(Resource_Document, documentModel);
 
-    ResourceModel *WebsiteModel = new ResourceModel;
-    WebsiteModel->setLibrary(this);
-    WebsiteModel->setResourceType(Resource_Website);
-    m_resources.insert(Resource_Website, WebsiteModel);
+    BookmarkModel *bookmarkModel = new BookmarkModel;
+    bookmarkModel->setLibrary(this);
+    bookmarkModel->setResourceType(Resource_Website);
+    m_resources.insert(Resource_Website, bookmarkModel);
 
     PublicationModel *ReferencesModel = new PublicationModel;
     ReferencesModel->setLibrary(this);
