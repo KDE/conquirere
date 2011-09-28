@@ -129,10 +129,22 @@ nbib: {
           rdfs:label "Phdthesis" ;
           rdfs:subClassOf nbib:Thesis .
 
+    nbib:Presentation
+          a       rdfs:Class ;
+          rdfs:comment "Slides for a presentation" ;
+          rdfs:label "Presentation" ;
+          rdfs:subClassOf nbib:Publication .
+
     nbib:Proceedings
           a       rdfs:Class ;
           rdfs:comment "The proceedings of a conference." ;
           rdfs:label "Proceedings" ;
+          rdfs:subClassOf nbib:Publication .
+
+    nbib:Script
+          a       rdfs:Class ;
+          rdfs:comment "The script for something (a lecture for ecxample)" ;
+          rdfs:label "Script" ;
           rdfs:subClassOf nbib:Publication .
 
     nbib:Techreport
@@ -226,13 +238,6 @@ nbib: {
           rdfs:range xsd:string ;
           rdfs:subPropertyOf nao:description ;
           nrl:maxCardinality 1 .
-
-    nbib:annote
-          a       rdf:Property ;
-          rdfs:domain nbib:Reference ;
-          rdfs:comment "An annotation for annotated bibliography styles (not typical)." ;
-          rdfs:label "Annote" ;
-          rdfs:range xsd:string .
 
     nbib:contents
           a       rdf:Property ;
@@ -419,6 +424,7 @@ nbib: {
           rdfs:label "inSeries" ;
           rdfs:range nbib:BookSeries ;
           nrl:inverseProperty nbib:seriesOf ;
+          rdfs:subPropertyOf nie:hasLogicalPart ;
           nrl:maxCardinality 1 .
 
     nbib:seriesOf
@@ -427,6 +433,7 @@ nbib: {
           rdfs:comment "The book this series belongs to" ;
           rdfs:label "seriesOf" ;
           rdfs:range nbib:Book ;
+          rdfs:subPropertyOf nie:hasLogicalPart ;
           nrl:inverseProperty nbib:inSeries .
 
     nbib:type

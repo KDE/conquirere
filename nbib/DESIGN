@@ -11,45 +11,49 @@ should be converted into the docbook description later on.
 
 The table contains standard BibTeX and several extensions and their Nepomuk counterpart.
 
-  BibTeX	|  Nepomuk ontology	| Type range
---------------------------------------
-@Type		|  nbib:bibResourceType | nbib:Book, nbib:Article, nbib:Techreport etc
-CITEKEY		|  nbib:citeKey		| xsd:string
-abstract	|  nbib:abstract	| xsd:string
-address		|  nco:publisher	| nco:Contact -> nco:hasPostalAddress
-*annote		|  nbib:annote		| xsd:string
-author		|  nco:creator		| nco:Contact -> nco:fullname
-booktitle	|  nie:title		| xsd:string
-*chapter	|  nbib:chapter		|
-contents	|  nbib:contents	| xsd:string
-copyright	|  nie:copyright	| xsd:string
-crossref	|  nbib:crossref	| nbib:BibReference -> nbib:citeKey
-doi		|  nbib:doi		| xsd:string
-*edition	|  nbib:edition		| xsd:string
-editor		|  nco:editor		| nco:Contact -> nco:fullname
-eprint		|  nbib:eprint		| xsd:string
-howpublished	|  nbib:howPublished	| xsd:string
-*institution	|  nbib:institution	| xsd:string
-isbn		|  nbib:isbn		| xsd:string
-issn		|  nbib:issn		| xsd:string
-*journal	|  nbib:journal		|
-key		|  ---
-language	|  nie:language		| xsd:string
-lccn		|  nbib:lccn		| xsd:string
-month		|  nbib:publicationDate	| xsd:date
-mrnumber	|  nbib:mrnumber	| xsd:string
-note		|  nbib:note		| xsd:string
-number		|  nbib:number		|
-organization	|  nbib:organization	| xsd:string
-pages		|  nbib:pages		|
-publisher	|  nco:publisher	| nco:Contact -> nco:fullname
-school		|  nco:school           | nco:Contact -> nco:fullname
-*series		|  nbib:series		| xsd:string
-title		|  nie:title		| xsd:string
-type		|  nbib:type		| xsd:string
-url		|  
-volume		|  nbib:volume		| xsd:string
-year		|  nbib:publicationDate	| xsd:date
-weblastAccess   |  nuao:lastUsage       | xsd:dateTime
+This list shows how to get the rigth values from the nbib:Reference resource
+
+address		| nbib:publication => nco:publisher => nco:hasPostalAddress
+annote		| nbib:publication => nie:comment
+author		| nbib:publication => nco:creator => nco:fullname
+booktitle	| nbib:hasChapter  => nie:isLogicalPartOf => nie:title
+chapter		| nbib:hasChapter  => nie:title
+citekey		| nbib:citeKey
+crossref	| nbib:publication => nie:links => QList<nbib:Reference> => nbib:citeKey
+edition		| nbib:publication => nbib:edition
+editor		| nbib:publication => nco:editor
+eprint		| nbib:publication => nbib:eprint
+howpublished	| nbib:publication => nbib:publicationMethod
+institution	| nbib:publication => nco:publisher => nco:affillation => nco:org => nco:fullname
+journal		| nbib:publication => nbib:journalIssue => nbib:journal => nbib:title
+month		| nbib:publication => nie:publicationDate
+note		| nbib:publication => nbib:publicationDate
+number		| if(nbib:Publication == Article) nbib:publication => nbib:journalIssue => nbib:number
+		| else nbib:publication =>  nbib:number
+organization	| nbib:publication => nbib:organization => nco:fullname (only valid for nbib:Proceedings)
+pages		| nbib:pages
+publisher	| nbib:publication => nco:publisher => nco:fullname
+school		| nbib:publication => nbib:school => nco:fullname (only valid for nbib:Thesis and sub classes)
+series		| nbib:publication => nbib:inSeries => nie:title (only valid for nbib:Book)
+title		| nbib:publication => nie:title
+type		| nbib:publication => nbib:type (only valid for nbib:Techreport)
+url		| ???
+volume		| if(nbib:Publication == Article) nbib:publication => nbib:journalIssue => nbib:volume
+		| else nbib:publication =>  nbib:volume
+year		| nbib:publication => nie:publicationDate
+
+Additional properties
+
+abstract	| nbib:publication => nie:abstract
+contents	| nbib:publication => nie:content
+copyright	| nbib:publication => nie:copyright
+doi		| nbib:publication => nbib:doi
+isbn		| nbib:publication => nbib:isbn
+issn		| nbib:publication => nbib:issn
+language	| nbib:publication => nie:language
+lccn		| nbib:publication => nbib:lccn
+mrnumber	| nbib:publication => nbib:mrNumber
+weblastAccess   | nbib:publication => nuao:lastUsage
 
 Now some examples how this relates to real world examples:
+... TODO

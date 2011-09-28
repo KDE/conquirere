@@ -628,7 +628,7 @@ bool BibTexExporter::checkWebsiteCiteContent(const QString &citecontent)
 
 QString BibTexExporter::getAnnote(const Nepomuk::Resource &document)
 {
-    QString annoteString = document.property(Nepomuk::Vocabulary::NBIB::annote()).toString();
+    QString annoteString = document.property(Nepomuk::Vocabulary::NIE::comment()).toString();
 
     if(!annoteString.isEmpty()) {
         annoteString.prepend(QLatin1String("\tannote = \""));
