@@ -73,7 +73,7 @@ nbib: {
           a       rdfs:Class ;
           rdfs:comment "A Bachelor thesis." ;
           rdfs:label "Bachelorthesis" ;
-          rdfs:subClassOf nbib:Publication .
+          rdfs:subClassOf nbib:Thesis .
 
     nbib:Book
           a       rdfs:Class ;
@@ -115,13 +115,13 @@ nbib: {
           a       rdfs:Class ;
           rdfs:comment "A Master's thesis." ;
           rdfs:label "Mastersthesis" ;
-          rdfs:subClassOf nbib:Publication .
+          rdfs:subClassOf nbib:Thesis .
 
     nbib:PhdThesis
           a       rdfs:Class ;
           rdfs:comment "A PhD thesis." ;
           rdfs:label "Phdthesis" ;
-          rdfs:subClassOf nbib:Publication .
+          rdfs:subClassOf nbib:Thesis .
 
     nbib:Presentation
           a       rdfs:Class ;
@@ -147,6 +147,12 @@ nbib: {
           rdfs:label "Techreport" ;
           rdfs:subClassOf nbib:Publication .
 
+    nbib:Thesis
+          a       rdfs:Class ;
+          rdfs:comment "A general thesis." ;
+          rdfs:label "Thesis" ;
+          rdfs:subClassOf nbib:Publication .
+
     nbib:Unpublished
           a       rdfs:Class ;
           rdfs:comment "A document having an author and title, but not formally published." ;
@@ -165,7 +171,7 @@ nbib: {
 
     nbib:Chapter
           a       rdfs:Class ;
-          rdfs:comment "A chapter of a book." ;
+          rdfs:comment "A chapter of a publication." ;
           rdfs:label "Chapter" ;
           rdfs:subClassOf nie:InformationElement .
 
@@ -232,14 +238,6 @@ nbib: {
           rdfs:subPropertyOf nao:description ;
           nrl:maxCardinality 1 .
 
-    nbib:contents
-          a       rdf:Property ;
-          rdfs:domain nbib:Publication ;
-          rdfs:comment "A Table of Contents." ;
-          rdfs:label "Contents" ;
-          rdfs:range xsd:string ;
-          nrl:maxCardinality 1 .
-
     nfo:doi
           a       rdf:Property ;
           rdfs:domain nie:InformationElement ;
@@ -289,6 +287,25 @@ nbib: {
           rdfs:label "referencedChapter" ;
           rdfs:range nbib:Chapter ;
           rdfs:subPropertyOf nie:hasLogicalPart ;
+          nrl:maxCardinality 1 .
+
+    nbib:chapter
+          a       rdf:Property ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "Connects a publication to one of its chapters" ;
+          rdfs:label "chapter" ;
+          rdfs:subPropertyOf nie:isLogicalPartOf ;
+          nrl:inverseProperty nbib:chapterOf ;
+          rdfs:range nbib:Chapter .
+
+    nbib:chapterOf
+          a       rdf:Property ;
+          rdfs:domain nbib:Chapter ;
+          rdfs:comment "Connects a chapter to the publication it is from" ;
+          rdfs:label "chapterOf" ;
+          rdfs:subPropertyOf nie:hasLogicalPart ;
+          nrl:inverseProperty nbib:chapterOf ;
+          rdfs:range nbib:Publication ;
           nrl:maxCardinality 1 .
 
     nbib:publication

@@ -16,8 +16,8 @@ This list shows how to get the rigth values from the nbib:Reference resource
 address		| nbib:publication => nco:publisher => nco:hasPostalAddress
 annote		| nbib:publication => nie:comment
 author		| nbib:publication => nco:creator => nco:fullname
-booktitle	| nbib:hasChapter  => nie:isLogicalPartOf => nie:title
-chapter		| nbib:hasChapter  => nie:title
+booktitle	| nbib:publication => nie:title
+chapter		| nbib:referencedChapter  => nie:title
 citekey		| nbib:citeKey
 crossref	| nbib:publication => nie:links => QList<nbib:Reference> => nbib:citeKey
 edition		| nbib:publication => nbib:edition
