@@ -27,17 +27,17 @@ howpublished	| nbib:publication => nbib:publicationMethod
 institution	| nbib:publication => nco:publisher => nco:affillation => nco:org => nco:fullname
 journal		| nbib:publication => nbib:journalIssue => nbib:journal => nbib:title
 month		| nbib:publication => nie:publicationDate
-note		| nbib:publication => nbib:publicationDate
+note		| nbib:publication => nie:description
 number		| if(nbib:Publication == Article) nbib:publication => nbib:journalIssue => nbib:number
 		| else nbib:publication =>  nbib:number
 organization	| nbib:publication => nbib:organization => nco:fullname (only valid for nbib:Proceedings)
 pages		| nbib:pages
 publisher	| nbib:publication => nco:publisher => nco:fullname
-school		| nbib:publication => nbib:school => nco:fullname (only valid for nbib:Thesis and sub classes)
+school		| nbib:publication => nco:publisher => nco:affillation => nco:org => nco:fullname (only valid for nbib:Thesis and sub classes)
 series		| nbib:publication => nbib:inSeries => nie:title (only valid for nbib:Book)
 title		| nbib:publication => nie:title
 type		| nbib:publication => nbib:type (only valid for nbib:Techreport)
-url		| ???
+url		| nbib:publication => nbib:isPublicationOf => nco:url (only valid if isPublicationOf is of type nfo:RemoteDataObject or nfo:WebDataObject)
 volume		| if(nbib:Publication == Article) nbib:publication => nbib:journalIssue => nbib:volume
 		| else nbib:publication =>  nbib:volume
 year		| nbib:publication => nie:publicationDate
@@ -47,7 +47,7 @@ Additional properties
 abstract	| nbib:publication => nie:abstract
 contents	| nbib:publication => nie:content
 copyright	| nbib:publication => nie:copyright
-doi		| nbib:publication => nbib:doi
+doi		| nbib:publication => nfo:doi
 isbn		| nbib:publication => nbib:isbn
 issn		| nbib:publication => nbib:issn
 language	| nbib:publication => nie:language

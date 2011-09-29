@@ -69,17 +69,11 @@ nbib: {
           rdfs:label "Article" ;
           rdfs:subClassOf nbib:Publication .
 
-    nbib:Thesis
-          a       rdfs:Class ;
-          rdfs:comment "A general thesis." ;
-          rdfs:label "Thesis" ;
-          rdfs:subClassOf nbib:Publication .
-
     nbib:BachelorThesis
           a       rdfs:Class ;
           rdfs:comment "A Bachelor thesis." ;
           rdfs:label "Bachelorthesis" ;
-          rdfs:subClassOf nbib:Thesis .
+          rdfs:subClassOf nbib:Publication .
 
     nbib:Book
           a       rdfs:Class ;
@@ -121,13 +115,13 @@ nbib: {
           a       rdfs:Class ;
           rdfs:comment "A Master's thesis." ;
           rdfs:label "Mastersthesis" ;
-          rdfs:subClassOf nbib:Thesis .
+          rdfs:subClassOf nbib:Publication .
 
     nbib:PhdThesis
           a       rdfs:Class ;
           rdfs:comment "A PhD thesis." ;
           rdfs:label "Phdthesis" ;
-          rdfs:subClassOf nbib:Thesis .
+          rdfs:subClassOf nbib:Publication .
 
     nbib:Presentation
           a       rdfs:Class ;
@@ -185,7 +179,7 @@ nbib: {
           a       rdfs:Class ;
           rdfs:comment "Superclass to represent a series of some published data. (Book Series, Journal with several issues etc)" ;
           rdfs:label "Series" ;
-          rdfs:subClassOf nie:InformationElement .
+          rdfs:subClassOf nie:Collection .
 
     nbib:BookSeries
           a       rdfs:Class ;
@@ -198,7 +192,6 @@ nbib: {
           rdfs:comment "A Journal which publish single journal issues." ;
           rdfs:label "Journal" ;
           rdfs:subClassOf nbib:Series .
-
 
 ####################################################################
 #
@@ -241,15 +234,15 @@ nbib: {
 
     nbib:contents
           a       rdf:Property ;
-          rdfs:domain nbib:Reference ;
+          rdfs:domain nbib:Publication ;
           rdfs:comment "A Table of Contents." ;
           rdfs:label "Contents" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:doi
+    nfo:doi
           a       rdf:Property ;
-          rdfs:domain nbib:Publication ;
+          rdfs:domain nie:InformationElement ;
           rdfs:comment "The Digital object identifier. see http://www.doi.org/ for more information" ;
           rdfs:label "DOI" ;
           rdfs:range xsd:string ;
@@ -277,6 +270,7 @@ nbib: {
           rdfs:comment "A specification of an electronic publication, often a preprint or a technical report." ;
           rdfs:label "Eprint" ;
           rdfs:range xsd:string ;
+          rdfs:subPropertyOf nao:identifier ;
           nrl:maxCardinality 1 .
 
     nbib:hasArticle
@@ -288,11 +282,11 @@ nbib: {
           nrl:inverseProperty nbib:journalIssue ;
           rdfs:range nbib:Article .
 
-    nbib:hasChapter
+    nbib:referencedChapter
           a       rdf:Property ;
           rdfs:domain nbib:Reference ;
           rdfs:comment "The chapter number of the reference." ;
-          rdfs:label "hasChapter" ;
+          rdfs:label "referencedChapter" ;
           rdfs:range nbib:Chapter ;
           rdfs:subPropertyOf nie:hasLogicalPart ;
           nrl:maxCardinality 1 .
@@ -324,8 +318,8 @@ nbib: {
 
     nbib:issn
           a       rdf:Property ;
-          rdfs:domain nbib:Publication ;
-          rdfs:comment "The International Standard Serial Number. Used to identify a journal." ;
+          rdfs:domain nbib:Series ;
+          rdfs:comment "The International Standard Serial Number. Used to identify a series of publications." ;
           rdfs:label "ISSN" ;
           rdfs:range xsd:string ;
           rdfs:subPropertyOf nao:identifier ;
@@ -377,11 +371,11 @@ nbib: {
           rdfs:subPropertyOf nao:identifier ;
           nrl:maxCardinality 1 .
 
-    nbib:number
+    nbib:issueNumber
           a       rdf:Property ;
           rdfs:domain nbib:Publication ;
           rdfs:comment "The '(issue) number' of a journal, magazine, or tech-report, if applicable. (Most publications have a 'volume', but no 'number' field.)." ;
-          rdfs:label "Number" ;
+          rdfs:label "Issue Number" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
@@ -404,17 +398,9 @@ nbib: {
     nie:publicationDate
           a       rdf:Property ;
           rdfs:domain nie:InformationElement ;
-          rdfs:comment "The date of the publication (or, if unpublished, the month of creation)" ;
+          rdfs:comment "The date of the publication" ;
           rdfs:label "Publication Date" ;
           rdfs:range xsd:dateTime ;
-          nrl:maxCardinality 1 .
-
-    nbib:school
-          a       rdf:Property ;
-          rdfs:domain nbib:Thesis ;
-          rdfs:comment "The school where the thesis was written." ;
-          rdfs:label "School" ;
-          rdfs:range nco:OrganizationContact ;
           nrl:maxCardinality 1 .
 
     nbib:inSeries
@@ -438,7 +424,7 @@ nbib: {
 
     nbib:type
           a       rdf:Property ;
-          rdfs:domain nbib:Publication ;
+          rdfs:domain nbib:Techreport ;
           rdfs:comment "The type of tech-report, for example, 'Research Note'." ;
           rdfs:label "Type" ;
           rdfs:range xsd:string ;

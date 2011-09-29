@@ -51,7 +51,7 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     ui->removeButton->setIcon(KIcon(QLatin1String("document-close")));
 
     //set propertyURL of the edit elements
-    ui->chapterEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::hasChapter() );
+    ui->chapterEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::referencedChapter() );
     ui->chapterEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
     ui->citeKeyEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::citeKey() );
     ui->citeKeyEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);

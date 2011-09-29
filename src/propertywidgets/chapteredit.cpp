@@ -65,7 +65,7 @@ void ChapterEdit::updateResource(const QString & text)
     Nepomuk::Resource bookResource = resource().property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
 
     bookResource.setProperty(Nepomuk::Vocabulary::NIE::hasLogicalPart(),
-                             resource().property( Nepomuk::Vocabulary::NBIB::hasChapter()).toResource());
+                             resource().property( Nepomuk::Vocabulary::NBIB::referencedChapter()).toResource());
     resource().setProperty(Nepomuk::Vocabulary::NIE::isLogicalPartOf(), bookResource);
 
 }

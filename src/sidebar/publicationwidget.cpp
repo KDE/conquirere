@@ -108,11 +108,6 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
         case BibType_JournalIssue:
             newtype.append(Nepomuk::Vocabulary::NBIB::Collection());
             break;
-        case BibType_Mastersthesis:
-        case BibType_Bachelorthesis:
-        case BibType_Phdthesis:
-            newtype.append(Nepomuk::Vocabulary::NBIB::Thesis());
-            break;
         }
 
         m_publication.setTypes(newtype);
@@ -231,9 +226,8 @@ void PublicationWidget::setupWidget()
     ui->editJournal->setPropertyUrl( Nepomuk::Vocabulary::NBIB::journalIssue() );
     ui->editLCCN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::lccn() );
     ui->editMRNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::mrNumber() );
-    ui->editNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::number() );
+    ui->editNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::issueNumber() );
     ui->editPublisher->setPropertyUrl( Nepomuk::Vocabulary::NCO::publisher() );
-    ui->editSchool->setPropertyUrl( Nepomuk::Vocabulary::NBIB::school() );
     ui->editSeries->setPropertyUrl( Nepomuk::Vocabulary::NBIB::inSeries() );
     ui->editTitle->setPropertyUrl( Nepomuk::Vocabulary::NIE::title() );
     ui->editType->setPropertyUrl( Nepomuk::Vocabulary::NBIB::type() );
@@ -257,7 +251,6 @@ void PublicationWidget::setupWidget()
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editMRNumber, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editNumber, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPublisher, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editSchool, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editSeries, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editTitle, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editType, SLOT(setResource(Nepomuk::Resource&)));
@@ -444,7 +437,7 @@ void PublicationWidget::layoutArticle()
     ui->editHowPublished->setEnabled(false);
 
 
-    ui->editSchool->setEnabled(false);
+
     ui->editSeries->setEnabled(false);
     ui->editUrl->setEnabled(false);
     ui->editType->setEnabled(false);
@@ -472,7 +465,7 @@ void PublicationWidget::layoutBook()
     ui->editHowPublished->setEnabled(false);
 
 
-    ui->editSchool->setEnabled(false);
+
     ui->editSeries->setEnabled(false);
     ui->editUrl->setEnabled(false);
     ui->editType->setEnabled(false);
@@ -501,7 +494,7 @@ void PublicationWidget::layoutBooklet()
     ui->editEprint->setEnabled(false);
 
 
-    ui->editSchool->setEnabled(false);
+
     ui->editSeries->setEnabled(false);
     ui->editUrl->setEnabled(false);
     ui->editType->setEnabled(false);
@@ -530,7 +523,7 @@ void PublicationWidget::layoutCollection()
     ui->editEprint->setEnabled(false);
 
 
-    ui->editSchool->setEnabled(false);
+
     ui->editSeries->setEnabled(false);
     ui->editUrl->setEnabled(false);
     ui->editType->setEnabled(false);
@@ -558,7 +551,7 @@ void PublicationWidget::layoutInproceedings()
     ui->editEprint->setEnabled(false);
 
 
-    ui->editSchool->setEnabled(false);
+
     ui->editSeries->setEnabled(true);
     ui->editUrl->setEnabled(false);
     ui->editType->setEnabled(false);
@@ -586,7 +579,7 @@ void PublicationWidget::layoutManual()
     ui->editEprint->setEnabled(false);
 
 
-    ui->editSchool->setEnabled(false);
+
     ui->editSeries->setEnabled(false);
     ui->editUrl->setEnabled(false);
     ui->editType->setEnabled(false);
@@ -602,7 +595,7 @@ void PublicationWidget::layoutBachelorthesis()
     ui->editCopyright->setEnabled(true);
 
     ui->editDate->setEnabled(true);
-    ui->editSchool->setEnabled(true);
+
 
     ui->editHowPublished->setEnabled(false);
     ui->editPublisher->setEnabled(false);
@@ -630,7 +623,7 @@ void PublicationWidget::layoutMastersthesis()
     ui->editCopyright->setEnabled(true);
 
     ui->editDate->setEnabled(true);
-    ui->editSchool->setEnabled(true);
+
 
     ui->editHowPublished->setEnabled(false);
     ui->editPublisher->setEnabled(false);
@@ -670,7 +663,7 @@ void PublicationWidget::layoutMisc()
     ui->editEprint->setEnabled(true);
 
 
-    ui->editSchool->setEnabled(true);
+
     ui->editSeries->setEnabled(true);
     ui->editUrl->setEnabled(true);
     ui->editType->setEnabled(true);
@@ -686,7 +679,7 @@ void PublicationWidget::layoutPhdthesis()
     ui->editCopyright->setEnabled(true);
 
     ui->editDate->setEnabled(true);
-    ui->editSchool->setEnabled(true);
+
 
     ui->editHowPublished->setEnabled(false);
     ui->editPublisher->setEnabled(false);
@@ -726,7 +719,7 @@ void PublicationWidget::layoutProceedings()
     ui->editEditor->setEnabled(true);
     ui->editEprint->setEnabled(false);
 
-    ui->editSchool->setEnabled(false);
+
     ui->editSeries->setEnabled(false);
     ui->editUrl->setEnabled(false);
     ui->editType->setEnabled(false);
@@ -755,7 +748,7 @@ void PublicationWidget::layoutTechreport()
     ui->editEditor->setEnabled(false);
     ui->editEprint->setEnabled(false);
 
-    ui->editSchool->setEnabled(false);
+
     ui->editSeries->setEnabled(false);
     ui->editUrl->setEnabled(false);
 }
@@ -782,7 +775,7 @@ void PublicationWidget::layoutUnpublished()
     ui->editEprint->setEnabled(false);
 
 
-    ui->editSchool->setEnabled(false);
+
     ui->editSeries->setEnabled(false);
     ui->editUrl->setEnabled(false);
     ui->editType->setEnabled(false);
@@ -811,7 +804,7 @@ void PublicationWidget::layoutPatent()
     ui->editEdition->setEnabled(false);
     ui->editEditor->setEnabled(false);
     ui->editEprint->setEnabled(false);
-    ui->editSchool->setEnabled(false);
+
     ui->editSeries->setEnabled(false);
     ui->editUrl->setEnabled(false);
     ui->editType->setEnabled(false);
@@ -840,7 +833,7 @@ void PublicationWidget::layoutElectronic()
     ui->editEdition->setEnabled(false);
     ui->editEditor->setEnabled(false);
     ui->editEprint->setEnabled(false);
-    ui->editSchool->setEnabled(false);
+
     ui->editSeries->setEnabled(false);
     ui->editType->setEnabled(false);
 }
@@ -867,7 +860,7 @@ void PublicationWidget::layoutJournalIssue()
     ui->editEdition->setEnabled(false);
     ui->editEditor->setEnabled(false);
     ui->editEprint->setEnabled(true);
-    ui->editSchool->setEnabled(false);
+
     ui->editSeries->setEnabled(false);
     ui->editType->setEnabled(false);
 }

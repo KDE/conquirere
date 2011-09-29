@@ -718,7 +718,7 @@ QString BibTexExporter::getEprint(const Nepomuk::Resource &document)
 
 QString BibTexExporter::getHasChapter(const Nepomuk::Resource &document)
 {
-    Nepomuk::Resource chapter = document.property(Nepomuk::Vocabulary::NBIB::hasChapter()).toResource();
+    Nepomuk::Resource chapter = document.property(Nepomuk::Vocabulary::NBIB::referencedChapter()).toResource();
 
     QString chapterTitle = chapter.property(Nepomuk::Vocabulary::NIE::title()).toString();
     Nepomuk::Resource book = chapter.property(Nepomuk::Vocabulary::NIE::hasLogicalPart()).toResource();
@@ -792,7 +792,7 @@ QString BibTexExporter::getInJournal(const Nepomuk::Resource &document)
     }
 
     // if we have a JournalIssue, get the journal contact and number/volume
-    QString journalNumber = journalIssue.property(Nepomuk::Vocabulary::NBIB::number()).toString();
+    QString journalNumber = journalIssue.property(Nepomuk::Vocabulary::NBIB::issueNumber()).toString();
     QString journalVolume = journalIssue.property(Nepomuk::Vocabulary::NBIB::volume()).toString();
 
     //Nepomuk::Resource journal = document.property(Nepomuk::Vocabulary::NBIB::journal()).toResource();
@@ -974,15 +974,15 @@ QString BibTexExporter::getPublicationDate(const Nepomuk::Resource &document)
 QString BibTexExporter::getSchool(const Nepomuk::Resource &document)
 {
 
-    Nepomuk::Resource school = document.property(Nepomuk::Vocabulary::NBIB::school()).toResource();
+//    Nepomuk::Resource school = document.property(Nepomuk::Vocabulary::NBIB::school()).toResource();
 
-    //TODO don't rely only on fullname of NC::Contact
-    QString schoolString = school.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+//    //TODO don't rely only on fullname of NC::Contact
+    QString schoolString;// = school.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
 
-    if(!schoolString.isEmpty()) {
-        schoolString.prepend(QLatin1String("\tschool = \""));
-        schoolString.append(QLatin1String("\""));
-    }
+//    if(!schoolString.isEmpty()) {
+//        schoolString.prepend(QLatin1String("\tschool = \""));
+//        schoolString.append(QLatin1String("\""));
+//    }
 
     return schoolString;
 }
