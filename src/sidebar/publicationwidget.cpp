@@ -44,13 +44,9 @@ PublicationWidget::PublicationWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
-    setFont(KGlobalSettings::smallestReadableFont());
+    ui->addReference->setIcon(KIcon(QLatin1String("list-add")));
 
     setupWidget();
-    ui->removeButton->setEnabled(false);
-    ui->tabWidget->setEnabled(false);
-
-    connect(ui->createReference, SIGNAL(clicked()), this, SLOT(createReference()));
 }
 
 PublicationWidget::~PublicationWidget()
@@ -64,11 +60,9 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
 
     //check if the resource has a publication attached
     if(!m_publication.isValid()) {
-        ui->removeButton->setEnabled(false);
         ui->tabWidget->setEnabled(false);
     }
     else {
-        ui->removeButton->setEnabled(true);
         ui->tabWidget->setEnabled(true);
     }
 
@@ -80,10 +74,6 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
     ui->editEntryType->setCurrentIndex(index);
 
     selectLayout(entryType);
-}
-
-void PublicationWidget::clear()
-{
 }
 
 void PublicationWidget::newBibEntryTypeSelected(int index)
@@ -125,7 +115,7 @@ void PublicationWidget::selectPublication()
     qDebug() << "select from a list of systemwide publications";
 }
 
-void PublicationWidget::createPublication()
+void PublicationWidget::newButtonClicked()
 {
     //create a new resource if nothing is connected
     Nepomuk::Resource nb;
@@ -136,7 +126,7 @@ void PublicationWidget::createPublication()
     setResource(nb);
 }
 
-void PublicationWidget::removePublication()
+void PublicationWidget::deleteButtonClicked()
 {
     // link document to resource
     m_publication.remove();
@@ -146,15 +136,10 @@ void PublicationWidget::removePublication()
 
 void PublicationWidget::setDialogMode(bool dialogMode)
 {
-    ui->createButton->setVisible(false);
-    ui->removeButton->setVisible(false);
-    ui->line->setVisible(false);
-
-    ui->createReference->setVisible(false);
-    ui->setDocument->setVisible(false);
+    ui->addReference->setVisible(false);
 }
 
-void PublicationWidget::createReference()
+void PublicationWidget::addReference()
 {
     KDialog showRefWidget;
 
@@ -180,18 +165,8 @@ void PublicationWidget::createReference()
     }
 }
 
-void PublicationWidget::connectToFile()
-{
-
-}
-
 void PublicationWidget::setupWidget()
 {
-    ui->createButton->setIcon(KIcon(QLatin1String("document-new")));
-    ui->removeButton->setIcon(KIcon(QLatin1String("document-close")));
-    connect(ui->createButton, SIGNAL(clicked()), this, SLOT(createPublication()));
-    connect(ui->removeButton, SIGNAL(clicked()), this, SLOT(removePublication()));
-
     ui->editEntryType->setProperty("datatype", BibData_EntryType);
     ui->editEntryType->addItem(i18n("Misc"),BibType_Misc);
     ui->editEntryType->addItem(i18n("Article"),BibType_Article);
@@ -231,7 +206,6 @@ void PublicationWidget::setupWidget()
     ui->editSeries->setPropertyUrl( Nepomuk::Vocabulary::NBIB::inSeries() );
     ui->editTitle->setPropertyUrl( Nepomuk::Vocabulary::NIE::title() );
     ui->editType->setPropertyUrl( Nepomuk::Vocabulary::NBIB::type() );
-    ui->editUrl->setPropertyUrl(  Nepomuk::Vocabulary::NBIB::url() );
     ui->editVolume->setPropertyUrl( Nepomuk::Vocabulary::NBIB::volume() );
 
     //connect signal/slots
@@ -254,7 +228,6 @@ void PublicationWidget::setupWidget()
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editSeries, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editTitle, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editType, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editUrl, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editVolume, SLOT(setResource(Nepomuk::Resource&)));
 }
 
@@ -439,7 +412,6 @@ void PublicationWidget::layoutArticle()
 
 
     ui->editSeries->setEnabled(false);
-    ui->editUrl->setEnabled(false);
     ui->editType->setEnabled(false);
 }
 
@@ -467,7 +439,7 @@ void PublicationWidget::layoutBook()
 
 
     ui->editSeries->setEnabled(false);
-    ui->editUrl->setEnabled(false);
+
     ui->editType->setEnabled(false);
 }
 
@@ -496,7 +468,7 @@ void PublicationWidget::layoutBooklet()
 
 
     ui->editSeries->setEnabled(false);
-    ui->editUrl->setEnabled(false);
+
     ui->editType->setEnabled(false);
 }
 
@@ -525,7 +497,7 @@ void PublicationWidget::layoutCollection()
 
 
     ui->editSeries->setEnabled(false);
-    ui->editUrl->setEnabled(false);
+
     ui->editType->setEnabled(false);
 }
 
@@ -553,7 +525,7 @@ void PublicationWidget::layoutInproceedings()
 
 
     ui->editSeries->setEnabled(true);
-    ui->editUrl->setEnabled(false);
+
     ui->editType->setEnabled(false);
 }
 
@@ -581,7 +553,7 @@ void PublicationWidget::layoutManual()
 
 
     ui->editSeries->setEnabled(false);
-    ui->editUrl->setEnabled(false);
+
     ui->editType->setEnabled(false);
 }
 
@@ -609,7 +581,7 @@ void PublicationWidget::layoutBachelorthesis()
 
 
     ui->editSeries->setEnabled(false);
-    ui->editUrl->setEnabled(false);
+
     ui->editType->setEnabled(false);
 }
 
@@ -637,7 +609,7 @@ void PublicationWidget::layoutMastersthesis()
 
 
     ui->editSeries->setEnabled(false);
-    ui->editUrl->setEnabled(false);
+
     ui->editType->setEnabled(false);
 }
 
@@ -665,7 +637,7 @@ void PublicationWidget::layoutMisc()
 
 
     ui->editSeries->setEnabled(true);
-    ui->editUrl->setEnabled(true);
+
     ui->editType->setEnabled(true);
 }
 
@@ -693,7 +665,7 @@ void PublicationWidget::layoutPhdthesis()
 
 
     ui->editSeries->setEnabled(false);
-    ui->editUrl->setEnabled(false);
+
     ui->editType->setEnabled(false);
 }
 
@@ -721,7 +693,7 @@ void PublicationWidget::layoutProceedings()
 
 
     ui->editSeries->setEnabled(false);
-    ui->editUrl->setEnabled(false);
+
     ui->editType->setEnabled(false);
 }
 
@@ -750,7 +722,7 @@ void PublicationWidget::layoutTechreport()
 
 
     ui->editSeries->setEnabled(false);
-    ui->editUrl->setEnabled(false);
+
 }
 
 void PublicationWidget::layoutUnpublished()
@@ -777,7 +749,7 @@ void PublicationWidget::layoutUnpublished()
 
 
     ui->editSeries->setEnabled(false);
-    ui->editUrl->setEnabled(false);
+
     ui->editType->setEnabled(false);
 }
 
@@ -806,7 +778,7 @@ void PublicationWidget::layoutPatent()
     ui->editEprint->setEnabled(false);
 
     ui->editSeries->setEnabled(false);
-    ui->editUrl->setEnabled(false);
+
     ui->editType->setEnabled(false);
 }
 
@@ -824,7 +796,7 @@ void PublicationWidget::layoutElectronic()
     ui->editPublisher->setEnabled(true);
 
 
-    ui->editUrl->setEnabled(true);
+
 
     ui->editJournal->setEnabled(false);
     ui->editVolume->setEnabled(false);
@@ -851,7 +823,7 @@ void PublicationWidget::layoutJournalIssue()
     ui->editHowPublished->setEnabled(true);
     ui->editPublisher->setEnabled(true);
 
-    ui->editUrl->setEnabled(true);
+
 
     ui->editJournal->setEnabled(false);
     ui->editVolume->setEnabled(true);

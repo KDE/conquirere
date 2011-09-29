@@ -18,11 +18,15 @@
 #ifndef SIDEBARWIDGET_H
 #define SIDEBARWIDGET_H
 
-#include <QWidget>
+#include <QDockWidget>
 
 #include "../globals.h"
 
 #include <Nepomuk/Resource>
+
+namespace Ui {
+    class DockWidget;
+}
 
 class SidebarComponent;
 class Library;
@@ -39,7 +43,7 @@ class Library;
   *
   * @see SidebarComponent
   */
-class SidebarWidget : public QWidget
+class SidebarWidget : public QDockWidget
 {
     Q_OBJECT
 public:
@@ -63,7 +67,10 @@ public slots:
       */
     virtual void setResource(Nepomuk::Resource & resource);
 
+    void newButtonClicked();
+    void deleteButtonClicked();
 private:
+    Ui::DockWidget *ui;
     SidebarComponent *m_currentWidget;
 };
 

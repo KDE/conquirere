@@ -39,16 +39,8 @@ DocumentWidget::DocumentWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    setFont(KGlobalSettings::smallestReadableFont());
-    m_kfmd = new KFileMetaDataWidget();
-
-    QVBoxLayout *vbl = qobject_cast<QVBoxLayout *>(ui->contents->layout());
-    vbl->insertWidget(0, m_kfmd);
-    m_kfmd->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-    m_kfmd->show();
-
-    connect(ui->createPublication, SIGNAL(clicked()), this, SLOT(createPublication()));
-    connect(ui->removePublication, SIGNAL(clicked()), this, SLOT(removePublication()));
+    ui->addPublication->setIcon(KIcon(QLatin1String("list-add")));
+    ui->removePublication->setIcon(KIcon(QLatin1String("list-remove")));
 }
 
 DocumentWidget::~DocumentWidget()
@@ -77,27 +69,23 @@ void DocumentWidget::setResource(Nepomuk::Resource & resource)
         kf.refreshMimeType();
         KFileItemList kfil;
         kfil.append(kf);
-        m_kfmd->setItems(kfil);
+        ui->kfmdWidget->setItems(kfil);
 
         Nepomuk::Resource pa = m_document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
         if(pa.isValid()) {
-                 ui->createPublication->setVisible(false);
-                 ui->removePublication->setVisible(true);
+                 ui->addPublication->setEnabled(false);
+                 ui->removePublication->setEnabled(true);
         }
         else {
-            ui->createPublication->setVisible(true);
-            ui->removePublication->setVisible(false);
+            ui->addPublication->setEnabled(true);
+            ui->removePublication->setEnabled(false);
         }
     }
 }
 
-void DocumentWidget::clear()
+void DocumentWidget::addPublication()
 {
-}
-
-void DocumentWidget::createPublication()
-{
-    //TODO don't jus tcreate a publication, also select from existing ones
+    //TODO don't just create a publication, also select from existing ones
     KDialog showPublicationWidget;
 
     // create a temporary Publication object

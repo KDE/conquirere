@@ -16,7 +16,7 @@
  */
 
 #include "library.h"
-#include "../mainui/projecttreewidget.h"
+#include "../mainui/librarywidget.h"
 #include "nepomukmodel.h"
 #include "publicationmodel.h"
 #include "documentmodel.h"
@@ -222,11 +222,11 @@ QAbstractTableModel* Library::viewModel(ResourceSelection selection)
     return m_resources.value(selection);
 }
 
-void Library::connectFetchIndicator(ProjectTreeWidget *treeWidget)
+void Library::connectFetchIndicator(LibraryWidget *treeWidget)
 {
     foreach (QAbstractTableModel *model, m_resources) {
         NepomukModel *m = qobject_cast<NepomukModel *>(model);
-        connect(m, SIGNAL(updatefetchDataFor(ResourceSelection,bool, Library *)),
+        connect(m, SIGNAL(updateFetchDataFor(ResourceSelection,bool,Library*)),
                 treeWidget, SLOT(fetchDataFor(ResourceSelection,bool, Library *)));
 
         m->startFetchData();

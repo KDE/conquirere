@@ -16,33 +16,68 @@
  */
 
 #include "sidebarwidget.h"
+#include "ui_sidebarwidget.h"
 
 #include "publicationwidget.h"
 #include "sidebarcomponent.h"
 #include "referencewidget.h"
 #include "documentwidget.h"
+#include "notewidget.h"
 
+#include <KGlobalSettings>
 #include <QVBoxLayout>
 #include <QDebug>
 
 SidebarWidget::SidebarWidget(QWidget *parent)
-    : QWidget(parent)
+    : QDockWidget(parent)
+    , ui(new Ui::DockWidget)
     , m_currentWidget(0)
 {
+    ui->setupUi(this);
+
     QVBoxLayout *vbl = new QVBoxLayout();
-    setLayout(vbl);
+    ui->contentWidget->setLayout(vbl);
+
+    setFont(KGlobalSettings::smallestReadableFont());
+
+    ui->newButton->setIcon(KIcon(QLatin1String("document-new")));
+    ui->deleteButton->setIcon(KIcon(QLatin1String("document-close")));
+
+    ui->newButton->setEnabled(false);
+    ui->deleteButton->setEnabled(false);
 }
 
 void SidebarWidget::setResource(Nepomuk::Resource & resource)
 {
     if(m_currentWidget) {
         m_currentWidget->setResource(resource);
+
+        if(resource.isValid()) {
+            ui->deleteButton->setEnabled(true);
+        }
+        else {
+            ui->deleteButton->setEnabled(false);
+        }
+    }
+}
+
+void SidebarWidget::newButtonClicked()
+{
+    if(m_currentWidget) {
+        m_currentWidget->newButtonClicked();
+    }
+}
+
+void SidebarWidget::deleteButtonClicked()
+{
+    if(m_currentWidget) {
+        m_currentWidget->deleteButtonClicked();
     }
 }
 
 void SidebarWidget::newSelection(ResourceSelection selection, Library *library)
 {
-    layout()->removeWidget(m_currentWidget);
+    ui->contentWidget->layout()->removeWidget(m_currentWidget);
 
     delete m_currentWidget;
     m_currentWidget = 0;
@@ -54,32 +89,43 @@ void SidebarWidget::newSelection(ResourceSelection selection, Library *library)
         break;
     case Resource_Document:
         m_currentWidget = new DocumentWidget();
+        ui->titleLabel->setText(i18n("Document"));
         break;
     case Resource_Mail:
         m_currentWidget = new PublicationWidget();
+        ui->titleLabel->setText(i18n("Mail"));
         break;
     case Resource_Media:
         m_currentWidget = new PublicationWidget();
+        ui->titleLabel->setText(i18n("Media"));
         break;
     case Resource_Reference:
         m_currentWidget = new ReferenceWidget();
+        ui->titleLabel->setText(i18n("Reference"));
         break;
     case Resource_Website:
         m_currentWidget = new PublicationWidget();
+        ui->titleLabel->setText(i18n("Website"));
         break;
     case Resource_Note:
-        m_currentWidget = new PublicationWidget();
+        m_currentWidget = new NoteWidget();
+        ui->titleLabel->setText(i18n("Note"));
         break;
     case Resource_Publication:
         m_currentWidget = new PublicationWidget();
+        ui->titleLabel->setText(i18n("Publication"));
         break;
     }
 
     if(m_currentWidget) {
         m_currentWidget->setLibrary(library);
-        layout()->addWidget(m_currentWidget);
+        ui->contentWidget->layout()->addWidget(m_currentWidget);
+        ui->newButton->setEnabled(true);
+        ui->deleteButton->setEnabled(false);
     }
     else {
-        layout()->addWidget(new QWidget());
+        ui->newButton->setEnabled(false);
+        ui->deleteButton->setEnabled(false);
+        //ui->contentWidget->layout()->addWidget(new QWidget());
     }
 }

@@ -81,7 +81,6 @@ public:
 public slots:
     /* called when something is selected in the project view */
     void setResource(Nepomuk::Resource & resource);
-    void clear();
 
 signals:
     /* notify connected editwidgets to update their info */
@@ -97,11 +96,9 @@ private slots:
       */
     void newBibEntryTypeSelected(int index);
     void selectPublication();
-    void createPublication();
-    void removePublication();
-
-    void createReference();
-    void connectToFile();
+    void newButtonClicked();
+    void deleteButtonClicked();
+    void addReference();
 
 private:
     void setupWidget();

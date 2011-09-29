@@ -45,7 +45,6 @@ year		| nbib:publication => nie:publicationDate
 Additional properties
 
 abstract	| nbib:publication => nie:abstract
-contents	| nbib:publication => nie:content
 copyright	| nbib:publication => nie:copyright
 doi		| nbib:publication => nfo:doi
 isbn		| nbib:publication => nbib:isbn

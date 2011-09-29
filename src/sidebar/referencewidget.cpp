@@ -45,11 +45,6 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
-    setFont(KGlobalSettings::smallestReadableFont());
-
-    ui->createButton->setIcon(KIcon(QLatin1String("document-new")));
-    ui->removeButton->setIcon(KIcon(QLatin1String("document-close")));
-
     //set propertyURL of the edit elements
     ui->chapterEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::referencedChapter() );
     ui->chapterEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
@@ -75,10 +70,6 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
 
 void ReferenceWidget::setDialogMode(bool dialogMode)
 {
-
-    ui->createButton->setVisible(false);
-    ui->removeButton->setVisible(false);
-    ui->line->setVisible(false);
 }
 
 void ReferenceWidget::setResource(Nepomuk::Resource & resource)
@@ -106,7 +97,6 @@ void ReferenceWidget::clear()
 void ReferenceWidget::showCreateReference(bool createRef)
 {
     if(createRef) {
-        ui->removeButton->setEnabled(false);
         ui->chapterEdit->setVisible(false);
         ui->citeKeyEdit->setVisible(false);
         ui->pagesEdit->setVisible(false);
@@ -118,7 +108,6 @@ void ReferenceWidget::showCreateReference(bool createRef)
         ui->label_Publication->setVisible(false);
     }
     else {
-        ui->removeButton->setEnabled(true);
         ui->citeKeyEdit->setVisible(true);
         ui->pagesEdit->setVisible(true);
         ui->publicationEdit->setVisible(true);
@@ -172,7 +161,7 @@ void ReferenceWidget::showChapter()
     }
 }
 
-void ReferenceWidget::createReference()
+void ReferenceWidget::newButtonClicked()
 {
     // create a new reference
     Nepomuk::Resource newReference(QUrl(), Nepomuk::Vocabulary::NBIB::Reference());
@@ -184,7 +173,7 @@ void ReferenceWidget::createReference()
     setResource(newReference);
 }
 
-void ReferenceWidget::removeReference()
+void ReferenceWidget::deleteButtonClicked()
 {
     m_reference.remove();
     showCreateReference(true);

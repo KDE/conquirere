@@ -20,7 +20,7 @@
 #include "core/bibtexexporter.h"
 
 #include "sidebar/sidebarwidget.h"
-#include "mainui/projecttreewidget.h"
+#include "mainui/librarywidget.h"
 #include "mainui/newprojectdialog.h"
 #include "mainui/welcomewidget.h"
 #include "mainui/mainwidget.h"
@@ -48,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    delete m_projectTree;
+    delete m_libraryWidget;
     delete m_mainView;
     delete m_sidebarWidget;
 
@@ -92,11 +92,11 @@ void MainWindow::loadLibrary()
 
 void MainWindow::openLibrary(Library *l)
 {
-    m_projectTree->addLibrary(l);
+    m_libraryWidget->addLibrary(l);
     m_libraries.append(l);
 
     //connect the fetch indicator to the treewidget
-    l->connectFetchIndicator(m_projectTree);
+    l->connectFetchIndicator(m_libraryWidget);
 
     if(m_libraries.size() > 1) {
         actionCollection()->action(QLatin1String("delete_project"))->setEnabled(true);
@@ -131,7 +131,7 @@ void MainWindow::closeLibrary()
     qDebug() << "TODO close library";
     Library *l = m_libraries.takeLast();
 
-    m_projectTree->closeLibrary(l);
+    m_libraryWidget->closeLibrary(l);
 
     delete l;
 
@@ -204,33 +204,26 @@ void MainWindow::setupActions()
 
 void MainWindow::setupMainWindow()
 {
-    QSplitter *splitter = new QSplitter(this);
     // the left project bar
-    m_projectTree = new ProjectTreeWidget;
+    m_libraryWidget = new LibraryWidget;
+    addDockWidget(Qt::LeftDockWidgetArea, m_libraryWidget);
 
     m_mainView = new MainWidget;
 
     //add panel for the document info
     m_sidebarWidget = new SidebarWidget;
+    addDockWidget(Qt::RightDockWidgetArea, m_sidebarWidget);
 
-    connect(m_projectTree, SIGNAL(newSelection(ResourceSelection,Library*)),
+    connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,Library*)),
             m_sidebarWidget, SLOT(newSelection(ResourceSelection,Library*)));
 
     connect(m_mainView, SIGNAL(selectedResource(Nepomuk::Resource&)),
             m_sidebarWidget, SLOT(setResource(Nepomuk::Resource&)));
 
-    connect(m_projectTree, SIGNAL(newSelection(ResourceSelection,Library*)),
+    connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,Library*)),
             m_mainView, SLOT(switchView(ResourceSelection,Library*)));
 
-    splitter->addWidget(m_projectTree);
-    splitter->addWidget(m_mainView);
-    splitter->addWidget(m_sidebarWidget);
-
-    QList<int> sizes;
-    sizes << 150 << 600 << 250;
-    splitter->setSizes(sizes);
-
-    setCentralWidget(splitter);
+    setCentralWidget(m_mainView);
 
     //now create the system library
     Library *l = new Library(Library_System);

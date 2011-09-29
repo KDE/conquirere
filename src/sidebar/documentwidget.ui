@@ -15,19 +15,6 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Documents</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <spacer name="horizontalSpacer">
@@ -106,10 +93,13 @@
         <x>0</x>
         <y>0</y>
         <width>259</width>
-        <height>372</height>
+        <height>429</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="KFileMetaDataWidget" name="kfmdWidget"/>
+       </item>
        <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
@@ -143,33 +133,58 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="removePublication">
+      <widget class="QPushButton" name="addPublication">
+       <property name="minimumSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Add Publication</string>
+       </property>
        <property name="text">
-        <string>Remove Publication</string>
+        <string/>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
+      <widget class="QPushButton" name="removePublication">
+       <property name="minimumSize">
         <size>
-         <width>40</width>
-         <height>20</height>
+         <width>22</width>
+         <height>22</height>
         </size>
        </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="createPublication">
+       <property name="maximumSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>Remove Publication</string>
+       </property>
        <property name="text">
-        <string>Add Publication</string>
+        <string/>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
        </property>
       </widget>
      </item>
@@ -177,6 +192,50 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>KFileMetaDataWidget</class>
+   <extends>QWidget</extends>
+   <header>kfilemetadatawidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>addPublication</sender>
+   <signal>clicked()</signal>
+   <receiver>DocumentWidget</receiver>
+   <slot>addPublication()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>143</x>
+     <y>523</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>146</x>
+     <y>566</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>removePublication</sender>
+   <signal>clicked()</signal>
+   <receiver>DocumentWidget</receiver>
+   <slot>removePublication()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>241</x>
+     <y>529</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>239</x>
+     <y>551</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>addPublication()</slot>
+  <slot>removePublication()</slot>
+ </slots>
 </ui>

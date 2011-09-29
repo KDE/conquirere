@@ -37,7 +37,9 @@ public:
 
 public slots:
     virtual void setResource(Nepomuk::Resource & resource) = 0;
-    virtual void clear() = 0;
+
+    virtual void newButtonClicked() {}
+    virtual void deleteButtonClicked() {}
 
 private:
     Library *m_library;

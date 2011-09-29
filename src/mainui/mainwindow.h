@@ -22,7 +22,7 @@
 
 class Library;
 class MainWidget;
-class ProjectTreeWidget;
+class LibraryWidget;
 class SidebarWidget;
 
 class MainWindow : public KXmlGuiWindow
@@ -45,7 +45,7 @@ private:
     void setupActions();
     void setupMainWindow();
 
-    ProjectTreeWidget *m_projectTree;
+    LibraryWidget *m_libraryWidget;
     MainWidget *m_mainView;
     SidebarWidget *m_sidebarWidget;
 

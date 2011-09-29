@@ -28,7 +28,7 @@
 #include <QString>
 
 class QSettings;
-class ProjectTreeWidget;
+class LibraryWidget;
 class QAbstractTableModel;
 
 /**
@@ -171,7 +171,7 @@ public:
       * as long as the model for a resource selection is fetching
       * data from nepomuk.
       */
-    void connectFetchIndicator(ProjectTreeWidget *treeWidget);
+    void connectFetchIndicator(LibraryWidget *treeWidget);
 
 public slots:
     /**

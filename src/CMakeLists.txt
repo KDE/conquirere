@@ -14,7 +14,7 @@ set(conquirere_SRCS
     mainui/newprojectdialog.cpp
     mainui/newprojectdialog.cpp
     mainui/welcomewidget.cpp
-    mainui/projecttreewidget.cpp
+    mainui/librarywidget.cpp
     mainui/projecttreedelegate.cpp
     mainui/mainwidget.cpp
     mainui/mainwindow.cpp
@@ -34,18 +34,21 @@ set(conquirere_SRCS
     sidebar/referencewidget.cpp
     sidebar/listpublicationsdialog.cpp
     sidebar/documentwidget.cpp
+    sidebar/notewidget.cpp
 )
 
 kde4_add_ui_files( conquirere_SRCS
 
                    mainui/newprojectdialog.ui
                    mainui/welcomewidget.ui
-                   mainui/projecttreewidget.ui
+                   mainui/librarywidget.ui
 
                    sidebar/referencewidget.ui
                    sidebar/listpublicationsdialog.ui
                    sidebar/publicationwidget.ui
                    sidebar/documentwidget.ui
+                   sidebar/sidebarwidget.ui
+                   sidebar/notewidget.ui
 )
 
 
