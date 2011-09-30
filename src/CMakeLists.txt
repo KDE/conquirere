@@ -28,6 +28,7 @@ set(conquirere_SRCS
     propertywidgets/journaledit.cpp
     propertywidgets/volumenumberedit.cpp
     propertywidgets/fileobjectedit.cpp
+    propertywidgets/organizationedit.cpp
 
     sidebar/sidebarwidget.cpp
     sidebar/sidebarcomponent.cpp
