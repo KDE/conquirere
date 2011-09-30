@@ -24,7 +24,7 @@ edition		| nbib:publication => nbib:edition
 editor		| nbib:publication => nco:editor
 eprint		| nbib:publication => nbib:eprint
 howpublished	| nbib:publication => nbib:publicationMethod
-institution	| nbib:publication => nco:publisher => nco:affillation => nco:org => nco:fullname
+institution	| nbib:publication => nco:publisher => nco:fullname (only valid for techreport/manual)
 journal		| nbib:publication => nbib:journalIssue => nbib:journal => nbib:title
 month		| nbib:publication => nie:publicationDate
 note		| nbib:publication => nie:description
@@ -33,7 +33,7 @@ number		| if(nbib:Publication == Article) nbib:publication => nbib:journalIssue 
 organization	| nbib:publication => nbib:organization => nco:fullname (only valid for nbib:Proceedings)
 pages		| nbib:pages
 publisher	| nbib:publication => nco:publisher => nco:fullname
-school		| nbib:publication => nco:publisher => nco:affillation => nco:org => nco:fullname (only valid for nbib:Thesis and sub classes)
+school		| nbib:publication => nco:publisher => nco:fullname (only valid for nbib:Thesis and sub classes)
 series		| nbib:publication => nbib:inSeries => nie:title (only valid for nbib:Book)
 title		| nbib:publication => nie:title
 type		| nbib:publication => nbib:type (only valid for nbib:Techreport)
