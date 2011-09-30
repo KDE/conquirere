@@ -23,6 +23,7 @@
 #include <Nepomuk/Query/Result>
 #include <Nepomuk/Query/ResourceTypeTerm>
 #include <Nepomuk/Variant>
+#include <KSqueezedTextLabel>
 
 #include <QLabel>
 #include <QLineEdit>
@@ -39,11 +40,13 @@ PropertyEdit::PropertyEdit(QWidget *parent)
     : QWidget(parent)
     , m_isListEdit(true)
     , m_useDetailDialog(false)
+    , m_directEditAllowed(true)
 {
-    m_label = new QLabel();
+    m_label = new KSqueezedTextLabel();
     m_label->setWordWrap(true);
-    m_label->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+    //m_label->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
     m_label->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+    m_label->setTextElideMode(Qt::ElideMiddle);
 
     m_lineEdit = new QLineEdit();
     m_lineEdit->hide();
@@ -114,7 +117,7 @@ void PropertyEdit::setLabelText(const QString & text)
 
 QString PropertyEdit::labelText()
 {
-    return m_label->text();
+    return m_label->fullText();
 }
 
 void PropertyEdit::setPropertyCardinality(PropertyEdit::Cardinality cardinality)
@@ -142,6 +145,14 @@ void PropertyEdit::setUseDetailDialog(bool useIt)
     else {
         m_detailView->hide();
     }
+}
+
+
+void PropertyEdit::setDirectEdit(bool directEdit)
+{
+    m_directEditAllowed = directEdit;
+    if(!m_directEditAllowed)
+        setUseDetailDialog(true);
 }
 
 void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
@@ -185,18 +196,20 @@ QUrl PropertyEdit::propertyUrl()
 
 void PropertyEdit::mousePressEvent ( QMouseEvent * e )
 {
-    if(m_label->isVisible()) {
-        m_lineEdit->setText(m_label->text());
-        m_label->hide();
-        m_lineEdit->show();
-        m_lineEdit->setFocus();
-    }
-    else {
-        if(m_label->text() != m_lineEdit->text()) {
-            m_label->setText(m_lineEdit->text());
+    if(m_directEditAllowed) {
+        if(m_label->isVisible()) {
+            m_lineEdit->setText(m_label->fullText());
+            m_label->hide();
+            m_lineEdit->show();
+            m_lineEdit->setFocus();
         }
-        m_lineEdit->hide();
-        m_label->show();
+        else {
+            if(m_label->fullText() != m_lineEdit->text()) {
+                m_label->setText(m_lineEdit->text());
+            }
+            m_lineEdit->hide();
+            m_label->show();
+        }
     }
 
     QWidget::mousePressEvent(e);
@@ -335,7 +348,7 @@ void PropertyEdit::editingFinished()
     if(m_completer->popup()->isVisible() )
         return;
 
-    if(m_label->text() != m_lineEdit->text()) {
+    if(m_label->fullText() != m_lineEdit->text()) {
         updateResource(m_lineEdit->text());
         m_label->setText(m_lineEdit->text());
     }
@@ -358,6 +371,7 @@ void PropertyEdit::detailEditRequested()
 void PropertyEdit::resourceUpdatedExternally()
 {
     setupLabel();
+    editingFinished();
 }
 
 void PropertyEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entries)

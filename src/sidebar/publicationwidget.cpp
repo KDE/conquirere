@@ -20,6 +20,7 @@
 
 #include "propertywidgets/stringedit.h"
 #include "propertywidgets/contactedit.h"
+#include "propertywidgets/fileobjectedit.h"
 
 #include "referencewidget.h"
 
@@ -207,6 +208,10 @@ void PublicationWidget::setupWidget()
     ui->editTitle->setPropertyUrl( Nepomuk::Vocabulary::NIE::title() );
     ui->editType->setPropertyUrl( Nepomuk::Vocabulary::NBIB::type() );
     ui->editVolume->setPropertyUrl( Nepomuk::Vocabulary::NBIB::volume() );
+    ui->editFileObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
+    ui->editFileObject->setMode(FileObjectEdit::Local);
+    ui->editRemoteObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
+    ui->editRemoteObject->setMode(FileObjectEdit::Remote);
 
     //connect signal/slots
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editAuthors, SLOT(setResource(Nepomuk::Resource&)));
@@ -229,6 +234,8 @@ void PublicationWidget::setupWidget()
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editTitle, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editType, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editVolume, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editFileObject, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editRemoteObject, SLOT(setResource(Nepomuk::Resource&)));
 }
 
 BibEntryType PublicationWidget::resourceTypeToEnum(Nepomuk::Resource & resource)

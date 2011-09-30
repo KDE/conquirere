@@ -50,7 +50,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
+       <item row="2" column="1">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -66,7 +66,7 @@
          </property>
         </spacer>
        </item>
-       <item row="2" column="0">
+       <item row="4" column="0">
         <widget class="QLabel" name="label_3">
          <property name="text">
           <string>Title:</string>
@@ -76,10 +76,10 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
+       <item row="4" column="1">
         <widget class="StringEdit" name="editTitle"/>
        </item>
-       <item row="3" column="0">
+       <item row="6" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
           <string>Authors:</string>
@@ -89,10 +89,10 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
+       <item row="6" column="1">
         <widget class="ContactEdit" name="editAuthors"/>
        </item>
-       <item row="4" column="0">
+       <item row="8" column="0">
         <widget class="QLabel" name="label_12">
          <property name="text">
           <string>Editors:</string>
@@ -102,10 +102,10 @@
          </property>
         </widget>
        </item>
-       <item row="4" column="1">
+       <item row="8" column="1">
         <widget class="ContactEdit" name="editEditor"/>
        </item>
-       <item row="5" column="0">
+       <item row="10" column="0">
         <widget class="QLabel" name="label_5">
          <property name="text">
           <string>Publication Date:</string>
@@ -115,10 +115,10 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
+       <item row="10" column="1">
         <widget class="StringEdit" name="editDate"/>
        </item>
-       <item row="6" column="0">
+       <item row="12" column="0">
         <widget class="QLabel" name="label_10">
          <property name="text">
           <string>Publisher:</string>
@@ -128,10 +128,45 @@
          </property>
         </widget>
        </item>
-       <item row="6" column="1">
+       <item row="12" column="1">
         <widget class="ContactEdit" name="editPublisher"/>
        </item>
-       <item row="8" column="0">
+       <item row="14" column="0">
+        <widget class="QLabel" name="label_28">
+         <property name="text">
+          <string>Institution:</string>
+         </property>
+         <property name="buddy">
+          <cstring>editCrossref</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="16" column="0">
+        <widget class="QLabel" name="label_27">
+         <property name="text">
+          <string>Organization:</string>
+         </property>
+         <property name="buddy">
+          <cstring>editCrossref</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="16" column="1">
+        <widget class="StringEdit" name="editOrganization"/>
+       </item>
+       <item row="21" column="1">
+        <widget class="FileObjectEdit" name="editFileObject"/>
+       </item>
+       <item row="23" column="1">
+        <widget class="FileObjectEdit" name="editRemoteObject"/>
+       </item>
+       <item row="14" column="1">
+        <widget class="StringEdit" name="editInstitution"/>
+       </item>
+       <item row="19" column="1">
+        <widget class="StringEdit" name="editCrossref"/>
+       </item>
+       <item row="19" column="0">
         <widget class="QLabel" name="label_18">
          <property name="text">
           <string>Crossref:</string>
@@ -141,10 +176,7 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="1">
-        <widget class="StringEdit" name="editCrossref"/>
-       </item>
-       <item row="10" column="0">
+       <item row="21" column="0">
         <widget class="QLabel" name="label_25">
          <property name="text">
           <string>File:</string>
@@ -154,10 +186,7 @@
          </property>
         </widget>
        </item>
-       <item row="10" column="1">
-        <widget class="StringEdit" name="editFileObject"/>
-       </item>
-       <item row="12" column="0">
+       <item row="23" column="0">
         <widget class="QLabel" name="label_16">
          <property name="text">
           <string>Remote File:</string>
@@ -166,9 +195,6 @@
           <cstring>editFileObject</cstring>
          </property>
         </widget>
-       </item>
-       <item row="12" column="1">
-        <widget class="StringEdit" name="editRemoteObject"/>
        </item>
       </layout>
      </widget>
@@ -509,6 +535,11 @@
    <class>VolumeNumberEdit</class>
    <extends>QLineEdit</extends>
    <header>propertywidgets/volumenumberedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>FileObjectEdit</class>
+   <extends>QLineEdit</extends>
+   <header>propertywidgets/fileobjectedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

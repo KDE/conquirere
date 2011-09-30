@@ -27,8 +27,8 @@
 #include <QHash>
 #include <QUrl>
 
-class QLabel;
 class QLineEdit;
+class KSqueezedTextLabel;
 class QCompleter;
 class QAbstractItemModel;
 class QFocusEvent;
@@ -102,6 +102,14 @@ public:
       */
     void setUseDetailDialog(bool useIt);
 
+    /**
+      * If @p directEdit is false no editbox will be shown when the user clicks on the label.
+      *
+      * In this case setUseDetailDialog() will be set to true automatically and the vale can
+      * only be changed externally.
+      */
+    void setDirectEdit(bool directEdit);
+
 signals:
     /**
       * emitted when detailEditRequested() is called
@@ -155,7 +163,7 @@ protected:
     /**
       * Defines how the Nepomuk::Resource of the widget should be shown.
       *
-      * Subclasses must implement this. If the property has a fnage of xsd:string a simple call
+      * Subclasses must implement this. If the property has a rage of xsd:string a simple call
       * to setLabelText() is enough. If the propery has a specific resource on its own its possible to define
       * what values will be shown here. For example fullname() of a nco:Contact
       */
@@ -203,11 +211,12 @@ private:
     void mousePressEvent ( QMouseEvent * event );
     void keyPressEvent(QKeyEvent * e);
 
-    QLabel    *m_label;
+    KSqueezedTextLabel    *m_label;
     QLineEdit *m_lineEdit;
     QToolButton *m_detailView;
     bool m_isListEdit;
     bool m_useDetailDialog;
+    bool m_directEditAllowed;
 
     Nepomuk::Resource m_resource;
     QUrl m_propertyUrl;
