@@ -75,7 +75,7 @@ void ChapterEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &
     // entries contain all Chapter from any book (that are created)
     // thats not so good ;)
 
-    // idea, filter all entries to include only the once of the current resource()->usePublication Book entry
+    // idea, filter all entries to include only the once of the current resource()->usePublication entry
     // even better filter plainTextContent for all chapters available
     // alot better use prefilled nbib:contents
     QStandardItemModel *model = new QStandardItemModel();

@@ -30,6 +30,7 @@
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NCO>
+#include <Nepomuk/Vocabulary/NUAO>
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -166,6 +167,41 @@ void PublicationWidget::addReference()
     }
 }
 
+
+void PublicationWidget::acceptContentChanges()
+{
+    QString abstract = ui->editAbstract->document()->toPlainText();
+    m_publication.setProperty(Nepomuk::Vocabulary::NBIB::abstract(), abstract);
+
+    QString toc = ui->editTOC->document()->toPlainText();
+    //    m_publication.setProperty(Nepomuk::Vocabulary::NBIB::abstract(), toc);
+    qWarning() << "change chapter edit";
+}
+
+void PublicationWidget::discardContentChanges()
+{
+    QString abstract = m_publication.property(Nepomuk::Vocabulary::NBIB::abstract()).toString();
+    ui->editAbstract->document()->setPlainText(abstract);
+}
+
+void PublicationWidget::acceptNoteChanges()
+{
+    QString note = ui->editNote->document()->toPlainText();
+    m_publication.setProperty(Nepomuk::Vocabulary::NIE::description(), note);
+
+    QString annote = ui->editAnnote->document()->toPlainText();
+    m_publication.setProperty(Nepomuk::Vocabulary::NIE::comment(), annote);
+}
+
+void PublicationWidget::discardNoteChanges()
+{
+    QString note = m_publication.property(Nepomuk::Vocabulary::NIE::description()).toString();
+    ui->editNote->document()->setPlainText(note);
+
+    QString annote = m_publication.property(Nepomuk::Vocabulary::NIE::comment()).toString();
+    ui->editAnnote->document()->setPlainText(annote);
+}
+
 void PublicationWidget::setupWidget()
 {
     ui->editEntryType->setProperty("datatype", BibData_EntryType);
@@ -213,6 +249,7 @@ void PublicationWidget::setupWidget()
     ui->editRemoteObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
     ui->editRemoteObject->setMode(FileObjectEdit::Remote);
     ui->editOrganization->setPropertyUrl( Nepomuk::Vocabulary::NBIB::organization());
+    ui->editLastAccessed->setPropertyUrl( Nepomuk::Vocabulary::NUAO::lastUsage());
 
     //connect signal/slots
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editAuthors, SLOT(setResource(Nepomuk::Resource&)));
@@ -238,6 +275,7 @@ void PublicationWidget::setupWidget()
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editFileObject, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editRemoteObject, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editOrganization, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLastAccessed, SLOT(setResource(Nepomuk::Resource&)));
 }
 
 BibEntryType PublicationWidget::resourceTypeToEnum(Nepomuk::Resource & resource)

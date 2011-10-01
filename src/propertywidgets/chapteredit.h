@@ -23,8 +23,7 @@
 /**
   * Used to add a chapter to a bibreference
   *
-  * @pre setResource must be a @c nbib:Publication and the resource
-  * must have a @c nbib:Book as @c nbib:usePublication
+  * @pre setResource must be a @c nbib:Publication
   */
 class ChapterEdit : public PropertyEdit
 {

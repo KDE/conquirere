@@ -100,6 +100,11 @@ private slots:
     void deleteButtonClicked();
     void addReference();
 
+    void acceptContentChanges();
+    void discardContentChanges();
+    void acceptNoteChanges();
+    void discardNoteChanges();
+
 private:
     void setupWidget();
 
