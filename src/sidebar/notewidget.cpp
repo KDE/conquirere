@@ -32,9 +32,7 @@ NoteWidget::NoteWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->editTitle->setEnabled(false);
-    ui->editContent->setEnabled(false);
-    ui->editTags->setEnabled(false);
+    ui->frameWidget->setEnabled(false);
 
     ui->editTags->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
     ui->editTags->setPropertyUrl( Soprano::Vocabulary::NAO::hasTag() );
@@ -51,14 +49,10 @@ void NoteWidget::setResource(Nepomuk::Resource & resource)
     m_note = resource;
 
     if(!m_note.isValid()) {
-        ui->editTitle->setEnabled(false);
-        ui->editContent->setEnabled(false);
-        ui->editTags->setEnabled(false);
+        ui->frameWidget->setEnabled(false);
     }
     else {
-        ui->editTitle->setEnabled(true);
-        ui->editContent->setEnabled(true);
-        ui->editTags->setEnabled(true);
+        ui->frameWidget->setEnabled(true);
     }
 
     emit resourceChanged(m_note);
@@ -70,6 +64,10 @@ void NoteWidget::setResource(Nepomuk::Resource & resource)
 void NoteWidget::newButtonClicked()
 {
     m_note = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::PIMO::Note());
+
+    // we add a dummy title and save the note
+    ui->editTitle->setText(i18n("New note title"));
+    saveNote();
 
     setResource(m_note);
 }

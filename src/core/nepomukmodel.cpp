@@ -60,7 +60,12 @@ void NepomukModel::setResourceType(ResourceSelection selection)
 
 Nepomuk::Resource NepomukModel::documentResource(const QModelIndex &selection)
 {
-    return m_fileList.at(selection.row());
+    Nepomuk::Resource ret;
+
+    if(!m_fileList.isEmpty() && selection.row() >= 0)
+        ret = m_fileList.at(selection.row());
+
+    return ret;
 }
 
 void NepomukModel::stopFetchData()

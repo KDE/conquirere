@@ -524,6 +524,9 @@
          <height>22</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Add Reference</string>
+       </property>
        <property name="text">
         <string/>
        </property>

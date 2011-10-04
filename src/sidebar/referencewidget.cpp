@@ -97,24 +97,10 @@ void ReferenceWidget::clear()
 void ReferenceWidget::showCreateReference(bool createRef)
 {
     if(createRef) {
-        ui->chapterEdit->setVisible(false);
-        ui->citeKeyEdit->setVisible(false);
-        ui->pagesEdit->setVisible(false);
-        ui->publicationEdit->setVisible(false);
-
-        ui->label_Chapter->setVisible(false);
-        ui->label_CiteKey->setVisible(false);
-        ui->label_Pages->setVisible(false);
-        ui->label_Publication->setVisible(false);
+        ui->frameWidget->setEnabled(false);
     }
     else {
-        ui->citeKeyEdit->setVisible(true);
-        ui->pagesEdit->setVisible(true);
-        ui->publicationEdit->setVisible(true);
-
-        ui->label_CiteKey->setVisible(true);
-        ui->label_Pages->setVisible(true);
-        ui->label_Publication->setVisible(true);
+        ui->frameWidget->setEnabled(true);
 
         showChapter();
     }

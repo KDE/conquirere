@@ -47,6 +47,7 @@ PublicationWidget::PublicationWidget(QWidget *parent)
     ui->setupUi(this);
 
     ui->addReference->setIcon(KIcon(QLatin1String("list-add")));
+    ui->tabWidget->setEnabled(false);
 
     setupWidget();
 }
