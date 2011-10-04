@@ -71,7 +71,6 @@ void FileObjectEdit::setupLabel()
 
 void FileObjectEdit::updateResource(const QString & text)
 {
-
     // we start by going through the list of already available nfo:***DataObject resources
     QList<Nepomuk::Resource> dataObjectList = resource().property(propertyUrl()).toResourceList();
 
@@ -97,6 +96,10 @@ void FileObjectEdit::updateResource(const QString & text)
     }
     // otherwise create a new resource
     else {
+
+        if(text.isEmpty())
+            return;
+
         Nepomuk::Resource newDataObject;
         // first check if the resource exists somewhere already
         if(m_mode == Local) {

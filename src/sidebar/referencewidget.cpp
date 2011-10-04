@@ -55,6 +55,7 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     ui->publicationEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publication() );
     ui->publicationEdit->setUseDetailDialog(true);
     ui->publicationEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
+    ui->chapterAuthorEdit->setPropertyUrl( Nepomuk::Vocabulary::NCO::creator() );
 
     showCreateReference(true);
 
@@ -66,10 +67,8 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
 
     connect(ui->publicationEdit, SIGNAL(textChanged(QString)), this, SLOT(showChapter()));
     connect(ui->publicationEdit, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showPublicationList()));
-}
 
-void ReferenceWidget::setDialogMode(bool dialogMode)
-{
+    connect(ui->chapterEdit, SIGNAL(textChanged(QString)), this, SLOT(showChapterAuthor()));
 }
 
 void ReferenceWidget::setResource(Nepomuk::Resource & resource)
@@ -86,11 +85,6 @@ void ReferenceWidget::setResource(Nepomuk::Resource & resource)
         showCreateReference(true);
         qDebug() << "nonvalid resource for the referencewidget";
     }
-
-}
-
-void ReferenceWidget::clear()
-{
 
 }
 
@@ -117,8 +111,7 @@ void ReferenceWidget::showPublicationList()
         Nepomuk::Resource publication = lpd.selectedPublication();
 
         m_reference.setProperty(Nepomuk::Vocabulary::NBIB::publication(), publication );
-
-        ui->publicationEdit->resourceUpdatedExternally();
+        ui->publicationEdit->setResource(m_reference);
     }
 }
 
@@ -130,20 +123,42 @@ void ReferenceWidget::showChapter()
     QList<Nepomuk::Resource> list = ui->publicationEdit->propertyResources();
 
     if(list.isEmpty()) {
-        ui->chapterEdit->setVisible(false);
-        ui->label_Chapter->setVisible(false);
+        ui->chapterEdit->setEnabled(false);
+        ui->label_Chapter->setEnabled(false);
+        ui->label->setEnabled(false);
+        ui->chapterAuthorEdit->setEnabled(false);
         return;
     }
 
     Nepomuk::Resource publication = list.first();
     if(publication.hasType(Nepomuk::Vocabulary::NBIB::Book())) {
-        ui->chapterEdit->setVisible(true);
-        ui->chapterEdit->setVisible(true);
-        ui->label_Chapter->setVisible(true);
+        ui->chapterEdit->setEnabled(true);
+        ui->chapterEdit->setEnabled(true);
+        ui->label_Chapter->setEnabled(true);
     }
     else {
-        ui->chapterEdit->setVisible(false);
-        ui->label_Chapter->setVisible(false);
+        ui->chapterEdit->setEnabled(false);
+        ui->label_Chapter->setEnabled(false);
+        ui->label->setEnabled(false);
+        ui->chapterAuthorEdit->setEnabled(false);
+    }
+}
+
+void ReferenceWidget::showChapterAuthor()
+{
+    //check if a valid chapter exist
+    Nepomuk::Resource refChapter = m_reference.property(Nepomuk::Vocabulary::NBIB::referencedChapter()).toResource();
+
+    if(refChapter.isValid()) {
+        ui->label->setEnabled(true);
+        ui->chapterAuthorEdit->setEnabled(true);
+        ui->chapterAuthorEdit->setResource(refChapter);
+    }
+    else {
+        ui->label->setEnabled(false);
+        ui->chapterAuthorEdit->setEnabled(false);
+        Nepomuk::Resource nr;
+        ui->chapterAuthorEdit->setResource(nr);
     }
 }
 

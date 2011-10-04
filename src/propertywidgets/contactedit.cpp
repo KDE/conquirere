@@ -64,6 +64,9 @@ void ContactEdit::updateResource(const QString & text)
     // remove allexisting contacts
     resource().removeProperty( propertyUrl() );
 
+    if(text.isEmpty())
+        return;
+
     QStringList entryList;
     if(hasMultipleCardinality()) {
         // for the contact we get a list of contact names divided by ;

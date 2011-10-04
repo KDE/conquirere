@@ -17,7 +17,7 @@
 
 #include "mainwidget.h"
 #include "projecttreewidget.h"
-#include "core/library.h"
+#include "../core/library.h"
 #include "../core/nepomukmodel.h"
 
 #include <Nepomuk/Resource>

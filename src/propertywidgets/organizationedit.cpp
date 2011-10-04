@@ -45,6 +45,9 @@ void OrganizationEdit::updateResource(const QString & text)
     // remove the existing organizatzion
     resource().removeProperty( propertyUrl() );
 
+    if(text.isEmpty())
+        return;
+
     // try to find the propertyurl of an already existing organizatzion
     QUrl propUrl = propertyEntry(text);
 

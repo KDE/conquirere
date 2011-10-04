@@ -44,6 +44,9 @@ void PublicationEdit::updateResource(const QString & text)
     // remove the existing publication
     resource().removeProperty( propertyUrl() );
 
+    if(text.isEmpty())
+        return;
+
     // add the selected publication
     QUrl propUrl = propertyEntry(text);
 

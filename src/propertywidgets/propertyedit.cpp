@@ -205,7 +205,7 @@ void PropertyEdit::mousePressEvent ( QMouseEvent * e )
         }
         else {
             if(m_label->fullText() != m_lineEdit->text()) {
-                m_label->setText(m_lineEdit->text());
+                setLabelText(m_lineEdit->text());
             }
             m_lineEdit->hide();
             m_label->show();
@@ -350,7 +350,7 @@ void PropertyEdit::editingFinished()
 
     if(m_label->fullText() != m_lineEdit->text()) {
         updateResource(m_lineEdit->text());
-        m_label->setText(m_lineEdit->text());
+        setLabelText(m_lineEdit->text());
     }
 
     m_lineEdit->hide();

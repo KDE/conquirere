@@ -46,6 +46,9 @@ void JournalEdit::updateResource(const QString & text)
     // remove the existing journal
     resource().removeProperty( propertyUrl() );
 
+    if(text.isEmpty())
+        return;
+
     // try to find the propertyurl of an already existing journal
     QUrl propUrl = propertyEntry(text);
 

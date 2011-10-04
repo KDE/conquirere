@@ -16,8 +16,10 @@
  */
 
 #include "mainwindow.h"
+
+#include "bibtexexportdialog.h"
+
 #include "core/library.h"
-#include "core/bibtexexporter.h"
 
 #include "sidebar/sidebarwidget.h"
 #include "mainui/librarywidget.h"
@@ -101,7 +103,6 @@ void MainWindow::openLibrary(Library *l)
     if(m_libraries.size() > 1) {
         actionCollection()->action(QLatin1String("delete_project"))->setEnabled(true);
         actionCollection()->action(QLatin1String("close_project"))->setEnabled(true);
-        actionCollection()->action(QLatin1String("export_bibtex"))->setEnabled(true);
     }
 }
 
@@ -138,23 +139,14 @@ void MainWindow::closeLibrary()
     if(m_libraries.isEmpty()) {
         actionCollection()->action(QLatin1String("delete_project"))->setEnabled(false);
         actionCollection()->action(QLatin1String("close_project"))->setEnabled(false);
-        actionCollection()->action(QLatin1String("export_bibtex"))->setEnabled(false);
     }
 }
 
 void MainWindow::exportBibTex()
 {
-    // get all documents in the project
-    //    ProjectWidget *projectWidget = qobject_cast<ProjectWidget *>(centralWidget());
+    BibTexExportDialog bed;
 
-    //    if(projectWidget) {
-    //        Project *p = projectWidget->project();
-
-    //        BibTexExporter expBibTex;
-    //        expBibTex.setIsRelatedTo(p->pimoProject());
-
-    //        expBibTex.exportReferences(p->path() + QLatin1String("bibtex.bib"));
-    //    }
+    bed.exec();
 }
 
 void MainWindow::setupActions()
@@ -192,7 +184,6 @@ void MainWindow::setupActions()
     KAction* exportBibTexAction = new KAction(this);
     exportBibTexAction->setText(i18n("&Export to BibTex"));
     exportBibTexAction->setIcon(KIcon(QLatin1String("document-export")));
-    exportBibTexAction->setEnabled(false);
 
     actionCollection()->addAction(QLatin1String("export_bibtex"), exportBibTexAction);
     connect(exportBibTexAction, SIGNAL(triggered(bool)),this, SLOT(exportBibTex()));

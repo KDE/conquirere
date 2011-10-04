@@ -150,7 +150,6 @@ void PublicationWidget::addReference()
     tempRef.setProperty(Nepomuk::Vocabulary::NBIB::publication(), m_publication);
 
     ReferenceWidget *rw = new ReferenceWidget();
-    rw->setDialogMode(true);
     rw->setResource(tempRef);
     rw->setLibrary(library());
 

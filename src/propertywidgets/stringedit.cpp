@@ -39,6 +39,9 @@ void StringEdit::updateResource(const QString & text)
     // remove all existing string entries of this property
     resource().removeProperty( propertyUrl() );
 
+    if(text.isEmpty())
+        return;
+
     QStringList entryList;
     if(hasMultipleCardinality()) {
         entryList = text.split(QLatin1String(";"));

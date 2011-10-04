@@ -44,6 +44,9 @@ void SeriesEdit::updateResource(const QString & text)
     // remove the existing series
     resource().removeProperty( propertyUrl() );
 
+    if(text.isEmpty())
+        return;
+
     // try to find the propertyurl of an already existing series
     QUrl propUrl = propertyEntry(text);
 

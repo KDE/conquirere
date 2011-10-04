@@ -32,11 +32,8 @@ class ReferenceWidget : public SidebarComponent
 public:
     explicit ReferenceWidget(QWidget *parent = 0);
 
-    void setDialogMode(bool dialogMode);
-
 public slots:
     virtual void setResource(Nepomuk::Resource & resource);
-    virtual void clear();
     void showCreateReference(bool showIt);
 
 signals:
@@ -48,6 +45,7 @@ private slots:
 
     //enables/disbales the chapter widget if the publication is a valid book or not
     void showChapter();
+    void showChapterAuthor();
     void newButtonClicked();
     void deleteButtonClicked();
 

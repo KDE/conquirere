@@ -3,7 +3,6 @@ set(conquirere_SRCS
     main.cpp
 
     core/library.cpp
-    core/bibtexexporter.cpp
     core/nepomukmodel.cpp
     core/resourcemodel.cpp
     core/publicationmodel.cpp
@@ -18,6 +17,7 @@ set(conquirere_SRCS
     mainui/projecttreedelegate.cpp
     mainui/mainwidget.cpp
     mainui/mainwindow.cpp
+    mainui/bibtexexportdialog.cpp
 
     propertywidgets/propertyedit.cpp
     propertywidgets/contactedit.cpp
@@ -38,6 +38,10 @@ set(conquirere_SRCS
     sidebar/listpublicationsdialog.cpp
     sidebar/documentwidget.cpp
     sidebar/notewidget.cpp
+
+# later on create lib taget for this
+    libnbibio/nbibexporter.cpp
+    libnbibio/nbibexporterbibtex.cpp
 )
 
 kde4_add_ui_files( conquirere_SRCS
@@ -45,6 +49,7 @@ kde4_add_ui_files( conquirere_SRCS
                    mainui/newprojectdialog.ui
                    mainui/welcomewidget.ui
                    mainui/librarywidget.ui
+                   mainui/bibtexexportdialog.ui
 
                    sidebar/referencewidget.ui
                    sidebar/listpublicationsdialog.ui
