@@ -18,6 +18,12 @@
 #include "notewidget.h"
 #include "ui_notewidget.h"
 
+#include <Nepomuk/Vocabulary/NIE>
+#include <Soprano/Vocabulary/NAO>
+#include <Nepomuk/Vocabulary/NFO>
+#include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk/Variant>
+
 #include <QDebug>
 
 NoteWidget::NoteWidget(QWidget *parent)
@@ -25,6 +31,14 @@ NoteWidget::NoteWidget(QWidget *parent)
     , ui(new Ui::NoteWidget)
 {
     ui->setupUi(this);
+
+    ui->editTitle->setEnabled(false);
+    ui->editContent->setEnabled(false);
+    ui->editTags->setEnabled(false);
+
+    ui->editTags->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
+    ui->editTags->setPropertyUrl( Soprano::Vocabulary::NAO::hasTag() );
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editTags, SLOT(setResource(Nepomuk::Resource&)));
 }
 
 NoteWidget::~NoteWidget()
@@ -37,29 +51,85 @@ void NoteWidget::setResource(Nepomuk::Resource & resource)
     m_note = resource;
 
     if(!m_note.isValid()) {
-        //ui->tabWidget->setEnabled(false);
+        ui->editTitle->setEnabled(false);
+        ui->editContent->setEnabled(false);
+        ui->editTags->setEnabled(false);
     }
     else {
-        //ui->tabWidget->setEnabled(true);
+        ui->editTitle->setEnabled(true);
+        ui->editContent->setEnabled(true);
+        ui->editTags->setEnabled(true);
     }
 
     emit resourceChanged(m_note);
+
+    // discard simply shows the original contet before saving any changes
+    discardNote();
 }
 
 void NoteWidget::newButtonClicked()
 {
-//    Nepomuk::Resource nb;
-//    QList<QUrl> types;
-//    types.append(Nepomuk::Vocabulary::NBIB::Publication());
-//    nb.setTypes(types);
+    m_note = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::PIMO::Note());
 
-//    setResource(nb);
+    setResource(m_note);
 }
 
 void NoteWidget::deleteButtonClicked()
 {
-    // link document to resource
-//    m_publication.remove();
+    //check if we have semnote note, we should delete the note and the connected conntent resource
+    Nepomuk::Resource nr = m_note.property(Nepomuk::Vocabulary::PIMO::groundingOccurrence()).toResource();
+    nr.remove();
 
-//    setResource(m_publication);
+    m_note.remove();
+    setResource(m_note);
+}
+
+void NoteWidget::saveNote()
+{
+    m_note.setProperty(Nepomuk::Vocabulary::NIE::title(), ui->editTitle->text());
+
+    // these exist because of the Semnote implementation
+    m_note.setProperty(Soprano::Vocabulary::NAO::prefLabel(), ui->editTitle->text());
+    m_note.setProperty(QUrl(QLatin1String("http://purl.org/dc/elements/1.1/title")), ui->editTitle->text());
+
+    //now the content for Notably style directly to the PIMO:note
+    m_note.setProperty(Nepomuk::Vocabulary::NIE::plainTextContent(), ui->editContent->document()->toPlainText());
+    m_note.setProperty(Nepomuk::Vocabulary::NIE::htmlContent(), ui->editContent->document()->toHtml());
+
+    //now Semnotes style, as an additional resource of type HtmlDocument with content "html content"
+    Nepomuk::Resource nr = m_note.property(Nepomuk::Vocabulary::PIMO::groundingOccurrence()).toResource();
+    if(!nr.isValid()) {
+        nr = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NFO::HtmlDocument());
+        m_note.setProperty(Nepomuk::Vocabulary::PIMO::groundingOccurrence(), nr);
+    }
+
+    nr.setProperty(Nepomuk::Vocabulary::NIE::htmlContent(), ui->editContent->document()->toHtml());
+}
+
+void NoteWidget::discardNote()
+{
+    //show note content
+    QString title;
+    title = m_note.property(Nepomuk::Vocabulary::NIE::title()).toString();
+
+    if(title.isEmpty())
+        title = m_note.property(Soprano::Vocabulary::NAO::prefLabel()).toString();
+
+    if(title.isEmpty())
+        title = m_note.property(QUrl(QLatin1String("http://purl.org/dc/elements/1.1/title"))).toString();
+
+    ui->editTitle->setText(title);
+
+    //Notably saves the content in PIMO:Note=>plaintextContent And htmlContent
+    QString content;
+
+    content = m_note.property(Nepomuk::Vocabulary::NIE::htmlContent()).toString();
+
+    //Semnotes saves it as additional Resource of type HTMLDocument and links it via groundingOccurence
+    if(content.isEmpty()) {
+        Nepomuk::Resource nr = m_note.property(Nepomuk::Vocabulary::PIMO::groundingOccurrence()).toResource();
+        content = nr.property(Nepomuk::Vocabulary::NIE::htmlContent()).toString();
+    }
+
+    ui->editContent->document()->setHtml(content);
 }

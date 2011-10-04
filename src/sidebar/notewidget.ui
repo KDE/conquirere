@@ -19,43 +19,93 @@
      <property name="text">
       <string>Title:</string>
      </property>
+     <property name="buddy">
+      <cstring>editTitle</cstring>
+     </property>
     </widget>
    </item>
    <item>
-    <widget class="StringEdit" name="lineEdit"/>
+    <widget class="QLineEdit" name="editTitle"/>
    </item>
    <item>
     <widget class="QLabel" name="label_2">
      <property name="text">
       <string>Tags:</string>
      </property>
+     <property name="buddy">
+      <cstring>editTags</cstring>
+     </property>
     </widget>
    </item>
    <item>
-    <widget class="StringEdit" name="lineEdit_2"/>
+    <widget class="TagEdit" name="editTags"/>
    </item>
    <item>
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>Content:</string>
      </property>
+     <property name="buddy">
+      <cstring>editContent</cstring>
+     </property>
     </widget>
    </item>
    <item>
-    <widget class="QPlainTextEdit" name="plainTextEdit"/>
+    <widget class="QPlainTextEdit" name="editContent"/>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Discard|QDialogButtonBox::Save</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>StringEdit</class>
+   <class>TagEdit</class>
    <extends>QLineEdit</extends>
-   <header>propertywidgets/stringedit.h</header>
-   <slots>
-    <signal>widgetEnabled(bool)</signal>
-   </slots>
+   <header>propertywidgets/tagedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>NoteWidget</receiver>
+   <slot>saveNote()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>351</x>
+     <y>281</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>422</x>
+     <y>284</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>NoteWidget</receiver>
+   <slot>discardNote()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>218</x>
+     <y>281</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>221</x>
+     <y>317</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>saveNote()</slot>
+  <slot>discardNote()</slot>
+ </slots>
 </ui>

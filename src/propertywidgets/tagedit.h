@@ -15,42 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NOTEWIDGET_H
-#define NOTEWIDGET_H
+#ifndef TAGEDIT_H
+#define TAGEDIT_H
 
-#include "sidebarcomponent.h"
-#include <Nepomuk/Resource>
+#include "propertyedit.h"
 
-#include <QWidget>
-
-namespace Ui {
-    class NoteWidget;
-}
-
-class NoteWidget : public SidebarComponent
+class TagEdit : public PropertyEdit
 {
     Q_OBJECT
-
 public:
-    explicit NoteWidget(QWidget *parent = 0);
-    ~NoteWidget();
+    explicit TagEdit(QWidget *parent = 0);
 
-public slots:
-    virtual void setResource(Nepomuk::Resource & resource);
+protected:
+    void setupLabel();
 
-signals:
-    /* notify connected editwidgets to update their info */
-    void resourceChanged(Nepomuk::Resource & resource);
+    virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
-private slots:
-    void newButtonClicked();
-    void deleteButtonClicked();
-    void saveNote();
-    void discardNote();
+    virtual void updateResource( const QString & text );
 
-private:
-    Nepomuk::Resource m_note;
-    Ui::NoteWidget *ui;
 };
 
-#endif // NOTEWIDGET_H
+#endif // TAGEDIT_H
