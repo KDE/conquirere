@@ -18,6 +18,7 @@
 #include "mainwindow.h"
 
 #include "bibtexexportdialog.h"
+#include "../libnbibio/nbibimporterbibtex.h"
 
 #include "core/library.h"
 
@@ -40,6 +41,18 @@
 #include <QSplitter>
 
 #include <QDebug>
+//DEBUG ADD
+
+#include "nbib.h"
+#include <Nepomuk/Vocabulary/NCO>
+#include <Nepomuk/Query/Term>
+#include <Nepomuk/Query/ResourceTerm>
+#include <Nepomuk/Query/ResourceTypeTerm>
+#include <Nepomuk/Query/ComparisonTerm>
+#include <Nepomuk/Query/OrTerm>
+#include <Nepomuk/Query/QueryServiceClient>
+#include <Nepomuk/Query/Result>
+#include <Nepomuk/Query/QueryParser>
 
 MainWindow::MainWindow(QWidget *parent)
     : KXmlGuiWindow(parent)
@@ -149,6 +162,37 @@ void MainWindow::exportBibTex()
     bed.exec();
 }
 
+void MainWindow::importBibTex()
+{
+    //select name and path of the bibtexFile
+    QString fileNameFromDialog = KFileDialog::getOpenFileName(KGlobalSettings::documentPath(), QLatin1String("*.bib|BibTeX File (*.bib)"));
+
+    if(fileNameFromDialog.isEmpty()) {
+        return;
+    }
+
+    NBibImporterBibTex nbib;
+
+    nbib.fromFile(fileNameFromDialog);
+}
+
+void MainWindow::DEBUGDELETEALLDATA()
+{
+    // fetcha data
+    Nepomuk::Query::OrTerm orTerm;
+
+    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Reference() ) );
+    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Publication() ) );
+    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NCO::Contact() ) );
+
+    Nepomuk::Query::Query query( orTerm );
+
+    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
+
+    foreach(Nepomuk::Query::Result r, queryResult) {
+        r.resource().remove();
+    }
+}
 void MainWindow::setupActions()
 {
     KAction* newProjectAction = new KAction(this);
@@ -187,6 +231,21 @@ void MainWindow::setupActions()
 
     actionCollection()->addAction(QLatin1String("export_bibtex"), exportBibTexAction);
     connect(exportBibTexAction, SIGNAL(triggered(bool)),this, SLOT(exportBibTex()));
+
+    KAction* importBibTexAction = new KAction(this);
+    importBibTexAction->setText(i18n("&Import from BibTex"));
+    importBibTexAction->setIcon(KIcon(QLatin1String("document-import")));
+
+    actionCollection()->addAction(QLatin1String("import_bibtex"), importBibTexAction);
+    connect(importBibTexAction, SIGNAL(triggered(bool)),this, SLOT(importBibTex()));
+
+    KAction* debugDELETE = new KAction(this);
+    debugDELETE->setText(i18n("DEBUG DELETE ALL DATA!"));
+    debugDELETE->setIcon(KIcon(QLatin1String("document-close")));
+
+    actionCollection()->addAction(QLatin1String("debug_delete"), debugDELETE);
+    connect(debugDELETE, SIGNAL(triggered(bool)),this, SLOT(DEBUGDELETEALLDATA()));
+
 
     KStandardAction::quit(kapp, SLOT(quit()),actionCollection());
 

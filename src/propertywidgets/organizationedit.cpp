@@ -31,9 +31,18 @@ OrganizationEdit::OrganizationEdit(QWidget *parent)
 
 void OrganizationEdit::setupLabel()
 {
-    Nepomuk::Resource organization = resource().property(propertyUrl()).toResource();
+    QString title;
+    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
+        Nepomuk::Resource organization = resource().property(propertyUrl()).toResource();
 
-    QString title = organization.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+        title = organization.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+    }
+    else {
+        Nepomuk::Resource proceedings = resource().property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
+        Nepomuk::Resource organization = proceedings.property(propertyUrl()).toResource();
+
+        title = organization.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+    }
 
     addPropertryEntry(title, resource().resourceUri());
 
@@ -43,7 +52,15 @@ void OrganizationEdit::setupLabel()
 void OrganizationEdit::updateResource(const QString & text)
 {
     // remove the existing organizatzion
-    resource().removeProperty( propertyUrl() );
+    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
+        Nepomuk::Resource organization = resource().property(propertyUrl()).toResource();
+        resource().removeProperty(organization.resourceUri());
+    }
+    else {
+        Nepomuk::Resource proceedings = resource().property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
+        Nepomuk::Resource organization = proceedings.property(propertyUrl()).toResource();
+        resource().removeProperty(organization.resourceUri());
+    }
 
     if(text.isEmpty())
         return;
@@ -55,7 +72,7 @@ void OrganizationEdit::updateResource(const QString & text)
         resource().addProperty( propertyUrl(), Nepomuk::Resource(propUrl));
     }
     else {
-        // create a new journalisiue with the string s as journal title
+        // create a new organization with the string s as title
         Nepomuk::Resource newOrganizatzion(QUrl(), Nepomuk::Vocabulary::NCO::OrganizationContact());
         newOrganizatzion.setProperty(Nepomuk::Vocabulary::NCO::fullname(), text);
 

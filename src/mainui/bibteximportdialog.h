@@ -15,44 +15,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef BIBTEXIMPORTDIALOG_H
+#define BIBTEXIMPORTDIALOG_H
 
-#include <KDE/KXmlGuiWindow>
+#include <QDialog>
 
-class Library;
-class MainWidget;
-class LibraryWidget;
-class SidebarWidget;
+namespace Ui {
+    class BibTexImportDialog;
+}
 
-class MainWindow : public KXmlGuiWindow
+class BibTexImportDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    explicit BibTexImportDialog(QWidget *parent = 0);
+    ~BibTexImportDialog();
 
-public slots:
-    void createLibrary();
-    void loadLibrary();
-    void openLibrary(Library *l);
-    void deleteLibrary();
-    void closeLibrary();
-    void exportBibTex();
-    void importBibTex();
-
-    void DEBUGDELETEALLDATA();
+private slots:
+    void accept();
 
 private:
-    void setupActions();
-    void setupMainWindow();
-
-    LibraryWidget *m_libraryWidget;
-    MainWidget *m_mainView;
-    SidebarWidget *m_sidebarWidget;
-
-    QList<Library *> m_libraries;   /**< All opened libraries minimum the system library */
+    Ui::BibTexImportDialog *ui;
 };
 
-#endif // MAINWINDOW_H
+#endif // BIBTEXIMPORTDIALOG_H

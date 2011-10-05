@@ -76,6 +76,9 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
     int index = ui->editEntryType->findData(entryType);
     ui->editEntryType->setCurrentIndex(index);
 
+    QString abstract = m_publication.property(Nepomuk::Vocabulary::NBIB::abstract()).toString();
+    ui->editAbstract->document()->setPlainText(abstract);
+
     selectLayout(entryType);
 }
 
@@ -175,7 +178,7 @@ void PublicationWidget::acceptContentChanges()
 
     QString toc = ui->editTOC->document()->toPlainText();
     //    m_publication.setProperty(Nepomuk::Vocabulary::NBIB::abstract(), toc);
-    qWarning() << "change chapter edit";
+    qWarning() << "change chapter/TOC edit";
 }
 
 void PublicationWidget::discardContentChanges()
@@ -211,11 +214,11 @@ void PublicationWidget::setupWidget()
     ui->editEntryType->addItem(i18n("Booklet"),BibType_Booklet);
     ui->editEntryType->addItem(i18n("Collection"),BibType_Collection);
     ui->editEntryType->addItem(i18n("Proceedings"),BibType_Proceedings);
-    ui->editEntryType->addItem(i18n("Inproceedings"),BibType_Inproceedings);
+    ui->editEntryType->addItem(i18n("InProceedings"),BibType_Inproceedings);
     ui->editEntryType->addItem(i18n("Journal Issue"),BibType_JournalIssue);
     ui->editEntryType->addItem(i18n("Bachelorhesis"),BibType_Bachelorthesis);
     ui->editEntryType->addItem(i18n("Mastersthesis"),BibType_Mastersthesis);
-    ui->editEntryType->addItem(i18n("Phdthesis"),BibType_Phdthesis);
+    ui->editEntryType->addItem(i18n("PhdThesis"),BibType_Phdthesis);
     ui->editEntryType->addItem(i18n("Manual"),BibType_Manual);
     ui->editEntryType->addItem(i18n("Techreport"),BibType_Techreport);
     ui->editEntryType->addItem(i18n("Unpublished"),BibType_Unpublished);
@@ -283,46 +286,49 @@ BibEntryType PublicationWidget::resourceTypeToEnum(Nepomuk::Resource & resource)
     Nepomuk::Resource checkType( resource.resourceType() );
     QString resourceLabel = checkType.genericLabel();
 
-    if(resourceLabel == QLatin1String("Article")) {
+    if(resourceLabel.toLower().toLower() == QLatin1String("article")) {
         return BibType_Article;
     }
-    if(resourceLabel == QLatin1String("BachelorThesis")) {
+    if(resourceLabel.toLower() == QLatin1String("bachelorthesis")) {
         return BibType_Bachelorthesis;
     }
-    if(resourceLabel == QLatin1String("Book")) {
+    if(resourceLabel.toLower() == QLatin1String("book")) {
         return BibType_Book;
     }
-    if(resourceLabel == QLatin1String("Booklet")) {
+    if(resourceLabel.toLower() == QLatin1String("booklet")) {
         return BibType_Booklet;
     }
-    if(resourceLabel == QLatin1String("InProceedings")) {
+    if(resourceLabel.toLower() == QLatin1String("collection")) {
+        return BibType_Collection;
+    }
+    if(resourceLabel.toLower() == QLatin1String("inproceedings")) {
         return BibType_Inproceedings;
     }
-    if(resourceLabel == QLatin1String("Manual")) {
+    if(resourceLabel.toLower() == QLatin1String("manual")) {
         return BibType_Manual;
     }
-    if(resourceLabel == QLatin1String("MastersThesis")) {
+    if(resourceLabel.toLower() == QLatin1String("mastersthesis")) {
         return BibType_Mastersthesis;
     }
-    if(resourceLabel == QLatin1String("PhdThesis")) {
+    if(resourceLabel.toLower() == QLatin1String("phdthesis")) {
         return BibType_Phdthesis;
     }
-    if(resourceLabel == QLatin1String("Proceedings")) {
+    if(resourceLabel.toLower() == QLatin1String("proceedings")) {
         return BibType_Proceedings;
     }
-    if(resourceLabel == QLatin1String("Techreport")) {
+    if(resourceLabel.toLower() == QLatin1String("techreport")) {
         return BibType_Techreport;
     }
-    if(resourceLabel == QLatin1String("Unpublished")) {
+    if(resourceLabel.toLower() == QLatin1String("unpublished")) {
         return BibType_Unpublished;
     }
-    if(resourceLabel == QLatin1String("Patent")) {
+    if(resourceLabel.toLower() == QLatin1String("patent")) {
         return BibType_Patent;
     }
-    if(resourceLabel == QLatin1String("Website")) {
+    if(resourceLabel.toLower() == QLatin1String("website")) {
         return BibType_Electronic;
     }
-    if(resourceLabel == QLatin1String("JournalIssue")) {
+    if(resourceLabel.toLower() == QLatin1String("journalissue")) {
         return BibType_JournalIssue;
     }
     return BibType_Misc;

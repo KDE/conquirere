@@ -15,44 +15,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef NBIBIMPORTER_H
+#define NBIBIMPORTER_H
 
-#include <KDE/KXmlGuiWindow>
+#include <QObject>
 
-class Library;
-class MainWidget;
-class LibraryWidget;
-class SidebarWidget;
+class QIODevice;
 
-class MainWindow : public KXmlGuiWindow
+class NBibImporter : public QObject
 {
     Q_OBJECT
-
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    explicit NBibImporter();
+
+    bool fromFile(const QString &fileName, QStringList *errorLog = NULL);
+    virtual bool load(QIODevice *iodevice, QStringList *errorLog = NULL) = 0;
+
+signals:
+    void progress(int current, int total);
 
 public slots:
-    void createLibrary();
-    void loadLibrary();
-    void openLibrary(Library *l);
-    void deleteLibrary();
-    void closeLibrary();
-    void exportBibTex();
-    void importBibTex();
+    virtual void cancel();
 
-    void DEBUGDELETEALLDATA();
-
-private:
-    void setupActions();
-    void setupMainWindow();
-
-    LibraryWidget *m_libraryWidget;
-    MainWidget *m_mainView;
-    SidebarWidget *m_sidebarWidget;
-
-    QList<Library *> m_libraries;   /**< All opened libraries minimum the system library */
 };
 
-#endif // MAINWINDOW_H
+#endif // NBIBIMPORTER_H

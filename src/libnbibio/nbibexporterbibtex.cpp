@@ -149,6 +149,7 @@ QString NBibExporterBibTex::collectContent(Nepomuk::Resource reference, Nepomuk:
         fullstring = fullstring + br + returnString;
 
     // if the chapter has an author attached to it , don't search author of the publication
+    // solves the incollection special case where the author of the chapter not the one from teh whoel collection is ment
     if(!returnString.contains(QLatin1String("author ="))) {
         returnString = getAuthors(publication);
         if(!returnString.isEmpty())

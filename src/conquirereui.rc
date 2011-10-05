@@ -22,6 +22,9 @@
       <Action name="delete_project" />
       <Action name="close_project" />
       <Action name="export_bibtex" />
+      <Action name="import_bibtex" />
+      <Action name="debug_delete" />
+      
   </ToolBar>
  
 </gui> 

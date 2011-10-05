@@ -133,7 +133,7 @@ nbib: {
           a       rdfs:Class ;
           rdfs:comment "The proceedings of a conference." ;
           rdfs:label "Proceedings" ;
-          rdfs:subClassOf nbib:Publication .
+          rdfs:subClassOf nbib:Collection .
 
     nbib:Script
           a       rdfs:Class ;
@@ -185,7 +185,7 @@ nbib: {
           a       rdfs:Class ;
           rdfs:comment "Superclass to represent a series of some published data. (Book Series, Journal with several issues etc)" ;
           rdfs:label "Series" ;
-          rdfs:subClassOf nie:Collection .
+          rdfs:subClassOf nie:InformationElement .
 
     nbib:BookSeries
           a       rdfs:Class ;
@@ -227,6 +227,14 @@ nbib: {
           rdfs:subPropertyOf nie:identifier ;
           rdfs:range xsd:string ;
           nrl:cardinality 1 ;
+          nrl:maxCardinality 1 .
+
+    nbib:chapterNumber
+          a       rdf:Property ;
+          rdfs:domain nbib:Chapter ;
+          rdfs:comment "The number of the Chapter for example 1.2, II etc" ;
+          rdfs:label "chapterNumber" ;
+          rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
     nie:abstract
@@ -411,6 +419,25 @@ nbib: {
           rdfs:label "Pages" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
+
+    nbib:proceedings
+          a       rdf:Property ;
+          rdfs:domain nbib:InProceedings ;
+          rdfs:comment "The Proceedings that contain the @InProceedings publication" ;
+          rdfs:label "proceedings" ;
+          rdfs:range nbib:Proceedings ;
+          rdfs:subPropertyOf nie:hasLogicalPart ;
+          nrl:inverseProperty nbib:proceedingsOf ;
+          nrl:maxCardinality 1 .
+
+    nbib:proceedingsOf
+          a       rdf:Property ;
+          rdfs:domain nbib:Proceedings ;
+          rdfs:comment "Collects all @InProceedings publication to its actual Proceedings" ;
+          rdfs:label "proceedingsOf" ;
+          rdfs:subPropertyOf nie:isLogicalPart ;
+          nrl:inverseProperty nbib:proceedings ;
+          rdfs:range nbib:InProceedings .
 
     nie:publicationDate
           a       rdf:Property ;

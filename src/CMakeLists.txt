@@ -18,6 +18,7 @@ set(conquirere_SRCS
     mainui/mainwidget.cpp
     mainui/mainwindow.cpp
     mainui/bibtexexportdialog.cpp
+    mainui/bibteximportdialog.cpp
 
     propertywidgets/propertyedit.cpp
     propertywidgets/contactedit.cpp
@@ -30,6 +31,7 @@ set(conquirere_SRCS
     propertywidgets/fileobjectedit.cpp
     propertywidgets/organizationedit.cpp
     propertywidgets/tagedit.cpp
+    propertywidgets/issnedit.cpp
 
     sidebar/sidebarwidget.cpp
     sidebar/sidebarcomponent.cpp
@@ -42,6 +44,9 @@ set(conquirere_SRCS
 # later on create lib taget for this
     libnbibio/nbibexporter.cpp
     libnbibio/nbibexporterbibtex.cpp
+
+    libnbibio/nbibimporter.cpp
+    libnbibio/nbibimporterbibtex.cpp
 )
 
 kde4_add_ui_files( conquirere_SRCS
@@ -50,6 +55,7 @@ kde4_add_ui_files( conquirere_SRCS
                    mainui/welcomewidget.ui
                    mainui/librarywidget.ui
                    mainui/bibtexexportdialog.ui
+                   mainui/bibteximportdialog.ui
 
                    sidebar/referencewidget.ui
                    sidebar/listpublicationsdialog.ui

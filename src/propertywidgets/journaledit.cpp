@@ -31,8 +31,13 @@ JournalEdit::JournalEdit(QWidget *parent)
 
 void JournalEdit::setupLabel()
 {
-    //get the connected jornal for the publication
-    Nepomuk::Resource journal = resource().property(propertyUrl()).toResource();
+    //get the connected journal for the publication
+    Nepomuk::Resource journal;
+    Nepomuk::Resource journalIssue = resource().property(propertyUrl()).toResource();
+    if(journalIssue.isValid())
+        journal = journalIssue.property(Nepomuk::Vocabulary::NBIB::journal()).toResource();
+    else
+        journal = resource().property(Nepomuk::Vocabulary::NBIB::journal()).toResource();
 
     QString title = journal.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
