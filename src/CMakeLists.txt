@@ -47,6 +47,7 @@ set(conquirere_SRCS
 
     libnbibio/nbibimporter.cpp
     libnbibio/nbibimporterbibtex.cpp
+    libnbibio/encoderlatex.cpp
 )
 
 kde4_add_ui_files( conquirere_SRCS

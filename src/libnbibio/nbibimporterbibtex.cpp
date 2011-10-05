@@ -17,6 +17,8 @@
 
 #include "nbibimporterbibtex.h"
 
+#include "encoderlatex.h"
+
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Vocabulary/NIE>
@@ -38,7 +40,6 @@
 #include <QRegExp>
 #include <QDebug>
 
-
 NBibImporterBibTex::NBibImporterBibTex()
     : NBibImporter()
 {
@@ -46,6 +47,16 @@ NBibImporterBibTex::NBibImporterBibTex()
 
 bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
 {
+    // we start by fetching all contacts for the conflict checking
+    // this reduce the need to query nepomuk with every new author again and again
+    // the storage got out of sync otherwise
+    Nepomuk::Query::ResourceTypeTerm type( Nepomuk::Vocabulary::NCO::Contact() );
+    Nepomuk::Query::Query query( type );
+    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
+    foreach(Nepomuk::Query::Result nqr, queryResult) {
+        m_allContacts.append(nqr.resource());
+    }
+
     // lets start by seperating each bibtex entry
     // no matter how the bibtext content is formated, each entry
     // starts with a line like "@ENTRYTYPE{ CITEKEY," and ends with "}" on their own line
@@ -98,6 +109,7 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
                 curKey = key;
                 QString value = entryContent.cap(2);
 
+                value = EncoderLaTeX::currentEncoderLaTeX()->decode(value);
                 //strip leading {" and trailing "},
                 value.remove(QRegExp(QLatin1String(",$")));
                 value.remove(QRegExp(QLatin1String("^\\s*[\"|{]|[\"|}]\\s*$")));
@@ -376,7 +388,7 @@ void NBibImporterBibTex::addAuthor(const QString &content, Nepomuk::Resource pub
             publication.addProperty(Nepomuk::Vocabulary::NBIB::chapter(), chapter);
             chapter.setProperty(Nepomuk::Vocabulary::NBIB::chapterOf(), publication);
         }
-            authorResource = chapter;
+        authorResource = chapter;
     }
     else {
         authorResource = publication;
@@ -384,46 +396,19 @@ void NBibImporterBibTex::addAuthor(const QString &content, Nepomuk::Resource pub
 
     foreach(NBibImporterBibTex::Name author, allNames) {
         //check if the publisher already exist in the database
-
-        // fetcha data
-        Nepomuk::Query::ComparisonTerm fullname( Nepomuk::Vocabulary::NCO::fullname(), Nepomuk::Query::LiteralTerm( author.full ) );
-        Nepomuk::Query::ResourceTypeTerm type( Nepomuk::Vocabulary::NCO::Contact() );
-
-        Nepomuk::Query::Query query( Nepomuk::Query::AndTerm( type, fullname ) );
-
-        QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
-
         Nepomuk::Resource a;
-        if(!queryResult.isEmpty()) {
-            if(queryResult.size() > 1) {
-                qWarning() << "found more than 1 author with the name " << author.full;
-
-                //now we search deeper as we do get false results
-                // Example A.M. Bronstein and M.M. Bronstein will be found with the same query
-                foreach(Nepomuk::Query::Result nqr, queryResult) {
-                    if( nqr.resource().genericLabel() == author.full) {
-                        a = nqr.resource();
-                    }
-                }
-
-                // we found just false results ... create a new one
-                if(!a.isValid()) {
-                    qDebug() << "found only false authors, create new one";
-                    a = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::Contact());
-                }
-            }
-            else {
-                qDebug() << "found just one author, take this one";
-                a = queryResult.first().resource();
+        foreach(Nepomuk::Resource r, m_allContacts) {
+            if(r.property(Nepomuk::Vocabulary::NCO::fullname()).toString() == author.full) {
+                a = r;
+                break;
             }
         }
-        else {
-            qDebug() << "no existing author founbd, create new one";
+        if(!a.isValid()) {
+            qDebug() << "create a new Contact resource for " << author.full;
             a = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::Contact());
         }
 
         a.setProperty(Nepomuk::Vocabulary::NCO::fullname(), author.full);
-        qDebug() << "add author with full name " << author.full << "uri" << a.resourceUri();
         if(!author.first.isEmpty())
             a.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), author.first);
         if(!author.last.isEmpty())
@@ -532,38 +517,38 @@ void NBibImporterBibTex::addEditor(const QString &content, Nepomuk::Resource pub
         //check if the editor already exist in the database
 
         // fetcha data
-        Nepomuk::Query::ComparisonTerm fullname( Nepomuk::Vocabulary::NCO::fullname(), Nepomuk::Query::LiteralTerm( editor.full ) );
-        Nepomuk::Query::ResourceTypeTerm type( Nepomuk::Vocabulary::NCO::Contact() );
+        //        Nepomuk::Query::ComparisonTerm fullname( Nepomuk::Vocabulary::NCO::fullname(), Nepomuk::Query::LiteralTerm( editor.full ) );
+        //        Nepomuk::Query::ResourceTypeTerm type( Nepomuk::Vocabulary::NCO::Contact() );
 
-        Nepomuk::Query::Query query( Nepomuk::Query::AndTerm( type, fullname ) );
+        //        Nepomuk::Query::Query query( Nepomuk::Query::AndTerm( type, fullname ) );
 
-        QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
+        //        QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
 
         Nepomuk::Resource e;
-        if(!queryResult.isEmpty()) {
-            if(queryResult.size() > 1) {
-                qWarning() << "found more than 1 editor with the name " << editor.full;
+        //        if(!queryResult.isEmpty()) {
+        //            if(queryResult.size() > 1) {
+        //                qWarning() << "found more than 1 editor with the name " << editor.full;
 
-                //now we search deeper as we do get false results
-                // Example A.M. Bronstein and M.M. Bronstein will be found with the same query
-                foreach(Nepomuk::Query::Result nqr, queryResult) {
-                    if( nqr.resource().genericLabel() == editor.full) {
-                        e = nqr.resource();
-                    }
-                }
+        //                //now we search deeper as we do get false results
+        //                // Example A.M. Bronstein and M.M. Bronstein will be found with the same query
+        //                foreach(Nepomuk::Query::Result nqr, queryResult) {
+        //                    if( nqr.resource().genericLabel() == editor.full) {
+        //                        e = nqr.resource();
+        //                    }
+        //                }
 
-                // we found just false results ... create a new one
-                if(!e.isValid()) {
-                    e = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::Contact());
-                }
-            }
-            else {
-                e = queryResult.first().resource();
-            }
-        }
-        else {
-            e = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::Contact());
-        }
+        //                // we found just false results ... create a new one
+        //                if(!e.isValid()) {
+        //                    e = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::Contact());
+        //                }
+        //            }
+        //            else {
+        //                e = queryResult.first().resource();
+        //            }
+        //        }
+        //        else {
+        e = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::Contact());
+        //        }
 
         e.setProperty(Nepomuk::Vocabulary::NCO::fullname(), editor.full);
         if(!editor.first.isEmpty())

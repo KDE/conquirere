@@ -85,6 +85,8 @@ private:
     void addYear(const QString &content, Nepomuk::Resource publication);
 
     QList<NBibImporterBibTex::Name> parseName(const QString & nameString);
+
+    QList<Nepomuk::Resource> m_allContacts;
 };
 
 #endif // NBIBIMPORTERBIBTEX_H
