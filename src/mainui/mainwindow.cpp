@@ -18,7 +18,7 @@
 #include "mainwindow.h"
 
 #include "bibtexexportdialog.h"
-#include "../libnbibio/nbibimporterbibtex.h"
+#include "bibteximportdialog.h"
 
 #include "core/library.h"
 
@@ -164,16 +164,9 @@ void MainWindow::exportBibTex()
 
 void MainWindow::importBibTex()
 {
-    //select name and path of the bibtexFile
-    QString fileNameFromDialog = KFileDialog::getOpenFileName(KGlobalSettings::documentPath(), QLatin1String("*.bib|BibTeX File (*.bib)"));
+    BibTexImportDialog bid;
 
-    if(fileNameFromDialog.isEmpty()) {
-        return;
-    }
-
-    NBibImporterBibTex nbib;
-
-    nbib.fromFile(fileNameFromDialog);
+    bid.exec();
 }
 
 void MainWindow::DEBUGDELETEALLDATA()

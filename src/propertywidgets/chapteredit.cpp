@@ -34,7 +34,7 @@ void ChapterEdit::setupLabel()
 
     QString title = chapter.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
-    addPropertryEntry(title, chapter.resourceUri());
+    addPropertryEntry(title, chapter.uri());
 
     setLabelText(title);
 }
@@ -86,7 +86,7 @@ void ChapterEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &
     foreach(Nepomuk::Query::Result r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
 
-        item->setData(r.resource().resourceUri());
+        item->setData(r.resource().uri());
 
         parentItem->appendRow(item);
     }

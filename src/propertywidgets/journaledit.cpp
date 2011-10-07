@@ -41,7 +41,7 @@ void JournalEdit::setupLabel()
 
     QString title = journal.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
-    addPropertryEntry(title, resource().resourceUri());
+    addPropertryEntry(title, resource().uri());
 
     setLabelText(title);
 }
@@ -87,7 +87,7 @@ void JournalEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &
     foreach(Nepomuk::Query::Result r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
 
-        item->setData(r.resource().resourceUri());
+        item->setData(r.resource().uri());
 
         parentItem->appendRow(item);
     }

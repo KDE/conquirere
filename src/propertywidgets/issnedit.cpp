@@ -37,7 +37,7 @@ void IssnEdit::setupLabel()
 
     QString issn = series.property(Nepomuk::Vocabulary::NBIB::issn()).toString();
 
-    addPropertryEntry(issn, resource().resourceUri());
+    addPropertryEntry(issn, resource().uri());
 
     setLabelText(issn);
 }

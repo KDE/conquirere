@@ -76,6 +76,7 @@ kde4_add_executable(conquirere ${conquirere_SRCS})
 target_link_libraries(conquirere
                       ${NEPOMUK_LIBRARIES}
                       nepomukquery
+                      #nepomukcore
                       ${KDE4_KDECORE_LIBS}
                       ${KDE4_KDEUI_LIBS}
                       ${KDE4_KIO_LIBS}

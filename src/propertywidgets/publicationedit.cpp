@@ -34,7 +34,7 @@ void PublicationEdit::setupLabel()
 
     QString title = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
-    addPropertryEntry(title, publication.resourceUri());
+    addPropertryEntry(title, publication.uri());
 
     setLabelText(title);
 }
@@ -69,7 +69,7 @@ void PublicationEdit::createCompletionModel( const QList< Nepomuk::Query::Result
     foreach(Nepomuk::Query::Result r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
 
-        item->setData(r.resource().resourceUri());
+        item->setData(r.resource().uri());
 
         parentItem->appendRow(item);
     }

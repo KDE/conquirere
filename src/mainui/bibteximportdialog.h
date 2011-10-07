@@ -19,10 +19,13 @@
 #define BIBTEXIMPORTDIALOG_H
 
 #include <QDialog>
+#include <QFutureWatcher>
 
 namespace Ui {
     class BibTexImportDialog;
 }
+
+class QProgressDialog;
 
 class BibTexImportDialog : public QDialog
 {
@@ -34,9 +37,13 @@ public:
 
 private slots:
     void accept();
+    void importfinished();
 
 private:
     Ui::BibTexImportDialog *ui;
+
+    QProgressDialog *m_progress;
+    QFutureWatcher<bool> *m_futureWatcher;
 };
 
 #endif // BIBTEXIMPORTDIALOG_H

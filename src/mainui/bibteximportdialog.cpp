@@ -20,7 +20,18 @@
 
 #include "../libnbibio/nbibimporterbibtex.h"
 
+#include <QStringList>
+#include <QProgressDialog>
+#include <QThread>
+#include <qtconcurrentrun.h>
+#include <QFutureWatcher>
+#include <QFile>
 #include <QDebug>
+
+bool concurrentImport(NBibImporterBibTex *nib, const QString &fileName)
+{
+    return nib->fromFile(fileName);
+}
 
 BibTexImportDialog::BibTexImportDialog(QWidget *parent) :
     QDialog(parent),
@@ -36,12 +47,32 @@ BibTexImportDialog::~BibTexImportDialog()
 
 void BibTexImportDialog::accept()
 {
-    NBibImporterBibTex nib;
+    if(ui->bibFile->text().isEmpty())
+        return;
 
-    if(!nib.fromFile(ui->bibFile->text())) {
-        qDebug() << "impor treturned false ... solve conflicts";
-    }
-    else {
-        close();
-    }
+    m_progress = new QProgressDialog(i18n("Import publications"), "Abort import", 0, 100);
+    m_progress->setWindowModality(Qt::WindowModal);
+    m_progress->show();
+    m_progress->setFocus();
+
+    NBibImporterBibTex *nib = new NBibImporterBibTex();
+
+    connect(nib, SIGNAL(progress(int)), m_progress, SLOT(setValue(int)));
+    connect(m_progress, SIGNAL(canceled()), nib, SLOT(cancel()));
+
+    QFuture<bool> future = QtConcurrent::run(concurrentImport, nib, ui->bibFile->text());
+
+    m_futureWatcher = new QFutureWatcher<bool>();
+    m_futureWatcher->setFuture(future);
+    connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(importfinished()));
+
+}
+
+void BibTexImportDialog::importfinished()
+{
+    qDebug() << "import returned false ... solve conflicts";
+
+    delete m_progress;
+    delete m_futureWatcher;
+    close();
 }

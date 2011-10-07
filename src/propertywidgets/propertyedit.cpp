@@ -161,12 +161,12 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
 
     //get the range of the property (so what we are allowed to enter)
     Nepomuk::Resource nr(m_propertyUrl);
-    Nepomuk::Resource range = nr.property(QLatin1String("http://www.w3.org/2000/01/rdf-schema#range")).toResource();
+    Nepomuk::Resource range = nr.property(QUrl(QLatin1String("http://www.w3.org/2000/01/rdf-schema#range"))).toResource();
 
-    if(range.isValid() && range.resourceUri().isValid()) {
+    if(range.isValid() && !range.uri().isEmpty()) {
         // get all resources of type range
         resultCache.clear();
-        Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( range.resourceUri() ) );
+        Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( QUrl(range.uri()) ) );
         m_queryClient->query(query);
     }
     // if we can't use the range for the check

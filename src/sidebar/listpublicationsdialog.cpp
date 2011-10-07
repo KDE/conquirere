@@ -87,7 +87,7 @@ void ListPublicationsDialog::addPublicationData(const QList< Nepomuk::Query::Res
     foreach(Nepomuk::Query::Result e, entries) {
         QString title = e.resource().property(Nepomuk::Vocabulary::NIE::title()).toString();
         ui->listWidget->addItem(title);
-        m_listCache.insert(title, e.resource().resourceUri());
+        m_listCache.insert(title, e.resource().uri());
     }
 
 }
@@ -114,7 +114,7 @@ void ListPublicationsDialog::showPublication( QListWidgetItem * item )
 
     ui->entryAuthors->setText(authorString);
 
-    Nepomuk::Resource type(publication.resourceType());
+    Nepomuk::Resource type(publication.type());
     ui->entryType->setText(type.genericLabel());
 
     ui->entryDate->setText(publication.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString());

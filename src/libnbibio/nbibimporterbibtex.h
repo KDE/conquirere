@@ -74,7 +74,6 @@ private:
     void addNumber(const QString &content, Nepomuk::Resource publication);
     void addOrganization(const QString &content, Nepomuk::Resource publication);
     void addPages(const QString &content, Nepomuk::Resource reference);
-    void addPublisher(const QString &content, Nepomuk::Resource publication);
     void addPublisher(const QString &publisherString, const QString &address, Nepomuk::Resource publication);
     void addSchool(const QString &content, Nepomuk::Resource publication);
     void addSeries(const QString &content, Nepomuk::Resource publication);

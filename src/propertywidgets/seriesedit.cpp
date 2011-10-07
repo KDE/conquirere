@@ -34,7 +34,7 @@ void SeriesEdit::setupLabel()
     Nepomuk::Resource series = resource().property(propertyUrl()).toResource();
     QString title = series.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
-    addPropertryEntry(title, series.resourceUri());
+    addPropertryEntry(title, series.uri());
 
     setLabelText(title);
 }
@@ -72,7 +72,7 @@ void SeriesEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &e
     foreach(Nepomuk::Query::Result r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
 
-        item->setData(r.resource().resourceUri());
+        item->setData(r.resource().uri());
 
         parentItem->appendRow(item);
     }

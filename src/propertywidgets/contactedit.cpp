@@ -41,7 +41,7 @@ void ContactEdit::setupLabel()
         foreach(Nepomuk::Resource r, authorList) {
             QString fullname = r.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
             labelText.append(fullname);
-            addPropertryEntry(fullname, r.resourceUri());
+            addPropertryEntry(fullname, r.uri());
 
             labelText.append(QLatin1String("; "));
         }
@@ -53,7 +53,7 @@ void ContactEdit::setupLabel()
 
         QString fullname = author.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
         labelText.append(fullname);
-        addPropertryEntry(fullname, author.resourceUri());
+        addPropertryEntry(fullname, author.uri());
     }
 
     setLabelText(labelText);
@@ -105,7 +105,7 @@ void ContactEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &
         // this helps to identify the selected entry even if the generic label has
         // the same result on two different items
         // also it is not necessary to ask nepomuk for the resource used later again
-        item->setData(r.resource().resourceUri());
+        item->setData(r.resource().uri());
 
         parentItem->appendRow(item);
     }

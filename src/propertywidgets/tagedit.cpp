@@ -40,7 +40,7 @@ void TagEdit::setupLabel()
     foreach(Nepomuk::Resource r, tagList) {
         QString prefLabel = r.property(Soprano::Vocabulary::NAO::prefLabel()).toString();
         labelText.append(prefLabel);
-        addPropertryEntry(prefLabel, r.resourceUri());
+        addPropertryEntry(prefLabel, r.uri());
 
         labelText.append(QLatin1String("; "));
     }
@@ -94,7 +94,7 @@ void TagEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entr
         // this helps to identify the selected entry even if the generic label has
         // the same result on two different items
         // also it is not necessary to ask nepomuk for the resource used later again
-        item->setData(r.resource().resourceUri());
+        item->setData(r.resource().uri());
 
         parentItem->appendRow(item);
     }

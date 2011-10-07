@@ -22,12 +22,13 @@
 
 #include <QDebug>
 
-NBibImporter::NBibImporter() :
-    QObject(0)
+NBibImporter::NBibImporter()
+    : QObject(0)
+    , m_cancel(false)
 {
 }
 
-bool NBibImporter::fromFile(const QString &fileName, QStringList *errorLog)
+bool NBibImporter::fromFile(QString fileName)
 {
     QFile bibFile(fileName);
     if (!bibFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -35,10 +36,10 @@ bool NBibImporter::fromFile(const QString &fileName, QStringList *errorLog)
         return false;
     }
 
-    return load(&bibFile, errorLog);
+    return load(&bibFile);
 }
 
 void NBibImporter::cancel()
 {
-    //do nothing here ...
+    m_cancel=true;
 }

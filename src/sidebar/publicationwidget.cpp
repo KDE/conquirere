@@ -283,52 +283,49 @@ void PublicationWidget::setupWidget()
 
 BibEntryType PublicationWidget::resourceTypeToEnum(Nepomuk::Resource & resource)
 {
-    Nepomuk::Resource checkType( resource.resourceType() );
-    QString resourceLabel = checkType.genericLabel();
-
-    if(resourceLabel.toLower().toLower() == QLatin1String("article")) {
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
         return BibType_Article;
     }
-    if(resourceLabel.toLower() == QLatin1String("bachelorthesis")) {
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::BachelorThesis())) {
         return BibType_Bachelorthesis;
     }
-    if(resourceLabel.toLower() == QLatin1String("book")) {
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Book())) {
         return BibType_Book;
     }
-    if(resourceLabel.toLower() == QLatin1String("booklet")) {
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Booklet())) {
         return BibType_Booklet;
     }
-    if(resourceLabel.toLower() == QLatin1String("collection")) {
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
         return BibType_Collection;
     }
-    if(resourceLabel.toLower() == QLatin1String("inproceedings")) {
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::InProceedings())) {
         return BibType_Inproceedings;
     }
-    if(resourceLabel.toLower() == QLatin1String("manual")) {
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Manual())) {
         return BibType_Manual;
     }
-    if(resourceLabel.toLower() == QLatin1String("mastersthesis")) {
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::MastersThesis())) {
         return BibType_Mastersthesis;
     }
-    if(resourceLabel.toLower() == QLatin1String("phdthesis")) {
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::PhdThesis())) {
         return BibType_Phdthesis;
     }
-    if(resourceLabel.toLower() == QLatin1String("proceedings")) {
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
         return BibType_Proceedings;
     }
-    if(resourceLabel.toLower() == QLatin1String("techreport")) {
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Techreport())) {
         return BibType_Techreport;
     }
-    if(resourceLabel.toLower() == QLatin1String("unpublished")) {
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Unpublished())) {
         return BibType_Unpublished;
     }
-    if(resourceLabel.toLower() == QLatin1String("patent")) {
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Patent())) {
         return BibType_Patent;
     }
-    if(resourceLabel.toLower() == QLatin1String("website")) {
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Electronic())) {
         return BibType_Electronic;
     }
-    if(resourceLabel.toLower() == QLatin1String("journalissue")) {
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::JournalIssue())) {
         return BibType_JournalIssue;
     }
     return BibType_Misc;

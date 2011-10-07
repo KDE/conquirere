@@ -44,7 +44,7 @@ void OrganizationEdit::setupLabel()
         title = organization.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
     }
 
-    addPropertryEntry(title, resource().resourceUri());
+    addPropertryEntry(title, resource().uri());
 
     setLabelText(title);
 }
@@ -54,12 +54,12 @@ void OrganizationEdit::updateResource(const QString & text)
     // remove the existing organizatzion
     if(resource().hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
         Nepomuk::Resource organization = resource().property(propertyUrl()).toResource();
-        resource().removeProperty(organization.resourceUri());
+        resource().removeProperty(organization.uri());
     }
     else {
         Nepomuk::Resource proceedings = resource().property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
         Nepomuk::Resource organization = proceedings.property(propertyUrl()).toResource();
-        resource().removeProperty(organization.resourceUri());
+        resource().removeProperty(organization.uri());
     }
 
     if(text.isEmpty())
@@ -88,7 +88,7 @@ void OrganizationEdit::createCompletionModel( const QList< Nepomuk::Query::Resul
     foreach(Nepomuk::Query::Result r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NCO::fullname()).toString());
 
-        item->setData(r.resource().resourceUri());
+        item->setData(r.resource().uri());
 
         parentItem->appendRow(item);
     }

@@ -474,15 +474,6 @@ nbib: {
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:url
-          a       rdf:Property ;
-          rdfs:domain nbib:Electronic ;
-          rdfs:comment "The WWW address." ;
-          rdfs:label "Url" ;
-          rdfs:range xsd:string ;
-          rdfs:subClassOf nco:url ;
-          nrl:maxCardinality 1 .
-
     nbib:volume
           a       rdf:Property ;
           rdfs:domain nbib:Publication  ;

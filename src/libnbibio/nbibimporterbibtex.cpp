@@ -62,6 +62,7 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
     // starts with a line like "@ENTRYTYPE{ CITEKEY," and ends with "}" on their own line
 
     QList<Entry> bibEntries;
+    QList<Entry> bibEntriesWithCrossref;
 
     QRegExp entryStart = QRegExp(QLatin1String("@([a-zA-Z]*)\\s*[{]\\s*([^,]*),*"));
     QRegExp entryContent = QRegExp(QLatin1String("^\\s*([a-zA-Z]*)\\s*[=]\\s*(.*)"));
@@ -80,7 +81,7 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
         if(line.isEmpty())
             continue;
         //ignore comment lines %
-        //if(line.contains(QRegExp(QLatin1String("^\\s*%"))));
+        //if(line.contains(QRegExp(QLatin1String("^[\\s*%]"))));
         //    continue;
 
         if(line.contains(entryStart)) {
@@ -93,7 +94,13 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
         else if(line.contains(entryEnd)) {
             // we check again we we are inside an entry, deals with multiple } at the end
             if(inEntry) {
-                bibEntries.append(curEntry);
+                QString crossref = curEntry.content.value(QLatin1String("crossref"),QString());
+                if(crossref.isEmpty()) {
+                    bibEntries.append(curEntry);
+                }
+                else {
+                    bibEntriesWithCrossref.append(curEntry);
+                }
                 curEntry.content.clear();
             }
             inEntry = false;
@@ -139,11 +146,23 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
 
     qDebug() << "import " << bibEntries.size() << "bibtex entries";
 
+    qreal percentperFile = 100/bibEntries.size();
+    int fileNumber = 0;
+
     //now we seperated all entries, time to inspect and import them
     foreach(Entry e, bibEntries) {
         //create a new reference and Publication
         addEntry(e);
+        fileNumber++;
+        emit progress( percentperFile * fileNumber );
+
+        if(m_cancel) {
+            break;
+        }
     }
+
+    if(!m_cancel)
+        emit progress( 100 );
 
     return false;
 }
@@ -159,10 +178,18 @@ void NBibImporterBibTex::addEntry(Entry e)
 
     //before we go through the whole list one by one, we take care of some special cases
 
-    // I. publisher + address
+    // I. publisher/school/institution + address
     QString address = e.content.value(QLatin1String("address"),QString());
     if(!address.isEmpty()) {
         QString publisher = e.content.value(QLatin1String("publisher"),QString());
+        e.content.remove(QLatin1String("school"));
+        if(publisher.isEmpty()) {
+            publisher = e.content.value(QLatin1String("school"),QString());
+        }
+        if(publisher.isEmpty()) {
+            publisher = e.content.value(QLatin1String("institution"),QString());
+            e.content.remove(QLatin1String("institution"));
+        }
 
         e.content.remove(QLatin1String("address"));
         e.content.remove(QLatin1String("publisher"));
@@ -185,12 +212,18 @@ void NBibImporterBibTex::addEntry(Entry e)
 
     // III. archivePrefix + eprint
 
+    //now go through the list of all remaining entries minus the crossref
+    QString crossref = e.content.value(QLatin1String("crossref"),QString());
+    e.content.remove(QLatin1String("crossref"));
+
     QMapIterator<QString, QString> i(e.content);
     while (i.hasNext()) {
         i.next();
-
         addContent(i.key(), i.value(), publication, reference, e.entryType.toLower());
     }
+
+    // X. if we have a crossref entry add all missing fields from the crossref to the entry
+    addContent(QLatin1String("crossref"), crossref, publication, reference, e.entryType.toLower());
 }
 
 Nepomuk::Resource NBibImporterBibTex::typeToResource(const QString & entryType)
@@ -334,7 +367,7 @@ void NBibImporterBibTex::addContent(const QString &key, const QString &value, Ne
         addPages(value, reference);
     }
     else if(key == QLatin1String("publisher")) {
-        addPublisher(value, publication);
+        addPublisher(value, QString(), publication);
     }
     else if(key == QLatin1String("school")) {
         addSchool(value, publication);
@@ -409,6 +442,8 @@ void NBibImporterBibTex::addAuthor(const QString &content, Nepomuk::Resource pub
         }
 
         a.setProperty(Nepomuk::Vocabulary::NCO::fullname(), author.full);
+        qDebug() << "name set for " << author.full << " :: " << a.property(Nepomuk::Vocabulary::NCO::fullname()).toString() << " uri " << a.uri();
+        qDebug() << "to rresource " << authorResource.uri();
         if(!author.first.isEmpty())
             a.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), author.first);
         if(!author.last.isEmpty())
@@ -496,7 +531,7 @@ void NBibImporterBibTex::addCopyrigth(const QString &content, Nepomuk::Resource 
 
 void NBibImporterBibTex::addCrossref(const QString &content, Nepomuk::Resource publication)
 {
-
+    qWarning() << "NBibImporterBibTex::addCrossref needs implementation";
 }
 
 void NBibImporterBibTex::addDoi(const QString &content, Nepomuk::Resource publication)
@@ -515,40 +550,18 @@ void NBibImporterBibTex::addEditor(const QString &content, Nepomuk::Resource pub
 
     foreach(NBibImporterBibTex::Name editor, allNames) {
         //check if the editor already exist in the database
-
-        // fetcha data
-        //        Nepomuk::Query::ComparisonTerm fullname( Nepomuk::Vocabulary::NCO::fullname(), Nepomuk::Query::LiteralTerm( editor.full ) );
-        //        Nepomuk::Query::ResourceTypeTerm type( Nepomuk::Vocabulary::NCO::Contact() );
-
-        //        Nepomuk::Query::Query query( Nepomuk::Query::AndTerm( type, fullname ) );
-
-        //        QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
-
         Nepomuk::Resource e;
-        //        if(!queryResult.isEmpty()) {
-        //            if(queryResult.size() > 1) {
-        //                qWarning() << "found more than 1 editor with the name " << editor.full;
 
-        //                //now we search deeper as we do get false results
-        //                // Example A.M. Bronstein and M.M. Bronstein will be found with the same query
-        //                foreach(Nepomuk::Query::Result nqr, queryResult) {
-        //                    if( nqr.resource().genericLabel() == editor.full) {
-        //                        e = nqr.resource();
-        //                    }
-        //                }
-
-        //                // we found just false results ... create a new one
-        //                if(!e.isValid()) {
-        //                    e = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::Contact());
-        //                }
-        //            }
-        //            else {
-        //                e = queryResult.first().resource();
-        //            }
-        //        }
-        //        else {
-        e = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::Contact());
-        //        }
+        foreach(Nepomuk::Resource r, m_allContacts) {
+            if(r.property(Nepomuk::Vocabulary::NCO::fullname()).toString() == editor.full) {
+                e = r;
+                break;
+            }
+        }
+        if(!e.isValid()) {
+            qDebug() << "create a new Contact resource for " << editor.full;
+            e = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::Contact());
+        }
 
         e.setProperty(Nepomuk::Vocabulary::NCO::fullname(), editor.full);
         if(!editor.first.isEmpty())
@@ -575,7 +588,7 @@ void NBibImporterBibTex::addHowPublished(const QString &content, Nepomuk::Resour
 
 void NBibImporterBibTex::addInstitution(const QString &content, Nepomuk::Resource publication)
 {
-    addPublisher(content, publication);
+    addPublisher(content, QString(), publication);
 }
 
 void NBibImporterBibTex::addIsbn(const QString &content, Nepomuk::Resource publication)
@@ -780,83 +793,33 @@ void NBibImporterBibTex::addPages(const QString &content, Nepomuk::Resource refe
     reference.setProperty(Nepomuk::Vocabulary::NBIB::pages(), content);
 }
 
-void NBibImporterBibTex::addPublisher(const QString &content, Nepomuk::Resource publication)
-{
-    QList<NBibImporterBibTex::Name> allNames = parseName(content);
-
-    foreach(NBibImporterBibTex::Name publisher, allNames) {
-        //check if the publisher already exist in the database
-
-        // fetcha data
-        Nepomuk::Query::ComparisonTerm fullname( Nepomuk::Vocabulary::NCO::fullname(), Nepomuk::Query::LiteralTerm( publisher.full ) );
-        Nepomuk::Query::ResourceTypeTerm type( Nepomuk::Vocabulary::NCO::Contact() );
-
-        Nepomuk::Query::Query query( Nepomuk::Query::AndTerm( type, fullname ) );
-
-        QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
-
-        Nepomuk::Resource p;
-        if(!queryResult.isEmpty()) {
-            p = queryResult.first().resource();
-        }
-        else {
-            p = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::Contact());
-        }
-
-        p.setProperty(Nepomuk::Vocabulary::NCO::fullname(), publisher.full);
-        p.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), publisher.first);
-        p.setProperty(Nepomuk::Vocabulary::NCO::nameFamily(), publisher.last);
-        p.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), publisher.middle);
-
-        publication.addProperty(Nepomuk::Vocabulary::NCO::publisher(), p);
-    }
-}
-
 void NBibImporterBibTex::addPublisher(const QString &publisherString, const QString &address, Nepomuk::Resource publication)
 {
     // create the address object
     Nepomuk::Resource addr(QUrl(), Nepomuk::Vocabulary::NCO::PostalAddress());
     //FIXME extendedAddress is not correct, but determining which part of the @p address is the street/location and so on is nearly impossible
-    addr.setProperty(Nepomuk::Vocabulary::NCO::extendedAddress(), address);
+
+    if(!address.isEmpty())
+        addr.setProperty(Nepomuk::Vocabulary::NCO::extendedAddress(), address);
 
     QList<NBibImporterBibTex::Name> allNames = parseName(publisherString);
 
     foreach(NBibImporterBibTex::Name publisher, allNames) {
         //check if the publisher already exist in the database
 
-        // fetcha data
-        Nepomuk::Query::ComparisonTerm fullname( Nepomuk::Vocabulary::NCO::fullname(), Nepomuk::Query::LiteralTerm( publisher.full ) );
-        Nepomuk::Query::ResourceTypeTerm type( Nepomuk::Vocabulary::NCO::Contact() );
-
-        Nepomuk::Query::Query query( Nepomuk::Query::AndTerm( type, fullname ) );
-
-        QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
-
         Nepomuk::Resource p;
-        if(!queryResult.isEmpty()) {
-            if(queryResult.size() > 1) {
-                qWarning() << "found more than 1 publisher with the name " << publisher.full;
 
-                //now we search deeper as we do get false results
-                // Example A.M. Bronstein and M.M. Bronstein will be found with the same query
-                foreach(Nepomuk::Query::Result nqr, queryResult) {
-                    if( nqr.resource().genericLabel() == publisher.full) {
-                        p = nqr.resource();
-                    }
-                }
-
-                // we found just false results ... create a new one
-                if(!p.isValid()) {
-                    p = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::Contact());
-                }
-            }
-            else {
-                p = queryResult.first().resource();
+        foreach(Nepomuk::Resource r, m_allContacts) {
+            if(r.property(Nepomuk::Vocabulary::NCO::fullname()).toString() == publisher.full) {
+                p = r;
+                break;
             }
         }
-        else {
+        if(!p.isValid()) {
+            qDebug() << "create a new Contact resource for " << publisher.full;
             p = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::Contact());
         }
+
 
         p.setProperty(Nepomuk::Vocabulary::NCO::fullname(), publisher.full);
         if(!publisher.first.isEmpty())
@@ -874,7 +837,7 @@ void NBibImporterBibTex::addPublisher(const QString &publisherString, const QStr
 
 void NBibImporterBibTex::addSchool(const QString &content, Nepomuk::Resource publication)
 {
-    addPublisher(content, publication);
+    addPublisher(content, QString(), publication);
 }
 
 void NBibImporterBibTex::addSeries(const QString &content, Nepomuk::Resource publication)

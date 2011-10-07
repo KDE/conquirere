@@ -28,15 +28,17 @@ class NBibImporter : public QObject
 public:
     explicit NBibImporter();
 
-    bool fromFile(const QString &fileName, QStringList *errorLog = NULL);
+    bool fromFile(QString fileName);
     virtual bool load(QIODevice *iodevice, QStringList *errorLog = NULL) = 0;
 
 signals:
-    void progress(int current, int total);
+    void progress(int current);
 
 public slots:
     virtual void cancel();
 
+protected:
+    bool m_cancel;
 };
 
 #endif // NBIBIMPORTER_H

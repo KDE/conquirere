@@ -63,7 +63,7 @@ void FileObjectEdit::setupLabel()
     if(dataObject.isValid()) {
         title = dataObject.property(Nepomuk::Vocabulary::NIE::url()).toString();
 
-        addPropertryEntry(title, dataObject.resourceUri());
+        addPropertryEntry(title, dataObject.uri());
     }
 
     setLabelText(title);
