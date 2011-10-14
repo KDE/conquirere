@@ -25,6 +25,7 @@ namespace Ui {
     class BibTexImportDialog;
 }
 
+class NBibImporterBibTex;
 class QProgressDialog;
 
 class BibTexImportDialog : public QDialog
@@ -42,6 +43,7 @@ private slots:
 private:
     Ui::BibTexImportDialog *ui;
 
+    NBibImporterBibTex *m_nib;
     QProgressDialog *m_progress;
     QFutureWatcher<bool> *m_futureWatcher;
 };

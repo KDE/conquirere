@@ -286,6 +286,9 @@ BibEntryType PublicationWidget::resourceTypeToEnum(Nepomuk::Resource & resource)
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
         return BibType_Article;
     }
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
+        return BibType_Proceedings;
+    }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::BachelorThesis())) {
         return BibType_Bachelorthesis;
     }
@@ -294,9 +297,6 @@ BibEntryType PublicationWidget::resourceTypeToEnum(Nepomuk::Resource & resource)
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Booklet())) {
         return BibType_Booklet;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
-        return BibType_Collection;
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::InProceedings())) {
         return BibType_Inproceedings;
@@ -309,9 +309,6 @@ BibEntryType PublicationWidget::resourceTypeToEnum(Nepomuk::Resource & resource)
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::PhdThesis())) {
         return BibType_Phdthesis;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
-        return BibType_Proceedings;
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Techreport())) {
         return BibType_Techreport;
@@ -327,6 +324,9 @@ BibEntryType PublicationWidget::resourceTypeToEnum(Nepomuk::Resource & resource)
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::JournalIssue())) {
         return BibType_JournalIssue;
+    }
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
+        return BibType_Collection;
     }
     return BibType_Misc;
 }

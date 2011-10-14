@@ -16,6 +16,7 @@
  */
 
 #include "nbibimporter.h"
+#include "conflictmanager.h"
 
 #include <QFile>
 #include <QIODevice>
@@ -25,7 +26,16 @@
 NBibImporter::NBibImporter()
     : QObject(0)
     , m_cancel(false)
+    , m_solveConflicts(false)
+    , m_duplicatesDetected(0)
+    , m_newEntries(0)
 {
+    m_conflictManager = new ConflictManager();
+}
+
+NBibImporter::~NBibImporter()
+{
+    delete m_conflictManager;
 }
 
 bool NBibImporter::fromFile(QString fileName)
@@ -39,7 +49,42 @@ bool NBibImporter::fromFile(QString fileName)
     return load(&bibFile);
 }
 
+void NBibImporter::setAutomaticConflictSolving(bool solve)
+{
+    m_solveConflicts = solve;
+}
+
+bool NBibImporter::solveConflicts()
+{
+    return m_solveConflicts;
+}
+
+void NBibImporter::duplicateDetected()
+{
+    m_duplicatesDetected++;
+}
+
+int NBibImporter::duplicates()
+{
+    return m_duplicatesDetected;
+}
+
+void NBibImporter::newEntryAdded()
+{
+    m_newEntries++;
+}
+
+int NBibImporter::newEntries()
+{
+    return m_newEntries;
+}
+
 void NBibImporter::cancel()
 {
     m_cancel=true;
+}
+
+ConflictManager *NBibImporter::conflictManager()
+{
+    return m_conflictManager;
 }

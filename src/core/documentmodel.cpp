@@ -232,6 +232,7 @@ void DocumentModel::startFetchData()
     // exclude source code
     // is not interresting here and slows down way to much
     andTerm.addSubTerm(  !Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::SourceCode() ) );
+    andTerm.addSubTerm(  !Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::TextDocument() ) );
 
 
     if(m_library->libraryType() != Library_System) {

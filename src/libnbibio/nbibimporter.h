@@ -21,15 +21,27 @@
 #include <QObject>
 
 class QIODevice;
+class ConflictManager;
 
 class NBibImporter : public QObject
 {
     Q_OBJECT
 public:
     explicit NBibImporter();
+    ~NBibImporter();
 
     bool fromFile(QString fileName);
     virtual bool load(QIODevice *iodevice, QStringList *errorLog = NULL) = 0;
+
+    void setAutomaticConflictSolving(bool solve);
+    bool solveConflicts();
+
+    void duplicateDetected();
+    int duplicates();
+    void newEntryAdded();
+    int newEntries();
+
+    ConflictManager *conflictManager();
 
 signals:
     void progress(int current);
@@ -39,6 +51,12 @@ public slots:
 
 protected:
     bool m_cancel;
+    bool m_solveConflicts;
+
+    int m_duplicatesDetected;
+    int m_newEntries;
+
+    ConflictManager *m_conflictManager;
 };
 
 #endif // NBIBIMPORTER_H

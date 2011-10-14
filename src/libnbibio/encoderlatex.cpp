@@ -644,7 +644,7 @@ QString EncoderLaTeX::encode(const QString & text)
         }
     }
 
-    return result.replace(startStopMarker, "");
+    return result.replace(startStopMarker, QLatin1String(""));
 }
 
 QString EncoderLaTeX::encode(const QString &text, const QChar &replace)
@@ -664,7 +664,7 @@ QString& EncoderLaTeX::decomposedUTF8toLaTeX(QString &text)
         int i = (*it).regExp.indexIn(text);
         while (i >= 0) {
             QString a = (*it).regExp.cap(1);
-            text = text.left(i) + "\\" + (*it).latex + "{" + a + "}" + text.mid(i + 2);
+            text = text.left(i) + QLatin1String("\\") + (*it).latex + QLatin1String("{") + a + QLatin1String("}") + text.mid(i + 2);
             i = (*it).regExp.indexIn(text, i + 1);
         }
     }
@@ -679,12 +679,12 @@ QString EncoderLaTeX::convertToPlainAscii(const QString &text) const
     for (int i = 0; i < modcharmappingdatalatexcount; ++i) {
         QChar c = QChar(modcharmappingdatalatex[i].unicode);
         if (internalText.indexOf(c) >= 0)
-            internalText = internalText.replace(c, QString(modcharmappingdatalatex[i].letter));
+            internalText = internalText.replace(c, QLatin1String((modcharmappingdatalatex[i].letter)));
     }
     for (int i = 0; i < commandmappingdatalatexcount; ++i) {
         QChar c = QChar(commandmappingdatalatex[i].unicode);
         if (internalText.indexOf(c) >= 0)
-            internalText = internalText.replace(c, QString(commandmappingdatalatex[i].letters));
+            internalText = internalText.replace(c, QLatin1String((commandmappingdatalatex[i].letters)));
     }
 
     return internalText;

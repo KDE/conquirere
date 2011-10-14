@@ -19,6 +19,7 @@
 #include "ui_bibteximportdialog.h"
 
 #include "../libnbibio/nbibimporterbibtex.h"
+#include "../libnbibio/conflictmanager.h"
 
 #include <QStringList>
 #include <QProgressDialog>
@@ -33,15 +34,21 @@ bool concurrentImport(NBibImporterBibTex *nib, const QString &fileName)
     return nib->fromFile(fileName);
 }
 
-BibTexImportDialog::BibTexImportDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::BibTexImportDialog)
+BibTexImportDialog::BibTexImportDialog(QWidget *parent)
+    : QDialog(parent)
+    , ui(new Ui::BibTexImportDialog)
+    , m_nib(0)
+    ,m_progress(0)
+    ,m_futureWatcher(0)
 {
     ui->setupUi(this);
 }
 
 BibTexImportDialog::~BibTexImportDialog()
 {
+    delete m_nib;
+    delete m_progress;
+    delete m_futureWatcher;
     delete ui;
 }
 
@@ -50,17 +57,17 @@ void BibTexImportDialog::accept()
     if(ui->bibFile->text().isEmpty())
         return;
 
-    m_progress = new QProgressDialog(i18n("Import publications"), "Abort import", 0, 100);
+    m_progress = new QProgressDialog(i18n("Import publications"), QLatin1String("Abort import"), 0, 100);
     m_progress->setWindowModality(Qt::WindowModal);
     m_progress->show();
     m_progress->setFocus();
 
-    NBibImporterBibTex *nib = new NBibImporterBibTex();
+    m_nib = new NBibImporterBibTex();
 
-    connect(nib, SIGNAL(progress(int)), m_progress, SLOT(setValue(int)));
-    connect(m_progress, SIGNAL(canceled()), nib, SLOT(cancel()));
+    connect(m_nib, SIGNAL(progress(int)), m_progress, SLOT(setValue(int)));
+    connect(m_progress, SIGNAL(canceled()), m_nib, SLOT(cancel()));
 
-    QFuture<bool> future = QtConcurrent::run(concurrentImport, nib, ui->bibFile->text());
+    QFuture<bool> future = QtConcurrent::run(concurrentImport, m_nib, ui->bibFile->text());
 
     m_futureWatcher = new QFutureWatcher<bool>();
     m_futureWatcher->setFuture(future);
@@ -70,9 +77,16 @@ void BibTexImportDialog::accept()
 
 void BibTexImportDialog::importfinished()
 {
-    qDebug() << "import returned false ... solve conflicts";
+    m_progress->close();
 
-    delete m_progress;
-    delete m_futureWatcher;
-    close();
+    if(m_nib->conflictManager()->hasConflicts()) {
+        qDebug() << "import finished with conflicts :: open solvemanager";
+        //qDebug() << "detected problems :: " << m_nib->conflictManager()->entries().size();
+        qDebug() << "New Entries >" << m_nib->newEntries() << " :: Duplicates detected >" << m_nib->duplicates();
+    }
+    else {
+        qDebug() << "import finished without conflicts";
+        qDebug() << "New Entries >" << m_nib->newEntries() << " :: Duplicates detected >" << m_nib->duplicates();
+        close();
+    }
 }

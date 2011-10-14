@@ -47,7 +47,11 @@ private:
 
     void addEntry(Entry e);
 
-    Nepomuk::Resource typeToResource(const QString & entryType);
+    Nepomuk::Resource findExistingPublication(Entry e, bool & isDuplicate);
+    Nepomuk::Resource findExistingReference(Entry e, Nepomuk::Resource publication, bool & isDuplicate);
+    bool checkContent(const QString &key, const QString &value, Nepomuk::Resource checkAgainst, const QString & originalEntryType);
+
+    QUrl typeToUrl(const QString & entryType);
     void addContent(const QString &key, const QString &value, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
 
     void addAbstract(const QString &content, Nepomuk::Resource publication);
@@ -86,6 +90,8 @@ private:
     QList<NBibImporterBibTex::Name> parseName(const QString & nameString);
 
     QList<Nepomuk::Resource> m_allContacts;
+    QList<Nepomuk::Resource> m_allPublications;
+    QList<Nepomuk::Resource> m_allReferences;
 };
 
 #endif // NBIBIMPORTERBIBTEX_H
