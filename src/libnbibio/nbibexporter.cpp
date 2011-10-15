@@ -17,8 +17,12 @@
 
 #include "nbibexporter.h"
 
-NBibExporter::NBibExporter() :
-    QObject(0)
+#include <QFile>
+#include <QDebug>
+
+NBibExporter::NBibExporter()
+    : QObject(0)
+    , m_cancel(false)
 {
 }
 
@@ -26,7 +30,22 @@ NBibExporter::~NBibExporter()
 {
 }
 
+bool NBibExporter::toFile( const QString &filename, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog)
+{
+    QFile bibFile(filename);
+    if (!bibFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qDebug() << "can't open file " << filename;
+        return false;
+    }
+
+    bool result = save(&bibFile, referenceList, errorLog);
+
+    bibFile.close();
+
+    return result;
+}
+
 void NBibExporter::cancel()
 {
-    // nothing
+    m_cancel=true;
 }

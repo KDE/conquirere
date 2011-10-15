@@ -22,7 +22,6 @@
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/PIMO>
-
 #include <Nepomuk/Query/Term>
 #include <Nepomuk/Query/ResourceTerm>
 #include <Nepomuk/Query/ResourceTypeTerm>
@@ -31,6 +30,26 @@
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Result>
 #include <Nepomuk/Query/QueryParser>
+
+#include <QProgressDialog>
+#include <QThread>
+#include <qtconcurrentrun.h>
+
+#include <QDebug>
+
+bool concurrentExport(NBibExporterBibTex *exporter, const QString &fileName, Nepomuk::Query::Query query)
+{
+    QList<Nepomuk::Resource> resources;
+
+    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
+
+    foreach(Nepomuk::Query::Result r, queryResult) {
+        resources.append(r.resource());
+    }
+
+
+    return exporter->toFile(fileName, resources);
+}
 
 BibTexExportDialog::BibTexExportDialog(QWidget *parent) :
     QDialog(parent),
@@ -46,46 +65,44 @@ BibTexExportDialog::~BibTexExportDialog()
 
 void BibTexExportDialog::accept()
 {
-    QList<Nepomuk::Resource> references;
-
-    // fetcha data
-    Nepomuk::Query::AndTerm andTerm;
-
-    if(ui->onlyReferences->isChecked())
-        andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Reference() ) );
-    else
-        andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Publication() ) );
-
-    //if(ui->collection_Project->isChecked())
-    //andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(), Nepomuk::Query::ResourceTerm(m_isRelatedTo) ) );
-
-    Nepomuk::Query::Query query( andTerm );
-
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
-
-    foreach(Nepomuk::Query::Result r, queryResult) {
-        references.append(r.resource());
-    }
-
-    qDebug() << "export " << references.size() << "to bibtex";
-
     //create file to export
-
-    QString filename = ui->folder->text();
-    filename.append(QLatin1String("/bibtex.bib"));
-
-    QFile bibFile(filename);
-    if (!bibFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qDebug() << "can't open file " << filename;
+    if(ui->folder->text().isEmpty()) {
         return;
     }
 
-    // start the export
-    NBibExporterBibTex exporter;
+    QString filename = ui->folder->text();
+    //filename.append(QLatin1String("/bibtex.bib"));
 
-    exporter.save(&bibFile, references);
+    m_progress = new QProgressDialog(i18n("Export BibTeX"), QLatin1String("Abort import"), 0, 100);
+    m_progress->setWindowModality(Qt::WindowModal);
+    m_progress->show();
+    m_progress->setFocus();
 
-    bibFile.close();
+    m_exporter = new NBibExporterBibTex();
+
+    connect(m_exporter, SIGNAL(progress(int)), m_progress, SLOT(setValue(int)));
+    connect(m_progress, SIGNAL(canceled()), m_exporter, SLOT(cancel()));
+
+    // create query to fetch all used resources for the export
+    Nepomuk::Query::AndTerm andTerm;
+    andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Reference() ) );
+
+    if(!ui->onlyReferences->isChecked())
+        andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Publication() ) );
+
+    Nepomuk::Query::Query query( andTerm );
+
+
+    QFuture<bool> future = QtConcurrent::run(concurrentExport, m_exporter, filename, query);
+
+    m_futureWatcher = new QFutureWatcher<bool>();
+    m_futureWatcher->setFuture(future);
+    connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(exportFinished()));
 
     close();
+}
+
+void BibTexExportDialog::exportFinished()
+{
+    qDebug() << "export finished!";
 }

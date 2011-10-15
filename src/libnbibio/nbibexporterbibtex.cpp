@@ -39,24 +39,27 @@ bool NBibExporterBibTex::save(QIODevice *iodevice, const QList<Nepomuk::Resource
         return false;
     }
 
+    qreal percentperFile = 100/(referenceList.size());
+    int fileNumber = 0;
+
     int citeKeyNumer = 1;
     QString citeRef = QLatin1String("BibTexExport");
 
-    foreach(Nepomuk::Resource document, referenceList) {
+    foreach(Nepomuk::Resource resource, referenceList) {
 
         Nepomuk::Resource reference;
         Nepomuk::Resource publication;
 
         // first check if we operate on a Reference or a Publication
-        if(document.hasType( Nepomuk::Vocabulary::NBIB::Reference() )) {
+        if(resource.hasType( Nepomuk::Vocabulary::NBIB::Reference() )) {
             // we have a Reference
-            reference = document;
+            reference = resource;
             publication = reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
         }
         else {
             //we have a publication and no idea what reference to use with it
             // we will extract as many information sas possible anyway
-            publication = document;
+            publication = resource;
         }
 
         //collect nepomuk content
@@ -71,19 +74,19 @@ bool NBibExporterBibTex::save(QIODevice *iodevice, const QList<Nepomuk::Resource
         QString entryType = retrieveEntryType(reference, publication);
 
         if(entryType.isEmpty()) {
-            qWarning() << "unknown entry type for the boibtex export";
+            qWarning() << "unknown entry type for the bibtex export";
             continue;
         }
 
         QString citeKey = reference.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
 
         if(citeKey.isEmpty()) {
-            qWarning() << "unknown citeKey for the boibtex export :: create one";
+            qWarning() << "unknown citeKey for the bibtex export :: create one";
             citeKey = citeRef + QString::number(citeKeyNumer);
             citeKeyNumer++;
         }
 
-        qDebug() << entryType << citeKey << contentString;
+        //qDebug() << entryType << citeKey << contentString;
 
         iodevice->putChar('@');
         iodevice->write(entryType.toAscii().data());
@@ -96,6 +99,18 @@ bool NBibExporterBibTex::save(QIODevice *iodevice, const QList<Nepomuk::Resource
         iodevice->putChar('}');
         iodevice->putChar('\n');
         iodevice->putChar('\n');
+
+        fileNumber++;
+        emit progress( percentperFile * fileNumber );
+
+        if(m_cancel) {
+            break;
+        }
+    }
+
+
+    if(!m_cancel) {
+        emit progress( 100 );
     }
 
     return true;
@@ -149,7 +164,7 @@ QString NBibExporterBibTex::collectContent(Nepomuk::Resource reference, Nepomuk:
         fullstring = fullstring + br + returnString;
 
     // if the chapter has an author attached to it , don't search author of the publication
-    // solves the incollection special case where the author of the chapter not the one from teh whoel collection is ment
+    // solves the incollection special case where the author of the chapter is not the one from the whole collection is ment
     if(!returnString.contains(QLatin1String("author ="))) {
         returnString = getAuthors(publication);
         if(!returnString.isEmpty())
@@ -169,10 +184,6 @@ QString NBibExporterBibTex::collectContent(Nepomuk::Resource reference, Nepomuk:
         fullstring = fullstring + br + returnString;
 
     returnString = getOrganization(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
-
-    returnString = getCrossref(publication);
     if(!returnString.isEmpty())
         fullstring = fullstring + br + returnString;
 
@@ -425,27 +436,6 @@ QString NBibExporterBibTex::getOrganization(Nepomuk::Resource publication)
     if(!string.isEmpty()) {
         string.prepend(QLatin1String("\torganization = \""));
         string.append(QLatin1String("\""));
-    }
-
-    return string;
-}
-
-QString NBibExporterBibTex::getCrossref(Nepomuk::Resource publication)
-{
-    QString string;
-    QList<Nepomuk::Resource> crossrefs = publication.property(Nepomuk::Vocabulary::NIE::links()).toResourceList();
-    if(!crossrefs.isEmpty()) {
-        foreach(Nepomuk::Resource a, crossrefs) {
-            string.append(a.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString());
-            string.append(QLatin1String(", "));
-        }
-
-        string.chop(2);
-
-        if(!string.isEmpty()) {
-            string.prepend(QLatin1String("\tcrossref = \""));
-            string.append(QLatin1String("\""));
-        }
     }
 
     return string;

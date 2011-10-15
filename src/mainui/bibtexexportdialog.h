@@ -19,10 +19,14 @@
 #define BIBTEXEXPORTDIALOG_H
 
 #include <QDialog>
+#include <QFutureWatcher>
 
 namespace Ui {
     class BibTexExportDialog;
 }
+
+class NBibExporterBibTex;
+class QProgressDialog;
 
 class BibTexExportDialog : public QDialog
 {
@@ -32,11 +36,16 @@ public:
     explicit BibTexExportDialog(QWidget *parent = 0);
     ~BibTexExportDialog();
 
-public slots:
+private slots:
     void accept();
+    void exportFinished();
 
 private:
     Ui::BibTexExportDialog *ui;
+
+    NBibExporterBibTex *m_exporter;
+    QProgressDialog *m_progress;
+    QFutureWatcher<bool> *m_futureWatcher;
 };
 
 #endif // BIBTEXEXPORTDIALOG_H

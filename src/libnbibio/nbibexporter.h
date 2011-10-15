@@ -29,13 +29,18 @@ public:
     NBibExporter();
     virtual ~NBibExporter();
 
+    bool toFile( const QString &filename, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog = NULL);
+
     virtual bool save(QIODevice *iodevice, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog = NULL) = 0;
 
 signals:
-    void progress(int current, int total);
+    void progress(int current);
 
 public slots:
     virtual void cancel();
+
+protected:
+    bool m_cancel;
 };
 
 #endif // NBIBEXPORTER_H

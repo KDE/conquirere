@@ -33,7 +33,6 @@ private:
     QString collectContent(Nepomuk::Resource reference, Nepomuk::Resource publication);
 
     // Helper function to get the nepomuk data
-
     QString getTitle(Nepomuk::Resource publication);
     QString getAuthors(Nepomuk::Resource publication);
     QString getEditors(Nepomuk::Resource publication);

@@ -23,14 +23,14 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Select the folder:</string>
+         <string>Select the file:</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="KUrlRequester" name="folder">
         <property name="mode">
-         <set>KFile::Directory|KFile::ExistingOnly|KFile::LocalOnly</set>
+         <set>KFile::File|KFile::LocalOnly</set>
         </property>
        </widget>
       </item>
@@ -97,6 +97,7 @@
    <class>KUrlRequester</class>
    <extends>QFrame</extends>
    <header>kurlrequester.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

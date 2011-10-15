@@ -27,7 +27,6 @@
 #include <QProgressDialog>
 #include <QThread>
 #include <qtconcurrentrun.h>
-#include <QFutureWatcher>
 #include <QFile>
 #include <QLabel>
 #include <QHBoxLayout>
