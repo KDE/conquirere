@@ -21,12 +21,19 @@
 #include "../libnbibio/nbibimporterbibtex.h"
 #include "../libnbibio/conflictmanager.h"
 
+#include <KDialog>
+
 #include <QStringList>
 #include <QProgressDialog>
 #include <QThread>
 #include <qtconcurrentrun.h>
 #include <QFutureWatcher>
 #include <QFile>
+#include <QLabel>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QFormLayout>
+
 #include <QDebug>
 
 bool concurrentImport(NBibImporterBibTex *nib, const QString &fileName)
@@ -38,14 +45,15 @@ BibTexImportDialog::BibTexImportDialog(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::BibTexImportDialog)
     , m_nib(0)
-    ,m_progress(0)
-    ,m_futureWatcher(0)
+    , m_progress(0)
+    , m_futureWatcher(0)
 {
     ui->setupUi(this);
 }
 
 BibTexImportDialog::~BibTexImportDialog()
 {
+    delete m_importDialog;
     delete m_nib;
     delete m_progress;
     delete m_futureWatcher;
@@ -71,22 +79,72 @@ void BibTexImportDialog::accept()
 
     m_futureWatcher = new QFutureWatcher<bool>();
     m_futureWatcher->setFuture(future);
-    connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(importfinished()));
+    connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(importFinished()));
 
 }
 
-void BibTexImportDialog::importfinished()
+void BibTexImportDialog::importFinished()
 {
     m_progress->close();
 
-    if(m_nib->conflictManager()->hasConflicts()) {
-        qDebug() << "import finished with conflicts :: open solvemanager";
-        //qDebug() << "detected problems :: " << m_nib->conflictManager()->entries().size();
-        qDebug() << "New Entries >" << m_nib->newEntries() << " :: Duplicates detected >" << m_nib->duplicates();
+    m_importDialog = new KDialog( this );
+    m_importDialog->setCaption( i18n("Import finished") );
+    m_importDialog->setButtons( KDialog::Ok | KDialog::User1 );
+    m_importDialog->setButtonText(KDialog::User1, i18n("Conflict Manager"));
+    m_importDialog->enableButton(KDialog::User1, false);
+
+    QWidget *w = new QWidget(m_importDialog);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+    QHBoxLayout *hlayout = new QHBoxLayout();
+    mainLayout->addLayout(hlayout);
+
+    QVBoxLayout *pubLayout = new QVBoxLayout();
+    QLabel pubLabel;
+    pubLabel.setText(i18n("Publication Import:"));
+    pubLayout->addWidget(&pubLabel);
+
+    QFormLayout *pubSubLayout = new QFormLayout;
+    pubSubLayout->addRow(tr("duplicates:"), new QLabel(QString::number(m_nib->publicationDuplicates())));
+    pubSubLayout->addRow(tr("new entries:"), new QLabel(QString::number(m_nib->publicationEntries())));
+    pubSubLayout->addRow(tr("conflicts:"), new QLabel(QString::number(m_nib->conflictManager()->publicationConflicts().size())));
+    pubLayout->addLayout(pubSubLayout);
+
+    hlayout->addLayout(pubLayout);
+
+    QVBoxLayout *refLayout = new QVBoxLayout();
+    QLabel refLabel;
+    refLabel.setText(i18n("References Import:"));
+    refLayout->addWidget(&refLabel);
+
+    QFormLayout *refSubLayout = new QFormLayout;
+    refSubLayout->addRow(tr("duplicates:"), new QLabel(QString::number(m_nib->referenceDuplicates())));
+    refSubLayout->addRow(tr("new entries:"), new QLabel(QString::number(m_nib->referenceEntries())));
+    refSubLayout->addRow(tr("conflicts:"), new QLabel(QString::number(m_nib->conflictManager()->referenceConflicts().size())));
+    refLayout->addLayout(refSubLayout);
+    hlayout->addLayout(refLayout);
+
+    QLabel conflictLabel;
+    if(!m_nib->conflictManager()->publicationConflicts().isEmpty() ||
+       !m_nib->conflictManager()->referenceConflicts().isEmpty()) {
+        conflictLabel.setText(i18n("Conflict might be duplicate entries too.\nYou can open the conflict manager to solve them manually or click ok to leave them as new entries."));
+        conflictLabel.setWordWrap(true);
+        mainLayout->addWidget(&conflictLabel);
+        m_importDialog->enableButton(KDialog::User1, true);
     }
-    else {
-        qDebug() << "import finished without conflicts";
-        qDebug() << "New Entries >" << m_nib->newEntries() << " :: Duplicates detected >" << m_nib->duplicates();
+
+    mainLayout->addStretch();
+
+    w->setLayout(mainLayout);
+    m_importDialog->setMainWidget( w );
+
+    int ret = m_importDialog->exec();
+
+    if(ret == KDialog::Accepted) {
+        close();
+    }
+    else if(ret == KDialog::User1) {
+        qDebug() << "conflict manager not implemented yet :(";
         close();
     }
 }

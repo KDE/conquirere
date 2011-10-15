@@ -160,7 +160,7 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
 
     qDebug() << "import " << bibEntries.size() << "bibtex entries";
 
-    qreal percentperFile = 100/bibEntries.size();
+    qreal percentperFile = 100/(bibEntries.size() + 1); // the +1 leaves room for the conflict list creation at the end
     int fileNumber = 0;
 
     //now we seperated all entries, time to inspect and import them
@@ -174,6 +174,10 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
             break;
         }
     }
+
+    fileNumber++;
+    conflictManager()->checkConflicts();
+    emit progress( percentperFile * fileNumber );
 
     if(!m_cancel) {
         emit progress( 100 );
@@ -190,22 +194,22 @@ void NBibImporterBibTex::addEntry(Entry e)
 
     if(publicationIsDuplicate) {
         qDebug() << "Found duplicate publication :: " << publication.genericLabel();
-        duplicateDetected();
+        publicationDuplicateDetected();
     }
     else {
         qDebug() << "did not find any duplicates for publication " << e.content.value(QLatin1String("title"));
-        newEntryAdded();
+        publicationEntryAdded();
     }
 
     Nepomuk::Resource reference = findExistingReference(e,publication, referenceIsDuplicate);
 
     if(referenceIsDuplicate) {
         qDebug() << "Found duplicate reference :: " << publication.genericLabel();
-        duplicateDetected();
+        referenceDuplicateDetected();
     }
     else {
         qDebug() << "did not find any duplicates for reference" << e.content.value(QLatin1String("title"));
-        newEntryAdded();
+        referenceEntryAdded();
     }
 
     // no need to add anything if we operate on duplicates only
@@ -264,11 +268,11 @@ void NBibImporterBibTex::addEntry(Entry e)
 
     //add publication and reference to conflict manager
     if(!publicationIsDuplicate) {
-        conflictManager()->addEntry(publication);
+        conflictManager()->addPublicationEntry(publication);
         m_allPublications.append(publication);
     }
     if(!referenceIsDuplicate) {
-        conflictManager()->addEntry(reference);
+        conflictManager()->addReferenceEntry(reference);
         m_allReferences.append(reference);
     }
 }

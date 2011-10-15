@@ -38,38 +38,20 @@ ConflictManager::ConflictManager(QObject *parent) :
 {
 }
 
-Nepomuk::Resource ConflictManager::addEntry(Nepomuk::Resource entry)
+void ConflictManager::addPublicationEntry(Nepomuk::Resource entry)
 {
-    QList<Nepomuk::Resource> conflicts;
+    Conflict c;
+    c.entry = entry;
 
-    bool publication = false;
-    if(entry.hasType(Nepomuk::Vocabulary::NBIB::Publication())) {
-        conflicts = conflictCheckPublication(entry);
-        publication = true;
-    }
-    else {
-        conflicts = conflictCheckReference(entry);
-    }
+    m_publicationConflicts.append(c);
+}
 
-    if(!conflicts.isEmpty()) {
+void ConflictManager::addReferenceEntry(Nepomuk::Resource entry)
+{
+    Conflict c;
+    c.entry = entry;
 
-        // check for exact duplicate
-        // ....
-        // else ...
-        Conflict c;
-        c.entry = entry;
-        c.conflictEntries = conflicts;
-
-        if(publication)
-            m_publicationConflicts.append(c);
-        else
-            m_referenceConflicts.append(c);
-
-        return entry;
-    }
-    else {
-        return entry;
-    }
+    m_referenceConflicts.append(c);
 }
 
 QList<ConflictManager::Conflict> ConflictManager::publicationConflicts()
@@ -80,6 +62,39 @@ QList<ConflictManager::Conflict> ConflictManager::publicationConflicts()
 QList<ConflictManager::Conflict> ConflictManager::referenceConflicts()
 {
     return m_publicationConflicts;
+}
+
+void ConflictManager::checkConflicts()
+{
+    QList<ConflictManager::Conflict> tmpPubConflicts;
+
+    foreach(Conflict c, m_publicationConflicts) {
+        QList<Nepomuk::Resource> conflicts;
+        conflicts = conflictCheckPublication(c.entry);
+        if(!conflicts.isEmpty()) {
+            Conflict c2;
+            c2.entry = c.entry;
+            c2.conflictEntries = conflicts;
+            tmpPubConflicts.append(c2);
+        }
+    }
+    m_publicationConflicts.clear();
+    m_publicationConflicts = tmpPubConflicts;
+
+    QList<ConflictManager::Conflict> tmpRefConflicts;
+
+    foreach(Conflict c, m_referenceConflicts) {
+        QList<Nepomuk::Resource> conflicts;
+        conflicts = conflictCheckReference(c.entry);
+        if(!conflicts.isEmpty()) {
+            Conflict c2;
+            c2.entry = c.entry;
+            c2.conflictEntries = conflicts;
+            tmpRefConflicts.append(c2);
+        }
+    }
+    m_referenceConflicts.clear();
+    m_referenceConflicts = tmpRefConflicts;
 }
 
 QList<Nepomuk::Resource> ConflictManager::conflictCheckPublication(Nepomuk::Resource entry)
@@ -131,6 +146,11 @@ bool ConflictManager::hasConflicts()
         return false;
     else
         return true;
+}
+
+int ConflictManager::entries()
+{
+    return m_publicationConflicts.size() + m_referenceConflicts.size();
 }
 
 QUrl ConflictManager::resourceToUrl(Nepomuk::Resource & resource)

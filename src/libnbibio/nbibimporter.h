@@ -36,10 +36,14 @@ public:
     void setAutomaticConflictSolving(bool solve);
     bool solveConflicts();
 
-    void duplicateDetected();
-    int duplicates();
-    void newEntryAdded();
-    int newEntries();
+    void publicationDuplicateDetected();
+    int publicationDuplicates();
+    void publicationEntryAdded();
+    int publicationEntries();
+    void referenceDuplicateDetected();
+    int referenceDuplicates();
+    void referenceEntryAdded();
+    int referenceEntries();
 
     ConflictManager *conflictManager();
 
@@ -53,8 +57,10 @@ protected:
     bool m_cancel;
     bool m_solveConflicts;
 
-    int m_duplicatesDetected;
-    int m_newEntries;
+    int m_publicationDuplicates;
+    int m_publicationEntries;
+    int m_referenceDuplicates;
+    int m_referenceEntries;
 
     ConflictManager *m_conflictManager;
 };

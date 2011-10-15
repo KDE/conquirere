@@ -27,8 +27,10 @@ NBibImporter::NBibImporter()
     : QObject(0)
     , m_cancel(false)
     , m_solveConflicts(false)
-    , m_duplicatesDetected(0)
-    , m_newEntries(0)
+    , m_publicationDuplicates(0)
+    , m_publicationEntries(0)
+    , m_referenceDuplicates(0)
+    , m_referenceEntries(0)
 {
     m_conflictManager = new ConflictManager();
 }
@@ -59,24 +61,44 @@ bool NBibImporter::solveConflicts()
     return m_solveConflicts;
 }
 
-void NBibImporter::duplicateDetected()
+void NBibImporter::publicationDuplicateDetected()
 {
-    m_duplicatesDetected++;
+    m_publicationDuplicates++;
 }
 
-int NBibImporter::duplicates()
+int NBibImporter::publicationDuplicates()
 {
-    return m_duplicatesDetected;
+    return m_publicationDuplicates;
 }
 
-void NBibImporter::newEntryAdded()
+void NBibImporter::publicationEntryAdded()
 {
-    m_newEntries++;
+    m_publicationEntries++;
 }
 
-int NBibImporter::newEntries()
+int NBibImporter::publicationEntries()
 {
-    return m_newEntries;
+    return m_publicationEntries;
+}
+
+void NBibImporter::referenceDuplicateDetected()
+{
+    m_referenceDuplicates++;
+}
+
+int NBibImporter::referenceDuplicates()
+{
+    return m_referenceDuplicates;
+}
+
+void NBibImporter::referenceEntryAdded()
+{
+    m_referenceEntries++;
+}
+
+int NBibImporter::referenceEntries()
+{
+    return m_referenceEntries;
 }
 
 void NBibImporter::cancel()

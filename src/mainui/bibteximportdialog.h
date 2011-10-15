@@ -27,6 +27,7 @@ namespace Ui {
 
 class NBibImporterBibTex;
 class QProgressDialog;
+class KDialog;
 
 class BibTexImportDialog : public QDialog
 {
@@ -38,13 +39,14 @@ public:
 
 private slots:
     void accept();
-    void importfinished();
+    void importFinished();
 
 private:
     Ui::BibTexImportDialog *ui;
 
     NBibImporterBibTex *m_nib;
     QProgressDialog *m_progress;
+    KDialog *m_importDialog;
     QFutureWatcher<bool> *m_futureWatcher;
 };
 

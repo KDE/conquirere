@@ -35,11 +35,15 @@ public:
 
     explicit ConflictManager(QObject *parent = 0);
 
-    Nepomuk::Resource addEntry(Nepomuk::Resource entry);
+    void addPublicationEntry(Nepomuk::Resource entry);
+    void addReferenceEntry(Nepomuk::Resource entry);
     QList<ConflictManager::Conflict> publicationConflicts();
     QList<ConflictManager::Conflict> referenceConflicts();
 
+    void checkConflicts();
     bool hasConflicts();
+
+    int entries();
 
 private:
     QList<Nepomuk::Resource> conflictCheckPublication(Nepomuk::Resource entry);
