@@ -26,6 +26,7 @@
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/NFO>
 #include <Nepomuk/Variant>
+#include <Nepomuk/Tag>
 #include <Nepomuk/Query/Term>
 #include <Nepomuk/Query/ResourceTerm>
 #include <Nepomuk/Query/ResourceTypeTerm>
@@ -439,6 +440,9 @@ bool NBibImporterBibTex::checkContent(const QString &key, const QString &value, 
     else if(key == QLatin1String("chapter")) {
         return true;
     }
+    else if(key == QLatin1String("keywords")) {
+        return true; //ignore this
+    }
     else if(key == QLatin1String("copyrigth")) {
         return true; //ignore this
     }
@@ -806,6 +810,9 @@ void NBibImporterBibTex::addContent(const QString &key, const QString &value, Ne
     }
     else if(key == QLatin1String("year")) {
         addYear(value, publication);
+    }
+    else if(key == QLatin1String("keywords")) {
+        addKewords(value, publication);
     }
     else {
         qDebug() << "NBibImporterBibTex::addContent unknown key ::" << key << value;
@@ -1360,6 +1367,17 @@ void NBibImporterBibTex::addYear(const QString &content, Nepomuk::Resource publi
 
     QString newDate = content.trimmed() + QLatin1String("-") + month + QLatin1String("-") + day;
     publication.setProperty(Nepomuk::Vocabulary::NBIB::publicationDate(), newDate);
+}
+
+void NBibImporterBibTex::addKewords(const QString &content, Nepomuk::Resource publication)
+{
+    QStringList kewords = content.split(QLatin1String(","));
+
+    foreach(QString key, kewords) {
+        key.trimmed();
+        Nepomuk::Tag tag(key);
+        publication.addTag(tag);
+    }
 }
 
 QList<NBibImporterBibTex::Name> NBibImporterBibTex::parseName(const QString & nameString)

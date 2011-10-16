@@ -86,6 +86,7 @@ private:
     void addUrl(const QString &content, Nepomuk::Resource publication);
     void addVolume(const QString &content, Nepomuk::Resource publication);
     void addYear(const QString &content, Nepomuk::Resource publication);
+    void addKewords(const QString &content, Nepomuk::Resource publication);
 
     QList<NBibImporterBibTex::Name> parseName(const QString & nameString);
 

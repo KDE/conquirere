@@ -31,6 +31,7 @@
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/NUAO>
+#include <Soprano/Vocabulary/NAO>
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -253,6 +254,8 @@ void PublicationWidget::setupWidget()
     ui->editRemoteObject->setMode(FileObjectEdit::Remote);
     ui->editOrganization->setPropertyUrl( Nepomuk::Vocabulary::NBIB::organization());
     ui->editLastAccessed->setPropertyUrl( Nepomuk::Vocabulary::NUAO::lastUsage());
+    ui->editKeywords->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
+    ui->editKeywords->setPropertyUrl( Soprano::Vocabulary::NAO::hasTag() );
 
     //connect signal/slots
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editAuthors, SLOT(setResource(Nepomuk::Resource&)));
@@ -279,6 +282,7 @@ void PublicationWidget::setupWidget()
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editRemoteObject, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editOrganization, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLastAccessed, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editKeywords, SLOT(setResource(Nepomuk::Resource&)));
 }
 
 BibEntryType PublicationWidget::resourceTypeToEnum(Nepomuk::Resource & resource)
@@ -453,7 +457,6 @@ void PublicationWidget::layoutArticle()
 
 
     ui->editPublisher->setEnabled(false);
-
     ui->editEdition->setEnabled(false);
     ui->editEditor->setEnabled(false);
     ui->editEprint->setEnabled(false);

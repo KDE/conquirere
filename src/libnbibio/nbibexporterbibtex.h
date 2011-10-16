@@ -62,6 +62,7 @@ private:
     QString getAnnote(Nepomuk::Resource publication);
     QString getChapter(Nepomuk::Resource reference);
     QString getPages(Nepomuk::Resource reference);
+    QString getKewords(Nepomuk::Resource publication);
 
     QString addEntry(QString &fullstring, QString entry);
 };

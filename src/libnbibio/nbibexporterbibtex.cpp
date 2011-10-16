@@ -24,6 +24,7 @@
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/NUAO>
 #include <Nepomuk/Variant>
+#include <Nepomuk/Tag>
 
 #include <QDebug>
 
@@ -247,6 +248,9 @@ QString NBibExporterBibTex::collectContent(Nepomuk::Resource reference, Nepomuk:
     addEntry(fullstring, returnString);
 
     returnString = getPages(reference);
+    addEntry(fullstring, returnString);
+
+    returnString = getKewords(publication);
     addEntry(fullstring, returnString);
 
     return fullstring;
@@ -796,6 +800,26 @@ QString NBibExporterBibTex::getPages(Nepomuk::Resource reference)
     }
 
     return string;
+}
+
+QString NBibExporterBibTex::getKewords(Nepomuk::Resource publication)
+{
+    QList<Nepomuk::Tag> tags = publication.tags();
+
+    QString keywords;
+    foreach(Nepomuk::Tag tag, tags) {
+        keywords.append(tag.genericLabel());
+        keywords.append(QLatin1String(", "));
+    }
+
+    keywords.chop(2);
+
+    if(!keywords.isEmpty()) {
+        keywords.prepend(QLatin1String("\tkeywords = {"));
+        keywords.append(QLatin1String("}"));
+    }
+
+    return keywords;
 }
 
 QString NBibExporterBibTex::addEntry(QString &fullstring, QString entry)

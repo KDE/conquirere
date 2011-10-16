@@ -30,6 +30,12 @@
        <property name="fieldGrowthPolicy">
         <enum>QFormLayout::ExpandingFieldsGrow</enum>
        </property>
+       <property name="horizontalSpacing">
+        <number>-1</number>
+       </property>
+       <property name="verticalSpacing">
+        <number>2</number>
+       </property>
        <item row="0" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
@@ -137,7 +143,7 @@
           <string>Organization:</string>
          </property>
          <property name="buddy">
-          <cstring>editCrossref</cstring>
+          <cstring>editOrganization</cstring>
          </property>
         </widget>
        </item>
@@ -176,12 +182,25 @@
           <string>Remote File:</string>
          </property>
          <property name="buddy">
-          <cstring>editFileObject</cstring>
+          <cstring>editRemoteObject</cstring>
          </property>
         </widget>
        </item>
        <item row="22" column="1">
         <widget class="FileObjectEdit" name="editRemoteObject"/>
+       </item>
+       <item row="23" column="0">
+        <widget class="QLabel" name="label_30">
+         <property name="text">
+          <string>Keywords:</string>
+         </property>
+         <property name="buddy">
+          <cstring>editKeywords</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="23" column="1">
+        <widget class="TagEdit" name="editKeywords"/>
        </item>
       </layout>
      </widget>
@@ -190,6 +209,9 @@
        <string>Extra</string>
       </attribute>
       <layout class="QFormLayout" name="formLayout">
+       <property name="verticalSpacing">
+        <number>2</number>
+       </property>
        <item row="0" column="0">
         <widget class="QLabel" name="label_6">
          <property name="text">
@@ -303,7 +325,7 @@
           <string>Last Accessed:</string>
          </property>
          <property name="buddy">
-          <cstring>editCopyright</cstring>
+          <cstring>editLastAccessed</cstring>
          </property>
         </widget>
        </item>
@@ -319,6 +341,9 @@
       <layout class="QFormLayout" name="formLayout_2">
        <property name="fieldGrowthPolicy">
         <enum>QFormLayout::ExpandingFieldsGrow</enum>
+       </property>
+       <property name="verticalSpacing">
+        <number>2</number>
        </property>
        <item row="1" column="0">
         <widget class="QLabel" name="label_13">
@@ -405,6 +430,9 @@
        <string>Content</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="spacing">
+        <number>2</number>
+       </property>
        <item>
         <widget class="QLabel" name="label_28">
          <property name="text">
@@ -445,6 +473,9 @@
        <string>Note</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>2</number>
+       </property>
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
@@ -583,16 +614,30 @@
    <class>FileObjectEdit</class>
    <extends>QLineEdit</extends>
    <header>propertywidgets/fileobjectedit.h</header>
+   <slots>
+    <signal>widgetEnabled(bool)</signal>
+   </slots>
   </customwidget>
   <customwidget>
    <class>OrganizationEdit</class>
    <extends>QLineEdit</extends>
    <header>propertywidgets/organizationedit.h</header>
+   <slots>
+    <signal>widgetEnabled(bool)</signal>
+   </slots>
   </customwidget>
   <customwidget>
    <class>IssnEdit</class>
    <extends>QLineEdit</extends>
    <header>propertywidgets/issnedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TagEdit</class>
+   <extends>QLineEdit</extends>
+   <header>propertywidgets/tagedit.h</header>
+   <slots>
+    <signal>widgetEnabled(bool)</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -684,12 +729,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>157</x>
-     <y>293</y>
+     <x>251</x>
+     <y>281</y>
     </hint>
     <hint type="destinationlabel">
-     <x>123</x>
-     <y>293</y>
+     <x>125</x>
+     <y>281</y>
     </hint>
    </hints>
   </connection>
@@ -700,11 +745,11 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>178</x>
+     <x>238</x>
      <y>35</y>
     </hint>
     <hint type="destinationlabel">
-     <x>126</x>
+     <x>67</x>
      <y>35</y>
     </hint>
    </hints>
@@ -716,12 +761,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>178</x>
-     <y>64</y>
+     <x>238</x>
+     <y>62</y>
     </hint>
     <hint type="destinationlabel">
-     <x>146</x>
-     <y>64</y>
+     <x>93</x>
+     <y>62</y>
     </hint>
    </hints>
   </connection>
@@ -732,12 +777,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>178</x>
-     <y>93</y>
+     <x>238</x>
+     <y>89</y>
     </hint>
     <hint type="destinationlabel">
-     <x>146</x>
-     <y>93</y>
+     <x>90</x>
+     <y>89</y>
     </hint>
    </hints>
   </connection>
@@ -748,12 +793,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>178</x>
-     <y>122</y>
+     <x>238</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
-     <x>146</x>
-     <y>122</y>
+     <x>91</x>
+     <y>116</y>
     </hint>
    </hints>
   </connection>
@@ -764,12 +809,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>178</x>
-     <y>151</y>
+     <x>238</x>
+     <y>143</y>
     </hint>
     <hint type="destinationlabel">
-     <x>146</x>
-     <y>151</y>
+     <x>87</x>
+     <y>143</y>
     </hint>
    </hints>
   </connection>
@@ -780,12 +825,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>178</x>
-     <y>180</y>
+     <x>238</x>
+     <y>170</y>
     </hint>
     <hint type="destinationlabel">
-     <x>67</x>
-     <y>180</y>
+     <x>8</x>
+     <y>170</y>
     </hint>
    </hints>
   </connection>
@@ -796,12 +841,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>178</x>
-     <y>209</y>
+     <x>238</x>
+     <y>197</y>
     </hint>
     <hint type="destinationlabel">
-     <x>146</x>
-     <y>209</y>
+     <x>111</x>
+     <y>197</y>
     </hint>
    </hints>
   </connection>
@@ -812,28 +857,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>178</x>
-     <y>238</y>
+     <x>238</x>
+     <y>224</y>
     </hint>
     <hint type="destinationlabel">
-     <x>134</x>
-     <y>238</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>editFileObject</sender>
-   <signal>widgetEnabled(bool)</signal>
-   <receiver>label_16</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>157</x>
-     <y>326</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>101</x>
-     <y>359</y>
+     <x>75</x>
+     <y>224</y>
     </hint>
    </hints>
   </connection>
@@ -844,12 +873,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>130</x>
-     <y>39</y>
+     <x>150</x>
+     <y>37</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>39</y>
+     <x>69</x>
+     <y>37</y>
     </hint>
    </hints>
   </connection>
@@ -860,12 +889,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>130</x>
-     <y>76</y>
+     <x>150</x>
+     <y>68</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>76</y>
+     <x>83</x>
+     <y>68</y>
     </hint>
    </hints>
   </connection>
@@ -876,12 +905,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>130</x>
-     <y>109</y>
+     <x>150</x>
+     <y>97</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>109</y>
+     <x>85</x>
+     <y>97</y>
     </hint>
    </hints>
   </connection>
@@ -892,12 +921,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>130</x>
-     <y>142</y>
+     <x>150</x>
+     <y>126</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>142</y>
+     <x>80</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -908,12 +937,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>130</x>
-     <y>175</y>
+     <x>150</x>
+     <y>155</y>
     </hint>
     <hint type="destinationlabel">
-     <x>58</x>
-     <y>175</y>
+     <x>38</x>
+     <y>155</y>
     </hint>
    </hints>
   </connection>
@@ -924,12 +953,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>130</x>
-     <y>208</y>
+     <x>150</x>
+     <y>184</y>
     </hint>
     <hint type="destinationlabel">
      <x>89</x>
-     <y>208</y>
+     <y>184</y>
     </hint>
    </hints>
   </connection>
@@ -940,8 +969,8 @@
    <slot>acceptContentChanges()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>376</x>
-     <y>433</y>
+     <x>99</x>
+     <y>423</y>
     </hint>
     <hint type="destinationlabel">
      <x>440</x>
@@ -956,8 +985,8 @@
    <slot>discardContentChanges()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>270</x>
-     <y>437</y>
+     <x>99</x>
+     <y>423</y>
     </hint>
     <hint type="destinationlabel">
      <x>284</x>
@@ -972,8 +1001,8 @@
    <slot>acceptNoteChanges()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>252</x>
-     <y>436</y>
+     <x>99</x>
+     <y>423</y>
     </hint>
     <hint type="destinationlabel">
      <x>256</x>
@@ -988,12 +1017,92 @@
    <slot>discardNoteChanges()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>328</x>
-     <y>434</y>
+     <x>99</x>
+     <y>423</y>
     </hint>
     <hint type="destinationlabel">
      <x>425</x>
      <y>428</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editKeywords</sender>
+   <signal>widgetEnabled(bool)</signal>
+   <receiver>label_30</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>147</x>
+     <y>355</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>114</x>
+     <y>358</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editOrganization</sender>
+   <signal>widgetEnabled(bool)</signal>
+   <receiver>label_27</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>141</x>
+     <y>238</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>112</x>
+     <y>241</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editFileObject</sender>
+   <signal>widgetEnabled(bool)</signal>
+   <receiver>label_25</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>147</x>
+     <y>297</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>117</x>
+     <y>295</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editRemoteObject</sender>
+   <signal>widgetEnabled(bool)</signal>
+   <receiver>label_16</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>163</x>
+     <y>325</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>118</x>
+     <y>333</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editLastAccessed</sender>
+   <signal>widgetEnabled(bool)</signal>
+   <receiver>label_26</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>187</x>
+     <y>265</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>117</x>
+     <y>264</y>
     </hint>
    </hints>
   </connection>
