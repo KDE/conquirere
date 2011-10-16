@@ -30,7 +30,6 @@ public:
     virtual ~NBibExporter();
 
     bool toFile( const QString &filename, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog = NULL);
-
     virtual bool save(QIODevice *iodevice, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog = NULL) = 0;
 
 signals:

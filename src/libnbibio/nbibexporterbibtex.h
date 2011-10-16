@@ -33,7 +33,7 @@ private:
     QString collectContent(Nepomuk::Resource reference, Nepomuk::Resource publication);
 
     // Helper function to get the nepomuk data
-    QString getTitle(Nepomuk::Resource publication);
+    QString getTitle(Nepomuk::Resource publication, Nepomuk::Resource reference);
     QString getAuthors(Nepomuk::Resource publication);
     QString getEditors(Nepomuk::Resource publication);
     QString getPublicationDate(Nepomuk::Resource publication);
@@ -62,6 +62,8 @@ private:
     QString getAnnote(Nepomuk::Resource publication);
     QString getChapter(Nepomuk::Resource reference);
     QString getPages(Nepomuk::Resource reference);
+
+    QString addEntry(QString &fullstring, QString entry);
 };
 
 #endif // NBIBEXPORTERBIBTEX_H

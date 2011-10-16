@@ -16,6 +16,7 @@
  */
 
 #include "nbibexporterbibtex.h"
+#include "encoderlatex.h"
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
@@ -62,29 +63,28 @@ bool NBibExporterBibTex::save(QIODevice *iodevice, const QList<Nepomuk::Resource
             publication = resource;
         }
 
+        QString citeKey = reference.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
+        if(citeKey.isEmpty()) {
+            qDebug() << "unknown citeKey for the bibtex export :: create one";
+            citeKey = citeRef + QString::number(citeKeyNumer);
+            citeKeyNumer++;
+        }
+
+        QString entryType = retrieveEntryType(reference, publication);
+        if(entryType.isEmpty()) {
+            qWarning() << "unknown entry type for the bibtex export with citekey" << citeKey;
+            continue;
+        }
+
         //collect nepomuk content
         QString contentString;
-
         contentString = collectContent(reference, publication);
 
         if(contentString.isEmpty()) {
             continue;
         }
 
-        QString entryType = retrieveEntryType(reference, publication);
-
-        if(entryType.isEmpty()) {
-            qWarning() << "unknown entry type for the bibtex export";
-            continue;
-        }
-
-        QString citeKey = reference.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
-
-        if(citeKey.isEmpty()) {
-            qWarning() << "unknown citeKey for the bibtex export :: create one";
-            citeKey = citeRef + QString::number(citeKeyNumer);
-            citeKeyNumer++;
-        }
+        contentString = EncoderLaTeX::currentEncoderLaTeX()->encode(contentString);
 
         //qDebug() << entryType << citeKey << contentString;
 
@@ -120,26 +120,32 @@ QString NBibExporterBibTex::retrieveEntryType(Nepomuk::Resource reference, Nepom
 {
     QString type;
 
-    Nepomuk::Resource typeResource(publication.type());
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Book()) || publication.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
+        QString pages = reference.property(Nepomuk::Vocabulary::NBIB::pages()).toString();
+        Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedChapter()).toResource();
+        Nepomuk::Resource chapterAuthor = chapter.property(Nepomuk::Vocabulary::NCO::creator()).toResource();
 
-    type = typeResource.genericLabel();
-
-    // now handle some special cases
-    QString pages = reference.property(Nepomuk::Vocabulary::NBIB::pages()).toString();
-    Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedChapter()).toResource();
-    Nepomuk::Resource chapterAuthor = chapter.property(Nepomuk::Vocabulary::NCO::creator()).toResource();
-
-    if(!pages.isEmpty() || chapter.isValid()) {
-        if(chapterAuthor.isValid()) {
-            type = QLatin1String("Incollection");
+        if(!pages.isEmpty() || chapter.isValid()) {
+            if(chapterAuthor.isValid()) {
+                type = QLatin1String("Incollection"); //book ref with defined author in the chapter
+            }
+            else {
+                type = QLatin1String("Inbook"); //book ref with chapter/pages
+            }
         }
         else {
-            type = QLatin1String("Inbook");
+            Nepomuk::Resource typeResource(publication.type());
+            type = typeResource.genericLabel();
         }
     }
+    else {
+        Nepomuk::Resource typeResource(publication.type());
+        type = typeResource.genericLabel();
 
-    if(publication.type() == Nepomuk::Vocabulary::NBIB::Publication().toString()) {
-        type = QLatin1String("Misc");
+        Nepomuk::Resource typeResource2(Nepomuk::Vocabulary::NBIB::Publication());
+        if(type == typeResource2.genericLabel()) {
+            type = QLatin1String("Misc");
+        }
     }
 
     // if we have strict export, transforn into standard types
@@ -155,132 +161,169 @@ QString NBibExporterBibTex::collectContent(Nepomuk::Resource reference, Nepomuk:
     QString fullstring;
     QString returnString;
 
-    returnString = getTitle(publication);
-    if(!returnString.isEmpty())
-        fullstring = returnString;
+    returnString = getTitle(publication, reference);
+    addEntry(fullstring, returnString);
 
     returnString = getChapter(reference);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     // if the chapter has an author attached to it , don't search author of the publication
     // solves the incollection special case where the author of the chapter is not the one from the whole collection is ment
     if(!returnString.contains(QLatin1String("author ="))) {
         returnString = getAuthors(publication);
-        if(!returnString.isEmpty())
-            fullstring = fullstring + br + returnString;
+        addEntry(fullstring, returnString);
     }
 
     returnString = getEditors(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getPublicationDate(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getPublisher(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getOrganization(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getUrl(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getSeries(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getEdition(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getJournal(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getVolume(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getNumber(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getPublicationMethod(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getType(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getCopyrigth(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getLastAccessed(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getEPrint(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getISBN(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getISSN(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getLCCN(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getMRNumber(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getDOI(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getAbstract(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getTOC(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getNote(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getAnnote(publication);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     returnString = getPages(reference);
-    if(!returnString.isEmpty())
-        fullstring = fullstring + br + returnString;
+    addEntry(fullstring, returnString);
 
     return fullstring;
 }
 
-QString NBibExporterBibTex::getTitle(Nepomuk::Resource publication)
+QString NBibExporterBibTex::getTitle(Nepomuk::Resource publication, Nepomuk::Resource reference)
 {
-    QString string = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
+    QString string;
+    QString title;
+    QString booktitle;
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::InProceedings())) {
+        Nepomuk::Resource proceedings = publication.property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
+        booktitle = proceedings.property(Nepomuk::Vocabulary::NIE::title()).toString();
+        title = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
+    }
+    else{
+        //ignore the case of a reference with a chapter (inbook/incollection)
+        Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedChapter()).toResource();
 
-    if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\ttitle = \""));
-        string.append(QLatin1String("\""));
+        if(!chapter.isValid()) {
+            title = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
+        }
+    }
+
+    if(!title.isEmpty()) {
+        string.append(QLatin1String("\ttitle = {"));
+        string.append(title);
+        string.append(QLatin1String("}"));
+    }
+
+    if(!booktitle.isEmpty()) {
+        if(!string.isEmpty())
+            string.append(br);
+
+        string.append(QLatin1String("\tbooktitle = {"));
+        string.append(booktitle);
+        string.append(QLatin1String("}"));
+    }
+
+    return string;
+}
+
+QString NBibExporterBibTex::getChapter(Nepomuk::Resource reference)
+{
+    QString chapterEntry = QLatin1String("chapter");
+    Nepomuk::Resource publication = reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
+        chapterEntry = QLatin1String("title");
+    }
+
+    Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedChapter()).toResource();
+    QString chapterTitle = chapter.property(Nepomuk::Vocabulary::NIE::title()).toString();
+
+    Nepomuk::Resource author = chapter.property(Nepomuk::Vocabulary::NCO::creator()).toResource();
+    QString chapterAuthor = author.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+
+    Nepomuk::Resource book = reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+    QString bookTitle = book.property(Nepomuk::Vocabulary::NIE::title()).toString();
+
+    QString string;
+    if(!chapterTitle.isEmpty()) {
+        string.append(QLatin1String("\t"));
+        string.append(chapterEntry);
+        string.append(QLatin1String(" = {"));
+        string.append(chapterTitle);
+        string.append(QLatin1String("}"));
+        string.append(br);
+        string.append(QLatin1String("\tbooktitle = {"));
+        string.append(bookTitle);
+        string.append(QLatin1String("}"));
+
+        if(!chapterAuthor.isEmpty()) {
+            string.append(br);
+            string.append(QLatin1String("\tauthor = {"));
+            string.append(chapterAuthor);
+            string.append(QLatin1String("}"));
+        }
     }
 
     return string;
@@ -288,8 +331,11 @@ QString NBibExporterBibTex::getTitle(Nepomuk::Resource publication)
 
 QString NBibExporterBibTex::getAuthors(Nepomuk::Resource publication)
 {
+    QList<Nepomuk::Resource> authors;
+    authors = publication.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
+
     QString string;
-    QList<Nepomuk::Resource> authors = publication.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
+
     if(!authors.isEmpty()) {
         foreach(Nepomuk::Resource a, authors) {
             //TODO don't rely only on fullname of NC::Contact
@@ -300,8 +346,8 @@ QString NBibExporterBibTex::getAuthors(Nepomuk::Resource publication)
         string.chop(5);
 
         if(!string.isEmpty()) {
-            string.prepend(QLatin1String("\tauthor = \""));
-            string.append(QLatin1String("\""));
+            string.prepend(QLatin1String("\tauthor = {"));
+            string.append(QLatin1String("}"));
         }
     }
 
@@ -322,8 +368,8 @@ QString NBibExporterBibTex::getEditors(Nepomuk::Resource publication)
         string.chop(5);
 
         if(!string.isEmpty()) {
-            string.prepend(QLatin1String("\teditor = \""));
-            string.append(QLatin1String("\""));
+            string.prepend(QLatin1String("\teditor = {"));
+            string.append(QLatin1String("}"));
         }
     }
 
@@ -334,70 +380,76 @@ QString NBibExporterBibTex::getPublicationDate(Nepomuk::Resource publication)
 {
     QString pdString = publication.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
 
-    QRegExp rx(QLatin1String("(\\d{4})-(\\d{2})-(\\d{2})*"));
+    QRegExp rx(QLatin1String("(\\d*)-(\\d*)-(\\d*)*"));
     QString year;
     QString month;
     QString day;
     if (rx.indexIn(pdString) != -1) {
         year = rx.cap(1);
         month = rx.cap(2);
-        day = rx.cap(3);
+    }
+    else {
+        return QString();
     }
 
     QString string;
     if(!month.isEmpty()) {
         int mInt = month.toInt();
+        QString monthName;
 
-        string.prepend(QLatin1String("\tmonth = \""));
         switch(mInt) {
         case 1:
-            string.append(QLatin1String("jan"));
+            monthName.append(QLatin1String("jan"));
             break;
         case 2:
-            string.append(QLatin1String("feb"));
+            monthName.append(QLatin1String("feb"));
             break;
         case 3:
-            string.append(QLatin1String("mar"));
+            monthName.append(QLatin1String("mar"));
             break;
         case 4:
-            string.append(QLatin1String("apr"));
+            monthName.append(QLatin1String("apr"));
             break;
         case 5:
-            string.append(QLatin1String("may"));
+            monthName.append(QLatin1String("may"));
             break;
         case 6:
-            string.append(QLatin1String("jun"));
+            monthName.append(QLatin1String("jun"));
             break;
         case 7:
-            string.append(QLatin1String("jul"));
+            monthName.append(QLatin1String("jul"));
             break;
         case 8:
-            string.append(QLatin1String("aug"));
+            monthName.append(QLatin1String("aug"));
             break;
         case 9:
-            string.append(QLatin1String("sep"));
+            monthName.append(QLatin1String("sep"));
             break;
         case 10:
-            string.append(QLatin1String("oct"));
+            monthName.append(QLatin1String("oct"));
             break;
         case 11:
-            string.append(QLatin1String("nov"));
+            monthName.append(QLatin1String("nov"));
             break;
         case 12:
-            string.append(QLatin1String("dec"));
+            monthName.append(QLatin1String("dec"));
             break;
-        default:
-            return month; //DEBUG
         }
 
-        string.append(QLatin1String("\""));
+        if(!monthName.isEmpty()) {
+            string.prepend(QLatin1String("\tmonth = {"));
+            string.append(monthName);
+            string.append(QLatin1String("}"));
+        }
     }
 
     if(!year.isEmpty()) {
-        string.append(br);
-        string.append(QLatin1String("\tyear = \""));
+        if(!string.isEmpty())
+            string.append(br);
+
+        string.append(QLatin1String("\tyear = {"));
         string.append(year);
-        string.append(QLatin1String("\""));
+        string.append(QLatin1String("}"));
 
     }
 
@@ -406,21 +458,50 @@ QString NBibExporterBibTex::getPublicationDate(Nepomuk::Resource publication)
 
 QString NBibExporterBibTex::getPublisher(Nepomuk::Resource publication)
 {
+    QString publisherEntry = QLatin1String("publisher");
+    QList<Nepomuk::Resource> publisher;
+
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Thesis())) {
+        publisherEntry = QLatin1String("school");
+        publisher = publication.property(Nepomuk::Vocabulary::NCO::publisher()).toResourceList();
+    }
+    else if(publication.hasType(Nepomuk::Vocabulary::NBIB::Techreport())) {
+        publisherEntry = QLatin1String("institution");
+        publisher = publication.property(Nepomuk::Vocabulary::NCO::publisher()).toResourceList();
+    }
+    else {
+        publisher = publication.property(Nepomuk::Vocabulary::NCO::publisher()).toResourceList();
+    }
+
     QString string;
-    QList<Nepomuk::Resource> authors = publication.property(Nepomuk::Vocabulary::NCO::publisher()).toResourceList();
-    if(!authors.isEmpty()) {
-        foreach(Nepomuk::Resource a, authors) {
+    QString names;
+    QString address;
+    if(!publisher.isEmpty()) {
+        foreach(Nepomuk::Resource p, publisher) {
             //TODO don't rely only on fullname of NCO::Contact
-            //TODO find publisher address
-            string.append(a.property(Nepomuk::Vocabulary::NCO::fullname()).toString());
-            string.append(QLatin1String(" and "));
+            names.append(p.property(Nepomuk::Vocabulary::NCO::fullname()).toString());
+            names.append(QLatin1String(" and "));
+
+
+            Nepomuk::Resource existingAddr = p.property(Nepomuk::Vocabulary::NCO::hasPostalAddress()).toResource();
+            if(existingAddr.isValid())
+                address.append(existingAddr.property(Nepomuk::Vocabulary::NCO::extendedAddress()).toString());
         }
 
-        string.chop(5);
+        names.chop(5);
 
-        if(!string.isEmpty()) {
-            string.prepend(QLatin1String("\tpublisher = \""));
-            string.append(QLatin1String("\""));
+        if(!names.isEmpty()) {
+            string.append(QLatin1String("\t"));
+            string.append(publisherEntry);
+            string.append(QLatin1String(" = {"));
+            string.append(names);
+            string.append(QLatin1String("}"));
+        }
+        if(!address.isEmpty()) {
+            string.append(br);
+            string.append(QLatin1String("\taddress = {"));
+            string.append(address);
+            string.append(QLatin1String("}"));
         }
     }
 
@@ -429,13 +510,20 @@ QString NBibExporterBibTex::getPublisher(Nepomuk::Resource publication)
 
 QString NBibExporterBibTex::getOrganization(Nepomuk::Resource publication)
 {
-    Nepomuk::Resource org = publication.property(Nepomuk::Vocabulary::NBIB::organization()).toResource();
+    Nepomuk::Resource org;
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::InProceedings())) {
+        Nepomuk::Resource proceedings = publication.property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
+        org = proceedings.property(Nepomuk::Vocabulary::NBIB::organization()).toResource();
+    }
+    else {
+        org = publication.property(Nepomuk::Vocabulary::NBIB::organization()).toResource();
+    }
 
     QString string = org.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\torganization = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\torganization = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -454,8 +542,8 @@ QString NBibExporterBibTex::getSeries(Nepomuk::Resource publication)
     QString string = series.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\tseries = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\tseries = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -466,8 +554,8 @@ QString NBibExporterBibTex::getEdition(Nepomuk::Resource publication)
     QString string = publication.property(Nepomuk::Vocabulary::NBIB::edition()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\tedition = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\tedition = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -489,16 +577,16 @@ QString NBibExporterBibTex::getJournal(Nepomuk::Resource publication)
     QString journalName = journal.property(Nepomuk::Vocabulary::NIE::title()).toString();;
 
     if(!journalNumber.isEmpty()) {
-        journalNumber.prepend(QLatin1String("\tnumber = \""));
-        journalNumber.append(QLatin1String("\""));
+        journalNumber.prepend(QLatin1String("\tnumber = {"));
+        journalNumber.append(QLatin1String("}"));
     }
     if(!journalVolume.isEmpty()) {
-        journalVolume.prepend(QLatin1String("\tvolume = \""));
-        journalVolume.append(QLatin1String("\""));
+        journalVolume.prepend(QLatin1String("\tvolume = {"));
+        journalVolume.append(QLatin1String("}"));
     }
     if(!journalName.isEmpty()) {
-        journalName.prepend(QLatin1String("\tjournal = \""));
-        journalName.append(QLatin1String("\""));
+        journalName.prepend(QLatin1String("\tjournal = {"));
+        journalName.append(QLatin1String("}"));
     }
 
     QString string = journalNumber + br + journalVolume + br + journalName;
@@ -513,8 +601,8 @@ QString NBibExporterBibTex::getVolume(Nepomuk::Resource publication)
     QString string = publication.property(Nepomuk::Vocabulary::NBIB::volume()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\tvolume = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\tvolume = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -527,8 +615,8 @@ QString NBibExporterBibTex::getNumber(Nepomuk::Resource publication)
     QString string = publication.property(Nepomuk::Vocabulary::NBIB::issueNumber()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\tnumber = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\tnumber = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -539,8 +627,8 @@ QString NBibExporterBibTex::getPublicationMethod(Nepomuk::Resource publication)
     QString string = publication.property(Nepomuk::Vocabulary::NBIB::publicationMethod()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\thowpublished = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\thowpublished = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -551,8 +639,8 @@ QString NBibExporterBibTex::getType(Nepomuk::Resource publication)
     QString string = publication.property(Nepomuk::Vocabulary::NBIB::type()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\ttype = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\ttype = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -563,8 +651,8 @@ QString NBibExporterBibTex::getCopyrigth(Nepomuk::Resource publication)
     QString string = publication.property(Nepomuk::Vocabulary::NIE::copyright()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\tcopyrigth = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\tcopyrigth = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -575,8 +663,8 @@ QString NBibExporterBibTex::getLastAccessed(Nepomuk::Resource publication)
     QString string = publication.property(Nepomuk::Vocabulary::NUAO::lastUsage()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\tlastUsage = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\tlastUsage = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -587,8 +675,8 @@ QString NBibExporterBibTex::getEPrint(Nepomuk::Resource publication)
     QString string = publication.property(Nepomuk::Vocabulary::NBIB::eprint()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\teprint = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\teprint = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -599,8 +687,8 @@ QString NBibExporterBibTex::getISBN(Nepomuk::Resource publication)
     QString string = publication.property(Nepomuk::Vocabulary::NBIB::isbn()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\tisbn = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\tisbn = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -608,12 +696,12 @@ QString NBibExporterBibTex::getISBN(Nepomuk::Resource publication)
 
 QString NBibExporterBibTex::getISSN(Nepomuk::Resource publication)
 {
-    qDebug() << "NBibExporterBibTex::getISSN /!\ needs proper implementation /!\ ";
-    QString string = publication.property(Nepomuk::Vocabulary::NBIB::issn()).toString();
+    Nepomuk::Resource series = publication.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    QString string = series.property(Nepomuk::Vocabulary::NBIB::issn()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\tissn = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\tissn = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -624,8 +712,8 @@ QString NBibExporterBibTex::getLCCN(Nepomuk::Resource publication)
     QString string = publication.property(Nepomuk::Vocabulary::NBIB::lccn()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\tlccn = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\tlccn = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -636,8 +724,8 @@ QString NBibExporterBibTex::getMRNumber(Nepomuk::Resource publication)
     QString string = publication.property(Nepomuk::Vocabulary::NBIB::mrNumber()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\tmrnumber = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\tmrnumber = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -648,8 +736,8 @@ QString NBibExporterBibTex::getDOI(Nepomuk::Resource publication)
     QString string = publication.property(Nepomuk::Vocabulary::NBIB::doi()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\tdoi = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\tdoi = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -660,8 +748,8 @@ QString NBibExporterBibTex::getAbstract(Nepomuk::Resource publication)
     QString string = publication.property(Nepomuk::Vocabulary::NBIB::abstract()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\tabstract = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\tabstract = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -679,8 +767,8 @@ QString NBibExporterBibTex::getNote(Nepomuk::Resource publication)
     QString string = publication.property(Nepomuk::Vocabulary::NIE::description()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\tnote = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\tnote = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -691,41 +779,8 @@ QString NBibExporterBibTex::getAnnote(Nepomuk::Resource publication)
     QString string = publication.property(Nepomuk::Vocabulary::NIE::comment()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\tannote = \""));
-        string.append(QLatin1String("\""));
-    }
-
-    return string;
-}
-
-QString NBibExporterBibTex::getChapter(Nepomuk::Resource reference)
-{
-    Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedChapter()).toResource();
-
-    QString chapterTitle = chapter.property(Nepomuk::Vocabulary::NIE::title()).toString();
-
-    Nepomuk::Resource author = chapter.property(Nepomuk::Vocabulary::NCO::creator()).toResource();
-    QString chapterAuthor = author.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
-
-    Nepomuk::Resource book = reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-    QString bookTitle = book.property(Nepomuk::Vocabulary::NIE::title()).toString();
-
-    QString string;
-    if(!chapterTitle.isEmpty()) {
-        string.prepend(QLatin1String("\tchapter = \""));
-        string.append(chapterTitle);
-        string.append(QLatin1String("\""));
-        string.append(br);
-        string.append(QLatin1String("\tbooktitle = \""));
-        string.append(bookTitle);
-        string.append(QLatin1String("\""));
-
-        if(!chapterAuthor.isEmpty()) {
-            string.append(br);
-            string.append(QLatin1String("\tauthor = \""));
-            string.append(chapterAuthor);
-            string.append(QLatin1String("\""));
-        }
+        string.prepend(QLatin1String("\tannote = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
@@ -736,9 +791,21 @@ QString NBibExporterBibTex::getPages(Nepomuk::Resource reference)
     QString string = reference.property(Nepomuk::Vocabulary::NBIB::pages()).toString();
 
     if(!string.isEmpty()) {
-        string.prepend(QLatin1String("\tpages = \""));
-        string.append(QLatin1String("\""));
+        string.prepend(QLatin1String("\tpages = {"));
+        string.append(QLatin1String("}"));
     }
 
     return string;
+}
+
+QString NBibExporterBibTex::addEntry(QString &fullstring, QString entry)
+{
+    if(!entry.isEmpty()) {
+        if(!fullstring.isEmpty())
+            fullstring = fullstring + br + entry;
+        else
+            fullstring = entry;
+    }
+
+    return fullstring;
 }
