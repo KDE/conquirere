@@ -23,6 +23,7 @@
 enum ProjectTreeRole {
     Role_Library = Qt::UserRole,
     Role_ResourceType,
+    Role_ResourceFilter,
     Role_Project
 };
 
@@ -30,6 +31,7 @@ enum LibraryType {
     Library_System,
     Library_Project
 };
+
 enum ResourceSelection {
     Resource_Library,
     Resource_Document,
@@ -40,4 +42,16 @@ enum ResourceSelection {
     Resource_Website,
     Resource_Note
 };
+
+enum ResourceFilter {
+    Filter_Articles,
+    Filter_Journals,
+    Filter_Books,
+    Filter_Proceedings,
+    Filter_Thesisis,
+    Filter_Presentation,
+    Filter_Script,
+    Filter_Techreport
+};
+
 #endif // GLOBALS_H
