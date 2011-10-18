@@ -34,38 +34,57 @@ void ProjectTreeDelegate::timerEvent(QTimerEvent * /*event*/)
 void ProjectTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                                 const QModelIndex &index) const
 {
+    // first draw background for selected entries
+    QStyleOptionViewItemV4 opt = option;
+    QStyledItemDelegate::initStyleOption(&opt, index);
+    QRect rect = opt.rect;
+
+    // handle selection
+    if(option.state & QStyle::State_Selected){
+        painter->save();
+
+        //QBrush selectionBrush( QPalette::highlight() );
+        painter->setBrush( opt.palette.color( QPalette::Highlight ).light( 150 ) );
+        painter->setPen(Qt::NoPen);
+        painter->drawRect(rect);
+
+        painter->restore();
+    }
+
     // draw fetch in prgress
     if(index.data(80).toBool()) {
+        painter->save();
+        int width = option.rect.height() - 1;
+
+        int outerRadius = (width-1)*0.5;
+        int innerRadius = (width-1)*0.5*0.38;
+
+        int capsuleHeight = outerRadius - innerRadius;
+        int capsuleWidth  = (width > 32 ) ? capsuleHeight *.23 : capsuleHeight *.35;
+        int capsuleRadius = capsuleWidth/2;
+
+        for (int i=0; i<12; i++)
+        {
+            QColor color = Qt::black;
+            color.setAlphaF(1.0f - (i/12.0f));
+            painter->setPen(Qt::NoPen);
+            painter->setBrush(color);
             painter->save();
-            int width = option.rect.height() - 1;
-
-            int outerRadius = (width-1)*0.5;
-            int innerRadius = (width-1)*0.5*0.38;
-
-            int capsuleHeight = outerRadius - innerRadius;
-            int capsuleWidth  = (width > 32 ) ? capsuleHeight *.23 : capsuleHeight *.35;
-            int capsuleRadius = capsuleWidth/2;
-
-            for (int i=0; i<12; i++)
-            {
-                QColor color = Qt::black;
-                color.setAlphaF(1.0f - (i/12.0f));
-                painter->setPen(Qt::NoPen);
-                painter->setBrush(color);
-                painter->save();
-                //painter->translate(option.rect.center());
-                painter->translate(option.rect.x() + (option.rect.height() - 1)/2,option.rect.y() + (option.rect.height() - 1)/2);
-                painter->rotate(index.data(81).toInt() - i*30.0f);
-                painter->drawRoundedRect(-capsuleWidth*0.5, -(innerRadius+capsuleHeight), capsuleWidth, capsuleHeight, capsuleRadius, capsuleRadius);
-                painter->restore();
-            }
+            //painter->translate(option.rect.center());
+            painter->translate(option.rect.x() + (option.rect.height() - 1)/2,option.rect.y() + (option.rect.height() - 1)/2);
+            painter->rotate(index.data(81).toInt() - i*30.0f);
+            painter->drawRoundedRect(-capsuleWidth*0.5, -(innerRadius+capsuleHeight), capsuleWidth, capsuleHeight, capsuleRadius, capsuleRadius);
             painter->restore();
+        }
+        painter->restore();
     }
     else {
         QIcon icon = qVariantValue<QIcon>(index.data(Qt::DecorationRole));
         icon.paint(painter, QRect(option.rect.x(),option.rect.y(), option.rect.height()-1, option.rect.height()-1));
     }
 
+
+    //afterwards draw the text above it
     painter->drawText(QRect(option.rect.x() + option.rect.height() + 5,option.rect.y(), option.rect.width()-option.rect.height() - 5, option.rect.height()),
                       index.data(Qt::DisplayRole).toString());
 
