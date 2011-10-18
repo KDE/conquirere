@@ -20,6 +20,7 @@ set(conquirere_SRCS
     mainui/mainwindow.cpp
     mainui/bibtexexportdialog.cpp
     mainui/bibteximportdialog.cpp
+    mainui/documentpreview.cpp
 
     propertywidgets/propertyedit.cpp
     propertywidgets/contactedit.cpp
@@ -59,6 +60,7 @@ kde4_add_ui_files( conquirere_SRCS
                    mainui/librarywidget.ui
                    mainui/bibtexexportdialog.ui
                    mainui/bibteximportdialog.ui
+                   mainui/documentpreview.ui
 
                    sidebar/referencewidget.ui
                    sidebar/listpublicationsdialog.ui
@@ -82,6 +84,7 @@ target_link_libraries(conquirere
                       ${KDE4_KDECORE_LIBS}
                       ${KDE4_KDEUI_LIBS}
                       ${KDE4_KIO_LIBS}
+                      ${KDE4_KPARTS_LIBS}
 )
 
 install(TARGETS conquirere DESTINATION ${BIN_INSTALL_DIR})

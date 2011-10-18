@@ -17,16 +17,16 @@
 
 #include "mainwindow.h"
 
+#include "../core/library.h"
+
+#include "../sidebar/sidebarwidget.h"
+#include "librarywidget.h"
+#include "newprojectdialog.h"
+#include "welcomewidget.h"
+#include "mainwidget.h"
+#include "documentpreview.h"
 #include "bibtexexportdialog.h"
 #include "bibteximportdialog.h"
-
-#include "core/library.h"
-
-#include "sidebar/sidebarwidget.h"
-#include "mainui/librarywidget.h"
-#include "mainui/newprojectdialog.h"
-#include "mainui/welcomewidget.h"
-#include "mainui/mainwidget.h"
 
 #include <KDE/KApplication>
 #include <KDE/KAction>
@@ -41,8 +41,9 @@
 #include <QSplitter>
 
 #include <QDebug>
-//DEBUG ADD
 
+
+//DEBUG ADD
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Query/Term>
@@ -55,7 +56,7 @@
 #include <Nepomuk/Query/QueryParser>
 
 MainWindow::MainWindow(QWidget *parent)
-    : KXmlGuiWindow(parent)
+    : KParts::MainWindow()//KXmlGuiWindow(parent)
 {
     setupActions();
     setupMainWindow();
@@ -66,6 +67,9 @@ MainWindow::~MainWindow()
     delete m_libraryWidget;
     delete m_mainView;
     delete m_sidebarWidget;
+
+    createGUI(0);
+    delete m_documentPreview;
 
     foreach(Library *l, m_libraries) {
         delete l;
@@ -169,6 +173,11 @@ void MainWindow::importBibTex()
     bid.exec();
 }
 
+void MainWindow::connectKPartGui(KParts::Part * part)
+{
+    createGUI(part);
+}
+
 void MainWindow::DEBUGDELETEALLDATA()
 {
     // fetcha data
@@ -249,15 +258,23 @@ void MainWindow::setupActions()
 
 void MainWindow::setupMainWindow()
 {
+    QMainWindow *window = new QMainWindow(this);
+    window->setWindowFlags(Qt::Widget);
+
+    m_mainView = new MainWidget;
+    window->setCentralWidget(m_mainView);
+
     // the left project bar
     m_libraryWidget = new LibraryWidget;
     addDockWidget(Qt::LeftDockWidgetArea, m_libraryWidget);
 
-    m_mainView = new MainWidget;
-
     //add panel for the document info
     m_sidebarWidget = new SidebarWidget;
     addDockWidget(Qt::RightDockWidgetArea, m_sidebarWidget);
+
+    //add panel for the document preview
+    m_documentPreview = new DocumentPreview(this);
+    window->addDockWidget(Qt::BottomDockWidgetArea, m_documentPreview);
 
     connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,ResourceFilter,Library*)),
             m_sidebarWidget, SLOT(newSelection(ResourceSelection,ResourceFilter,Library*)));
@@ -265,10 +282,18 @@ void MainWindow::setupMainWindow()
     connect(m_mainView, SIGNAL(selectedResource(Nepomuk::Resource&)),
             m_sidebarWidget, SLOT(setResource(Nepomuk::Resource&)));
 
+    connect(m_mainView, SIGNAL(selectedResource(Nepomuk::Resource&)),
+            m_documentPreview, SLOT(setResource(Nepomuk::Resource&)));
+
+    connect(m_documentPreview, SIGNAL(activateKPart(KParts::Part*)),
+            this, SLOT(connectKPartGui(KParts::Part*)));
+
     connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,ResourceFilter,Library*)),
             m_mainView, SLOT(switchView(ResourceSelection,ResourceFilter,Library*)));
 
-    setCentralWidget(m_mainView);
+
+    setCentralWidget(window);
+    //setCentralWidget(m_mainView);
 
     //now create the system library
     Library *l = new Library(Library_System);

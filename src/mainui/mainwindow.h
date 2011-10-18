@@ -18,14 +18,16 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <KDE/KXmlGuiWindow>
+//#include <KDE/KXmlGuiWindow>
+#include <kparts/mainwindow.h>
 
 class Library;
 class MainWidget;
 class LibraryWidget;
 class SidebarWidget;
+class DocumentPreview;
 
-class MainWindow : public KXmlGuiWindow
+class MainWindow : public KParts::MainWindow //public KXmlGuiWindow
 {
     Q_OBJECT
 
@@ -42,6 +44,8 @@ public slots:
     void exportBibTex();
     void importBibTex();
 
+    void connectKPartGui(KParts::Part * part);
+
     void DEBUGDELETEALLDATA();
 
 private:
@@ -51,6 +55,7 @@ private:
     LibraryWidget *m_libraryWidget;
     MainWidget *m_mainView;
     SidebarWidget *m_sidebarWidget;
+    DocumentPreview *m_documentPreview;
 
     QList<Library *> m_libraries;   /**< All opened libraries minimum the system library */
 };
