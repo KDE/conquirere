@@ -56,9 +56,10 @@ public slots:
       * Change the currentwidget to something that can display the @p selection
       *
       * @p selection the resource type (Documents, Publications, Mails etc)
+      * @p filter some additional filter like Article, Book etc
       * @p library the library to use
       */
-    void newSelection(ResourceSelection selection, Library *library);
+    void newSelection(ResourceSelection selection, ResourceFilter filter, Library *library);
 
     /**
       * Called when a Nepomuk::Resource was selected in the MainWidget
@@ -72,6 +73,7 @@ public slots:
 private:
     Ui::DockWidget *ui;
     SidebarComponent *m_currentWidget;
+    ResourceSelection m_curSelection;
 };
 
 #endif // SIDEBARWIDGET_H

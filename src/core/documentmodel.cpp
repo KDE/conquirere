@@ -41,7 +41,7 @@
 
 #include <QDebug>
 
-enum ColumnList {
+enum PublicationColumnList {
     Column_Reviewed,
     Column_Publication,
     Column_Author,

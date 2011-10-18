@@ -30,6 +30,20 @@ class PublicationModel : public NepomukModel
 {
     Q_OBJECT
 public:
+    enum ColumnList {
+        Column_Reviewed,
+        Column_FileAvailable,
+        Column_CiteKey,
+        Column_ResourceType,
+        Column_Author,
+        Column_Title,
+        Column_Date,
+        Column_Publisher,
+        Column_Editor,
+
+        Max_columns
+    };
+
     explicit PublicationModel(QObject *parent = 0);
     ~PublicationModel();
 

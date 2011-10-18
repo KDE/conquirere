@@ -87,7 +87,7 @@ void ProjectTreeDelegate::setEditorData(QWidget *editor,const QModelIndex &index
     QStyledItemDelegate::setEditorData(editor, index);
 }
 
-void ProjectTreeDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
+void ProjectTreeDelegate::setModelData(QWidget *editor, QAbstractTableModel *model,
                                        const QModelIndex &index) const
 {
     QStyledItemDelegate::setModelData(editor, model, index);

@@ -259,14 +259,14 @@ void MainWindow::setupMainWindow()
     m_sidebarWidget = new SidebarWidget;
     addDockWidget(Qt::RightDockWidgetArea, m_sidebarWidget);
 
-    connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,Library*)),
-            m_sidebarWidget, SLOT(newSelection(ResourceSelection,Library*)));
+    connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,ResourceFilter,Library*)),
+            m_sidebarWidget, SLOT(newSelection(ResourceSelection,ResourceFilter,Library*)));
 
     connect(m_mainView, SIGNAL(selectedResource(Nepomuk::Resource&)),
             m_sidebarWidget, SLOT(setResource(Nepomuk::Resource&)));
 
-    connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,Library*)),
-            m_mainView, SLOT(switchView(ResourceSelection,Library*)));
+    connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,ResourceFilter,Library*)),
+            m_mainView, SLOT(switchView(ResourceSelection,ResourceFilter,Library*)));
 
     setCentralWidget(m_mainView);
 

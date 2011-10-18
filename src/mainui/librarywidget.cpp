@@ -82,6 +82,7 @@ void LibraryWidget::closeLibrary(Library *p)
 void LibraryWidget::selectionchanged()
 {
     ResourceSelection rs = ResourceSelection(ui->treeWidget->currentItem()->data(0,Role_ResourceType).toInt());
+    ResourceFilter filter = ResourceFilter(ui->treeWidget->currentItem()->data(0,Role_ResourceFilter).toInt());
 
     Library *selectedLibrary;
     selectedLibrary = 0;
@@ -92,7 +93,7 @@ void LibraryWidget::selectionchanged()
         }
     }
 
-    emit newSelection(rs, selectedLibrary);
+    emit newSelection(rs, filter, selectedLibrary);
 }
 
 void LibraryWidget::fetchDataFor(ResourceSelection selection, bool start, Library *p)
@@ -147,6 +148,7 @@ void LibraryWidget::setupLibraryTree(QTreeWidgetItem *root)
     twi1a->setData(0,Role_Library,root->data(0,Role_Library));
     twi1a->setData(0,Role_ResourceType,Resource_Publication);
     twi1a->setData(0,Role_Project,root->data(0,Role_Project));
+    twi1a->setData(0,Role_ResourceFilter,Filter_None);
     twi1a->setIcon(0, KIcon(QLatin1String("document-open-remote")));
     root->addChild(twi1a);
     m_items.append(twi1a);
@@ -225,6 +227,7 @@ void LibraryWidget::setupLibraryTree(QTreeWidgetItem *root)
     twi4->setText(0, i18n("References"));
     twi4->setData(0,Role_Library,root->data(0,Role_Library));
     twi4->setData(0,Role_ResourceType,Resource_Reference);
+    twi4->setData(0,Role_ResourceFilter,Filter_None);
     twi4->setData(0,Role_Project,root->data(0,Role_Project));
     twi4->setIcon(0, KIcon(QLatin1String("user-identity")));
     root->addChild(twi4);

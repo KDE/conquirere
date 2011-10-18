@@ -6,6 +6,7 @@ set(conquirere_SRCS
     core/nepomukmodel.cpp
     core/resourcemodel.cpp
     core/publicationmodel.cpp
+    core/publicationfiltermodel.cpp
     core/documentmodel.cpp
     core/notemodel.cpp
     core/bookmarkmodel.cpp

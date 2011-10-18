@@ -43,7 +43,7 @@ public:
     void closeLibrary(Library *p);
 
 signals:
-    void newSelection(ResourceSelection selection, Library *p);
+    void newSelection(ResourceSelection selection, ResourceFilter filter, Library *p);
 
 public slots:
     void fetchDataFor(ResourceSelection selection, bool start, Library *p=0);

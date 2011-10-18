@@ -29,7 +29,7 @@
 
 class QSettings;
 class LibraryWidget;
-class QAbstractTableModel;
+class QSortFilterProxyModel;
 
 /**
   * A Library is a collection of files and Nepomuk::Resource data of a specific topic
@@ -162,7 +162,7 @@ public:
       *
       * @todo use something different than AbstractTableModel?
       */
-    QAbstractTableModel* viewModel(ResourceSelection selection);
+    QSortFilterProxyModel* viewModel(ResourceSelection selection);
 
     /**
       * Connects the fetch indicator signal/slots
@@ -202,7 +202,7 @@ private:
     Nepomuk::Tag m_libraryTag; /**< @todo add tag to resource models to be able to list Nepomuk::Resource not only based on the isRelated to fact */
     QSettings *m_settings;
 
-    QMap<ResourceSelection, QAbstractTableModel*> m_resources;
+    QMap<ResourceSelection, QSortFilterProxyModel*> m_resources;
 
 };
 

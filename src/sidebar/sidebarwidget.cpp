@@ -75,8 +75,13 @@ void SidebarWidget::deleteButtonClicked()
     }
 }
 
-void SidebarWidget::newSelection(ResourceSelection selection, Library *library)
+void SidebarWidget::newSelection(ResourceSelection selection, ResourceFilter filter, Library *library)
 {
+    if(m_curSelection == selection)
+        return;
+
+    m_curSelection = selection;
+
     ui->contentWidget->layout()->removeWidget(m_currentWidget);
 
     delete m_currentWidget;
@@ -126,6 +131,5 @@ void SidebarWidget::newSelection(ResourceSelection selection, Library *library)
     else {
         ui->newButton->setEnabled(false);
         ui->deleteButton->setEnabled(false);
-        //ui->contentWidget->layout()->addWidget(new QWidget());
     }
 }

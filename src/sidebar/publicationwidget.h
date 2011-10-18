@@ -19,28 +19,11 @@
 #define PUBLICATIONWIDGET_H
 
 #include "sidebarcomponent.h"
+#include "../globals.h"
+
 #include <Nepomuk/Resource>
 
 #include <QWidget>
-
-enum BibEntryType {
-    BibType_Article,           /**< An article from a journal or magazine. */
-    BibType_Bachelorthesis,    /**< A Bachelor thesis. */
-    BibType_Book,              /**< A book with an explicit publisher. */
-    BibType_Booklet,           /**< A work that is printed and bound, but without a named publisher or sponsoring institution. */
-    BibType_Collection,        /**< A collection of different publications */
-    BibType_Inproceedings,     /**< An article in a conference proceedings. */
-    BibType_Manual,            /**< Technical documentation. */
-    BibType_Mastersthesis,     /**< A Master's thesis. */
-    BibType_Misc,              /**< Use this type when nothing else fits. */
-    BibType_Phdthesis,         /**< A PhD thesis. */
-    BibType_Proceedings,       /**< The proceedings of a conference. */
-    BibType_Techreport,        /**< A report published by a school or other institution, usually numbered within a series. */
-    BibType_Unpublished,       /**< A document having an author and title, but not formally published. */
-    BibType_Patent,            /**< A patent. */
-    BibType_Electronic ,       /**< A electronic publication */
-    BibType_JournalIssue       /**< An issue of a journal or magazine */
-};
 
 enum BibDataType {
     BibData_Annote,
@@ -107,9 +90,6 @@ private slots:
 
 private:
     void setupWidget();
-
-    BibEntryType resourceTypeToEnum(Nepomuk::Resource & resource);
-    QUrl EnumToResourceType(BibEntryType entryType);
 
     void selectLayout(BibEntryType entryType);
     void layoutArticle();

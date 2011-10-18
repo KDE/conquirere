@@ -49,7 +49,7 @@ signals:
     void selectedResource(Nepomuk::Resource & nr);
 
 public slots:
-    void switchView(ResourceSelection selection, Library *p);
+    void switchView(ResourceSelection selection, ResourceFilter filter, Library *p);
     void selectedResource( const QModelIndex & current, const QModelIndex & previous );
 
     void removeSelected();

@@ -17,6 +17,7 @@
 
 #include "publicationmodel.h"
 #include "library.h"
+#include "../globals.h"
 
 #include "nbib.h"
 
@@ -39,19 +40,6 @@
 #include <QModelIndex>
 
 #include <QDebug>
-
-enum ColumnList {
-    Column_Reviewed,
-    Column_FileAvailable,
-    Column_CiteKey,
-    Column_Author,
-    Column_Title,
-    Column_Date,
-    Column_Publisher,
-    Column_Editor,
-
-    Max_columns
-};
 
 PublicationModel::PublicationModel(QObject *parent)
     : NepomukModel(parent)
@@ -82,6 +70,21 @@ QVariant PublicationModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     if (role == Qt::DisplayRole) {
+        if(index.column() == Column_ResourceType) {
+            QString typeSting;
+            if(m_selection == Resource_Reference) {
+                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+
+                BibEntryType type = BibEntryTypeFromUrl(publication);
+                typeSting = BibEntryTypeTranslation.at(type);
+            }
+            else {
+                BibEntryType type = BibEntryTypeFromUrl(document);
+                typeSting = BibEntryTypeTranslation.at(type);
+            }
+
+            return typeSting;
+        }
         if(index.column() == Column_Author) {
             QString authorSting;
             QList<Nepomuk::Resource> authorList;
@@ -242,6 +245,8 @@ QVariant PublicationModel::headerData(int section, Qt::Orientation orientation, 
             return i18n("Editor");
         case Column_CiteKey:
             return i18n("Citekey");
+        case Column_ResourceType:
+            return i18n("Type");
         default:
             return QVariant();
         }
@@ -265,6 +270,8 @@ QVariant PublicationModel::headerData(int section, Qt::Orientation orientation, 
             return  i18n("The editor of the document");
         case Column_CiteKey:
             return i18n("Citekey");
+        case Column_ResourceType:
+            return i18n("How was this published");
         default:
             return QVariant();
         }

@@ -19,6 +19,7 @@
 #include "../mainui/librarywidget.h"
 #include "nepomukmodel.h"
 #include "publicationmodel.h"
+#include "publicationfiltermodel.h"
 #include "documentmodel.h"
 #include "notemodel.h"
 #include "bookmarkmodel.h"
@@ -54,7 +55,7 @@ Library::~Library()
 {
     delete m_settings;
 
-    foreach(QAbstractTableModel *atm, m_resources) {
+    foreach(QSortFilterProxyModel *atm, m_resources) {
         delete atm;
     }
 
@@ -217,18 +218,18 @@ void Library::addDocument(const QFileInfo &fileInfo)
     addResource(res);
 }
 
-QAbstractTableModel* Library::viewModel(ResourceSelection selection)
+QSortFilterProxyModel* Library::viewModel(ResourceSelection selection)
 {
     return m_resources.value(selection);
 }
 
 void Library::connectFetchIndicator(LibraryWidget *treeWidget)
 {
-    foreach (QAbstractTableModel *model, m_resources) {
-        NepomukModel *m = qobject_cast<NepomukModel *>(model);
-        connect(m, SIGNAL(updateFetchDataFor(ResourceSelection,bool,Library*)),
-                treeWidget, SLOT(fetchDataFor(ResourceSelection,bool, Library *)));
+    foreach (QSortFilterProxyModel *model, m_resources) {
+        QAbstractItemModel *aim = model->sourceModel();
+        NepomukModel *m = qobject_cast<NepomukModel *>(aim);
 
+        connect(m, SIGNAL(updateFetchDataFor(ResourceSelection,bool,Library*)),treeWidget, SLOT(fetchDataFor(ResourceSelection,bool, Library *)));
         m->startFetchData();
     }
 }
@@ -255,29 +256,40 @@ void Library::setupModels()
     DocumentModel *documentModel = new DocumentModel;
     documentModel->setLibrary(this);
     documentModel->setResourceType(Resource_Document);
-    m_resources.insert(Resource_Document, documentModel);
+    QSortFilterProxyModel *documentFilter = new QSortFilterProxyModel;
+    documentFilter->setSourceModel(documentModel);
+    m_resources.insert(Resource_Document, documentFilter);
 
     BookmarkModel *bookmarkModel = new BookmarkModel;
     bookmarkModel->setLibrary(this);
     bookmarkModel->setResourceType(Resource_Website);
-    m_resources.insert(Resource_Website, bookmarkModel);
+    QSortFilterProxyModel *bookmarkFilter = new QSortFilterProxyModel;
+    bookmarkFilter->setSourceModel(bookmarkModel);
+    m_resources.insert(Resource_Website, bookmarkFilter);
 
-    PublicationModel *ReferencesModel = new PublicationModel;
-    ReferencesModel->setLibrary(this);
-    ReferencesModel->setResourceType(Resource_Reference);
-    m_resources.insert(Resource_Reference, ReferencesModel);
+    PublicationModel *referencesModel = new PublicationModel;
+    referencesModel->setLibrary(this);
+    referencesModel->setResourceType(Resource_Reference);
+    PublicationFilterModel *referenceFilter = new PublicationFilterModel;
+    referenceFilter->setSourceModel(referencesModel);
+    m_resources.insert(Resource_Reference, referenceFilter);
 
     PublicationModel *publicationModel = new PublicationModel;
     publicationModel->setLibrary(this);
     publicationModel->setResourceType(Resource_Publication);
-    m_resources.insert(Resource_Publication, publicationModel);
+    PublicationFilterModel *publicationFilter = new PublicationFilterModel;
+    publicationFilter->setSourceModel(publicationModel);
+    m_resources.insert(Resource_Publication, publicationFilter);
 
     NoteModel *noteModel = new NoteModel;
     noteModel->setLibrary(this);
     noteModel->setResourceType(Resource_Note);
-    m_resources.insert(Resource_Note, noteModel);
+    QSortFilterProxyModel *noteFilter = new QSortFilterProxyModel;
+    noteFilter->setSourceModel(noteModel);
+    m_resources.insert(Resource_Note, noteFilter);
 
     if(m_libraryType == Library_Project) {
+        /*
         ResourceModel *MailModel = new ResourceModel;
         MailModel->setLibrary(this);
         MailModel->setResourceType(Resource_Mail);
@@ -287,6 +299,7 @@ void Library::setupModels()
         MediaModel->setLibrary(this);
         MediaModel->setResourceType(Resource_Media);
         m_resources.insert(Resource_Media, MediaModel);
+        */
     }
 }
 

@@ -72,7 +72,7 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
 
     emit resourceChanged(m_publication);
 
-    BibEntryType entryType = resourceTypeToEnum(m_publication);
+    BibEntryType entryType = BibEntryTypeFromUrl(m_publication);
 
     int index = ui->editEntryType->findData(entryType);
     ui->editEntryType->setCurrentIndex(index);
@@ -91,7 +91,7 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
     selectLayout(entryType);
 
     // update resource
-    QUrl newEntryUrl = EnumToResourceType(entryType);
+    QUrl newEntryUrl = BibEntryTypeURL.at(entryType);
     if(newEntryUrl.isValid()) {
         // create the full hierarchy
         //DEBUG this seems wrong, but is currently the only way to preserve type hierarchy
@@ -107,12 +107,10 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
             break;
         }
 
-        m_publication.setTypes(newtype);
+        if(m_publication.isValid())
+            m_publication.setTypes(newtype);
     }
     else {
-        //QList<QUrl>newtype;
-        //newtype.append(Nepomuk::Vocabulary::NBIB::Publication());
-        //m_publication.setTypes(newtype);
         qDebug() << "unknwon newEntryUrl url. this should never happen";
     }
 }
@@ -209,22 +207,12 @@ void PublicationWidget::discardNoteChanges()
 void PublicationWidget::setupWidget()
 {
     ui->editEntryType->setProperty("datatype", BibData_EntryType);
-    ui->editEntryType->addItem(i18n("Misc"),BibType_Misc);
-    ui->editEntryType->addItem(i18n("Article"),BibType_Article);
-    ui->editEntryType->addItem(i18n("Book"),BibType_Book);
-    ui->editEntryType->addItem(i18n("Booklet"),BibType_Booklet);
-    ui->editEntryType->addItem(i18n("Collection"),BibType_Collection);
-    ui->editEntryType->addItem(i18n("Proceedings"),BibType_Proceedings);
-    ui->editEntryType->addItem(i18n("InProceedings"),BibType_Inproceedings);
-    ui->editEntryType->addItem(i18n("Journal Issue"),BibType_JournalIssue);
-    ui->editEntryType->addItem(i18n("Bachelorhesis"),BibType_Bachelorthesis);
-    ui->editEntryType->addItem(i18n("Mastersthesis"),BibType_Mastersthesis);
-    ui->editEntryType->addItem(i18n("PhdThesis"),BibType_Phdthesis);
-    ui->editEntryType->addItem(i18n("Manual"),BibType_Manual);
-    ui->editEntryType->addItem(i18n("Techreport"),BibType_Techreport);
-    ui->editEntryType->addItem(i18n("Unpublished"),BibType_Unpublished);
-    ui->editEntryType->addItem(i18n("Electronic"),BibType_Electronic);
-    ui->editEntryType->addItem(i18n("Patent"),BibType_Patent);
+
+    int i=0;
+    foreach(const QString &s, BibEntryTypeTranslation) {
+        ui->editEntryType->addItem(s,(BibEntryType)i);
+        i++;
+    }
 
     connect(ui->editEntryType, SIGNAL(currentIndexChanged(int)), this, SLOT(newBibEntryTypeSelected(int)));
 
@@ -283,112 +271,6 @@ void PublicationWidget::setupWidget()
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editOrganization, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLastAccessed, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editKeywords, SLOT(setResource(Nepomuk::Resource&)));
-}
-
-BibEntryType PublicationWidget::resourceTypeToEnum(Nepomuk::Resource & resource)
-{
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
-        return BibType_Article;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
-        return BibType_Proceedings;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::BachelorThesis())) {
-        return BibType_Bachelorthesis;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Book())) {
-        return BibType_Book;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Booklet())) {
-        return BibType_Booklet;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::InProceedings())) {
-        return BibType_Inproceedings;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Manual())) {
-        return BibType_Manual;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::MastersThesis())) {
-        return BibType_Mastersthesis;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::PhdThesis())) {
-        return BibType_Phdthesis;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Techreport())) {
-        return BibType_Techreport;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Unpublished())) {
-        return BibType_Unpublished;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Patent())) {
-        return BibType_Patent;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Electronic())) {
-        return BibType_Electronic;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::JournalIssue())) {
-        return BibType_JournalIssue;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
-        return BibType_Collection;
-    }
-    return BibType_Misc;
-}
-
-QUrl PublicationWidget::EnumToResourceType(BibEntryType entryType)
-{
-    switch(entryType) {
-    case BibType_Article:
-        return Nepomuk::Vocabulary::NBIB::Article();
-        break;
-    case BibType_Bachelorthesis:
-        return Nepomuk::Vocabulary::NBIB::BachelorThesis();
-        break;
-    case BibType_Book:
-        return Nepomuk::Vocabulary::NBIB::Book();
-        break;
-    case BibType_Booklet:
-        return Nepomuk::Vocabulary::NBIB::Booklet();
-        break;
-    case BibType_Inproceedings:
-        return Nepomuk::Vocabulary::NBIB::InProceedings();
-        break;
-    case BibType_Collection:
-        return Nepomuk::Vocabulary::NBIB::Collection();
-        break;
-    case BibType_Manual:
-        return Nepomuk::Vocabulary::NBIB::Manual();
-        break;
-    case BibType_Mastersthesis:
-        return Nepomuk::Vocabulary::NBIB::MastersThesis();
-        break;
-    case BibType_Misc:
-        return Nepomuk::Vocabulary::NBIB::Publication();
-        break;
-    case BibType_Phdthesis:
-        return Nepomuk::Vocabulary::NBIB::PhdThesis();
-        break;
-    case BibType_Proceedings:
-        return Nepomuk::Vocabulary::NBIB::Proceedings();
-        break;
-    case BibType_Techreport:
-        return Nepomuk::Vocabulary::NBIB::Techreport();
-        break;
-    case BibType_Unpublished:
-        return Nepomuk::Vocabulary::NBIB::Unpublished();
-        break;
-    case BibType_Patent:
-        return Nepomuk::Vocabulary::NBIB::Patent();
-        break;
-    case BibType_Electronic:
-        return Nepomuk::Vocabulary::NBIB::Electronic();
-        break;
-    case BibType_JournalIssue:
-        return Nepomuk::Vocabulary::NBIB::JournalIssue();
-        break;
-    }
-
-    return QUrl();
 }
 
 void PublicationWidget::selectLayout(BibEntryType entryType)

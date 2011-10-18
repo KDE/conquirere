@@ -19,6 +19,7 @@
 #include "projecttreewidget.h"
 #include "../core/library.h"
 #include "../core/nepomukmodel.h"
+#include "../core/publicationfiltermodel.h"
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Vocabulary/NIE>
@@ -32,6 +33,7 @@
 #include <QHeaderView>
 #include <QMenu>
 #include <QDesktopServices>
+#include <QSortFilterProxyModel>
 
 #include <QDebug>
 
@@ -47,9 +49,18 @@ MainWidget::~MainWidget()
     delete m_documentView;
 }
 
-void MainWidget::switchView(ResourceSelection selection, Library *p)
+void MainWidget::switchView(ResourceSelection selection, ResourceFilter filter, Library *p)
 {
     m_selection = selection;
+
+    PublicationFilterModel * pfm = qobject_cast<PublicationFilterModel *>(p->viewModel(selection));
+    if(pfm) {
+        pfm->setResourceFilter(filter);
+    }
+
+    // if we only need to change the filter, forget the rest after this check
+    if(m_documentView->model() == p->viewModel(selection)->sourceModel())
+        return;
 
     if(m_documentView->selectionModel()) {
         disconnect(m_documentView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(selectedResource(QModelIndex,QModelIndex)));
@@ -85,7 +96,7 @@ void MainWidget::switchView(ResourceSelection selection, Library *p)
         break;
     case Resource_Publication:
     case Resource_Reference:
-        hv->setResizeMode(4, QHeaderView::Stretch);
+        hv->setResizeMode(5, QHeaderView::Stretch);
         m_documentView->horizontalHeader()->resizeSection(0,25);
         m_documentView->horizontalHeader()->resizeSection(1,25);
         break;
@@ -106,10 +117,13 @@ void MainWidget::selectedResource( const QModelIndex & current, const QModelInde
 {
     Q_UNUSED(previous);
 
-    NepomukModel *rm = qobject_cast<NepomukModel *>(m_documentView->model());
-    Nepomuk::Resource nr = rm->documentResource(current);
+    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
+    NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
 
-    emit selectedResource(nr);
+    if(rm) {
+        Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(current));
+        emit selectedResource(nr);
+    }
 }
 
 void MainWidget::removeSelected()
@@ -146,7 +160,6 @@ void MainWidget::tableContextMenu(const QPoint & pos)
     QMenu menu(this);
     menu.addAction(m_openExternal);
     menu.addSeparator();
-    //menu.addAction(m_exportToBibTeX);
     menu.addAction(m_removeFromProject);
     menu.exec(mapToGlobal(pos));
 }

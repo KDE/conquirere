@@ -44,7 +44,6 @@ PropertyEdit::PropertyEdit(QWidget *parent)
 {
     m_label = new KSqueezedTextLabel();
     m_label->setWordWrap(true);
-    //m_label->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
     m_label->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     m_label->setTextElideMode(Qt::ElideMiddle);
 
@@ -349,7 +348,8 @@ void PropertyEdit::editingFinished()
         return;
 
     if(m_label->fullText() != m_lineEdit->text()) {
-        updateResource(m_lineEdit->text());
+        QString inputString = QLatin1String(m_lineEdit->text().toUtf8());
+        updateResource(inputString);
         setLabelText(m_lineEdit->text());
     }
 
