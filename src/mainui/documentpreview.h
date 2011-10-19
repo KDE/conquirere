@@ -45,9 +45,13 @@ public slots:
     void setResource(Nepomuk::Resource & resource);
     void showUrl(int index);
     void openExternally();
+    void toggled(bool status);
 
 signals:
     void activateKPart(KParts::Part *part);
+
+protected:
+    void changeEvent ( QEvent * event );
 
 private:
     Ui::DocumentPreview *ui;

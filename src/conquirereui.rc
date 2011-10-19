@@ -12,6 +12,15 @@
       <Action name="load_project" />
       <Action name="delete_project" />
       <Action name="close_project" />
+      <Separator/>
+      <Merge/>
+    </Menu>
+    <Menu name="settings">
+      <Menu name="toggle"><text>Toggle Docks</text>
+	<Action name="toggle_library" />
+	<Action name="toggle_sidebar" />
+	<Action name="toggle_docpreview" />
+      </Menu>
       <Merge/>
     </Menu>
     <Merge/>

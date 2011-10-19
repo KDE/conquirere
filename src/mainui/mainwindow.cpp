@@ -38,6 +38,7 @@
 #include <KIO/NetAccess>
 #include <kglobalsettings.h>
 
+#include <QVBoxLayout>
 #include <QSplitter>
 
 #include <QDebug>
@@ -56,26 +57,23 @@
 #include <Nepomuk/Query/QueryParser>
 
 MainWindow::MainWindow(QWidget *parent)
-    : KParts::MainWindow()//KXmlGuiWindow(parent)
+    : KParts::MainWindow()
 {
-    setupActions();
     setupMainWindow();
+    setupActions();
 }
 
 MainWindow::~MainWindow()
 {
+    createGUI(0); // disconnects KPart gui elements again
+
+    //delete m_welcomeWidget;
     delete m_libraryWidget;
     delete m_mainView;
     delete m_sidebarWidget;
-
-    createGUI(0);
     delete m_documentPreview;
 
-    foreach(Library *l, m_libraries) {
-        delete l;
-    }
-
-    m_libraries.clear();
+    qDeleteAll(m_libraryList);
 }
 
 void MainWindow::createLibrary()
@@ -112,15 +110,21 @@ void MainWindow::loadLibrary()
 void MainWindow::openLibrary(Library *l)
 {
     m_libraryWidget->addLibrary(l);
-    m_libraries.append(l);
 
     //connect the fetch indicator to the treewidget
     l->connectFetchIndicator(m_libraryWidget);
 
-    if(m_libraries.size() > 1) {
+    // create a welcome widget for the library
+    WelcomeWidget *ww = new WelcomeWidget;
+    ww->hide();
+    m_centerWindow->centralWidget()->layout()->addWidget(ww);
+    m_libraryList.insert(l, ww);
+
+    if(m_libraryList.size() > 1) {
         actionCollection()->action(QLatin1String("delete_project"))->setEnabled(true);
         actionCollection()->action(QLatin1String("close_project"))->setEnabled(true);
     }
+
 }
 
 void MainWindow::deleteLibrary()
@@ -147,16 +151,17 @@ void MainWindow::deleteLibrary()
 void MainWindow::closeLibrary()
 {
     qDebug() << "TODO close library";
-    Library *l = m_libraries.takeLast();
+//    m_libraryList.take()
+//    Library *l = m_libraries.takeLast();
 
-    m_libraryWidget->closeLibrary(l);
+//    m_libraryWidget->closeLibrary(l);
 
-    delete l;
+//    delete l;
 
-    if(m_libraries.isEmpty()) {
-        actionCollection()->action(QLatin1String("delete_project"))->setEnabled(false);
-        actionCollection()->action(QLatin1String("close_project"))->setEnabled(false);
-    }
+//    if(m_libraries.isEmpty()) {
+//        actionCollection()->action(QLatin1String("delete_project"))->setEnabled(false);
+//        actionCollection()->action(QLatin1String("close_project"))->setEnabled(false);
+//    }
 }
 
 void MainWindow::exportBibTex()
@@ -178,6 +183,26 @@ void MainWindow::connectKPartGui(KParts::Part * part)
     createGUI(part);
 }
 
+void MainWindow::switchView(ResourceSelection selection, ResourceFilter filter, Library *p)
+{
+    if(selection == Resource_Library) {
+        m_mainView->hide();
+
+        //show welcome page for the current library
+        QWidget *ww = m_libraryList.value(p);
+        ww->show();
+    }
+    else {
+        m_mainView->show();
+
+        //hide all welcome widgets
+        foreach (QWidget *w, m_libraryList)
+             w->hide();
+
+        m_mainView->switchView(selection, filter, p);
+    }
+}
+
 void MainWindow::DEBUGDELETEALLDATA()
 {
     // fetcha data
@@ -197,6 +222,7 @@ void MainWindow::DEBUGDELETEALLDATA()
         r.resource().remove();
     }
 }
+
 void MainWindow::setupActions()
 {
     KAction* newProjectAction = new KAction(this);
@@ -250,19 +276,29 @@ void MainWindow::setupActions()
     actionCollection()->addAction(QLatin1String("debug_delete"), debugDELETE);
     connect(debugDELETE, SIGNAL(triggered(bool)),this, SLOT(DEBUGDELETEALLDATA()));
 
+    actionCollection()->addAction(QLatin1String("toggle_library"), m_libraryWidget->toggleViewAction());
+    actionCollection()->addAction(QLatin1String("toggle_sidebar"), m_sidebarWidget->toggleViewAction());
+    actionCollection()->addAction(QLatin1String("toggle_docpreview"), m_documentPreview->toggleViewAction());
 
     KStandardAction::quit(kapp, SLOT(quit()),actionCollection());
-
-    setupGUI();
 }
 
 void MainWindow::setupMainWindow()
 {
-    QMainWindow *window = new QMainWindow(this);
-    window->setWindowFlags(Qt::Widget);
+    // create second mainwindow that holds the document preview
+    // this way the bottum doc widget will not take up all the space but is
+    // limited by the left/right doc
+    m_centerWindow = new QMainWindow(this);
+    m_centerWindow->setWindowFlags(Qt::Widget);
+    QWidget *nw = new QWidget();
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+    nw->setLayout(mainLayout);
+    m_centerWindow->setCentralWidget(nw);
+    setCentralWidget(m_centerWindow);
 
     m_mainView = new MainWidget;
-    window->setCentralWidget(m_mainView);
+    m_mainView->hide();
+    mainLayout->addWidget(m_mainView);
 
     // the left project bar
     m_libraryWidget = new LibraryWidget;
@@ -274,7 +310,7 @@ void MainWindow::setupMainWindow()
 
     //add panel for the document preview
     m_documentPreview = new DocumentPreview(this);
-    window->addDockWidget(Qt::BottomDockWidgetArea, m_documentPreview);
+    m_centerWindow->addDockWidget(Qt::BottomDockWidgetArea, m_documentPreview);
 
     connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,ResourceFilter,Library*)),
             m_sidebarWidget, SLOT(newSelection(ResourceSelection,ResourceFilter,Library*)));
@@ -289,13 +325,11 @@ void MainWindow::setupMainWindow()
             this, SLOT(connectKPartGui(KParts::Part*)));
 
     connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,ResourceFilter,Library*)),
-            m_mainView, SLOT(switchView(ResourceSelection,ResourceFilter,Library*)));
+            this, SLOT(switchView(ResourceSelection,ResourceFilter,Library*)));
 
-
-    setCentralWidget(window);
-    //setCentralWidget(m_mainView);
-
-    //now create the system library
+    //create the system library
     Library *l = new Library(Library_System);
     openLibrary(l);
+
+    setupGUI();
 }
