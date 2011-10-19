@@ -39,7 +39,9 @@ public:
     virtual void setLibrary(Library *library);
     virtual void setResourceType(ResourceSelection selection);
     virtual Nepomuk::Resource documentResource(const QModelIndex &selection);
-    virtual void removeSelected(const QModelIndexList & indexes);
+
+    virtual void removeSelectedFromProject(const QModelIndexList & indexes, Library *l);
+    virtual void removeSelectedFromSystem(const QModelIndexList & indexes);
 
 public slots:
     virtual void startFetchData() = 0;

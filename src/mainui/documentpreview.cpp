@@ -118,6 +118,12 @@ void DocumentPreview::setResource(Nepomuk::Resource & resource)
     }
 }
 
+void DocumentPreview::clear()
+{
+    Nepomuk::Resource empty;
+    setResource(empty);
+}
+
 void DocumentPreview::showUrl(int index)
 {
     if(isHidden()) {

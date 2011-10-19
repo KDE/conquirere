@@ -16,7 +16,7 @@ set(conquirere_SRCS
     mainui/welcomewidget.cpp
     mainui/librarywidget.cpp
     mainui/projecttreedelegate.cpp
-    mainui/mainwidget.cpp
+    mainui/resourcetablewidget.cpp
     mainui/mainwindow.cpp
     mainui/bibtexexportdialog.cpp
     mainui/bibteximportdialog.cpp

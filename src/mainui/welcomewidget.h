@@ -24,16 +24,21 @@ namespace Ui {
     class WelcomeWidget;
 }
 
+class Library;
+
 class WelcomeWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit WelcomeWidget(QWidget *parent = 0);
+    explicit WelcomeWidget(Library *library, QWidget *parent = 0);
     ~WelcomeWidget();
 
 private:
+    void setupGui();
+
     Ui::WelcomeWidget *ui;
+    Library *m_library;
 };
 
 #endif // WELCOMEWIDGET_H

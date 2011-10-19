@@ -23,7 +23,7 @@
 #include "librarywidget.h"
 #include "newprojectdialog.h"
 #include "welcomewidget.h"
-#include "mainwidget.h"
+#include "resourcetablewidget.h"
 #include "documentpreview.h"
 #include "bibtexexportdialog.h"
 #include "bibteximportdialog.h"
@@ -65,9 +65,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    createGUI(0); // disconnects KPart gui elements again
+    //createGUI(0); // disconnects KPart gui elements again
 
-    //delete m_welcomeWidget;
     delete m_libraryWidget;
     delete m_mainView;
     delete m_sidebarWidget;
@@ -115,7 +114,7 @@ void MainWindow::openLibrary(Library *l)
     l->connectFetchIndicator(m_libraryWidget);
 
     // create a welcome widget for the library
-    WelcomeWidget *ww = new WelcomeWidget;
+    WelcomeWidget *ww = new WelcomeWidget(l);
     ww->hide();
     m_centerWindow->centralWidget()->layout()->addWidget(ww);
     m_libraryList.insert(l, ww);
@@ -180,7 +179,10 @@ void MainWindow::importBibTex()
 
 void MainWindow::connectKPartGui(KParts::Part * part)
 {
-    createGUI(part);
+    // this cause the screen to flicker as it rebuilds the GUI
+    // better yet add all kparts (okular, gwenview, khtml) on program start
+    // together with all gui elements
+    //createGUI(part);
 }
 
 void MainWindow::switchView(ResourceSelection selection, ResourceFilter filter, Library *p)
@@ -188,9 +190,16 @@ void MainWindow::switchView(ResourceSelection selection, ResourceFilter filter, 
     if(selection == Resource_Library) {
         m_mainView->hide();
 
+        //hide all welcome widgets in case we switch from one library to another
+        foreach (QWidget *w, m_libraryList)
+             w->hide();
+
         //show welcome page for the current library
         QWidget *ww = m_libraryList.value(p);
         ww->show();
+
+        m_sidebarWidget->clear();
+        m_documentPreview->clear();
     }
     else {
         m_mainView->show();
@@ -281,6 +290,8 @@ void MainWindow::setupActions()
     actionCollection()->addAction(QLatin1String("toggle_docpreview"), m_documentPreview->toggleViewAction());
 
     KStandardAction::quit(kapp, SLOT(quit()),actionCollection());
+
+    setupGUI();
 }
 
 void MainWindow::setupMainWindow()
@@ -296,7 +307,7 @@ void MainWindow::setupMainWindow()
     m_centerWindow->setCentralWidget(nw);
     setCentralWidget(m_centerWindow);
 
-    m_mainView = new MainWidget;
+    m_mainView = new ResourceTableWidget;
     m_mainView->hide();
     mainLayout->addWidget(m_mainView);
 
@@ -331,5 +342,5 @@ void MainWindow::setupMainWindow()
     Library *l = new Library(Library_System);
     openLibrary(l);
 
-    setupGUI();
+    switchView(Resource_Library, Filter_None, l);
 }

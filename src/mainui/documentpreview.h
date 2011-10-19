@@ -43,6 +43,7 @@ public:
 
 public slots:
     void setResource(Nepomuk::Resource & resource);
+    void clear();
     void showUrl(int index);
     void openExternally();
     void toggled(bool status);

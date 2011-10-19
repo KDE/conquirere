@@ -23,7 +23,7 @@
 
 class Library;
 class WelcomeWidget;
-class MainWidget;
+class ResourceTableWidget;
 class LibraryWidget;
 class SidebarWidget;
 class DocumentPreview;
@@ -56,7 +56,7 @@ private:
 
     QMainWindow *m_centerWindow;
     WelcomeWidget *m_welcomeWidget;
-    MainWidget *m_mainView;
+    ResourceTableWidget *m_mainView;
     LibraryWidget *m_libraryWidget;
     SidebarWidget *m_sidebarWidget;
     DocumentPreview *m_documentPreview;

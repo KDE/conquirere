@@ -73,18 +73,33 @@ void NepomukModel::stopFetchData()
     m_queryClient->close();
 }
 
-void NepomukModel::removeSelected(const QModelIndexList & indexes)
+void NepomukModel::removeSelectedFromProject(const QModelIndexList & indexes, Library *l)
 {
     if(m_library->libraryType() == Library_System) {
-        qWarning() << "try to remove data from the nepomuk system library @ PublicationModel::removeSelected";
+        qWarning() << "try to remove data from the nepomuk system library @ PublicationModel::removeSelectedFromProject";
     }
     foreach(QModelIndex index, indexes) {
         // get the nepomuk data at the row
         Nepomuk::Resource nr = m_fileList.at(index.row());
 
         // remove project relation
-        nr.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), m_library->pimoLibrary());
+        nr.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), l->pimoLibrary());
 
+        //Nepomuk query client will call the slot to remove the file from the index
+    }
+}
+
+void NepomukModel::removeSelectedFromSystem(const QModelIndexList & indexes)
+{
+    foreach(QModelIndex index, indexes) {
+        // get the nepomuk data at the row
+        Nepomuk::Resource nr = m_fileList.at(index.row());
+
+        //get all connected references
+        //QList<Nepomuk::Resource> refList = nr.property(Nepomuk::Vocabulary::NBIB::)
+        qWarning() << "TODO delete all references of the publication we are about to remove from nepomuk";
+        // remove resource
+        nr.remove();
         //Nepomuk query client will call the slot to remove the file from the index
     }
 }

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mainwidget.h"
+#include "resourcetablewidget.h"
 #include "projecttreewidget.h"
 #include "../core/library.h"
 #include "../core/nepomukmodel.h"
@@ -37,21 +37,22 @@
 
 #include <QDebug>
 
-MainWidget::MainWidget(QWidget *parent)
+ResourceTableWidget::ResourceTableWidget(QWidget *parent)
     : QWidget(parent)
     , m_documentView(0)
 {
     setupWidget();
 }
 
-MainWidget::~MainWidget()
+ResourceTableWidget::~ResourceTableWidget()
 {
     delete m_documentView;
 }
 
-void MainWidget::switchView(ResourceSelection selection, ResourceFilter filter, Library *p)
+void ResourceTableWidget::switchView(ResourceSelection selection, ResourceFilter filter, Library *p)
 {
     m_selection = selection;
+    m_curLibrary = p;
 
     PublicationFilterModel * pfm = qobject_cast<PublicationFilterModel *>(p->viewModel(selection));
     if(pfm) {
@@ -113,7 +114,7 @@ void MainWidget::switchView(ResourceSelection selection, ResourceFilter filter, 
     m_documentView->selectRow(0);
 }
 
-void MainWidget::selectedResource( const QModelIndex & current, const QModelIndex & previous )
+void ResourceTableWidget::selectedResource( const QModelIndex & current, const QModelIndex & previous )
 {
     Q_UNUSED(previous);
 
@@ -126,49 +127,76 @@ void MainWidget::selectedResource( const QModelIndex & current, const QModelInde
     }
 }
 
-void MainWidget::removeSelected()
+void ResourceTableWidget::removeSelectedFromProject()
 {
     QItemSelectionModel *sm = m_documentView->selectionModel();
     QModelIndexList indexes = sm->selectedRows();
 
     NepomukModel *rm = qobject_cast<NepomukModel *>(m_documentView->model());
-    rm->removeSelected(indexes);
+    rm->removeSelectedFromProject(indexes, m_curLibrary);
 }
 
-void MainWidget::openSelected()
+void ResourceTableWidget::removeSelectedFromSystem()
 {
     QItemSelectionModel *sm = m_documentView->selectionModel();
     QModelIndexList indexes = sm->selectedRows();
 
-    NepomukModel *rm = qobject_cast<NepomukModel *>(m_documentView->model());
-    Nepomuk::Resource nr = rm->documentResource(indexes.first());
-
-    QUrl file = nr.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
-
-    QDesktopServices::openUrl(file);
+    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
+    NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
+    rm->removeSelectedFromSystem(indexes);
 }
 
-void MainWidget::exportSelectedToBibTeX()
+void ResourceTableWidget::openSelected()
+{
+    QItemSelectionModel *sm = m_documentView->selectionModel();
+    QModelIndexList indexes = sm->selectedRows();
+
+    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
+    NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
+
+    if(rm && !indexes.isEmpty()) {
+        Nepomuk::Resource nr = rm->documentResource(indexes.first());
+        QUrl file = nr.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+        QDesktopServices::openUrl(file);
+    }
+}
+
+void ResourceTableWidget::exportSelectedToBibTeX()
 {
     QItemSelectionModel *sm = m_documentView->selectionModel();
     QModelIndexList indexes = sm->selectedRows();
 }
 
-void MainWidget::tableContextMenu(const QPoint & pos)
+void ResourceTableWidget::tableContextMenu(const QPoint & pos)
 {
+    // no context menu for the welcome pages
+    if(m_selection == Resource_Library) {
+        return;
+    }
 
     QMenu menu(this);
     menu.addAction(m_openExternal);
     menu.addSeparator();
-    menu.addAction(m_removeFromProject);
-    menu.exec(mapToGlobal(pos));
+
+    if(m_selection == Resource_Publication ||
+       m_selection == Resource_Reference ) {
+        menu.addAction(m_removeFromSystem);
+    }
+
+    if(m_curLibrary->libraryType() == Library_System) {
+    }
+    else {
+        menu.addAction(m_removeFromProject);
+    }
+
+    menu.exec(QCursor::pos());
 }
 
-void MainWidget::headerContextMenu(const QPoint &pos)
+void ResourceTableWidget::headerContextMenu(const QPoint &pos)
 {
     QMenu menu(this);
 
-    int columnCount =m_documentView->model()->columnCount();
+    int columnCount = m_documentView->model()->columnCount();
 
     //iterate through all available header entries in the current model
     for(int i=0; i < columnCount; i++) {
@@ -188,7 +216,7 @@ void MainWidget::headerContextMenu(const QPoint &pos)
     menu.exec(mapToGlobal(pos));
 }
 
-void MainWidget::changeHeaderSectionVisibility()
+void ResourceTableWidget::changeHeaderSectionVisibility()
 {
     QAction *a = qobject_cast<QAction *>(sender());
 
@@ -205,7 +233,7 @@ void MainWidget::changeHeaderSectionVisibility()
     tableViewGroup.config()->sync();
 }
 
-void MainWidget::setupWidget()
+void ResourceTableWidget::setupWidget()
 {
     // view that holds the table models for selection
     m_documentView = new QTableView;
@@ -233,7 +261,12 @@ void MainWidget::setupWidget()
     m_removeFromProject = new KAction(this);
     m_removeFromProject->setText(i18n("Remove from project"));
     m_removeFromProject->setIcon(KIcon(QLatin1String("document-new")));
-    connect(m_removeFromProject, SIGNAL(triggered()), this, SLOT(removeSelected()));
+    connect(m_removeFromProject, SIGNAL(triggered()), this, SLOT(removeSelectedFromProject()));
+
+    m_removeFromSystem = new KAction(this);
+    m_removeFromSystem->setText(i18n("Remove from system"));
+    m_removeFromSystem->setIcon(KIcon(QLatin1String("document-new")));
+    connect(m_removeFromSystem, SIGNAL(triggered()), this, SLOT(removeSelectedFromSystem()));
 
     m_exportToBibTeX = new KAction(this);
     m_exportToBibTeX->setText(i18n("Export to BibTex"));

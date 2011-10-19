@@ -37,13 +37,13 @@ class KAction;
   *
   * Shows a TableView with the content of each Library model
   */
-class MainWidget : public QWidget
+class ResourceTableWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit MainWidget(QWidget *parent = 0);
-    ~MainWidget();
+    explicit ResourceTableWidget(QWidget *parent = 0);
+    ~ResourceTableWidget();
 
 signals:
     void selectedResource(Nepomuk::Resource & nr);
@@ -52,7 +52,8 @@ public slots:
     void switchView(ResourceSelection selection, ResourceFilter filter, Library *p);
     void selectedResource( const QModelIndex & current, const QModelIndex & previous );
 
-    void removeSelected();
+    void removeSelectedFromProject();
+    void removeSelectedFromSystem();
     void openSelected();
     void exportSelectedToBibTeX();
 
@@ -65,8 +66,10 @@ private:
     void setupWidget();
 
     QTableView    *m_documentView;
+    Library *m_curLibrary;
     ResourceSelection m_selection;
 
+    KAction* m_removeFromSystem;
     KAction* m_removeFromProject;
     KAction* m_exportToBibTeX;
     KAction* m_openExternal;
