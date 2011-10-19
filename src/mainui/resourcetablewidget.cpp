@@ -27,7 +27,10 @@
 #include <KDE/KAction>
 #include <KConfig>
 #include <KConfigGroup>
+#include <KLineEdit>
+#include <KComboBox>
 
+#include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QTableView>
 #include <QHeaderView>
@@ -60,7 +63,9 @@ void ResourceTableWidget::switchView(ResourceSelection selection, ResourceFilter
     }
 
     // if we only need to change the filter, forget the rest after this check
-    if(m_documentView->model() == p->viewModel(selection)->sourceModel())
+    QAbstractItemModel *oldModel = m_documentView->model();
+    QAbstractItemModel *newModel = p->viewModel(selection);
+    if(oldModel == newModel)
         return;
 
     if(m_documentView->selectionModel()) {
@@ -75,12 +80,27 @@ void ResourceTableWidget::switchView(ResourceSelection selection, ResourceFilter
     group.append((int)m_selection);
     KConfigGroup tableViewGroup( &config, group );
 
+    // go through all header elements and apply last known visibility status
+    // also add each header name to the search combobox for selection
+    QString curSearchSelection =  m_searchSelection->currentText();
+    m_searchSelection->clear();
+    m_searchSelection->addItem(i18n("all entries"), -1); //additem NAME, TABLEHEADERINDEX
     QHeaderView *hv = m_documentView->horizontalHeader();
-    int columnCount =m_documentView->model()->columnCount();
+    int columnCount = m_documentView->model()->columnCount();
     for(int i=0; i < columnCount; i++) {
         bool hidden = tableViewGroup.readEntry( QString::number(i), false );
         hv->setSectionHidden(i, hidden);
+
+        QString headerName = m_documentView->model()->headerData(i,Qt::Horizontal).toString();
+        if(!headerName.isEmpty()) {
+            m_searchSelection->addItem(headerName, i);
+        }
     }
+
+    //try to be clever and set the same searchElement as before, if it exist
+    int lastSelection = m_searchSelection->findText(curSearchSelection);
+    if(lastSelection != -1)
+        m_searchSelection->setCurrentIndex(lastSelection);
 
     hv->setResizeMode(QHeaderView::Interactive);
     switch(m_selection) {
@@ -125,6 +145,18 @@ void ResourceTableWidget::selectedResource( const QModelIndex & current, const Q
         Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(current));
         emit selectedResource(nr);
     }
+}
+
+void ResourceTableWidget::applyFilter()
+{
+    QString searchKey = m_searchBox->text();
+    int curIndex = m_searchSelection->currentIndex();
+    int searchColumn = m_searchSelection->itemData(curIndex).toInt();
+
+    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
+
+    sfpm->setFilterKeyColumn(searchColumn);
+    sfpm->setFilterRegExp(searchKey);
 }
 
 void ResourceTableWidget::removeSelectedFromProject()
@@ -235,6 +267,22 @@ void ResourceTableWidget::changeHeaderSectionVisibility()
 
 void ResourceTableWidget::setupWidget()
 {
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    setLayout(mainLayout);
+
+    //add searchbox
+    m_searchBox = new KLineEdit( this );
+    m_searchBox->setClearButtonShown(true);
+    connect(m_searchBox, SIGNAL(returnPressed()), this, SLOT(applyFilter()));
+
+    m_searchSelection = new KComboBox(this);
+    connect(m_searchSelection, SIGNAL(currentIndexChanged(int)), this, SLOT(applyFilter()));
+
+    QHBoxLayout *searchLayout = new QHBoxLayout;
+    searchLayout->addWidget(m_searchBox);
+    searchLayout->addWidget(m_searchSelection);
+    mainLayout->addLayout(searchLayout);
+
     // view that holds the table models for selection
     m_documentView = new QTableView;
     m_documentView->setSortingEnabled(true);
@@ -253,10 +301,8 @@ void ResourceTableWidget::setupWidget()
     connect(hv, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(headerContextMenu(const QPoint &)));
 
-    QHBoxLayout *layout = new QHBoxLayout;
-    layout->addWidget(m_documentView);
+    mainLayout->addWidget(m_documentView);
 
-    setLayout(layout);
 
     m_removeFromProject = new KAction(this);
     m_removeFromProject->setText(i18n("Remove from project"));

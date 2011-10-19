@@ -31,6 +31,8 @@ class QTableView;
 class PublicationModel;
 class SidebarWidget;
 class KAction;
+class KLineEdit;
+class KComboBox;
 
 /**
   * Widget for the main content
@@ -52,6 +54,7 @@ public slots:
     void switchView(ResourceSelection selection, ResourceFilter filter, Library *p);
     void selectedResource( const QModelIndex & current, const QModelIndex & previous );
 
+    void applyFilter();
     void removeSelectedFromProject();
     void removeSelectedFromSystem();
     void openSelected();
@@ -65,6 +68,8 @@ private slots:
 private:
     void setupWidget();
 
+    KLineEdit *m_searchBox;
+    KComboBox *m_searchSelection;
     QTableView    *m_documentView;
     Library *m_curLibrary;
     ResourceSelection m_selection;
