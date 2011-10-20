@@ -64,6 +64,7 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->citeKeyEdit, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->pagesEdit, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->publicationEdit, SLOT(setResource(Nepomuk::Resource&)));
+    connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 
     connect(ui->publicationEdit, SIGNAL(textChanged(QString)), this, SLOT(showChapter()));
     connect(ui->publicationEdit, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showPublicationList()));
@@ -80,6 +81,9 @@ void ReferenceWidget::setResource(Nepomuk::Resource & resource)
         showChapter();
 
         emit resourceChanged(m_reference);
+
+        Nepomuk::Resource pub = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+        ui->editRating->setRating(pub.rating());
     }
     else {
         showCreateReference(true);
@@ -180,3 +184,8 @@ void ReferenceWidget::deleteButtonClicked()
     showCreateReference(true);
 }
 
+void ReferenceWidget::changeRating(int newRating)
+{
+    Nepomuk::Resource pub = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+    pub.setRating(newRating);
+}

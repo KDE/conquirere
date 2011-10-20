@@ -20,6 +20,9 @@
 #include "../core/library.h"
 #include "../core/nepomukmodel.h"
 #include "../core/publicationfiltermodel.h"
+#include "../core/ratingdelegate.h"
+#include <kwidgetitemdelegate.h>
+#include <KDE/KRatingWidget>
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Vocabulary/NIE>
@@ -107,9 +110,9 @@ void ResourceTableWidget::switchView(ResourceSelection selection, ResourceFilter
     case Resource_Library:
         break;
     case Resource_Document:
-        hv->setResizeMode(4, QHeaderView::Stretch);
-        m_documentView->horizontalHeader()->resizeSection(0,25);
+        hv->setResizeMode(5, QHeaderView::Stretch);
         m_documentView->horizontalHeader()->resizeSection(1,25);
+        m_documentView->horizontalHeader()->resizeSection(2,25);
         break;
     case Resource_Mail:
         break;
@@ -117,15 +120,15 @@ void ResourceTableWidget::switchView(ResourceSelection selection, ResourceFilter
         break;
     case Resource_Publication:
     case Resource_Reference:
-        hv->setResizeMode(5, QHeaderView::Stretch);
-        m_documentView->horizontalHeader()->resizeSection(0,25);
+        hv->setResizeMode(6, QHeaderView::Stretch);
         m_documentView->horizontalHeader()->resizeSection(1,25);
+        m_documentView->horizontalHeader()->resizeSection(2,25);
         break;
     case Resource_Website:
-        hv->setResizeMode(0, QHeaderView::Stretch);
+        hv->setResizeMode(1, QHeaderView::Stretch);
         break;
     case Resource_Note:
-        hv->setResizeMode(0, QHeaderView::Stretch);
+        hv->setResizeMode(1, QHeaderView::Stretch);
         break;
     }
 
@@ -286,6 +289,7 @@ void ResourceTableWidget::setupWidget()
     // view that holds the table models for selection
     m_documentView = new QTableView;
     m_documentView->setSortingEnabled(true);
+    m_documentView->setItemDelegateForColumn(0, new RatingDelegate());
     m_documentView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_documentView->horizontalHeader()->setStretchLastSection(false);
     m_documentView->verticalHeader()->hide();
@@ -302,7 +306,6 @@ void ResourceTableWidget::setupWidget()
             this, SLOT(headerContextMenu(const QPoint &)));
 
     mainLayout->addWidget(m_documentView);
-
 
     m_removeFromProject = new KAction(this);
     m_removeFromProject->setText(i18n("Remove from project"));

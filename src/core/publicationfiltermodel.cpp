@@ -36,13 +36,6 @@ void PublicationFilterModel::setResourceFilter(ResourceFilter filter)
 bool PublicationFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     bool regexpCheck = QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
-//    if(filterKeyColumn() != -1) {
-//        QModelIndex index = sourceModel()->index(sourceRow, filterKeyColumn(), sourceParent);
-//        regexpCheck = sourceModel()->data(index).toString().contains(filterRegExp());
-//    }
-//    else {
-//        foreach()
-//    }
 
     QModelIndex typeIndex = sourceModel()->index(sourceRow, PublicationModel::Column_ResourceType, sourceParent);
 

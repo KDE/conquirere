@@ -80,6 +80,9 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
     QString abstract = m_publication.property(Nepomuk::Vocabulary::NBIB::abstract()).toString();
     ui->editAbstract->document()->setPlainText(abstract);
 
+    //set the rating
+    ui->editRating->setRating(m_publication.rating());
+
     selectLayout(entryType);
 }
 
@@ -204,6 +207,11 @@ void PublicationWidget::discardNoteChanges()
     ui->editAnnote->document()->setPlainText(annote);
 }
 
+void PublicationWidget::changeRating(int newRating)
+{
+    m_publication.setRating(newRating);
+}
+
 void PublicationWidget::setupWidget()
 {
     ui->editEntryType->setProperty("datatype", BibData_EntryType);
@@ -218,7 +226,6 @@ void PublicationWidget::setupWidget()
 
     ui->editAuthors->setPropertyUrl( Nepomuk::Vocabulary::NCO::creator() );
     ui->editCopyright->setPropertyUrl( Nepomuk::Vocabulary::NIE::copyright() );
-    ui->editCrossref->setPropertyUrl( Nepomuk::Vocabulary::NIE::links() );
     ui->editDate->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationDate() );
     ui->editDOI->setPropertyUrl( Nepomuk::Vocabulary::NBIB::doi() );
     ui->editEdition->setPropertyUrl( Nepomuk::Vocabulary::NBIB::edition() );
@@ -248,7 +255,6 @@ void PublicationWidget::setupWidget()
     //connect signal/slots
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editAuthors, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editCopyright, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editCrossref, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editDate, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editDOI, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editEdition, SLOT(setResource(Nepomuk::Resource&)));
@@ -271,6 +277,8 @@ void PublicationWidget::setupWidget()
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editOrganization, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLastAccessed, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editKeywords, SLOT(setResource(Nepomuk::Resource&)));
+
+    connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 }
 
 void PublicationWidget::selectLayout(BibEntryType entryType)

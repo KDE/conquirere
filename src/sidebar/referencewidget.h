@@ -48,6 +48,7 @@ private slots:
     void showChapterAuthor();
     void newButtonClicked();
     void deleteButtonClicked();
+    void changeRating(int newRating);
 
 private:
     Nepomuk::Resource m_reference;

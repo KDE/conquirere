@@ -31,6 +31,7 @@ class PublicationModel : public NepomukModel
     Q_OBJECT
 public:
     enum ColumnList {
+        Column_StarRate,
         Column_Reviewed,
         Column_FileAvailable,
         Column_CiteKey,

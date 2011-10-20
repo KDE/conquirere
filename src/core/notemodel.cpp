@@ -42,6 +42,7 @@
 #include <QDebug>
 
 enum PublicationColumnList {
+    Column_StarRate,
     Column_Title,
     Column_Tags,
     Column_Date,
@@ -106,9 +107,27 @@ QVariant NoteModel::data(const QModelIndex &index, int role) const
 
             return tagString;
         }
+        else if(index.column() == Column_StarRate) {
+            int rating = document.rating();
+
+            return rating;
+        }
     }
 
     return QVariant();
+}
+
+bool NoteModel::setData( const QModelIndex & index, const QVariant & value, int role )
+{
+    if(index.column() == Column_StarRate) {
+        Nepomuk::Resource document = m_fileList.at(index.row());
+        if(document.isValid()) {
+            document.setRating(value.toInt());
+            return true;
+        }
+    }
+
+    return false;
 }
 
 QVariant NoteModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -125,6 +144,8 @@ QVariant NoteModel::headerData(int section, Qt::Orientation orientation, int rol
             return i18n("Title");
         case Column_Date:
             return i18n("Last Modified");
+        case Column_StarRate:
+            return i18n("Rating");
         default:
             return QVariant();
         }
@@ -138,6 +159,8 @@ QVariant NoteModel::headerData(int section, Qt::Orientation orientation, int rol
             return i18n("Title");
         case Column_Date:
             return i18n("Last Modified");
+        case Column_StarRate:
+            return i18n("Rating");
         default:
             return QVariant();
         }

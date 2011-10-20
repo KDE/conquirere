@@ -10,6 +10,8 @@ set(conquirere_SRCS
     core/documentmodel.cpp
     core/notemodel.cpp
     core/bookmarkmodel.cpp
+    core/ratingdelegate.cpp
+    core/starrating.cpp
 
     mainui/newprojectdialog.cpp
     mainui/newprojectdialog.cpp

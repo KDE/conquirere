@@ -42,6 +42,7 @@
 #include <QDebug>
 
 enum PublicationColumnList {
+    Column_StarRate,
     Column_Title,
     Column_Link,
     Column_Tags,
@@ -110,6 +111,11 @@ QVariant BookmarkModel::data(const QModelIndex &index, int role) const
 
             return linkResource.genericLabel();
         }
+        else if(index.column() == Column_StarRate) {
+            int rating = document.rating();
+
+            return rating;
+        }
     }
 
     return QVariant();
@@ -131,6 +137,8 @@ QVariant BookmarkModel::headerData(int section, Qt::Orientation orientation, int
             return i18n("Last Modified");
         case Column_Link:
             return i18n("Link");
+        case Column_StarRate:
+            return i18n("Rating");
         default:
             return QVariant();
         }
@@ -146,6 +154,8 @@ QVariant BookmarkModel::headerData(int section, Qt::Orientation orientation, int
             return i18n("Last Modified");
         case Column_Link:
             return i18n("Link");
+        case Column_StarRate:
+            return i18n("Rating");
         default:
             return QVariant();
         }

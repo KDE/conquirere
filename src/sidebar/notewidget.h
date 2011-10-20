@@ -47,6 +47,7 @@ private slots:
     void deleteButtonClicked();
     void saveNote();
     void discardNote();
+    void changeRating(int newRating);
 
 private:
     Nepomuk::Resource m_note;

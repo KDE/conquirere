@@ -88,6 +88,8 @@ private slots:
     void acceptNoteChanges();
     void discardNoteChanges();
 
+    void changeRating(int newRating);
+
 private:
     void setupWidget();
 
