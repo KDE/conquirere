@@ -4,7 +4,6 @@ set(conquirere_SRCS
 
     core/library.cpp
     core/nepomukmodel.cpp
-    core/resourcemodel.cpp
     core/publicationmodel.cpp
     core/publicationfiltermodel.cpp
     core/documentmodel.cpp
@@ -36,6 +35,7 @@ set(conquirere_SRCS
     propertywidgets/organizationedit.cpp
     propertywidgets/tagedit.cpp
     propertywidgets/issnedit.cpp
+    propertywidgets/proceedingsedit.cpp
 
     sidebar/sidebarwidget.cpp
     sidebar/sidebarcomponent.cpp

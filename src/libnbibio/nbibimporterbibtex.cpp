@@ -678,7 +678,7 @@ QUrl NBibImporterBibTex::typeToUrl(const QString & entryType)
         return Nepomuk::Vocabulary::NBIB::Electronic();
     }
     else if(entryType == QLatin1String("inproceedings")) {
-        return Nepomuk::Vocabulary::NBIB::InProceedings();
+        return Nepomuk::Vocabulary::NBIB::Article();
     }
     else if(entryType == QLatin1String("manual")) {
         return Nepomuk::Vocabulary::NBIB::Manual();
@@ -728,7 +728,7 @@ void NBibImporterBibTex::addContent(const QString &key, const QString &value, Ne
         addAuthor(value, publication, reference, originalEntryType);
     }
     else if(key == QLatin1String("booktitle")) {
-        addBooktitle(value, publication);
+        addBooktitle(value, publication, originalEntryType);
     }
     else if(key == QLatin1String("chapter")) {
         addChapter(value, publication, reference);
@@ -886,14 +886,14 @@ void NBibImporterBibTex::addAuthor(const QString &content, Nepomuk::Resource pub
     }
 }
 
-void NBibImporterBibTex::addBooktitle(const QString &content, Nepomuk::Resource publication)
+void NBibImporterBibTex::addBooktitle(const QString &content, Nepomuk::Resource publication, const QString & originalEntryType)
 {
     //two specialities occure here
     // I. "booktitle" means the title of a book where "title" than means the title of the chapter
     // this is valid for any publication other than @InProceedings
     // II. "booktitle" marks the title of the @proceedings from an @InProceedings or @Conference
 
-    if(publication.hasType(Nepomuk::Vocabulary::NBIB::InProceedings())) {
+    if(originalEntryType == QLatin1String("inproceedings")) {
         //check if a resource @Proceedings with the name of content exist or create a new one
 
         // fetcha data
@@ -1227,15 +1227,14 @@ void NBibImporterBibTex::addOrganization(const QString &content, Nepomuk::Resour
         qDebug() << "use existing Organization resource for " << content;
     }
 
-    if(publication.hasType(Nepomuk::Vocabulary::NBIB::InProceedings())) {
-        Nepomuk::Resource proc = publication.property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
-
-        if(!proc.isValid()) {
-            proc = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Proceedings());
-            proc.addProperty(Nepomuk::Vocabulary::NBIB::proceedingsOf(), publication);
-            publication.setProperty(Nepomuk::Vocabulary::NBIB::proceedings(), proc);
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
+        Nepomuk::Resource proceedings = publication.property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
+        if(!proceedings.isValid()) {
+            proceedings = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Proceedings());
+            proceedings.addProperty(Nepomuk::Vocabulary::NBIB::proceedingsOf(), publication);
+            publication.setProperty(Nepomuk::Vocabulary::NBIB::proceedings(), proceedings);
         }
-        proc.setProperty(Nepomuk::Vocabulary::NBIB::organization(), o);
+        proceedings.setProperty(Nepomuk::Vocabulary::NBIB::organization(), o);
     }
     else {
         publication.setProperty(Nepomuk::Vocabulary::NBIB::organization(), o);
@@ -1372,6 +1371,8 @@ void NBibImporterBibTex::addYear(const QString &content, Nepomuk::Resource publi
 void NBibImporterBibTex::addKewords(const QString &content, Nepomuk::Resource publication)
 {
     QStringList kewords = content.split(QLatin1String(","));
+    if(kewords.isEmpty())
+        kewords = content.split(QLatin1String(";"));
 
     foreach(QString key, kewords) {
         key.trimmed();

@@ -251,6 +251,7 @@ void PublicationWidget::setupWidget()
     ui->editLastAccessed->setPropertyUrl( Nepomuk::Vocabulary::NUAO::lastUsage());
     ui->editKeywords->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
     ui->editKeywords->setPropertyUrl( Soprano::Vocabulary::NAO::hasTag() );
+    ui->editProceedings->setPropertyUrl( Nepomuk::Vocabulary::NBIB::proceedings() );
 
     //connect signal/slots
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editAuthors, SLOT(setResource(Nepomuk::Resource&)));
@@ -277,6 +278,7 @@ void PublicationWidget::setupWidget()
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editOrganization, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLastAccessed, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editKeywords, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editProceedings, SLOT(setResource(Nepomuk::Resource&)));
 
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 }
@@ -292,9 +294,6 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
         break;
     case BibType_Booklet:
         layoutBooklet();
-        break;
-    case BibType_Inproceedings:
-        layoutInproceedings();
         break;
     case BibType_Manual:
         layoutManual();
@@ -323,459 +322,429 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
     case BibType_Electronic:
         layoutElectronic();
         break;
-    default:
     case BibType_JournalIssue:
         layoutJournalIssue();
         break;
+        layoutMisc();
+    default:
         layoutMisc();
     }
 }
 
 void PublicationWidget::layoutArticle()
 {
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
-    ui->editISBN->setEnabled(true);
-    ui->editISSN->setEnabled(true);
-    ui->editCopyright->setEnabled(true);
-
-    ui->editJournal->setEnabled(true);
+    //Basics
+    ui->editTitle->setEnabled(true);
+    ui->editAuthors->setEnabled(true);
+    ui->editEditor->setEnabled(false);
     ui->editDate->setEnabled(true);
+    ui->editPublisher->setEnabled(true);
+    ui->editOrganization->setEnabled(true);
+
+    //Extra
+    ui->editSeries->setEnabled(false);
+    ui->editEdition->setEnabled(false);
+    ui->editProceedings->setEnabled(true);
+    ui->editJournal->setEnabled(true);
     ui->editVolume->setEnabled(true);
     ui->editNumber->setEnabled(true);
-
-
-    ui->editPublisher->setEnabled(false);
-    ui->editEdition->setEnabled(false);
-    ui->editEditor->setEnabled(false);
-    ui->editEprint->setEnabled(false);
     ui->editHowPublished->setEnabled(false);
-
-
-
-    ui->editSeries->setEnabled(false);
     ui->editType->setEnabled(false);
+    ui->editCopyright->setEnabled(true);
+    ui->editLastAccessed->setEnabled(false);
+
+    //identification
+    ui->editEprint->setEnabled(true);
+    ui->editISBN->setEnabled(false);
+    ui->editISSN->setEnabled(false);
+    ui->editLCCN->setEnabled(false);
+    ui->editMRNumber->setEnabled(true);
+    ui->editDOI->setEnabled(true);
 }
 
 void PublicationWidget::layoutBook()
 {
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
+    //Basics
+    ui->editTitle->setEnabled(true);
+    ui->editAuthors->setEnabled(true);
+    ui->editEditor->setEnabled(true);
+    ui->editDate->setEnabled(true);
+    ui->editPublisher->setEnabled(true);
+    ui->editOrganization->setEnabled(false);
+
+    //Extra
+    ui->editSeries->setEnabled(true);
+    ui->editEdition->setEnabled(true);
+    ui->editProceedings->setEnabled(false);
+    ui->editJournal->setEnabled(false);
+    ui->editVolume->setEnabled(true);
+    ui->editNumber->setEnabled(false);
+    ui->editHowPublished->setEnabled(false);
+    ui->editType->setEnabled(false);
+    ui->editCopyright->setEnabled(true);
+    ui->editLastAccessed->setEnabled(false);
+
+    //identification
+    ui->editEprint->setEnabled(false);
     ui->editISBN->setEnabled(true);
     ui->editISSN->setEnabled(true);
-    ui->editCopyright->setEnabled(true);
-
-    ui->editJournal->setEnabled(false);
-    ui->editDate->setEnabled(true);
-    ui->editVolume->setEnabled(true);
-    ui->editPublisher->setEnabled(true);
-    ui->editEdition->setEnabled(true);
-
-    ui->editEditor->setEnabled(true);
-
-    ui->editNumber->setEnabled(false);
-    ui->editEprint->setEnabled(false);
-    ui->editHowPublished->setEnabled(false);
-
-
-
-    ui->editSeries->setEnabled(false);
-
-    ui->editType->setEnabled(false);
+    ui->editLCCN->setEnabled(true);
+    ui->editMRNumber->setEnabled(false);
+    ui->editDOI->setEnabled(true);
 }
 
 void PublicationWidget::layoutBooklet()
 {
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
-    ui->editISBN->setEnabled(true);
-    ui->editISSN->setEnabled(true);
-    ui->editCopyright->setEnabled(true);
-
+    //Basics
+    ui->editTitle->setEnabled(true);
+    ui->editAuthors->setEnabled(true);
+    ui->editEditor->setEnabled(false);
     ui->editDate->setEnabled(true);
+    ui->editPublisher->setEnabled(false);
+    ui->editOrganization->setEnabled(false);
 
-    ui->editHowPublished->setEnabled(true);
-    ui->editPublisher->setEnabled(true);
-
+    //Extra
+    ui->editSeries->setEnabled(false);
+    ui->editEdition->setEnabled(false);
+    ui->editProceedings->setEnabled(false);
     ui->editJournal->setEnabled(false);
     ui->editVolume->setEnabled(false);
     ui->editNumber->setEnabled(false);
-
-    ui->editEdition->setEnabled(false);
-    ui->editEditor->setEnabled(false);
-    ui->editEprint->setEnabled(false);
-
-
-
-    ui->editSeries->setEnabled(false);
-
+    ui->editHowPublished->setEnabled(true);
     ui->editType->setEnabled(false);
+    ui->editCopyright->setEnabled(true);
+    ui->editLastAccessed->setEnabled(false);
+
+    //identification
+    ui->editEprint->setEnabled(false);
+    ui->editISBN->setEnabled(true);
+    ui->editISSN->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editMRNumber->setEnabled(false);
+    ui->editDOI->setEnabled(true);
 }
 
 void PublicationWidget::layoutCollection()
 {
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
-    ui->editISBN->setEnabled(true);
-    ui->editISSN->setEnabled(true);
-    ui->editCopyright->setEnabled(true);
-
-    ui->editDate->setEnabled(true);
-
-    ui->editHowPublished->setEnabled(true);
-    ui->editPublisher->setEnabled(true);
-
-    ui->editJournal->setEnabled(false);
-    ui->editVolume->setEnabled(false);
-    ui->editNumber->setEnabled(false);
-
-    ui->editEdition->setEnabled(false);
-    ui->editEditor->setEnabled(false);
-    ui->editEprint->setEnabled(false);
-
-
-
-    ui->editSeries->setEnabled(false);
-
-    ui->editType->setEnabled(false);
-}
-
-void PublicationWidget::layoutInproceedings()
-{
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
-    ui->editISBN->setEnabled(true);
-    ui->editISSN->setEnabled(true);
-    ui->editCopyright->setEnabled(true);
-
-    ui->editDate->setEnabled(true);
-
-    ui->editHowPublished->setEnabled(false);
-    ui->editPublisher->setEnabled(true);
-    ui->editJournal->setEnabled(false);
-    ui->editVolume->setEnabled(false);
-    ui->editNumber->setEnabled(false);
-
-    ui->editEdition->setEnabled(false);
+    //Basics
+    ui->editTitle->setEnabled(true);
+    ui->editAuthors->setEnabled(true);
     ui->editEditor->setEnabled(true);
-    ui->editEprint->setEnabled(false);
+    ui->editDate->setEnabled(true);
+    ui->editPublisher->setEnabled(true);
+    ui->editOrganization->setEnabled(true);
 
-
-
-    ui->editSeries->setEnabled(true);
-
+    //Extra
+    ui->editSeries->setEnabled(false);
+    ui->editEdition->setEnabled(false);
+    ui->editProceedings->setEnabled(false);
+    ui->editJournal->setEnabled(false);
+    ui->editVolume->setEnabled(false);
+    ui->editNumber->setEnabled(false);
+    ui->editHowPublished->setEnabled(true);
     ui->editType->setEnabled(false);
+    ui->editCopyright->setEnabled(true);
+    ui->editLastAccessed->setEnabled(false);
+
+    //identification
+    ui->editEprint->setEnabled(false);
+    ui->editISBN->setEnabled(false);
+    ui->editISSN->setEnabled(false);
+    ui->editLCCN->setEnabled(false);
+    ui->editMRNumber->setEnabled(false);
+    ui->editDOI->setEnabled(true);
 }
 
 void PublicationWidget::layoutManual()
 {
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
-    ui->editISBN->setEnabled(true);
-    ui->editISSN->setEnabled(true);
-    ui->editCopyright->setEnabled(true);
-
+    //Basics
+    ui->editTitle->setEnabled(true);
+    ui->editAuthors->setEnabled(true);
+    ui->editEditor->setEnabled(false);
     ui->editDate->setEnabled(true);
-
-    ui->editHowPublished->setEnabled(false);
     ui->editPublisher->setEnabled(false);
+    ui->editOrganization->setEnabled(true);
+
+    //Extra
+    ui->editSeries->setEnabled(false);
+    ui->editEdition->setEnabled(true);
+    ui->editProceedings->setEnabled(false);
     ui->editJournal->setEnabled(false);
     ui->editVolume->setEnabled(false);
     ui->editNumber->setEnabled(false);
-
-    ui->editEdition->setEnabled(true);
-    ui->editEditor->setEnabled(false);
-    ui->editEprint->setEnabled(false);
-
-
-
-    ui->editSeries->setEnabled(false);
-
+    ui->editHowPublished->setEnabled(false);
     ui->editType->setEnabled(false);
+    ui->editCopyright->setEnabled(true);
+    ui->editLastAccessed->setEnabled(false);
+
+    //identification
+    ui->editEprint->setEnabled(false);
+    ui->editISBN->setEnabled(false);
+    ui->editISSN->setEnabled(false);
+    ui->editLCCN->setEnabled(false);
+    ui->editMRNumber->setEnabled(false);
+    ui->editDOI->setEnabled(true);
 }
 
 void PublicationWidget::layoutBachelorthesis()
 {
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
-    ui->editISBN->setEnabled(true);
-    ui->editISSN->setEnabled(true);
-    ui->editCopyright->setEnabled(true);
-
-    ui->editDate->setEnabled(true);
-
-
-    ui->editHowPublished->setEnabled(false);
-    ui->editPublisher->setEnabled(false);
-    ui->editJournal->setEnabled(false);
-    ui->editVolume->setEnabled(false);
-    ui->editNumber->setEnabled(false);
-
-    ui->editEdition->setEnabled(false);
-    ui->editEditor->setEnabled(false);
-    ui->editEprint->setEnabled(false);
-
-
-    ui->editSeries->setEnabled(false);
-
-    ui->editType->setEnabled(false);
+    layoutThesis();
 }
 
 void PublicationWidget::layoutMastersthesis()
 {
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
-    ui->editISBN->setEnabled(true);
-    ui->editISSN->setEnabled(true);
-    ui->editCopyright->setEnabled(true);
-
-    ui->editDate->setEnabled(true);
-
-
-    ui->editHowPublished->setEnabled(false);
-    ui->editPublisher->setEnabled(false);
-    ui->editJournal->setEnabled(false);
-    ui->editVolume->setEnabled(false);
-    ui->editNumber->setEnabled(false);
-
-    ui->editEdition->setEnabled(false);
-    ui->editEditor->setEnabled(false);
-    ui->editEprint->setEnabled(false);
-
-
-    ui->editSeries->setEnabled(false);
-
-    ui->editType->setEnabled(false);
+    layoutThesis();
 }
 
 void PublicationWidget::layoutMisc()
 {
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
-    ui->editISBN->setEnabled(true);
-    ui->editISSN->setEnabled(true);
-    ui->editCopyright->setEnabled(true);
-
+    //Basics
+    ui->editTitle->setEnabled(true);
+    ui->editAuthors->setEnabled(true);
+    ui->editEditor->setEnabled(true);
     ui->editDate->setEnabled(true);
-
-    ui->editHowPublished->setEnabled(true);
     ui->editPublisher->setEnabled(true);
+    ui->editOrganization->setEnabled(true);
+
+    //Extra
+    ui->editSeries->setEnabled(true);
+    ui->editEdition->setEnabled(true);
+    ui->editProceedings->setEnabled(true);
     ui->editJournal->setEnabled(true);
     ui->editVolume->setEnabled(true);
     ui->editNumber->setEnabled(true);
-
-    ui->editEdition->setEnabled(true);
-    ui->editEditor->setEnabled(true);
-    ui->editEprint->setEnabled(true);
-
-
-
-    ui->editSeries->setEnabled(true);
-
+    ui->editHowPublished->setEnabled(true);
     ui->editType->setEnabled(true);
+    ui->editCopyright->setEnabled(true);
+    ui->editLastAccessed->setEnabled(true);
+
+    //identification
+    ui->editEprint->setEnabled(true);
+    ui->editISBN->setEnabled(true);
+    ui->editISSN->setEnabled(true);
+    ui->editLCCN->setEnabled(true);
+    ui->editMRNumber->setEnabled(true);
+    ui->editDOI->setEnabled(true);
 }
 
 void PublicationWidget::layoutPhdthesis()
 {
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
-    ui->editISBN->setEnabled(true);
-    ui->editISSN->setEnabled(true);
-    ui->editCopyright->setEnabled(true);
+    layoutThesis();
+}
 
+void PublicationWidget::layoutThesis()
+{
+    //Basics
+    ui->editTitle->setEnabled(true);
+    ui->editAuthors->setEnabled(true);
+    ui->editEditor->setEnabled(false);
     ui->editDate->setEnabled(true);
+    ui->editPublisher->setEnabled(true);
+    ui->editOrganization->setEnabled(false);
 
-
-    ui->editHowPublished->setEnabled(false);
-    ui->editPublisher->setEnabled(false);
+    //Extra
+    ui->editSeries->setEnabled(false);
+    ui->editEdition->setEnabled(false);
+    ui->editProceedings->setEnabled(false);
     ui->editJournal->setEnabled(false);
     ui->editVolume->setEnabled(false);
     ui->editNumber->setEnabled(false);
-
-    ui->editEdition->setEnabled(false);
-    ui->editEditor->setEnabled(false);
-    ui->editEprint->setEnabled(false);
-
-
-    ui->editSeries->setEnabled(false);
-
+    ui->editHowPublished->setEnabled(true);
     ui->editType->setEnabled(false);
+    ui->editCopyright->setEnabled(true);
+    ui->editLastAccessed->setEnabled(false);
+
+    //identification
+    ui->editEprint->setEnabled(false);
+    ui->editISBN->setEnabled(false);
+    ui->editISSN->setEnabled(false);
+    ui->editLCCN->setEnabled(false);
+    ui->editMRNumber->setEnabled(false);
+    ui->editDOI->setEnabled(true);
 }
 
 void PublicationWidget::layoutProceedings()
 {
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
-    ui->editISBN->setEnabled(true);
-    ui->editISSN->setEnabled(true);
-    ui->editCopyright->setEnabled(true);
-
+    //Basics
+    ui->editTitle->setEnabled(true);
+    ui->editAuthors->setEnabled(false);
+    ui->editEditor->setEnabled(true);
     ui->editDate->setEnabled(true);
-
-
-    ui->editHowPublished->setEnabled(false);
     ui->editPublisher->setEnabled(true);
+    ui->editOrganization->setEnabled(true);
+
+    //Extra
+    ui->editSeries->setEnabled(false);
+    ui->editEdition->setEnabled(false);
+    ui->editProceedings->setEnabled(false);
     ui->editJournal->setEnabled(false);
     ui->editVolume->setEnabled(false);
     ui->editNumber->setEnabled(false);
-
-    ui->editEdition->setEnabled(false);
-    ui->editEditor->setEnabled(true);
-    ui->editEprint->setEnabled(false);
-
-
-    ui->editSeries->setEnabled(false);
-
+    ui->editHowPublished->setEnabled(false);
     ui->editType->setEnabled(false);
+    ui->editCopyright->setEnabled(true);
+    ui->editLastAccessed->setEnabled(false);
+
+    //identification
+    ui->editEprint->setEnabled(false);
+    ui->editISBN->setEnabled(false);
+    ui->editISSN->setEnabled(false);
+    ui->editLCCN->setEnabled(false);
+    ui->editMRNumber->setEnabled(false);
+    ui->editDOI->setEnabled(true);
 }
 
 void PublicationWidget::layoutTechreport()
 {
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
-    ui->editISBN->setEnabled(true);
-    ui->editISSN->setEnabled(true);
-    ui->editCopyright->setEnabled(true);
-
+    //Basics
+    ui->editTitle->setEnabled(true);
+    ui->editAuthors->setEnabled(true);
+    ui->editEditor->setEnabled(false);
     ui->editDate->setEnabled(true);
+    ui->editPublisher->setEnabled(true);
+    ui->editOrganization->setEnabled(false);
 
-    ui->editType->setEnabled(true);
-    ui->editNumber->setEnabled(true);
-
-    ui->editHowPublished->setEnabled(false);
-    ui->editPublisher->setEnabled(false);
+    //Extra
+    ui->editSeries->setEnabled(false);
+    ui->editEdition->setEnabled(false);
+    ui->editProceedings->setEnabled(false);
     ui->editJournal->setEnabled(false);
     ui->editVolume->setEnabled(false);
+    ui->editNumber->setEnabled(true);
+    ui->editHowPublished->setEnabled(false);
+    ui->editType->setEnabled(false);
+    ui->editCopyright->setEnabled(true);
+    ui->editLastAccessed->setEnabled(false);
 
-    ui->editEdition->setEnabled(false);
-    ui->editEditor->setEnabled(false);
+    //identification
     ui->editEprint->setEnabled(false);
-
-
-    ui->editSeries->setEnabled(false);
-
+    ui->editISBN->setEnabled(false);
+    ui->editISSN->setEnabled(false);
+    ui->editLCCN->setEnabled(false);
+    ui->editMRNumber->setEnabled(false);
+    ui->editDOI->setEnabled(true);
 }
 
 void PublicationWidget::layoutUnpublished()
 {
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
-    ui->editISBN->setEnabled(false);
-    ui->editISSN->setEnabled(false);
-    ui->editCopyright->setEnabled(true);
-
+    //Basics
+    ui->editTitle->setEnabled(true);
+    ui->editAuthors->setEnabled(true);
+    ui->editEditor->setEnabled(false);
     ui->editDate->setEnabled(true);
-
-    ui->editHowPublished->setEnabled(false);
     ui->editPublisher->setEnabled(false);
+    ui->editOrganization->setEnabled(false);
+
+    //Extra
+    ui->editSeries->setEnabled(false);
+    ui->editEdition->setEnabled(false);
+    ui->editProceedings->setEnabled(false);
     ui->editJournal->setEnabled(false);
     ui->editVolume->setEnabled(false);
     ui->editNumber->setEnabled(false);
-
-    ui->editEdition->setEnabled(false);
-    ui->editEditor->setEnabled(false);
-    ui->editEprint->setEnabled(false);
-
-
-
-    ui->editSeries->setEnabled(false);
-
+    ui->editHowPublished->setEnabled(false);
     ui->editType->setEnabled(false);
+    ui->editCopyright->setEnabled(true);
+    ui->editLastAccessed->setEnabled(false);
+
+    //identification
+    ui->editEprint->setEnabled(false);
+    ui->editISBN->setEnabled(false);
+    ui->editISSN->setEnabled(false);
+    ui->editLCCN->setEnabled(false);
+    ui->editMRNumber->setEnabled(false);
+    ui->editDOI->setEnabled(false);
 }
 
 void PublicationWidget::layoutPatent()
 {
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
-    ui->editISBN->setEnabled(false);
-    ui->editISSN->setEnabled(false);
-    ui->editCopyright->setEnabled(false);
-
+    //Basics
+    ui->editTitle->setEnabled(true);
+    ui->editAuthors->setEnabled(true);
+    ui->editEditor->setEnabled(false);
     ui->editDate->setEnabled(true);
-
-    ui->editHowPublished->setEnabled(true);
     ui->editPublisher->setEnabled(true);
+    ui->editOrganization->setEnabled(true);
 
-
-
+    //Extra
+    ui->editSeries->setEnabled(false);
+    ui->editEdition->setEnabled(true);
+    ui->editProceedings->setEnabled(false);
     ui->editJournal->setEnabled(false);
     ui->editVolume->setEnabled(false);
-    ui->editNumber->setEnabled(false);
-
-    ui->editEdition->setEnabled(false);
-    ui->editEditor->setEnabled(false);
-    ui->editEprint->setEnabled(false);
-
-    ui->editSeries->setEnabled(false);
-
+    ui->editNumber->setEnabled(true);
+    ui->editHowPublished->setEnabled(false);
     ui->editType->setEnabled(false);
+    ui->editCopyright->setEnabled(true);
+    ui->editLastAccessed->setEnabled(false);
+
+    //identification
+    ui->editEprint->setEnabled(false);
+    ui->editISBN->setEnabled(false);
+    ui->editISSN->setEnabled(false);
+    ui->editLCCN->setEnabled(false);
+    ui->editMRNumber->setEnabled(false);
+    ui->editDOI->setEnabled(true);
 }
 
 void PublicationWidget::layoutElectronic()
 {
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
-    ui->editISBN->setEnabled(false);
-    ui->editISSN->setEnabled(false);
-    ui->editCopyright->setEnabled(true);
-
+    //Basics
+    ui->editTitle->setEnabled(true);
+    ui->editAuthors->setEnabled(true);
+    ui->editEditor->setEnabled(false);
     ui->editDate->setEnabled(true);
-    ui->editHowPublished->setEnabled(true);
     ui->editPublisher->setEnabled(true);
+    ui->editOrganization->setEnabled(true);
 
-
-
-
+    //Extra
+    ui->editSeries->setEnabled(false);
+    ui->editEdition->setEnabled(false);
+    ui->editProceedings->setEnabled(false);
     ui->editJournal->setEnabled(false);
     ui->editVolume->setEnabled(false);
     ui->editNumber->setEnabled(false);
-
-    ui->editEdition->setEnabled(false);
-    ui->editEditor->setEnabled(false);
-    ui->editEprint->setEnabled(false);
-
-    ui->editSeries->setEnabled(false);
+    ui->editHowPublished->setEnabled(false);
     ui->editType->setEnabled(false);
+    ui->editCopyright->setEnabled(true);
+    ui->editLastAccessed->setEnabled(false);
+
+    //identification
+    ui->editEprint->setEnabled(false);
+    ui->editISBN->setEnabled(false);
+    ui->editISSN->setEnabled(false);
+    ui->editLCCN->setEnabled(false);
+    ui->editMRNumber->setEnabled(false);
+    ui->editDOI->setEnabled(true);
 }
 
 void PublicationWidget::layoutJournalIssue()
 {
-    ui->editMRNumber->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editDOI->setEnabled(true);
-    ui->editISBN->setEnabled(false);
-    ui->editISSN->setEnabled(false);
-    ui->editCopyright->setEnabled(true);
-
+    //Basics
+    ui->editTitle->setEnabled(true);
+    ui->editAuthors->setEnabled(true);
+    ui->editEditor->setEnabled(true);
     ui->editDate->setEnabled(true);
-    ui->editHowPublished->setEnabled(true);
     ui->editPublisher->setEnabled(true);
+    ui->editOrganization->setEnabled(false);
 
-
-
-    ui->editJournal->setEnabled(false);
+    //Extra
+    ui->editSeries->setEnabled(false);
+    ui->editEdition->setEnabled(false);
+    ui->editProceedings->setEnabled(false);
+    ui->editJournal->setEnabled(true);
     ui->editVolume->setEnabled(true);
     ui->editNumber->setEnabled(true);
-
-    ui->editEdition->setEnabled(false);
-    ui->editEditor->setEnabled(false);
-    ui->editEprint->setEnabled(true);
-
-    ui->editSeries->setEnabled(false);
+    ui->editHowPublished->setEnabled(false);
     ui->editType->setEnabled(false);
+    ui->editCopyright->setEnabled(false);
+    ui->editLastAccessed->setEnabled(false);
+
+    //identification
+    ui->editEprint->setEnabled(false);
+    ui->editISBN->setEnabled(false);
+    ui->editISSN->setEnabled(true);
+    ui->editLCCN->setEnabled(false);
+    ui->editMRNumber->setEnabled(false);
+    ui->editDOI->setEnabled(false);
 }

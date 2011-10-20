@@ -105,6 +105,7 @@ private:
     void layoutMastersthesis();
     void layoutMisc();
     void layoutPhdthesis();
+    void layoutThesis();
     void layoutTechreport();
     void layoutUnpublished();
     void layoutPatent();

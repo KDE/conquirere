@@ -57,7 +57,7 @@ private:
     void addAbstract(const QString &content, Nepomuk::Resource publication);
     void addAnnote(const QString &content, Nepomuk::Resource publication);
     void addAuthor(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
-    void addBooktitle(const QString &content, Nepomuk::Resource publication);
+    void addBooktitle(const QString &content, Nepomuk::Resource publication, const QString & originalEntryType);
     void addChapter(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference);
     void addCopyrigth(const QString &content, Nepomuk::Resource publication);
     void addCrossref(const QString &content, Nepomuk::Resource publication);

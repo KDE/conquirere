@@ -170,9 +170,6 @@ QUrl ConflictManager::resourceToUrl(Nepomuk::Resource & resource)
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Booklet())) {
         return Nepomuk::Vocabulary::NBIB::Booklet();
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::InProceedings())) {
-        return Nepomuk::Vocabulary::NBIB::InProceedings();
-    }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Manual())) {
         return Nepomuk::Vocabulary::NBIB::Manual();
     }

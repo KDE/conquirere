@@ -50,7 +50,7 @@ bool PublicationFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &
     case Filter_Books:
         return regexpCheck && ((typeEnum == BibType_Book) || (typeEnum == BibType_Booklet));
     case Filter_Proceedings:
-        return regexpCheck && ((typeEnum == BibType_Inproceedings) || (typeEnum == BibType_Proceedings));
+        return regexpCheck && ((typeEnum == BibType_Article) || (typeEnum == BibType_Proceedings));
     case Filter_Thesisis:
         return regexpCheck && ((typeEnum == BibType_Bachelorthesis) || (typeEnum == BibType_Phdthesis) || (typeEnum == BibType_Mastersthesis));
     case Filter_Presentation:

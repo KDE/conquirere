@@ -135,7 +135,7 @@ void ReferenceWidget::showChapter()
     }
 
     Nepomuk::Resource publication = list.first();
-    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Book())) {
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Book()) || publication.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
         ui->chapterEdit->setEnabled(true);
         ui->chapterEdit->setEnabled(true);
         ui->label_Chapter->setEnabled(true);

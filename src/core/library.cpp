@@ -24,8 +24,6 @@
 #include "notemodel.h"
 #include "bookmarkmodel.h"
 
-#include "../core/resourcemodel.h"
-
 #include <KDE/KUrl>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfoList>
