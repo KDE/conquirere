@@ -356,7 +356,7 @@ void PublicationWidget::layoutArticle()
     //identification
     ui->editEprint->setEnabled(true);
     ui->editISBN->setEnabled(false);
-    ui->editISSN->setEnabled(false);
+    ui->editISSN->setEnabled(true);
     ui->editLCCN->setEnabled(false);
     ui->editMRNumber->setEnabled(true);
     ui->editDOI->setEnabled(true);
@@ -612,7 +612,7 @@ void PublicationWidget::layoutTechreport()
     ui->editVolume->setEnabled(false);
     ui->editNumber->setEnabled(true);
     ui->editHowPublished->setEnabled(false);
-    ui->editType->setEnabled(false);
+    ui->editType->setEnabled(true);
     ui->editCopyright->setEnabled(true);
     ui->editLastAccessed->setEnabled(false);
 

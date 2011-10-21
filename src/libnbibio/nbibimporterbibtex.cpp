@@ -95,8 +95,8 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
         if(line.isEmpty())
             continue;
         //ignore comment lines %
-        //if(line.contains(QRegExp(QLatin1String("^[\\s*%]"))));
-        //    continue;
+        if(line.startsWith('%'))
+            continue;
 
         if(line.contains(entryStart)) {
             if (entryStart.indexIn(line) != -1) {
@@ -139,7 +139,7 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
 
                 QString valueNew = curEntry.content.value(key,QString());
 
-                valueNew.append(value);
+                valueNew.append(value.simplified());
 
                 curEntry.content.insert(key,valueNew);
             }
@@ -147,7 +147,7 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
                 //this line adds content to the last used key when it spans several lines
                 if(!curKey.isEmpty()) {
                     QString valueNew = curEntry.content.value(curKey,QString());
-                    valueNew.append(line);
+                    valueNew.append(line.simplified());
 
                     curEntry.content.insert(curKey,valueNew);
                 }
@@ -159,17 +159,18 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
         }
     }
 
-    qDebug() << "import " << bibEntries.size() << "bibtex entries";
+    qreal percentperFile = 100.0/(bibEntries.size() + 1); // the +1 leaves room for the conflict list creation at the end
+    qreal fileNumber = 0.0;
 
-    qreal percentperFile = 100/(bibEntries.size() + 1); // the +1 leaves room for the conflict list creation at the end
-    int fileNumber = 0;
+    qDebug() << "import " << bibEntries.size() << "bibtex entries";
 
     //now we seperated all entries, time to inspect and import them
     foreach(Entry e, bibEntries) {
         //create a new reference and Publication
         addEntry(e);
         fileNumber++;
-        emit progress( percentperFile * fileNumber );
+        int progressPercenter = (int)(percentperFile * fileNumber);
+        emit progress( progressPercenter );
 
         if(m_cancel) {
             break;
@@ -311,7 +312,6 @@ Nepomuk::Resource NBibImporterBibTex::findExistingPublication(Entry e, bool & is
             duplicate = checkContent(i.key(), i.value(), checkAgainst , e.entryType.toLower());
 
             if(!duplicate) {
-                qDebug() << ">>>>>>>>>>>>>>>>>>>> dunplication check failed for key" << i.key() << "value ::" << i.value();
                 break;
             }
         }
@@ -387,7 +387,6 @@ Nepomuk::Resource NBibImporterBibTex::findExistingReference(Entry e, Nepomuk::Re
             }
 
             if(!duplicate) {
-                qDebug() << ">>>>>>>>>>>>>>>>>>>> dunplication check failed for key" << i.key() << "value ::" << i.value();
                 break;
             }
         }
@@ -866,8 +865,7 @@ void NBibImporterBibTex::addAuthor(const QString &content, Nepomuk::Resource pub
             a = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::PersonContact());
 
             a.setProperty(Nepomuk::Vocabulary::NCO::fullname(), author.full);
-            qDebug() << "name set for " << author.full << " :: " << a.property(Nepomuk::Vocabulary::NCO::fullname()).toString() << " uri " << a.uri();
-            qDebug() << "to resource " << authorResource.uri();
+
             if(!author.first.isEmpty())
                 a.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), author.first);
             if(!author.last.isEmpty())
@@ -876,9 +874,6 @@ void NBibImporterBibTex::addAuthor(const QString &content, Nepomuk::Resource pub
                 a.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), author.middle);
 
             m_allContacts.append(a);
-        }
-        else {
-            qDebug() << "use existing Contact resource for " << author.full;
         }
 
 
@@ -1004,9 +999,6 @@ void NBibImporterBibTex::addEditor(const QString &content, Nepomuk::Resource pub
                 e.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), editor.middle);
 
             m_allContacts.append(e);
-        }
-        else {
-            qDebug() << "use existing Contact resource for " << editor.full;
         }
 
         publication.addProperty(Nepomuk::Vocabulary::NBIB::editor(), e);

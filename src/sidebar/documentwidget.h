@@ -39,6 +39,7 @@ public:
 
 public slots:
     virtual void setResource(Nepomuk::Resource & resource);
+    virtual void deleteButtonClicked();
 
 private slots:
     void addPublication();

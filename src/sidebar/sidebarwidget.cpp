@@ -131,6 +131,11 @@ void SidebarWidget::newSelection(ResourceSelection selection, ResourceFilter fil
         ui->newButton->setEnabled(false);
         ui->deleteButton->setEnabled(false);
     }
+
+    if(selection == Resource_Document) {
+        ui->newButton->setEnabled(false);
+        ui->deleteButton->setEnabled(false);
+    }
 }
 
 void SidebarWidget::clear()

@@ -19,6 +19,7 @@
 #include "ui_documentwidget.h"
 
 #include "publicationwidget.h"
+#include "listpublicationsdialog.h"
 
 #include "nbib.h"
 #include <KGlobalSettings>
@@ -83,45 +84,36 @@ void DocumentWidget::setResource(Nepomuk::Resource & resource)
     }
 }
 
+void DocumentWidget::deleteButtonClicked()
+{
+    //TODO delete file + metadata
+    qDebug() << "TODO delete file + metadata";
+}
+
 void DocumentWidget::addPublication()
 {
-    //TODO don't just create a publication, also select from existing ones
-    KDialog showPublicationWidget;
+    ListPublicationsDialog lpd;
+    lpd.setLibrary(library());
 
-    // create a temporary Publication object
-    Nepomuk::Resource tempRef(QUrl(), Nepomuk::Vocabulary::NBIB::Publication());
-    tempRef.setProperty(Nepomuk::Vocabulary::NBIB::isPublicationOf(), m_document);
+    int ret = lpd.exec();
 
-    PublicationWidget *rw = new PublicationWidget();
-    rw->setDialogMode(true);
-    rw->setResource(tempRef);
-    rw->setLibrary(library());
+    if(ret == QDialog::Accepted) {
+        Nepomuk::Resource publication = lpd.selectedPublication();
 
-    showPublicationWidget.setMainWidget(rw);
-    showPublicationWidget.setInitialSize(QSize(300,300));
-
-    int ret = showPublicationWidget.exec();
-
-    if(ret == KDialog::Accepted) {
-        // add backreference
-        m_document.setProperty(Nepomuk::Vocabulary::NBIB::publishedAs(), tempRef);
+        m_document.setProperty(Nepomuk::Vocabulary::NBIB::publishedAs(), publication);
+        publication.addProperty(Nepomuk::Vocabulary::NBIB::isPublicationOf(), m_document);
+        setResource(m_document);
     }
-    else {
-        // remove temp publication again
-        tempRef.remove();
-    }
-
-    //update
-    setResource(m_document);
 }
 
 void DocumentWidget::removePublication()
 {
     //TODO ask if publication should be deleted or just the link removed
-    Nepomuk::Resource pa = m_document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
-    pa.remove();
 
+    Nepomuk::Resource publication = m_document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
     m_document.removeProperty(Nepomuk::Vocabulary::NBIB::publishedAs());
+
+    publication.removeProperty(Nepomuk::Vocabulary::NBIB::isPublicationOf(), m_document);
 
     //update
     setResource(m_document);
