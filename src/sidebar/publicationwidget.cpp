@@ -23,6 +23,7 @@
 #include "propertywidgets/fileobjectedit.h"
 
 #include "referencewidget.h"
+#include "contactdialog.h"
 
 #include "nbib.h"
 #include <KComboBox>
@@ -225,11 +226,15 @@ void PublicationWidget::setupWidget()
     connect(ui->editEntryType, SIGNAL(currentIndexChanged(int)), this, SLOT(newBibEntryTypeSelected(int)));
 
     ui->editAuthors->setPropertyUrl( Nepomuk::Vocabulary::NCO::creator() );
+    ui->editAuthors->setUseDetailDialog(true);
+    connect(ui->editAuthors, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
     ui->editCopyright->setPropertyUrl( Nepomuk::Vocabulary::NIE::copyright() );
     ui->editDate->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationDate() );
     ui->editDOI->setPropertyUrl( Nepomuk::Vocabulary::NBIB::doi() );
     ui->editEdition->setPropertyUrl( Nepomuk::Vocabulary::NBIB::edition() );
     ui->editEditor->setPropertyUrl( Nepomuk::Vocabulary::NBIB::editor() );
+    ui->editEditor->setUseDetailDialog(true);
+    connect(ui->editEditor, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
     ui->editEprint->setPropertyUrl( Nepomuk::Vocabulary::NBIB::eprint() );
     ui->editHowPublished->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationMethod() );
     ui->editISBN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isbn() );
@@ -239,6 +244,8 @@ void PublicationWidget::setupWidget()
     ui->editMRNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::mrNumber() );
     ui->editNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::issueNumber() );
     ui->editPublisher->setPropertyUrl( Nepomuk::Vocabulary::NCO::publisher() );
+    ui->editPublisher->setUseDetailDialog(true);
+    connect(ui->editPublisher, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
     ui->editSeries->setPropertyUrl( Nepomuk::Vocabulary::NBIB::inSeries() );
     ui->editTitle->setPropertyUrl( Nepomuk::Vocabulary::NIE::title() );
     ui->editType->setPropertyUrl( Nepomuk::Vocabulary::NBIB::type() );
@@ -283,6 +290,18 @@ void PublicationWidget::setupWidget()
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 }
 
+void PublicationWidget::editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl)
+{
+    qDebug() << "show dialog";
+    ContactDialog cd;
+
+    cd.setResource(resource, propertyUrl);
+
+    cd.exec();
+
+    ui->editAuthors->setResource(resource);
+}
+
 void PublicationWidget::selectLayout(BibEntryType entryType)
 {
     switch(entryType) {
@@ -325,7 +344,6 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
     case BibType_JournalIssue:
         layoutJournalIssue();
         break;
-        layoutMisc();
     default:
         layoutMisc();
     }

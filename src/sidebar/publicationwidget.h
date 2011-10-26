@@ -89,6 +89,7 @@ private slots:
     void discardNoteChanges();
 
     void changeRating(int newRating);
+    void editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl);
 
 private:
     void setupWidget();

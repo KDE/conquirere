@@ -37,17 +37,53 @@
 #include <Nepomuk/Query/QueryParser>
 #include <Nepomuk/Query/LiteralTerm>
 
+#include <Akonadi/Item>
+#include <KABC/Addressee>
+#include <Akonadi/ItemFetchJob>
+#include <Akonadi/ItemCreateJob>
+#include <Akonadi/CollectionCreateJob>
+#include <Akonadi/CollectionFetchJob>
+#include <Akonadi/CollectionFetchScope>
+
+
 #include <QTextStream>
 #include <QRegExp>
 #include <QDebug>
 
+using namespace Akonadi;
+
 NBibImporterBibTex::NBibImporterBibTex()
     : NBibImporter()
 {
+    // fetching all collections containing emails recursively, starting at the root collection
+    CollectionFetchJob *job = new CollectionFetchJob( Collection::root(), CollectionFetchJob::Recursive, this );
+    job->fetchScope().setContentMimeTypes( QStringList() << "application/x-vnd.kde.contactgroup" );
+    connect( job, SIGNAL( collectionsReceived( const Akonadi::Collection::List& ) ),
+             this, SLOT( myCollectionsReceived( const Akonadi::Collection::List& ) ) );
+    connect( job, SIGNAL( result( KJob* ) ), this, SLOT( createResult( KJob* ) ) );
+}
+
+void NBibImporterBibTex::createResult(KJob* job)
+{
+    qDebug() << "Calendar created";
+
+    if ( job->error() ) {
+        qDebug() << "error occired" << job->errorText() << job->errorString();
+    }
+}
+
+void NBibImporterBibTex::myCollectionsReceived( const Akonadi::Collection::List& list)
+{
+    foreach(Akonadi::Collection c, list) {
+        qDebug() << "collection found" << c.name();
+        m_collection = c;
+    }
 }
 
 bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
 {
+    //create the collection used for importing
+
     // we start by fetching all contacts for the conflict checking
     // this reduce the need to query nepomuk with every new author again and again
     // the storage got out of sync otherwise
@@ -862,16 +898,38 @@ void NBibImporterBibTex::addAuthor(const QString &content, Nepomuk::Resource pub
 
         if(!a.isValid()) {
             qDebug() << "create a new Contact resource for " << author.full;
-            a = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::PersonContact());
 
-            a.setProperty(Nepomuk::Vocabulary::NCO::fullname(), author.full);
+            KABC::Addressee addr;
+            addr.setFamilyName( author.last );
+            addr.setGivenName( author.first );
+            addr.setAdditionalName( author.middle );
+            addr.setName( author.full );
+            addr.setFormattedName( author.full );
 
-            if(!author.first.isEmpty())
-                a.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), author.first);
-            if(!author.last.isEmpty())
-                a.setProperty(Nepomuk::Vocabulary::NCO::nameFamily(), author.last);
-            if(!author.middle.isEmpty())
-                a.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), author.middle);
+            Akonadi::Item item;
+            item.setMimeType( KABC::Addressee::mimeType() );
+            item.setPayload<KABC::Addressee>( addr );
+
+            Akonadi::ItemCreateJob *job = new Akonadi::ItemCreateJob( item, m_collection );
+
+            if ( !job->exec() ) {
+                qDebug() << "Error:" << job->errorString();
+            } else {
+                //thats horrible, at the end two different nepomuk resources will be available
+                // because the akonadi feeder creates another resource for the contact which is unknown at this point
+                // but I need a proper resource to be able to connect it to the publication here
+                a = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::PersonContact());
+                a.setProperty("http://akonadi-project.org/ontologies/aneo#akonadiItemId", job->item().id());
+
+                a.setProperty(Nepomuk::Vocabulary::NCO::fullname(), author.full);
+
+                if(!author.first.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), author.first);
+                if(!author.last.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameFamily(), author.last);
+                if(!author.middle.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), author.middle);
+            }
 
             m_allContacts.append(a);
         }
