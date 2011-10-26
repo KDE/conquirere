@@ -237,13 +237,7 @@ void DocumentModel::startFetchData()
 
     Nepomuk::Query::AndTerm andTerm;
 
-    andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Document() ) );
-
-    // exclude source code
-    // is not interresting here and slows down way to much
-    andTerm.addSubTerm(  !Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::SourceCode() ) );
-    andTerm.addSubTerm(  !Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::TextDocument() ) );
-
+    andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::PaginatedTextDocument() ) );
 
     if(m_library->libraryType() != Library_System) {
         andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(),
