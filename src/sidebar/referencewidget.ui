@@ -88,6 +88,16 @@
         <item row="3" column="1">
          <widget class="ContactEdit" name="chapterAuthorEdit"/>
         </item>
+        <item row="4" column="1">
+         <widget class="KRatingWidget" name="editRating"/>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Rating:</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
@@ -109,6 +119,11 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>KRatingWidget</class>
+   <extends>QFrame</extends>
+   <header>kratingwidget.h</header>
+  </customwidget>
   <customwidget>
    <class>StringEdit</class>
    <extends>QLineEdit</extends>

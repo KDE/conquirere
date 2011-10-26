@@ -182,7 +182,18 @@ QVariant PublicationModel::data(const QModelIndex &index, int role) const
             }
 
             return titleSting;
+        }
+        else if(index.column() == Column_StarRate) {
+            int rating;
 
+            if(m_selection == Resource_Reference) {
+                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+                rating = publication.rating();
+            }
+            else {
+                rating = document.rating();
+            }
+            return rating;
         }
     }
 
@@ -247,6 +258,8 @@ QVariant PublicationModel::headerData(int section, Qt::Orientation orientation, 
             return i18n("Citekey");
         case Column_ResourceType:
             return i18n("Type");
+        case Column_StarRate:
+            return i18n("Rating");
         default:
             return QVariant();
         }
@@ -272,6 +285,8 @@ QVariant PublicationModel::headerData(int section, Qt::Orientation orientation, 
             return i18n("Citekey");
         case Column_ResourceType:
             return i18n("How was this published");
+        case Column_StarRate:
+            return i18n("Rating");
         default:
             return QVariant();
         }

@@ -21,8 +21,12 @@
 #include "nbibimporter.h"
 
 #include <Nepomuk/Resource>
+
+#include <Akonadi/Collection>
+
 #include <QMap>
 
+class KJob;
 class NBibImporterBibTex : public NBibImporter
 {
     Q_OBJECT
@@ -57,7 +61,7 @@ private:
     void addAbstract(const QString &content, Nepomuk::Resource publication);
     void addAnnote(const QString &content, Nepomuk::Resource publication);
     void addAuthor(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
-    void addBooktitle(const QString &content, Nepomuk::Resource publication);
+    void addBooktitle(const QString &content, Nepomuk::Resource publication, const QString & originalEntryType);
     void addChapter(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference);
     void addCopyrigth(const QString &content, Nepomuk::Resource publication);
     void addCrossref(const QString &content, Nepomuk::Resource publication);
@@ -93,6 +97,12 @@ private:
     QList<Nepomuk::Resource> m_allContacts;
     QList<Nepomuk::Resource> m_allPublications;
     QList<Nepomuk::Resource> m_allReferences;
+
+    Akonadi::Collection m_collection;
+
+private slots:
+    void createResult(KJob* job);
+    void myCollectionsReceived( const Akonadi::Collection::List& );
 };
 
 #endif // NBIBIMPORTERBIBTEX_H

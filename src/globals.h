@@ -68,7 +68,6 @@ enum BibEntryType {
     BibType_Book,              /**< A book with an explicit publisher. */
     BibType_Booklet,           /**< A work that is printed and bound, but without a named publisher or sponsoring institution. */
     BibType_Collection,        /**< A collection of different publications */
-    BibType_Inproceedings,     /**< An article in a conference proceedings. */
     BibType_Manual,            /**< Technical documentation. */
     BibType_Mastersthesis,     /**< A Master's thesis. */
     BibType_Misc,              /**< Use this type when nothing else fits. */
@@ -87,7 +86,6 @@ static const QStringList BibEntryTypeTranslation = QStringList() << I18N_NOOP("A
                                                                  << I18N_NOOP("Book")
                                                                  << I18N_NOOP("Booklet")
                                                                  << I18N_NOOP("Collection")
-                                                                 << I18N_NOOP("Inproceedings")
                                                                  << I18N_NOOP("Manual")
                                                                  << I18N_NOOP("Master thesis")
                                                                  << I18N_NOOP("Misc")
@@ -105,7 +103,6 @@ static const QList<QUrl> BibEntryTypeURL = QList<QUrl>() << Nepomuk::Vocabulary:
                                                          << Nepomuk::Vocabulary::NBIB::Book()
                                                          << Nepomuk::Vocabulary::NBIB::Booklet()
                                                          << Nepomuk::Vocabulary::NBIB::Collection()
-                                                         << Nepomuk::Vocabulary::NBIB::InProceedings()
                                                          << Nepomuk::Vocabulary::NBIB::Manual()
                                                          << Nepomuk::Vocabulary::NBIB::MastersThesis()
                                                          << Nepomuk::Vocabulary::NBIB::Publication()
@@ -134,9 +131,6 @@ static BibEntryType BibEntryTypeFromUrl(Nepomuk::Resource & resource)
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Booklet())) {
         return BibType_Booklet;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::InProceedings())) {
-        return BibType_Inproceedings;
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Manual())) {
         return BibType_Manual;

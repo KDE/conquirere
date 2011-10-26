@@ -133,7 +133,7 @@ signals:
 
 public slots:
     /**
-      * Sets the resource tha tshould be shown/manipulated
+      * Sets the resource that should be shown/manipulated
       */
     void setResource(Nepomuk::Resource & resource);
 

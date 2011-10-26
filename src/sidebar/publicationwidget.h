@@ -88,6 +88,9 @@ private slots:
     void acceptNoteChanges();
     void discardNoteChanges();
 
+    void changeRating(int newRating);
+    void editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl);
+
 private:
     void setupWidget();
 
@@ -103,6 +106,7 @@ private:
     void layoutMastersthesis();
     void layoutMisc();
     void layoutPhdthesis();
+    void layoutThesis();
     void layoutTechreport();
     void layoutUnpublished();
     void layoutPatent();

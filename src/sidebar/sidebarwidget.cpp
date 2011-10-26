@@ -89,8 +89,7 @@ void SidebarWidget::newSelection(ResourceSelection selection, ResourceFilter fil
 
     switch(selection) {
     case Resource_Library:
-        //TODO do something when the library header is clicked (show welcome page? statistic page?)
-        //m_currentWidget = new PublicationWidget();
+        ui->titleLabel->setText(QLatin1String(""));
         break;
     case Resource_Document:
         m_currentWidget = new DocumentWidget();
@@ -132,4 +131,15 @@ void SidebarWidget::newSelection(ResourceSelection selection, ResourceFilter fil
         ui->newButton->setEnabled(false);
         ui->deleteButton->setEnabled(false);
     }
+
+    if(selection == Resource_Document) {
+        ui->newButton->setEnabled(false);
+        ui->deleteButton->setEnabled(false);
+    }
+}
+
+void SidebarWidget::clear()
+{
+    Nepomuk::Resource empty;
+    setResource(empty);
 }

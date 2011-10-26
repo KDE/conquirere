@@ -42,6 +42,7 @@ DocumentPreview::DocumentPreview(QWidget *parent) :
     ui->openButton->setIcon(KIcon("document-open"));
 
     connect(ui->urlSelector, SIGNAL(currentIndexChanged(int)),this, SLOT(showUrl(int)));
+    connect(this, SIGNAL(visibilityChanged(bool)), this, SLOT(toggled(bool)));
 
     m_labelNone = 0;
     m_labelInvalid = 0;
@@ -108,11 +109,27 @@ void DocumentPreview::setResource(Nepomuk::Resource & resource)
             ui->urlSelector->addItem(icon,url.url(),QVariant(mimetype));
 
         }
+
+        KIcon icon(QLatin1String("text-html"));
+        KUrl url = KUrl(QLatin1String("http://www.google.de"));
+        QString mimetype = QLatin1String("application/xhtml+xml");
+        ui->urlSelector->addItem(icon,url.url(),QVariant(mimetype));
+
     }
+}
+
+void DocumentPreview::clear()
+{
+    Nepomuk::Resource empty;
+    setResource(empty);
 }
 
 void DocumentPreview::showUrl(int index)
 {
+    if(isHidden()) {
+        return;
+    }
+
     QString url = ui->urlSelector->itemText(index);
     QString mimetype = ui->urlSelector->itemData(index).toString();
 
@@ -136,7 +153,14 @@ void DocumentPreview::showUrl(int index)
         return;
     }
 
-    KService::Ptr serivcePtr = KMimeTypeTrader::self()->preferredService(mimetype, "KParts/ReadOnlyPart");
+    KUrl urlInfo(url);
+    KService::Ptr serivcePtr;
+    if(!urlInfo.isLocalFile()) {
+        serivcePtr = KService::serviceByDesktopPath("khtml.desktop");
+    }
+    else
+        serivcePtr = KMimeTypeTrader::self()->preferredService(mimetype, "KParts/ReadOnlyPart");
+
     if (!serivcePtr.isNull()) {
         m_part = serivcePtr->createInstance<KParts::ReadOnlyPart>(0);
     }
@@ -145,7 +169,6 @@ void DocumentPreview::showUrl(int index)
         m_part->openUrl(url);
         emit activateKPart(m_part);
     } else {
-        KUrl urlInfo(url);
         m_labelInvalid = new QLabel(i18n("Cannot create preview for\n%1\n\nNo part available.", urlInfo.fileName()), ui->kpartWidget);
         m_labelInvalid->setAlignment(Qt::AlignCenter);
         ui->kpartWidget->layout()->addWidget(m_labelInvalid);
@@ -155,4 +178,27 @@ void DocumentPreview::showUrl(int index)
 void DocumentPreview::openExternally() {
     KUrl url(ui->urlSelector->currentText());
     QDesktopServices::openUrl(url);
+}
+
+void DocumentPreview::changeEvent ( QEvent * event )
+{
+    if(event->type() == QEvent::Close) {
+        emit activateKPart(0);
+
+        delete m_part;
+        m_part = 0;
+        delete m_labelNone;
+        m_labelNone = 0;
+        delete m_labelInvalid;
+        m_labelInvalid = 0;
+    }
+    else if(event->type() == QEvent::Show) {
+        showUrl(0);
+    }
+
+    QDockWidget::changeEvent(event);
+}
+
+void DocumentPreview::toggled(bool status)
+{
 }

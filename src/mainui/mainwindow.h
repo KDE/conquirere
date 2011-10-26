@@ -18,16 +18,17 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-//#include <KDE/KXmlGuiWindow>
 #include <kparts/mainwindow.h>
+#include "../globals.h"
 
 class Library;
-class MainWidget;
+class WelcomeWidget;
+class ResourceTableWidget;
 class LibraryWidget;
 class SidebarWidget;
 class DocumentPreview;
 
-class MainWindow : public KParts::MainWindow //public KXmlGuiWindow
+class MainWindow : public KParts::MainWindow
 {
     Q_OBJECT
 
@@ -45,6 +46,7 @@ public slots:
     void importBibTex();
 
     void connectKPartGui(KParts::Part * part);
+    void switchView(ResourceSelection selection, ResourceFilter filter, Library *p);
 
     void DEBUGDELETEALLDATA();
 
@@ -52,12 +54,14 @@ private:
     void setupActions();
     void setupMainWindow();
 
+    QMainWindow *m_centerWindow;
+    WelcomeWidget *m_welcomeWidget;
+    ResourceTableWidget *m_mainView;
     LibraryWidget *m_libraryWidget;
-    MainWidget *m_mainView;
     SidebarWidget *m_sidebarWidget;
     DocumentPreview *m_documentPreview;
 
-    QList<Library *> m_libraries;   /**< All opened libraries minimum the system library */
+    QMap<Library *, QWidget *> m_libraryList; /**< holds the welcome widget for each opened library */
 };
 
 #endif // MAINWINDOW_H

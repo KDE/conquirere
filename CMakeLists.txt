@@ -4,6 +4,7 @@ project(conquirere)
 
 # search packages used by KDE
 find_package(KDE4 REQUIRED)
+find_package (KdepimLibs REQUIRED)
 find_package(Nepomuk REQUIRED)
 include(NepomukAddOntologyClasses)
 include (KDE4Defaults)
@@ -23,6 +24,7 @@ add_definitions(-DQT_USE_FAST_CONCATENATION -DQT_USE_FAST_OPERATOR_PLUS)
 include_directories (${CMAKE_SOURCE_DIR}
                      ${CMAKE_BINARY_DIR}
                      ${KDE4_INCLUDES}
+                     ${KDEPIMLIBS_INCLUDE_DIRS}
                      ${NEPOMUK_INCLUDE_DIR}
                      ${NEPOMUKEXTRAS_INCLUDE_DIR}
 )

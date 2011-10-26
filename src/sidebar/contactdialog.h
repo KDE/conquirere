@@ -15,51 +15,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DOCUMENTPREVIEW_H
-#define DOCUMENTPREVIEW_H
-
-#include <QDockWidget>
+#ifndef CONTACTDIALOG_H
+#define CONTACTDIALOG_H
 
 #include <Nepomuk/Resource>
-#include <kparts/mainwindow.h>
+#include <Akonadi/Item>
+
+#include <QDialog>
+#include <QUrl>
 
 namespace Ui {
-    class DocumentPreview;
+    class ContactDialog;
 }
 
-namespace KParts {
-    class Part;
-    class ReadOnlyPart;
-}
-class QLabel;
+class QListWidgetItem;
+class KJob;
 
-class DocumentPreview : public QDockWidget
+class ContactDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit DocumentPreview(QWidget *parent = 0);
-    ~DocumentPreview();
+    explicit ContactDialog(QWidget *parent = 0);
+    ~ContactDialog();
 
-public slots:
-    void setResource(Nepomuk::Resource & resource);
-    void clear();
-    void showUrl(int index);
-    void openExternally();
-    void toggled(bool status);
+    void setResource(Nepomuk::Resource & resource, const QUrl & propertyUrl);
 
-signals:
-    void activateKPart(KParts::Part *part);
-
-protected:
-    void changeEvent ( QEvent * event );
+private slots:
+    void editItem();
+    void addContactItem();
+    void addResourceItem();
+    void contactStored( const Akonadi::Item& item);
+    void removeItem();
+    void itemChanged(QListWidgetItem* current, QListWidgetItem* previous);
+    void pushContactToAkonadi();
 
 private:
-    Ui::DocumentPreview *ui;
+    void fillWidget();
+
+    Ui::ContactDialog *ui;
     Nepomuk::Resource m_resource;
-    KParts::ReadOnlyPart* m_part;
-    QLabel *m_labelInvalid;
-    QLabel *m_labelNone;
+    QUrl m_propertyUrl;
 };
 
-#endif // DOCUMENTPREVIEW_H
+#endif // CONTACTDIALOG_H

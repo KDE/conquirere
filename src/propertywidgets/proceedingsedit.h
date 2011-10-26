@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Jörg Ehrichs <joerg.ehichs@gmx.de>
+ * Copyright 2011 Jörg Ehrichs <joerg.ehrichs@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,27 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NOTEMODEL_H
-#define NOTEMODEL_H
+#ifndef PROCEEDINGSEDIT_H
+#define PROCEEDINGSEDIT_H
 
-#include "nepomukmodel.h"
+#include "propertyedit.h"
 
-class NoteModel : public NepomukModel
+class ProceedingsEdit : public PropertyEdit
 {
     Q_OBJECT
 public:
-    explicit NoteModel(QObject *parent = 0);
-    ~NoteModel();
+    explicit ProceedingsEdit(QWidget *parent = 0);
 
-    // implemented from QAbstractTableModel
-    int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    bool setData ( const QModelIndex & index, const QVariant & value, int role = Qt::EditRole );
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+protected:
+    void setupLabel();
 
-public slots:
-    void startFetchData();
+    virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
+    virtual void updateResource( const QString & text );
 };
 
-#endif // NOTEMODEL_H
+#endif // PROCEEDINGSEDIT_H

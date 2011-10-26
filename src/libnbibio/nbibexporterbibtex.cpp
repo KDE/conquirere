@@ -109,7 +109,6 @@ bool NBibExporterBibTex::save(QIODevice *iodevice, const QList<Nepomuk::Resource
         }
     }
 
-
     if(!m_cancel) {
         emit progress( 100 );
     }
@@ -137,6 +136,15 @@ QString NBibExporterBibTex::retrieveEntryType(Nepomuk::Resource reference, Nepom
         else {
             Nepomuk::Resource typeResource(publication.type());
             type = typeResource.genericLabel();
+        }
+    }
+    else if(publication.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
+        Nepomuk::Resource proceedings = publication.property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
+        if(proceedings.isValid()) {
+            type = QLatin1String("Inproceedings"); //article in some proceedings paper
+        }
+        else {
+            type = QLatin1String("Article"); //normal article in a journal or magazine
         }
     }
     else {
@@ -261,8 +269,9 @@ QString NBibExporterBibTex::getTitle(Nepomuk::Resource publication, Nepomuk::Res
     QString string;
     QString title;
     QString booktitle;
-    if(publication.hasType(Nepomuk::Vocabulary::NBIB::InProceedings())) {
-        Nepomuk::Resource proceedings = publication.property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
+    Nepomuk::Resource proceedings = publication.property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
+
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Article()) && proceedings.isValid()) {
         booktitle = proceedings.property(Nepomuk::Vocabulary::NIE::title()).toString();
         title = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
     }
@@ -515,8 +524,8 @@ QString NBibExporterBibTex::getPublisher(Nepomuk::Resource publication)
 QString NBibExporterBibTex::getOrganization(Nepomuk::Resource publication)
 {
     Nepomuk::Resource org;
-    if(publication.hasType(Nepomuk::Vocabulary::NBIB::InProceedings())) {
-        Nepomuk::Resource proceedings = publication.property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
+    Nepomuk::Resource proceedings = publication.property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Article()) && proceedings.isValid()) {
         org = proceedings.property(Nepomuk::Vocabulary::NBIB::organization()).toResource();
     }
     else {

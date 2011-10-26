@@ -18,14 +18,31 @@
 #include "welcomewidget.h"
 #include "ui_welcomewidget.h"
 
-WelcomeWidget::WelcomeWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::WelcomeWidget)
+#include "../core/library.h"
+
+WelcomeWidget::WelcomeWidget(Library *library, QWidget *parent)
+    : QWidget(parent)
+    , m_library(library)
+    , ui(new Ui::WelcomeWidget)
 {
     ui->setupUi(this);
+    setupGui();
 }
 
 WelcomeWidget::~WelcomeWidget()
 {
     delete ui;
+}
+
+void WelcomeWidget::setupGui()
+{
+    if(m_library->libraryType() == Library_System) {
+        ui->labelTitle->setText(i18n("System Library"));
+    }
+    else {
+        QString libraryHeader = i18n("Library:");
+        libraryHeader.append(QLatin1String(" "));
+        libraryHeader.append(m_library->name());
+        ui->labelTitle->setText(libraryHeader);
+    }
 }

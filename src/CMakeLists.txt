@@ -9,13 +9,15 @@ set(conquirere_SRCS
     core/documentmodel.cpp
     core/notemodel.cpp
     core/bookmarkmodel.cpp
+    core/ratingdelegate.cpp
+    core/starrating.cpp
 
     mainui/newprojectdialog.cpp
     mainui/newprojectdialog.cpp
     mainui/welcomewidget.cpp
     mainui/librarywidget.cpp
     mainui/projecttreedelegate.cpp
-    mainui/mainwidget.cpp
+    mainui/resourcetablewidget.cpp
     mainui/mainwindow.cpp
     mainui/bibtexexportdialog.cpp
     mainui/bibteximportdialog.cpp
@@ -33,6 +35,7 @@ set(conquirere_SRCS
     propertywidgets/organizationedit.cpp
     propertywidgets/tagedit.cpp
     propertywidgets/issnedit.cpp
+    propertywidgets/proceedingsedit.cpp
 
     sidebar/sidebarwidget.cpp
     sidebar/sidebarcomponent.cpp
@@ -41,6 +44,7 @@ set(conquirere_SRCS
     sidebar/listpublicationsdialog.cpp
     sidebar/documentwidget.cpp
     sidebar/notewidget.cpp
+    sidebar/contactdialog.cpp
 
 # later on create lib taget for this
     libnbibio/nbibexporter.cpp
@@ -67,6 +71,7 @@ kde4_add_ui_files( conquirere_SRCS
                    sidebar/documentwidget.ui
                    sidebar/sidebarwidget.ui
                    sidebar/notewidget.ui
+                   sidebar/contactdialog.ui
 )
 
 
@@ -77,6 +82,11 @@ soprano_add_ontology(conquirere_SRCS ${CMAKE_SOURCE_DIR}/nbib/nbib.trig "NBIB" "
 kde4_add_executable(conquirere ${conquirere_SRCS})
 
 target_link_libraries(conquirere
+                      #${KDEPIMLIBS_AKONADI_LIBS}
+                      ${KDE4_AKONADI_LIBS}
+                      ${KDE4_KABC_LIBS}
+                      #kabc
+akonadi-contact
                       ${NEPOMUK_LIBRARIES}
                       nepomukquery
                       #nepomukcore

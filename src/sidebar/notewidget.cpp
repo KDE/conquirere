@@ -37,6 +37,7 @@ NoteWidget::NoteWidget(QWidget *parent)
     ui->editTags->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
     ui->editTags->setPropertyUrl( Soprano::Vocabulary::NAO::hasTag() );
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editTags, SLOT(setResource(Nepomuk::Resource&)));
+    connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 }
 
 NoteWidget::~NoteWidget()
@@ -59,6 +60,8 @@ void NoteWidget::setResource(Nepomuk::Resource & resource)
 
     // discard simply shows the original contet before saving any changes
     discardNote();
+
+    ui->editRating->setRating(m_note.rating());
 }
 
 void NoteWidget::newButtonClicked()
@@ -130,4 +133,9 @@ void NoteWidget::discardNote()
     }
 
     ui->editContent->document()->setHtml(content);
+}
+
+void NoteWidget::changeRating(int newRating)
+{
+    m_note.setRating(newRating);
 }

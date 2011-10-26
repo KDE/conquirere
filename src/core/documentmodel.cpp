@@ -42,6 +42,7 @@
 #include <QDebug>
 
 enum PublicationColumnList {
+    Column_StarRate,
     Column_Reviewed,
     Column_Publication,
     Column_Author,
@@ -142,6 +143,11 @@ QVariant DocumentModel::data(const QModelIndex &index, int role) const
 
             return folderString;
         }
+        else if(index.column() == Column_StarRate) {
+            int rating = document.rating();
+
+            return rating;
+        }
     }
 
     if (role == Qt::DecorationRole) {
@@ -192,6 +198,8 @@ QVariant DocumentModel::headerData(int section, Qt::Orientation orientation, int
             return  i18n("Filename");
         case Column_Folder:
             return  i18n("Folder");
+        case Column_StarRate:
+            return i18n("Rating");
         default:
             return QVariant();
         }
@@ -213,6 +221,8 @@ QVariant DocumentModel::headerData(int section, Qt::Orientation orientation, int
             return  i18n("The name of the file");
         case Column_Folder:
             return  i18n("The foldername of the file");
+        case Column_StarRate:
+            return i18n("Rating");
         default:
             return QVariant();
         }

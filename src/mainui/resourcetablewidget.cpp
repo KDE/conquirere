@@ -15,11 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mainwidget.h"
+#include "resourcetablewidget.h"
 #include "projecttreewidget.h"
 #include "../core/library.h"
 #include "../core/nepomukmodel.h"
 #include "../core/publicationfiltermodel.h"
+#include "../core/ratingdelegate.h"
+#include <kwidgetitemdelegate.h>
+#include <KDE/KRatingWidget>
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Vocabulary/NIE>
@@ -27,7 +30,10 @@
 #include <KDE/KAction>
 #include <KConfig>
 #include <KConfigGroup>
+#include <KLineEdit>
+#include <KComboBox>
 
+#include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QTableView>
 #include <QHeaderView>
@@ -37,21 +43,22 @@
 
 #include <QDebug>
 
-MainWidget::MainWidget(QWidget *parent)
+ResourceTableWidget::ResourceTableWidget(QWidget *parent)
     : QWidget(parent)
     , m_documentView(0)
 {
     setupWidget();
 }
 
-MainWidget::~MainWidget()
+ResourceTableWidget::~ResourceTableWidget()
 {
     delete m_documentView;
 }
 
-void MainWidget::switchView(ResourceSelection selection, ResourceFilter filter, Library *p)
+void ResourceTableWidget::switchView(ResourceSelection selection, ResourceFilter filter, Library *p)
 {
     m_selection = selection;
+    m_curLibrary = p;
 
     PublicationFilterModel * pfm = qobject_cast<PublicationFilterModel *>(p->viewModel(selection));
     if(pfm) {
@@ -59,7 +66,9 @@ void MainWidget::switchView(ResourceSelection selection, ResourceFilter filter, 
     }
 
     // if we only need to change the filter, forget the rest after this check
-    if(m_documentView->model() == p->viewModel(selection)->sourceModel())
+    QAbstractItemModel *oldModel = m_documentView->model();
+    QAbstractItemModel *newModel = p->viewModel(selection);
+    if(oldModel == newModel)
         return;
 
     if(m_documentView->selectionModel()) {
@@ -74,21 +83,36 @@ void MainWidget::switchView(ResourceSelection selection, ResourceFilter filter, 
     group.append((int)m_selection);
     KConfigGroup tableViewGroup( &config, group );
 
+    // go through all header elements and apply last known visibility status
+    // also add each header name to the search combobox for selection
+    QString curSearchSelection =  m_searchSelection->currentText();
+    m_searchSelection->clear();
+    m_searchSelection->addItem(i18n("all entries"), -1); //additem NAME, TABLEHEADERINDEX
     QHeaderView *hv = m_documentView->horizontalHeader();
-    int columnCount =m_documentView->model()->columnCount();
+    int columnCount = m_documentView->model()->columnCount();
     for(int i=0; i < columnCount; i++) {
         bool hidden = tableViewGroup.readEntry( QString::number(i), false );
         hv->setSectionHidden(i, hidden);
+
+        QString headerName = m_documentView->model()->headerData(i,Qt::Horizontal).toString();
+        if(!headerName.isEmpty()) {
+            m_searchSelection->addItem(headerName, i);
+        }
     }
+
+    //try to be clever and set the same searchElement as before, if it exist
+    int lastSelection = m_searchSelection->findText(curSearchSelection);
+    if(lastSelection != -1)
+        m_searchSelection->setCurrentIndex(lastSelection);
 
     hv->setResizeMode(QHeaderView::Interactive);
     switch(m_selection) {
     case Resource_Library:
         break;
     case Resource_Document:
-        hv->setResizeMode(4, QHeaderView::Stretch);
-        m_documentView->horizontalHeader()->resizeSection(0,25);
+        hv->setResizeMode(5, QHeaderView::Stretch);
         m_documentView->horizontalHeader()->resizeSection(1,25);
+        m_documentView->horizontalHeader()->resizeSection(2,25);
         break;
     case Resource_Mail:
         break;
@@ -96,15 +120,15 @@ void MainWidget::switchView(ResourceSelection selection, ResourceFilter filter, 
         break;
     case Resource_Publication:
     case Resource_Reference:
-        hv->setResizeMode(5, QHeaderView::Stretch);
-        m_documentView->horizontalHeader()->resizeSection(0,25);
+        hv->setResizeMode(6, QHeaderView::Stretch);
         m_documentView->horizontalHeader()->resizeSection(1,25);
+        m_documentView->horizontalHeader()->resizeSection(2,25);
         break;
     case Resource_Website:
-        hv->setResizeMode(0, QHeaderView::Stretch);
+        hv->setResizeMode(1, QHeaderView::Stretch);
         break;
     case Resource_Note:
-        hv->setResizeMode(0, QHeaderView::Stretch);
+        hv->setResizeMode(1, QHeaderView::Stretch);
         break;
     }
 
@@ -113,7 +137,7 @@ void MainWidget::switchView(ResourceSelection selection, ResourceFilter filter, 
     m_documentView->selectRow(0);
 }
 
-void MainWidget::selectedResource( const QModelIndex & current, const QModelIndex & previous )
+void ResourceTableWidget::selectedResource( const QModelIndex & current, const QModelIndex & previous )
 {
     Q_UNUSED(previous);
 
@@ -126,49 +150,88 @@ void MainWidget::selectedResource( const QModelIndex & current, const QModelInde
     }
 }
 
-void MainWidget::removeSelected()
+void ResourceTableWidget::applyFilter()
+{
+    QString searchKey = m_searchBox->text();
+    int curIndex = m_searchSelection->currentIndex();
+    int searchColumn = m_searchSelection->itemData(curIndex).toInt();
+
+    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
+
+    sfpm->setFilterKeyColumn(searchColumn);
+    sfpm->setFilterRegExp(searchKey);
+}
+
+void ResourceTableWidget::removeSelectedFromProject()
 {
     QItemSelectionModel *sm = m_documentView->selectionModel();
     QModelIndexList indexes = sm->selectedRows();
 
     NepomukModel *rm = qobject_cast<NepomukModel *>(m_documentView->model());
-    rm->removeSelected(indexes);
+    rm->removeSelectedFromProject(indexes, m_curLibrary);
 }
 
-void MainWidget::openSelected()
+void ResourceTableWidget::removeSelectedFromSystem()
 {
     QItemSelectionModel *sm = m_documentView->selectionModel();
     QModelIndexList indexes = sm->selectedRows();
 
-    NepomukModel *rm = qobject_cast<NepomukModel *>(m_documentView->model());
-    Nepomuk::Resource nr = rm->documentResource(indexes.first());
-
-    QUrl file = nr.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
-
-    QDesktopServices::openUrl(file);
+    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
+    NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
+    rm->removeSelectedFromSystem(indexes);
 }
 
-void MainWidget::exportSelectedToBibTeX()
+void ResourceTableWidget::openSelected()
+{
+    QItemSelectionModel *sm = m_documentView->selectionModel();
+    QModelIndexList indexes = sm->selectedRows();
+
+    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
+    NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
+
+    if(rm && !indexes.isEmpty()) {
+        Nepomuk::Resource nr = rm->documentResource(indexes.first());
+        QUrl file = nr.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+        QDesktopServices::openUrl(file);
+    }
+}
+
+void ResourceTableWidget::exportSelectedToBibTeX()
 {
     QItemSelectionModel *sm = m_documentView->selectionModel();
     QModelIndexList indexes = sm->selectedRows();
 }
 
-void MainWidget::tableContextMenu(const QPoint & pos)
+void ResourceTableWidget::tableContextMenu(const QPoint & pos)
 {
+    // no context menu for the welcome pages
+    if(m_selection == Resource_Library) {
+        return;
+    }
 
     QMenu menu(this);
     menu.addAction(m_openExternal);
     menu.addSeparator();
-    menu.addAction(m_removeFromProject);
-    menu.exec(mapToGlobal(pos));
+
+    if(m_selection == Resource_Publication ||
+       m_selection == Resource_Reference ) {
+        menu.addAction(m_removeFromSystem);
+    }
+
+    if(m_curLibrary->libraryType() == Library_System) {
+    }
+    else {
+        menu.addAction(m_removeFromProject);
+    }
+
+    menu.exec(QCursor::pos());
 }
 
-void MainWidget::headerContextMenu(const QPoint &pos)
+void ResourceTableWidget::headerContextMenu(const QPoint &pos)
 {
     QMenu menu(this);
 
-    int columnCount =m_documentView->model()->columnCount();
+    int columnCount = m_documentView->model()->columnCount();
 
     //iterate through all available header entries in the current model
     for(int i=0; i < columnCount; i++) {
@@ -188,7 +251,7 @@ void MainWidget::headerContextMenu(const QPoint &pos)
     menu.exec(mapToGlobal(pos));
 }
 
-void MainWidget::changeHeaderSectionVisibility()
+void ResourceTableWidget::changeHeaderSectionVisibility()
 {
     QAction *a = qobject_cast<QAction *>(sender());
 
@@ -205,11 +268,28 @@ void MainWidget::changeHeaderSectionVisibility()
     tableViewGroup.config()->sync();
 }
 
-void MainWidget::setupWidget()
+void ResourceTableWidget::setupWidget()
 {
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    setLayout(mainLayout);
+
+    //add searchbox
+    m_searchBox = new KLineEdit( this );
+    m_searchBox->setClearButtonShown(true);
+    connect(m_searchBox, SIGNAL(returnPressed()), this, SLOT(applyFilter()));
+
+    m_searchSelection = new KComboBox(this);
+    connect(m_searchSelection, SIGNAL(currentIndexChanged(int)), this, SLOT(applyFilter()));
+
+    QHBoxLayout *searchLayout = new QHBoxLayout;
+    searchLayout->addWidget(m_searchBox);
+    searchLayout->addWidget(m_searchSelection);
+    mainLayout->addLayout(searchLayout);
+
     // view that holds the table models for selection
     m_documentView = new QTableView;
     m_documentView->setSortingEnabled(true);
+    m_documentView->setItemDelegateForColumn(0, new RatingDelegate());
     m_documentView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_documentView->horizontalHeader()->setStretchLastSection(false);
     m_documentView->verticalHeader()->hide();
@@ -225,15 +305,17 @@ void MainWidget::setupWidget()
     connect(hv, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(headerContextMenu(const QPoint &)));
 
-    QHBoxLayout *layout = new QHBoxLayout;
-    layout->addWidget(m_documentView);
-
-    setLayout(layout);
+    mainLayout->addWidget(m_documentView);
 
     m_removeFromProject = new KAction(this);
     m_removeFromProject->setText(i18n("Remove from project"));
     m_removeFromProject->setIcon(KIcon(QLatin1String("document-new")));
-    connect(m_removeFromProject, SIGNAL(triggered()), this, SLOT(removeSelected()));
+    connect(m_removeFromProject, SIGNAL(triggered()), this, SLOT(removeSelectedFromProject()));
+
+    m_removeFromSystem = new KAction(this);
+    m_removeFromSystem->setText(i18n("Remove from system"));
+    m_removeFromSystem->setIcon(KIcon(QLatin1String("document-new")));
+    connect(m_removeFromSystem, SIGNAL(triggered()), this, SLOT(removeSelectedFromSystem()));
 
     m_exportToBibTeX = new KAction(this);
     m_exportToBibTeX->setText(i18n("Export to BibTex"));

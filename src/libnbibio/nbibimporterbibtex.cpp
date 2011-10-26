@@ -37,17 +37,53 @@
 #include <Nepomuk/Query/QueryParser>
 #include <Nepomuk/Query/LiteralTerm>
 
+#include <Akonadi/Item>
+#include <KABC/Addressee>
+#include <Akonadi/ItemFetchJob>
+#include <Akonadi/ItemCreateJob>
+#include <Akonadi/CollectionCreateJob>
+#include <Akonadi/CollectionFetchJob>
+#include <Akonadi/CollectionFetchScope>
+
+
 #include <QTextStream>
 #include <QRegExp>
 #include <QDebug>
 
+using namespace Akonadi;
+
 NBibImporterBibTex::NBibImporterBibTex()
     : NBibImporter()
 {
+    // fetching all collections containing emails recursively, starting at the root collection
+    CollectionFetchJob *job = new CollectionFetchJob( Collection::root(), CollectionFetchJob::Recursive, this );
+    job->fetchScope().setContentMimeTypes( QStringList() << "application/x-vnd.kde.contactgroup" );
+    connect( job, SIGNAL( collectionsReceived( const Akonadi::Collection::List& ) ),
+             this, SLOT( myCollectionsReceived( const Akonadi::Collection::List& ) ) );
+    connect( job, SIGNAL( result( KJob* ) ), this, SLOT( createResult( KJob* ) ) );
+}
+
+void NBibImporterBibTex::createResult(KJob* job)
+{
+    qDebug() << "Calendar created";
+
+    if ( job->error() ) {
+        qDebug() << "error occired" << job->errorText() << job->errorString();
+    }
+}
+
+void NBibImporterBibTex::myCollectionsReceived( const Akonadi::Collection::List& list)
+{
+    foreach(Akonadi::Collection c, list) {
+        qDebug() << "collection found" << c.name();
+        m_collection = c;
+    }
 }
 
 bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
 {
+    //create the collection used for importing
+
     // we start by fetching all contacts for the conflict checking
     // this reduce the need to query nepomuk with every new author again and again
     // the storage got out of sync otherwise
@@ -95,8 +131,8 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
         if(line.isEmpty())
             continue;
         //ignore comment lines %
-        //if(line.contains(QRegExp(QLatin1String("^[\\s*%]"))));
-        //    continue;
+        if(line.startsWith('%'))
+            continue;
 
         if(line.contains(entryStart)) {
             if (entryStart.indexIn(line) != -1) {
@@ -139,7 +175,7 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
 
                 QString valueNew = curEntry.content.value(key,QString());
 
-                valueNew.append(value);
+                valueNew.append(value.simplified());
 
                 curEntry.content.insert(key,valueNew);
             }
@@ -147,7 +183,7 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
                 //this line adds content to the last used key when it spans several lines
                 if(!curKey.isEmpty()) {
                     QString valueNew = curEntry.content.value(curKey,QString());
-                    valueNew.append(line);
+                    valueNew.append(line.simplified());
 
                     curEntry.content.insert(curKey,valueNew);
                 }
@@ -159,17 +195,18 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
         }
     }
 
-    qDebug() << "import " << bibEntries.size() << "bibtex entries";
+    qreal percentperFile = 100.0/(bibEntries.size() + 1); // the +1 leaves room for the conflict list creation at the end
+    qreal fileNumber = 0.0;
 
-    qreal percentperFile = 100/(bibEntries.size() + 1); // the +1 leaves room for the conflict list creation at the end
-    int fileNumber = 0;
+    qDebug() << "import " << bibEntries.size() << "bibtex entries";
 
     //now we seperated all entries, time to inspect and import them
     foreach(Entry e, bibEntries) {
         //create a new reference and Publication
         addEntry(e);
         fileNumber++;
-        emit progress( percentperFile * fileNumber );
+        int progressPercenter = (int)(percentperFile * fileNumber);
+        emit progress( progressPercenter );
 
         if(m_cancel) {
             break;
@@ -311,7 +348,6 @@ Nepomuk::Resource NBibImporterBibTex::findExistingPublication(Entry e, bool & is
             duplicate = checkContent(i.key(), i.value(), checkAgainst , e.entryType.toLower());
 
             if(!duplicate) {
-                qDebug() << ">>>>>>>>>>>>>>>>>>>> dunplication check failed for key" << i.key() << "value ::" << i.value();
                 break;
             }
         }
@@ -387,7 +423,6 @@ Nepomuk::Resource NBibImporterBibTex::findExistingReference(Entry e, Nepomuk::Re
             }
 
             if(!duplicate) {
-                qDebug() << ">>>>>>>>>>>>>>>>>>>> dunplication check failed for key" << i.key() << "value ::" << i.value();
                 break;
             }
         }
@@ -678,7 +713,7 @@ QUrl NBibImporterBibTex::typeToUrl(const QString & entryType)
         return Nepomuk::Vocabulary::NBIB::Electronic();
     }
     else if(entryType == QLatin1String("inproceedings")) {
-        return Nepomuk::Vocabulary::NBIB::InProceedings();
+        return Nepomuk::Vocabulary::NBIB::Article();
     }
     else if(entryType == QLatin1String("manual")) {
         return Nepomuk::Vocabulary::NBIB::Manual();
@@ -728,7 +763,7 @@ void NBibImporterBibTex::addContent(const QString &key, const QString &value, Ne
         addAuthor(value, publication, reference, originalEntryType);
     }
     else if(key == QLatin1String("booktitle")) {
-        addBooktitle(value, publication);
+        addBooktitle(value, publication, originalEntryType);
     }
     else if(key == QLatin1String("chapter")) {
         addChapter(value, publication, reference);
@@ -855,7 +890,8 @@ void NBibImporterBibTex::addAuthor(const QString &content, Nepomuk::Resource pub
         //check if the publisher already exist in the database
         Nepomuk::Resource a;
         foreach(Nepomuk::Resource r, m_allContacts) {
-            if(r.property(Nepomuk::Vocabulary::NCO::fullname()).toString() == author.full) {
+            if(r.property(Nepomuk::Vocabulary::NCO::fullname()).toString() == author.full ||
+               r.label() == author.full ) {
                 a = r;
                 break;
             }
@@ -863,22 +899,41 @@ void NBibImporterBibTex::addAuthor(const QString &content, Nepomuk::Resource pub
 
         if(!a.isValid()) {
             qDebug() << "create a new Contact resource for " << author.full;
-            a = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::PersonContact());
+/*
+            KABC::Addressee addr;
+            addr.setFamilyName( author.last );
+            addr.setGivenName( author.first );
+            addr.setAdditionalName( author.middle );
+            addr.setName( author.full );
+            addr.setFormattedName( author.full );
 
-            a.setProperty(Nepomuk::Vocabulary::NCO::fullname(), author.full);
-            qDebug() << "name set for " << author.full << " :: " << a.property(Nepomuk::Vocabulary::NCO::fullname()).toString() << " uri " << a.uri();
-            qDebug() << "to resource " << authorResource.uri();
-            if(!author.first.isEmpty())
-                a.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), author.first);
-            if(!author.last.isEmpty())
-                a.setProperty(Nepomuk::Vocabulary::NCO::nameFamily(), author.last);
-            if(!author.middle.isEmpty())
-                a.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), author.middle);
+            Akonadi::Item item;
+            item.setMimeType( KABC::Addressee::mimeType() );
+            item.setPayload<KABC::Addressee>( addr );
+
+            Akonadi::ItemCreateJob *job = new Akonadi::ItemCreateJob( item, m_collection );
+
+            if ( !job->exec() ) {
+                qDebug() << "Error:" << job->errorString();
+            } else {
+            */
+                //thats horrible, at the end two different nepomuk resources will be available
+                // because the akonadi feeder creates another resource for the contact which is unknown at this point
+                // but I need a proper resource to be able to connect it to the publication here
+                a = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::PersonContact());
+                //a.setProperty("http://akonadi-project.org/ontologies/aneo#akonadiItemId", job->item().id());
+
+                a.setProperty(Nepomuk::Vocabulary::NCO::fullname(), author.full);
+
+                if(!author.first.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), author.first);
+                if(!author.last.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameFamily(), author.last);
+                if(!author.middle.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), author.middle);
+            //}
 
             m_allContacts.append(a);
-        }
-        else {
-            qDebug() << "use existing Contact resource for " << author.full;
         }
 
 
@@ -886,14 +941,14 @@ void NBibImporterBibTex::addAuthor(const QString &content, Nepomuk::Resource pub
     }
 }
 
-void NBibImporterBibTex::addBooktitle(const QString &content, Nepomuk::Resource publication)
+void NBibImporterBibTex::addBooktitle(const QString &content, Nepomuk::Resource publication, const QString & originalEntryType)
 {
     //two specialities occure here
     // I. "booktitle" means the title of a book where "title" than means the title of the chapter
     // this is valid for any publication other than @InProceedings
     // II. "booktitle" marks the title of the @proceedings from an @InProceedings or @Conference
 
-    if(publication.hasType(Nepomuk::Vocabulary::NBIB::InProceedings())) {
+    if(originalEntryType == QLatin1String("inproceedings")) {
         //check if a resource @Proceedings with the name of content exist or create a new one
 
         // fetcha data
@@ -1004,9 +1059,6 @@ void NBibImporterBibTex::addEditor(const QString &content, Nepomuk::Resource pub
                 e.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), editor.middle);
 
             m_allContacts.append(e);
-        }
-        else {
-            qDebug() << "use existing Contact resource for " << editor.full;
         }
 
         publication.addProperty(Nepomuk::Vocabulary::NBIB::editor(), e);
@@ -1227,15 +1279,14 @@ void NBibImporterBibTex::addOrganization(const QString &content, Nepomuk::Resour
         qDebug() << "use existing Organization resource for " << content;
     }
 
-    if(publication.hasType(Nepomuk::Vocabulary::NBIB::InProceedings())) {
-        Nepomuk::Resource proc = publication.property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
-
-        if(!proc.isValid()) {
-            proc = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Proceedings());
-            proc.addProperty(Nepomuk::Vocabulary::NBIB::proceedingsOf(), publication);
-            publication.setProperty(Nepomuk::Vocabulary::NBIB::proceedings(), proc);
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
+        Nepomuk::Resource proceedings = publication.property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
+        if(!proceedings.isValid()) {
+            proceedings = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Proceedings());
+            proceedings.addProperty(Nepomuk::Vocabulary::NBIB::proceedingsOf(), publication);
+            publication.setProperty(Nepomuk::Vocabulary::NBIB::proceedings(), proceedings);
         }
-        proc.setProperty(Nepomuk::Vocabulary::NBIB::organization(), o);
+        proceedings.setProperty(Nepomuk::Vocabulary::NBIB::organization(), o);
     }
     else {
         publication.setProperty(Nepomuk::Vocabulary::NBIB::organization(), o);
@@ -1372,6 +1423,8 @@ void NBibImporterBibTex::addYear(const QString &content, Nepomuk::Resource publi
 void NBibImporterBibTex::addKewords(const QString &content, Nepomuk::Resource publication)
 {
     QStringList kewords = content.split(QLatin1String(","));
+    if(kewords.isEmpty())
+        kewords = content.split(QLatin1String(";"));
 
     foreach(QString key, kewords) {
         key.trimmed();

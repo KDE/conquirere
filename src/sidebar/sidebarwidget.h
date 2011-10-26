@@ -68,6 +68,8 @@ public slots:
       */
     virtual void setResource(Nepomuk::Resource & resource);
 
+    void clear();
+
     void newButtonClicked();
     void deleteButtonClicked();
 private:

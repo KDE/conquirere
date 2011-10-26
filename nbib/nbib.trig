@@ -99,12 +99,6 @@ nbib: {
           rdfs:label "Electronic source" ;
           rdfs:subClassOf nbib:Publication .
 
-    nbib:InProceedings
-          a       rdfs:Class ;
-          rdfs:comment "An article in a conference proceedings." ;
-          rdfs:label "Inproceedings" ;
-          rdfs:subClassOf nbib:Publication .
-
     nbib:Manual
           a       rdfs:Class ;
           rdfs:comment "Technical documentation." ;
@@ -422,8 +416,8 @@ nbib: {
 
     nbib:proceedings
           a       rdf:Property ;
-          rdfs:domain nbib:InProceedings ;
-          rdfs:comment "The Proceedings that contain the @InProceedings publication" ;
+          rdfs:domain nbib:Article ;
+          rdfs:comment "The Proceedings that contain the article publication" ;
           rdfs:label "proceedings" ;
           rdfs:range nbib:Proceedings ;
           rdfs:subPropertyOf nie:hasLogicalPart ;
@@ -433,11 +427,11 @@ nbib: {
     nbib:proceedingsOf
           a       rdf:Property ;
           rdfs:domain nbib:Proceedings ;
-          rdfs:comment "Collects all @InProceedings publication to its actual Proceedings" ;
+          rdfs:comment "Collects all article publications of this Proceedings" ;
           rdfs:label "proceedingsOf" ;
           rdfs:subPropertyOf nie:isLogicalPart ;
           nrl:inverseProperty nbib:proceedings ;
-          rdfs:range nbib:InProceedings .
+          rdfs:range nbib:Article .
 
     nie:publicationDate
           a       rdf:Property ;
