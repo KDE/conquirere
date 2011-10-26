@@ -4,7 +4,6 @@ set(conquirere_SRCS
 
     core/library.cpp
     core/nepomukmodel.cpp
-    core/resourcemodel.cpp
     core/publicationmodel.cpp
     core/publicationfiltermodel.cpp
     core/documentmodel.cpp
