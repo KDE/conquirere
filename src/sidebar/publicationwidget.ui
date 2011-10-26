@@ -122,7 +122,7 @@
         </widget>
        </item>
        <item row="10" column="1">
-        <widget class="StringEdit" name="editDate"/>
+        <widget class="DateEdit" name="editDate"/>
        </item>
        <item row="12" column="0">
         <widget class="QLabel" name="label_10">
@@ -661,6 +661,11 @@
    <slots>
     <signal>widgetEnabled(bool)</signal>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>DateEdit</class>
+   <extends>QLineEdit</extends>
+   <header>propertywidgets/dateedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
