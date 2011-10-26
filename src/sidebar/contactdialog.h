@@ -28,6 +28,9 @@ namespace Ui {
     class ContactDialog;
 }
 
+class QListWidgetItem;
+class KJob;
+
 class ContactDialog : public QDialog
 {
     Q_OBJECT
@@ -40,9 +43,12 @@ public:
 
 private slots:
     void editItem();
-    void addItem();
+    void addContactItem();
+    void addResourceItem();
     void contactStored( const Akonadi::Item& item);
     void removeItem();
+    void itemChanged(QListWidgetItem* current, QListWidgetItem* previous);
+    void pushContactToAkonadi();
 
 private:
     void fillWidget();

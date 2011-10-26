@@ -292,9 +292,7 @@ void PublicationWidget::setupWidget()
 
 void PublicationWidget::editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl)
 {
-    qDebug() << "show dialog";
     ContactDialog cd;
-
     cd.setResource(resource, propertyUrl);
 
     cd.exec();

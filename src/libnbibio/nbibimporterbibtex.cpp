@@ -890,7 +890,8 @@ void NBibImporterBibTex::addAuthor(const QString &content, Nepomuk::Resource pub
         //check if the publisher already exist in the database
         Nepomuk::Resource a;
         foreach(Nepomuk::Resource r, m_allContacts) {
-            if(r.property(Nepomuk::Vocabulary::NCO::fullname()).toString() == author.full) {
+            if(r.property(Nepomuk::Vocabulary::NCO::fullname()).toString() == author.full ||
+               r.label() == author.full ) {
                 a = r;
                 break;
             }
@@ -898,7 +899,7 @@ void NBibImporterBibTex::addAuthor(const QString &content, Nepomuk::Resource pub
 
         if(!a.isValid()) {
             qDebug() << "create a new Contact resource for " << author.full;
-
+/*
             KABC::Addressee addr;
             addr.setFamilyName( author.last );
             addr.setGivenName( author.first );
@@ -915,11 +916,12 @@ void NBibImporterBibTex::addAuthor(const QString &content, Nepomuk::Resource pub
             if ( !job->exec() ) {
                 qDebug() << "Error:" << job->errorString();
             } else {
+            */
                 //thats horrible, at the end two different nepomuk resources will be available
                 // because the akonadi feeder creates another resource for the contact which is unknown at this point
                 // but I need a proper resource to be able to connect it to the publication here
                 a = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::PersonContact());
-                a.setProperty("http://akonadi-project.org/ontologies/aneo#akonadiItemId", job->item().id());
+                //a.setProperty("http://akonadi-project.org/ontologies/aneo#akonadiItemId", job->item().id());
 
                 a.setProperty(Nepomuk::Vocabulary::NCO::fullname(), author.full);
 
@@ -929,7 +931,7 @@ void NBibImporterBibTex::addAuthor(const QString &content, Nepomuk::Resource pub
                     a.setProperty(Nepomuk::Vocabulary::NCO::nameFamily(), author.last);
                 if(!author.middle.isEmpty())
                     a.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), author.middle);
-            }
+            //}
 
             m_allContacts.append(a);
         }
