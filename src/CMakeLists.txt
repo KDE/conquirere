@@ -36,6 +36,7 @@ set(conquirere_SRCS
     propertywidgets/tagedit.cpp
     propertywidgets/issnedit.cpp
     propertywidgets/proceedingsedit.cpp
+    propertywidgets/dateedit.cpp
 
     sidebar/sidebarwidget.cpp
     sidebar/sidebarcomponent.cpp

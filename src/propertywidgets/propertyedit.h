@@ -207,12 +207,14 @@ private slots:
     void editingFinished();
     void editingAborted();
 
+protected:
+    QLineEdit *m_lineEdit;
+
 private:
     void mousePressEvent ( QMouseEvent * event );
     void keyPressEvent(QKeyEvent * e);
 
     KSqueezedTextLabel    *m_label;
-    QLineEdit *m_lineEdit;
     QToolButton *m_detailView;
     bool m_isListEdit;
     bool m_useDetailDialog;
