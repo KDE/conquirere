@@ -16,7 +16,8 @@
  */
 
 #include "nbibexporterbibtex.h"
-#include "encoderlatex.h"
+
+#include <kbibtex/encoderlatex.h>
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
@@ -85,7 +86,7 @@ bool NBibExporterBibTex::save(QIODevice *iodevice, const QList<Nepomuk::Resource
             continue;
         }
 
-        contentString = EncoderLaTeX::currentEncoderLaTeX()->encode(contentString);
+        contentString = EncoderLaTeX::instance()->encode(contentString);
 
         //qDebug() << entryType << citeKey << contentString;
 

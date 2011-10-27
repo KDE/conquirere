@@ -18,7 +18,7 @@
 #include "nbibimporterbibtex.h"
 
 #include "conflictmanager.h"
-#include "encoderlatex.h"
+#include <kbibtex/encoderlatex.h>
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/PIMO>
@@ -166,7 +166,7 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
                 curKey = key;
                 QString value = entryContent.cap(2);
 
-                value = EncoderLaTeX::currentEncoderLaTeX()->decode(value);
+                value = EncoderLaTeX::instance()->decode(value);
                 value = QLatin1String(value.toUtf8()); //without this german umlauts will be inserted incorrectly into nepomuk
                 //strip leading {" and trailing "},
                 value.remove(QRegExp(QLatin1String(",$")));

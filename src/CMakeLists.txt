@@ -53,7 +53,7 @@ set(conquirere_SRCS
 
     libnbibio/nbibimporter.cpp
     libnbibio/nbibimporterbibtex.cpp
-    libnbibio/encoderlatex.cpp
+#    libnbibio/encoderlatex.cpp
     libnbibio/conflictmanager.cpp
 )
 
@@ -95,6 +95,8 @@ akonadi-contact
                       ${KDE4_KDEUI_LIBS}
                       ${KDE4_KIO_LIBS}
                       ${KDE4_KPARTS_LIBS}
+kbibtexio
+kbibtexnetworking
 )
 
 install(TARGETS conquirere DESTINATION ${BIN_INSTALL_DIR})

@@ -22,7 +22,18 @@ Furthermore this program allows to add additional metadata to each file.
 ** possible many other things
 
 #################################################################
-# install with to the system
+# Dependencies:
+* Nepomuk
+** with nbib.ontology ~ see end of README
+
+* KDE Pim libs
+
+* KBibTex 0.4~beta2
+** svn co svn://svn.gna.org/svn/kbibtex/trunk kbibtex
+
+
+#################################################################
+# install to the system
 
 mkdir build
 cd build
@@ -33,7 +44,7 @@ make install
 and start via conquirere
 
 #################################################################
-# install with to the homefolder for testing purpose
+# install to the homefolder for testing purpose
 
 mkdir build
 cd build
