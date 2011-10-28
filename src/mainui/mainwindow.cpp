@@ -25,6 +25,7 @@
 #include "welcomewidget.h"
 #include "resourcetablewidget.h"
 #include "documentpreview.h"
+#include "websearchwidget.h"
 #include "bibtexexportdialog.h"
 #include "bibteximportdialog.h"
 
@@ -71,6 +72,7 @@ MainWindow::~MainWindow()
     delete m_mainView;
     delete m_sidebarWidget;
     delete m_documentPreview;
+    delete m_webSearchWidget;
 
     qDeleteAll(m_libraryList);
 }
@@ -322,6 +324,9 @@ void MainWindow::setupMainWindow()
     //add panel for the document preview
     m_documentPreview = new DocumentPreview(this);
     m_centerWindow->addDockWidget(Qt::BottomDockWidgetArea, m_documentPreview);
+
+    m_webSearchWidget = new WebSearchWidget(this);
+    addDockWidget(Qt::LeftDockWidgetArea, m_webSearchWidget);
 
     connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,ResourceFilter,Library*)),
             m_sidebarWidget, SLOT(newSelection(ResourceSelection,ResourceFilter,Library*)));

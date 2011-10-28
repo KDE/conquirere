@@ -27,6 +27,7 @@ class ResourceTableWidget;
 class LibraryWidget;
 class SidebarWidget;
 class DocumentPreview;
+class WebSearchWidget;
 
 class MainWindow : public KParts::MainWindow
 {
@@ -60,6 +61,7 @@ private:
     LibraryWidget *m_libraryWidget;
     SidebarWidget *m_sidebarWidget;
     DocumentPreview *m_documentPreview;
+    WebSearchWidget *m_webSearchWidget;
 
     QMap<Library *, QWidget *> m_libraryList; /**< holds the welcome widget for each opened library */
 };

@@ -80,7 +80,7 @@ enum BibEntryType {
     BibType_JournalIssue,      /**< An issue of a journal or magazine */
     BibType_Journal            /**< An journal or magazine */
 };
-
+								 
 static const QStringList BibEntryTypeTranslation = QStringList() << I18N_NOOP("Article")
                                                                  << I18N_NOOP("Bachelor thesis")
                                                                  << I18N_NOOP("Book")

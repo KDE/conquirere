@@ -27,9 +27,11 @@ include_directories (${CMAKE_SOURCE_DIR}
                      ${KDEPIMLIBS_INCLUDE_DIRS}
                      ${NEPOMUK_INCLUDE_DIR}
                      ${NEPOMUKEXTRAS_INCLUDE_DIR}
+                     ${INCLUDE_INSTALL_DIR}/kbibtex
 )
 
 add_subdirectory( src )
+add_subdirectory( xslt )
 
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen)

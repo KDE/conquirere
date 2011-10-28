@@ -11,6 +11,8 @@ set(conquirere_SRCS
     core/bookmarkmodel.cpp
     core/ratingdelegate.cpp
     core/starrating.cpp
+    core/htmldelegate.cpp
+    core/searchresultmodel.cpp
 
     mainui/newprojectdialog.cpp
     mainui/newprojectdialog.cpp
@@ -22,6 +24,7 @@ set(conquirere_SRCS
     mainui/bibtexexportdialog.cpp
     mainui/bibteximportdialog.cpp
     mainui/documentpreview.cpp
+    mainui/websearchwidget.cpp
 
     propertywidgets/propertyedit.cpp
     propertywidgets/contactedit.cpp
@@ -65,6 +68,7 @@ kde4_add_ui_files( conquirere_SRCS
                    mainui/bibtexexportdialog.ui
                    mainui/bibteximportdialog.ui
                    mainui/documentpreview.ui
+                   mainui/websearchwidget.ui
 
                    sidebar/referencewidget.ui
                    sidebar/listpublicationsdialog.ui
@@ -97,6 +101,7 @@ akonadi-contact
                       ${KDE4_KPARTS_LIBS}
 kbibtexio
 kbibtexnetworking
+kbibtexgui
 )
 
 install(TARGETS conquirere DESTINATION ${BIN_INSTALL_DIR})
