@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Jörg Ehrichs <joerg.ehichs@gmx.de>
+ * Copyright 2011 Jörg Ehrichs <joerg.ehrichs@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,65 +15,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NBIBIMPORTERBIBTEX_H
-#define NBIBIMPORTERBIBTEX_H
+#ifndef BIBTEXTONEPOMUKPIPE_H
+#define BIBTEXTONEPOMUKPIPE_H
 
-#include "nbibimporter.h"
+#include "bibtexpipe.h"
 
+#include <kbibtex/value.h>
 #include <Nepomuk/Resource>
 
-#include <Akonadi/Collection>
+#include <QUrl>
+#include <QList>
 
-#include <QMap>
+class Entry;
 
-class KJob;
-class NBibImporterBibTex : public NBibImporter
+class BibTexToNepomukPipe : public BibTexPipe
 {
-    Q_OBJECT
 public:
-    explicit NBibImporterBibTex();
+    BibTexToNepomukPipe();
 
-    bool load(QIODevice *iodevice, QStringList *errorLog = NULL);
+    void pipeExport(File & bibEntries);
 
 private:
-    struct Entry {
-        QString entryType;
-        QString citeKey;
-        QMap<QString,QString> content;
-    };
-
     struct Name {
         QString first;
         QString last;
-        QString middle;
+        QString suffix;
         QString full;
     };
-
-    void addEntry(Entry e);
-
-    Nepomuk::Resource findExistingPublication(Entry e, bool & isDuplicate);
-    Nepomuk::Resource findExistingReference(Entry e, Nepomuk::Resource publication, bool & isDuplicate);
-    bool checkContent(const QString &key, const QString &value, Nepomuk::Resource checkAgainst, const QString & originalEntryType);
+    void import(Entry *e);
 
     QUrl typeToUrl(const QString & entryType);
-    void addContent(const QString &key, const QString &value, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
+    void addContent(const QString &key, const Value &value, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
+
+    void addPublisher(const Value &publisherString, const Value &address, Nepomuk::Resource publication);
+    void addJournal(const Value &journal, const Value &volume, const Value &number, Nepomuk::Resource publication);
+
 
     void addAbstract(const QString &content, Nepomuk::Resource publication);
     void addAnnote(const QString &content, Nepomuk::Resource publication);
-    void addAuthor(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
+    void addAuthor(const Value &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
     void addBooktitle(const QString &content, Nepomuk::Resource publication, const QString & originalEntryType);
     void addChapter(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference);
     void addCopyrigth(const QString &content, Nepomuk::Resource publication);
     void addCrossref(const QString &content, Nepomuk::Resource publication);
     void addDoi(const QString &content, Nepomuk::Resource publication);
     void addEdition(const QString &content, Nepomuk::Resource publication);
-    void addEditor(const QString &content, Nepomuk::Resource publication);
+    void addEditor(const Value &content, Nepomuk::Resource publication);
     void addEprint(const QString &content, Nepomuk::Resource publication);
     void addHowPublished(const QString &content, Nepomuk::Resource publication);
-    void addInstitution(const QString &content, Nepomuk::Resource publication);
+    void addInstitution(const Value &content, Nepomuk::Resource publication);
     void addIsbn(const QString &content, Nepomuk::Resource publication);
     void addIssn(const QString &content, Nepomuk::Resource publication);
-    void addJournal(const QString &journal, const QString &volume, const QString &number, Nepomuk::Resource publication);
     void addLanguage(const QString &content, Nepomuk::Resource publication);
     void addLccn(const QString &content, Nepomuk::Resource publication);
     void addMonth(const QString &content, Nepomuk::Resource publication);
@@ -82,8 +74,7 @@ private:
     void addNumber(const QString &content, Nepomuk::Resource publication);
     void addOrganization(const QString &content, Nepomuk::Resource publication);
     void addPages(const QString &content, Nepomuk::Resource reference);
-    void addPublisher(const QString &publisherString, const QString &address, Nepomuk::Resource publication);
-    void addSchool(const QString &content, Nepomuk::Resource publication);
+    void addSchool(const Value &content, Nepomuk::Resource publication);
     void addSeries(const QString &content, Nepomuk::Resource publication);
     void addTitle(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
     void addType(const QString &content, Nepomuk::Resource publication);
@@ -92,17 +83,9 @@ private:
     void addYear(const QString &content, Nepomuk::Resource publication);
     void addKewords(const QString &content, Nepomuk::Resource publication);
 
-    QList<NBibImporterBibTex::Name> parseName(const QString & nameString);
-
     QList<Nepomuk::Resource> m_allContacts;
     QList<Nepomuk::Resource> m_allPublications;
     QList<Nepomuk::Resource> m_allReferences;
-
-    Akonadi::Collection m_collection;
-
-private slots:
-    void createResult(KJob* job);
-    void myCollectionsReceived( const Akonadi::Collection::List& );
 };
 
-#endif // NBIBIMPORTERBIBTEX_H
+#endif // BIBTEXTONEPOMUKPIPE_H

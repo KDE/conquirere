@@ -51,7 +51,26 @@ void DateEdit::setupLabel()
 
     //[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
     QDateTime date = QDateTime::fromString(dateString, "yyyy-MM-ddTHH:mm:ss");
-    setLabelText(date.toString("dd.MMM.yyyy"));
+    if(date.isValid())
+        setLabelText(date.toString("dd.MMM.yyyy"));
+    else {
+        QString year;
+        QString month;
+        QString day;
+        QRegExp rx(QLatin1String("(\\d*)-(\\d*)-(\\d*)*"));
+        if (rx.indexIn(dateString) != -1) {
+            year = rx.cap(1);
+            month = rx.cap(2);
+            day = rx.cap(3);
+        }
+        if(month == QLatin1String("00"))
+            setLabelText(year);
+        else if(day == QLatin1String("00"))
+            setLabelText(year + QLatin1String("-") + month);
+        else
+            setLabelText(year + QLatin1String("-") + month + QLatin1String("-") + day);
+    }
+
 }
 
 void DateEdit::updateResource(const QString & text)

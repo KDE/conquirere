@@ -33,7 +33,6 @@ HtmlDelegate::HtmlDelegate(QObject *parent) :
 {
 }
 
-
 void HtmlDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,const QModelIndex &index) const
 {
     QStyleOptionViewItemV4 optionV4 = option;
@@ -43,20 +42,12 @@ void HtmlDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,c
 
     QTextDocument doc;
     QString text = optionV4.text;
-    text.remove("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    text.remove("\n");
-    text.append("<br/>-----------------------------------------------------");
     doc.setHtml(text);
     doc.setPageSize( option.rect.size() );
 
     /// Painting item without text
     optionV4.text = QString();
     style->drawControl(QStyle::CE_ItemViewItem, &optionV4, painter);
-
-    // shift text right to make icon visible
-//    QSize iconSize = optionV4.icon.actualSize(option.rect.size());
-//    painter->translate(option.rect.left()+iconSize.width(), option.rect.top());
-//    QRect clip(0, 0, option.rect.width()+iconSize.width(), option.rect.height());
 
     QAbstractTextDocumentLayout::PaintContext ctx;
 
@@ -79,9 +70,6 @@ QSize HtmlDelegate::sizeHint ( const QStyleOptionViewItem & option, const QModel
     initStyleOption(&optionV4, index);
 
     QString text = optionV4.text;
-    text.remove("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    text.remove("\n");
-    text.append("<br/>-----------------------------------------------------");
 
     QTextDocument doc;
     doc.setHtml(text);

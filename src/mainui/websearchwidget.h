@@ -63,7 +63,10 @@ private slots:
     void updateProgress(int, int);
     void updateGUI();
     void resultContextMenu(const QPoint & pos);
+
     void importSearchResult();
+    void exportBibTexReference();
+    void exportCiteKey();
 
 private:
     void setupUi();
@@ -83,6 +86,8 @@ private:
     OnlineSearchQueryFormGeneral *m_generalQueryTermsForm;
 
     KAction* m_importSearchResult;
+    KAction* m_exportBibTexReference;
+    KAction* m_exportCiteKey;
     QSortFilterProxyModel *m_bibtexSortModel;
     SearchResultModel *m_bibtexModel;
 };

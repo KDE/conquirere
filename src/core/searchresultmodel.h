@@ -41,6 +41,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     void addEntry(Entry *e);
+    Entry *entryAt(int row);
     void clear();
 
 private:

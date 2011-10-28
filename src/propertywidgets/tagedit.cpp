@@ -35,12 +35,14 @@ void TagEdit::setupLabel()
     // we can always assume there can be more than 1 tag for a resource
     //if(hasMultipleCardinality()) {
 
-    QList<Nepomuk::Resource> tagList = resource().property(propertyUrl()).toResourceList();
+    QList<Nepomuk::Tag> tagList = resource().tags();
 
-    foreach(Nepomuk::Resource r, tagList) {
-        QString prefLabel = r.property(Soprano::Vocabulary::NAO::prefLabel()).toString();
+    qDebug() << "tag count " << tagList.size();
+
+    foreach(Nepomuk::Tag t, tagList) {
+        QString prefLabel = t.genericLabel();
         labelText.append(prefLabel);
-        addPropertryEntry(prefLabel, r.uri());
+        addPropertryEntry(prefLabel, t.uri());
 
         labelText.append(QLatin1String("; "));
     }

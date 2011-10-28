@@ -20,6 +20,8 @@
 
 #include "../core/searchresultmodel.h"
 #include "../core/htmldelegate.h"
+#include "../libnbibio/pipe/bibtextoclipboardpipe.h"
+#include "../libnbibio/pipe/bibtextonepomukpipe.h"
 
 #include <kbibtex/onlinesearchabstract.h>
 #include <kbibtex/onlinesearchgeneral.h>
@@ -91,6 +93,16 @@ void WebSearchWidget::setupUi()
     m_importSearchResult->setText(i18n("Import Entry"));
     m_importSearchResult->setIcon(KIcon(QLatin1String("document-import")));
     connect(m_importSearchResult, SIGNAL(triggered()), this, SLOT(importSearchResult()));
+
+    m_exportBibTexReference = new KAction(this);
+    m_exportBibTexReference->setText(i18n("Export BibTex to Clipboard"));
+    m_exportBibTexReference->setIcon(KIcon(QLatin1String("document-export")));
+    connect(m_exportBibTexReference, SIGNAL(triggered()), this, SLOT(exportBibTexReference()));
+
+    m_exportCiteKey = new KAction(this);
+    m_exportCiteKey->setText(i18n("Export Citekey to Clipboard"));
+    m_exportCiteKey->setIcon(KIcon(QLatin1String("document-export")));
+    connect(m_exportCiteKey, SIGNAL(triggered()), this, SLOT(exportCiteKey()));
 
     ui->searchButton->setIcon(KIcon("media-playback-start"));
     ui->ktabwidget->setTabIcon(0,KIcon("edit-rename"));
@@ -361,13 +373,54 @@ void WebSearchWidget::resultContextMenu(const QPoint & pos)
         QMenu menu(this);
         menu.addAction(m_importSearchResult);
         menu.addSeparator();
+        menu.addAction(m_exportBibTexReference);
+        menu.addAction(m_exportCiteKey);
         menu.exec(QCursor::pos());
     }
 }
 
 void WebSearchWidget::importSearchResult()
 {
-    qDebug() << "yay import entry";
+    QModelIndexList mil = ui->listView->selectionModel()->selectedIndexes();
+
+    File f;
+    foreach(QModelIndex mi, mil) {
+        Entry *e = m_bibtexModel->entryAt(mi.row());
+        f.append(e);
+    }
+
+    BibTexToNepomukPipe btnp;
+    btnp.pipeExport(f);
+}
+
+void WebSearchWidget::exportBibTexReference()
+{
+    QModelIndexList mil = ui->listView->selectionModel()->selectedIndexes();
+
+    File f;
+    foreach(QModelIndex mi, mil) {
+        Entry *e = m_bibtexModel->entryAt(mi.row());
+        f.append(e);
+    }
+
+    BibTexToClipboardPipe btcp;
+    btcp.setExportType(BibTexToClipboardPipe::Export_SOURCE);
+    btcp.pipeExport(f);
+}
+
+void WebSearchWidget::exportCiteKey()
+{
+    QModelIndexList mil = ui->listView->selectionModel()->selectedIndexes();
+
+    File f;
+    foreach(QModelIndex mi, mil) {
+        Entry *e = m_bibtexModel->entryAt(mi.row());
+        f.append(e);
+    }
+
+    BibTexToClipboardPipe btcp;
+    btcp.setExportType(BibTexToClipboardPipe::Export_CITEKEY);
+    btcp.pipeExport(f);
 }
 
 void WebSearchWidget::foundEntry(Entry*entry)

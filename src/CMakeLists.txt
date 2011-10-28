@@ -50,14 +50,16 @@ set(conquirere_SRCS
     sidebar/notewidget.cpp
     sidebar/contactdialog.cpp
 
-# later on create lib taget for this
+# later on create lib target for this
     libnbibio/nbibexporter.cpp
     libnbibio/nbibexporterbibtex.cpp
 
     libnbibio/nbibimporter.cpp
     libnbibio/nbibimporterbibtex.cpp
-#    libnbibio/encoderlatex.cpp
     libnbibio/conflictmanager.cpp
+
+    libnbibio/pipe/bibtextoclipboardpipe.cpp
+    libnbibio/pipe/bibtextonepomukpipe.cpp
 )
 
 kde4_add_ui_files( conquirere_SRCS

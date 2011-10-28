@@ -85,6 +85,9 @@ QVariant SearchResultModel::data(const QModelIndex &index, int role) const
     text.prepend(QLatin1String("</b></font><br/>"));
     text.prepend(translateEntryType(entry->type()));
     text.prepend(QLatin1String("<font color=\"#000099\"><b>"));
+    text.remove("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    text.remove("\n");
+    text.append("<hr width=\"100%\">");
 
     return text;
 }
@@ -107,6 +110,11 @@ void SearchResultModel::addEntry(Entry *e)
     beginInsertRows(QModelIndex(), m_searchResults.size(), m_searchResults.size());
     m_searchResults.append(e);
     endInsertRows();
+}
+
+Entry *SearchResultModel::entryAt(int row)
+{
+    return m_searchResults.at(row);
 }
 
 void SearchResultModel::clear()
