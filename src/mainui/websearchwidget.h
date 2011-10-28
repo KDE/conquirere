@@ -62,6 +62,8 @@ private slots:
     void currentStackWidgetChanged(int);
     void updateProgress(int, int);
     void updateGUI();
+    void resultContextMenu(const QPoint & pos);
+    void importSearchResult();
 
 private:
     void setupUi();
@@ -71,17 +73,18 @@ private:
     void switchToCancel();
 
     Ui::WebSearchWidget *ui;
-    QMap<QListWidgetItem*, OnlineSearchAbstract*> itemToOnlineSearch;
-    QStackedWidget *queryTermsStack;
-    KSharedConfigPtr config;
-    QString configGroupName;
-    KAction *actionOpenHomepage;
-    QMap<OnlineSearchAbstract*, int> progressMap;
-    QSet<OnlineSearchAbstract*> runningSearches;
-    OnlineSearchQueryFormGeneral *generalQueryTermsForm;
+    QMap<QListWidgetItem*, OnlineSearchAbstract*> m_itemToOnlineSearch;
+    QStackedWidget *m_queryTermsStack;
+    KSharedConfigPtr m_config;
+    QString m_configGroupName;
+    KAction *m_actionOpenHomepage;
+    QMap<OnlineSearchAbstract*, int> m_progressMap;
+    QSet<OnlineSearchAbstract*> m_runningSearches;
+    OnlineSearchQueryFormGeneral *m_generalQueryTermsForm;
 
-    QSortFilterProxyModel *bibtexSortModel;
-    SearchResultModel *bibtexModel;
+    KAction* m_importSearchResult;
+    QSortFilterProxyModel *m_bibtexSortModel;
+    SearchResultModel *m_bibtexModel;
 };
 
 #endif // WEBSEARCHWIDGET_H
