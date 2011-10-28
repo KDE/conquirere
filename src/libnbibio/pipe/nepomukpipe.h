@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Jörg Ehrichs <joerg.ehichs@gmx.de>
+ * Copyright 2011 Jörg Ehrichs <joerg.ehrichs@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,18 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NBIBEXPORTERBIBTEX_H
-#define NBIBEXPORTERBIBTEX_H
+#ifndef NEPOMUKPIPE_H
+#define NEPOMUKPIPE_H
 
-#include "nbibexporter.h"
+#include <Nepomuk/Resource>
+#include <QList>
 
-class NBibExporterBibTex : public NBibExporter
+class NepomukPipe
 {
-    Q_OBJECT
 public:
-    explicit NBibExporterBibTex();
+    NepomukPipe() { }
 
-    bool save(QIODevice *iodevice, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog = NULL);
+    virtual void pipeExport(QList<Nepomuk::Resource> resources) = 0;
 };
-
-#endif // NBIBEXPORTERBIBTEX_H
+#endif // NEPOMUKPIPE_H

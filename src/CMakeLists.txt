@@ -60,6 +60,7 @@ set(conquirere_SRCS
 
     libnbibio/pipe/bibtextoclipboardpipe.cpp
     libnbibio/pipe/bibtextonepomukpipe.cpp
+    libnbibio/pipe/nepomuktobibtexpipe.cpp
 )
 
 kde4_add_ui_files( conquirere_SRCS

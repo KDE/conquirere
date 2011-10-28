@@ -37,8 +37,6 @@ void TagEdit::setupLabel()
 
     QList<Nepomuk::Tag> tagList = resource().tags();
 
-    qDebug() << "tag count " << tagList.size();
-
     foreach(Nepomuk::Tag t, tagList) {
         QString prefLabel = t.genericLabel();
         labelText.append(prefLabel);
