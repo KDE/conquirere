@@ -81,7 +81,7 @@ private:
     void addUrl(const QString &content, Nepomuk::Resource publication);
     void addVolume(const QString &content, Nepomuk::Resource publication);
     void addYear(const QString &content, Nepomuk::Resource publication);
-    void addKewords(const QString &content, Nepomuk::Resource publication);
+    void addKewords(const Value &content, Nepomuk::Resource publication);
 
     QList<Nepomuk::Resource> m_allContacts;
     QList<Nepomuk::Resource> m_allPublications;

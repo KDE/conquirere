@@ -300,7 +300,7 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
         addYear(PlainTextValue::text(value), publication);
     }
     else if(key == QLatin1String("keywords")) {
-        addKewords(PlainTextValue::text(value), publication);
+        addKewords(value, publication);
     }
     else {
         qDebug() << "BibTexToNepomukPipe::addContent unknown key ::" << key << PlainTextValue::text(value);
@@ -929,15 +929,12 @@ void BibTexToNepomukPipe::addYear(const QString &content, Nepomuk::Resource publ
     publication.setProperty(Nepomuk::Vocabulary::NBIB::publicationDate(), newDate);
 }
 
-void BibTexToNepomukPipe::addKewords(const QString &content, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addKewords(const Value &content, Nepomuk::Resource publication)
 {
-    QStringList kewords = content.split(QLatin1String(","));
-    if(kewords.isEmpty())
-        kewords = content.split(QLatin1String(";"));
-
-    foreach(QString key, kewords) {
-        key.trimmed();
-        Nepomuk::Tag tag(key);
+    foreach(ValueItem *vi, content) {
+        Keyword *k = dynamic_cast<Keyword *>(vi);
+        Nepomuk::Tag tag(k->text());
+        tag.setLabel(k->text());
         publication.addTag(tag);
     }
 }
