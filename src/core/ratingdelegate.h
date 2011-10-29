@@ -19,16 +19,15 @@
 #ifndef RATINGDELEGATE_H
 #define RATINGDELEGATE_H
 
-#include <QItemDelegate>
+#include <QStyledItemDelegate>
 
-class RatingDelegate : public QItemDelegate
+class RatingDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
     RatingDelegate(QObject *parent = 0);
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,const QModelIndex &index) const;
-
 };
 
 #endif // RATINGDELEGATE_H

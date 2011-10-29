@@ -18,13 +18,11 @@
 #include "htmldelegate.h"
 
 #include <QApplication>
-#include <QAbstractItemView>
 #include <QTextDocument>
 #include <QAbstractTextDocumentLayout>
 
 #include <QLabel>
 #include <QPainter>
-#include <QRegExp>
 
 #include <QDebug>
 
@@ -35,10 +33,10 @@ HtmlDelegate::HtmlDelegate(QObject *parent) :
 
 void HtmlDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,const QModelIndex &index) const
 {
-    QStyleOptionViewItemV4 optionV4 = option;
+    QStyleOptionViewItemV4 optionV4(option);
     initStyleOption(&optionV4, index);
-
-    QStyle *style = optionV4.widget? optionV4.widget->style() : QApplication::style();
+    QStyle *style = optionV4.widget ? optionV4.widget->style() : QApplication::style();
+    style->drawPrimitive(QStyle::PE_PanelItemViewItem, &optionV4, painter, optionV4.widget);
 
     QTextDocument doc;
     QString text = optionV4.text;

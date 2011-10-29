@@ -334,6 +334,9 @@ void MainWindow::setupMainWindow()
     connect(m_mainView, SIGNAL(selectedResource(Nepomuk::Resource&)),
             m_sidebarWidget, SLOT(setResource(Nepomuk::Resource&)));
 
+    connect(m_mainView, SIGNAL(selectedMultipleResources(QList<Nepomuk::Resource>)),
+            m_sidebarWidget, SLOT(setMultipleResources(QList<Nepomuk::Resource>)));
+
     connect(m_mainView, SIGNAL(selectedResource(Nepomuk::Resource&)),
             m_documentPreview, SLOT(setResource(Nepomuk::Resource&)));
 

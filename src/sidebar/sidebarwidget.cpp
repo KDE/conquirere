@@ -23,9 +23,11 @@
 #include "referencewidget.h"
 #include "documentwidget.h"
 #include "notewidget.h"
+#include "mergeresourceswidget.h"
 
 #include <KGlobalSettings>
 #include <QVBoxLayout>
+#include <QStackedLayout>
 #include <QDebug>
 
 SidebarWidget::SidebarWidget(QWidget *parent)
@@ -35,8 +37,13 @@ SidebarWidget::SidebarWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QVBoxLayout *vbl = new QVBoxLayout();
-    ui->contentWidget->setLayout(vbl);
+    m_stackedLayout = new QStackedLayout;
+    ui->contentWidget->setLayout(m_stackedLayout);
+
+    m_blankPage = new QWidget;
+    m_stackedLayout->addWidget(m_blankPage);
+    m_mergeWidget = new MergeResourcesWidget;
+    m_stackedLayout->addWidget(m_mergeWidget);
 
     setFont(KGlobalSettings::smallestReadableFont());
 
@@ -47,18 +54,38 @@ SidebarWidget::SidebarWidget(QWidget *parent)
     ui->deleteButton->setEnabled(false);
 }
 
+SidebarWidget::~SidebarWidget()
+{
+    delete m_mergeWidget;
+    delete m_blankPage;
+    delete m_currentWidget;
+    delete m_stackedLayout;
+}
+
 void SidebarWidget::setResource(Nepomuk::Resource & resource)
 {
     if(m_currentWidget) {
         m_currentWidget->setResource(resource);
 
+        ui->newButton->setEnabled(true);
+
         if(resource.isValid()) {
             ui->deleteButton->setEnabled(true);
+            m_stackedLayout->setCurrentWidget(m_currentWidget);
         }
         else {
             ui->deleteButton->setEnabled(false);
+            m_stackedLayout->setCurrentWidget(m_blankPage);
         }
     }
+}
+
+
+void SidebarWidget::setMultipleResources(QList<Nepomuk::Resource> resourcelist)
+{
+    qDebug() << "set multiple resources";
+    m_stackedLayout->setCurrentWidget(m_mergeWidget);
+    m_mergeWidget->setResources(resourcelist);
 }
 
 void SidebarWidget::newButtonClicked()
@@ -82,52 +109,51 @@ void SidebarWidget::newSelection(ResourceSelection selection, ResourceFilter fil
 
     m_curSelection = selection;
 
-    ui->contentWidget->layout()->removeWidget(m_currentWidget);
-
-    delete m_currentWidget;
-    m_currentWidget = 0;
+    SidebarComponent *newWidget = 0;
 
     switch(selection) {
     case Resource_Library:
         ui->titleLabel->setText(QLatin1String(""));
         break;
     case Resource_Document:
-        m_currentWidget = new DocumentWidget();
+        newWidget = new DocumentWidget();
         ui->titleLabel->setText(i18n("Document"));
         break;
     case Resource_Mail:
-        m_currentWidget = new PublicationWidget();
+        newWidget = new PublicationWidget();
         ui->titleLabel->setText(i18n("Mail"));
         break;
     case Resource_Media:
-        m_currentWidget = new PublicationWidget();
+        newWidget = new PublicationWidget();
         ui->titleLabel->setText(i18n("Media"));
         break;
     case Resource_Reference:
-        m_currentWidget = new ReferenceWidget();
+        newWidget = new ReferenceWidget();
         ui->titleLabel->setText(i18n("Reference"));
         break;
     case Resource_Website:
-        m_currentWidget = new PublicationWidget();
+        newWidget = new PublicationWidget();
         ui->titleLabel->setText(i18n("Website"));
         break;
     case Resource_Note:
-        m_currentWidget = new NoteWidget();
+        newWidget = new NoteWidget();
         ui->titleLabel->setText(i18n("Note"));
         break;
     case Resource_Publication:
-        m_currentWidget = new PublicationWidget();
+        newWidget = new PublicationWidget();
         ui->titleLabel->setText(i18n("Publication"));
         break;
     }
 
-    if(m_currentWidget) {
-        m_currentWidget->setLibrary(library);
-        ui->contentWidget->layout()->addWidget(m_currentWidget);
+    if(newWidget) {
+        newWidget->setLibrary(library);
+        m_stackedLayout->addWidget(newWidget);
+        m_stackedLayout->setCurrentWidget(newWidget);
         ui->newButton->setEnabled(true);
         ui->deleteButton->setEnabled(false);
     }
     else {
+        m_stackedLayout->setCurrentWidget(m_blankPage);
         ui->newButton->setEnabled(false);
         ui->deleteButton->setEnabled(false);
     }
@@ -136,6 +162,11 @@ void SidebarWidget::newSelection(ResourceSelection selection, ResourceFilter fil
         ui->newButton->setEnabled(false);
         ui->deleteButton->setEnabled(false);
     }
+
+    // remove old widget
+    m_stackedLayout->removeWidget(m_currentWidget);
+    delete m_currentWidget;
+    m_currentWidget = newWidget;
 }
 
 void SidebarWidget::clear()

@@ -20,9 +20,10 @@
 #include "starrating.h"
 
 #include <QApplication>
+#include <QPainter>
 
 RatingDelegate::RatingDelegate(QObject *parent) :
-    QItemDelegate(parent)
+    QStyledItemDelegate(parent)
 {
 
 }

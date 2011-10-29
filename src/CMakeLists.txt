@@ -49,6 +49,7 @@ set(conquirere_SRCS
     sidebar/documentwidget.cpp
     sidebar/notewidget.cpp
     sidebar/contactdialog.cpp
+    sidebar/mergeresourceswidget.cpp
 
 # later on create lib target for this
     libnbibio/nbibexporter.cpp
@@ -80,6 +81,7 @@ kde4_add_ui_files( conquirere_SRCS
                    sidebar/sidebarwidget.ui
                    sidebar/notewidget.ui
                    sidebar/contactdialog.ui
+                   sidebar/mergeresourceswidget.ui
 )
 
 

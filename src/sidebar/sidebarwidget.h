@@ -28,6 +28,8 @@ namespace Ui {
     class DockWidget;
 }
 
+class QStackedLayout;
+class MergeResourcesWidget;
 class SidebarComponent;
 class Library;
 
@@ -48,6 +50,7 @@ class SidebarWidget : public QDockWidget
     Q_OBJECT
 public:
     explicit SidebarWidget(QWidget *parent = 0);
+    virtual ~SidebarWidget();
 
 public slots:
     /**
@@ -68,12 +71,18 @@ public slots:
       */
     virtual void setResource(Nepomuk::Resource & resource);
 
+    virtual void setMultipleResources(QList<Nepomuk::Resource> resourcelist);
+
     void clear();
 
     void newButtonClicked();
     void deleteButtonClicked();
+
 private:
     Ui::DockWidget *ui;
+    QStackedLayout *m_stackedLayout;
+    QWidget *m_blankPage;
+    MergeResourcesWidget *m_mergeWidget;
     SidebarComponent *m_currentWidget;
     ResourceSelection m_curSelection;
 };

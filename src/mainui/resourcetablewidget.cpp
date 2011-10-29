@@ -72,7 +72,8 @@ void ResourceTableWidget::switchView(ResourceSelection selection, ResourceFilter
         return;
 
     if(m_documentView->selectionModel()) {
-        disconnect(m_documentView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(selectedResource(QModelIndex,QModelIndex)));
+        disconnect(m_documentView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+                this, SLOT(selectedResource(QItemSelection,QItemSelection)));
     }
 
     m_documentView->setModel(p->viewModel(selection));
@@ -113,40 +114,68 @@ void ResourceTableWidget::switchView(ResourceSelection selection, ResourceFilter
         hv->setResizeMode(5, QHeaderView::Stretch);
         m_documentView->horizontalHeader()->resizeSection(1,25);
         m_documentView->horizontalHeader()->resizeSection(2,25);
+        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
         break;
     case Resource_Mail:
+        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
         break;
     case Resource_Media:
+        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
         break;
     case Resource_Publication:
     case Resource_Reference:
         hv->setResizeMode(6, QHeaderView::Stretch);
         m_documentView->horizontalHeader()->resizeSection(1,25);
         m_documentView->horizontalHeader()->resizeSection(2,25);
+        m_documentView->setSelectionMode(QAbstractItemView::ExtendedSelection);
         break;
     case Resource_Website:
         hv->setResizeMode(1, QHeaderView::Stretch);
+        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
         break;
     case Resource_Note:
         hv->setResizeMode(1, QHeaderView::Stretch);
+        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
         break;
     }
 
-    connect(m_documentView->selectionModel(), SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this, SLOT(selectedResource(QModelIndex,QModelIndex)));
+    connect(m_documentView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(selectedResource(QItemSelection,QItemSelection)));
 
     m_documentView->selectRow(0);
 }
 
-void ResourceTableWidget::selectedResource( const QModelIndex & current, const QModelIndex & previous )
+void ResourceTableWidget::selectedResource( const QItemSelection & selected, const QItemSelection & deselected )
 {
-    Q_UNUSED(previous);
+    Q_UNUSED(selected);
+    Q_UNUSED(deselected);
 
-    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
-    NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
+    QModelIndexList selectedIndex =m_documentView->selectionModel()->selectedRows();
 
-    if(rm) {
-        Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(current));
-        emit selectedResource(nr);
+    if(selectedIndex.isEmpty()) {
+        Nepomuk::Resource empty;
+        emit selectedResource(empty);
+    }
+    else if(selectedIndex.size() > 1) {
+        QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
+        NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
+
+        QList<Nepomuk::Resource> resourceList;
+        foreach(QModelIndex mi, selectedIndex) {
+            Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(mi));
+            resourceList.append(nr);
+        }
+
+        emit selectedMultipleResources(resourceList);
+    }
+    else {
+        QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
+        NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
+
+        if(rm) {
+            Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(selectedIndex.first()));
+            emit selectedResource(nr);
+        }
     }
 }
 
