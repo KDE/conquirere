@@ -101,8 +101,8 @@ void ContactDialog::editItem()
 
     if(akonadiItemID.isEmpty()) {
         bool ok;
-        QString text = KInputDialog::getText(this, i18n("Create new Nepomuk contact"),
-                                             tr("Name:"), QLineEdit::Normal,i->text(), &ok);
+        QString text = KInputDialog::getText(i18n("Create new Nepomuk contact"),
+                                             i18n("Name:"),i->text(), &ok, this);
 
         if (ok && !text.isEmpty()) {
             Nepomuk::Resource contact(i->data(Qt::UserRole + 1).toString());
@@ -129,8 +129,8 @@ void ContactDialog::addContactItem()
 void ContactDialog::addResourceItem()
 {
     bool ok;
-    QString text = KInputDialog::getText(this, i18n("Create new Nepomuk contact"),
-                                         tr("Contact name:"), QLineEdit::Normal,QString(), &ok);
+    QString text = KInputDialog::getText(i18n("Create new Nepomuk contact"),
+                                         i18n("Contact name:"), QString(), &ok, this);
 
     if (ok && !text.isEmpty()) {
         Nepomuk::Resource newContact = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::PersonContact());

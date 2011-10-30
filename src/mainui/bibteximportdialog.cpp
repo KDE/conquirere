@@ -64,7 +64,7 @@ void BibTexImportDialog::accept()
     if(ui->bibFile->text().isEmpty())
         return;
 
-    m_progress = new KProgressDialog(i18n("Import publications"), QLatin1String("Abort import"), 0, 100);
+    m_progress = new KProgressDialog(0, i18n("Import publications"), QLatin1String("Abort import"));
     m_progress->setWindowModality(Qt::WindowModal);
     m_progress->show();
     m_progress->setFocus();

@@ -77,7 +77,7 @@ void BibTexExportDialog::accept()
     QString filename = ui->folder->text();
     //filename.append(QLatin1String("/bibtex.bib"));
 
-    m_progress = new KProgressDialog(i18n("Export BibTeX"), QLatin1String("Abort import"), 0, 100);
+    m_progress = new KProgressDialog(0, i18n("Export BibTeX"), QLatin1String("Abort import"));
     m_progress->setWindowModality(Qt::WindowModal);
     m_progress->show();
     m_progress->setFocus();
