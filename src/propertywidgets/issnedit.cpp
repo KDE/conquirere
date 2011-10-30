@@ -21,8 +21,8 @@
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Variant>
 
-#include <QStandardItemModel>
-#include <QUrl>
+#include <QtGui/QStandardItemModel>
+#include <QtCore/QUrl>
 
 IssnEdit::IssnEdit(QWidget *parent)
     :PropertyEdit(parent)

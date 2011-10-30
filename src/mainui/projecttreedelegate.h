@@ -18,10 +18,10 @@
 #ifndef PROJECTTREEDELEGATE_H
 #define PROJECTTREEDELEGATE_H
 
-#include <QStyledItemDelegate>
+#include <QtGui/QStyledItemDelegate>
 
 /**
-  * Delegate for an Project Tree Widget Item
+  * @brief Delegate for an Project Tree Widget Item
   *
   * Used to show an animation during data fetching.
   * Indicates that not all data is currently available

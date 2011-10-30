@@ -20,7 +20,7 @@
 
 #include "propertyedit.h"
 
-#include <QDate>
+#include <QtCore/QDate>
 
 class QMenu;
 class QWidgetAction;
@@ -31,6 +31,7 @@ class DateEdit : public PropertyEdit
     Q_OBJECT
 public:
     DateEdit(QWidget *parent = 0);
+    ~DateEdit();
 
 protected:
     void setupLabel();

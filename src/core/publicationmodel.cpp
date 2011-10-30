@@ -96,7 +96,7 @@ QVariant PublicationModel::data(const QModelIndex &index, int role) const
             else {
                 authorList = document.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
             }
-            foreach(Nepomuk::Resource a, authorList) {
+            foreach(const Nepomuk::Resource & a, authorList) {
                 authorSting.append(a.genericLabel());
                 authorSting.append(QLatin1String("; "));
             }
@@ -141,7 +141,7 @@ QVariant PublicationModel::data(const QModelIndex &index, int role) const
             else {
                 authorList = document.property(Nepomuk::Vocabulary::NBIB::editor()).toResourceList();
             }
-            foreach(Nepomuk::Resource a, authorList) {
+            foreach(const Nepomuk::Resource & a, authorList) {
                 authorSting.append(a.genericLabel());
                 authorSting.append(QLatin1String("; "));
             }
@@ -160,7 +160,7 @@ QVariant PublicationModel::data(const QModelIndex &index, int role) const
             else {
                 authorList = document.property(Nepomuk::Vocabulary::NCO::publisher()).toResourceList();
             }
-            foreach(Nepomuk::Resource a, authorList) {
+            foreach(const Nepomuk::Resource & a, authorList) {
                 authorSting.append(a.genericLabel());
                 authorSting.append(QLatin1String("; "));
             }

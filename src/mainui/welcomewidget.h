@@ -18,13 +18,14 @@
 #ifndef WELCOMEWIDGET_H
 #define WELCOMEWIDGET_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace Ui {
     class WelcomeWidget;
 }
 
 class Library;
+class KHTMLPart;
 
 class WelcomeWidget : public QWidget
 {
@@ -34,11 +35,16 @@ public:
     explicit WelcomeWidget(Library *library, QWidget *parent = 0);
     ~WelcomeWidget();
 
+private slots:
+    void updateStatistics();
+
 private:
     void setupGui();
+    void generateHtml();
 
     Ui::WelcomeWidget *ui;
     Library *m_library;
+    KHTMLPart *m_htmlPart;
 };
 
 #endif // WELCOMEWIDGET_H

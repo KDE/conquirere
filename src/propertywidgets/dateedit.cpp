@@ -20,15 +20,15 @@
 #include "nbib.h"
 #include <Nepomuk/Variant>
 
-#include <KDatePicker>
-#include <KGlobalSettings>
+#include <KDE/KDatePicker>
+#include <KDE/KLineEdit>
+#include <KDE/KGlobalSettings>
 
-#include <QMenu>
-#include <QWidgetAction>
-#include <QDateTime>
-#include <QLineEdit>
+#include <QtGui/QMenu>
+#include <QtGui/QWidgetAction>
+#include <QtCore/QDateTime>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 DateEdit::DateEdit(QWidget *parent)
     :PropertyEdit(parent)
@@ -43,6 +43,13 @@ DateEdit::DateEdit(QWidget *parent)
     m_dateMenu->addAction(m_datePickerAction);
 
     connect(m_datePicker, SIGNAL(dateChanged(QDate)), this, SLOT(dateChanged(QDate)));
+}
+
+DateEdit::~DateEdit()
+{
+    delete m_dateMenu;
+    delete m_datePickerAction;
+    //delete m_datePicker;
 }
 
 void DateEdit::setupLabel()

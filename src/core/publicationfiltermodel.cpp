@@ -18,7 +18,6 @@
 #include "publicationfiltermodel.h"
 
 #include "publicationmodel.h"
-#include "../globals.h"
 
 PublicationFilterModel::PublicationFilterModel(QObject *parent)
     : QSortFilterProxyModel(parent)

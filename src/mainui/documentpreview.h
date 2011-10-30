@@ -18,10 +18,10 @@
 #ifndef DOCUMENTPREVIEW_H
 #define DOCUMENTPREVIEW_H
 
-#include <QDockWidget>
-
 #include <Nepomuk/Resource>
-#include <kparts/mainwindow.h>
+#include <KParts/MainWindow>
+
+#include <QtGui/QDockWidget>
 
 namespace Ui {
     class DocumentPreview;

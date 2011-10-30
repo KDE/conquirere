@@ -17,14 +17,13 @@
 
 #include "htmldelegate.h"
 
-#include <QApplication>
-#include <QTextDocument>
-#include <QAbstractTextDocumentLayout>
+#include <QtGui/QApplication>
+#include <QtGui/QTextDocument>
+#include <QtGui/QAbstractTextDocumentLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QPainter>
 
-#include <QLabel>
-#include <QPainter>
-
-#include <QDebug>
+#include <QtCore/QDebug>
 
 HtmlDelegate::HtmlDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
@@ -44,7 +43,7 @@ void HtmlDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,c
     doc.setPageSize( option.rect.size() );
 
     /// Painting item without text
-    optionV4.text = QString();
+    optionV4.text.clear();
     style->drawControl(QStyle::CE_ItemViewItem, &optionV4, painter);
 
     QAbstractTextDocumentLayout::PaintContext ctx;

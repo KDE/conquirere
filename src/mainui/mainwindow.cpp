@@ -34,18 +34,18 @@
 #include <KDE/KLocale>
 #include <KDE/KActionCollection>
 #include <KDE/KStandardAction>
-#include <KFileDialog>
-#include <KMessageBox>
-#include <KIO/NetAccess>
-#include <kglobalsettings.h>
+#include <KDE/KFileDialog>
+#include <KDE/KMessageBox>
+#include <KDE/KIO/NetAccess>
+#include <KDE/KGlobalSettings>
 
-#include <QVBoxLayout>
-#include <QSplitter>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QSplitter>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 
-//DEBUG ADD
+//DEBUG ADD to delete all nepomuk data
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Query/Term>
@@ -229,7 +229,7 @@ void MainWindow::DEBUGDELETEALLDATA()
 
     QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
 
-    foreach(Nepomuk::Query::Result r, queryResult) {
+    foreach(const Nepomuk::Query::Result & r, queryResult) {
         r.resource().remove();
     }
 }
@@ -290,6 +290,7 @@ void MainWindow::setupActions()
     actionCollection()->addAction(QLatin1String("toggle_library"), m_libraryWidget->toggleViewAction());
     actionCollection()->addAction(QLatin1String("toggle_sidebar"), m_sidebarWidget->toggleViewAction());
     actionCollection()->addAction(QLatin1String("toggle_docpreview"), m_documentPreview->toggleViewAction());
+    actionCollection()->addAction(QLatin1String("toggle_websearch"), m_webSearchWidget->toggleViewAction());
 
     KStandardAction::quit(kapp, SLOT(quit()),actionCollection());
 

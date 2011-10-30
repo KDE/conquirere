@@ -31,11 +31,10 @@
 #include <Akonadi/ItemDeleteJob>
 #include <Akonadi/Job>
 #include <KABC/Addressee>
+#include <KDE/KIcon>
+#include <KDE/KInputDialog>
 
-#include <KIcon>
-#include <QInputDialog>
-
-#include <QDebug>
+#include <QtCore/QDebug>
 
 ContactDialog::ContactDialog(QWidget *parent) :
     QDialog(parent),
@@ -75,7 +74,7 @@ void ContactDialog::fillWidget()
 {
     QList<Nepomuk::Resource> resList = m_resource.property(m_propertyUrl).toResourceList();
 
-    foreach(Nepomuk::Resource r, resList) {
+    foreach(const Nepomuk::Resource & r, resList) {
         QListWidgetItem *i = new QListWidgetItem;
         i->setText(r.genericLabel());
         i->setData(Qt::UserRole, r.property("http://akonadi-project.org/ontologies/aneo#akonadiItemId").toString());
@@ -102,7 +101,7 @@ void ContactDialog::editItem()
 
     if(akonadiItemID.isEmpty()) {
         bool ok;
-        QString text = QInputDialog::getText(this, i18n("Create new Nepomuk contact"),
+        QString text = KInputDialog::getText(this, i18n("Create new Nepomuk contact"),
                                              tr("Name:"), QLineEdit::Normal,i->text(), &ok);
 
         if (ok && !text.isEmpty()) {
@@ -130,7 +129,7 @@ void ContactDialog::addContactItem()
 void ContactDialog::addResourceItem()
 {
     bool ok;
-    QString text = QInputDialog::getText(this, i18n("Create new Nepomuk contact"),
+    QString text = KInputDialog::getText(this, i18n("Create new Nepomuk contact"),
                                          tr("Contact name:"), QLineEdit::Normal,QString(), &ok);
 
     if (ok && !text.isEmpty()) {

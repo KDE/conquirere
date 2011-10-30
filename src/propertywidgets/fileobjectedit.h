@@ -20,6 +20,12 @@
 
 #include "propertyedit.h"
 
+/**
+  * @brief Used to add NFO::FileDataObject() or NFO::RemoteDataObject() to the publication
+  *
+  * This is responsible for the connection to the localfiles or files hosted at a remote
+  * place for the publication
+  */
 class FileObjectEdit : public PropertyEdit
 {
     Q_OBJECT

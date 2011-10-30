@@ -28,7 +28,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="editTitle"/>
+       <widget class="KLineEdit" name="editTitle"/>
       </item>
       <item>
        <widget class="QLabel" name="label_2">

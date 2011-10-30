@@ -21,7 +21,7 @@
 #include "propertyedit.h"
 
 /**
-  * Used to edit the @c nbib:BookSeries
+  * @brief Used to edit the @c nbib:BookSeries
   *
   * Shows/edits the @c nie:title of the @c nbib:BookSeries
   */

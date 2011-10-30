@@ -19,10 +19,10 @@
 #define SEARCHRESULTMODEL_H
 
 #include "../globals.h"
-#include <QAbstractListModel>
 
-#include <QList>
-#include <QString>
+#include <QtCore/QAbstractListModel>
+#include <QtCore/QList>
+#include <QtCore/QString>
 
 class Entry;
 class FileExporterXSLT;

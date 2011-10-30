@@ -18,11 +18,10 @@
 #ifndef LIBRARYWIDGET_H
 #define LIBRARYWIDGET_H
 
-#include <QDockWidget>
-
 #include "../globals.h"
 
-#include <QList>
+#include <QtGui/QDockWidget>
+#include <QtCore/QList>
 
 class Library;
 class QTreeWidgetItem;

@@ -21,8 +21,8 @@
 #include <Nepomuk/Resource>
 #include <Akonadi/Item>
 
-#include <QDialog>
-#include <QUrl>
+#include <QtGui/QDialog>
+#include <QtCore/QUrl>
 
 namespace Ui {
     class ContactDialog;

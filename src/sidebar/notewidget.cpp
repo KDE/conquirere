@@ -24,7 +24,7 @@
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Variant>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 NoteWidget::NoteWidget(QWidget *parent)
     : SidebarComponent(parent)

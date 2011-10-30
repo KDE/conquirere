@@ -21,13 +21,13 @@
 #include "core/library.h"
 #include "projecttreedelegate.h"
 
-#include <KStandardDirs>
+#include <KDE/KStandardDirs>
 
-#include <QTreeWidgetItem>
-#include <QVariant>
-#include <QTimer>
+#include <QtGui/QTreeWidgetItem>
+#include <QtCore/QVariant>
+#include <QtCore/QTimer>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 LibraryWidget::LibraryWidget(QWidget *parent)
     : QDockWidget(parent)
@@ -43,6 +43,8 @@ LibraryWidget::LibraryWidget(QWidget *parent)
 LibraryWidget::~LibraryWidget()
 {
     delete ui;
+    qDeleteAll(m_openLibraries);
+    //qDeleteAll(m_items);
 }
 
 void LibraryWidget::addLibrary(Library *p)

@@ -18,10 +18,13 @@
 #ifndef HTMLDELEGATE_H
 #define HTMLDELEGATE_H
 
-#include <QStyledItemDelegate>
+#include <QtGui/QStyledItemDelegate>
 
 class QLabel;
 
+/**
+  * @brief This delegate takes a HTML String from any QModelIndex and display it as richtext
+  */
 class HtmlDelegate : public QStyledItemDelegate
 {
     Q_OBJECT

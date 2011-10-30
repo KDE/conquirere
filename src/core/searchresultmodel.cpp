@@ -20,11 +20,11 @@
 #include <kbibtex/entry.h>
 #include <kbibtex/fileexporterxslt.h>
 
-#include <KGlobalSettings>
-#include <KStandardDirs>
+#include <KDE/KGlobalSettings>
+#include <KDE/KStandardDirs>
 
-#include <QFont>
-#include <QBuffer>
+#include <QtGui/QFont>
+#include <QtCore/QBuffer>
 
 enum BibTeXColumnList {
     Column_Reference,
@@ -36,7 +36,7 @@ SearchResultModel::SearchResultModel(QObject *parent) :
     QAbstractListModel(parent)
 {
     exporterXSLT = new FileExporterXSLT();
-    exporterXSLT->setXSLTFilename(KStandardDirs::locate("data", "conquiere/simple.xsl"));
+    exporterXSLT->setXSLTFilename(KStandardDirs::locate("data", QLatin1String("conquiere/simple.xsl")));
 }
 
 SearchResultModel::~SearchResultModel()
@@ -85,9 +85,9 @@ QVariant SearchResultModel::data(const QModelIndex &index, int role) const
     text.prepend(QLatin1String("</b></font><br/>"));
     text.prepend(translateEntryType(entry->type()));
     text.prepend(QLatin1String("<font color=\"#000099\"><b>"));
-    text.remove("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    text.remove("\n");
-    text.append("<hr width=\"100%\">");
+    text.remove(QLatin1String("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+    text.remove(QLatin1String("\n"));
+    text.append(QLatin1String("<hr width=\"100%\">"));
 
     return text;
 }

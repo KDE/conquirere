@@ -17,10 +17,10 @@
 
 #include "stringedit.h"
 
-#include <QStandardItemModel>
-
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Variant>
+
+#include <QtGui/QStandardItemModel>
 
 StringEdit::StringEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -50,9 +50,8 @@ void StringEdit::updateResource(const QString & text)
         entryList.append(text);
     }
 
-    foreach(QString s, entryList) {
-        s = s.trimmed();
-        resource().addProperty(propertyUrl(), s);
+    foreach(const QString & s, entryList) {
+        resource().addProperty(propertyUrl(), s.trimmed());
     }
 }
 
@@ -60,5 +59,5 @@ void StringEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &e
 {
     // this needs a change in the propertyedit class
     // so we can fetch any value of a certain property
-    // instead of searching for all occurences of a Resourcetype
+    // instead of searching for all occurrences of a Resourcetype
 }

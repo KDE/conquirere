@@ -21,7 +21,7 @@
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Variant>
 
-#include <QStandardItemModel>
+#include <QtGui/QStandardItemModel>
 
 ChapterEdit::ChapterEdit(QWidget *parent)
     :PropertyEdit(parent)
@@ -79,11 +79,11 @@ void ChapterEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &
 
     // idea, filter all entries to include only the once of the current resource()->usePublication entry
     // even better filter plainTextContent for all chapters available
-    // alot better use prefilled nbib:contents
+    // a lot better use prefilled nbib:contents
     QStandardItemModel *model = new QStandardItemModel();
     QStandardItem *parentItem = model->invisibleRootItem();
 
-    foreach(Nepomuk::Query::Result r, entries) {
+    foreach(const Nepomuk::Query::Result & r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
 
         item->setData(r.resource().uri());

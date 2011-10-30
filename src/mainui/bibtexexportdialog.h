@@ -18,15 +18,15 @@
 #ifndef BIBTEXEXPORTDIALOG_H
 #define BIBTEXEXPORTDIALOG_H
 
-#include <QDialog>
-#include <QFutureWatcher>
+#include <QtGui/QDialog>
+#include <QtCore/QFutureWatcher>
 
 namespace Ui {
     class BibTexExportDialog;
 }
 
 class NBibExporterBibTex;
-class QProgressDialog;
+class KProgressDialog;
 
 class BibTexExportDialog : public QDialog
 {
@@ -44,7 +44,7 @@ private:
     Ui::BibTexExportDialog *ui;
 
     NBibExporterBibTex *m_exporter;
-    QProgressDialog *m_progress;
+    KProgressDialog *m_progress;
     QFutureWatcher<bool> *m_futureWatcher;
 };
 

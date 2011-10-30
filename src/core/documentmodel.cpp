@@ -95,7 +95,7 @@ QVariant DocumentModel::data(const QModelIndex &index, int role) const
 
             authorList = publication.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
 
-            foreach(Nepomuk::Resource a, authorList) {
+            foreach(const Nepomuk::Resource & a, authorList) {
                 authorSting.append(a.genericLabel());
                 authorSting.append(QLatin1String("; "));
             }

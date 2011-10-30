@@ -22,12 +22,12 @@
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Result>
 
-#include <QWidget>
-#include <QModelIndex>
-#include <QHash>
-#include <QUrl>
+#include <QtGui/QWidget>
+#include <QtCore/QModelIndex>
+#include <QtCore/QHash>
+#include <QtCore/QUrl>
 
-class QLineEdit;
+class KLineEdit;
 class KSqueezedTextLabel;
 class QCompleter;
 class QAbstractItemModel;
@@ -35,7 +35,7 @@ class QFocusEvent;
 class QToolButton;
 
 /**
-  * Helper class to easily manipulate Nepomuk data
+  * @brief Helper class to easily manipulate Nepomuk data
   *
   * The Property edit is an abstract base that can't be used directly.
   *
@@ -70,7 +70,7 @@ public:
     virtual ~PropertyEdit();
 
     /**
-      * returns the resource that is beeing manipulated by this edit widget
+      * returns the resource that is being manipulated by this edit widget
       */
     Nepomuk::Resource resource();
 
@@ -208,7 +208,7 @@ private slots:
     void editingAborted();
 
 protected:
-    QLineEdit *m_lineEdit;
+    KLineEdit *m_lineEdit;
 
 private:
     void mousePressEvent ( QMouseEvent * event );

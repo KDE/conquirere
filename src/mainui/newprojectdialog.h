@@ -18,14 +18,14 @@
 #ifndef NEWPROJECTDIALOG_H
 #define NEWPROJECTDIALOG_H
 
-#include <QDialog>
+#include <QtGui/QDialog>
 
 namespace Ui {
     class NewProjectDialog;
 }
 
 /**
-  * Dialog to create a new project library
+  * @brief Dialog to create a new project library
   *
   * Lets the user select a name and the path where all files are stored
   */

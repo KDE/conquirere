@@ -24,19 +24,19 @@
 #include "notemodel.h"
 #include "bookmarkmodel.h"
 
-#include <KDE/KUrl>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfoList>
-
-#include <QtCore/QDebug>
-#include <QtCore/QSettings>
-
 #include <Nepomuk/Variant>
 #include <Nepomuk/Tag>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/PIMO>
 
+#include <KDE/KUrl>
 #include <KDE/KIO/DeleteJob>
+
+#include <QtCore/QDir>
+#include <QtCore/QFileInfoList>
+#include <QtCore/QSettings>
+
+#include <QtCore/QDebug>
 
 const QString DOCPATH = QLatin1String("documents");  /**< @todo make this configurable */
 const QString NOTEPATH = QLatin1String("notes");     /**< @todo make this configurable */
@@ -219,6 +219,11 @@ void Library::addDocument(const QFileInfo &fileInfo)
 QSortFilterProxyModel* Library::viewModel(ResourceSelection selection)
 {
     return m_resources.value(selection);
+}
+
+QMap<ResourceSelection, QSortFilterProxyModel*> Library::viewModels()
+{
+    return m_resources;
 }
 
 void Library::connectFetchIndicator(LibraryWidget *treeWidget)

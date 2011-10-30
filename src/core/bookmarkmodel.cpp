@@ -37,9 +37,9 @@
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Variant>
 
-#include <QModelIndex>
+#include <QtCore/QModelIndex>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 enum PublicationColumnList {
     Column_StarRate,
@@ -96,7 +96,7 @@ QVariant BookmarkModel::data(const QModelIndex &index, int role) const
             QString tagString;
             QList<Nepomuk::Resource> tagList = document.property(Soprano::Vocabulary::NAO::hasTag()).toResourceList();
 
-            foreach(Nepomuk::Resource nr, tagList) {
+            foreach(const Nepomuk::Resource & nr, tagList) {
                 tagString.append(nr.property(Soprano::Vocabulary::NAO::prefLabel()).toString());
                 tagString.append(QLatin1String("; "));
             }

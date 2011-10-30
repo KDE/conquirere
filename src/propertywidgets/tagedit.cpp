@@ -17,11 +17,11 @@
 
 #include "tagedit.h"
 
-#include <QStandardItemModel>
-
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Tag>
 #include <Nepomuk/Variant>
+
+#include <QtGui/QStandardItemModel>
 
 TagEdit::TagEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -37,7 +37,7 @@ void TagEdit::setupLabel()
 
     QList<Nepomuk::Tag> tagList = resource().tags();
 
-    foreach(Nepomuk::Tag t, tagList) {
+    foreach(const Nepomuk::Tag & t, tagList) {
         QString prefLabel = t.genericLabel();
         labelText.append(prefLabel);
         addPropertryEntry(prefLabel, t.uri());
@@ -63,10 +63,9 @@ void TagEdit::updateResource(const QString & text)
         entryList.append(text);
     }
 
-    foreach(QString s, entryList) {
-        s = s.trimmed();
+    foreach(const QString & s, entryList) {
         // try to find the propertyurl of an already existing contact
-        QUrl propUrl = propertyEntry(s);
+        QUrl propUrl = propertyEntry(s.trimmed());
         if(propUrl.isValid()) {
             resource().addTag(Nepomuk::Tag(propUrl));
         }
@@ -75,9 +74,8 @@ void TagEdit::updateResource(const QString & text)
             Nepomuk::Tag newTag;
             //FIXME Nepomuk::Tag does not add type Tag but twice type Resource!
             newTag.addType(Soprano::Vocabulary::NAO::Tag());
-            newTag.setProperty(Soprano::Vocabulary::NAO::prefLabel(), s);
-            s.replace(QLatin1String(" "), QLatin1String("%20"));
-            newTag.setProperty(Soprano::Vocabulary::NAO::identifier(), s);
+            newTag.setProperty(Soprano::Vocabulary::NAO::prefLabel(), s.trimmed());
+            newTag.setProperty(Soprano::Vocabulary::NAO::identifier(), s.trimmed());
             resource().addTag(newTag);
         }
     }
@@ -88,7 +86,7 @@ void TagEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entr
     QStandardItemModel *model = new QStandardItemModel();
     QStandardItem *parentItem = model->invisibleRootItem();
 
-    foreach(Nepomuk::Query::Result r, entries) {
+    foreach(const Nepomuk::Query::Result & r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().genericLabel());
         // save the resource uri with the model item
         // this helps to identify the selected entry even if the generic label has

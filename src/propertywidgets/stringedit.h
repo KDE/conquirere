@@ -21,7 +21,7 @@
 #include "propertyedit.h"
 
 /**
-  * Very simple edit widget, interpretes all propertys as string
+  * @brief Very simple edit widget, interpretes all propertys as string
   */
 class StringEdit : public PropertyEdit
 {

@@ -26,21 +26,21 @@
 #include "contactdialog.h"
 
 #include "nbib.h"
-#include <KComboBox>
-#include <KDialog>
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/NUAO>
 #include <Soprano/Vocabulary/NAO>
+#include <KDE/KComboBox>
+#include <KDE/KDialog>
 
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QPushButton>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QPushButton>
+#include <QtGui/QSpacerItem>
 
-#include <QDebug>
-#include <QSpacerItem>
+#include <QtCore/QDebug>
 
 PublicationWidget::PublicationWidget(QWidget *parent)
     : SidebarComponent(parent)

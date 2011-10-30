@@ -19,9 +19,6 @@
 #include "library.h"
 
 #include "nbib.h"
-
-#include <KDE/KIcon>
-
 #include <Nepomuk/Resource>
 #include <Nepomuk/Query/Term>
 #include <Nepomuk/Query/ResourceTypeTerm>
@@ -37,9 +34,11 @@
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Variant>
 
-#include <QModelIndex>
+#include <KDE/KIcon>
 
-#include <QDebug>
+#include <QtCore/QModelIndex>
+
+#include <QtCore/QDebug>
 
 enum PublicationColumnList {
     Column_StarRate,
@@ -98,7 +97,7 @@ QVariant NoteModel::data(const QModelIndex &index, int role) const
             QString tagString;
             QList<Nepomuk::Resource> tagList = document.property(Soprano::Vocabulary::NAO::hasTag()).toResourceList();
 
-            foreach(Nepomuk::Resource nr, tagList) {
+            foreach(const Nepomuk::Resource & nr, tagList) {
                 tagString.append(nr.property(Soprano::Vocabulary::NAO::prefLabel()).toString());
                 tagString.append(QLatin1String("; "));
             }

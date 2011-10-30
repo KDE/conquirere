@@ -19,7 +19,9 @@
 #include "ui_mergeresourceswidget.h"
 
 #include <Nepomuk/ResourceManager>
-#include <KIcon>
+#include <KDE/KIcon>
+
+#include <QtCore/QDebug>
 
 MergeResourcesWidget::MergeResourcesWidget(QWidget *parent) :
     QWidget(parent),

@@ -23,23 +23,23 @@
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Variant>
 
-#include <KUrl>
-#include <KMimeType>
-#include <KMimeTypeTrader>
-#include <KService>
-#include <kparts/part.h>
-#include <QDesktopServices>
+#include <KDE/KUrl>
+#include <KDE/KMimeType>
+#include <KDE/KMimeTypeTrader>
+#include <KDE/KService>
+#include <KParts/Part>
 
-#include <QLabel>
+#include <QtGui/QDesktopServices>
+#include <QtGui/QLabel>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 DocumentPreview::DocumentPreview(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::DocumentPreview)
 {
     ui->setupUi(this);
-    ui->openButton->setIcon(KIcon("document-open"));
+    ui->openButton->setIcon(KIcon(QLatin1String("document-open")));
 
     connect(ui->urlSelector, SIGNAL(currentIndexChanged(int)),this, SLOT(showUrl(int)));
     connect(this, SIGNAL(visibilityChanged(bool)), this, SLOT(toggled(bool)));
@@ -52,6 +52,9 @@ DocumentPreview::DocumentPreview(QWidget *parent) :
 DocumentPreview::~DocumentPreview()
 {
     delete ui;
+    delete m_part;
+    delete m_labelInvalid;
+    delete m_labelNone;
 }
 
 void DocumentPreview::setResource(Nepomuk::Resource & resource)
@@ -72,7 +75,7 @@ void DocumentPreview::setResource(Nepomuk::Resource & resource)
             fileList.append(resource);
         }
 
-        foreach(Nepomuk::Resource r, fileList) {
+        foreach(const Nepomuk::Resource & r, fileList) {
             KIcon icon;
             KUrl url = KUrl(r.property(Nepomuk::Vocabulary::NIE::url()).toString());
             QString mimetype;
@@ -156,10 +159,10 @@ void DocumentPreview::showUrl(int index)
     KUrl urlInfo(url);
     KService::Ptr serivcePtr;
     if(!urlInfo.isLocalFile()) {
-        serivcePtr = KService::serviceByDesktopPath("khtml.desktop");
+        serivcePtr = KService::serviceByDesktopPath(QLatin1String("khtml.desktop"));
     }
     else
-        serivcePtr = KMimeTypeTrader::self()->preferredService(mimetype, "KParts/ReadOnlyPart");
+        serivcePtr = KMimeTypeTrader::self()->preferredService(mimetype, QLatin1String("KParts/ReadOnlyPart"));
 
     if (!serivcePtr.isNull()) {
         m_part = serivcePtr->createInstance<KParts::ReadOnlyPart>(0);

@@ -1,18 +1,11 @@
 
+
+add_subdirectory( core )
+add_subdirectory( nbibio )
+add_subdirectory( propertywidgets )
+
 set(conquirere_SRCS
     main.cpp
-
-    core/library.cpp
-    core/nepomukmodel.cpp
-    core/publicationmodel.cpp
-    core/publicationfiltermodel.cpp
-    core/documentmodel.cpp
-    core/notemodel.cpp
-    core/bookmarkmodel.cpp
-    core/ratingdelegate.cpp
-    core/starrating.cpp
-    core/htmldelegate.cpp
-    core/searchresultmodel.cpp
 
     mainui/newprojectdialog.cpp
     mainui/newprojectdialog.cpp
@@ -26,21 +19,6 @@ set(conquirere_SRCS
     mainui/documentpreview.cpp
     mainui/websearchwidget.cpp
 
-    propertywidgets/propertyedit.cpp
-    propertywidgets/contactedit.cpp
-    propertywidgets/stringedit.cpp
-    propertywidgets/publicationedit.cpp
-    propertywidgets/chapteredit.cpp
-    propertywidgets/seriesedit.cpp
-    propertywidgets/journaledit.cpp
-    propertywidgets/volumenumberedit.cpp
-    propertywidgets/fileobjectedit.cpp
-    propertywidgets/organizationedit.cpp
-    propertywidgets/tagedit.cpp
-    propertywidgets/issnedit.cpp
-    propertywidgets/proceedingsedit.cpp
-    propertywidgets/dateedit.cpp
-
     sidebar/sidebarwidget.cpp
     sidebar/sidebarcomponent.cpp
     sidebar/publicationwidget.cpp
@@ -50,18 +28,6 @@ set(conquirere_SRCS
     sidebar/notewidget.cpp
     sidebar/contactdialog.cpp
     sidebar/mergeresourceswidget.cpp
-
-# later on create lib target for this
-    libnbibio/nbibexporter.cpp
-    libnbibio/nbibexporterbibtex.cpp
-
-    libnbibio/nbibimporter.cpp
-    libnbibio/nbibimporterbibtex.cpp
-    libnbibio/conflictmanager.cpp
-
-    libnbibio/pipe/bibtextoclipboardpipe.cpp
-    libnbibio/pipe/bibtextonepomukpipe.cpp
-    libnbibio/pipe/nepomuktobibtexpipe.cpp
 )
 
 kde4_add_ui_files( conquirere_SRCS
@@ -92,6 +58,9 @@ soprano_add_ontology(conquirere_SRCS ${CMAKE_SOURCE_DIR}/nbib/nbib.trig "NBIB" "
 kde4_add_executable(conquirere ${conquirere_SRCS})
 
 target_link_libraries(conquirere
+core
+nbibio
+propertywidgets
                       #${KDEPIMLIBS_AKONADI_LIBS}
                       ${KDE4_AKONADI_LIBS}
                       ${KDE4_KABC_LIBS}
@@ -104,6 +73,7 @@ akonadi-contact
                       ${KDE4_KDEUI_LIBS}
                       ${KDE4_KIO_LIBS}
                       ${KDE4_KPARTS_LIBS}
+                      ${KDE4_KHTML_LIBS}
 kbibtexio
 kbibtexnetworking
 kbibtexgui

@@ -18,11 +18,11 @@
 #ifndef SIDEBARWIDGET_H
 #define SIDEBARWIDGET_H
 
-#include <QDockWidget>
-
 #include "../globals.h"
 
 #include <Nepomuk/Resource>
+
+#include <QtGui/QDockWidget>
 
 namespace Ui {
     class DockWidget;
@@ -34,7 +34,7 @@ class SidebarComponent;
 class Library;
 
 /**
-  * The SidebarWidget contains all contents for the right side widget
+  * @brief The SidebarWidget contains all contents for the right side widget
   *
   * The widget is used to show the DocumentWidget, ReferenceWidget, PublicationWidget and so on.
   *

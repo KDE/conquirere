@@ -23,16 +23,16 @@
 #include <Nepomuk/Resource>
 #include <Nepomuk/Tag>
 
-#include <QObject>
-#include <QFileInfo>
-#include <QString>
+#include <QtCore/QObject>
+#include <QtCore/QFileInfo>
+#include <QtCore/QString>
 
 class QSettings;
 class LibraryWidget;
 class QSortFilterProxyModel;
 
 /**
-  * A Library is a collection of files and Nepomuk::Resource data of a specific topic
+  * @brief A Library is a collection of files and Nepomuk::Resource data of a specific topic
   *
   * The Library can be either a System library containing all known entities or a specific
   * library containing only a subset of the system entities grouped together for a
@@ -160,9 +160,13 @@ public:
       *
       * @return The abstract table model used to connect to a tableview
       *
-      * @todo use something different than AbstractTableModel?
       */
     QSortFilterProxyModel* viewModel(ResourceSelection selection);
+
+    /**
+      * Returns all available sortmodels and their usage
+      */
+    QMap<ResourceSelection, QSortFilterProxyModel*> viewModels();
 
     /**
       * Connects the fetch indicator signal/slots
@@ -189,7 +193,6 @@ private:
       * The model fetches all data from the Nepomuk storage and update itself
       * when a Nepomuk::Resource is created or removed
       *
-      * @todo use different types of models (not only ResourceModel)
       */
     void setupModels();
 

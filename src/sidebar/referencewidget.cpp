@@ -28,16 +28,16 @@
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/PIMO>
-#include <KGlobalSettings>
-#include <KIcon>
+#include <KDE/KGlobalSettings>
+#include <KDE/KIcon>
 
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QWidget>
-#include <QLabel>
-#include <QPushButton>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QWidget>
+#include <QtGui/QLabel>
+#include <QtGui/QPushButton>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 ReferenceWidget::ReferenceWidget(QWidget *parent)
     : SidebarComponent(parent)

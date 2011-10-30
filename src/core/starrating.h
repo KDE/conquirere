@@ -1,34 +1,34 @@
-/* BANGARANG MEDIA PLAYER
-* Copyright (C) 2010 Stefan Burnicki (stefan.burnicki@gmx.de)
-* <http://gitorious.org/bangarang>
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+/*
+ * Copyright (C) 2010 Stefan Burnicki (stefan.burnicki@gmx.de)
+ * <http://gitorious.org/bangarang> BANGARANG MEDIA PLAYER
+ * Copyright 2011 Jörg Ehrichs <joerg.ehrichs@gmx.de>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef STARRATINGWIDGET_H
 #define STARRATINGWIDGET_H
 
-#include <KIcon>
-#include <QIcon>
-#include <QMetaType>
+#include <KDE/KIcon>
+#include <QtCore/QMetaType>
 
-/*
- This file will provide the StarRatingWidget, which is a QWidget and the StarRating which is
- responsible for painting rating stars. It will support ratings from 1 to 10 in different sizes
-*/
-#include <QPainter>
+#include <QtGui/QPainter>
 
+/**
+  * @brief This file will provide the StarRatingWidget, which is a QWidget and the StarRating which is
+  * responsible for painting rating stars. It will support ratings from 1 to 10 in different sizes
+  */
 class StarRating {
 
     public:
@@ -37,7 +37,7 @@ class StarRating {
 
         static const int Margin = 1;
 
-        StarRating(int rating = 0, int size = Small,
+        explicit StarRating(int rating = 0, int size = Small,
                    QPoint point = QPoint(0, 0), QPoint hoverPos = QPoint(-1, -1));
 
         void setRating(int rating) { m_rating = rating; }
@@ -46,9 +46,9 @@ class StarRating {
         void setHoverAtPosition(QPoint point) { m_hoverRating = ratingAtPosition(point); }
 
         bool valid(int rating) const { return (rating >= MinRating && rating <= MaxRating); }
-        int rating() { return m_rating; }
-        QSize sizeHint() const { return StarRating::SizeHint(m_starSize); }
-        int ratingAtPosition(QPoint point) const { return StarRating::RatingAtPosition(point, m_starSize, m_point); }
+        int rating() const { return m_rating; }
+        QSize sizeHint() const { return SizeHint(m_starSize); }
+        int ratingAtPosition(QPoint point) const { return RatingAtPosition(point, m_starSize, m_point); }
         void paint(QPainter *painter);
 
         static QSize SizeHint(int size) {
@@ -59,7 +59,7 @@ class StarRating {
 
         static int RatingAtPosition(QPoint point, int starSize, QPoint offset) {
             QPoint p = point - offset; //relative to the rating pic now
-            QSize sz = StarRating::SizeHint(starSize);
+            QSize sz = SizeHint(starSize);
             if (p.x() < 0 || p.y() < 0 || p.x() > sz.width() || p.y() > sz.height())
                 return StarRating::InvalidRating;
             int in_x = p.x() - StarRating::Margin + starSize / 4;

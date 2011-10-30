@@ -17,20 +17,15 @@
 
 #include "contactedit.h"
 
-#include <QStandardItemModel>
-
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Variant>
+
+#include <QtGui/QStandardItemModel>
 
 ContactEdit::ContactEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
 }
-
-ContactEdit::~ContactEdit()
-{
-}
-
 void ContactEdit::setupLabel()
 {
     QString labelText;
@@ -38,7 +33,7 @@ void ContactEdit::setupLabel()
     if(hasMultipleCardinality()) {
         QList<Nepomuk::Resource> authorList = resource().property(propertyUrl()).toResourceList();
 
-        foreach(Nepomuk::Resource r, authorList) {
+        foreach(const Nepomuk::Resource & r, authorList) {
             QString fullname = r.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
             labelText.append(fullname);
             addPropertryEntry(fullname, r.uri());
@@ -78,17 +73,16 @@ void ContactEdit::updateResource(const QString & text)
         entryList.append(text);
     }
 
-    foreach(QString s, entryList) {
-        s = s.trimmed();
+    foreach(const QString & s, entryList) {
         // try to find the propertyurl of an already existing contact
-        QUrl propUrl = propertyEntry(s);
+        QUrl propUrl = propertyEntry(s.trimmed());
         if(propUrl.isValid()) {
             resource().addProperty( propertyUrl(), Nepomuk::Resource(propUrl));
         }
         else {
             // create a new contact with the string s as fullname
             Nepomuk::Resource newContact(propUrl, Nepomuk::Vocabulary::NCO::Contact());
-            newContact.setProperty(Nepomuk::Vocabulary::NCO::fullname(), s);
+            newContact.setProperty(Nepomuk::Vocabulary::NCO::fullname(), s.trimmed());
             resource().addProperty( propertyUrl(), newContact);
         }
     }
@@ -99,7 +93,7 @@ void ContactEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &
     QStandardItemModel *model = new QStandardItemModel();
     QStandardItem *parentItem = model->invisibleRootItem();
 
-    foreach(Nepomuk::Query::Result r, entries) {
+    foreach(const Nepomuk::Query::Result & r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().genericLabel());
         // save the resource uri with the model item
         // this helps to identify the selected entry even if the generic label has

@@ -17,12 +17,13 @@
 
 #include "projecttreedelegate.h"
 
-#include <QModelIndex>
-#include <QIcon>
-#include <QPainter>
+#include <QtCore/QModelIndex>
+#include <QtGui/QIcon>
+#include <QtGui/QPainter>
 
 ProjectTreeDelegate::ProjectTreeDelegate(QWidget *parent)
     : QStyledItemDelegate(parent)
+    , m_angle(0)
 {
 }
 

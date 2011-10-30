@@ -37,13 +37,15 @@ public slots:
     void showCreateReference(bool showIt);
 
 signals:
-    /* notify connected editwidgets to update their info */
+    /**
+      * notify connected editwidgets to update their info
+      */
     void resourceChanged(Nepomuk::Resource & resource);
 
 private slots:
     void showPublicationList();
 
-    //enables/disbales the chapter widget if the publication is a valid book or not
+    //enables/disables the chapter widget if the publication is a valid book or not
     void showChapter();
     void showChapterAuthor();
     void newButtonClicked();

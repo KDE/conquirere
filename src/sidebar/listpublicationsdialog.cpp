@@ -52,6 +52,7 @@ ListPublicationsDialog::ListPublicationsDialog(QWidget *parent) :
 ListPublicationsDialog::~ListPublicationsDialog()
 {
     delete ui;
+    m_queryClient->close();
     delete m_queryClient;
 }
 
@@ -84,7 +85,7 @@ void ListPublicationsDialog::fetchData()
 
 void ListPublicationsDialog::addPublicationData(const QList< Nepomuk::Query::Result > &entries)
 {
-    foreach(Nepomuk::Query::Result e, entries) {
+    foreach(const Nepomuk::Query::Result & e, entries) {
         QString title = e.resource().property(Nepomuk::Vocabulary::NIE::title()).toString();
         ui->listWidget->addItem(title);
         m_listCache.insert(title, e.resource().uri());
@@ -106,7 +107,7 @@ void ListPublicationsDialog::showPublication( QListWidgetItem * item )
     QList<Nepomuk::Resource> authors = publication.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
 
     QString authorString;
-    foreach(Nepomuk::Resource a, authors) {
+    foreach(const Nepomuk::Resource & a, authors) {
         authorString.append(a.genericLabel());
         authorString.append(QLatin1String("; "));
     }

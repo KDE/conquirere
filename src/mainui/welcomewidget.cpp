@@ -19,10 +19,23 @@
 #include "ui_welcomewidget.h"
 
 #include "../core/library.h"
+#include "../core/nepomukmodel.h"
+
+#include <KDE/KHTMLPart>
+#include <KDE/KHTMLView>
+#include <KDE/DOM/HTMLDocument>
+#include <KDE/KStandardDirs>
+
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QSortFilterProxyModel>
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
+#include <QtCore/QAbstractItemModel>
 
 WelcomeWidget::WelcomeWidget(Library *library, QWidget *parent)
     : QWidget(parent)
     , m_library(library)
+    , m_htmlPart(0)
     , ui(new Ui::WelcomeWidget)
 {
     ui->setupUi(this);
@@ -32,17 +45,115 @@ WelcomeWidget::WelcomeWidget(Library *library, QWidget *parent)
 WelcomeWidget::~WelcomeWidget()
 {
     delete ui;
+    delete m_htmlPart;
 }
 
 void WelcomeWidget::setupGui()
 {
+    QMap<ResourceSelection, QSortFilterProxyModel*> models = m_library->viewModels();
+
+    foreach (QSortFilterProxyModel *model, models) {
+        QAbstractItemModel *aim = model->sourceModel();
+        NepomukModel *m = qobject_cast<NepomukModel *>(aim);
+        connect(m, SIGNAL(dataSizeChaged(int)),this, SLOT(updateStatistics()));
+    }
+
+    m_htmlPart = new KHTMLPart(this);
+    m_htmlPart->setJScriptEnabled(true);
+    m_htmlPart->setPluginsEnabled(true);
+    QVBoxLayout *vbl = qobject_cast<QVBoxLayout*>(ui->widget->layout());
+    vbl->addWidget(m_htmlPart->view());
+
+    generateHtml();
+}
+
+void WelcomeWidget::updateStatistics()
+{
+    QMapIterator<ResourceSelection, QSortFilterProxyModel*> i(m_library->viewModels());
+    while (i.hasNext()) {
+        i.next();
+
+        QAbstractItemModel *aim = i.value()->sourceModel();
+        NepomukModel *m = qobject_cast<NepomukModel *>(aim);
+        QString rowCount = QString::number(m->rowCount());
+
+        QString jsFunction;
+        switch(i.key()) {
+        case Resource_Document:
+            jsFunction = QLatin1String("makeTxt('countdocuments','");
+            jsFunction.append(rowCount);
+            jsFunction.append(QLatin1String("')"));
+            break;
+        case Resource_Mail:
+            jsFunction = QLatin1String("makeTxt('countmail','");
+            jsFunction.append(rowCount);
+            jsFunction.append(QLatin1String("')"));
+            break;
+        case Resource_Media:
+            jsFunction = QLatin1String("makeTxt('countmedia','");
+            jsFunction.append(rowCount);
+            jsFunction.append(QLatin1String("')"));
+            break;
+        case Resource_Reference:
+            jsFunction = QLatin1String("makeTxt('countreference','");
+            jsFunction.append(rowCount);
+            jsFunction.append(QLatin1String("')"));
+            break;
+        case Resource_Publication:
+            jsFunction = QLatin1String("makeTxt('countpublication','");
+            jsFunction.append(rowCount);
+            jsFunction.append(QLatin1String("')"));
+            break;
+        case Resource_Website:
+            jsFunction = QLatin1String("makeTxt('countbookmark','");
+            jsFunction.append(rowCount);
+            jsFunction.append(QLatin1String("')"));
+            break;
+        case Resource_Note:
+            jsFunction = QLatin1String("makeTxt('countnote','");
+            jsFunction.append(rowCount);
+            jsFunction.append(QLatin1String("')"));
+            break;
+        }
+        m_htmlPart->executeScript(m_htmlPart->htmlDocument(), jsFunction );
+    }
+}
+
+void WelcomeWidget::generateHtml()
+{
+    const QString htmlFilename = KGlobal::dirs()->findResource("appdata", QLatin1String("html/index.html"));
+    const QString cssFilename = KGlobal::dirs()->findResource("appdata", QLatin1String("html/application.css"));
+    QFile file(htmlFilename);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "can't open html file " << htmlFilename;
+        return;
+    }
+
+    QTextStream in(&file);
+    QString htmlPage;
+    while (!in.atEnd()) {
+        htmlPage.append( in.readLine() );
+    }
+
+    QString libraryName;
+    QString libraryIntro;
     if(m_library->libraryType() == Library_System) {
-        ui->labelTitle->setText(i18n("System Library"));
+        libraryName = i18n("System Library");
+        libraryIntro = i18n("The system library contains all known documents, publications, notes and so on that are stored in the Nepomuk Storage");
     }
     else {
-        QString libraryHeader = i18n("Library:");
-        libraryHeader.append(QLatin1String(" "));
-        libraryHeader.append(m_library->name());
-        ui->labelTitle->setText(libraryHeader);
+        libraryName = m_library->name();
+        libraryIntro = QLatin1String("description from prohect creation");
     }
+
+    htmlPage.replace(QLatin1String("#CSSFILE#"), cssFilename);
+    htmlPage.replace(QLatin1String("#LIBRARYNAME#"), libraryName);
+    htmlPage.replace(QLatin1String("#LIBRARYINTRO#"), libraryIntro);
+    htmlPage.replace(QLatin1String("#STATISTICHEADER#"), i18n("Statistics"));
+    htmlPage.replace(QLatin1String("#TAGCLOUDHEADER#"), i18n("Tag Cloud"));
+    htmlPage.replace(QLatin1String("#TAGCLOUD#"), QLatin1String("yay whups morf yupps"));
+
+    m_htmlPart->begin();
+    m_htmlPart->write(htmlPage);
+    m_htmlPart->end();
 }

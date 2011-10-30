@@ -22,17 +22,18 @@
 #include "listpublicationsdialog.h"
 
 #include "nbib.h"
-#include <KGlobalSettings>
-#include <KMimeType>
-#include <KIconLoader>
-#include <kfilemetadatawidget.h>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NFO>
 #include <Nepomuk/Variant>
+#include <KDE/KFileMetaDataWidget>
+#include <KDE/KGlobalSettings>
+#include <KDE/KMimeType>
+#include <KDE/KIconLoader>
 
-#include <QString>
-#include <QVBoxLayout>
-#include <QDebug>
+#include <QtCore/QString>
+#include <QtGui/QVBoxLayout>
+
+#include <QtCore/QDebug>
 
 DocumentWidget::DocumentWidget(QWidget *parent) :
     SidebarComponent(parent),

@@ -25,10 +25,12 @@
 #include "notewidget.h"
 #include "mergeresourceswidget.h"
 
-#include <KGlobalSettings>
-#include <QVBoxLayout>
-#include <QStackedLayout>
-#include <QDebug>
+#include <KDE/KGlobalSettings>
+
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QStackedLayout>
+
+#include <QtCore/QDebug>
 
 SidebarWidget::SidebarWidget(QWidget *parent)
     : QDockWidget(parent)

@@ -22,13 +22,14 @@
 #include <Nepomuk/Vocabulary/NFO>
 #include <Nepomuk/Variant>
 #include <Nepomuk/File>
-#include <KFileDialog>
-#include <KGlobalSettings>
+#include <KDE/KFileDialog>
+#include <KDE/KGlobalSettings>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
-FileObjectEdit::FileObjectEdit(QWidget *parent) :
-    PropertyEdit(parent)
+FileObjectEdit::FileObjectEdit(QWidget *parent)
+    : PropertyEdit(parent)
+    , m_mode(Local)
 {
 }
 
@@ -48,7 +49,7 @@ void FileObjectEdit::setupLabel()
 
     Nepomuk::Resource dataObject;
 
-    foreach( Nepomuk::Resource nr, dataObjectList) {
+    foreach(const Nepomuk::Resource & nr, dataObjectList) {
         if(m_mode == Local && nr.hasType(Nepomuk::Vocabulary::NFO::FileDataObject())) {
             dataObject = nr;
             break;
@@ -76,7 +77,7 @@ void FileObjectEdit::updateResource(const QString & text)
 
     Nepomuk::Resource dataObject;
 
-    foreach( Nepomuk::Resource nr, dataObjectList) {
+    foreach( const Nepomuk::Resource & nr, dataObjectList) {
         if(m_mode == Local && nr.hasType(Nepomuk::Vocabulary::NFO::FileDataObject())) {
             dataObject = nr;
             break;

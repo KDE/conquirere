@@ -18,8 +18,8 @@
 #include "newprojectdialog.h"
 #include "ui_newprojectdialog.h"
 
-#include <kglobalsettings.h>
-#include <KFileDialog>
+#include <KDE/KGlobalSettings>
+#include <KDE/KFileDialog>
 
 NewProjectDialog::NewProjectDialog(QWidget *parent) :
     QDialog(parent),

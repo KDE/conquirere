@@ -21,7 +21,7 @@
 #include "propertyedit.h"
 
 /**
-  * Used to edit the Journal of a property.
+  * @brief Used to edit the Journal of a property.
   *
   * Shows/edits the @c nie:title of the @c nbib:Journal from the used @c nbib:JournalIssue
   *

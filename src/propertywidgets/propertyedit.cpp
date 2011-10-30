@@ -17,24 +17,25 @@
 
 #include "propertyedit.h"
 
-#include <KDE/KIcon>
 #include <Nepomuk/Query/Term>
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Result>
 #include <Nepomuk/Query/ResourceTypeTerm>
 #include <Nepomuk/Variant>
-#include <KSqueezedTextLabel>
 
-#include <QLabel>
-#include <QLineEdit>
-#include <QToolButton>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QCompleter>
-#include <QKeyEvent>
-#include <QAbstractItemView>
+#include <KDE/KIcon>
+#include <KDE/KSqueezedTextLabel>
+#include <KDE/KLineEdit>
 
-#include <QDebug>
+#include <QtGui/QLabel>
+#include <QtGui/QToolButton>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QCompleter>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QAbstractItemView>
+
+#include <QtCore/QDebug>
 
 PropertyEdit::PropertyEdit(QWidget *parent)
     : QWidget(parent)
@@ -47,7 +48,7 @@ PropertyEdit::PropertyEdit(QWidget *parent)
     m_label->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     m_label->setTextElideMode(Qt::ElideMiddle);
 
-    m_lineEdit = new QLineEdit();
+    m_lineEdit = new KLineEdit();
     m_lineEdit->hide();
     connect(m_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(updateCompleter()));
     connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
@@ -272,8 +273,8 @@ void PropertyEdit::updateCompleter()
 
         int tempLength = 0;
         int substringPos;
-        // find the substring that is beeing manipulated
-        foreach(QString s, entrylist) {
+        // find the substring that is being manipulated
+        foreach(const QString & s, entrylist) {
             tempLength += s.length();
             if(tempLength >= pos-1) {
                 subString = s;
@@ -314,9 +315,9 @@ void PropertyEdit::insertCompletion(const QModelIndex & index)
         int pos = m_lineEdit->cursorPosition();
 
         int tempLength = 0;
-        // find the substring that is beeing manipulated and replace it with the selected suggestion
+        // find the substring that is being manipulated and replace it with the selected suggestion
         bool inserted = false;
-        foreach(QString s, entrylist) {
+        foreach(const QString & s, entrylist) {
             tempLength += s.length();
             if( !inserted && tempLength >= pos-1) {
                 exitString.append(index.data().toString());

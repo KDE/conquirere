@@ -20,8 +20,8 @@
 
 #include "../core/searchresultmodel.h"
 #include "../core/htmldelegate.h"
-#include "../libnbibio/pipe/bibtextoclipboardpipe.h"
-#include "../libnbibio/pipe/bibtextonepomukpipe.h"
+#include "../nbibio/pipe/bibtextoclipboardpipe.h"
+#include "../nbibio/pipe/bibtextonepomukpipe.h"
 
 #include <kbibtex/onlinesearchabstract.h>
 #include <kbibtex/onlinesearchgeneral.h>
@@ -39,27 +39,28 @@
 #include <kbibtex/value.h>
 #include <kbibtex/bibtexfilemodel.h>
 
-#include <KAction>
-#include <KUrl>
-#include <KMessageBox>
+#include <KDE/KAction>
+#include <KDE/KUrl>
+#include <KDE/KMessageBox>
 
-#include <QStandardItemModel>
-#include <QStackedWidget>
-#include <QListWidgetItem>
-#include <QDesktopServices>
-#include <QVBoxLayout>
-#include <QSortFilterProxyModel>
-#include <QMenu>
+#include <QtGui/QStandardItemModel>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QListWidgetItem>
+#include <QtGui/QDesktopServices>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QSortFilterProxyModel>
+#include <QtGui/QMenu>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 const int HomepageRole = Qt::UserRole + 5;
 const int WidgetRole = Qt::UserRole + 6;
 const int NameRole = Qt::UserRole + 7;
 
-WebSearchWidget::WebSearchWidget(QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::WebSearchWidget)
+WebSearchWidget::WebSearchWidget(QWidget *parent)
+    : QDockWidget(parent)
+    , ui(new Ui::WebSearchWidget)
+    , m_generalQueryTermsForm(0)
 {
     ui->setupUi(this);
 
@@ -73,6 +74,17 @@ WebSearchWidget::WebSearchWidget(QWidget *parent) :
 WebSearchWidget::~WebSearchWidget()
 {
     delete ui;
+    delete m_queryTermsStack;
+    delete m_actionOpenHomepage;
+    //qDeleteAll(m_progressMap);
+    qDeleteAll(m_runningSearches);
+    //delete m_generalQueryTermsForm;
+
+    delete m_importSearchResult;
+    delete m_exportBibTexReference;
+    delete m_exportCiteKey;
+    delete m_bibtexSortModel;
+    delete m_bibtexModel;
 }
 
 void WebSearchWidget::setupUi()
@@ -104,9 +116,9 @@ void WebSearchWidget::setupUi()
     m_exportCiteKey->setIcon(KIcon(QLatin1String("document-export")));
     connect(m_exportCiteKey, SIGNAL(triggered()), this, SLOT(exportCiteKey()));
 
-    ui->searchButton->setIcon(KIcon("media-playback-start"));
-    ui->ktabwidget->setTabIcon(0,KIcon("edit-rename"));
-    ui->ktabwidget->setTabIcon(1,KIcon("applications-engineering"));
+    ui->searchButton->setIcon(KIcon(QLatin1String("media-playback-start")));
+    ui->ktabwidget->setTabIcon(0,KIcon(QLatin1String("edit-rename")));
+    ui->ktabwidget->setTabIcon(1,KIcon(QLatin1String("applications-engineering")));
     connect(ui->ktabwidget, SIGNAL(currentChanged(int)), this, SLOT(updateGUI()));
 
     m_queryTermsStack = new QStackedWidget();
@@ -136,7 +148,7 @@ void WebSearchWidget::setupUi()
 
     ui->engineListWidget->setSelectionMode(QAbstractItemView::NoSelection);
 
-    m_actionOpenHomepage = new KAction(KIcon("internet-web-browser"), i18n("Go to Homepage"), this);
+    m_actionOpenHomepage = new KAction(KIcon(QLatin1String("internet-web-browser")), i18n("Go to Homepage"), this);
     connect(m_actionOpenHomepage, SIGNAL(triggered()), this, SLOT(openHomepage()));
     ui->engineListWidget->addAction(m_actionOpenHomepage);
     ui->engineListWidget->setContextMenuPolicy(Qt::ActionsContextMenu);
@@ -296,7 +308,7 @@ void WebSearchWidget::switchToSearch()
 
     connect(ui->searchButton, SIGNAL(clicked()), this, SLOT(startSearch()));
     ui->searchButton->setText(i18n("Search"));
-    ui->searchButton->setIcon(KIcon("media-playback-start"));
+    ui->searchButton->setIcon(KIcon(QLatin1String("media-playback-start")));
     ui->queryTab->setEnabled(true);
     ui->enginesTab->setEnabled(true);
     ui->ktabwidget->unsetCursor();
@@ -309,7 +321,7 @@ void WebSearchWidget::switchToCancel()
     for (QMap<QListWidgetItem*, OnlineSearchAbstract*>::ConstIterator it = m_itemToOnlineSearch.constBegin(); it != m_itemToOnlineSearch.constEnd(); ++it)
         connect(ui->searchButton, SIGNAL(clicked()), it.value(), SLOT(cancel()));
     ui->searchButton->setText(i18n("Cancel"));
-    ui->searchButton->setIcon(KIcon("media-playback-stop"));
+    ui->searchButton->setIcon(KIcon(QLatin1String("media-playback-stop")));
     ui->queryTab->setEnabled(false);
     ui->enginesTab->setEnabled(false);
     ui->ktabwidget->setCurrentWidget(ui->searchResults);
@@ -384,7 +396,7 @@ void WebSearchWidget::importSearchResult()
     QModelIndexList mil = ui->listView->selectionModel()->selectedIndexes();
 
     File f;
-    foreach(QModelIndex mi, mil) {
+    foreach(const QModelIndex & mi, mil) {
         Entry *e = m_bibtexModel->entryAt(mi.row());
         f.append(e);
     }
@@ -398,7 +410,7 @@ void WebSearchWidget::exportBibTexReference()
     QModelIndexList mil = ui->listView->selectionModel()->selectedIndexes();
 
     File f;
-    foreach(QModelIndex mi, mil) {
+    foreach(const QModelIndex & mi, mil) {
         Entry *e = m_bibtexModel->entryAt(mi.row());
         f.append(e);
     }
@@ -413,7 +425,7 @@ void WebSearchWidget::exportCiteKey()
     QModelIndexList mil = ui->listView->selectionModel()->selectedIndexes();
 
     File f;
-    foreach(QModelIndex mi, mil) {
+    foreach(const QModelIndex & mi, mil) {
         Entry *e = m_bibtexModel->entryAt(mi.row());
         f.append(e);
     }

@@ -18,22 +18,22 @@
 #include "bibteximportdialog.h"
 #include "ui_bibteximportdialog.h"
 
-#include "../libnbibio/nbibimporterbibtex.h"
-#include "../libnbibio/conflictmanager.h"
+#include "../nbibio/nbibimporterbibtex.h"
+#include "../nbibio/conflictmanager.h"
 
-#include <KDialog>
+#include <KDE/KDialog>
+#include <KDE/KProgressDialog>
 
-#include <QStringList>
-#include <QProgressDialog>
-#include <QThread>
-#include <qtconcurrentrun.h>
-#include <QFile>
-#include <QLabel>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QFormLayout>
+#include <QtGui/QLabel>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QFormLayout>
+#include <QtCore/QStringList>
+#include <QtCore/QThread>
+#include <QtCore/QtConcurrentRun>
+#include <QtCore/QFile>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 bool concurrentImport(NBibImporterBibTex *nib, const QString &fileName)
 {
@@ -64,7 +64,7 @@ void BibTexImportDialog::accept()
     if(ui->bibFile->text().isEmpty())
         return;
 
-    m_progress = new QProgressDialog(i18n("Import publications"), QLatin1String("Abort import"), 0, 100);
+    m_progress = new KProgressDialog(i18n("Import publications"), QLatin1String("Abort import"), 0, 100);
     m_progress->setWindowModality(Qt::WindowModal);
     m_progress->show();
     m_progress->setFocus();

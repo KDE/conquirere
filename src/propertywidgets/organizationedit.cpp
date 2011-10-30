@@ -21,8 +21,8 @@
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Variant>
 
-#include <QStandardItemModel>
-#include <QUrl>
+#include <QtGui/QStandardItemModel>
+#include <QtCore/QUrl>
 
 OrganizationEdit::OrganizationEdit(QWidget *parent)
     :PropertyEdit(parent)
@@ -85,7 +85,7 @@ void OrganizationEdit::createCompletionModel( const QList< Nepomuk::Query::Resul
     QStandardItemModel *model = new QStandardItemModel();
     QStandardItem *parentItem = model->invisibleRootItem();
 
-    foreach(Nepomuk::Query::Result r, entries) {
+    foreach(const Nepomuk::Query::Result & r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NCO::fullname()).toString());
 
         item->setData(r.resource().uri());

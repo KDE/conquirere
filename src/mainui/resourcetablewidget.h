@@ -15,16 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PROJECTWIDGET_H
-#define PROJECTWIDGET_H
+#ifndef RESOURCETABLEWIDGET_H
+#define RESOURCETABLEWIDGET_H
 
 #include "projecttreewidget.h"
 #include "../globals.h"
 
-#include <QWidget>
-#include <QItemSelection>
-
 #include <Nepomuk/Resource>
+
+#include <QtGui/QWidget>
+#include <QtGui/QItemSelection>
 
 class Library;
 class QTableView;
@@ -35,7 +35,7 @@ class KLineEdit;
 class KComboBox;
 
 /**
-  * Widget for the main content
+  * @brief Widget for the main content
   *
   * Shows a TableView with the content of each Library model
   */
@@ -81,4 +81,4 @@ private:
     KAction* m_openExternal;
 };
 
-#endif // PROJECTWIDGET_H
+#endif // RESOURCETABLEWIDGET_H

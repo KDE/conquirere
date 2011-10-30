@@ -37,7 +37,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="name_lineEdit"/>
+       <widget class="KLineEdit" name="name_lineEdit"/>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_2">
@@ -52,7 +52,7 @@
       <item row="1" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QLineEdit" name="path_lineEdit"/>
+         <widget class="KLineEdit" name="path_lineEdit"/>
         </item>
         <item>
          <widget class="QToolButton" name="path_toolButton">

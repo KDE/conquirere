@@ -23,7 +23,7 @@
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Result>
 
-#include <QAbstractTableModel>
+#include <QtCore/QAbstractTableModel>
 
 class Library;
 class QModelIndex;
@@ -35,7 +35,7 @@ public:
     explicit NepomukModel(QObject *parent = 0);
     virtual ~NepomukModel();
 
-    int rowCount(const QModelIndex &parent) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual void setLibrary(Library *library);
     virtual void setResourceType(ResourceSelection selection);
     virtual Nepomuk::Resource documentResource(const QModelIndex &selection);

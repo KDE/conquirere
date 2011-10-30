@@ -78,7 +78,7 @@ void NepomukModel::removeSelectedFromProject(const QModelIndexList & indexes, Li
     if(m_library->libraryType() == Library_System) {
         qWarning() << "try to remove data from the nepomuk system library @ PublicationModel::removeSelectedFromProject";
     }
-    foreach(QModelIndex index, indexes) {
+    foreach(const QModelIndex & index, indexes) {
         // get the nepomuk data at the row
         Nepomuk::Resource nr = m_fileList.at(index.row());
 
@@ -91,7 +91,7 @@ void NepomukModel::removeSelectedFromProject(const QModelIndexList & indexes, Li
 
 void NepomukModel::removeSelectedFromSystem(const QModelIndexList & indexes)
 {
-    foreach(QModelIndex index, indexes) {
+    foreach(const QModelIndex & index, indexes) {
         // get the nepomuk data at the row
         Nepomuk::Resource nr = m_fileList.at(index.row());
 
@@ -110,7 +110,7 @@ void NepomukModel::addData(const QList< Nepomuk::Query::Result > &entries)
     // two loops are necessary because addData is not only called on new entries, but with all changes
     // must be a bug in nepomuk check git master for different behaviour
     QList< Nepomuk::Resource > newEntries;
-    foreach(Nepomuk::Query::Result r, entries) {
+    foreach(const Nepomuk::Query::Result & r, entries) {
         if( !m_fileList.contains(r.resource()) ) {
             newEntries.append(r.resource());
         }

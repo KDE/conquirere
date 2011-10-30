@@ -21,27 +21,28 @@
 #include "../core/nepomukmodel.h"
 #include "../core/publicationfiltermodel.h"
 #include "../core/ratingdelegate.h"
-#include <kwidgetitemdelegate.h>
-#include <KDE/KRatingWidget>
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Variant>
+
+#include <KDE/KWidgetItemDelegate>
+#include <KDE/KRatingWidget>
 #include <KDE/KAction>
-#include <KConfig>
-#include <KConfigGroup>
-#include <KLineEdit>
-#include <KComboBox>
+#include <KDE/KConfig>
+#include <KDE/KConfigGroup>
+#include <KDE/KLineEdit>
+#include <KDE/KComboBox>
 
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QTableView>
-#include <QHeaderView>
-#include <QMenu>
-#include <QDesktopServices>
-#include <QSortFilterProxyModel>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QTableView>
+#include <QtGui/QHeaderView>
+#include <QtGui/QMenu>
+#include <QtGui/QDesktopServices>
+#include <QtGui/QSortFilterProxyModel>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 ResourceTableWidget::ResourceTableWidget(QWidget *parent)
     : QWidget(parent)
@@ -161,7 +162,7 @@ void ResourceTableWidget::selectedResource( const QItemSelection & selected, con
         NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
 
         QList<Nepomuk::Resource> resourceList;
-        foreach(QModelIndex mi, selectedIndex) {
+        foreach(const QModelIndex & mi, selectedIndex) {
             Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(mi));
             resourceList.append(nr);
         }

@@ -21,7 +21,7 @@
 #include "propertyedit.h"
 
 /**
-  * Used to edit the publication for a specific reference
+  * @brief Used to edit the publication for a specific reference
   *
   * Shows/edit the @c nie:title of the @c nbib:Publication
   */

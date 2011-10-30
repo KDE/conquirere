@@ -18,8 +18,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <kparts/mainwindow.h>
 #include "../globals.h"
+
+#include <KParts/MainWindow>
 
 class Library;
 class WelcomeWidget;

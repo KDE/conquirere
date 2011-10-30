@@ -18,10 +18,10 @@
 #ifndef MERGERESOURCESWIDGET_H
 #define MERGERESOURCESWIDGET_H
 
-#include <QWidget>
-
 #include <Nepomuk/Resource>
-#include <QList>
+
+#include <QtGui/QWidget>
+#include <QtCore/QList>
 
 namespace Ui {
     class MergeResourcesWidget;

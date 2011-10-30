@@ -21,7 +21,7 @@
 #include "propertyedit.h"
 
 /**
-  * Used to add a chapter to a bibreference
+  * @brief Used to add a chapter to a bibreference
   *
   * @pre setResource must be a @c nbib:Publication
   */
@@ -37,7 +37,7 @@ protected:
     void setupLabel();
 
     /**
-      * @p entries consit of all chapters in the nepomuk storage
+      * @p entries consits of all chapters in the nepomuk storage
       *
       * Fill the completer with the @c nie:title strings
       *

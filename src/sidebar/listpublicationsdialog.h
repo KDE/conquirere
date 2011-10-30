@@ -18,11 +18,11 @@
 #ifndef LISTPUBLICATIONSDIALOG_H
 #define LISTPUBLICATIONSDIALOG_H
 
-#include <QDialog>
-
 #include <Nepomuk/Resource>
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Result>
+
+#include <QtGui/QDialog>
 
 namespace Ui {
     class ListPublicationsDialog;

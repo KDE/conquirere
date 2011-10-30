@@ -21,7 +21,7 @@
 #include "propertyedit.h"
 
 /**
-  * Allows to edit the volume/number of either a @c nbib:JournalIssue or usual @c nbib:Publication
+  * @brief Allows to edit the volume/number of either a @c nbib:JournalIssue or usual @c nbib:Publication
   *
   * Multivolume books can have a volume/number too
   *

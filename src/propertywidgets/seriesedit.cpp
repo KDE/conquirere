@@ -21,7 +21,7 @@
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Variant>
 
-#include <QStandardItemModel>
+#include <QtGui/QStandardItemModel>
 
 SeriesEdit::SeriesEdit(QWidget *parent)
     :PropertyEdit(parent)
@@ -69,7 +69,7 @@ void SeriesEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &e
     QStandardItemModel *model = new QStandardItemModel();
     QStandardItem *parentItem = model->invisibleRootItem();
 
-    foreach(Nepomuk::Query::Result r, entries) {
+    foreach(const Nepomuk::Query::Result & r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
 
         item->setData(r.resource().uri());

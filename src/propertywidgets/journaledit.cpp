@@ -21,8 +21,8 @@
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Variant>
 
-#include <QStandardItemModel>
-#include <QUrl>
+#include <QtGui/QStandardItemModel>
+#include <QtCore/QUrl>
 
 JournalEdit::JournalEdit(QWidget *parent)
     :PropertyEdit(parent)
@@ -84,7 +84,7 @@ void JournalEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &
     QStandardItemModel *model = new QStandardItemModel();
     QStandardItem *parentItem = model->invisibleRootItem();
 
-    foreach(Nepomuk::Query::Result r, entries) {
+    foreach(const Nepomuk::Query::Result & r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
 
         item->setData(r.resource().uri());

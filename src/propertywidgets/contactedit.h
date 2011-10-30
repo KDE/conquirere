@@ -21,21 +21,35 @@
 #include "propertyedit.h"
 
 /**
-  * Used to manipulate an @c nco:Contact property.
+  * @brief Used to manipulate an @c nco:Contact property.
   *
   * The entered/shown text represents the fullname() of the contact
+  * Via the detail dialog it is possible to push a contact to akonadi and therefore use all the
+  * edit options available from the kaddressbook dialog
   */
 class ContactEdit : public PropertyEdit
 {
 public:
     ContactEdit(QWidget *parent = 0);
-    virtual ~ContactEdit();
 
 protected:
+    /**
+      * Use nco::fullname of the @c nco::Contact
+      */
     void setupLabel();
 
+    /**
+      * @p entries consits of all contacts in the nepomuk storage
+      *
+      * Fill the completer with the @c nco::fullname strings
+      */
     virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
+    /**
+      * update the resource with the @p text from the edit field
+      *
+      * Interprete @p text as @c nco::fullname of the @c nco::Contact
+      */
     virtual void updateResource( const QString & text );
 };
 

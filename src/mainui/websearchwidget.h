@@ -18,12 +18,13 @@
 #ifndef WEBSEARCHWIDGET_H
 #define WEBSEARCHWIDGET_H
 
-#include <QDockWidget>
-#include <QMap>
-#include <QSet>
-#include <KConfigGroup>
-#include <KConfig>
-#include <KSharedConfigPtr>
+#include <KDE/KConfigGroup>
+#include <KDE/KConfig>
+#include <KDE/KSharedConfigPtr>
+
+#include <QtGui/QDockWidget>
+#include <QtCore/QMap>
+#include <QtCore/QSet>
 
 namespace Ui {
     class WebSearchWidget;

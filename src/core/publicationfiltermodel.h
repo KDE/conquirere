@@ -18,9 +18,9 @@
 #ifndef PUBLICATIONFILTERMODEL_H
 #define PUBLICATIONFILTERMODEL_H
 
-#include <QSortFilterProxyModel>
-
 #include "../globals.h"
+
+#include <QtGui/QSortFilterProxyModel>
 
 class PublicationFilterModel : public QSortFilterProxyModel
 {

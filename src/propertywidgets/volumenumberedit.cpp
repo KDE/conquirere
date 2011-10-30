@@ -18,12 +18,11 @@
 #include "volumenumberedit.h"
 
 #include "nbib.h"
-#include <QStandardItemModel>
-
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Resource>
 #include <Nepomuk/Variant>
 
+#include <QtGui/QStandardItemModel>
 
 VolumeNumberEdit::VolumeNumberEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -70,5 +69,5 @@ void VolumeNumberEdit::createCompletionModel( const QList< Nepomuk::Query::Resul
 {
     // this needs a change in the propertyedit class
     // so we can fetch any value of a certain property
-    // instead of searching for all occurences of a Resourcetype
+    // instead of searching for all occurrences of a Resourcetype
 }

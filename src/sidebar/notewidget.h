@@ -21,7 +21,7 @@
 #include "sidebarcomponent.h"
 #include <Nepomuk/Resource>
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace Ui {
     class NoteWidget;

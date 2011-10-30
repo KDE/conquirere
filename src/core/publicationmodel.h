@@ -21,7 +21,7 @@
 #include "nepomukmodel.h"
 
 /**
-  * Model for any kind of publication data
+  * @brief Model for any kind of publication data
   *
   * Used to display @c nbib:Publication and @c nbib:Reference
   *

@@ -23,7 +23,7 @@
 
 #include <Nepomuk/Resource>
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 enum BibDataType {
     BibData_Annote,
