@@ -44,6 +44,7 @@
 @prefix nfo:     <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
 @prefix nco:     <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#> .
 @prefix nao:     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
+@prefix ncal:    <http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#> .
 
 nbib: {
     nbib:Reference
@@ -99,6 +100,36 @@ nbib: {
           rdfs:label "Electronic source" ;
           rdfs:subClassOf nbib:Publication .
 
+    nbib:LegalDocument
+          a       rdfs:Class ;
+          rdfs:comment "A legal document; for example, a court decision, a brief, and so forth." ;
+          rdfs:label "Legal Document" ;
+          rdfs:subClassOf nbib:Publication .
+
+    nbib:Brief
+          a       rdfs:Class ;
+          rdfs:comment "A written argument submitted to a court." ;
+          rdfs:label "Brief" ;
+          rdfs:subClassOf nbib:LegalDocument .
+
+    nbib:Decision
+          a       rdfs:Class ;
+          rdfs:comment "A document containing an authoritative determination (as a decree or judgment) made after consideration of facts or law." ;
+          rdfs:label "Decision" ;
+          rdfs:subClassOf nbib:LegalDocument .
+
+    nbib:Bill
+          a       rdfs:Class ;
+          rdfs:comment "Draft legislation presented for discussion to a legal body." ;
+          rdfs:label "Bill" ;
+          rdfs:subClassOf nbib:LegalDocument .
+
+    nbib:Statute
+          a       rdfs:Class ;
+          rdfs:comment "A bill enacted into law." ;
+          rdfs:label "Statute" ;
+          rdfs:subClassOf nbib:LegalDocument .
+
     nbib:Manual
           a       rdfs:Class ;
           rdfs:comment "Technical documentation." ;
@@ -129,10 +160,22 @@ nbib: {
           rdfs:label "Proceedings" ;
           rdfs:subClassOf nbib:Collection .
 
+    nbib:Report
+          a       rdfs:Class ;
+          rdfs:comment "A document describing an account or statement describing in detail an event, situation, or the like, usually as the result of observation, inquiry, etc.." ;
+          rdfs:label "Report" ;
+          rdfs:subClassOf nbib:Publication .
+
     nbib:Script
           a       rdfs:Class ;
           rdfs:comment "The script for something (a lecture for ecxample)" ;
           rdfs:label "Script" ;
+          rdfs:subClassOf nbib:Publication .
+
+    nbib:Standard
+          a       rdfs:Class ;
+          rdfs:comment "A document describing a standard" ;
+          rdfs:label "Standard" ;
           rdfs:subClassOf nbib:Publication .
 
     nbib:Techreport
@@ -163,16 +206,34 @@ nbib: {
 #
 # Helper classes
 
+    nbib:DocumentPart
+          a       rdfs:Class ;
+          rdfs:comment "A quote in a document" ;
+          rdfs:label "Quote" ;
+          rdfs:subClassOf nie:InformationElement .
+
     nbib:Chapter
           a       rdfs:Class ;
           rdfs:comment "A chapter of a publication." ;
           rdfs:label "Chapter" ;
-          rdfs:subClassOf nie:InformationElement .
+          rdfs:subClassOf nie:DocumentPart .
+
+    nbib:Quote
+          a       rdfs:Class ;
+          rdfs:comment "A quote in a document" ;
+          rdfs:label "Quote" ;
+          rdfs:subClassOf nie:DocumentPart .
 
     nbib:JournalIssue
           a       rdfs:Class ;
           rdfs:comment "A journal issue for serious, scholarly publications" ;
           rdfs:label "JournalIssue" ;
+          rdfs:subClassOf nbib:Collection .
+
+    nbib:MagazinIssue
+          a       rdfs:Class ;
+          rdfs:comment "A periodical of magazine Articles. A magazine is a publication that is issued periodically, usually bound in a paper cover, and typically contains essays, stories, poems, etc., by many writers, and often photographs and drawings, frequently specializing in a particular subject or area, as hobbies, news, or sports." ;
+          rdfs:label "MagazinIssue" ;
           rdfs:subClassOf nbib:Collection .
 
     nbib:Series
@@ -187,15 +248,104 @@ nbib: {
           rdfs:label "BookSeries" ;
           rdfs:subClassOf nbib:Series .
 
+    nbib:Code
+          a       rdfs:Class ;
+          rdfs:comment "A collection of statutes." ;
+          rdfs:label "Code" ;
+          rdfs:subClassOf nbib:Series .
+
+    nbib:CourtReporter
+          a       rdfs:Class ;
+          rdfs:comment "A collection of legal cases." ;
+          rdfs:label "Court Reporter" ;
+          rdfs:subClassOf nbib:Series .
+
     nbib:Journal
           a       rdfs:Class ;
           rdfs:comment "A Journal which publish single journal issues." ;
           rdfs:label "Journal" ;
           rdfs:subClassOf nbib:Series .
 
+    nbib:Magazin
+          a       rdfs:Class ;
+          rdfs:comment "A Magazin which publish several MagazinIssue containing several articles" ;
+          rdfs:label "Magazin" ;
+          rdfs:subClassOf nbib:Series .
+
+####################################################################
+#
+# To express the limited set of document/publication values for the status
+# modelled after ncal:EventStatus idea with respect to bibo:DocumentStatus
+
+    nbib:DocumentStatus
+          a       rdfs:Class ;
+          rdfs:comment "The status of the publication of a document." ;
+          rdfs:label "DocumentStatus" ;
+          rdfs:subClassOf rdfs:Resource .
+
+    nbib:accepted
+          a       nbib:DocumentStatus ;
+          rdfs:comment "Accepted for publication after peer reviewing." ;
+          rdfs:label "accepted" .
+
+    nbib:draft
+          a       nbib:DocumentStatus ;
+          rdfs:comment "Document drafted." ;
+          rdfs:label "draft" .
+
+    nbib:forthcoming
+          a       nbib:DocumentStatus ;
+          rdfs:comment "Document to be published." ;
+          rdfs:label "forthcoming" .
+
+    nbib:legal
+          a       nbib:DocumentStatus ;
+          rdfs:comment "Legal document." ;
+          rdfs:label "legal" .
+
+    nbib:nonPeerReviewed
+          a       nbib:DocumentStatus ;
+          rdfs:comment "A document that is not peer reviewed." ;
+          rdfs:label "non peer reviewed" .
+
+    nbib:peerReviewed
+          a       nbib:DocumentStatus ;
+          rdfs:comment "The process by which articles are chosen to be included in a refereed journal. An editorial board consisting of experts in the same field as the author review the article and decide if it is authoritative enough for publication." ;
+          rdfs:label "peer reviewed" .
+
+    nbib:published
+          a       nbib:DocumentStatus ;
+          rdfs:comment "Published document." ;
+          rdfs:label "published" .
+
+    nbib:rejected
+          a       nbib:DocumentStatus ;
+          rdfs:comment "Rejected for publication after peer reviewing." ;
+          rdfs:label "rejected" .
+
+    nbib:unpublished
+          a       nbib:DocumentStatus ;
+          rdfs:comment "Unpublished document." ;
+          rdfs:label "unpublished" .
+
+    nbib:documentStatus
+          a       rdf:Property ;
+          rdfs:comment "The status of the publication of a document." ;
+          rdfs:domain nbib:Publication ;
+          rdfs:label "document status" ;
+          rdfs:range nbib:DocumentStatus ;
+          nrl:maxCardinality 1 .
+
 ####################################################################
 #
 # Properties
+
+   nbib:affirmedBy
+          a       rdf:Property ;
+          rdfs:domain nbib:Decision ;
+          rdfs:comment "A legal decision that affirms a ruling." ;
+          rdfs:label "CiteKey" ;
+          rdfs:range nbib:Decision .
 
    nbib:publishedAs
          a       rdf:Property ;
@@ -203,6 +353,7 @@ nbib: {
          rdfs:comment "Links a document to its publication information." ;
          rdfs:label "publishedAs" ;
          rdfs:range nbib:Publication ;
+         rdfs:subPropertyOf nie:isLogicalPartOf ;
          nrl:inverseProperty nbib:isPublicationOf .
 
    nbib:isPublicationOf
@@ -210,6 +361,7 @@ nbib: {
          rdfs:domain nbib:Publication ;
          rdfs:comment "Links a publication to its document." ;
          rdfs:label "isPublicationOf" ;
+         rdfs:subPropertyOf nie:hasLogicalPart ;
          rdfs:range nfo:Document ;
          nrl:inverseProperty nbib:publishedAs .
 
@@ -229,6 +381,14 @@ nbib: {
           rdfs:comment "The number of the Chapter for example 1.2, II etc" ;
           rdfs:label "chapterNumber" ;
           rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
+
+    nbib:court
+          a       rdf:Property ;
+          rdfs:domain nbib:LegalDocument ;
+          rdfs:comment "A court associated with a legal document; for example, that which issues a decision." ;
+          rdfs:label "Organization" ;
+          rdfs:range nco:OrganizationContact ;
           nrl:maxCardinality 1 .
 
     nie:abstract
@@ -273,40 +433,40 @@ nbib: {
           rdfs:subPropertyOf nao:identifier ;
           nrl:maxCardinality 1 .
 
-    nbib:hasArticle
+    nbib:article
           a       rdf:Property ;
-          rdfs:domain nbib:JournalIssue ;
-          rdfs:comment "Connects an article to its journal issue" ;
-          rdfs:label "hasArticle" ;
+          rdfs:domain nbib:Collection ;
+          rdfs:comment "Connects an article to its collection (article in Newspaper, Proceedings, Journalissue)" ;
+          rdfs:label "article" ;
           rdfs:subPropertyOf nie:hasLogicalPart ;
-          nrl:inverseProperty nbib:journalIssue ;
+          nrl:inverseProperty nbib:collection ;
           rdfs:range nbib:Article .
 
-    nbib:referencedChapter
+    nbib:referencedPart
           a       rdf:Property ;
           rdfs:domain nbib:Reference ;
-          rdfs:comment "The chapter number of the reference." ;
+          rdfs:comment "The specific part of the document of a reference. Used to reference a chapter or quote a small portion of a publication" ;
           rdfs:label "referencedChapter" ;
-          rdfs:range nbib:Chapter ;
+          rdfs:range nbib:referencedPart ;
           rdfs:subPropertyOf nie:hasLogicalPart ;
           nrl:maxCardinality 1 .
 
-    nbib:chapter
+    nbib:documentPart
           a       rdf:Property ;
           rdfs:domain nbib:Publication ;
-          rdfs:comment "Connects a publication to one of its chapters" ;
-          rdfs:label "chapter" ;
+          rdfs:comment "Connects a publication to a part of it (for example a chapter or quotet passage)" ;
+          rdfs:label "documentPart" ;
           rdfs:subPropertyOf nie:isLogicalPartOf ;
-          nrl:inverseProperty nbib:chapterOf ;
-          rdfs:range nbib:Chapter .
+          nrl:inverseProperty nbib:documentPartOf ;
+          rdfs:range nbib:DocumentPart .
 
-    nbib:chapterOf
+    nbib:documentPartOf
           a       rdf:Property ;
-          rdfs:domain nbib:Chapter ;
-          rdfs:comment "Connects a chapter to the publication it is from" ;
-          rdfs:label "chapterOf" ;
+          rdfs:domain nbib:DocumentPart ;
+          rdfs:comment "Connects a part of a document to the publication it is from" ;
+          rdfs:label "documentPartOf" ;
           rdfs:subPropertyOf nie:hasLogicalPart ;
-          nrl:inverseProperty nbib:chapterOf ;
+          nrl:inverseProperty nbib:documentPart ;
           rdfs:range nbib:Publication ;
           nrl:maxCardinality 1 .
 
@@ -344,13 +504,13 @@ nbib: {
           rdfs:subPropertyOf nao:identifier ;
           nrl:maxCardinality 1 .
 
-    nbib:journalIssue
+    nbib:collection
           a       rdf:Property ;
           rdfs:domain nbib:Article ;
-          rdfs:comment "The journal issue or magazine the work was published in." ;
-          rdfs:label "inJournalIssue" ;
-          rdfs:range nbib:JournalIssue ;
-          nrl:inverseProperty nbib:hasArticle ;
+          rdfs:comment "The collection this article was published in (for example a Journalissue, Newspaper or Proceedings" ;
+          rdfs:label "collection" ;
+          rdfs:range nbib:Collection ;
+          nrl:inverseProperty nbib:article ;
           nrl:cardinality 1 ;
           nrl:maxCardinality 1 .
 
@@ -390,10 +550,18 @@ nbib: {
           rdfs:subPropertyOf nao:identifier ;
           nrl:maxCardinality 1 .
 
-    nbib:issueNumber
+    nbib:numberOfPages
           a       rdf:Property ;
           rdfs:domain nbib:Publication ;
-          rdfs:comment "The '(issue) number' of a journal, magazine, or tech-report, if applicable. (Most publications have a 'volume', but no 'number' field.)." ;
+          rdfs:comment "The number of pages contained in the publication." ;
+          rdfs:label "number of pages" ;
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
+
+    nbib:number
+          a       rdf:Property ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "The '(issue) number' of a journal, magazine, or tech-report, pr the publicl aw Number of a Statute or the number of a patent etc" ;
           rdfs:label "Issue Number" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
@@ -401,9 +569,27 @@ nbib: {
     nbib:organization
           a       rdf:Property ;
           rdfs:domain nbib:Proceedings ;
-          rdfs:comment "The organization that held the conference whre the proceedings comes from" ;
+          rdfs:comment "The organization that held the conference where the proceedings comes from" ;
           rdfs:label "Organization" ;
           rdfs:range nco:OrganizationContact ;
+          nrl:inverseProperty nbib:conference ;
+          nrl:maxCardinality 1 .
+
+    nbib:conference
+          a       rdf:Property ;
+          rdfs:domain nbib:Proceedings ;
+          rdfs:comment "The conference of a proceedings" ;
+          rdfs:label "Conference" ;
+          rdfs:range ncal:Event ;
+          nrl:inverseProperty nbib:organization ;
+          nrl:maxCardinality 1 .
+
+    nbib:conference
+          a       rdf:Property ;
+          rdfs:domain ncal:Event ;
+          rdfs:comment "The proceedings of a conference" ;
+          rdfs:label "conference" ;
+          rdfs:range ncal:Proceedings ;
           nrl:maxCardinality 1 .
 
     nbib:pages
@@ -414,24 +600,37 @@ nbib: {
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:proceedings
+    nbib:pageStart
           a       rdf:Property ;
-          rdfs:domain nbib:Article ;
-          rdfs:comment "The Proceedings that contain the article publication" ;
-          rdfs:label "proceedings" ;
-          rdfs:range nbib:Proceedings ;
-          rdfs:subPropertyOf nie:hasLogicalPart ;
-          nrl:inverseProperty nbib:proceedingsOf ;
+          rdfs:domain nbib:Chapter ;
+          rdfs:comment "Starting page number of the chapter" ;
+          rdfs:label "starting page" ;
+          rdfs:range xsd:integer ;
           nrl:maxCardinality 1 .
 
-    nbib:proceedingsOf
+    nbib:pageEnd
           a       rdf:Property ;
-          rdfs:domain nbib:Proceedings ;
-          rdfs:comment "Collects all article publications of this Proceedings" ;
-          rdfs:label "proceedingsOf" ;
-          rdfs:subPropertyOf nie:isLogicalPart ;
-          nrl:inverseProperty nbib:proceedings ;
-          rdfs:range nbib:Article .
+          rdfs:domain nbib:Chapter ;
+          rdfs:comment "Ending page number of the chapter" ;
+          rdfs:label "ending page" ;
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
+
+    nbib:patentNumber
+          a       rdf:Property ;
+          rdfs:domain nbib:Patent ;
+          rdfs:comment "The patent number" ;
+          rdfs:label "Patent Number" ;
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
+
+    nbib:applicationNumber
+          a       rdf:Property ;
+          rdfs:domain nbib:Patent ;
+          rdfs:comment "The application number of a patent" ;
+          rdfs:label "Application Number" ;
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
 
     nie:publicationDate
           a       rdf:Property ;
@@ -441,12 +640,29 @@ nbib: {
           rdfs:range xsd:dateTime ;
           nrl:maxCardinality 1 .
 
+    nbib:arguedDate
+          a       rdf:Property ;
+          rdfs:domain nbib:LegalDocument ;
+          rdfs:comment "The date on which a legal case is argued before a court." ;
+          rdfs:label "date argued" ;
+          rdfs:range xsd:dateTime ;
+          nrl:maxCardinality 1 .
+
+    nbib:pubMed
+          a       rdf:Property ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "The PubMed ID." ;
+          rdfs:label "PubMed ID" ;
+          rdfs:range xsd:string ;
+          rdfs:subPropertyOf nao:identifier ;
+          nrl:maxCardinality 1 .
+
     nbib:inSeries
           a       rdf:Property ;
-          rdfs:domain nbib:Book ;
-          rdfs:comment "The series of books the book was published in." ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "The series the publication was published in. (for example a series of books, a series of lecture notes, a journal series" ;
           rdfs:label "inSeries" ;
-          rdfs:range nbib:BookSeries ;
+          rdfs:range nbib:Series ;
           nrl:inverseProperty nbib:seriesOf ;
           rdfs:subPropertyOf nie:hasLogicalPart ;
           nrl:maxCardinality 1 .
@@ -466,6 +682,15 @@ nbib: {
           rdfs:comment "The type of tech-report, for example, 'Research Note'." ;
           rdfs:label "Type" ;
           rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
+
+    nbib:translationOf
+          a       rdf:Property ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "Relates a translated document to the original document." ;
+          rdfs:label "translation of" ;
+          rdfs:range nbib:Publication ;
+          rdfs:subPropertyOf nie:isLogicalPartOf ;
           nrl:maxCardinality 1 .
 
     nbib:volume
