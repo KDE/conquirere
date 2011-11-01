@@ -98,6 +98,7 @@ private:
     void addNumber(const QString &content, Nepomuk::Resource publication);
     void addOrganization(const QString &content, Nepomuk::Resource publication);
     void addPages(const QString &content, Nepomuk::Resource reference);
+    void addPubMed(const QString &content, Nepomuk::Resource publication);
     void addSchool(const Value &content, Nepomuk::Resource publication);
     void addSeries(const QString &content, Nepomuk::Resource publication);
     void addTitle(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);

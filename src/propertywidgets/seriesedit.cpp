@@ -30,18 +30,16 @@ SeriesEdit::SeriesEdit(QWidget *parent)
 
 void SeriesEdit::setupLabel()
 {
-    // get the series resource
-    Nepomuk::Resource series = resource().property(propertyUrl()).toResource();
-    QString title = series.property(Nepomuk::Vocabulary::NIE::title()).toString();
-
-    addPropertryEntry(title, series.uri());
+    Nepomuk::Resource seriesResource = resource().property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    QString title = seriesResource.property(Nepomuk::Vocabulary::NIE::title()).toString();
+    addPropertryEntry(title, resource().uri());
 
     setLabelText(title);
 }
 
 void SeriesEdit::updateResource(const QString & text)
 {
-    // remove the existing series
+    // remove the existing series from publication
     resource().removeProperty( propertyUrl() );
 
     if(text.isEmpty())
@@ -55,9 +53,9 @@ void SeriesEdit::updateResource(const QString & text)
     }
     else {
         // create a new series with the string s as title
-        Nepomuk::Resource newSeries(propUrl, Nepomuk::Vocabulary::NBIB::BookSeries());
+        Nepomuk::Resource newSeries(QUrl(), findSeriesType());
         newSeries.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-        resource().addProperty( propertyUrl(), newSeries);
+        resource().addProperty( Nepomuk::Vocabulary::NBIB::inSeries() , newSeries);
 
         //add backlink
         newSeries.setProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), resource());
@@ -78,4 +76,23 @@ void SeriesEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &e
     }
 
     setCompletionModel(model);
+}
+
+QUrl SeriesEdit::findSeriesType()
+{
+    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Book())) {
+        return Nepomuk::Vocabulary::NBIB::BookSeries();
+    }
+    if(resource().hasType(Nepomuk::Vocabulary::NBIB::JournalIssue())) {
+        return Nepomuk::Vocabulary::NBIB::Journal();
+    }
+    if(resource().hasType(Nepomuk::Vocabulary::NBIB::MagazinIssue())) {
+        return Nepomuk::Vocabulary::NBIB::Magazin();
+    }
+    if(resource().hasType(Nepomuk::Vocabulary::NBIB::NewspaperIssue())) {
+        return Nepomuk::Vocabulary::NBIB::Newspaper();
+    }
+
+    // otherwise simply use the general nbib:Series
+    return Nepomuk::Vocabulary::NBIB::Series();
 }

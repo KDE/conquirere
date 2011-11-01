@@ -1,0 +1,137 @@
+
+########################################
+# Bibo class mapping
+
+bibo:AcademicArticle => nbib:Article with nbib:journalIssue
+bibo:Article => nbib:Article
+bibo:AudioDocument => NID3 ontology
+bibo:AudioVisualDocument => see NMM - Nepomuk Multimedia Ontology and NiD3
+bibo:Bill => nbib:Bill
+bibo:Book => nbib:Book
+bibo:BookSection => nbib:Chapter
+bibo:Brief => nbib:Brief
+bibo:Chapter => nbib:Chapter
+bibo:Code => nbib:Code
+bibo:CollectedDocument => ignored superclass, adds same value as nbib:collection + additional properties
+bibo:Collection => nbib:Collection
+bibo:Conference => ncal:Event with role types etc
+bibo:CourtReporter => nbib:CourtReporter
+bibo:Document => nbib:Publication
+bibo:DocumentPart => nbib:DocumentPart
+bibo:DocumentStatus => nbib:DocumentStatus
+bibo:EditedBook => nbib:Collection (only with editor not author) with  nbib:Chapter that are nbib:chapterOf the original resource
+bibo:Email => nmo:Email
+bibo:Event => ncal:Event
+bibo:Excerpt => nbib:DocumentPart
+bibo:Film => nmm:Movie
+bibo:Hearing => ncal:Event with role types etc
+bibo:Image => nfo:Image
+bibo:Interview => ncal:Event with role types etc
+bibo:Issue => nbib:JournalIssue / nbib:MagazinIssue
+bibo:Journal => nbib:Journal
+bibo:LegalCaseDocument => ignored subclass
+bibo:LegalDecision => nbib:Decision
+bibo:LegalDocument => nbib:LegalDocument
+bibo:Legislation => ignored subclass
+bibo:Letter => nmo:Email with letter as attachment
+bibo:Magazine => nbib:Magazin + nbib:MagazinIssue
+bibo:Manual => nbib:Manual
+bibo:Manuscript => nbib:Script
+bibo:Map => nfo:Image
+bibo:MultiVolumeBook => nbib:Collection
+bibo:Newspaper => nbib:Newspaper
+bibo:Note => pimo:Note
+bibo:Patent => nbib:Patent
+bibo:Performance => ncal:Event with role types etc
+bibo:Periodical => ignored as it duplicates nbib:series and nbib:publication concept
+bibo:PersonalCommunication => ncal:Event with role types etc
+bibo:PersonalCommunicationDocument
+bibo:Proceedings => nbib:Procedings
+bibo:Quote => nbib:Quote
+bibo:ReferenceSource => nbib:Article
+bibo:Report => nbib:Report
+bibo:Series => nbib:BookSeries
+bibo:Slide => nbib:Chapter
+bibo:Slideshow => nbib:Presentation
+bibo:Standard => nbib:Standard
+bibo:Statute => nbib:Statute
+bibo:Thesis => nbib:Thesis or rather nbib:BachelorThesis/PhdThesis/MasterThesis
+bibo:ThesisDegree => partly integrated in nbib:Thesis subclasses
+bibo:Webpage => nbib:Electronic
+bibo:Website => nbib:Electronic
+bibo:Workshop => ncal:Event
+
+########################################
+# Bibo object properties
+
+bibo:affirmedBy => nbib:affirmedBy
+bibo:annotates => nie:comment
+bibo:authorList => ignored
+bibo:citedBy => nie:links
+bibo:cites => nie:links
+bibo:contributorList
+bibo:court => nbib:court
+bibo:degree => ignored
+bibo:director => nmm:director
+bibo:distributor => nco:publisher
+bibo:editor => nco:editor
+bibo:editorList => ignored
+bibo:interviewee => ncal:Event stuff
+bibo:interviewer => ncal:Event stuff
+bibo:issuer => nco:publisher
+bibo:organizer => ncal:Event stuff
+? bibo:owner
+bibo:performer => ncal:Event stuff
+bibo:presentedAt => nbib:conference
+bibo:presents => nbib:proceedings
+bibo:producer => nco:creator
+? bibo:recipient => nmo:something
+? bibo:reproducedIn
+? bibo:reversedBy
+? bibo:reviewOf
+bibo:status => nbib:documentStatus
+bibo:subsequentLegalDecision
+? bibo:transcriptOf
+bibo:translationOf => nbib:translationOf
+bibo:translator => nco:creator
+
+
+########################################
+# Bibo data properties
+bibo:abstract => nie:abstract
+bibo:argued => nbib:arguedDate
+bibo:asin
+bibo:chapter => nbib:Chapter
+bibo:coden
+bibo:content => nie:plainTextContent
+bibo:doi => nfo:doi
+bibo:eanucc13
+bibo:edition => nbib:edition
+bibo:eissn
+bibo:gtin14
+bibo:handle
+bibo:identifier
+bibo:isbn => nbib:isbn
+bibo:isbn10
+bibo:isbn13
+bibo:issn => nbib:issn
+bibo:issue => nbib:number for an nbib:Journalissue or nbib:Magazinissue
+bibo:lccn => nbib:lccn
+bibo:locator => ignored, used to connect chapter/pageEnd, pageStart etc, which are used differend in nbib
+bibo:number => nbib:number
+bibo:numPages => nfo:pageCount
+bibo:numVolumes
+bibo:oclcnum
+bibo:pageEnd => nbib:pageEnd
+bibo:pages => nbib:pages
+bibo:pageStart => nbib:pageStart
+bibo:pmid => nbib:pubMed
+bibo:prefixName => nco:Cntact
+bibo:section => nbib:chapterNumber
+bibo:shortDescription => nie:description
+bibo:shortTitle
+bibo:sici
+bibo:suffixName => nco:Contact
+bibo:upc
+bibo:uri => nfo:Document/RemoteDataObject etc
+bibo:volume => nbib:volume

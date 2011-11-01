@@ -106,29 +106,41 @@ nbib: {
           rdfs:label "Legal Document" ;
           rdfs:subClassOf nbib:Publication .
 
-    nbib:Brief
+    nbib:Legislation
           a       rdfs:Class ;
-          rdfs:comment "A written argument submitted to a court." ;
-          rdfs:label "Brief" ;
-          rdfs:subClassOf nbib:LegalDocument .
-
-    nbib:Decision
-          a       rdfs:Class ;
-          rdfs:comment "A document containing an authoritative determination (as a decree or judgment) made after consideration of facts or law." ;
-          rdfs:label "Decision" ;
+          rdfs:comment "A legal document proposing or enacting a law or a group of laws." ;
+          rdfs:label "Legislation" ;
           rdfs:subClassOf nbib:LegalDocument .
 
     nbib:Bill
           a       rdfs:Class ;
           rdfs:comment "Draft legislation presented for discussion to a legal body." ;
           rdfs:label "Bill" ;
-          rdfs:subClassOf nbib:LegalDocument .
+          rdfs:subClassOf nbib:Legislation .
 
     nbib:Statute
           a       rdfs:Class ;
           rdfs:comment "A bill enacted into law." ;
           rdfs:label "Statute" ;
+          rdfs:subClassOf nbib:Legislation .
+
+    nbib:LegalCaseDocument
+          a       rdfs:Class ;
+          rdfs:comment "A document accompanying a legal case." ;
+          rdfs:label "LegalCaseDocument" ;
           rdfs:subClassOf nbib:LegalDocument .
+
+    nbib:Brief
+          a       rdfs:Class ;
+          rdfs:comment "A written argument submitted to a court." ;
+          rdfs:label "Brief" ;
+          rdfs:subClassOf nbib:LegalCaseDocument .
+
+    nbib:Decision
+          a       rdfs:Class ;
+          rdfs:comment "A document containing an authoritative determination (as a decree or judgment) made after consideration of facts or law." ;
+          rdfs:label "Decision" ;
+          rdfs:subClassOf nbib:LegalCaseDocument .
 
     nbib:Manual
           a       rdfs:Class ;
@@ -248,17 +260,17 @@ nbib: {
           rdfs:label "BookSeries" ;
           rdfs:subClassOf nbib:Series .
 
-    nbib:Code
+    nbib:CodeOfLaw
           a       rdfs:Class ;
           rdfs:comment "A collection of statutes." ;
-          rdfs:label "Code" ;
-          rdfs:subClassOf nbib:Series .
+          rdfs:label "CodeOfLaw" ;
+          rdfs:subClassOf nbib:Collection .
 
     nbib:CourtReporter
           a       rdfs:Class ;
           rdfs:comment "A collection of legal cases." ;
           rdfs:label "Court Reporter" ;
-          rdfs:subClassOf nbib:Series .
+          rdfs:subClassOf nbib:Collection .
 
     nbib:Journal
           a       rdfs:Class ;
@@ -271,6 +283,18 @@ nbib: {
           rdfs:comment "A Magazin which publish several MagazinIssue containing several articles" ;
           rdfs:label "Magazin" ;
           rdfs:subClassOf nbib:Series .
+
+    nbib:Newspaper
+          a       rdfs:Class ;
+          rdfs:comment "A Newspaper which publish several NewspaperIssue containing several articles" ;
+          rdfs:label "Newspaper" ;
+          rdfs:subClassOf nbib:Series .
+
+    nbib:NewspaperIssue
+          a       rdfs:Class ;
+          rdfs:comment "A single issue of a published Newspaper" ;
+          rdfs:label "NewspaperIssue" ;
+          rdfs:subClassOf nbib:Collection .
 
 ####################################################################
 #
@@ -513,24 +537,6 @@ nbib: {
           nrl:inverseProperty nbib:article ;
           nrl:cardinality 1 ;
           nrl:maxCardinality 1 .
-
-    nbib:journal
-          a       rdf:Property ;
-          rdfs:domain nbib:JournalIssue ;
-          rdfs:comment "The journal this issue was published in." ;
-          rdfs:label "journal" ;
-          rdfs:range nbib:Journal ;
-          nrl:inverseProperty nbib:hasIssue ;
-          nrl:cardinality 1 ;
-          nrl:maxCardinality 1 .
-
-    nbib:hasIssue
-          a       rdf:Property ;
-          rdfs:domain nbib:Journal ;
-          rdfs:comment "Connects one or more issues from the journal they are published from" ;
-          rdfs:label "hasIssue" ;
-          nrl:inverseProperty nbib:journal ;
-          rdfs:range nbib:JournalIssue .
 
     nbib:lccn
           a       rdf:Property ;

@@ -277,6 +277,9 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     else if(key == QLatin1String("pages")) {
         addPages(PlainTextValue::text(value), reference);
     }
+    else if(key == QLatin1String("pubmed")) {
+        addPubMed(PlainTextValue::text(value), publication);
+    }
     else if(key == QLatin1String("publisher")) {
         Value empty;
         addPublisher(value, empty, publication);
@@ -370,7 +373,7 @@ void BibTexToNepomukPipe::addPublisher(const Value &publisherValue, const Value 
 
 void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &volumeValue, const Value &numberValue, Nepomuk::Resource publication)
 {
-    QString journal = PlainTextValue::text(journalValue);
+    QString journalName = PlainTextValue::text(journalValue);
     QString volume = PlainTextValue::text(volumeValue);
     QString number = PlainTextValue::text(numberValue);
 
@@ -379,7 +382,7 @@ void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &vol
     Nepomuk::Resource journalIssue;
 
     // fetcha data
-    Nepomuk::Query::ComparisonTerm jorunalName( Nepomuk::Vocabulary::NIE::title(), Nepomuk::Query::LiteralTerm( journal ) );
+    Nepomuk::Query::ComparisonTerm jorunalName( Nepomuk::Vocabulary::NIE::title(), Nepomuk::Query::LiteralTerm( journalName ) );
     Nepomuk::Query::ResourceTypeTerm type( Nepomuk::Vocabulary::NBIB::Journal() );
 
     Nepomuk::Query::Query query( Nepomuk::Query::AndTerm( type, jorunalName ) );
@@ -388,12 +391,12 @@ void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &vol
 
     if(!queryResult.isEmpty()) {
         if(queryResult.size() > 1) {
-            qWarning() << "found more than 1 journal with the name " << journal;
+            qWarning() << "found more than 1 journal with the name " << journalName;
 
             //now we search deeper as we do get false results
             // Example A.M. Bronstein and M.M. Bronstein will be found with the same query
             foreach(const Nepomuk::Query::Result & nqr, queryResult) {
-                if( nqr.resource().genericLabel() == journal) {
+                if( nqr.resource().genericLabel() == journalName) {
                     journalResource = nqr.resource();
                 }
             }
@@ -411,13 +414,13 @@ void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &vol
         journalResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Journal());
     }
 
-    journalResource.setProperty(Nepomuk::Vocabulary::NIE::title(), journal);
+    journalResource.setProperty(Nepomuk::Vocabulary::NIE::title(), journalName);
 
     // now check if the journalIssue exists already
-    QList<Nepomuk::Resource> issues = journalResource.property(Nepomuk::Vocabulary::NBIB::hasIssue()).toResourceList();
+    QList<Nepomuk::Resource> issues = journalResource.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
 
     foreach(const Nepomuk::Resource & issue, issues) {
-        QString checkNumber = issue.property(Nepomuk::Vocabulary::NBIB::issueNumber()).toString();
+        QString checkNumber = issue.property(Nepomuk::Vocabulary::NBIB::number()).toString();
         QString checkVolume = issue.property(Nepomuk::Vocabulary::NBIB::volume()).toString();
 
         if( checkNumber == number && checkVolume == volume) {
@@ -429,20 +432,20 @@ void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &vol
     //if we can't find an existing journal issue, create a new one
     if(!journalIssue.isValid()) {
         journalIssue = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::JournalIssue());
-        journalIssue.setProperty(Nepomuk::Vocabulary::NBIB::issueNumber(), number);
+        journalIssue.setProperty(Nepomuk::Vocabulary::NBIB::number(), number);
         journalIssue.setProperty(Nepomuk::Vocabulary::NBIB::volume(), volume);
         // duplicate title join journal and journalissue, helps to easily identify those two
         // but is more like a better way to create a prefLabel / genericLabel
-        journalIssue.setProperty(Nepomuk::Vocabulary::NIE::title(), journal);
+        journalIssue.setProperty(Nepomuk::Vocabulary::NIE::title(), journalName);
 
         // connect issue <-> journal
-        journalIssue.setProperty(Nepomuk::Vocabulary::NBIB::journal(), journalResource);
-        journalResource.addProperty(Nepomuk::Vocabulary::NBIB::hasIssue(), journalIssue);
+        journalIssue.setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), journalResource);
+        journalResource.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), journalIssue);
     }
 
-    // now connect the issue to the Publication
-    publication.setProperty(Nepomuk::Vocabulary::NBIB::journalIssue(), journalIssue);
-    journalIssue.addProperty(Nepomuk::Vocabulary::NBIB::hasArticle(), publication);
+    // now connect the issue to the Publication/Collection
+    publication.setProperty(Nepomuk::Vocabulary::NBIB::collection(), journalIssue);
+    journalIssue.addProperty(Nepomuk::Vocabulary::NBIB::article(), publication);
 }
 
 void BibTexToNepomukPipe::addAbstract(const QString &content, Nepomuk::Resource publication)
@@ -461,13 +464,13 @@ void BibTexToNepomukPipe::addAuthor(const Value &contentValue, Nepomuk::Resource
     Nepomuk::Resource authorResource;
 
     if(originalEntryType == QLatin1String("inbook") || originalEntryType == QLatin1String("incollection") ) {
-        Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedChapter()).toResource();
+        Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
 
         if(!chapter.isValid()) {
             chapter = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Chapter());
-            reference.setProperty(Nepomuk::Vocabulary::NBIB::referencedChapter(), chapter);
-            publication.addProperty(Nepomuk::Vocabulary::NBIB::chapter(), chapter);
-            chapter.setProperty(Nepomuk::Vocabulary::NBIB::chapterOf(), publication);
+            reference.setProperty(Nepomuk::Vocabulary::NBIB::referencedPart(), chapter);
+            publication.addProperty(Nepomuk::Vocabulary::NBIB::documentPart(), chapter);
+            chapter.setProperty(Nepomuk::Vocabulary::NBIB::documentPartOf(), publication);
         }
         authorResource = chapter;
     }
@@ -561,7 +564,7 @@ void BibTexToNepomukPipe::addBooktitle(const QString &content, Nepomuk::Resource
 
         QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
 
-        Nepomuk::Resource a;
+        Nepomuk::Resource proceedingsResource;
         if(!queryResult.isEmpty()) {
             if(queryResult.size() > 1) {
                 qWarning() << "found more than 1 proceedings with the name " << content;
@@ -570,30 +573,31 @@ void BibTexToNepomukPipe::addBooktitle(const QString &content, Nepomuk::Resource
                 // Example A.M. Bronstein and M.M. Bronstein will be found with the same query
                 foreach(const Nepomuk::Query::Result & nqr, queryResult) {
                     if( nqr.resource().genericLabel() == content) {
-                        a = nqr.resource();
+                        proceedingsResource = nqr.resource();
                     }
                 }
 
                 // we found just false results ... create a new one
-                if(!a.isValid()) {
-                    a = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Proceedings());
-                    a.setProperty(Nepomuk::Vocabulary::NIE::title(), content);
+                if(!proceedingsResource.isValid()) {
+                    proceedingsResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Proceedings());
+                    proceedingsResource.setProperty(Nepomuk::Vocabulary::NIE::title(), content);
                 }
             }
             else {
                 qWarning() << "found another proceedings with the name " << content;
-                a = queryResult.first().resource();
+                proceedingsResource = queryResult.first().resource();
             }
         }
         else {
             qWarning() << "found no existing proceedings with the name " << content << "create new one";
-            a = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Proceedings());
-            a.setProperty(Nepomuk::Vocabulary::NIE::title(), content);
+            proceedingsResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Proceedings());
+            proceedingsResource.setProperty(Nepomuk::Vocabulary::NIE::title(), content);
         }
 
         //at this point we have a valid proceedings entry connect it to the publication
-        publication.setProperty(Nepomuk::Vocabulary::NBIB::proceedings(), a);
-        a.addProperty(Nepomuk::Vocabulary::NBIB::proceedingsOf(), publication);
+        //The publication (@inproceedings) is an article while the @Proceedings is a collection
+        publication.setProperty(Nepomuk::Vocabulary::NBIB::collection(), proceedingsResource);
+        proceedingsResource.addProperty(Nepomuk::Vocabulary::NBIB::article(), publication);
     }
     else {
         publication.setProperty(Nepomuk::Vocabulary::NIE::title(), content);
@@ -602,16 +606,25 @@ void BibTexToNepomukPipe::addBooktitle(const QString &content, Nepomuk::Resource
 
 void BibTexToNepomukPipe::addChapter(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference)
 {
-    Nepomuk::Resource c = reference.property(Nepomuk::Vocabulary::NBIB::referencedChapter()).toResource();
+    // If we import some thing we assume no reference already existied and we have a new one
+    // thus referencedPart() is not valid
+    // if it is valid we assume this was already a Chapter rather than an generic nbib:DocumentPart
+    // if above is not true, we should throw an error message
+    Nepomuk::Resource chapterResource = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
 
-    if(!c.isValid()) {
-        c = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Chapter());
-        reference.setProperty(Nepomuk::Vocabulary::NBIB::referencedChapter(), c);
-        publication.addProperty(Nepomuk::Vocabulary::NBIB::chapter(), c);
-        c.setProperty(Nepomuk::Vocabulary::NBIB::chapterOf(), publication);
+    if(!chapterResource.isValid()) {
+        chapterResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Chapter());
+        reference.setProperty(Nepomuk::Vocabulary::NBIB::referencedPart(), chapterResource);
+        publication.addProperty(Nepomuk::Vocabulary::NBIB::documentPart(), chapterResource);
+        chapterResource.setProperty(Nepomuk::Vocabulary::NBIB::documentPartOf(), publication);
+    }
+    else {
+        if(!chapterResource.hasType(Nepomuk::Vocabulary::NBIB::Chapter())) {
+            qWarning() << "BibTexToNepomukPipe::addChapter tries to add a chapterNumber to a nbib:DocumentPart Resource that is not a nbib:Chapter";
+        }
     }
 
-    c.setProperty( Nepomuk::Vocabulary::NBIB::chapterNumber(), content);
+    chapterResource.setProperty( Nepomuk::Vocabulary::NBIB::chapterNumber(), content);
 }
 
 void BibTexToNepomukPipe::addCopyrigth(const QString &content, Nepomuk::Resource publication)
@@ -800,49 +813,54 @@ void BibTexToNepomukPipe::addNote(const QString &content, Nepomuk::Resource publ
 
 void BibTexToNepomukPipe::addNumber(const QString &content, Nepomuk::Resource publication)
 {
-    publication.setProperty(Nepomuk::Vocabulary::NBIB::issueNumber(), content);
+    publication.setProperty(Nepomuk::Vocabulary::NBIB::number(), content);
 }
 
 void BibTexToNepomukPipe::addOrganization(const QString &content, Nepomuk::Resource publication)
 {
     //check if the organization already exist in the database
-    Nepomuk::Resource o;
+    Nepomuk::Resource organizationResource;
 
     foreach(const Nepomuk::Resource & r, m_allContacts) {
         if(r.property(Nepomuk::Vocabulary::NCO::fullname()).toString() == content) {
-            o = r;
+            organizationResource = r;
             break;
         }
     }
 
-    if(!o.isValid()) {
+    if(!organizationResource.isValid()) {
         qDebug() << "create a new OrganizationContact resource for " << content;
-        o = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::OrganizationContact());
-        o.setProperty(Nepomuk::Vocabulary::NCO::fullname(), content);
+        organizationResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::OrganizationContact());
+        organizationResource.setProperty(Nepomuk::Vocabulary::NCO::fullname(), content);
 
-        m_allContacts.append(o);
+        m_allContacts.append(organizationResource);
     }
     else {
         qDebug() << "use existing Organization resource for " << content;
     }
 
     if(publication.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
-        Nepomuk::Resource proceedings = publication.property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
+        Nepomuk::Resource proceedings = publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
         if(!proceedings.isValid()) {
             proceedings = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Proceedings());
-            proceedings.addProperty(Nepomuk::Vocabulary::NBIB::proceedingsOf(), publication);
-            publication.setProperty(Nepomuk::Vocabulary::NBIB::proceedings(), proceedings);
+            proceedings.addProperty(Nepomuk::Vocabulary::NBIB::article(), publication);
+            publication.setProperty(Nepomuk::Vocabulary::NBIB::collection(), proceedings);
         }
-        proceedings.setProperty(Nepomuk::Vocabulary::NBIB::organization(), o);
+        proceedings.setProperty(Nepomuk::Vocabulary::NBIB::organization(), organizationResource);
     }
     else {
-        publication.setProperty(Nepomuk::Vocabulary::NBIB::organization(), o);
+        publication.setProperty(Nepomuk::Vocabulary::NBIB::organization(), organizationResource);
     }
 }
 
 void BibTexToNepomukPipe::addPages(const QString &content, Nepomuk::Resource reference)
 {
     reference.setProperty(Nepomuk::Vocabulary::NBIB::pages(), content);
+}
+
+void BibTexToNepomukPipe::addPubMed(const QString &content, Nepomuk::Resource publication)
+{
+    publication.setProperty(Nepomuk::Vocabulary::NBIB::pubMed(), content);
 }
 
 void BibTexToNepomukPipe::addSchool(const Value &content, Nepomuk::Resource publication)
@@ -870,16 +888,16 @@ void BibTexToNepomukPipe::addTitle(const QString &content, Nepomuk::Resource pub
     // while booktitle is the actual title of the book
     if(originalEntryType == QLatin1String("inbook") || originalEntryType == QLatin1String("incollection") ) {
 
-        Nepomuk::Resource c = reference.property(Nepomuk::Vocabulary::NBIB::referencedChapter()).toResource();
+        Nepomuk::Resource chapterResource = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
 
-        if(!c.isValid()) {
-            c = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Chapter());
-            reference.setProperty(Nepomuk::Vocabulary::NBIB::referencedChapter(), c);
-            publication.addProperty(Nepomuk::Vocabulary::NBIB::chapter(), c);
-            c.setProperty(Nepomuk::Vocabulary::NBIB::chapterOf(), publication);
+        if(!chapterResource.isValid()) {
+            chapterResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Chapter());
+            reference.setProperty(Nepomuk::Vocabulary::NBIB::referencedPart(), chapterResource);
+            publication.addProperty(Nepomuk::Vocabulary::NBIB::documentPart(), chapterResource);
+            chapterResource.setProperty(Nepomuk::Vocabulary::NBIB::documentPartOf(), publication);
         }
 
-        c.setProperty( Nepomuk::Vocabulary::NIE::title(), content);
+        chapterResource.setProperty( Nepomuk::Vocabulary::NIE::title(), content);
     }
     else {
         publication.setProperty(Nepomuk::Vocabulary::NIE::title(), content);

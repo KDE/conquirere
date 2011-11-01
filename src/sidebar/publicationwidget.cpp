@@ -106,13 +106,49 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
 
         // add another hierarchy if the newEntryUrl is not a direct subclass of NBIB::Publication()
         switch(entryType) {
+        case BibType_MagazinIssue:
+        case BibType_NewspaperIssue:
         case BibType_JournalIssue:
             newtype.append(Nepomuk::Vocabulary::NBIB::Collection());
             break;
+        case BibType_Bill:
+        case BibType_Decision:
+        case BibType_Brief:
+        case BibType_Statute:
+            newtype.append(Nepomuk::Vocabulary::NBIB::LegalDocument());
+            break;
         }
 
-        if(m_publication.isValid())
+        if(m_publication.isValid()) {
             m_publication.setTypes(newtype);
+        }
+
+        // a special case when the new type sia a collectior or subclass of a collection
+        // change also the type of any connected Series.
+        // this ensures we don't end up with a JournalIssue from Magazin or NewspaperIssue from a Journal
+        if(m_publication.hasType(Nepomuk::Vocabulary::NBIB::Collection()) ||
+           m_publication.hasType(Nepomuk::Vocabulary::NBIB::LegalDocument())) {
+            Nepomuk::Resource seriesResource = m_publication.property((Nepomuk::Vocabulary::NBIB::inSeries())).toResource();
+
+            if(seriesResource.isValid()) {
+                if(m_publication.hasType(Nepomuk::Vocabulary::NBIB::JournalIssue())) {
+                    Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::Journal());
+                    seriesResource.setTypes(x.types());
+                }
+                else if(m_publication.hasType(Nepomuk::Vocabulary::NBIB::NewspaperIssue())) {
+                    Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::Newspaper());
+                    seriesResource.setTypes(x.types());
+                }
+                else if(m_publication.hasType(Nepomuk::Vocabulary::NBIB::MagazinIssue())) {
+                    Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::Magazin());
+                    seriesResource.setTypes(x.types());
+                }
+                else {
+                    Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::Series());
+                    seriesResource.setTypes(x.types());
+                }
+            }
+        }
     }
     else {
         qDebug() << "unknwon newEntryUrl url. this should never happen";
@@ -239,10 +275,10 @@ void PublicationWidget::setupWidget()
     ui->editHowPublished->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationMethod() );
     ui->editISBN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isbn() );
     ui->editISSN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::issn() );
-    ui->editJournal->setPropertyUrl( Nepomuk::Vocabulary::NBIB::journalIssue() );
+    ui->editJournal->setPropertyUrl( Nepomuk::Vocabulary::NBIB::seriesOf() );
     ui->editLCCN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::lccn() );
     ui->editMRNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::mrNumber() );
-    ui->editNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::issueNumber() );
+    ui->editNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::number() );
     ui->editPublisher->setPropertyUrl( Nepomuk::Vocabulary::NCO::publisher() );
     ui->editPublisher->setUseDetailDialog(true);
     connect(ui->editPublisher, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
@@ -258,7 +294,8 @@ void PublicationWidget::setupWidget()
     ui->editLastAccessed->setPropertyUrl( Nepomuk::Vocabulary::NUAO::lastUsage());
     ui->editKeywords->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
     ui->editKeywords->setPropertyUrl( Soprano::Vocabulary::NAO::hasTag() );
-    ui->editProceedings->setPropertyUrl( Nepomuk::Vocabulary::NBIB::proceedings() );
+    ui->editProceedings->setPropertyUrl( Nepomuk::Vocabulary::NBIB::collection() );
+    ui->editPubMed->setPropertyUrl( Nepomuk::Vocabulary::NBIB::pubMed() );
 
     //connect signal/slots
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editAuthors, SLOT(setResource(Nepomuk::Resource&)));
@@ -286,6 +323,7 @@ void PublicationWidget::setupWidget()
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLastAccessed, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editKeywords, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editProceedings, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPubMed, SLOT(setResource(Nepomuk::Resource&)));
 
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 }
@@ -339,8 +377,11 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
     case BibType_Electronic:
         layoutElectronic();
         break;
+    case BibType_Collection:
+    case BibType_MagazinIssue:
+    case BibType_NewspaperIssue:
     case BibType_JournalIssue:
-        layoutJournalIssue();
+        layoutCollection();
         break;
     default:
         layoutMisc();
@@ -451,21 +492,21 @@ void PublicationWidget::layoutCollection()
     ui->editOrganization->setEnabled(true);
 
     //Extra
-    ui->editSeries->setEnabled(false);
+    ui->editSeries->setEnabled(true);
     ui->editEdition->setEnabled(false);
     ui->editProceedings->setEnabled(false);
     ui->editJournal->setEnabled(false);
-    ui->editVolume->setEnabled(false);
-    ui->editNumber->setEnabled(false);
+    ui->editVolume->setEnabled(true);
+    ui->editNumber->setEnabled(true);
     ui->editHowPublished->setEnabled(true);
     ui->editType->setEnabled(false);
     ui->editCopyright->setEnabled(true);
-    ui->editLastAccessed->setEnabled(false);
+    ui->editLastAccessed->setEnabled(true);
 
     //identification
     ui->editEprint->setEnabled(false);
     ui->editISBN->setEnabled(false);
-    ui->editISSN->setEnabled(false);
+    ui->editISSN->setEnabled(true);
     ui->editLCCN->setEnabled(false);
     ui->editMRNumber->setEnabled(false);
     ui->editDOI->setEnabled(true);
@@ -732,35 +773,4 @@ void PublicationWidget::layoutElectronic()
     ui->editLCCN->setEnabled(false);
     ui->editMRNumber->setEnabled(false);
     ui->editDOI->setEnabled(true);
-}
-
-void PublicationWidget::layoutJournalIssue()
-{
-    //Basics
-    ui->editTitle->setEnabled(true);
-    ui->editAuthors->setEnabled(true);
-    ui->editEditor->setEnabled(true);
-    ui->editDate->setEnabled(true);
-    ui->editPublisher->setEnabled(true);
-    ui->editOrganization->setEnabled(false);
-
-    //Extra
-    ui->editSeries->setEnabled(false);
-    ui->editEdition->setEnabled(false);
-    ui->editProceedings->setEnabled(false);
-    ui->editJournal->setEnabled(true);
-    ui->editVolume->setEnabled(true);
-    ui->editNumber->setEnabled(true);
-    ui->editHowPublished->setEnabled(false);
-    ui->editType->setEnabled(false);
-    ui->editCopyright->setEnabled(false);
-    ui->editLastAccessed->setEnabled(false);
-
-    //identification
-    ui->editEprint->setEnabled(false);
-    ui->editISBN->setEnabled(false);
-    ui->editISSN->setEnabled(true);
-    ui->editLCCN->setEnabled(false);
-    ui->editMRNumber->setEnabled(false);
-    ui->editDOI->setEnabled(false);
 }

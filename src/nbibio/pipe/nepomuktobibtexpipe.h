@@ -88,6 +88,7 @@ private:
     void setLCCN(Entry *e, Nepomuk::Resource publication);
     void setMRNumber(Entry *e, Nepomuk::Resource publication);
     void setDOI(Entry *e, Nepomuk::Resource publication);
+    void setPubMed(Entry *e, Nepomuk::Resource publication);
     void setAbstract(Entry *e, Nepomuk::Resource publication);
     void setTOC(Entry *e, Nepomuk::Resource publication);
     void setNote(Entry *e, Nepomuk::Resource publication);

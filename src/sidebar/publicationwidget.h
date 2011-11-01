@@ -111,7 +111,6 @@ private:
     void layoutUnpublished();
     void layoutPatent();
     void layoutElectronic();
-    void layoutJournalIssue();
 
     Nepomuk::Resource m_publication;
 

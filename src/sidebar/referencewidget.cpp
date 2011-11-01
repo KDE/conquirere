@@ -46,7 +46,7 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     ui->setupUi(this);
 
     //set propertyURL of the edit elements
-    ui->chapterEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::referencedChapter() );
+    ui->chapterEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::referencedPart() );
     ui->chapterEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
     ui->citeKeyEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::citeKey() );
     ui->citeKeyEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
@@ -151,7 +151,7 @@ void ReferenceWidget::showChapter()
 void ReferenceWidget::showChapterAuthor()
 {
     //check if a valid chapter exist
-    Nepomuk::Resource refChapter = m_reference.property(Nepomuk::Vocabulary::NBIB::referencedChapter()).toResource();
+    Nepomuk::Resource refChapter = m_reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
 
     if(refChapter.isValid()) {
         ui->label->setEnabled(true);

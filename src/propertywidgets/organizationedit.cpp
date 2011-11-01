@@ -38,7 +38,7 @@ void OrganizationEdit::setupLabel()
         title = organization.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
     }
     else {
-        Nepomuk::Resource proceedings = resource().property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
+        Nepomuk::Resource proceedings = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
         Nepomuk::Resource organization = proceedings.property(propertyUrl()).toResource();
 
         title = organization.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
@@ -57,7 +57,7 @@ void OrganizationEdit::updateResource(const QString & text)
         resource().removeProperty(organization.uri());
     }
     else {
-        Nepomuk::Resource proceedings = resource().property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
+        Nepomuk::Resource proceedings = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
         Nepomuk::Resource organization = proceedings.property(propertyUrl()).toResource();
         resource().removeProperty(organization.uri());
     }

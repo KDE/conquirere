@@ -5,7 +5,7 @@ set(propertywidgets_LIB_SRCS
     dateedit.cpp
     fileobjectedit.cpp
     issnedit.cpp
-    journaledit.cpp
+    issueedit.cpp
     organizationedit.cpp
     proceedingsedit.cpp
     propertyedit.cpp

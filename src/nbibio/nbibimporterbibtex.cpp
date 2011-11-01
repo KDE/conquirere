@@ -55,14 +55,16 @@ using namespace Akonadi;
 NBibImporterBibTex::NBibImporterBibTex()
     : NBibImporter()
 {
+    /*
     // fetching all collections containing emails recursively, starting at the root collection
     CollectionFetchJob *job = new CollectionFetchJob( Collection::root(), CollectionFetchJob::Recursive, this );
     job->fetchScope().setContentMimeTypes( QStringList() << "application/x-vnd.kde.contactgroup" );
     connect( job, SIGNAL( collectionsReceived( const Akonadi::Collection::List& ) ),
              this, SLOT( myCollectionsReceived( const Akonadi::Collection::List& ) ) );
     connect( job, SIGNAL( result( KJob* ) ), this, SLOT( createResult( KJob* ) ) );
+    */
 }
-
+/*
 void NBibImporterBibTex::createResult(KJob* job)
 {
     qDebug() << "Calendar created";
@@ -79,9 +81,10 @@ void NBibImporterBibTex::myCollectionsReceived( const Akonadi::Collection::List&
         m_collection = c;
     }
 }
-
+*/
 bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
 {
+    /*
     //create the collection used for importing
 
     // we start by fetching all contacts for the conflict checking
@@ -220,10 +223,12 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
     if(!m_cancel) {
         emit progress( 100 );
     }
-
+*/
     return false;
+
 }
 
+/*
 void NBibImporterBibTex::addEntry(Entry e)
 {
     bool publicationIsDuplicate;
@@ -899,24 +904,24 @@ void NBibImporterBibTex::addAuthor(const QString &content, Nepomuk::Resource pub
 
         if(!a.isValid()) {
             qDebug() << "create a new Contact resource for " << author.full;
-/*
-            KABC::Addressee addr;
-            addr.setFamilyName( author.last );
-            addr.setGivenName( author.first );
-            addr.setAdditionalName( author.middle );
-            addr.setName( author.full );
-            addr.setFormattedName( author.full );
 
-            Akonadi::Item item;
-            item.setMimeType( KABC::Addressee::mimeType() );
-            item.setPayload<KABC::Addressee>( addr );
+            //KABC::Addressee addr;
+            //addr.setFamilyName( author.last );
+            //addr.setGivenName( author.first );
+            //addr.setAdditionalName( author.middle );
+            //addr.setName( author.full );
+            //addr.setFormattedName( author.full );
 
-            Akonadi::ItemCreateJob *job = new Akonadi::ItemCreateJob( item, m_collection );
+            //Akonadi::Item item;
+            //item.setMimeType( KABC::Addressee::mimeType() );
+            //item.setPayload<KABC::Addressee>( addr );
 
-            if ( !job->exec() ) {
-                qDebug() << "Error:" << job->errorString();
-            } else {
-            */
+            //Akonadi::ItemCreateJob *job = new Akonadi::ItemCreateJob( item, m_collection );
+
+            //if ( !job->exec() ) {
+            //    qDebug() << "Error:" << job->errorString();
+            //} else {
+
                 //thats horrible, at the end two different nepomuk resources will be available
                 // because the akonadi feeder creates another resource for the contact which is unknown at this point
                 // but I need a proper resource to be able to connect it to the publication here
@@ -1463,3 +1468,4 @@ QList<NBibImporterBibTex::Name> NBibImporterBibTex::parseName(const QString & na
 
     return allNames;
 }
+*/

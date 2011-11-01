@@ -15,21 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef JOURNALEDIT_H
-#define JOURNALEDIT_H
+#ifndef ISSUEEDIT_H
+#define ISSUEEDIT_H
 
 #include "propertyedit.h"
 
+#include <QUrl>
 /**
-  * @brief Used to edit the Journal of a property.
+  * @brief Used to edit a single Issue
   *
-  * Shows/edits the @c nie:title of the @c nbib:Journal from the used @c nbib:JournalIssue
+  * Shows/edits the @c nie:title of the @c nbib:Series from the used @c nbib:Collection (issue)
   *
+  * @pre resource input must be an nbib:Article
   */
-class JournalEdit : public PropertyEdit
+class IssueEdit : public PropertyEdit
 {
 public:
-    JournalEdit(QWidget *parent = 0);
+    IssueEdit(QWidget *parent = 0);
 
 protected:
     void setupLabel();
@@ -37,6 +39,13 @@ protected:
     virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     virtual void updateResource( const QString & text );
+
+private slots:
+    void detailEditRequested();
+
+private:
+    QUrl m_issueType;
+    QUrl m_seriesType;
 };
 
-#endif // JOURNALEDIT_H
+#endif // ISSUEEDIT_H

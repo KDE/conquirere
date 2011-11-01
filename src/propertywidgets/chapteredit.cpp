@@ -65,11 +65,11 @@ void ChapterEdit::updateResource(const QString & text)
     }
 
     // connect the chapter to the book
-    Nepomuk::Resource chapter = resource().property( Nepomuk::Vocabulary::NBIB::referencedChapter()).toResource();
+    Nepomuk::Resource chapter = resource().property( Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
     Nepomuk::Resource bookResource = resource().property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
 
-    bookResource.setProperty(Nepomuk::Vocabulary::NBIB::chapter(), chapter);
-    chapter.setProperty(Nepomuk::Vocabulary::NBIB::chapterOf(), bookResource);
+    bookResource.setProperty(Nepomuk::Vocabulary::NBIB::documentPart(), chapter);
+    chapter.setProperty(Nepomuk::Vocabulary::NBIB::documentPartOf(), bookResource);
 }
 
 void ChapterEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )

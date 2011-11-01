@@ -31,12 +31,14 @@ ProceedingsEdit::ProceedingsEdit(QWidget *parent)
 
 void ProceedingsEdit::setupLabel()
 {
+    QString title;
     //get the connected proceedings for the inproceedings elements
-    Nepomuk::Resource proceedings = resource().property(Nepomuk::Vocabulary::NBIB::proceedings()).toResource();
+    Nepomuk::Resource proceedings = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
 
-    QString title = proceedings.property(Nepomuk::Vocabulary::NIE::title()).toString();
-
-    addPropertryEntry(title, resource().uri());
+    if(proceedings.hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
+        title = proceedings.property(Nepomuk::Vocabulary::NIE::title()).toString();
+        addPropertryEntry(title, resource().uri());
+    }
 
     setLabelText(title);
 }
@@ -44,7 +46,7 @@ void ProceedingsEdit::setupLabel()
 void ProceedingsEdit::updateResource(const QString & text)
 {
     // remove the existing proccedings
-    resource().removeProperty( Nepomuk::Vocabulary::NBIB::proceedings() );
+    resource().removeProperty( Nepomuk::Vocabulary::NBIB::collection() );
 
     if(text.isEmpty())
         return;
@@ -60,10 +62,10 @@ void ProceedingsEdit::updateResource(const QString & text)
         Nepomuk::Resource newProceedings(QUrl(), Nepomuk::Vocabulary::NBIB::Proceedings());
         newProceedings.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
 
-        resource().addProperty( Nepomuk::Vocabulary::NBIB::proceedings(), newProceedings);
+        resource().addProperty( Nepomuk::Vocabulary::NBIB::collection(), newProceedings);
 
         //connect inproceedings back to proceedings
-        newProceedings.addProperty(Nepomuk::Vocabulary::NBIB::proceedingsOf(), resource());
+        newProceedings.addProperty(Nepomuk::Vocabulary::NBIB::article(), resource());
     }
 }
 

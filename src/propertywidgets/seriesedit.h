@@ -21,9 +21,14 @@
 #include "propertyedit.h"
 
 /**
-  * @brief Used to edit the @c nbib:BookSeries
+  * @brief Used to edit the @c nbib:Series of an nbib:Publication
   *
-  * Shows/edits the @c nie:title of the @c nbib:BookSeries
+  * Shows/edits the @c nie:title of the @c nbib:Series. The series can be a bookseries, journal, magazin or newspaper.
+  *
+  * When a new resource must be created (for example the publication had no series set beforehand or the inserted name
+  * for the sereis didi not match an already existing resource) This class relies on the findSeriesType() function
+  * to define what type of series we need to create
+  *
   */
 class SeriesEdit : public PropertyEdit
 {
@@ -36,6 +41,16 @@ protected:
     virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     virtual void updateResource( const QString & text );
+
+private:
+    /**
+      * Intelligent function to determine what tpe of series will be right for the publication
+      *
+      * For example if the resource() is an nbib:JournalIssue the type must be nbib:Journal
+      *
+      * @return correctNepomuk::Vocabulary::NBIB::*type*
+      */
+    QUrl findSeriesType();
 };
 
 #endif // SERIESEDIT_H

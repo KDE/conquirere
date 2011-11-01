@@ -34,7 +34,7 @@ public:
     explicit NBibImporterBibTex();
 
     bool load(QIODevice *iodevice, QStringList *errorLog = NULL);
-
+/*
 private:
     struct Entry {
         QString entryType;
@@ -103,6 +103,7 @@ private:
 private slots:
     void createResult(KJob* job);
     void myCollectionsReceived( const Akonadi::Collection::List& );
+    */
 };
 
 #endif // NBIBIMPORTERBIBTEX_H
