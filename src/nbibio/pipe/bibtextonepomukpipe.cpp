@@ -73,6 +73,10 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
         m_allReferences.append(nqr.resource());
     }
 
+    int maxValue = bibEntries.size();
+    qreal perFileProgress = (100.0/(qreal)maxValue);
+
+    int i = 0;
     foreach(Element *e, bibEntries ) {
         Entry *entry = dynamic_cast<Entry *>(e);
 
@@ -85,7 +89,14 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
                 import(entry);
             }
         }
+        i++;
+
+        int p = i * perFileProgress;
+
+        emit progress(p);
     }
+
+    emit progress(100);
 }
 
 void BibTexToNepomukPipe::import(Entry *e)
@@ -97,6 +108,7 @@ void BibTexToNepomukPipe::import(Entry *e)
     Nepomuk::Resource reference = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Reference());
     reference.setProperty(Nepomuk::Vocabulary::NBIB::citeKey(), e->id());
     reference.setProperty(Nepomuk::Vocabulary::NBIB::publication(), publication);
+    publication.addProperty(Nepomuk::Vocabulary::NBIB::reference(), reference);
 
     //before we go through the whole list one by one, we take care of some special cases
 

@@ -33,20 +33,6 @@ public:
     bool fromFile(QString fileName);
     virtual bool load(QIODevice *iodevice, QStringList *errorLog = NULL) = 0;
 
-    void setAutomaticConflictSolving(bool solve);
-    bool solveConflicts();
-
-    void publicationDuplicateDetected();
-    int publicationDuplicates();
-    void publicationEntryAdded();
-    int publicationEntries();
-    void referenceDuplicateDetected();
-    int referenceDuplicates();
-    void referenceEntryAdded();
-    int referenceEntries();
-
-    ConflictManager *conflictManager();
-
 signals:
     void progress(int current);
 
@@ -55,14 +41,6 @@ public slots:
 
 protected:
     bool m_cancel;
-    bool m_solveConflicts;
-
-    int m_publicationDuplicates;
-    int m_publicationEntries;
-    int m_referenceDuplicates;
-    int m_referenceEntries;
-
-    ConflictManager *m_conflictManager;
 };
 
 #endif // NBIBIMPORTER_H

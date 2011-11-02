@@ -16,7 +16,6 @@
  */
 
 #include "nbibimporter.h"
-#include "conflictmanager.h"
 
 #include <QtCore/QFile>
 #include <QtCore/QIODevice>
@@ -26,18 +25,11 @@
 NBibImporter::NBibImporter()
     : QObject(0)
     , m_cancel(false)
-    , m_solveConflicts(false)
-    , m_publicationDuplicates(0)
-    , m_publicationEntries(0)
-    , m_referenceDuplicates(0)
-    , m_referenceEntries(0)
 {
-    m_conflictManager = new ConflictManager();
 }
 
 NBibImporter::~NBibImporter()
 {
-    delete m_conflictManager;
 }
 
 bool NBibImporter::fromFile(QString fileName)
@@ -51,62 +43,7 @@ bool NBibImporter::fromFile(QString fileName)
     return load(&bibFile);
 }
 
-void NBibImporter::setAutomaticConflictSolving(bool solve)
-{
-    m_solveConflicts = solve;
-}
-
-bool NBibImporter::solveConflicts()
-{
-    return m_solveConflicts;
-}
-
-void NBibImporter::publicationDuplicateDetected()
-{
-    m_publicationDuplicates++;
-}
-
-int NBibImporter::publicationDuplicates()
-{
-    return m_publicationDuplicates;
-}
-
-void NBibImporter::publicationEntryAdded()
-{
-    m_publicationEntries++;
-}
-
-int NBibImporter::publicationEntries()
-{
-    return m_publicationEntries;
-}
-
-void NBibImporter::referenceDuplicateDetected()
-{
-    m_referenceDuplicates++;
-}
-
-int NBibImporter::referenceDuplicates()
-{
-    return m_referenceDuplicates;
-}
-
-void NBibImporter::referenceEntryAdded()
-{
-    m_referenceEntries++;
-}
-
-int NBibImporter::referenceEntries()
-{
-    return m_referenceEntries;
-}
-
 void NBibImporter::cancel()
 {
     m_cancel=true;
-}
-
-ConflictManager *NBibImporter::conflictManager()
-{
-    return m_conflictManager;
 }

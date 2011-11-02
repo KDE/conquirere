@@ -252,7 +252,7 @@
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="JournalEdit" name="editJournal"/>
+        <widget class="IssueEdit" name="editJournal"/>
        </item>
        <item row="5" column="0">
         <widget class="QLabel" name="label_8">
@@ -635,11 +635,6 @@
    <header>propertywidgets/seriesedit.h</header>
   </customwidget>
   <customwidget>
-   <class>JournalEdit</class>
-   <extends>QLineEdit</extends>
-   <header>propertywidgets/journaledit.h</header>
-  </customwidget>
-  <customwidget>
    <class>VolumeNumberEdit</class>
    <extends>QLineEdit</extends>
    <header>propertywidgets/volumenumberedit.h</header>
@@ -685,6 +680,11 @@
    <class>DateEdit</class>
    <extends>QLineEdit</extends>
    <header>propertywidgets/dateedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>IssueEdit</class>
+   <extends>QLineEdit</extends>
+   <header>propertywidgets/issueedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

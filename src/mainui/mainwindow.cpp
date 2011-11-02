@@ -27,7 +27,7 @@
 #include "documentpreview.h"
 #include "websearchwidget.h"
 #include "bibtexexportdialog.h"
-#include "bibteximportdialog.h"
+#include "bibteximportwizard.h"
 
 #include <KDE/KApplication>
 #include <KDE/KAction>
@@ -174,7 +174,7 @@ void MainWindow::exportBibTex()
 
 void MainWindow::importBibTex()
 {
-    BibTexImportDialog bid;
+    BibTeXImportWizard bid;
 
     bid.exec();
 }

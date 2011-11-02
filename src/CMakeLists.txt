@@ -15,7 +15,7 @@ set(conquirere_SRCS
     mainui/resourcetablewidget.cpp
     mainui/mainwindow.cpp
     mainui/bibtexexportdialog.cpp
-    mainui/bibteximportdialog.cpp
+    mainui/bibteximportwizard.cpp
     mainui/documentpreview.cpp
     mainui/websearchwidget.cpp
 
@@ -36,7 +36,7 @@ kde4_add_ui_files( conquirere_SRCS
                    mainui/welcomewidget.ui
                    mainui/librarywidget.ui
                    mainui/bibtexexportdialog.ui
-                   mainui/bibteximportdialog.ui
+                   mainui/bibteximportwizard.ui
                    mainui/documentpreview.ui
                    mainui/websearchwidget.ui
 

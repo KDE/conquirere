@@ -201,7 +201,7 @@ void PublicationWidget::addReference()
     int ret = showRefWidget.exec();
 
     if(ret == KDialog::Accepted) {
-        //m_publication.setProperty(Nepomuk::Vocabulary::NBIB::, tempRef);
+        m_publication.addProperty(Nepomuk::Vocabulary::NBIB::reference(), tempRef);
     }
     else {
         // remove temp citation again
@@ -326,6 +326,7 @@ void PublicationWidget::setupWidget()
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPubMed, SLOT(setResource(Nepomuk::Resource&)));
 
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
+    connect(ui->addReference, SIGNAL(clicked()), this, SLOT(addReference()));
 }
 
 void PublicationWidget::editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl)

@@ -37,6 +37,7 @@ class Entry;
   */
 class BibTexToNepomukPipe : public BibTexPipe
 {
+    Q_OBJECT
 public:
     BibTexToNepomukPipe();
     ~BibTexToNepomukPipe();

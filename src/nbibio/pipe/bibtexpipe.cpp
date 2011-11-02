@@ -15,33 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BIBTEXPIPE_H
-#define BIBTEXPIPE_H
+#include "bibtexpipe.h"
 
-#include <QObject>
-
-#include <kbibtex/file.h>
-
-/**
-  * Interface for any pipe action that transforms a KBibTeX File into something else
-  */
-class BibTexPipe : public QObject
+BibTexPipe::BibTexPipe()
+    :QObject(0)
 {
-    Q_OBJECT
+}
 
-public:
-    BibTexPipe();
-    virtual ~BibTexPipe();
+BibTexPipe::~BibTexPipe()
+{
+}
 
-    /**
-      * Does the piping action
-      *
-      * @p bibEntries File is a list of all Entry elements which form a bibtex entry
-      */
-    virtual void pipeExport(File & bibEntries) = 0;
-
-signals:
-    void progress(int value);
-
-};
-#endif // BIBTEXPIPE_H

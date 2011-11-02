@@ -50,14 +50,6 @@ WelcomeWidget::~WelcomeWidget()
 
 void WelcomeWidget::setupGui()
 {
-    QMap<ResourceSelection, QSortFilterProxyModel*> models = m_library->viewModels();
-
-    foreach (QSortFilterProxyModel *model, models) {
-        QAbstractItemModel *aim = model->sourceModel();
-        NepomukModel *m = qobject_cast<NepomukModel *>(aim);
-        connect(m, SIGNAL(dataSizeChaged(int)),this, SLOT(updateStatistics()));
-    }
-
     m_htmlPart = new KHTMLPart(this);
     m_htmlPart->setJScriptEnabled(true);
     m_htmlPart->setPluginsEnabled(true);
@@ -65,6 +57,14 @@ void WelcomeWidget::setupGui()
     vbl->addWidget(m_htmlPart->view());
 
     generateHtml();
+
+    QMap<ResourceSelection, QSortFilterProxyModel*> models = m_library->viewModels();
+
+    foreach (QSortFilterProxyModel *model, models) {
+        QAbstractItemModel *aim = model->sourceModel();
+        NepomukModel *m = qobject_cast<NepomukModel *>(aim);
+        connect(m, SIGNAL(dataSizeChaged(int)),this, SLOT(updateStatistics()));
+    }
 }
 
 void WelcomeWidget::updateStatistics()

@@ -42,7 +42,10 @@ void PublicationEdit::setupLabel()
 void PublicationEdit::updateResource(const QString & text)
 {
     // remove the existing publication
+    Nepomuk::Resource publication = resource().property( propertyUrl() ).toResource();
     resource().removeProperty( propertyUrl() );
+    // remove backlink too
+    publication.removeProperty( Nepomuk::Vocabulary::NBIB::reference(), resource());
 
     if(text.isEmpty())
         return;
@@ -57,7 +60,8 @@ void PublicationEdit::updateResource(const QString & text)
         // create a new publication with the string s as title
         Nepomuk::Resource newPublication(propUrl, Nepomuk::Vocabulary::NBIB::Publication());
         newPublication.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-        resource().addProperty( propertyUrl(), newPublication);
+        resource().setProperty( propertyUrl(), newPublication);
+        newPublication.addProperty( Nepomuk::Vocabulary::NBIB::reference(), resource());
     }
 }
 
