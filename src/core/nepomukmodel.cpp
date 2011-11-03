@@ -106,7 +106,7 @@ void NepomukModel::removeSelectedFromSystem(const QModelIndexList & indexes)
 
 void NepomukModel::addData(const QList< Nepomuk::Query::Result > &entries)
 {
-    qDebug() << "addData(...)" << entries.size();
+    //qDebug() << "addData(...)" << entries.size();
     // two loops are necessary because addData is not only called on new entries, but with all changes
     // must be a bug in nepomuk check git master for different behaviour
     QList< Nepomuk::Resource > newEntries;

@@ -23,7 +23,7 @@ PublicationFilterModel::PublicationFilterModel(QObject *parent)
     : QSortFilterProxyModel(parent)
     , m_curFilter(Filter_None)
 {
-    setDynamicSortFilter(true);
+    setDynamicSortFilter(false); // setting this to true slows down the view a lot
 }
 
 void PublicationFilterModel::setResourceFilter(ResourceFilter filter)

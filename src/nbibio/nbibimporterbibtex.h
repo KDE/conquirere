@@ -24,12 +24,14 @@
 
 class KJob;
 class File;
+class EntryClique;
 
 class NBibImporterBibTex : public NBibImporter
 {
     Q_OBJECT
 public:
     explicit NBibImporterBibTex();
+    virtual ~NBibImporterBibTex();
 
     void setAkonadiAddressbook(Akonadi::Collection & addressbook);
     void setImportContactToAkonadi(bool import);
@@ -39,7 +41,9 @@ public:
 
     bool readBibFile(const QString & filename);
     File *bibFile();
+
     bool findDuplicates();
+    QList<EntryClique*> duplicates();
     bool pipeToNepomuk();
 
 private slots:
@@ -48,6 +52,7 @@ private slots:
 private:
     File *m_importedEntries;
     bool m_findDuplicates;
+    QList<EntryClique*> m_cliques;
     bool m_contactToAkonadi;
     Akonadi::Collection m_addressbook;
 };

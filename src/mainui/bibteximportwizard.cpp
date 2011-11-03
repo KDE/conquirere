@@ -22,9 +22,15 @@
 
 #include <kbibtex/fileimporterbibtex.h>
 #include <kbibtex/file.h>
+#include <kbibtex/findduplicatesui.h>
+#include <kbibtex/findduplicates.h>
 
 #include <KDE/KUrlRequester>
 #include <KDE/KComboBox>
+#include <KDE/KDialog>
+#include <KDE/KService>
+#include <KDE/KParts/Part>
+#include <KDE/KStandardDirs>
 
 //#include <Akonadi/Item>
 //#include <KABC/Addressee>
@@ -140,24 +146,6 @@ void IntroPage::collectionsReceived( const Akonadi::Collection::List& list)
  *
  * KBibTeX import of the bib file
  */
-/*
-File* concurrentBibImport(FileImporterBibTeX *importer, const QString &fileName, bool findDuplicates)
-{
-    QFile bibFile(fileName);
-    if (!bibFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "can't open file " << fileName;
-        return 0;
-    }
-
-    File *f = importer->load(&bibFile);
-
-    if(findDuplicates) {
-        qDebug() << "find duplicates";
-    }
-
-    return f;
-}
-*/
 bool concurrentBibImport(NBibImporterBibTex *importer, const QString &fileName)
 {
     return importer->readBibFile(fileName);
@@ -273,7 +261,7 @@ void ParseFile::importFinished()
             entryNumber->setText(QString::number(importedFile->size()));
             int authors = importedFile->uniqueEntryValuesList(QLatin1String("author")).size();
             authorNumber->setText(QString::number(authors));
-            duplicateNumber->setText(QString::number(0));
+            duplicateNumber->setText(QString::number(importer->duplicates().size()));
         }
     }
 }
@@ -287,7 +275,33 @@ void ParseFile::cleanupPage()
 
 void ParseFile::showMergeDialog()
 {
-    qDebug() << "open kbibtex merge window";
+    KService::Ptr service = KService::serviceByDesktopPath("kbibtexpart.desktop");
+    if (service)
+    {
+        KParts::Part *part = service->createInstance<KParts::ReadOnlyPart>(0);
+
+        part->replaceXMLFile(KStandardDirs::locate("data", "kbibtex/findduplicatesui.rc"), KStandardDirs::locateLocal("data", "kbibtex/findduplicatesui.rc"), true);
+
+        if (part)
+        {
+            KDialog dlg(part->widget());
+            File * importedFile = importer->bibFile();
+            QList<EntryClique*> cliques = importer->duplicates();
+
+            qDebug() << "duplicate cliques" << cliques.size();
+
+            MergeWidget mw(importedFile, cliques, &dlg);
+            dlg.setMainWidget(&mw);
+
+            if (dlg.exec() == QDialog::Accepted) {
+                MergeDuplicates md(&dlg);
+                md.mergeDuplicateEntries(cliques, importedFile);
+            }
+        }
+        else {
+            qDebug() << "part not found";
+        }
+    }
 }
 
 /*

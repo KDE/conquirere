@@ -19,6 +19,7 @@
 
 #include "pipe/bibtextonepomukpipe.h"
 #include <kbibtex/fileimporterbibtex.h>
+#include <kbibtex/findduplicates.h>
 
 #include <Akonadi/Item>
 #include <KABC/Addressee>
@@ -39,6 +40,21 @@ NBibImporterBibTex::NBibImporterBibTex()
 {
 }
 
+NBibImporterBibTex::~NBibImporterBibTex()
+{
+    while (!m_importedEntries->isEmpty()) {
+        Element *ec = m_importedEntries->first();
+        m_importedEntries->removeFirst();
+        delete ec;
+    }
+
+    while (!m_cliques.isEmpty()) {
+        EntryClique *ec = m_cliques.first();
+        m_cliques.removeFirst();
+        delete ec;
+    }
+}
+
 void NBibImporterBibTex::setAkonadiAddressbook(Akonadi::Collection & addressbook)
 {
     m_addressbook = addressbook;
@@ -46,7 +62,7 @@ void NBibImporterBibTex::setAkonadiAddressbook(Akonadi::Collection & addressbook
 
 void NBibImporterBibTex::setImportContactToAkonadi(bool import)
 {
-   m_contactToAkonadi = import;
+    m_contactToAkonadi = import;
 }
 
 void NBibImporterBibTex::setFindDuplicates(bool findThem)
@@ -97,7 +113,23 @@ File *NBibImporterBibTex::bibFile()
 
 bool NBibImporterBibTex::findDuplicates()
 {
-    return false;
+    int sensitivity = 4000;
+
+    FindDuplicates fd(0, sensitivity);
+    bool gotCanceled =fd.findDuplicateEntries(m_importedEntries, m_cliques);
+
+    emit progress(100);
+
+    if(gotCanceled || m_cliques.isEmpty()) {
+        return false;
+    }
+
+    return true;
+}
+
+QList<EntryClique*> NBibImporterBibTex::duplicates()
+{
+    return m_cliques;
 }
 
 bool NBibImporterBibTex::pipeToNepomuk()

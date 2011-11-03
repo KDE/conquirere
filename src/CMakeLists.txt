@@ -77,6 +77,7 @@ akonadi-contact
 kbibtexio
 kbibtexnetworking
 kbibtexgui
+kbibtexproc
 )
 
 install(TARGETS conquirere DESTINATION ${BIN_INSTALL_DIR})

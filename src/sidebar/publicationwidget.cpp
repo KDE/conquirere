@@ -413,7 +413,7 @@ void PublicationWidget::layoutArticle()
 
     //identification
     ui->editEprint->setEnabled(true);
-    ui->editISBN->setEnabled(false);
+    ui->editISBN->setEnabled(true);
     ui->editISSN->setEnabled(true);
     ui->editLCCN->setEnabled(false);
     ui->editMRNumber->setEnabled(true);
@@ -606,9 +606,9 @@ void PublicationWidget::layoutThesis()
     ui->editProceedings->setEnabled(false);
     ui->editJournal->setEnabled(false);
     ui->editVolume->setEnabled(false);
-    ui->editNumber->setEnabled(false);
+    ui->editNumber->setEnabled(true);
     ui->editHowPublished->setEnabled(true);
-    ui->editType->setEnabled(false);
+    ui->editType->setEnabled(true);
     ui->editCopyright->setEnabled(true);
     ui->editLastAccessed->setEnabled(false);
 

@@ -85,6 +85,7 @@ QVariant PublicationModel::data(const QModelIndex &index, int role) const
 
             return typeSting;
         }
+
         if(index.column() == Column_Author) {
             QString authorSting;
             QList<Nepomuk::Resource> authorList;
