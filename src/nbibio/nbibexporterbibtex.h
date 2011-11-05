@@ -29,6 +29,7 @@ class NBibExporterBibTex : public NBibExporter
     Q_OBJECT
 public:
     explicit NBibExporterBibTex();
+    virtual ~NBibExporterBibTex();
 
     /**
       * Exports a list of publication or reference resources to a bibtex file

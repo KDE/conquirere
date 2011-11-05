@@ -34,7 +34,8 @@ public:
 
     enum Mode {
         Local,
-        Remote
+        Remote,
+        Website
     };
 
     void setMode(Mode mode);

@@ -22,9 +22,16 @@
 #include <kbibtex/file.h>
 #include <kbibtex/fileexporterbibtex.h>
 
-NBibExporterBibTex::NBibExporterBibTex() :
-    NBibExporter()
+#include <QDebug>
+
+NBibExporterBibTex::NBibExporterBibTex()
+    : NBibExporter()
 {
+}
+
+NBibExporterBibTex::~NBibExporterBibTex()
+{
+
 }
 
 bool NBibExporterBibTex::save(QIODevice *iodevice, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog)

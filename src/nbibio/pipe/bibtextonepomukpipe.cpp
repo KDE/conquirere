@@ -896,9 +896,9 @@ void BibTexToNepomukPipe::addSeries(const QString &content, Nepomuk::Resource pu
 
 void BibTexToNepomukPipe::addTitle(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType)
 {
-    // in the case of @InBook or @InCollection title means title of the chapter
+    // in the case of @InCollection title means title of the chapter
     // while booktitle is the actual title of the book
-    if(originalEntryType == QLatin1String("inbook") || originalEntryType == QLatin1String("incollection") ) {
+    if(originalEntryType == QLatin1String("incollection") ) {
 
         Nepomuk::Resource chapterResource = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
 

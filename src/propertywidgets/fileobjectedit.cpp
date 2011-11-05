@@ -17,6 +17,8 @@
 
 #include "fileobjectedit.h"
 
+#include "adddataobject.h"
+
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NFO>
@@ -31,110 +33,50 @@ FileObjectEdit::FileObjectEdit(QWidget *parent)
     : PropertyEdit(parent)
     , m_mode(Local)
 {
+    setDirectEdit(false);
+    setUseDetailDialog(true);
+
+    connect(this, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showFileSelection()));
 }
 
 void FileObjectEdit::setMode(Mode mode)
 {
     m_mode = mode;
-
-    if(m_mode == Local) {
-        setDirectEdit(false);
-        connect(this, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showFileSelection()));
-    }
 }
 
 void FileObjectEdit::setupLabel()
 {
     QList<Nepomuk::Resource> dataObjectList = resource().property(propertyUrl()).toResourceList();
 
-    Nepomuk::Resource dataObject;
-
+    QString dataStringList;
     foreach(const Nepomuk::Resource & nr, dataObjectList) {
+        QString url = nr.property(Nepomuk::Vocabulary::NIE::url()).toString();
+        qDebug() << url << nr.type();
         if(m_mode == Local && nr.hasType(Nepomuk::Vocabulary::NFO::FileDataObject())) {
-            dataObject = nr;
-            break;
+            dataStringList.append(url);
+            dataStringList.append(QLatin1String("; "));
+            continue;
         }
         if(m_mode == Remote && nr.hasType(Nepomuk::Vocabulary::NFO::RemoteDataObject())) {
-            dataObject = nr;
-            break;
+            dataStringList.append(url);
+            dataStringList.append(QLatin1String("; "));
+            continue;
+        }
+        if(m_mode == Website && nr.hasType(Nepomuk::Vocabulary::NFO::Website())) {
+            dataStringList.append(url);
+            dataStringList.append(QLatin1String("; "));
+            continue;
         }
     }
 
-    QString title;
-    if(dataObject.isValid()) {
-        title = dataObject.property(Nepomuk::Vocabulary::NIE::url()).toString();
+    dataStringList.chop(2);
 
-        addPropertryEntry(title, dataObject.uri());
-    }
-
-    setLabelText(title);
+    setLabelText(dataStringList);
 }
 
 void FileObjectEdit::updateResource(const QString & text)
 {
-    // we start by going through the list of already available nfo:***DataObject resources
-    QList<Nepomuk::Resource> dataObjectList = resource().property(propertyUrl()).toResourceList();
-
-    Nepomuk::Resource dataObject;
-
-    foreach( const Nepomuk::Resource & nr, dataObjectList) {
-        if(m_mode == Local && nr.hasType(Nepomuk::Vocabulary::NFO::FileDataObject())) {
-            dataObject = nr;
-            break;
-        }
-        if(m_mode == Remote && nr.hasType(Nepomuk::Vocabulary::NFO::RemoteDataObject())) {
-            dataObject = nr;
-            break;
-        }
-    }
-
-    // now dataObject holds either the old Resource we need to change
-    // or is not valid in which case we need to create a new resource
-
-    // if it is valid, just change the nie:url
-    if(dataObject.isValid()) {
-        dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), text);
-    }
-    // otherwise create a new resource
-    else {
-
-        if(text.isEmpty())
-            return;
-
-        Nepomuk::Resource newDataObject;
-        // first check if the resource exists somewhere already
-        if(m_mode == Local) {
-            KUrl url(text);
-            Nepomuk::File nf(url);
-            if(nf.isValid()) {
-                qDebug() << nf;
-                newDataObject = nf;
-            }
-        }
-        else if(m_mode == Remote) {
-            qWarning() << "fileobjectedit :: find a way to find existing nfo:RemoteDataObject resources";
-        }
-
-        // we couldn't find an existing resource with the url from "text" so we create a new one
-        if(!newDataObject.isValid()) {
-
-            // create list of all types from the hierarchie we want to add
-            QList<QUrl> typeList;
-            if(m_mode == Remote)
-                typeList << Nepomuk::Vocabulary::NFO::RemoteDataObject();
-            else
-                typeList << Nepomuk::Vocabulary::NFO::FileDataObject();
-
-            newDataObject.setTypes(typeList);
-            newDataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), text);
-        }
-
-        // now add this resource to the edit fileds resource
-        resource().addProperty( propertyUrl(), newDataObject);
-        //and the backreference
-        //TODO breaks when propertyUrl() is not nbib::isPublicationOf
-        newDataObject.setProperty(Nepomuk::Vocabulary::NBIB::publishedAs(), resource());
-    }
+    // is done externally via AddDataObject
 }
 
 void FileObjectEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
@@ -145,13 +87,13 @@ void FileObjectEdit::createCompletionModel( const QList< Nepomuk::Query::Result 
 
 void FileObjectEdit::showFileSelection()
 {
+    AddDataObject ado;
 
-    //select name and path of the project
-    QString fileNameFromDialog = KFileDialog::getOpenFileName(KGlobalSettings::documentPath());
+    ado.setMode(m_mode);
+    ado.setResource(resource());
+    ado.fillListWidget();
 
-    if(fileNameFromDialog.isEmpty()) {
-        return;
-    }
+    ado.exec();
 
-    updateResource(fileNameFromDialog);
+    resourceUpdatedExternally();
 }

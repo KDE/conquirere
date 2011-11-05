@@ -22,6 +22,8 @@
 
 #include <QtCore/QObject>
 
+class QIODevice;
+
 /**
   * @brief Abstract base class for any kind of file exporter
   */
@@ -29,7 +31,7 @@ class NBibExporter : public QObject
 {
     Q_OBJECT
 public:
-    NBibExporter();
+    explicit NBibExporter();
     virtual ~NBibExporter();
 
     /**

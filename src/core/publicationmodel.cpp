@@ -131,7 +131,7 @@ QVariant PublicationModel::data(const QModelIndex &index, int role) const
 
             return dateSting;
         }
-        else if(index.column() == Column_Publisher) {
+        else if(index.column() == Column_Editor) {
             QString authorSting;
             QList<Nepomuk::Resource> authorList;
 
@@ -150,7 +150,7 @@ QVariant PublicationModel::data(const QModelIndex &index, int role) const
 
             return authorSting;
         }
-        else if(index.column() == Column_Editor) {
+        else if(index.column() == Column_Publisher) {
             QString authorSting;
             QList<Nepomuk::Resource> authorList;
 
@@ -170,19 +170,27 @@ QVariant PublicationModel::data(const QModelIndex &index, int role) const
             return authorSting;
         }
         else if(index.column() == Column_CiteKey) {
-            QString titleSting;
+            QString citekeySting;
 
             if(m_selection != Resource_Reference) {
-                //TODO find citykey of a Publication
-                return titleSting;
-                //                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::usePublication()).toResource();
-                //                titleSting = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
+                QList<Nepomuk::Resource> refs = document.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
+
+                foreach(const Nepomuk::Resource & r, refs) {
+                    QString citykey = r.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
+                    if(citykey.isEmpty()) {
+                        citykey = i18n("unknown Citekey");
+                    }
+                    citekeySting.append(citykey);
+                    citekeySting.append(QLatin1String("; "));
+                }
+                citekeySting.chop(2);
+
             }
             else {
-                titleSting = document.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
+                citekeySting = document.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
             }
 
-            return titleSting;
+            return citekeySting;
         }
         else if(index.column() == Column_StarRate) {
             int rating;

@@ -21,14 +21,13 @@
 #include <QtCore/QObject>
 
 class QIODevice;
-class ConflictManager;
 
 class NBibImporter : public QObject
 {
     Q_OBJECT
 public:
     explicit NBibImporter();
-    ~NBibImporter();
+    virtual ~NBibImporter();
 
     bool fromFile(QString fileName);
     virtual bool load(QIODevice *iodevice, QStringList *errorLog = NULL) = 0;

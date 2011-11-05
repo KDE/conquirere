@@ -31,7 +31,7 @@
 #include <Nepomuk/Query/Result>
 #include <Nepomuk/Query/QueryParser>
 
-#include <KDE/KProgressDialog>
+#include <QtGui/QProgressDialog>
 
 #include <QtCore/QThread>
 #include <QtCore/QtConcurrentRun>
@@ -48,7 +48,9 @@ bool concurrentExport(NBibExporterBibTex *exporter, const QString &fileName, Nep
         resources.append(r.resource());
     }
 
-    return exporter->toFile(fileName, resources);
+    bool result = exporter->toFile(fileName, resources);
+
+    return result;
 }
 
 BibTexExportDialog::BibTexExportDialog(QWidget *parent) :
@@ -75,9 +77,8 @@ void BibTexExportDialog::accept()
     }
 
     QString filename = ui->folder->text();
-    //filename.append(QLatin1String("/bibtex.bib"));
 
-    m_progress = new KProgressDialog(0, i18n("Export BibTeX"), QLatin1String("Abort import"));
+    m_progress = new QProgressDialog(i18n("Export BibTeX"), QLatin1String("Abort import"), 0, 100);
     m_progress->setWindowModality(Qt::WindowModal);
     m_progress->show();
     m_progress->setFocus();
@@ -96,17 +97,15 @@ void BibTexExportDialog::accept()
 
     Nepomuk::Query::Query query( andTerm );
 
-
     QFuture<bool> future = QtConcurrent::run(concurrentExport, m_exporter, filename, query);
 
     m_futureWatcher = new QFutureWatcher<bool>();
     m_futureWatcher->setFuture(future);
     connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(exportFinished()));
-
-    close();
 }
 
 void BibTexExportDialog::exportFinished()
 {
     qDebug() << "export finished!";
+    close();
 }

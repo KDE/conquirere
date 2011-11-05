@@ -290,6 +290,8 @@ void PublicationWidget::setupWidget()
     ui->editFileObject->setMode(FileObjectEdit::Local);
     ui->editRemoteObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
     ui->editRemoteObject->setMode(FileObjectEdit::Remote);
+    ui->editWebObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
+    ui->editWebObject->setMode(FileObjectEdit::Website);
     ui->editOrganization->setPropertyUrl( Nepomuk::Vocabulary::NBIB::organization());
     ui->editLastAccessed->setPropertyUrl( Nepomuk::Vocabulary::NUAO::lastUsage());
     ui->editKeywords->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);

@@ -56,6 +56,8 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     ui->publicationEdit->setUseDetailDialog(true);
     ui->publicationEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
     ui->chapterAuthorEdit->setPropertyUrl( Nepomuk::Vocabulary::NCO::creator() );
+    ui->chapterNumber->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
+    ui->chapterNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::chapterNumber() );
 
     showCreateReference(true);
 

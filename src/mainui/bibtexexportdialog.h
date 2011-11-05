@@ -26,7 +26,7 @@ namespace Ui {
 }
 
 class NBibExporterBibTex;
-class KProgressDialog;
+class QProgressDialog;
 
 class BibTexExportDialog : public QDialog
 {
@@ -44,7 +44,7 @@ private:
     Ui::BibTexExportDialog *ui;
 
     NBibExporterBibTex *m_exporter;
-    KProgressDialog *m_progress;
+    QProgressDialog *m_progress;
     QFutureWatcher<bool> *m_futureWatcher;
 };
 
