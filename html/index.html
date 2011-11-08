@@ -8,6 +8,9 @@
 function makeTxt(id,txt){
 document.getElementById(id).textContent = txt;
 }
+function setTagCloud(txt){
+document.getElementById('tagcloud').textContent = txt;
+}
 </script>
 </head>
 <body class="theme-Chihuahua controller-welcome action-index">
@@ -42,7 +45,7 @@ document.getElementById(id).textContent = txt;
 <div class="splitcontentright">
     <div class="news box">
       <h3>#TAGCLOUDHEADER#</h3>
-      <p>#TAGCLOUD#</p>
+      <p><div id="tagcloud"></div></p>
     </div>
 </div>
 <div style="clear:both;"></div>

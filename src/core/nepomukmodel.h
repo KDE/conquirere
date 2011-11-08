@@ -64,6 +64,7 @@ protected slots:
 signals:
     void dataSizeChaged(int size);
     void updateFetchDataFor(ResourceSelection selection, bool start, Library *library);
+    void hasTag(const QString & tag);
 
 protected:
     Library *m_library;

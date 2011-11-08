@@ -113,6 +113,12 @@ void NepomukModel::addData(const QList< Nepomuk::Query::Result > &entries)
     foreach(const Nepomuk::Query::Result & r, entries) {
         if( !m_fileList.contains(r.resource()) ) {
             newEntries.append(r.resource());
+
+            QList<Nepomuk::Tag> tagList = r.resource().tags();
+
+            foreach(Nepomuk::Tag t, tagList) {
+                emit hasTag(t.label());
+            }
         }
     }
 

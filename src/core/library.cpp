@@ -237,6 +237,11 @@ void Library::connectFetchIndicator(LibraryWidget *treeWidget)
     }
 }
 
+QMap<QString, int> Library::tagCloud()
+{
+    return m_tagCloud;
+}
+
 void Library::scanLibraryFolders()
 {
     QDir project;
@@ -254,6 +259,17 @@ void Library::scanLibraryFolders()
     }
 }
 
+void Library::addTag(const QString & tag)
+{
+    int tagNumber = m_tagCloud.value(tag, 0);
+
+    tagNumber++;
+
+    m_tagCloud.insert(tag, tagNumber);
+
+    emit tagCloudChanged();
+}
+
 void Library::setupModels()
 {
     DocumentModel *documentModel = new DocumentModel;
@@ -262,6 +278,7 @@ void Library::setupModels()
     QSortFilterProxyModel *documentFilter = new QSortFilterProxyModel;
     documentFilter->setSourceModel(documentModel);
     m_resources.insert(Resource_Document, documentFilter);
+    connect(documentModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
 
     BookmarkModel *bookmarkModel = new BookmarkModel;
     bookmarkModel->setLibrary(this);
@@ -269,6 +286,7 @@ void Library::setupModels()
     QSortFilterProxyModel *bookmarkFilter = new QSortFilterProxyModel;
     bookmarkFilter->setSourceModel(bookmarkModel);
     m_resources.insert(Resource_Website, bookmarkFilter);
+    connect(bookmarkModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
 
     PublicationModel *referencesModel = new PublicationModel;
     referencesModel->setLibrary(this);
@@ -276,6 +294,7 @@ void Library::setupModels()
     PublicationFilterModel *referenceFilter = new PublicationFilterModel;
     referenceFilter->setSourceModel(referencesModel);
     m_resources.insert(Resource_Reference, referenceFilter);
+    connect(referencesModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
 
     PublicationModel *publicationModel = new PublicationModel;
     publicationModel->setLibrary(this);
@@ -283,6 +302,7 @@ void Library::setupModels()
     PublicationFilterModel *publicationFilter = new PublicationFilterModel;
     publicationFilter->setSourceModel(publicationModel);
     m_resources.insert(Resource_Publication, publicationFilter);
+    connect(publicationModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
 
     NoteModel *noteModel = new NoteModel;
     noteModel->setLibrary(this);
@@ -290,6 +310,7 @@ void Library::setupModels()
     QSortFilterProxyModel *noteFilter = new QSortFilterProxyModel;
     noteFilter->setSourceModel(noteModel);
     m_resources.insert(Resource_Note, noteFilter);
+    connect(noteModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
 
     if(m_libraryType == Library_Project) {
         /*

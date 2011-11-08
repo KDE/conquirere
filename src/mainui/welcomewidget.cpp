@@ -117,6 +117,20 @@ void WelcomeWidget::updateStatistics()
         }
         m_htmlPart->executeScript(m_htmlPart->htmlDocument(), jsFunction );
     }
+
+    QString tagCloud;
+    QMapIterator<QString, int> j(m_library->tagCloud());
+    while (j.hasNext()) {
+        j.next();
+        tagCloud.append(j.key());
+        tagCloud.append(QLatin1String(", "));
+    }
+    tagCloud.chop(2);
+
+    QString jsFunction = QLatin1String("setTagCloud('");
+    jsFunction.append(tagCloud);
+    jsFunction.append(QLatin1String("')"));
+    m_htmlPart->executeScript(m_htmlPart->htmlDocument(), jsFunction );
 }
 
 void WelcomeWidget::generateHtml()
@@ -151,7 +165,6 @@ void WelcomeWidget::generateHtml()
     htmlPage.replace(QLatin1String("#LIBRARYINTRO#"), libraryIntro);
     htmlPage.replace(QLatin1String("#STATISTICHEADER#"), i18n("Statistics"));
     htmlPage.replace(QLatin1String("#TAGCLOUDHEADER#"), i18n("Tag Cloud"));
-    htmlPage.replace(QLatin1String("#TAGCLOUD#"), QLatin1String("yay whups morf yupps"));
 
     m_htmlPart->begin();
     m_htmlPart->write(htmlPage);

@@ -177,6 +177,8 @@ public:
       */
     void connectFetchIndicator(LibraryWidget *treeWidget);
 
+    QMap<QString, int> tagCloud();
+
 public slots:
     /**
       * Scans the project Library for new documents
@@ -184,6 +186,11 @@ public slots:
       * Used to automatically related files in the project folder to the project
       */
     void scanLibraryFolders();
+
+    void addTag(const QString & tag);
+
+signals:
+    void tagCloudChanged();
 
 private:
     /**
@@ -206,6 +213,7 @@ private:
     QSettings *m_settings;
 
     QMap<ResourceSelection, QSortFilterProxyModel*> m_resources;
+    QMap<QString, int> m_tagCloud;
 
 };
 

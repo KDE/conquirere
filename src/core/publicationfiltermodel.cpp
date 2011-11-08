@@ -29,7 +29,7 @@ PublicationFilterModel::PublicationFilterModel(QObject *parent)
 void PublicationFilterModel::setResourceFilter(ResourceFilter filter)
 {
     m_curFilter = filter;
-    invalidateFilter();
+    invalidateFilter(); // thats another slow down like hell
 }
 
 bool PublicationFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
