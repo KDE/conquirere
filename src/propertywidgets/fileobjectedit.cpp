@@ -51,7 +51,7 @@ void FileObjectEdit::setupLabel()
     QString dataStringList;
     foreach(const Nepomuk::Resource & nr, dataObjectList) {
         QString url = nr.property(Nepomuk::Vocabulary::NIE::url()).toString();
-        qDebug() << url << nr.type();
+
         if(m_mode == Local && nr.hasType(Nepomuk::Vocabulary::NFO::FileDataObject())) {
             dataStringList.append(url);
             dataStringList.append(QLatin1String("; "));

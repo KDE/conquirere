@@ -220,21 +220,21 @@ nbib: {
 
     nbib:DocumentPart
           a       rdfs:Class ;
-          rdfs:comment "A quote in a document" ;
-          rdfs:label "Quote" ;
+          rdfs:comment "a part of an document, mostly Chapters but alsow quotes etc. These don't have to be available as real file extracts but can also be linked to a real file, if available" ;
+          rdfs:label "Document Part" ;
           rdfs:subClassOf nie:InformationElement .
 
     nbib:Chapter
           a       rdfs:Class ;
           rdfs:comment "A chapter of a publication." ;
           rdfs:label "Chapter" ;
-          rdfs:subClassOf nie:DocumentPart .
+          rdfs:subClassOf nbib:DocumentPart .
 
     nbib:Quote
           a       rdfs:Class ;
           rdfs:comment "A quote in a document" ;
           rdfs:label "Quote" ;
-          rdfs:subClassOf nie:DocumentPart .
+          rdfs:subClassOf nbib:DocumentPart .
 
     nbib:JournalIssue
           a       rdfs:Class ;
@@ -478,9 +478,8 @@ nbib: {
     nbib:documentPart
           a       rdf:Property ;
           rdfs:domain nbib:Publication ;
-          rdfs:comment "Connects a publication to a part of it (for example a chapter or quotet passage)" ;
+          rdfs:comment "Connects a publication to a part of it (for example a chapter or quoted passage)" ;
           rdfs:label "documentPart" ;
-          rdfs:subPropertyOf nie:isLogicalPartOf ;
           nrl:inverseProperty nbib:documentPartOf ;
           rdfs:range nbib:DocumentPart .
 
@@ -489,7 +488,6 @@ nbib: {
           rdfs:domain nbib:DocumentPart ;
           rdfs:comment "Connects a part of a document to the publication it is from" ;
           rdfs:label "documentPartOf" ;
-          rdfs:subPropertyOf nie:hasLogicalPart ;
           nrl:inverseProperty nbib:documentPart ;
           rdfs:range nbib:Publication ;
           nrl:maxCardinality 1 .

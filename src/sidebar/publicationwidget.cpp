@@ -24,6 +24,7 @@
 
 #include "referencewidget.h"
 #include "contactdialog.h"
+#include "addchapterdialog.h"
 
 #include "nbib.h"
 #include <Nepomuk/Variant>
@@ -85,6 +86,20 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
     ui->editRating->setRating(m_publication.rating());
 
     selectLayout(entryType);
+
+    //fill the table of contents listWidget
+    ui->editTOC->clear();
+    QList<Nepomuk::Resource> tocResources = m_publication.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
+
+    foreach(Nepomuk::Resource r, tocResources) {
+        QListWidgetItem *i = new QListWidgetItem();
+        QString title = r.property(Nepomuk::Vocabulary::NIE::title()).toString();
+        QString number = r.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
+        QString listEntry = QString ("%1 : %2").arg(number).arg(title);
+        i->setText(listEntry);
+        i->setData(Qt::UserRole, r.resourceUri());
+        ui->editTOC->addItem(i);
+    }
 }
 
 void PublicationWidget::newBibEntryTypeSelected(int index)
@@ -214,10 +229,6 @@ void PublicationWidget::acceptContentChanges()
 {
     QString abstract = ui->editAbstract->document()->toPlainText();
     m_publication.setProperty(Nepomuk::Vocabulary::NBIB::abstract(), abstract);
-
-    QString toc = ui->editTOC->document()->toPlainText();
-    //    m_publication.setProperty(Nepomuk::Vocabulary::NBIB::abstract(), toc);
-    qWarning() << "change chapter/TOC edit";
 }
 
 void PublicationWidget::discardContentChanges()
@@ -242,6 +253,84 @@ void PublicationWidget::discardNoteChanges()
 
     QString annote = m_publication.property(Nepomuk::Vocabulary::NIE::comment()).toString();
     ui->editAnnote->document()->setPlainText(annote);
+}
+
+void PublicationWidget::addChapter()
+{
+    qDebug() << "##########################################################";
+    qDebug() << "all existing chapters before the add";
+
+    QList<Nepomuk::Resource> tocResources = m_publication.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
+
+    foreach(Nepomuk::Resource r, tocResources) {
+        QListWidgetItem *i = new QListWidgetItem();
+        QString title = r.property(Nepomuk::Vocabulary::NIE::title()).toString();
+        QString number = r.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
+        QString listEntry = QString ("%1 : %2").arg(number).arg(title);
+        qDebug() << listEntry << r.resourceUri();
+    }
+    qDebug() << "##########################################################";
+
+    AddChapterDialog acd;
+    acd.setPublication(m_publication);
+
+    int ret = acd.exec();
+    Nepomuk::Resource chapter = acd.resource();
+
+    if(ret == QDialog::Accepted) {
+        QListWidgetItem *i = new QListWidgetItem();
+        QString title = chapter.property(Nepomuk::Vocabulary::NIE::title()).toString();
+        QString number = chapter.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
+        QString listEntry = QString ("%1 : %2").arg(number).arg(title);
+        i->setText(listEntry);
+        i->setData(Qt::UserRole, chapter.resourceUri());
+        ui->editTOC->addItem(i);
+    }
+    else {
+        chapter.remove();
+    }
+
+    qDebug() << "##########################################################";
+    qDebug() << "all existing chapters after the add";
+
+    QList<Nepomuk::Resource> tocResources2 = m_publication.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
+
+    foreach(Nepomuk::Resource r, tocResources2) {
+        QListWidgetItem *i = new QListWidgetItem();
+        QString title = r.property(Nepomuk::Vocabulary::NIE::title()).toString();
+        QString number = r.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
+        QString listEntry = QString ("%1 : %2").arg(number).arg(title);
+        qDebug() << listEntry << r.resourceUri();
+    }
+    qDebug() << "##########################################################";
+}
+
+void PublicationWidget::editChapter()
+{
+    //get selected chapter
+    QListWidgetItem *i = ui->editTOC->currentItem();
+
+    Nepomuk::Resource tmpChapter(i->data(Qt::UserRole).toString());
+
+    AddChapterDialog acd;
+    acd.setResource(tmpChapter);
+
+    acd.exec();
+
+    //update chapter
+    QString title = tmpChapter.property(Nepomuk::Vocabulary::NIE::title()).toString();
+    QString number = tmpChapter.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
+    QString listEntry = QString ("%1 : %2").arg(number).arg(title);
+    i->setText(listEntry);
+}
+
+void PublicationWidget::removeChapter()
+{
+    QListWidgetItem *i = ui->editTOC->currentItem();
+    ui->editTOC->removeItemWidget(i);
+
+    Nepomuk::Resource chapter(i->data(Qt::UserRole).toUrl());
+    chapter.remove();
 }
 
 void PublicationWidget::changeRating(int newRating)

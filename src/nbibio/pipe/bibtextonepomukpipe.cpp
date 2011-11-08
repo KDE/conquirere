@@ -107,6 +107,7 @@ void BibTexToNepomukPipe::import(Entry *e)
 
     Nepomuk::Resource reference = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Reference());
     reference.setProperty(Nepomuk::Vocabulary::NBIB::citeKey(), e->id());
+    reference.setLabel(e->id()); // adds no real value, but looks nicer in the Nepomuk shell
     reference.setProperty(Nepomuk::Vocabulary::NBIB::publication(), publication);
     publication.addProperty(Nepomuk::Vocabulary::NBIB::reference(), reference);
 

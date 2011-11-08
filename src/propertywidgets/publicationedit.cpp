@@ -54,7 +54,9 @@ void PublicationEdit::updateResource(const QString & text)
     QUrl propUrl = propertyEntry(text);
 
     if(propUrl.isValid()) {
-        resource().addProperty( propertyUrl(), Nepomuk::Resource(propUrl));
+        Nepomuk::Resource selectedPublication(propUrl);
+        resource().addProperty( propertyUrl(), selectedPublication);
+        selectedPublication.addProperty(Nepomuk::Vocabulary::NBIB::reference(), resource());
     }
     else {
         // create a new publication with the string s as title
