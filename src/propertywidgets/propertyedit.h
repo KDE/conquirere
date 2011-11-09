@@ -231,10 +231,6 @@ private slots:
     void insertCompletion(const QModelIndex & index);
     void addCompletionData(const QList< Nepomuk::Query::Result > &entries);
 
-    // called when all values have been announced in addCompletionData
-    // quits the queryservice and calls createCompletionModel()
-    void queryFinished();
-
     void editingFinished();
     void editingAborted();
 
@@ -259,10 +255,6 @@ private:
     QCompleter *m_completer;
 
     QHash<QString, QUrl> m_listCache;
-
-    // local cache to overcome nepomuk bug with blockingquery
-    // todo check if the behaviour is changed when nepomuk from git master is used
-    QList< Nepomuk::Query::Result > resultCache;
 };
 
 #endif // PROPERTYEDIT_H

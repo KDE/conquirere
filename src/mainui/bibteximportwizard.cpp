@@ -32,11 +32,6 @@
 #include <KDE/KParts/Part>
 #include <KDE/KStandardDirs>
 
-//#include <Akonadi/Item>
-//#include <KABC/Addressee>
-//#include <Akonadi/ItemFetchJob>
-//#include <Akonadi/ItemCreateJob>
-//#include <Akonadi/CollectionCreateJob>
 #include <Akonadi/CollectionFetchJob>
 #include <Akonadi/CollectionFetchScope>
 

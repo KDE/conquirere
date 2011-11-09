@@ -74,7 +74,6 @@ PropertyEdit::PropertyEdit(QWidget *parent)
     //create the query client to fetch resource data for the autocompletion
     m_queryClient = new Nepomuk::Query::QueryServiceClient();
     connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addCompletionData(QList<Nepomuk::Query::Result>)));
-    connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(queryFinished()));
 
     m_completer = new QCompleter(this);
     m_completer->setWidget(m_lineEdit);
@@ -165,7 +164,6 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
 
     if(range.isValid() && !range.uri().isEmpty()) {
         // get all resources of type range
-        resultCache.clear();
         Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( QUrl(range.uri()) ) );
         m_queryClient->query(query);
     }
@@ -377,13 +375,5 @@ void PropertyEdit::resourceUpdatedExternally()
 
 void PropertyEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entries)
 {
-    if(!entries.isEmpty()) {
-        resultCache.append(entries);
-    }
-}
-
-void PropertyEdit::queryFinished()
-{
-    m_queryClient->close();
-    createCompletionModel(resultCache);
+    createCompletionModel(entries);
 }
