@@ -1,0 +1,140 @@
+/**
+@mainpage Conquirere - a Nepomuk powered research tool.
+
+@author Jörg Ehrichs <joerg.ehrichs@gmx.de>
+
+<p><b>
+Overview |
+\ref ontology "bibliographic ontology" |
+\ref hacking "Source structure" |
+</b></p>
+
+\section overview The General Idea
+
+Conquirere is a program to organize documents and their publication data together with some other usefull information connected to it.
+
+The user can add all necessary publication data (authors, publisher, publication date and so on) and create references to it that point at a specific document or even a specific chapter/page in the document.
+
+The publication data can be imported/exportet from/to BibTeX and used by any other program that understands the BibTeX format. Additional publications can be searched via KBibTeX websearch functionality.
+
+Furthermore notes and bookmarks can be organized and connected to a specific publication.
+
+When the user whants to research a new topic, a new project can be created and the already existing informations can be connected to it. This allows to reuse existing data in the nepomuk storage and avoids duplication.
+
+Documents can stay at one place on the harddrive and easily found via Conquirere.
+
+In the future Conquirere will allow to anotate specific parts in a document and act as a fullblown research helper. Also extracting keywords and find new content based on the existing content will be in the scope of this program. For backup purposes integration with Zotero and ownCloud will be added too.
+
+*/ 
+
+/** \page ontology bibliographic ontology
+
+<p><b>
+\ref index "Overview" |
+bibliographic ontology |
+\ref hacking "Source structure" |
+</b></p>
+
+\section ontology_overview Overview
+
+The bibliographic ontology (NBIB namespace) defines how the data is saved in the nepomuk storage.
+
+The important files are in the nbib directory. The ontology is in the file nbib/nbib.trig.
+
+Have a look at the UML digrams and the bibo_mapping.txt, bibtex_mapping.txt to get a clue how all this is working and connected with each other.
+
+*/
+
+/** \page hacking Source structure
+
+<p><b>
+\ref index "Overview" |
+\ref ontology "bibliographic ontology" |
+Source structure |
+</b></p>
+
+\section hacking_overview Source structure
+
+In the case you want to help developing this program or fix some bugs the following stuff will help you get started.
+
+The heart of Conquirere is the Nepomuk storage and the developed \ref ontology.
+
+The source part is split into a few areas:
+ - core
+ - mainui
+ - nbibio
+ - propertywidgets
+ - sidebar
+
+\subsection src_core src/core
+
+In this folder two important classes are defined. The Library is a collection of all publication/document/note/bookmark etc resources found in the nepomuk storage.
+
+Conquirere always starts with the system library that represents all of nepomuk content. Furthermore the USer can create new personal librarys that contain only a subset of this data. The connection in nepomuk is done via the PIMO::isRelated() property.
+
+The other important classes are the NepomukModel and its subclasses. They fetch the nepomuk content and press them into a QAbstractTableModel representation that can be viewed in a QTableView.
+
+Some other helpers are the HtmlDelegate and RatingDelegate that defines how some things are displayed in a table entry.
+
+\subsection src_nbibio src/nbibio
+
+In this section of the code all import/export operations are stored.
+
+The concept for this is to reuse as much as possible from KBibTeX im-/exporters.
+This means, whenever possible imported data is parsed into KBibTeX file format. And imported into Nepomuk via BibTexToNepomukPipe. The same with the exporting stuff.
+
+When new importer/exporter are written that respect the KBibTeX format, they should be added the KBibTeX svn instead of Conquirere. In the case you would loose information during import/export a new class that imports directly into Nepomuk should be written.
+
+If no file im/export is used, because we handle data directly from clipboard, internet etc a new pipe action is created that transforms data from one representation into another. See BibTexPipe and NepomukPipe.
+
+\subsection src_mainui src/mainui
+
+This part contains all classes related to the look and feel of the applications. These consits of the BibTeXImportWizard and BibTexExportDialog as a frontend for the \ref src_nbibio. Also several QDockWidget classes that contain all the user interaction parts.
+
+Most noticeable are the:
+\li LibraryWidget - lists all open Library instances and their content.
+\li WebSearchWidget - frontend for KBibTeX websearch
+\li DocumentPreview - integrates KPart elements to display documents inside Conquirere.
+\li ResourceTableWidget - the center view that offers a QTableView to display all NepomukModel data
+\li WelcomeWidget - shows a KHtml part to display some library informations
+
+\subsection src_propertywidgets src/propertywidgets
+
+These classes are input helper to handle input and display of Nepomuk data. The abstract baseclass PropertyEdit is the starting point for any other edit widget.
+
+All these widget will show a KSqueezedTextLabel in the normal state. As soon as the user clicks on it, it will show a KLineEdit to alter the data. Each string represents one Nepomuk entry. Multiple strings are seperated by a "; ". In the case a simple line edit does not justify the complex data of a nepomuk entry a small button for a detail dialog can be shown via PropertyEdit::setUseDetailDialog() to avoid direct editing without such a detail dialog you can set PropertyEdit::setDirectEdit() to false.
+
+To define "what" the property edit actually represents the Nepomuk::Resource must be set via PropertyEdit::setResource() and the property that will be altered via PropertyEdit::setPropertyUrl().
+
+The neat thing about this widgets are the QCompleter function. Whenever a widget is used, it fetches all Nepomuk data in the range of the property url. SO any resource that might fitt in this case and offers automatic completion.
+
+If you want to add your own propertywidgets have a look at StringEdit, ContactEdit, DateEdit or FileObjectEdit as reference.
+
+The propertywidgets are used mainly in the SidbarWidget subclasses. See \ref src_sidebar
+
+\subsection src_sidebar src/sidebar
+
+The SidebarWidget is an intelligent QDockwidget that shows content related widget for the actual view. Which Widget is shown depends on the selection made in the LibraryWidget for example if the user selects all publications in the LibraryWidget the PublicationWidget is shown. The informations that are displayed depends on the Nepomuk::Resource selected in the ResourceTableWidget. All this stuff is connected via signal/slots in the coresponding classes.
+
+Some important widgets are:
+\li DocumentWidget
+\li PublicationWidget
+\li ReferenceWidget
+\li NoteWidget
+
+Also when more than 1 Nepomuk::Resource  is selected the MergeResourcesWidget is shown that lets the user merge several Nepomuk::Resources into 1.
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -5,7 +5,6 @@ set(nbibio_LIB_SRCS
 
     nbibimporter.cpp
     nbibimporterbibtex.cpp
-    conflictmanager.cpp
 
     pipe/bibtextoclipboardpipe.cpp
     pipe/bibtextonepomukpipe.cpp

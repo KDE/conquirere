@@ -16,7 +16,6 @@
  */
 
 #include "resourcetablewidget.h"
-#include "projecttreewidget.h"
 #include "../core/library.h"
 #include "../core/nepomukmodel.h"
 #include "../core/publicationfiltermodel.h"

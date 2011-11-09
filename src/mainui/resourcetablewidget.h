@@ -18,7 +18,6 @@
 #ifndef RESOURCETABLEWIDGET_H
 #define RESOURCETABLEWIDGET_H
 
-#include "projecttreewidget.h"
 #include "../globals.h"
 
 #include <Nepomuk/Resource>
