@@ -56,7 +56,7 @@ kde4_add_ui_files( conquirere_SRCS
 nepomuk_add_ontology_classes(conquirere_SRCS ONTOLOGIES ${CMAKE_SOURCE_DIR}/nbib/nbib.trig)
 soprano_add_ontology(conquirere_SRCS ${CMAKE_SOURCE_DIR}/nbib/nbib.trig "NBIB" "Nepomuk::Vocabulary" "trig")
 
-#kde4_add_app_icon(kalgebra_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/../icons/hi*-app-kalgebra.png")
+kde4_add_app_icon(conquirere_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/../icons/hi*-app-conquirere.png")
 kde4_add_executable(conquirere ${conquirere_SRCS})
 
 target_link_libraries(conquirere
@@ -84,5 +84,5 @@ kbibtexproc
 
 install(TARGETS conquirere DESTINATION ${BIN_INSTALL_DIR})
 
-#install(FILES conquirere.desktop DESTINATION ${XDG_APPS_INSTALL_DIR})
+install(FILES conquirere.desktop DESTINATION ${XDG_APPS_INSTALL_DIR})
 install(FILES conquirereui.rc    DESTINATION ${DATA_INSTALL_DIR}/conquirere)

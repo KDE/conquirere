@@ -33,6 +33,7 @@ include_directories (${CMAKE_SOURCE_DIR}
 add_subdirectory( src )
 add_subdirectory( html )
 add_subdirectory( xslt )
+add_subdirectory( icons )
 
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen)
