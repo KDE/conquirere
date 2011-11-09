@@ -36,7 +36,7 @@ SearchResultModel::SearchResultModel(QObject *parent) :
     QAbstractListModel(parent)
 {
     exporterXSLT = new FileExporterXSLT();
-    exporterXSLT->setXSLTFilename(KStandardDirs::locate("data", QLatin1String("conquiere/simple.xsl")));
+    exporterXSLT->setXSLTFilename(KStandardDirs::locate("data", QLatin1String("conquirere/simple.xsl")));
 }
 
 SearchResultModel::~SearchResultModel()
