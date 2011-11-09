@@ -22,8 +22,6 @@
 #include <kbibtex/file.h>
 #include <kbibtex/fileexporterbibtex.h>
 
-#include <QDebug>
-
 NBibExporterBibTex::NBibExporterBibTex()
     : NBibExporter()
 {
@@ -36,26 +34,26 @@ NBibExporterBibTex::~NBibExporterBibTex()
 
 bool NBibExporterBibTex::save(QIODevice *iodevice, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog)
 {
-    Q_UNUSED(errorLog);
-
     if(referenceList.isEmpty()) {
+        QString error = i18n("No resources specified for the export to bibtex.");
+        errorLog->append(error);
         return false;
     }
 
     NepomukToBibTexPipe ntbp;
-
     ntbp.pipeExport(referenceList);
-
     File f = ntbp.bibtexFile();
 
     emit progress( 50 );
 
     if(m_cancel) {
+        QString error = i18n("The user canceled the export.");
+        errorLog->append(error);
         return false;
     }
 
     FileExporterBibTeX feb;
-    feb.save(iodevice, &f);
+    feb.save(iodevice, &f, errorLog);
 
     emit progress( 100 );
 

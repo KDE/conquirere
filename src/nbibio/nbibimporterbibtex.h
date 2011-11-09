@@ -22,10 +22,20 @@
 
 #include <Akonadi/Collection>
 
-class KJob;
 class File;
 class EntryClique;
 
+/**
+  * @brief Imports a bibtex file into the nepomuk storage.
+  *
+  * Makes use of the KBibTeX::FileImporterBibTeX to read a bibtex file, and optionally finds any duplicates
+  * in this file via KBibTeX::FindDuplicates.
+  *
+  * Afterwards the imported KBibTeX::File is imported via the BibTexToNepomukPipe int othe Nepomuk storage.
+  * An Akonadi addressbook can be specified which will be used by the BibTexToNepomukPipe to add all authors
+  * also into Akonadi and not only into Nepomuk.
+  *
+  */
 class NBibImporterBibTex : public NBibImporter
 {
     Q_OBJECT
@@ -33,27 +43,84 @@ public:
     explicit NBibImporterBibTex();
     virtual ~NBibImporterBibTex();
 
-    void setAkonadiAddressbook(Akonadi::Collection & addressbook);
-    void setImportContactToAkonadi(bool import);
-    void setFindDuplicates(bool findThem);
-
+    /**
+      * loads the bibtex file directly into the nepomuk staorage without using Akonadi or the possibility
+      * to find duplicates first.
+      *
+      * @p iodevice the device to read from via KBibTeX::FileImporterBibTeX
+      * @p errorLog pointer to the errors
+      *
+      * Better use the single chains
+      * @li setAkonadiAddressbook()
+      * @li setFindDuplicates()
+      * @li readBibFile() which calls findDuplicates() if specified
+      * @li pipeToNepomuk()
+      * and handle user interaction before the pipe to nepomuk.
+      */
     bool load(QIODevice *iodevice, QStringList *errorLog = NULL);
 
-    bool readBibFile(const QString & filename);
+    /**
+      * Sets the Akonadi addressbook where all contacts (authors, editors etc) are imported to beside the Nepomuk storage.
+      *
+      * @p addressbook a valid Akonadi::Collection representing a addressbook
+      */
+    void setAkonadiAddressbook(Akonadi::Collection & addressbook);
+
+    /**
+      * Specify if duplicate entries in the imported bibtex file should be searched.
+      *
+      * The duplicates can be retrieved via duplicates() and changed via KBibTeX::FindDuplicatesUi
+      */
+    void setFindDuplicates(bool findThem);
+
+    /**
+      * Calls KBibTeX::FileImporterBibTeX to read the bibtex file @p filename into the system.
+      *
+      * Also calls findDuplicates() if setFindDuplicates() is true.
+      *
+      * @p filename the path and name of the file to read from via KBibTeX::FileImporterBibTeX
+      * @p errorLog pointer to the errors
+      */
+    bool readBibFile(const QString & filename, QStringList *errorLog = NULL);
+
+    /**
+      * @return the bibtex file as returned from KBibTeX::FileImporterBibTeX
+      */
     File *bibFile();
 
+    /**
+      * Uses KBibTeX::FindDuplicates to find all duplicate entries in the imported KBibTeX::File
+      *
+      * the results can be retrieved via duplicates()
+      */
     bool findDuplicates();
+
+    /**
+      * @return the list of duplicated entries that can be used by KBibTeX::FindDuplicatesUi
+      */
     QList<EntryClique*> duplicates();
-    bool pipeToNepomuk();
+
+    /**
+      * The main importer that takes the read input from readBibFile() and puts it into the nepomuk storage
+      *
+      * @p errorLog pointer to the errors
+      */
+    bool pipeToNepomuk(QStringList *errorLog = NULL);
 
 private slots:
+    /**
+      * Transforms the process signals from KBibTeX into a 0-100% range
+      *
+      * Used to transform readBibFile() signal to 0-50 and findDuplicates() to 50-100.
+      *
+      * @see progress();
+      */
     void calculateImportProgress(int current, int max);
 
 private:
     File *m_importedEntries;
     bool m_findDuplicates;
     QList<EntryClique*> m_cliques;
-    bool m_contactToAkonadi;
     Akonadi::Collection m_addressbook;
 };
 

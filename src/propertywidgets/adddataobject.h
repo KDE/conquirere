@@ -30,6 +30,8 @@ namespace Ui {
 class KUrlRequester;
 
 /**
+  * @brief Dialog to add several dataobject paths to a resource
+  *
   * @bug use Nepomuk::Vocabulary::NFO::WebDataObject() instead of Nepomuk::Vocabulary::NFO::Website() as soon as an updated soprano ontology is available
   */
 class AddDataObject : public QDialog

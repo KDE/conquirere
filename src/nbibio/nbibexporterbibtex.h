@@ -23,6 +23,8 @@
 /**
   * @brief Exports a list of publication or reference resources to a bibtex file
   *
+  * Makes use of the NepomukToBibTexPipe to transform all Nepomuk data into KBibTeX format and
+  * uses KBibTeX::FileExporterBibTeX to export it to a bibtex file.
   */
 class NBibExporterBibTex : public NBibExporter
 {
@@ -38,6 +40,12 @@ public:
       *
       * @see NepomukToBibTexPipe
       * @see FileExporterBibTeX
+      *
+      * @p iodevice the device the exporter writes into
+      * @p referenceList list of all Nepomuk::Resources used for the export
+      * @p errorLog pointer to the error list
+      *
+      * @pre referenceList must be a list of NBIB::Publication or NBIB::Resource
       */
     bool save(QIODevice *iodevice, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog = NULL);
 };

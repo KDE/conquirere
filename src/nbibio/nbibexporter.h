@@ -26,6 +26,11 @@ class QIODevice;
 
 /**
   * @brief Abstract base class for any kind of file exporter
+  *
+  * If possible subclasses should make use of the NepomukToBibTexPipe and the actual exporter implemented in the KBibTeX
+  * svn repo and reused here.
+  *
+  * Only if the way via KBibTeX is not possible a completly own way should be used.
   */
 class NBibExporter : public QObject
 {
@@ -37,7 +42,13 @@ public:
     /**
       * Exports a list of publication or reference resources to @p filename
       *
-      * calls save internally
+      * calls save() internally
+      *
+      * @p filename the path and name of the file the exporter writes into
+      * @p referenceList list of all Nepomuk::Resources used for the export
+      * @p errorLog pointer to the error list
+      *
+      * @pre referenceList must be a list of NBIB::Publication or NBIB::Resource
       */
     bool toFile( const QString &filename, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog = NULL);
 
@@ -45,6 +56,12 @@ public:
       * Exports a list of publication or reference resources
       *
       * Must be implemented in any subclass
+      *
+      * @p iodevice the iodevice the exporter writes into
+      * @p referenceList list of all Nepomuk::Resources used for the export
+      * @p errorLog pointer to the error list
+      *
+      * @pre referenceList must be a list of NBIB::Publication or NBIB::Resource
       */
     virtual bool save(QIODevice *iodevice, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog = NULL) = 0;
 
@@ -55,6 +72,11 @@ signals:
     void progress(int current);
 
 public slots:
+    /**
+      * cancels the export process.
+      *
+      * subclasses must check the m_cancel value to see if they have to cancel the process
+      */
     virtual void cancel();
 
 protected:

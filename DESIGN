@@ -1,30 +1,7 @@
 
-This file should give a really smal overview how all the stuff is connected
 
-Folders:
-nbib     		=> bibtex ontology for nepomuk
-src      		=> source code ;)
-+ 
-+- core  		=> core stuff to define the library and the data models also importer/exporter stuff
-|
-+-+ mainui    		=> all the general ui stuff
-|
-+-propertywidgets	=> Set of general widgets to easily manipulate nupomuk meta data
-|                          for example a new QLineEdit class etc.
-|
-+- sidebar		=> all widgets for the sidebar that shows the connected nepomuk resource data
+please run see the doxygen documentation for more details
 
-Function:
-The idea is, that nepomuk does all the work.
-This program creates a nepomuk tag and some folder structure.
-All the data can but don't have to be placed in the project folder
+rum cmake and create the documentation via
 
-Strigi/Nepomuk collect all data outside the project fodler and make them available
-
-Conquierer is only used to manipulate metadata and collection handling
-Also it allows to start external programs to work with the data itself
-*Okular for pdf files
-*Kmail for mails
-*Konquerer for bookmarks
- and so on
-maybe someday everything will be imbedded via kparts into one program
+make doc

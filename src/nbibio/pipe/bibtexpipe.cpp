@@ -19,6 +19,7 @@
 
 BibTexPipe::BibTexPipe()
     :QObject(0)
+    , m_errorLog(0)
 {
 }
 
@@ -26,3 +27,7 @@ BibTexPipe::~BibTexPipe()
 {
 }
 
+void BibTexPipe::setErrorLog(QStringList *errorLog)
+{
+    m_errorLog = errorLog;
+}

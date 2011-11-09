@@ -21,10 +21,10 @@
 #include "propertyedit.h"
 
 /**
-  * @brief Used to add NFO::FileDataObject() or NFO::RemoteDataObject() to the publication
+  * @brief Used to add NFO::FileDataObject(), NFO::RemoteDataObject() or NFO::WebsiteDataObject() to the publication
   *
   * This is responsible for the connection to the localfiles or files hosted at a remote
-  * place for the publication
+  * place for the publication. Also the url part is handled via NFO::WebsiteDataObject()
   */
 class FileObjectEdit : public PropertyEdit
 {
@@ -33,24 +33,36 @@ public:
     explicit FileObjectEdit(QWidget *parent = 0);
 
     enum Mode {
-        Local,
-        Remote,
-        Website
+        Local,   /**< add NFO::FileDataObject() */
+        Remote   /**< add NFO::RemoteDataObject() */,
+        Website  /**< add NFO::WebsiteDataObject() */
     };
 
+    /**
+      * Sets teh mode for this widget
+      */
     void setMode(Mode mode);
 
 protected:
+    /**
+      * shows a list of all used data objects split by ;
+      */
     void setupLabel();
 
+    /**
+      * completion is ignored for this widget, as direct edit is not allowed either
+      */
     virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     /**
-      * @todo add http://oscaf.sourceforge.net/ndo.html#ndo:copiedFrom
+      * is done externally via AddDataObject
       */
     virtual void updateResource( const QString & text );
 
 private slots:
+    /**
+      * opens the file selection dialog AddDataObject
+      */
     void showFileSelection();
 
 private:

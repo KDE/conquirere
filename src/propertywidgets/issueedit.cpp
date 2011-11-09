@@ -36,7 +36,7 @@ IssueEdit::IssueEdit(QWidget *parent)
 
 void IssueEdit::setupLabel()
 {
-    //check if resource() is an article with attached Issue collection
+    //check if resource() is an publication with attached Issue collection
     QString title;
 
     Nepomuk::Resource issueResource = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
@@ -46,8 +46,8 @@ void IssueEdit::setupLabel()
 
         addPropertryEntry(title, resource().uri());
 
-        m_issueType = issueResource.type();
-        m_seriesType = seriesResource.type();
+        m_issueType = issueResource.type(); // saves which subclass of collection is used
+        m_seriesType = seriesResource.type(); // saves which subclass of series is used
     }
 
     setLabelText(title);
@@ -111,7 +111,7 @@ void IssueEdit::detailEditRequested()
 {
     QStringList items;
     int curItem;
-    items << tr("Collection") << tr("Journal") << tr("Magazine") << tr("Newspaper");
+    items << i18n("Collection") << i18n("Journal") << i18n("Magazine") << i18n("Newspaper");
 
     if(m_seriesType == Nepomuk::Vocabulary::NBIB::Journal()) {
         curItem = 1;
@@ -126,8 +126,8 @@ void IssueEdit::detailEditRequested()
         curItem = 0;
 
     bool ok;
-    QString item = QInputDialog::getItem(this, tr("Issue type of the article"),
-                                         tr("Define the type of the issue:"), items, curItem, false, &ok);
+    QString item = QInputDialog::getItem(this, i18n("Issue type of the article"),
+                                         i18n("Define the type of the issue:"), items, curItem, false, &ok);
     if (ok && !item.isEmpty()) {
         int i = items.indexOf(item);
         switch(i) {

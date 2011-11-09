@@ -23,7 +23,7 @@
 #include <kbibtex/file.h>
 
 /**
-  * Interface for any pipe action that transforms a KBibTeX File into something else
+  * @brief Interface for any pipe action that transforms a KBibTeX File into something else
   */
 class BibTexPipe : public QObject
 {
@@ -34,14 +34,23 @@ public:
     virtual ~BibTexPipe();
 
     /**
+      * Sets the pointer for the error log
+      *
+      * used to find out what errors happend during the export
+      */
+    void setErrorLog(QStringList *errorLog = NULL);
+
+    /**
       * Does the piping action
       *
-      * @p bibEntries File is a list of all Entry elements which form a bibtex entry
+      * @p bibEntries is a list of all Entry elements which form a bibtex entry
       */
     virtual void pipeExport(File & bibEntries) = 0;
 
 signals:
     void progress(int value);
 
+protected:
+    QStringList *m_errorLog;
 };
 #endif // BIBTEXPIPE_H

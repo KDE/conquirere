@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     Nepomuk::ResourceManager::instance()->init();
 
     KAboutData aboutData( "conquirere", 0,
-                          ki18n("Conquirere"), "0.0.1",
+                          ki18n("Conquirere"), "0.1",
                           ki18n("Research Helper Tool"),
                           KAboutData::License_GPL,
                           ki18n("Copyright (c) 2011 Jörg Ehrichs") );

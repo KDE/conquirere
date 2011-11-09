@@ -1,5 +1,5 @@
 /**
-@mainpage Conquirere - a Nepomuk powered research tool.
+@mainpage Conquirere
 
 @author Jörg Ehrichs <joerg.ehrichs@gmx.de>
 
@@ -41,8 +41,19 @@ The bibliographic ontology (NBIB namespace) defines how the data is saved in the
 
 The important files are in the nbib directory. The ontology is in the file nbib/nbib.trig.
 
-Have a look at the UML digrams and the bibo_mapping.txt, bibtex_mapping.txt to get a clue how all this is working and connected with each other.
+Have a look at the bibo_mapping.txt, bibtex_mapping.txt to get a clue how all this is working and connected with each other.
 
+An UML overview of the ontology can be seen below. These are the main parts of this ontology
+\image html design_overview.jpeg "ontology overview"
+
+To specify the publications any further, there exist more detailed ontology for any kind of articles
+\image html nbib_articles.jpeg "Article related"
+
+Here is a small list of other publications that can be handled by this ontology
+\image html nbib_other.jpeg "others"
+
+The ontology part below is used for law related publications
+\image html nbib_law.jpeg "Law related"
 */
 
 /** \page hacking Source structure

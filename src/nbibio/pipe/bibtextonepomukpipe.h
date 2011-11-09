@@ -23,6 +23,8 @@
 #include <kbibtex/value.h>
 #include <Nepomuk/Resource>
 
+#include <Akonadi/Collection>
+
 #include <QtCore/QUrl>
 #include <QtCore/QList>
 
@@ -48,6 +50,13 @@ public:
       * @p bibEntries File is a list of all Entry elements which form a bibtex entry
       */
     void pipeExport(File & bibEntries);
+
+    /**
+      * Sets the Akonadi addressbook where all contacts (authors, editors etc) are imported to beside the Nepomuk storage.
+      *
+      * @p addressbook a valid Akonadi::Collection representing a addressbook
+      */
+    void setAkonadiAddressbook(Akonadi::Collection & addressbook);
 
 private:
     /**
@@ -78,6 +87,11 @@ private:
     void addJournal(const Value &journal, const Value &volume, const Value &number, Nepomuk::Resource publication);
     void addAbstract(const QString &content, Nepomuk::Resource publication);
     void addAnnote(const QString &content, Nepomuk::Resource publication);
+
+    /**
+      * @bug Akonadifeeder bug. item->url() can't be used to create a Resource anymore. It will result in a new resource with random URI and url to the akonadiitem
+      *      this results in duplication of the contacts which won't be updated correctly
+      */
     void addAuthor(const Value &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
     void addBooktitle(const QString &content, Nepomuk::Resource publication, const QString & originalEntryType);
     void addChapter(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference);
@@ -85,6 +99,11 @@ private:
     void addCrossref(const QString &content, Nepomuk::Resource publication);
     void addDoi(const QString &content, Nepomuk::Resource publication);
     void addEdition(const QString &content, Nepomuk::Resource publication);
+
+    /**
+      * @bug Akonadifeeder bug. item->url() can't be used to create a Resource anymore. It will result in a new resource with random URI and url to the akonadiitem
+      *      this results in duplication of the contacts which won't be updated correctly
+      */
     void addEditor(const Value &content, Nepomuk::Resource publication);
     void addEprint(const QString &content, Nepomuk::Resource publication);
     void addHowPublished(const QString &content, Nepomuk::Resource publication);
@@ -112,6 +131,7 @@ private:
     QList<Nepomuk::Resource> m_allContacts;
     QList<Nepomuk::Resource> m_allPublications;
     QList<Nepomuk::Resource> m_allReferences;
+    Akonadi::Collection m_addressbook;
 };
 
 #endif // BIBTEXTONEPOMUKPIPE_H

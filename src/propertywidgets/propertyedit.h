@@ -61,6 +61,9 @@ class PropertyEdit : public QWidget
 {
     Q_OBJECT
 public:
+    /**
+      * Defines if the widget can have more than 1 value. Multiple values will be split by an ;
+      */
     enum Cardinality {
         UNIQUE_PROPERTY,
         MULTIPLE_PROPERTY
@@ -78,7 +81,15 @@ public:
       * returns a list of resources for all propertys inserted into the edit widget
       */
     QList<Nepomuk::Resource> propertyResources();
+
+    /**
+      * Returns the property url for this widget
+      */
     QUrl propertyUrl();
+
+    /**
+      * returns the label text that is shown
+      */
     QString labelText();
 
     /**
@@ -188,11 +199,31 @@ protected:
       */
     virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries ) = 0;
 
+    /**
+      * Sets the used completion model to the QCompleter.
+      *
+      * The Model is created by the subclass in the implemented createCompletionModel() function
+      */
     void setCompletionModel(QAbstractItemModel *model);
 
+    /**
+      * Saves the Nepomuk::Resource URI for an entry displayed in the Label.
+      *
+      * Helps to easily lookup existing resources inserted by hand or via the QCompleter
+      */
     void addPropertryEntry(const QString &entryname,const QUrl & propertyUrl);
+
+    /**
+      * Returns the cached resource uri of the string entry
+      */
     QUrl propertyEntry(const QString &entryname);
 
+    /**
+      * Emits the widgetEnabled() signal once this widget is disabled
+      *
+      * Used to disable/endable the connected QLabel that describes what this widget means.
+      * @see PublicationWidget
+      */
     void changeEvent( QEvent * event );
 
 private slots:

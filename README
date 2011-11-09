@@ -13,12 +13,12 @@ Furthermore this program allows to add additional metadata to each file.
 
 * Already working:
 ** BibTex data to documents to generate .bib files automatically
+** Fetch BibTex data automatically via libkbibtexio
 
 * Future ideas:
 ** List annotations for exmple specific parts of a pdf document tagged via Okular
 ** List bookmarks and save the wepage to disk if necessary
-** Fetch BibTex data automatically via libkbibtexio
-** Recomend new webpages/documents based on tagclouds generated from existing data
+** Recommend new webpages/documents based on tagclouds generated from existing data
 ** possible many other things
 
 #################################################################

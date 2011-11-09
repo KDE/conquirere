@@ -20,16 +20,32 @@
 
 #include "propertyedit.h"
 
+/**
+  * @brief Changes the @c nbib:organization of a proceedings
+  *
+  * @pre resource must be @c nbib:proceedings or @c nbib:article
+  */
 class OrganizationEdit : public PropertyEdit
 {
 public:
     OrganizationEdit(QWidget *parent = 0);
 
 protected:
+    /**
+      * Shows the @c nco:fillname of the @ nco:OrganizationContact
+      */
     void setupLabel();
 
+    /**
+      * fills the QCompleter with all fullnames of all available @c nco:OrganizationContact s
+      */
     virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
+    /**
+      * Removes any old organization connected to the proceedings and adds the new entered.
+      *
+      * Already existing resources will be used if available, or a complete new created
+      */
     virtual void updateResource( const QString & text );
 };
 

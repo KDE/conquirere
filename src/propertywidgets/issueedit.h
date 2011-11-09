@@ -21,6 +21,7 @@
 #include "propertyedit.h"
 
 #include <QUrl>
+
 /**
   * @brief Used to edit a single Issue
   *
@@ -34,18 +35,33 @@ public:
     IssueEdit(QWidget *parent = 0);
 
 protected:
+    /**
+      * Shows the @c nie:title of the collection connected to the nbib:article
+      */
     void setupLabel();
 
+    /**
+      * fills the QCompleter with the titles of all available nbib:collections
+      */
     virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
+    /**
+      * changes the @c nie:title
+      */
     virtual void updateResource( const QString & text );
 
 private slots:
+    /**
+      * opens a dialog to switch the type of collection/issue used
+      *
+      * Thus one can change from a standard nbib:collection to nbib:journalIssue or nbib:newspaperIssue
+      * the Series will be changed automatically with it
+      */
     void detailEditRequested();
 
 private:
-    QUrl m_issueType;
-    QUrl m_seriesType;
+    QUrl m_issueType;  /**< saves which subclass of collection is used */
+    QUrl m_seriesType; /**< saves which subclass of series is used */
 };
 
 #endif // ISSUEEDIT_H

@@ -59,7 +59,7 @@ void PublicationEdit::updateResource(const QString & text)
         selectedPublication.addProperty(Nepomuk::Vocabulary::NBIB::reference(), resource());
     }
     else {
-        // create a new publication with the string s as title
+        // create a new publication with the string text as title
         Nepomuk::Resource newPublication(propUrl, Nepomuk::Vocabulary::NBIB::Publication());
         newPublication.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
         resource().setProperty( propertyUrl(), newPublication);

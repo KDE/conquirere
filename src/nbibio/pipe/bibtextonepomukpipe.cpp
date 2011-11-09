@@ -36,6 +36,14 @@
 #include <Nepomuk/Query/ComparisonTerm>
 #include <Nepomuk/Query/AndTerm>
 
+#include <Akonadi/Item>
+#include <KABC/Addressee>
+#include <Akonadi/ItemFetchJob>
+#include <Akonadi/ItemCreateJob>
+#include <Akonadi/CollectionCreateJob>
+#include <Akonadi/CollectionFetchJob>
+#include <Akonadi/CollectionFetchScope>
+
 #include <QtCore/QDebug>
 
 BibTexToNepomukPipe::BibTexToNepomukPipe()
@@ -53,7 +61,6 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
 
     // we start by fetching all contacts for the conflict checking
     // this reduce the need to query nepomuk with every new author again and again
-    // the storage got out of sync otherwise
     Nepomuk::Query::ResourceTypeTerm type( Nepomuk::Vocabulary::NCO::Contact() );
     Nepomuk::Query::Query query( type );
     QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
@@ -97,6 +104,12 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
     }
 
     emit progress(100);
+}
+
+
+void BibTexToNepomukPipe::setAkonadiAddressbook(Akonadi::Collection & addressbook)
+{
+    m_addressbook = addressbook;
 }
 
 void BibTexToNepomukPipe::import(Entry *e)
@@ -517,39 +530,55 @@ void BibTexToNepomukPipe::addAuthor(const Value &contentValue, Nepomuk::Resource
 
         if(!a.isValid()) {
             qDebug() << "create a new Contact resource for " << author.full;
-            /*
-            KABC::Addressee addr;
-            addr.setFamilyName( author.last );
-            addr.setGivenName( author.first );
-            addr.setAdditionalName( author.middle );
-            addr.setName( author.full );
-            addr.setFormattedName( author.full );
 
-            Akonadi::Item item;
-            item.setMimeType( KABC::Addressee::mimeType() );
-            item.setPayload<KABC::Addressee>( addr );
+            if(m_addressbook.isValid()) {
+                qDebug() << "add author to akonadi";
+                KABC::Addressee addr;
+                addr.setFamilyName( author.last );
+                addr.setGivenName( author.first );
+                addr.setAdditionalName( author.suffix );
+                addr.setName( author.full );
+                addr.setFormattedName( author.full );
 
-            Akonadi::ItemCreateJob *job = new Akonadi::ItemCreateJob( item, m_collection );
+                Akonadi::Item item;
+                item.setMimeType( KABC::Addressee::mimeType() );
+                item.setPayload<KABC::Addressee>( addr );
 
-            if ( !job->exec() ) {
-                qDebug() << "Error:" << job->errorString();
-            } else {
-            */
-            //thats horrible, at the end two different nepomuk resources will be available
-            // because the akonadi feeder creates another resource for the contact which is unknown at this point
-            // but I need a proper resource to be able to connect it to the publication here
-            a = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::PersonContact());
-            //a.setProperty("http://akonadi-project.org/ontologies/aneo#akonadiItemId", job->item().id());
+                Akonadi::ItemCreateJob *job = new Akonadi::ItemCreateJob( item, m_addressbook );
 
-            a.setProperty(Nepomuk::Vocabulary::NCO::fullname(), author.full);
+                if ( !job->exec() ) {
+                    qDebug() << "Error:" << job->errorString();
+                }
 
-            if(!author.first.isEmpty())
-                a.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), author.first);
-            if(!author.last.isEmpty())
-                a.setProperty(Nepomuk::Vocabulary::NCO::nameFamily(), author.last);
-            if(!author.suffix.isEmpty())
-                a.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), author.suffix);
-            //}
+                // akonadi saves its contacts with a specific nepomuk uri, we use it here to
+                // connect the resource to the publication
+                // akonadi will then always update this resource
+                a = Nepomuk::Resource(job->item().url(), Nepomuk::Vocabulary::NCO::PersonContact());
+                //a.setProperty("http://akonadi-project.org/ontologies/aneo#akonadiItemId", job->item().id());
+
+                a.setProperty(Nepomuk::Vocabulary::NCO::fullname(), author.full);
+
+                if(!author.first.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), author.first);
+                if(!author.last.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameFamily(), author.last);
+                if(!author.suffix.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), author.suffix);
+
+                qDebug() << "akonadi/nepomuk id" << job->item().url() << a.isValid() << a.resourceUri();
+            }
+            else {
+                a = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::PersonContact());
+
+                a.setProperty(Nepomuk::Vocabulary::NCO::fullname(), author.full);
+
+                if(!author.first.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), author.first);
+                if(!author.last.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameFamily(), author.last);
+                if(!author.suffix.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), author.suffix);
+            }
 
             m_allContacts.append(a);
         }
@@ -684,13 +713,55 @@ void BibTexToNepomukPipe::addEditor(const Value &contentValue, Nepomuk::Resource
             qDebug() << "create a new Contact resource for " << editor.full;
             e = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::PersonContact());
 
-            e.setProperty(Nepomuk::Vocabulary::NCO::fullname(), editor.full);
-            if(!editor.first.isEmpty())
-                e.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), editor.first);
-            if(!editor.last.isEmpty())
-                e.setProperty(Nepomuk::Vocabulary::NCO::nameFamily(), editor.last);
-            if(!editor.suffix.isEmpty())
-                e.setProperty(Nepomuk::Vocabulary::NCO::nameHonorificSuffix(), editor.suffix);
+            if(m_addressbook.isValid()) {
+                qDebug() << "add editor to akonadi";
+                KABC::Addressee addr;
+                addr.setFamilyName( editor.last );
+                addr.setGivenName( editor.first );
+                addr.setAdditionalName( editor.suffix );
+                addr.setName( editor.full );
+                addr.setFormattedName( editor.full );
+
+                Akonadi::Item item;
+                item.setMimeType( KABC::Addressee::mimeType() );
+                item.setPayload<KABC::Addressee>( addr );
+
+                Akonadi::ItemCreateJob *job = new Akonadi::ItemCreateJob( item, m_addressbook );
+
+                if ( !job->exec() ) {
+                    qDebug() << "Error:" << job->errorString();
+                }
+
+                // akonadi saves its contacts with a specific nepomuk uri, we use it here to
+                // connect the resource to the publication
+                // akonadi will then always update this resource
+                //QUrl akonadiUrl(QString("akonadi:?item=%1").arg(job->item().id()));
+                e = Nepomuk::Resource(job->item().url(), Nepomuk::Vocabulary::NCO::PersonContact());
+                //e.setProperty("http://akonadi-project.org/ontologies/aneo#akonadiItemId", job->item().id());
+
+                e.setProperty(Nepomuk::Vocabulary::NCO::fullname(), editor.full);
+
+                if(!editor.first.isEmpty())
+                    e.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), editor.first);
+                if(!editor.last.isEmpty())
+                    e.setProperty(Nepomuk::Vocabulary::NCO::nameFamily(), editor.last);
+                if(!editor.suffix.isEmpty())
+                    e.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), editor.suffix);
+
+                qDebug() << "akonadi/nepomuk id" << job->item().url() << e.isValid();
+            }
+            else {
+                e = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::PersonContact());
+
+                e.setProperty(Nepomuk::Vocabulary::NCO::fullname(), editor.full);
+
+                if(!editor.first.isEmpty())
+                    e.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), editor.first);
+                if(!editor.last.isEmpty())
+                    e.setProperty(Nepomuk::Vocabulary::NCO::nameFamily(), editor.last);
+                if(!editor.suffix.isEmpty())
+                    e.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), editor.suffix);
+            }
 
             m_allContacts.append(e);
         }

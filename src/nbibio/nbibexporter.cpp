@@ -34,7 +34,9 @@ bool NBibExporter::toFile( const QString &filename, const QList<Nepomuk::Resourc
 {
     QFile bibFile(filename);
     if (!bibFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qDebug() << "can't open file " << filename;
+        QString error = i18n("can't open file %1", filename);
+        errorLog->append(error);
+
         return false;
     }
 

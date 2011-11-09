@@ -17,10 +17,10 @@
 
 #include "nbibimporter.h"
 
+#include <KDE/KLocalizedString>
+
 #include <QtCore/QFile>
 #include <QtCore/QIODevice>
-
-#include <QtCore/QDebug>
 
 NBibImporter::NBibImporter()
     : QObject(0)
@@ -32,15 +32,16 @@ NBibImporter::~NBibImporter()
 {
 }
 
-bool NBibImporter::fromFile(QString fileName)
+bool NBibImporter::fromFile(QString fileName, QStringList *errorLog)
 {
     QFile bibFile(fileName);
     if (!bibFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "can't open file " << fileName;
+        QString error = i18n("can't open file %1", fileName);
+        errorLog->append(error);
         return false;
     }
 
-    return load(&bibFile);
+    return load(&bibFile, errorLog);
 }
 
 void NBibImporter::cancel()

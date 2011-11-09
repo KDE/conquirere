@@ -20,16 +20,30 @@
 
 #include "propertyedit.h"
 
+/**
+  * @brief Allows to change the International Standard Serial Number for articles/journals
+  *
+  * The ISSN is forced to be unique (UNIQUE_PROPERTY) as it makes no sense to have more than one number
+  */
 class IssnEdit : public PropertyEdit
 {
 public:
     IssnEdit(QWidget *parent = 0);
 
 protected:
+    /**
+      * Simply shows the connected ISSN of the connected NBIB::Series object
+      */
     void setupLabel();
 
+    /**
+      * No completion is used
+      */
     virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
+    /**
+      * sets the ISSN t othe string from the KLineEdit to the connected Series
+      */
     virtual void updateResource( const QString & text );
 };
 

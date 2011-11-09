@@ -21,17 +21,7 @@
 #include <kbibtex/fileimporterbibtex.h>
 #include <kbibtex/findduplicates.h>
 
-#include <Akonadi/Item>
-#include <KABC/Addressee>
-#include <Akonadi/ItemFetchJob>
-#include <Akonadi/ItemCreateJob>
-#include <Akonadi/CollectionCreateJob>
-#include <Akonadi/CollectionFetchJob>
-#include <Akonadi/CollectionFetchScope>
-
 #include <QtCore/QFile>
-
-#include <QtCore/QDebug>
 
 using namespace Akonadi;
 
@@ -60,11 +50,6 @@ void NBibImporterBibTex::setAkonadiAddressbook(Akonadi::Collection & addressbook
     m_addressbook = addressbook;
 }
 
-void NBibImporterBibTex::setImportContactToAkonadi(bool import)
-{
-    m_contactToAkonadi = import;
-}
-
 void NBibImporterBibTex::setFindDuplicates(bool findThem)
 {
     m_findDuplicates = findThem;
@@ -76,7 +61,6 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
     connect(importer, SIGNAL(progress(int,int)), this, SLOT(calculateProgress(int,int)));
 
     m_importedEntries = importer->load(iodevice);
-
     pipeToNepomuk();
 
     delete importer;
@@ -84,11 +68,12 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
     return true;
 }
 
-bool NBibImporterBibTex::readBibFile(const QString & filename)
+bool NBibImporterBibTex::readBibFile(const QString & filename, QStringList *errorLog)
 {
     QFile bibFile(filename);
     if (!bibFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "can't open file " << filename;
+        QString error = i18n("can't open file %1", filename);
+        errorLog->append(error);
         return false;
     }
 
@@ -113,10 +98,10 @@ File *NBibImporterBibTex::bibFile()
 
 bool NBibImporterBibTex::findDuplicates()
 {
-    int sensitivity = 4000;
+    int sensitivity = 4000; // taken from KBibTeX
 
     FindDuplicates fd(0, sensitivity);
-    bool gotCanceled =fd.findDuplicateEntries(m_importedEntries, m_cliques);
+    bool gotCanceled = fd.findDuplicateEntries(m_importedEntries, m_cliques);
 
     emit progress(100);
 
@@ -132,11 +117,14 @@ QList<EntryClique*> NBibImporterBibTex::duplicates()
     return m_cliques;
 }
 
-bool NBibImporterBibTex::pipeToNepomuk()
+bool NBibImporterBibTex::pipeToNepomuk(QStringList *errorLog)
 {
     BibTexToNepomukPipe * importer = new BibTexToNepomukPipe;
 
     connect (importer, SIGNAL(progress(int)), this, SIGNAL(progress(int)));
+
+    importer->setAkonadiAddressbook(m_addressbook);
+    importer->setErrorLog(errorLog);
     importer->pipeExport(*m_importedEntries);
 
     delete importer;
@@ -158,82 +146,3 @@ void NBibImporterBibTex::calculateImportProgress(int current, int max)
     qreal curValue = (100.0/max2) * current;
     emit progress(curValue);
 }
-
-/*
-void NBibImporterBibTex::addAuthor(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType)
-{
-    QList<NBibImporterBibTex::Name> allNames = parseName(content);
-
-    //in case of @incollection or @inbook the author is used to identify who wrote the chapter not the complete book/collection
-    Nepomuk::Resource authorResource;
-
-    if(originalEntryType == QLatin1String("inbook") || originalEntryType == QLatin1String("incollection") ) {
-        Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedChapter()).toResource();
-
-        if(!chapter.isValid()) {
-            chapter = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Chapter());
-            reference.setProperty(Nepomuk::Vocabulary::NBIB::referencedChapter(), chapter);
-            publication.addProperty(Nepomuk::Vocabulary::NBIB::chapter(), chapter);
-            chapter.setProperty(Nepomuk::Vocabulary::NBIB::chapterOf(), publication);
-        }
-        authorResource = chapter;
-    }
-    else {
-        authorResource = publication;
-    }
-
-    foreach(const NBibImporterBibTex::Name & author, allNames) {
-        //check if the publisher already exist in the database
-        Nepomuk::Resource a;
-        foreach(const Nepomuk::Resource & r, m_allContacts) {
-            if(r.property(Nepomuk::Vocabulary::NCO::fullname()).toString() == author.full ||
-               r.label() == author.full ) {
-                a = r;
-                break;
-            }
-        }
-
-        if(!a.isValid()) {
-            qDebug() << "create a new Contact resource for " << author.full;
-
-            //KABC::Addressee addr;
-            //addr.setFamilyName( author.last );
-            //addr.setGivenName( author.first );
-            //addr.setAdditionalName( author.middle );
-            //addr.setName( author.full );
-            //addr.setFormattedName( author.full );
-
-            //Akonadi::Item item;
-            //item.setMimeType( KABC::Addressee::mimeType() );
-            //item.setPayload<KABC::Addressee>( addr );
-
-            //Akonadi::ItemCreateJob *job = new Akonadi::ItemCreateJob( item, m_collection );
-
-            //if ( !job->exec() ) {
-            //    qDebug() << "Error:" << job->errorString();
-            //} else {
-
-                //thats horrible, at the end two different nepomuk resources will be available
-                // because the akonadi feeder creates another resource for the contact which is unknown at this point
-                // but I need a proper resource to be able to connect it to the publication here
-                a = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::PersonContact());
-                //a.setProperty("http://akonadi-project.org/ontologies/aneo#akonadiItemId", job->item().id());
-
-                a.setProperty(Nepomuk::Vocabulary::NCO::fullname(), author.full);
-
-                if(!author.first.isEmpty())
-                    a.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), author.first);
-                if(!author.last.isEmpty())
-                    a.setProperty(Nepomuk::Vocabulary::NCO::nameFamily(), author.last);
-                if(!author.middle.isEmpty())
-                    a.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), author.middle);
-            //}
-
-            m_allContacts.append(a);
-        }
-
-
-        authorResource.addProperty(Nepomuk::Vocabulary::NCO::creator(), a);
-    }
-}
-*/

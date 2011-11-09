@@ -23,7 +23,7 @@
 /**
   * @brief Pipes the content of a KBibTex File to the clipboard.
   *
-  * Depending on the PipeExport eiter the citekeys, the raw bibtex source or a pre-formated
+  * Depending on the PipeExport either the citekeys, the raw bibtex source or a pre-formated
   * reference output is used.
   */
 class BibTexToClipboardPipe : public BibTexPipe
@@ -39,7 +39,7 @@ public:
     };
 
     BibTexToClipboardPipe();
-    ~BibTexToClipboardPipe();
+    virtual ~BibTexToClipboardPipe();
 
     /**
       * Do the actual export

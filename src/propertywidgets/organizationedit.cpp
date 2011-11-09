@@ -72,7 +72,7 @@ void OrganizationEdit::updateResource(const QString & text)
         resource().addProperty( propertyUrl(), Nepomuk::Resource(propUrl));
     }
     else {
-        // create a new organization with the string s as title
+        // create a new organization with the string text as fullname
         Nepomuk::Resource newOrganizatzion(QUrl(), Nepomuk::Vocabulary::NCO::OrganizationContact());
         newOrganizatzion.setProperty(Nepomuk::Vocabulary::NCO::fullname(), text);
 

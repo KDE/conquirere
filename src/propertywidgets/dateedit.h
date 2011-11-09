@@ -31,7 +31,7 @@ class DateEdit : public PropertyEdit
     Q_OBJECT
 public:
     DateEdit(QWidget *parent = 0);
-    ~DateEdit();
+    virtual ~DateEdit();
 
 protected:
     void setupLabel();

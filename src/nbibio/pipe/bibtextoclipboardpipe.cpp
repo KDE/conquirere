@@ -69,7 +69,7 @@ void BibTexToClipboardPipe::pipeExport(File & bibEntries)
         break;
     }
     case Export_REFERENCE: {
-        qDebug() << "TODO :: Export_REFERENCE not supported currently";
+        qDebug() << "BibTexToClipboardPipe::pipeExport :: Export_REFERENCE not supported currently";
     }
     }
 

@@ -24,6 +24,7 @@
 #include <Nepomuk/Vocabulary/NFO>
 #include <Nepomuk/Variant>
 #include <Nepomuk/File>
+
 #include <KDE/KFileDialog>
 #include <KDE/KGlobalSettings>
 

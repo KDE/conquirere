@@ -223,7 +223,7 @@ void ParseFile::initializePage()
 
     importer->setFindDuplicates(field(QLatin1String("duplicates")).toBool());
     bool importContactToAkonadi = field(QLatin1String("akonadiContact")).toBool();
-    importer->setImportContactToAkonadi(importContactToAkonadi);
+
     if(importContactToAkonadi) {
         int curAddressBook = ip->addressComboBox->currentIndex();
         Akonadi::Collection c(ip->addressComboBox->itemData(curAddressBook).toInt());
