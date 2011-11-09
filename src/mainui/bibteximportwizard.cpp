@@ -48,6 +48,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtCore/QThread>
 #include <QtCore/QtConcurrentRun>
+#include <QtCore/QPointer>
 
 #include <QDebug>
 
@@ -276,32 +277,37 @@ void ParseFile::cleanupPage()
 void ParseFile::showMergeDialog()
 {
     KService::Ptr service = KService::serviceByDesktopPath("kbibtexpart.desktop");
-    if (service)
-    {
-        KParts::Part *part = service->createInstance<KParts::ReadOnlyPart>(0);
-
-        part->replaceXMLFile(KStandardDirs::locate("data", "kbibtex/findduplicatesui.rc"), KStandardDirs::locateLocal("data", "kbibtex/findduplicatesui.rc"), true);
-
-        if (part)
-        {
-            KDialog dlg(part->widget());
-            File * importedFile = importer->bibFile();
-            QList<EntryClique*> cliques = importer->duplicates();
-
-            qDebug() << "duplicate cliques" << cliques.size();
-
-            MergeWidget mw(importedFile, cliques, &dlg);
-            dlg.setMainWidget(&mw);
-
-            if (dlg.exec() == QDialog::Accepted) {
-                MergeDuplicates md(&dlg);
-                md.mergeDuplicateEntries(cliques, importedFile);
-            }
-        }
-        else {
-            qDebug() << "part not found";
-        }
+    if (!service) {
+        return;
     }
+    KParts::Part *part = service->createInstance<KParts::ReadOnlyPart>(0);
+
+    part->replaceXMLFile(KStandardDirs::locate("data", "kbibtex/findduplicatesui.rc"), KStandardDirs::locateLocal("data", "kbibtex/findduplicatesui.rc"), true);
+
+    if (!part) {
+        qDebug() << "part not found";
+        return;
+    }
+
+    QPointer<KDialog> dlg = new KDialog(part->widget());
+    File * importedFile = importer->bibFile();
+    QList<EntryClique*> cliques = importer->duplicates();
+
+    if(!cliques.isEmpty()) {
+        qDebug() << "duplicate cliques" << cliques.size();
+
+        MergeWidget *mw = new MergeWidget(importedFile, cliques, dlg);
+        dlg->setMainWidget(mw);
+
+        if (dlg->exec() == QDialog::Accepted) {
+            MergeDuplicates md(dlg);
+            md.mergeDuplicateEntries(cliques, importedFile);
+        }
+        delete mw;
+    }
+
+    delete dlg;
+    delete part;
 }
 
 /*

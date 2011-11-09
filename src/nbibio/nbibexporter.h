@@ -30,7 +30,7 @@ class QIODevice;
   * If possible subclasses should make use of the NepomukToBibTexPipe and the actual exporter implemented in the KBibTeX
   * svn repo and reused here.
   *
-  * Only if the way via KBibTeX is not possible a completly own way should be used.
+  * Only if the way via KBibTeX is not possible a completely own way should be used.
   */
 class NBibExporter : public QObject
 {

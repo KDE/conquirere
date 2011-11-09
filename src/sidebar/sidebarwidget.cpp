@@ -58,6 +58,7 @@ SidebarWidget::SidebarWidget(QWidget *parent)
 
 SidebarWidget::~SidebarWidget()
 {
+    delete ui;
     delete m_mergeWidget;
     delete m_blankPage;
     delete m_currentWidget;

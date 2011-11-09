@@ -7,4 +7,4 @@ Terminal=false
 GenericName=Conquirere Research Helper Tool
 Categories=Qt;KDE;Education;Office;Database;Science;Literature;
 X-DocPath=conquirere/index.html
-X-DBUS-StartupType=Multi 
+X-DBUS-StartupType=Multi

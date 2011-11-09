@@ -91,7 +91,7 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
     ui->editTOC->clear();
     QList<Nepomuk::Resource> tocResources = m_publication.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
 
-    foreach(Nepomuk::Resource r, tocResources) {
+    foreach(const Nepomuk::Resource & r, tocResources) {
         QListWidgetItem *i = new QListWidgetItem();
         QString title = r.property(Nepomuk::Vocabulary::NIE::title()).toString();
         QString number = r.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
@@ -262,8 +262,7 @@ void PublicationWidget::addChapter()
 
     QList<Nepomuk::Resource> tocResources = m_publication.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
 
-    foreach(Nepomuk::Resource r, tocResources) {
-        QListWidgetItem *i = new QListWidgetItem();
+    foreach(const Nepomuk::Resource & r, tocResources) {
         QString title = r.property(Nepomuk::Vocabulary::NIE::title()).toString();
         QString number = r.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
         QString listEntry = QString ("%1 : %2").arg(number).arg(title);
@@ -295,8 +294,7 @@ void PublicationWidget::addChapter()
 
     QList<Nepomuk::Resource> tocResources2 = m_publication.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
 
-    foreach(Nepomuk::Resource r, tocResources2) {
-        QListWidgetItem *i = new QListWidgetItem();
+    foreach(const Nepomuk::Resource & r, tocResources2) {
         QString title = r.property(Nepomuk::Vocabulary::NIE::title()).toString();
         QString number = r.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
         QString listEntry = QString ("%1 : %2").arg(number).arg(title);

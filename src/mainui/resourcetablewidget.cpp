@@ -52,7 +52,15 @@ ResourceTableWidget::ResourceTableWidget(QWidget *parent)
 
 ResourceTableWidget::~ResourceTableWidget()
 {
+
+    delete m_searchBox;
+    delete m_searchSelection;
     delete m_documentView;
+
+    delete m_removeFromSystem;
+    delete m_removeFromProject;
+    delete m_exportToBibTeX;
+    delete m_openExternal;
 }
 
 void ResourceTableWidget::switchView(ResourceSelection selection, ResourceFilter filter, Library *p)

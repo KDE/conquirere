@@ -116,7 +116,7 @@ void NepomukModel::addData(const QList< Nepomuk::Query::Result > &entries)
 
             QList<Nepomuk::Tag> tagList = r.resource().tags();
 
-            foreach(Nepomuk::Tag t, tagList) {
+            foreach(const Nepomuk::Tag & t, tagList) {
                 emit hasTag(t.label());
             }
         }

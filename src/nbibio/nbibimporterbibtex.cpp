@@ -27,6 +27,8 @@ using namespace Akonadi;
 
 NBibImporterBibTex::NBibImporterBibTex()
     : NBibImporter()
+    , m_importedEntries(0)
+    , m_findDuplicates(false)
 {
 }
 
@@ -37,6 +39,8 @@ NBibImporterBibTex::~NBibImporterBibTex()
         m_importedEntries->removeFirst();
         delete ec;
     }
+
+    delete m_importedEntries;
 
     while (!m_cliques.isEmpty()) {
         EntryClique *ec = m_cliques.first();
