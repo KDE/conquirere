@@ -57,6 +57,8 @@ BibTexToNepomukPipe::~BibTexToNepomukPipe()
 
 void BibTexToNepomukPipe::pipeExport(File & bibEntries)
 {
+    emit progress(0);
+
     //create the collection used for importing
 
     // we start by fetching all contacts for the conflict checking
@@ -65,20 +67,24 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
     Nepomuk::Query::Query query( type );
     QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
     foreach(const Nepomuk::Query::Result & nqr, queryResult) {
-        m_allContacts.append(nqr.resource());
+        QString fullname = nqr.resource().property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+        m_allContacts.insert(fullname, nqr.resource());
     }
+    qDebug() << "fetched all" << queryResult.size() << "contacts";
     Nepomuk::Query::ResourceTypeTerm type2( Nepomuk::Vocabulary::NBIB::Publication() );
     Nepomuk::Query::Query query2( type2 );
     QList<Nepomuk::Query::Result> queryResult2 = Nepomuk::Query::QueryServiceClient::syncQuery(query2);
     foreach(const Nepomuk::Query::Result & nqr, queryResult2) {
         m_allPublications.append(nqr.resource());
     }
+    qDebug() << "fetched all publications";
     Nepomuk::Query::ResourceTypeTerm type3( Nepomuk::Vocabulary::NBIB::Reference() );
     Nepomuk::Query::Query query3( type3 );
     QList<Nepomuk::Query::Result> queryResult3 = Nepomuk::Query::QueryServiceClient::syncQuery(query3);
     foreach(const Nepomuk::Query::Result & nqr, queryResult3) {
         m_allReferences.append(nqr.resource());
     }
+    qDebug() << "fetched all refrences";
 
     int maxValue = bibEntries.size();
     qreal perFileProgress = (100.0/(qreal)maxValue);
@@ -365,14 +371,8 @@ void BibTexToNepomukPipe::addPublisher(const Value &publisherValue, const Value 
         }
 
         //check if the publisher already exist in the database
-        Nepomuk::Resource p;
+        Nepomuk::Resource p = m_allContacts.value(publisher.full, Nepomuk::Resource());
 
-        foreach(const Nepomuk::Resource & r, m_allContacts) {
-            if(r.property(Nepomuk::Vocabulary::NCO::fullname()).toString() == publisher.full) {
-                p = r;
-                break;
-            }
-        }
         if(!p.isValid()) {
             qDebug() << "create a new Contact resource for " << publisher.full;
             // publisher could be a person or a organization, use Contact and let the user define it later on if he wishes
@@ -386,7 +386,7 @@ void BibTexToNepomukPipe::addPublisher(const Value &publisherValue, const Value 
             if(!publisher.suffix.isEmpty())
                 p.setProperty(Nepomuk::Vocabulary::NCO::nameHonorificSuffix(), publisher.suffix);
 
-            m_allContacts.append(p);
+            m_allContacts.insert(publisher.full,p);
         }
 
         Nepomuk::Resource existingAddr = p.property(Nepomuk::Vocabulary::NCO::hasPostalAddress()).toResource();
@@ -519,14 +519,7 @@ void BibTexToNepomukPipe::addAuthor(const Value &contentValue, Nepomuk::Resource
         }
 
         //check if the publisher already exist in the database
-        Nepomuk::Resource a;
-        foreach(const Nepomuk::Resource & r, m_allContacts) {
-            if(r.property(Nepomuk::Vocabulary::NCO::fullname()).toString() == author.full ||
-                    r.label() == author.full ) {
-                a = r;
-                break;
-            }
-        }
+        Nepomuk::Resource a = m_allContacts.value(author.full, Nepomuk::Resource());
 
         if(!a.isValid()) {
             qDebug() << "create a new Contact resource for " << author.full;
@@ -580,7 +573,7 @@ void BibTexToNepomukPipe::addAuthor(const Value &contentValue, Nepomuk::Resource
                     a.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), author.suffix);
             }
 
-            m_allContacts.append(a);
+            m_allContacts.insert(author.full,a);
         }
 
 
@@ -701,14 +694,9 @@ void BibTexToNepomukPipe::addEditor(const Value &contentValue, Nepomuk::Resource
         }
 
         //check if the editor already exist in the database
-        Nepomuk::Resource e;
 
-        foreach(const Nepomuk::Resource & r, m_allContacts) {
-            if(r.property(Nepomuk::Vocabulary::NCO::fullname()).toString() == editor.full) {
-                e = r;
-                break;
-            }
-        }
+        Nepomuk::Resource e = m_allContacts.value(editor.full, Nepomuk::Resource());
+
         if(!e.isValid()) {
             qDebug() << "create a new Contact resource for " << editor.full;
             e = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::PersonContact());
@@ -763,7 +751,7 @@ void BibTexToNepomukPipe::addEditor(const Value &contentValue, Nepomuk::Resource
                     e.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), editor.suffix);
             }
 
-            m_allContacts.append(e);
+            m_allContacts.insert(editor.full, e);
         }
 
         publication.addProperty(Nepomuk::Vocabulary::NBIB::editor(), e);
@@ -903,21 +891,14 @@ void BibTexToNepomukPipe::addNumber(const QString &content, Nepomuk::Resource pu
 void BibTexToNepomukPipe::addOrganization(const QString &content, Nepomuk::Resource publication)
 {
     //check if the organization already exist in the database
-    Nepomuk::Resource organizationResource;
-
-    foreach(const Nepomuk::Resource & r, m_allContacts) {
-        if(r.property(Nepomuk::Vocabulary::NCO::fullname()).toString() == content) {
-            organizationResource = r;
-            break;
-        }
-    }
+    Nepomuk::Resource organizationResource = m_allContacts.value(content, Nepomuk::Resource());
 
     if(!organizationResource.isValid()) {
         qDebug() << "create a new OrganizationContact resource for " << content;
         organizationResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::OrganizationContact());
         organizationResource.setProperty(Nepomuk::Vocabulary::NCO::fullname(), content);
 
-        m_allContacts.append(organizationResource);
+        m_allContacts.insert(content, organizationResource);
     }
     else {
         qDebug() << "use existing Organization resource for " << content;

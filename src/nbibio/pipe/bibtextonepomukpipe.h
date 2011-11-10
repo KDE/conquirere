@@ -27,6 +27,7 @@
 
 #include <QtCore/QUrl>
 #include <QtCore/QList>
+#include <QtCore/QMap>
 
 class Entry;
 
@@ -128,7 +129,7 @@ private:
     void addYear(const QString &content, Nepomuk::Resource publication);
     void addKewords(const Value &content, Nepomuk::Resource publication);
 
-    QList<Nepomuk::Resource> m_allContacts;
+    QMap<QString, Nepomuk::Resource> m_allContacts;
     QList<Nepomuk::Resource> m_allPublications;
     QList<Nepomuk::Resource> m_allReferences;
     Akonadi::Collection m_addressbook;
