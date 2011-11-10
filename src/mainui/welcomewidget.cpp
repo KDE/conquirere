@@ -67,6 +67,11 @@ void WelcomeWidget::setupGui()
     }
 }
 
+bool sortTagPair(const QPair<int, QString> &s1, const QPair<int, QString> &s2)
+{
+     return s1.first > s2.first;
+}
+
 void WelcomeWidget::updateStatistics()
 {
     QMapIterator<ResourceSelection, QSortFilterProxyModel*> i(m_library->viewModels());
@@ -118,12 +123,31 @@ void WelcomeWidget::updateStatistics()
         m_htmlPart->executeScript(m_htmlPart->htmlDocument(), jsFunction );
     }
 
-    QString tagCloud;
+    //sort tagcloud by occurence
+    QList<QPair<int, QString> > cloud;
     QMapIterator<QString, int> j(m_library->tagCloud());
     while (j.hasNext()) {
         j.next();
-        tagCloud.append(j.key());
-        tagCloud.append(QLatin1String(", "));
+        cloud.append(QPair<int, QString>(j.value(),j.key()));
+    }
+
+    qSort(cloud.begin(), cloud.end(), sortTagPair);
+
+    // now take the highest 10 tags and add them to the list that will be shown
+    QString tagCloud;
+
+    //sort tagcloud by occurence
+    QListIterator<QPair<int, QString> > k(cloud);
+    int l=0;
+    while (k.hasNext()) {
+        QPair<int, QString> p = k.next();
+        tagCloud.append(p.second);
+        tagCloud.append(QLatin1String(" ("));
+        tagCloud.append(QString::number(p.first));
+        tagCloud.append(QLatin1String("), "));
+        l++;
+        if(l>20)
+            break;
     }
     tagCloud.chop(2);
 
