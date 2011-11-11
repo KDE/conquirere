@@ -61,6 +61,9 @@ public:
 
     void setDialogMode(bool dialogMode);
 
+    /** @todo remove and use ResourceWatcher later on */
+    void setLibrary(Library *p);
+
 public slots:
     /* called when something is selected in the project view */
     void setResource(Nepomuk::Resource & resource);

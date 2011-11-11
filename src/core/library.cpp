@@ -287,6 +287,7 @@ void Library::setupModels()
     bookmarkFilter->setSourceModel(bookmarkModel);
     m_resources.insert(Resource_Website, bookmarkFilter);
     connect(bookmarkModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
+    connect(this, SIGNAL(resourceUpdated(Nepomuk::Resource)), bookmarkModel, SLOT(updateCacheEntry(Nepomuk::Resource)));
 
     PublicationModel *referencesModel = new PublicationModel;
     referencesModel->setLibrary(this);
@@ -295,6 +296,7 @@ void Library::setupModels()
     referenceFilter->setSourceModel(referencesModel);
     m_resources.insert(Resource_Reference, referenceFilter);
     connect(referencesModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
+    connect(this, SIGNAL(resourceUpdated(Nepomuk::Resource)), referencesModel, SLOT(updateCacheEntry(Nepomuk::Resource)));
 
     PublicationModel *publicationModel = new PublicationModel;
     publicationModel->setLibrary(this);
@@ -303,6 +305,7 @@ void Library::setupModels()
     publicationFilter->setSourceModel(publicationModel);
     m_resources.insert(Resource_Publication, publicationFilter);
     connect(publicationModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
+    connect(this, SIGNAL(resourceUpdated(Nepomuk::Resource)), publicationModel, SLOT(updateCacheEntry(Nepomuk::Resource)));
 
     NoteModel *noteModel = new NoteModel;
     noteModel->setLibrary(this);
@@ -311,6 +314,7 @@ void Library::setupModels()
     noteFilter->setSourceModel(noteModel);
     m_resources.insert(Resource_Note, noteFilter);
     connect(noteModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
+    connect(this, SIGNAL(resourceUpdated(Nepomuk::Resource)), noteModel, SLOT(updateCacheEntry(Nepomuk::Resource)));
 
     if(m_libraryType == Library_Project) {
         /*

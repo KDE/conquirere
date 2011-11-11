@@ -232,16 +232,16 @@ QList<CachedRowEntry> NepomukModel::addToCache( const QList< Nepomuk::Query::Res
     return newCache;
 }
 
-CachedRowEntry NepomukModel::updateCacheEntry(int entry)
+void NepomukModel::updateCacheEntry(Nepomuk::Resource resource)
 {
-    CachedRowEntry cre;
-    Nepomuk::Resource r = m_modelCacheData.at(entry).resource;
-    cre.displayColums = createDisplayData(r);
-    cre.decorationColums = createDecorationData(r);
-    cre.resource = r;
-    cre.lastModified = r.property(Soprano::Vocabulary::NAO::lastModified()).toString();
+    int i = 0;
+    foreach(CachedRowEntry cre, m_modelCacheData) {
+        if(cre.resource.uri() == resource.uri()) {
+            cre.displayColums = createDisplayData(resource);
+            cre.decorationColums = createDecorationData(resource);
 
-    m_modelCacheData.replace(entry, cre);
-
-    return cre;
+            m_modelCacheData.replace(i, cre);
+        }
+        i++;
+    }
 }

@@ -142,6 +142,13 @@ signals:
       */
     void widgetEnabled(bool enabled);
 
+    /**
+      * This signal gets thrown when the resource was changed and must be updated in the table model cache
+      *
+      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      */
+    void resourceUpdated(Nepomuk::Resource resource);
+
 public slots:
     /**
       * Sets the resource that should be shown/manipulated

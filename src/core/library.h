@@ -191,6 +191,13 @@ public slots:
 
 signals:
     void tagCloudChanged();
+    /**
+      * This signal gets thrown when the resource was changed and must be updated in the table model cache
+      * redirects the signal from all propertywidgets
+      *
+      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      */
+    void resourceUpdated(Nepomuk::Resource resource);
 
 private:
     /**

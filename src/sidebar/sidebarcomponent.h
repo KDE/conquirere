@@ -33,8 +33,17 @@ public:
     explicit SidebarComponent(QWidget *parent = 0);
     virtual ~SidebarComponent() {}
 
-    void setLibrary(Library *p);
+    virtual void setLibrary(Library *p);
     Library *library();
+
+signals:
+    /**
+      * This signal gets thrown when the resource was changed and must be updated in the table model cache
+      * redirects the signal from all propertywidgets
+      *
+      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      */
+    void resourceUpdated(Nepomuk::Resource resource);
 
 public slots:
     virtual void setResource(Nepomuk::Resource & resource) = 0;

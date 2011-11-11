@@ -70,21 +70,22 @@ protected:
 private slots:
     void addData(const QList< Nepomuk::Query::Result > &entries);
     void removeData( const QList< QUrl > &entries );
-    CachedRowEntry updateCacheEntry(int entry);
+    void updateCacheEntry(Nepomuk::Resource resource);
 
     void resultCount(int number);
     void listingsFinished();
     void listingsError(const QString & 	errorMessage);
-    //void updateCache(Nepomuk::Resource res, Nepomuk::Types::Property property, QVariant variant);
 
 protected:
     Library *m_library;
     ResourceSelection m_selection;
     Nepomuk::Query::QueryServiceClient *m_queryClient;
-    //Nepomuk::ResourceWatcher *m_resourceWatcher;
 
     // instead of creating the data to display everytime it is requested, we cache the values for the
     // display and decoration entries in here this speeds up the model for huge data sets
+    // the cache is updated via updateCacheEntry() which will be triggered by the property widgets when they
+    // update the data. Later this will be replaced by the ResourceWatcher so that external changes will
+    // trigger chache changes too
     QList<CachedRowEntry> m_modelCacheData;
 };
 #endif // NEPOMUKMODEL_H

@@ -350,6 +350,8 @@ void PropertyEdit::editingFinished()
         QString inputString = QLatin1String(m_lineEdit->text().toUtf8());
         updateResource(inputString);
         setLabelText(m_lineEdit->text());
+
+        emit resourceUpdated(resource());
     }
 
     m_lineEdit->hide();
@@ -369,8 +371,8 @@ void PropertyEdit::detailEditRequested()
 
 void PropertyEdit::resourceUpdatedExternally()
 {
-    setupLabel();
     editingFinished();
+    setupLabel();
 }
 
 void PropertyEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entries)
