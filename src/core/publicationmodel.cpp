@@ -156,28 +156,6 @@ void PublicationModel::startFetchData()
     m_queryClient->query(query);
 }
 
-QList<CachedRowEntry> PublicationModel::addToCache( const QList< Nepomuk::Query::Result > &entries )
-{
-    QList<CachedRowEntry> newCache;
-
-    foreach(Nepomuk::Query::Result nqr, entries) {
-        Nepomuk::Resource r = nqr.resource();
-        //m_resourceWatcher->addResource(r);
-        CachedRowEntry cre;
-        cre.displayColums = createDisplayData(r);
-        cre.decorationColums = createDecorationData(r);
-        cre.resource = r;
-        newCache.append(cre);
-
-        QList<Nepomuk::Tag> tags = r.tags();
-        foreach(Nepomuk::Tag t, tags) {
-            hasTag(t.label());
-        }
-    }
-
-    return newCache;
-}
-
 QVariantList PublicationModel::createDisplayData(const Nepomuk::Resource & res)
 {
     QVariantList displayList;
@@ -248,24 +226,24 @@ QVariantList PublicationModel::createDisplayData(const Nepomuk::Resource & res)
             break;
         }
         case Column_Editor: {
-                QString authorSting;
-                QList<Nepomuk::Resource> authorList;
+            QString authorSting;
+            QList<Nepomuk::Resource> authorList;
 
-                if(m_selection == Resource_Reference) {
-                    Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-                    authorList = publication.property(Nepomuk::Vocabulary::NBIB::editor()).toResourceList();
-                }
-                else {
-                    authorList = res.property(Nepomuk::Vocabulary::NBIB::editor()).toResourceList();
-                }
-                foreach(const Nepomuk::Resource & a, authorList) {
-                    authorSting.append(a.genericLabel());
-                    authorSting.append(QLatin1String("; "));
-                }
-                authorSting.chop(2);
-                newEntry = authorSting;
-                break;
+            if(m_selection == Resource_Reference) {
+                Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+                authorList = publication.property(Nepomuk::Vocabulary::NBIB::editor()).toResourceList();
             }
+            else {
+                authorList = res.property(Nepomuk::Vocabulary::NBIB::editor()).toResourceList();
+            }
+            foreach(const Nepomuk::Resource & a, authorList) {
+                authorSting.append(a.genericLabel());
+                authorSting.append(QLatin1String("; "));
+            }
+            authorSting.chop(2);
+            newEntry = authorSting;
+            break;
+        }
         case Column_Publisher: {
             QString authorSting;
             QList<Nepomuk::Resource> authorList;

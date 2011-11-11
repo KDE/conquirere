@@ -32,6 +32,7 @@ struct CachedRowEntry {
     QVariantList displayColums;
     QVariantList decorationColums;
     Nepomuk::Resource resource;
+    QString lastModified;
 };
 
 class NepomukModel : public QAbstractTableModel
@@ -54,6 +55,7 @@ public:
 signals:
     void dataSizeChaged(int size);
     void updateFetchDataFor(ResourceSelection selection, bool start, Library *library);
+    void updateEntry(int row);
     void hasTag(const QString & tag);
 
 public slots:
@@ -61,11 +63,14 @@ public slots:
     virtual void stopFetchData();
 
 protected:
-    virtual QList<CachedRowEntry> addToCache( const QList< Nepomuk::Query::Result > &entries ) = 0;
+    QList<CachedRowEntry> addToCache( const QList< Nepomuk::Query::Result > &entries );
+    virtual QVariantList createDisplayData(const Nepomuk::Resource & res) = 0;
+    virtual QVariantList createDecorationData(const Nepomuk::Resource & res) = 0;
 
 private slots:
     void addData(const QList< Nepomuk::Query::Result > &entries);
     void removeData( const QList< QUrl > &entries );
+    CachedRowEntry updateCacheEntry(int entry);
 
     void resultCount(int number);
     void listingsFinished();

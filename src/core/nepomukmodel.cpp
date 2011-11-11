@@ -21,6 +21,7 @@
 
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/PIMO>
+#include <Soprano/Vocabulary/NAO>
 
 NepomukModel::NepomukModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -38,6 +39,8 @@ NepomukModel::NepomukModel(QObject *parent)
 //            this, SLOT(updateCache(Nepomuk::Resource, Nepomuk::Types::Property, QVariant)));
 //    connect(m_resourceWatcher, SIGNAL(propertyRemoved(Nepomuk::Resource, Nepomuk::Types::Property, QVariant)),
 //            this, SLOT(updateCache(Nepomuk::Resource, Nepomuk::Types::Property, QVariant)));
+
+    connect(this, SIGNAL(updateEntry(int)), this, SLOT(updateCacheEntry(int)));
 }
 
 NepomukModel::~NepomukModel()
@@ -67,6 +70,14 @@ QVariant NepomukModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DisplayRole) {
         CachedRowEntry entryCache = m_modelCacheData.at(index.row());
+
+//        if(entryCache.lastModified != entryCache.resource.property(Soprano::Vocabulary::NAO::lastModified()).toString()) {
+//            emit updateCacheEntry(index.row());
+//            //entryCache = updateCacheEntry(index.row());
+//            qDebug() << "cahce update requested for " << entryCache.resource.genericLabel();
+//            qDebug() << entryCache.lastModified << entryCache.resource.property(Soprano::Vocabulary::NAO::lastModified()).toString();
+//        }
+
         QVariantList columnList = entryCache.displayColums;
 
         return columnList.at(index.column());
@@ -198,7 +209,39 @@ void NepomukModel::listingsError(const QString & errorMessage)
     qDebug() << "query in rescourcemodel failed" << errorMessage;
 }
 
-//void NepomukModel::updateCache(Nepomuk::Resource res, Nepomuk::Types::Property property, QVariant variant)
-//{
-//    qDebug() << "update cache for " << res.genericLabel();
-//}
+QList<CachedRowEntry> NepomukModel::addToCache( const QList< Nepomuk::Query::Result > &entries )
+{
+    QList<CachedRowEntry> newCache;
+
+    foreach(Nepomuk::Query::Result nqr, entries) {
+        Nepomuk::Resource r = nqr.resource();
+        CachedRowEntry cre;
+        cre.displayColums = createDisplayData(r);
+        cre.decorationColums = createDecorationData(r);
+        cre.resource = r;
+        cre.lastModified = r.property(Soprano::Vocabulary::NAO::lastModified()).toString();
+
+        newCache.append(cre);
+
+        QList<Nepomuk::Tag> tags = r.tags();
+        foreach(Nepomuk::Tag t, tags) {
+            hasTag(t.label());
+        }
+    }
+
+    return newCache;
+}
+
+CachedRowEntry NepomukModel::updateCacheEntry(int entry)
+{
+    CachedRowEntry cre;
+    Nepomuk::Resource r = m_modelCacheData.at(entry).resource;
+    cre.displayColums = createDisplayData(r);
+    cre.decorationColums = createDecorationData(r);
+    cre.resource = r;
+    cre.lastModified = r.property(Soprano::Vocabulary::NAO::lastModified()).toString();
+
+    m_modelCacheData.replace(entry, cre);
+
+    return cre;
+}

@@ -121,27 +121,6 @@ void NoteModel::startFetchData()
     m_queryClient->query(query);
 }
 
-QList<CachedRowEntry> NoteModel::addToCache( const QList< Nepomuk::Query::Result > &entries )
-{
-    QList<CachedRowEntry> newCache;
-
-    foreach(Nepomuk::Query::Result nqr, entries) {
-        Nepomuk::Resource r = nqr.resource();
-        CachedRowEntry cre;
-        cre.displayColums = createDisplayData(r);
-        cre.decorationColums = createDecorationData(r);
-        cre.resource = r;
-        newCache.append(cre);
-
-        QList<Nepomuk::Tag> tags = r.tags();
-        foreach(Nepomuk::Tag t, tags) {
-            hasTag(t.label());
-        }
-    }
-
-    return newCache;
-}
-
 QVariantList NoteModel::createDisplayData(const Nepomuk::Resource & res)
 {
     QVariantList displayList;

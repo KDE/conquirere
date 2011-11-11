@@ -165,7 +165,7 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
     if(range.isValid() && !range.uri().isEmpty()) {
         // get all resources of type range
         Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( QUrl(range.uri()) ) );
-        m_queryClient->query(query);
+        //m_queryClient->query(query);
     }
     // if we can't use the range for the check
     // get all entries for the propertyUrl that exist, maybe there is something in it we could reuse

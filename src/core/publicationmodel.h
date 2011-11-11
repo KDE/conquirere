@@ -56,11 +56,8 @@ public slots:
     void startFetchData();
 
 protected:
-    virtual QList<CachedRowEntry> addToCache( const QList< Nepomuk::Query::Result > &entries );
-
-private:
-    QVariantList createDisplayData(const Nepomuk::Resource & res);
-    QVariantList createDecorationData(const Nepomuk::Resource & res);
+    virtual QVariantList createDisplayData(const Nepomuk::Resource & res);
+    virtual QVariantList createDecorationData(const Nepomuk::Resource & res);
 };
 
 #endif // PUBLICATIONMODEL_H
