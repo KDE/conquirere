@@ -49,8 +49,8 @@ enum PublicationColumnList {
     Max_columns
 };
 
-NoteModel::NoteModel(QObject *parent) :
-    NepomukModel(parent)
+NoteModel::NoteModel(QObject *parent)
+    : NepomukModel(parent)
 {
 }
 
@@ -62,71 +62,6 @@ int NoteModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return Max_columns;
-}
-
-QVariant NoteModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid())
-        return QVariant();
-
-    if (index.row() >= m_fileList.size() || index.row() < 0)
-        return QVariant();
-
-    Nepomuk::Resource document = m_fileList.at(index.row());
-
-    if(!document.isValid())
-        return QVariant();
-
-    if (role == Qt::DisplayRole) {
-        if(index.column() == Column_Title) {
-            QString titleSting = document.property(Soprano::Vocabulary::NAO::prefLabel()).toString();
-
-            return titleSting;
-        }
-        else if(index.column() == Column_Date) {
-
-            Nepomuk::Resource note = document.property(Nepomuk::Vocabulary::PIMO::groundingOccurrence()).toResource();
-
-            QString dateSting = note.property(Soprano::Vocabulary::NAO::lastModified()).toString();
-            if(dateSting.isEmpty())
-                dateSting = document.property(Soprano::Vocabulary::NAO::created()).toString();
-
-            return dateSting;
-        }
-        else if(index.column() == Column_Tags) {
-            QString tagString;
-            QList<Nepomuk::Resource> tagList = document.property(Soprano::Vocabulary::NAO::hasTag()).toResourceList();
-
-            foreach(const Nepomuk::Resource & nr, tagList) {
-                tagString.append(nr.property(Soprano::Vocabulary::NAO::prefLabel()).toString());
-                tagString.append(QLatin1String("; "));
-            }
-
-            tagString.chop(2);
-
-            return tagString;
-        }
-        else if(index.column() == Column_StarRate) {
-            int rating = document.rating();
-
-            return rating;
-        }
-    }
-
-    return QVariant();
-}
-
-bool NoteModel::setData( const QModelIndex & index, const QVariant & value, int role )
-{
-    if(index.column() == Column_StarRate) {
-        Nepomuk::Resource document = m_fileList.at(index.row());
-        if(document.isValid()) {
-            document.setRating(value.toInt());
-            return true;
-        }
-    }
-
-    return false;
 }
 
 QVariant NoteModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -181,13 +116,91 @@ void NoteModel::startFetchData()
                                                             Nepomuk::Query::ResourceTerm(m_library->pimoLibrary()) ) );
     }
 
-    //sort result by edit date to get only the newest if we have to many results
-    //Nepomuk::Query::ComparisonTerm term(Soprano::Vocabulary::NAO::lastModified(), Nepomuk::Query::Term());
-    //term.setSortWeight(1, Qt::DescendingOrder);
-    //andTerm.addSubTerm(term);
-
     // build the query
     Nepomuk::Query::Query query( andTerm );
-    //query.setLimit(100);
     m_queryClient->query(query);
+}
+
+QList<CachedRowEntry> NoteModel::addToCache( const QList< Nepomuk::Query::Result > &entries )
+{
+    QList<CachedRowEntry> newCache;
+
+    foreach(Nepomuk::Query::Result nqr, entries) {
+        Nepomuk::Resource r = nqr.resource();
+        CachedRowEntry cre;
+        cre.displayColums = createDisplayData(r);
+        cre.decorationColums = createDecorationData(r);
+        cre.resource = r;
+        newCache.append(cre);
+
+        QList<Nepomuk::Tag> tags = r.tags();
+        foreach(Nepomuk::Tag t, tags) {
+            hasTag(t.label());
+        }
+    }
+
+    return newCache;
+}
+
+QVariantList NoteModel::createDisplayData(const Nepomuk::Resource & res)
+{
+    QVariantList displayList;
+    displayList.reserve(Max_columns-1);
+
+    for(int i = 0; i < Max_columns; i++) {
+        QVariant newEntry;
+        switch(i) {
+        case Column_Title: {
+            QString titleSting = res.property(Soprano::Vocabulary::NAO::prefLabel()).toString();
+
+            newEntry = titleSting;
+            break;
+        }
+        case Column_Date: {
+            Nepomuk::Resource note = res.property(Nepomuk::Vocabulary::PIMO::groundingOccurrence()).toResource();
+
+            QString dateSting = note.property(Soprano::Vocabulary::NAO::lastModified()).toString();
+            if(dateSting.isEmpty()) {
+                dateSting = res.property(Soprano::Vocabulary::NAO::created()).toString();
+            }
+            newEntry = dateSting;
+            break;
+        }
+        case Column_Tags: {
+            QString tagString;
+            QList<Nepomuk::Resource> tagList = res.property(Soprano::Vocabulary::NAO::hasTag()).toResourceList();
+
+            foreach(const Nepomuk::Resource & nr, tagList) {
+                tagString.append(nr.property(Soprano::Vocabulary::NAO::prefLabel()).toString());
+                tagString.append(QLatin1String("; "));
+            }
+            tagString.chop(2);
+            newEntry = tagString;
+            break;
+        }
+        case Column_StarRate: {
+            int rating = res.rating();
+            newEntry = rating;
+            break;
+        }
+        default:
+            newEntry = QVariant();
+        }
+
+        displayList.append(newEntry);
+    }
+
+    return displayList;
+}
+
+QVariantList NoteModel::createDecorationData(const Nepomuk::Resource & res)
+{
+    QVariantList decorationList;
+    decorationList.reserve(Max_columns-1);
+
+    for(int i = 0; i < Max_columns; i++) {
+        decorationList.append(QVariant());
+    }
+
+    return decorationList;
 }

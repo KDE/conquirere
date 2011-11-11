@@ -163,7 +163,7 @@ static const QList<QUrl> BibEntryTypeURL = QList<QUrl>() << Nepomuk::Vocabulary:
                                                          << Nepomuk::Vocabulary::NBIB::Decision()
                                                          << Nepomuk::Vocabulary::NBIB::Brief();
 
-static BibEntryType BibEntryTypeFromUrl(Nepomuk::Resource & resource)
+static BibEntryType BibEntryTypeFromUrl(const Nepomuk::Resource & resource)
 {
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
         return BibType_Article;

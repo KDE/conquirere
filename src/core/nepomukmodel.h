@@ -28,6 +28,12 @@
 class Library;
 class QModelIndex;
 
+struct CachedRowEntry {
+    QVariantList displayColums;
+    QVariantList decorationColums;
+    Nepomuk::Resource resource;
+};
+
 class NepomukModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -36,6 +42,8 @@ public:
     virtual ~NepomukModel();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant data(const QModelIndex &index, int role) const;
+
     virtual void setLibrary(Library *library);
     virtual void setResourceType(ResourceSelection selection);
     virtual Nepomuk::Resource documentResource(const QModelIndex &selection);
@@ -43,33 +51,35 @@ public:
     virtual void removeSelectedFromProject(const QModelIndexList & indexes, Library *l);
     virtual void removeSelectedFromSystem(const QModelIndexList & indexes);
 
-public slots:
-    virtual void startFetchData() = 0;
-    virtual void stopFetchData();
-
-protected slots:
-    /**
-      * @bug does not work efficient because addData(QList<Nepomuk::Query::Result>) from Nepomuk::Query::QueryServiceClient returns wrong values
-      */
-    void addData(const QList< Nepomuk::Query::Result > &entries);
-    /**
-      * @bug does not work because removeData(QList<QUrl>) from Nepomuk::Query::QueryServiceClient returns wrong values
-      */
-    void removeData( const QList< QUrl > &entries );
-
-    void resultCount(int number);
-    void listingsFinished();
-    void listingsError(const QString & 	errorMessage);
-
 signals:
     void dataSizeChaged(int size);
     void updateFetchDataFor(ResourceSelection selection, bool start, Library *library);
     void hasTag(const QString & tag);
 
+public slots:
+    virtual void startFetchData() = 0;
+    virtual void stopFetchData();
+
+protected:
+    virtual QList<CachedRowEntry> addToCache( const QList< Nepomuk::Query::Result > &entries ) = 0;
+
+private slots:
+    void addData(const QList< Nepomuk::Query::Result > &entries);
+    void removeData( const QList< QUrl > &entries );
+
+    void resultCount(int number);
+    void listingsFinished();
+    void listingsError(const QString & 	errorMessage);
+    //void updateCache(Nepomuk::Resource res, Nepomuk::Types::Property property, QVariant variant);
+
 protected:
     Library *m_library;
     ResourceSelection m_selection;
     Nepomuk::Query::QueryServiceClient *m_queryClient;
-    QList<Nepomuk::Resource> m_fileList;
+    //Nepomuk::ResourceWatcher *m_resourceWatcher;
+
+    // instead of creating the data to display everytime it is requested, we cache the values for the
+    // display and decoration entries in here this speeds up the model for huge data sets
+    QList<CachedRowEntry> m_modelCacheData;
 };
 #endif // NEPOMUKMODEL_H

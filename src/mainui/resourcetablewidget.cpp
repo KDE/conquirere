@@ -115,13 +115,14 @@ void ResourceTableWidget::switchView(ResourceSelection selection, ResourceFilter
         m_searchSelection->setCurrentIndex(lastSelection);
 
     hv->setResizeMode(QHeaderView::Interactive);
+
     switch(m_selection) {
     case Resource_Library:
         break;
     case Resource_Document:
-        hv->setResizeMode(5, QHeaderView::Stretch);
         m_documentView->horizontalHeader()->resizeSection(1,25);
         m_documentView->horizontalHeader()->resizeSection(2,25);
+        hv->setResizeMode(5, QHeaderView::Stretch);
         m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
         break;
     case Resource_Mail:
@@ -132,9 +133,9 @@ void ResourceTableWidget::switchView(ResourceSelection selection, ResourceFilter
         break;
     case Resource_Publication:
     case Resource_Reference:
-        hv->setResizeMode(6, QHeaderView::Stretch);
         m_documentView->horizontalHeader()->resizeSection(1,25);
         m_documentView->horizontalHeader()->resizeSection(2,25);
+        hv->setResizeMode(6, QHeaderView::Stretch);
         m_documentView->setSelectionMode(QAbstractItemView::ExtendedSelection);
         break;
     case Resource_Website:

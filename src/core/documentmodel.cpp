@@ -69,102 +69,6 @@ int DocumentModel::columnCount(const QModelIndex &parent) const
     return Max_columns;
 }
 
-QVariant DocumentModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid())
-        return QVariant();
-
-    if (index.row() >= m_fileList.size() || index.row() < 0)
-        return QVariant();
-
-    Nepomuk::Resource document = m_fileList.at(index.row());
-
-    if(!document.isValid())
-        return QVariant();
-
-    if (role == Qt::DisplayRole) {
-        if(index.column() == Column_Author) {
-            Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
-
-            if(!publication.isValid()) {
-                return QVariant();
-            }
-
-            QString authorSting;
-            QList<Nepomuk::Resource> authorList;
-
-            authorList = publication.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
-
-            foreach(const Nepomuk::Resource & a, authorList) {
-                authorSting.append(a.genericLabel());
-                authorSting.append(QLatin1String("; "));
-            }
-            authorSting.chop(2);
-
-            return authorSting;
-        }
-        else if(index.column() == Column_Title) {
-            Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
-
-            if(!publication.isValid()) {
-                return QVariant();
-            }
-
-            QString titleSting = document.property(Nepomuk::Vocabulary::NIE::title()).toString();
-
-            return titleSting;
-        }
-        else if(index.column() == Column_Date) {
-            QString dateSting;
-            dateSting = document.property(Nepomuk::Vocabulary::NIE::lastModified()).toString();
-
-            if(dateSting.isEmpty()) {
-                dateSting = document.property(Nepomuk::Vocabulary::NIE::created()).toString();
-            }
-
-            return dateSting;
-        }
-        else if(index.column() == Column_FileName) {
-            QString filenameString;
-
-            filenameString = document.property(Nepomuk::Vocabulary::NFO::fileName()).toString();
-
-            return filenameString;
-        }
-        else if(index.column() == Column_Folder) {
-            QString folderString;
-
-            folderString = document.property(Nepomuk::Vocabulary::NIE::url()).toString();
-            QString filenameString = document.property(Nepomuk::Vocabulary::NFO::fileName()).toString();
-
-            folderString.remove(filenameString);
-            folderString.remove(QLatin1String("file://"));
-            folderString.replace(QRegExp(QLatin1String("/home/\\w*/")), QLatin1String("~/"));
-
-            return folderString;
-        }
-        else if(index.column() == Column_StarRate) {
-            int rating = document.rating();
-
-            return rating;
-        }
-    }
-
-    if (role == Qt::DecorationRole) {
-        if(index.column() == Column_Publication) {
-            Nepomuk::Resource file = document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
-            if(file.isValid()) {
-                return  KIcon(QLatin1String("bookmarks-organize"));
-            }
-        }
-        else if(index.column() == Column_Reviewed) {
-            return KIcon(QLatin1String("dialog-ok-apply"));
-        }
-    }
-
-    return QVariant();
-}
-
 QVariant DocumentModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation != Qt::Horizontal) {
@@ -244,13 +148,140 @@ void DocumentModel::startFetchData()
                                                             Nepomuk::Query::ResourceTerm(m_library->pimoLibrary()) ) );
     }
 
-    //sort result by edit date to get only the newest if we have to many results
-    //Nepomuk::Query::ComparisonTerm term(Soprano::Vocabulary::NAO::lastModified(), Nepomuk::Query::Term());
-    //term.setSortWeight(1, Qt::DescendingOrder);
-    //andTerm.addSubTerm(term);
-
     // build the query
     Nepomuk::Query::Query query( andTerm );
-    //query.setLimit(100);
     m_queryClient->query(query);
+}
+
+QList<CachedRowEntry> DocumentModel::addToCache( const QList< Nepomuk::Query::Result > &entries )
+{
+    QList<CachedRowEntry> newCache;
+
+    foreach(Nepomuk::Query::Result nqr, entries) {
+        Nepomuk::Resource r = nqr.resource();
+        CachedRowEntry cre;
+        cre.displayColums = createDisplayData(r);
+        cre.decorationColums = createDecorationData(r);
+        cre.resource = r;
+        newCache.append(cre);
+
+        QList<Nepomuk::Tag> tags = r.tags();
+        foreach(Nepomuk::Tag t, tags) {
+            hasTag(t.label());
+        }
+    }
+
+    return newCache;
+}
+
+QVariantList DocumentModel::createDisplayData(const Nepomuk::Resource & res)
+{
+    QVariantList displayList;
+    displayList.reserve(Max_columns-1);
+
+    for(int i = 0; i < Max_columns; i++) {
+        QVariant newEntry;
+        switch(i) {
+        case Column_Title: {
+            Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
+
+            if(!publication.isValid()) {
+                newEntry = QVariant();
+            }
+            else {
+                QString titleSting = res.property(Nepomuk::Vocabulary::NIE::title()).toString();
+
+                newEntry = titleSting;
+            }
+            break;
+        }
+        case Column_Date: {
+            QString dateSting;
+            dateSting = res.property(Nepomuk::Vocabulary::NIE::lastModified()).toString();
+
+            if(dateSting.isEmpty()) {
+                dateSting = res.property(Nepomuk::Vocabulary::NIE::created()).toString();
+            }
+            newEntry = dateSting;
+            break;
+        }
+        case Column_Author: {
+            Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
+
+            if(!publication.isValid()) {
+                newEntry = QVariant();
+            }
+            else {
+                QString authorSting;
+                QList<Nepomuk::Resource> authorList;
+
+                authorList = publication.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
+
+                foreach(const Nepomuk::Resource & a, authorList) {
+                    authorSting.append(a.genericLabel());
+                    authorSting.append(QLatin1String("; "));
+                }
+                authorSting.chop(2);
+                newEntry = authorSting;
+            }
+            break;
+        }
+        case Column_FileName: {
+            QString filenameString = res.property(Nepomuk::Vocabulary::NFO::fileName()).toString();
+
+            newEntry = filenameString;
+            break;
+        }
+        case Column_Folder: {
+            QString folderString = res.property(Nepomuk::Vocabulary::NIE::url()).toString();
+            QString filenameString = res.property(Nepomuk::Vocabulary::NFO::fileName()).toString();
+
+            folderString.remove(filenameString);
+            folderString.remove(QLatin1String("file://"));
+            folderString.replace(QRegExp(QLatin1String("/home/\\w*/")), QLatin1String("~/"));
+
+            newEntry = folderString;
+            break;
+        }
+        case Column_StarRate: {
+            int rating = res.rating();
+            newEntry = rating;
+            break;
+        }
+        default:
+            newEntry = QVariant();
+        }
+
+        displayList.append(newEntry);
+    }
+
+    return displayList;
+}
+
+QVariantList DocumentModel::createDecorationData(const Nepomuk::Resource & res)
+{
+    QVariantList decorationList;
+    decorationList.reserve(Max_columns-1);
+
+    for(int i = 0; i < Max_columns; i++) {
+        QVariant newEntry;
+        switch(i) {
+        case Column_Publication: {
+            Nepomuk::Resource file = res.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
+            if(file.isValid()) {
+                newEntry = KIcon(QLatin1String("bookmarks-organize"));
+            }
+            break;
+        }
+        case Column_Reviewed:
+            newEntry = KIcon(QLatin1String("dialog-ok-apply"));
+            break;
+        default:
+            newEntry = QVariant();
+        }
+
+        decorationList.append(newEntry);
+    }
+
+    return decorationList;
 }

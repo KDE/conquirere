@@ -56,180 +56,6 @@ int PublicationModel::columnCount(const QModelIndex &parent) const
     return Max_columns;
 }
 
-QVariant PublicationModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid())
-        return QVariant();
-
-    if (index.row() >= m_fileList.size() || index.row() < 0)
-        return QVariant();
-
-    Nepomuk::Resource document = m_fileList.at(index.row());
-
-    if(!document.isValid())
-        return QVariant();
-
-    if (role == Qt::DisplayRole) {
-        if(index.column() == Column_ResourceType) {
-            QString typeSting;
-            if(m_selection == Resource_Reference) {
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-
-                BibEntryType type = BibEntryTypeFromUrl(publication);
-                typeSting = BibEntryTypeTranslation.at(type);
-            }
-            else {
-                BibEntryType type = BibEntryTypeFromUrl(document);
-                typeSting = BibEntryTypeTranslation.at(type);
-            }
-
-            return typeSting;
-        }
-
-        if(index.column() == Column_Author) {
-            QString authorSting;
-            QList<Nepomuk::Resource> authorList;
-
-            if(m_selection == Resource_Reference) {
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-                authorList = publication.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
-            }
-            else {
-                authorList = document.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
-            }
-            foreach(const Nepomuk::Resource & a, authorList) {
-                authorSting.append(a.genericLabel());
-                authorSting.append(QLatin1String("; "));
-            }
-            authorSting.chop(2);
-
-            return authorSting;
-        }
-        else if(index.column() == Column_Title) {
-            QString titleSting;
-
-            if(m_selection == Resource_Reference) {
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-                titleSting = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
-            }
-            else {
-                titleSting = document.property(Nepomuk::Vocabulary::NIE::title()).toString();
-            }
-
-            return titleSting;
-        }
-        else if(index.column() == Column_Date) {
-            QString dateSting;
-
-            if(m_selection == Resource_Reference) {
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-                dateSting = publication.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
-            }
-            else {
-                dateSting = document.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
-            }
-
-            return dateSting;
-        }
-        else if(index.column() == Column_Editor) {
-            QString authorSting;
-            QList<Nepomuk::Resource> authorList;
-
-            if(m_selection == Resource_Reference) {
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-                authorList = publication.property(Nepomuk::Vocabulary::NBIB::editor()).toResourceList();
-            }
-            else {
-                authorList = document.property(Nepomuk::Vocabulary::NBIB::editor()).toResourceList();
-            }
-            foreach(const Nepomuk::Resource & a, authorList) {
-                authorSting.append(a.genericLabel());
-                authorSting.append(QLatin1String("; "));
-            }
-            authorSting.chop(2);
-
-            return authorSting;
-        }
-        else if(index.column() == Column_Publisher) {
-            QString authorSting;
-            QList<Nepomuk::Resource> authorList;
-
-            if(m_selection == Resource_Reference) {
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-                authorList = publication.property(Nepomuk::Vocabulary::NCO::publisher()).toResourceList();
-            }
-            else {
-                authorList = document.property(Nepomuk::Vocabulary::NCO::publisher()).toResourceList();
-            }
-            foreach(const Nepomuk::Resource & a, authorList) {
-                authorSting.append(a.genericLabel());
-                authorSting.append(QLatin1String("; "));
-            }
-            authorSting.chop(2);
-
-            return authorSting;
-        }
-        else if(index.column() == Column_CiteKey) {
-            QString citekeySting;
-
-            if(m_selection != Resource_Reference) {
-                QList<Nepomuk::Resource> refs = document.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
-
-                foreach(const Nepomuk::Resource & r, refs) {
-                    QString citykey = r.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
-                    if(citykey.isEmpty()) {
-                        citykey = i18n("unknown Citekey");
-                    }
-                    citekeySting.append(citykey);
-                    citekeySting.append(QLatin1String("; "));
-                }
-                citekeySting.chop(2);
-
-            }
-            else {
-                citekeySting = document.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
-            }
-
-            return citekeySting;
-        }
-        else if(index.column() == Column_StarRate) {
-            int rating;
-
-            if(m_selection == Resource_Reference) {
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-                rating = publication.rating();
-            }
-            else {
-                rating = document.rating();
-            }
-            return rating;
-        }
-    }
-
-    if (role == Qt::DecorationRole) {
-        if(index.column() == Column_FileAvailable) {
-            if(m_selection == Resource_Reference) {
-                Nepomuk::Resource publication = document.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-                Nepomuk::Resource file = publication.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResource();
-                if(file.isValid()) {
-                    return  KIcon(QLatin1String("bookmarks-organize"));
-                }
-            }
-            else {
-                Nepomuk::Resource file = document.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResource();
-                if(file.isValid()) {
-                    return  KIcon(QLatin1String("bookmarks-organize"));
-                }
-            }
-        }
-        else if(index.column() == Column_Reviewed) {
-            return KIcon(QLatin1String("dialog-ok-apply"));
-        }
-    }
-
-    return QVariant();
-}
-
 QVariant PublicationModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation != Qt::Horizontal) {
@@ -325,13 +151,217 @@ void PublicationModel::startFetchData()
                                                             Nepomuk::Query::ResourceTerm(m_library->pimoLibrary()) ) );
     }
 
-    //sort result by edit date to get only the newest if we have to many results
-    //Nepomuk::Query::ComparisonTerm term(Soprano::Vocabulary::NAO::lastModified(), Nepomuk::Query::Term());
-    //term.setSortWeight(1, Qt::DescendingOrder);
-    //andTerm.addSubTerm(term);
-
     // build the query
     Nepomuk::Query::Query query( andTerm );
-    //query.setLimit(100);
     m_queryClient->query(query);
+}
+
+QList<CachedRowEntry> PublicationModel::addToCache( const QList< Nepomuk::Query::Result > &entries )
+{
+    QList<CachedRowEntry> newCache;
+
+    foreach(Nepomuk::Query::Result nqr, entries) {
+        Nepomuk::Resource r = nqr.resource();
+        //m_resourceWatcher->addResource(r);
+        CachedRowEntry cre;
+        cre.displayColums = createDisplayData(r);
+        cre.decorationColums = createDecorationData(r);
+        cre.resource = r;
+        newCache.append(cre);
+
+        QList<Nepomuk::Tag> tags = r.tags();
+        foreach(Nepomuk::Tag t, tags) {
+            hasTag(t.label());
+        }
+    }
+
+    return newCache;
+}
+
+QVariantList PublicationModel::createDisplayData(const Nepomuk::Resource & res)
+{
+    QVariantList displayList;
+    displayList.reserve(Max_columns-1);
+
+    for(int i = 0; i < Max_columns; i++) {
+        QVariant newEntry;
+        switch(i) {
+        case Column_ResourceType: {
+            QString typeSting;
+            if(m_selection == Resource_Reference) {
+                Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+
+                BibEntryType type = BibEntryTypeFromUrl(publication);
+                typeSting = BibEntryTypeTranslation.at(type);
+            }
+            else {
+                BibEntryType type = BibEntryTypeFromUrl(res);
+                typeSting = BibEntryTypeTranslation.at(type);
+            }
+            newEntry = typeSting;
+            break;
+        }
+        case Column_Author: {
+            QString authorSting;
+            QList<Nepomuk::Resource> authorList;
+
+            if(m_selection == Resource_Reference) {
+                Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+                authorList = publication.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
+            }
+            else {
+                authorList = res.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
+            }
+            foreach(const Nepomuk::Resource & a, authorList) {
+                authorSting.append(a.genericLabel());
+                authorSting.append(QLatin1String("; "));
+            }
+            authorSting.chop(2);
+            newEntry = authorSting;
+            break;
+        }
+        case Column_Title: {
+            QString titleSting;
+
+            if(m_selection == Resource_Reference) {
+                Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+                titleSting = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
+            }
+            else {
+                titleSting = res.property(Nepomuk::Vocabulary::NIE::title()).toString();
+            }
+
+            newEntry = titleSting;
+            break;
+        }
+        case Column_Date: {
+            QString dateSting;
+
+            if(m_selection == Resource_Reference) {
+                Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+                dateSting = publication.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
+            }
+            else {
+                dateSting = res.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
+            }
+            newEntry = dateSting;
+            break;
+        }
+        case Column_Editor: {
+                QString authorSting;
+                QList<Nepomuk::Resource> authorList;
+
+                if(m_selection == Resource_Reference) {
+                    Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+                    authorList = publication.property(Nepomuk::Vocabulary::NBIB::editor()).toResourceList();
+                }
+                else {
+                    authorList = res.property(Nepomuk::Vocabulary::NBIB::editor()).toResourceList();
+                }
+                foreach(const Nepomuk::Resource & a, authorList) {
+                    authorSting.append(a.genericLabel());
+                    authorSting.append(QLatin1String("; "));
+                }
+                authorSting.chop(2);
+                newEntry = authorSting;
+                break;
+            }
+        case Column_Publisher: {
+            QString authorSting;
+            QList<Nepomuk::Resource> authorList;
+
+            if(m_selection == Resource_Reference) {
+                Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+                authorList = publication.property(Nepomuk::Vocabulary::NCO::publisher()).toResourceList();
+            }
+            else {
+                authorList = res.property(Nepomuk::Vocabulary::NCO::publisher()).toResourceList();
+            }
+            foreach(const Nepomuk::Resource & a, authorList) {
+                authorSting.append(a.genericLabel());
+                authorSting.append(QLatin1String("; "));
+            }
+            authorSting.chop(2);
+            newEntry = authorSting;
+            break;
+        }
+        case Column_CiteKey: {
+            QString citekeySting;
+
+            if(m_selection != Resource_Reference) {
+                QList<Nepomuk::Resource> refs = res.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
+
+                foreach(const Nepomuk::Resource & r, refs) {
+                    QString citykey = r.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
+                    if(citykey.isEmpty()) {
+                        citykey = i18n("unknown Citekey");
+                    }
+                    citekeySting.append(citykey);
+                    citekeySting.append(QLatin1String("; "));
+                }
+                citekeySting.chop(2);
+            }
+            else {
+                citekeySting = res.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
+            }
+            newEntry = citekeySting;
+            break;
+        }
+        case Column_StarRate: {
+            int rating;
+
+            if(m_selection == Resource_Reference) {
+                Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+                rating = publication.rating();
+            }
+            else {
+                rating = res.rating();
+            }
+            newEntry = rating;
+            break;
+        }
+        default:
+            newEntry = QVariant();
+        }
+
+        displayList.append(newEntry);
+    }
+
+    return displayList;
+}
+
+QVariantList PublicationModel::createDecorationData(const Nepomuk::Resource & res)
+{
+    QVariantList decorationList;
+    decorationList.reserve(Max_columns-1);
+
+    for(int i = 0; i < Max_columns; i++) {
+        QVariant newEntry;
+        switch(i) {
+        case Column_FileAvailable:
+            if(m_selection == Resource_Reference) {
+                Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+                Nepomuk::Resource file = publication.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResource();
+                if(file.isValid()) {
+                    newEntry = KIcon(QLatin1String("bookmarks-organize"));
+                }
+            }
+            else {
+                Nepomuk::Resource file = res.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResource();
+                if(file.isValid()) {
+                    newEntry = KIcon(QLatin1String("bookmarks-organize"));
+                }
+            }
+            break;
+        case Column_Reviewed:
+            newEntry = KIcon(QLatin1String("dialog-ok-apply"));
+            break;
+        default:
+            newEntry = QVariant();
+        }
+
+        decorationList.append(newEntry);
+    }
+
+    return decorationList;
 }

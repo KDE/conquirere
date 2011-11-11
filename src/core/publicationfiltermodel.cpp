@@ -19,6 +19,8 @@
 
 #include "publicationmodel.h"
 
+#include <QDebug>
+
 PublicationFilterModel::PublicationFilterModel(QObject *parent)
     : QSortFilterProxyModel(parent)
     , m_curFilter(Filter_None)
@@ -29,7 +31,7 @@ PublicationFilterModel::PublicationFilterModel(QObject *parent)
 void PublicationFilterModel::setResourceFilter(ResourceFilter filter)
 {
     m_curFilter = filter;
-    invalidateFilter(); // thats another slow down like hell
+    invalidate();
 }
 
 bool PublicationFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
