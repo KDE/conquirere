@@ -32,9 +32,19 @@ class ReferenceWidget : public SidebarComponent
 public:
     explicit ReferenceWidget(QWidget *parent = 0);
 
+    void setLibrary(Library *p);
+
 public slots:
     virtual void setResource(Nepomuk::Resource & resource);
     void showCreateReference(bool showIt);
+
+    /**
+      * This slot gets called from the propertywidgets, replace the subresource with the main nepomuk resource
+      * and calls resourceUpdated()
+      *
+      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      */
+    void subResourceUpdated();
 
 signals:
     /**

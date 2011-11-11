@@ -35,6 +35,8 @@ public:
     explicit NoteWidget(QWidget *parent = 0);
     ~NoteWidget();
 
+    void setLibrary(Library *p);
+
 public slots:
     virtual void setResource(Nepomuk::Resource & resource);
 

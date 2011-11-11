@@ -32,15 +32,6 @@ NepomukModel::NepomukModel(QObject *parent)
     connect(m_queryClient, SIGNAL(entriesRemoved(QList<QUrl>)), this, SLOT(removeData(QList<QUrl>)));
     connect(m_queryClient, SIGNAL(resultCount(int)), this, SLOT(resultCount(int)));
     connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(listingsFinished()));
-
-//    m_resourceWatcher =  new Nepomuk::ResourceWatcher(this);
-
-//    connect(m_resourceWatcher, SIGNAL(propertyAdded(Nepomuk::Resource, Nepomuk::Types::Property, QVariant)),
-//            this, SLOT(updateCache(Nepomuk::Resource, Nepomuk::Types::Property, QVariant)));
-//    connect(m_resourceWatcher, SIGNAL(propertyRemoved(Nepomuk::Resource, Nepomuk::Types::Property, QVariant)),
-//            this, SLOT(updateCache(Nepomuk::Resource, Nepomuk::Types::Property, QVariant)));
-
-    connect(this, SIGNAL(updateEntry(int)), this, SLOT(updateCacheEntry(int)));
 }
 
 NepomukModel::~NepomukModel()

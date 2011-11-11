@@ -68,6 +68,14 @@ public slots:
     /* called when something is selected in the project view */
     void setResource(Nepomuk::Resource & resource);
 
+    /**
+      * This slot gets called from the propertywidgets, replace the subresource with the main nepomuk resource
+      * and calls resourceUpdated()
+      *
+      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      */
+    void subResourceUpdated(Nepomuk::Resource resource);
+
 signals:
     /* notify connected editwidgets to update their info */
     void resourceChanged(Nepomuk::Resource & resource);

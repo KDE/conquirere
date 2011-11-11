@@ -94,6 +94,26 @@ void ReferenceWidget::setResource(Nepomuk::Resource & resource)
 
 }
 
+void ReferenceWidget::setLibrary(Library *p)
+{
+    SidebarComponent::setLibrary(p);
+
+    //TODO remove and use ResourceWatcher later on
+    connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(subResourceUpdated()));
+    connect(ui->chapterEdit, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->citeKeyEdit, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->pagesEdit, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->publicationEdit, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
+    connect(this, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
+}
+
+void ReferenceWidget::subResourceUpdated()
+{
+    emit resourceUpdated(m_reference);
+
+    qDebug() << "update resource" << m_reference.genericLabel();
+}
+
 void ReferenceWidget::showCreateReference(bool createRef)
 {
     if(createRef) {

@@ -99,6 +99,8 @@ void PropertyEdit::setResource(Nepomuk::Resource & resource)
     // it is now time to set the label the first time
     if(m_propertyUrl.isValid()) {
         setupLabel();
+
+        emit resourceUpdated(m_resource);
     }
 }
 
@@ -371,8 +373,8 @@ void PropertyEdit::detailEditRequested()
 
 void PropertyEdit::resourceUpdatedExternally()
 {
-    editingFinished();
     setupLabel();
+    editingFinished();
 }
 
 void PropertyEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entries)

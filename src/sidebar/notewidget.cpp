@@ -18,6 +18,8 @@
 #include "notewidget.h"
 #include "ui_notewidget.h"
 
+#include "../core/library.h"
+
 #include <Nepomuk/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Vocabulary/NFO>
@@ -62,6 +64,16 @@ void NoteWidget::setResource(Nepomuk::Resource & resource)
     discardNote();
 
     ui->editRating->setRating(m_note.rating());
+}
+
+void NoteWidget::setLibrary(Library *p)
+{
+    SidebarComponent::setLibrary(p);
+
+    //TODO remove and use ResourceWatcher later on
+    connect(ui->editRating, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
+    connect(ui->editTags, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
+    connect(ui->editTitle, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
 }
 
 void NoteWidget::newButtonClicked()
