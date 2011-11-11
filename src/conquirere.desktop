@@ -1,10 +1,18 @@
 [Desktop Entry]
 Name=Conquirere
+Name[pt]=Conquirere
+Name[sv]=Conquirere
+Name[uk]=Conquirere
+Name[x-test]=xxConquirerexx
 Exec=conquirere -caption "%c"
 Icon=conquirere
 Type=Application
 Terminal=false
 GenericName=Conquirere Research Helper Tool
+GenericName[pt]=Ferramenta de Auxílio à Pesquisa Conquirere
+GenericName[sv]=Conquirere hjälpverktyg för forskning
+GenericName[uk]=Інструмент сприяння дослідженням Conquirere
+GenericName[x-test]=xxConquirere Research Helper Toolxx
 Categories=Qt;KDE;Education;Office;Database;Science;Literature;
 X-DocPath=conquirere/index.html
 X-DBUS-StartupType=Multi
