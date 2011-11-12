@@ -545,7 +545,7 @@ void BibTexToNepomukPipe::addAuthor(const Value &contentValue, Nepomuk::Resource
                 // connect the resource to the publication
                 // akonadi will then always update this resource
                 a = Nepomuk::Resource(job->item().url(), Nepomuk::Vocabulary::NCO::PersonContact());
-                //a.setProperty("http://akonadi-project.org/ontologies/aneo#akonadiItemId", job->item().id());
+                a.setProperty(Nepomuk::Vocabulary::NIE::url(), job->item().url());
 
                 a.setProperty(Nepomuk::Vocabulary::NCO::fullname(), author.full);
 
@@ -723,7 +723,7 @@ void BibTexToNepomukPipe::addEditor(const Value &contentValue, Nepomuk::Resource
                 // akonadi will then always update this resource
                 //QUrl akonadiUrl(QString("akonadi:?item=%1").arg(job->item().id()));
                 e = Nepomuk::Resource(job->item().url(), Nepomuk::Vocabulary::NCO::PersonContact());
-                //e.setProperty("http://akonadi-project.org/ontologies/aneo#akonadiItemId", job->item().id());
+                e.setProperty(Nepomuk::Vocabulary::NIE::url(), job->item().url());
 
                 e.setProperty(Nepomuk::Vocabulary::NCO::fullname(), editor.full);
 

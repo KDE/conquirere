@@ -55,6 +55,7 @@ public slots:
     void selectedResource( const QItemSelection & selected, const QItemSelection & deselected );
 
     void applyFilter();
+    void addSelectedToProject();
     void removeSelectedFromProject();
     void removeSelectedFromSystem();
     void openSelected();
@@ -76,8 +77,8 @@ private:
 
     KAction* m_removeFromSystem;
     KAction* m_removeFromProject;
+    KAction* m_addToProject;
     KAction* m_exportToBibTeX;
-    KAction* m_openExternal;
 };
 
 #endif // RESOURCETABLEWIDGET_H

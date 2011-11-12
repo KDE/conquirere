@@ -32,12 +32,14 @@
 #include <KDE/KConfigGroup>
 #include <KDE/KLineEdit>
 #include <KDE/KComboBox>
+#include <KDE/KMimeType>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QTableView>
 #include <QtGui/QHeaderView>
 #include <QtGui/QMenu>
+#include <QtGui/QAction>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QSortFilterProxyModel>
 
@@ -52,7 +54,6 @@ ResourceTableWidget::ResourceTableWidget(QWidget *parent)
 
 ResourceTableWidget::~ResourceTableWidget()
 {
-
     delete m_searchBox;
     delete m_searchSelection;
     delete m_documentView;
@@ -60,7 +61,7 @@ ResourceTableWidget::~ResourceTableWidget()
     delete m_removeFromSystem;
     delete m_removeFromProject;
     delete m_exportToBibTeX;
-    delete m_openExternal;
+    delete m_addToProject;
 }
 
 void ResourceTableWidget::switchView(ResourceSelection selection, ResourceFilter filter, Library *p)
@@ -200,6 +201,11 @@ void ResourceTableWidget::applyFilter()
     sfpm->setFilterRegExp(searchKey);
 }
 
+void ResourceTableWidget::addSelectedToProject()
+{
+    qDebug() << "TODO :: ResourceTableWidget::addSelectedToProject()";
+}
+
 void ResourceTableWidget::removeSelectedFromProject()
 {
     QItemSelectionModel *sm = m_documentView->selectionModel();
@@ -224,16 +230,10 @@ void ResourceTableWidget::removeSelectedFromSystem()
 
 void ResourceTableWidget::openSelected()
 {
-    QItemSelectionModel *sm = m_documentView->selectionModel();
-    QModelIndexList indexes = sm->selectedRows();
+    QAction *a = static_cast<QAction *>(sender());
 
-    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
-    NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
-
-    if(rm && !indexes.isEmpty()) {
-        Nepomuk::Resource nr = rm->documentResource(indexes.first());
-        QUrl file = nr.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
-        QDesktopServices::openUrl(file);
+    if(a) {
+        QDesktopServices::openUrl(a->data().toUrl());
     }
 }
 
@@ -245,27 +245,98 @@ void ResourceTableWidget::exportSelectedToBibTeX()
 
 void ResourceTableWidget::tableContextMenu(const QPoint & pos)
 {
-    // no context menu for the welcome pages
-    if(m_selection == Resource_Library) {
+    QMenu menu(this);
+    QList<QAction *> actionCollection; //we throw all temp actions into it and delete them again after execution
+
+    // ###########################################################
+    // # add  file open menu
+    QMenu openExternal(this);
+    openExternal.setTitle(i18n("open external"));
+    openExternal.setIcon(KIcon(QLatin1String("document-open")));
+    menu.addMenu(&openExternal);
+
+    QItemSelectionModel *sm = m_documentView->selectionModel();
+    QModelIndexList indexes = sm->selectedRows();
+    if(indexes.isEmpty())
         return;
+
+    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
+    NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
+
+    Nepomuk::Resource nr = rm->documentResource(indexes.first());
+
+    if(m_selection == Resource_Publication || m_selection == Resource_Reference) {
+        if(m_selection == Resource_Reference) {
+            nr = nr.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+        }
+
+        QList<Nepomuk::Resource> fileList = nr.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResourceList();
+
+        if(!fileList.isEmpty()) {
+            foreach(Nepomuk::Resource r, fileList) {
+                KUrl file = r.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+                QString name;
+                KIcon icon(KMimeType::iconNameForUrl(file));
+
+                if(file.isLocalFile()) {
+                    name = file.fileName();
+                }
+                else {
+                    name = file.host();
+                }
+                QAction *a = new QAction(icon, name, this);
+                a->setData(QUrl(file));
+                connect(a, SIGNAL(triggered(bool)),this, SLOT(openSelected()));
+                openExternal.addAction(a);
+                actionCollection.append(a);
+            }
+        }
+        else {
+            openExternal.setEnabled(false);
+        }
+    }
+    else {
+        KUrl file = nr.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+        QString name;
+        KIcon icon(KMimeType::iconNameForUrl(file));
+        if(file.isLocalFile()) {
+            name = file.fileName();
+        }
+        else {
+            name = file.host();
+        }
+
+        QAction *a = new QAction(icon, name, this);
+        a->setData(QUrl(file));
+        actionCollection.append(a);
+        connect(a, SIGNAL(triggered(bool)),this, SLOT(openSelected()));
+        openExternal.addAction(a);
     }
 
-    QMenu menu(this);
-    menu.addAction(m_openExternal);
     menu.addSeparator();
+
+    menu.addAction(m_addToProject);
+    menu.addAction(m_removeFromProject);
+    menu.addAction(m_removeFromSystem);
+
+    if(m_curLibrary->libraryType() == Library_System) {
+        m_removeFromProject->setEnabled(false);
+    }
+    else {
+        m_removeFromProject->setEnabled(true);
+    }
 
     if(m_selection == Resource_Publication ||
        m_selection == Resource_Reference ) {
-        menu.addAction(m_removeFromSystem);
-    }
-
-    if(m_curLibrary->libraryType() == Library_System) {
+        m_removeFromSystem->setEnabled(true);
     }
     else {
-        menu.addAction(m_removeFromProject);
+        m_removeFromSystem->setEnabled(false);
     }
 
     menu.exec(QCursor::pos());
+
+    qDeleteAll(actionCollection);
 }
 
 void ResourceTableWidget::headerContextMenu(const QPoint &pos)
@@ -348,23 +419,23 @@ void ResourceTableWidget::setupWidget()
 
     mainLayout->addWidget(m_documentView);
 
+    m_addToProject = new KAction(this);
+    m_addToProject->setText(i18n("add to project"));
+    m_addToProject->setIcon(KIcon(QLatin1String("list-add")));
+    connect(m_addToProject, SIGNAL(triggered()), this, SLOT(addSelectedToProject()));
+
     m_removeFromProject = new KAction(this);
     m_removeFromProject->setText(i18n("Remove from project"));
-    m_removeFromProject->setIcon(KIcon(QLatin1String("document-new")));
+    m_removeFromProject->setIcon(KIcon(QLatin1String("list-remove")));
     connect(m_removeFromProject, SIGNAL(triggered()), this, SLOT(removeSelectedFromProject()));
 
     m_removeFromSystem = new KAction(this);
     m_removeFromSystem->setText(i18n("Remove from system"));
-    m_removeFromSystem->setIcon(KIcon(QLatin1String("document-new")));
+    m_removeFromSystem->setIcon(KIcon(QLatin1String("edit-delete-shred")));
     connect(m_removeFromSystem, SIGNAL(triggered()), this, SLOT(removeSelectedFromSystem()));
 
     m_exportToBibTeX = new KAction(this);
     m_exportToBibTeX->setText(i18n("Export to BibTex"));
     m_exportToBibTeX->setIcon(KIcon(QLatin1String("document-export")));
     connect(m_exportToBibTeX, SIGNAL(triggered()), this, SLOT(exportSelectedToBibTeX()));
-
-    m_openExternal = new KAction(this);
-    m_openExternal->setText(i18n("Open external"));
-    m_openExternal->setIcon(KIcon(QLatin1String("document-new")));
-    connect(m_openExternal, SIGNAL(triggered()), this, SLOT(openSelected()));
 }
