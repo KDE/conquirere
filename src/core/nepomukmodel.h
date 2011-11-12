@@ -83,6 +83,7 @@ protected:
     Nepomuk::Query::QueryServiceClient *m_queryClient;
     bool m_queryFinished;
     int m_activeFutureWatchers;
+    QList< Nepomuk::Query::Result > m_queryCache;
 
     // instead of creating the data to display everytime it is requested, we cache the values for the
     // display and decoration entries in here this speeds up the model for huge data sets

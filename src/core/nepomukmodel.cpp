@@ -142,13 +142,24 @@ void NepomukModel::removeSelectedFromSystem(const QModelIndex & index)
 
 void NepomukModel::addData(const QList< Nepomuk::Query::Result > &entries)
 {
-    // start background thread the data
     QFuture<QList<CachedRowEntry> > future = QtConcurrent::run(this, &NepomukModel::addToCache, entries);
 
     QFutureWatcher<QList<CachedRowEntry> > *futureWatcher = new QFutureWatcher<QList<CachedRowEntry> >();
     m_activeFutureWatchers++;
     futureWatcher->setFuture(future);
     connect(futureWatcher, SIGNAL(finished()),this, SLOT(dataCacheProcessed()));
+
+    /*
+    QList<CachedRowEntry> cacheEntries = addToCache(entries);
+
+    if(cacheEntries.size() > 0) {
+        beginInsertRows(QModelIndex(), m_modelCacheData.size(), m_modelCacheData.size() + cacheEntries.size()-1);
+        m_modelCacheData.append(cacheEntries);
+        endInsertRows();
+    }
+
+    emit dataSizeChaged(m_modelCacheData.size());
+*/
 }
 
 void NepomukModel::dataCacheProcessed()
@@ -165,14 +176,14 @@ void NepomukModel::dataCacheProcessed()
 
     emit dataSizeChaged(m_modelCacheData.size());
 
-    disconnect(futureWatcher, SIGNAL(finished()),this, SLOT(dataCacheProcessed()));
-    delete futureWatcher;
-
     m_activeFutureWatchers--;
 
     if(m_queryFinished && m_activeFutureWatchers == 0) {
         emit updateFetchDataFor(m_selection,false, m_library);
     }
+
+    disconnect(futureWatcher, SIGNAL(finished()),this, SLOT(dataCacheProcessed()));
+    delete futureWatcher;
 }
 
 void NepomukModel::removeData( const QList< QUrl > &entries )
@@ -209,6 +220,7 @@ void NepomukModel::resultCount(int number)
 void NepomukModel::listingsFinished()
 {
     m_queryFinished = true;
+    addData(m_queryCache);
 
     if(m_activeFutureWatchers == 0) {
         emit updateFetchDataFor(m_selection,false, m_library);
