@@ -20,6 +20,8 @@
 
 #include "propertyedit.h"
 
+class QStandardItemModel;
+
 /**
   * @brief Used to edit the publication for a specific reference
   *
@@ -33,7 +35,7 @@ public:
 protected:
     void setupLabel();
 
-    virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+    virtual QStandardItemModel* createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     virtual void updateResource( const QString & text );
 };

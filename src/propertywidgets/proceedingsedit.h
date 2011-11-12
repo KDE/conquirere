@@ -20,6 +20,8 @@
 
 #include "propertyedit.h"
 
+class QStandardItemModel;
+
 /**
   * @brief Allows o edit the @c nbib:proceedings of an @c nbib:article
   *
@@ -40,7 +42,7 @@ protected:
     /**
       * Adds the @c nie:title of all availabe proceedings to teh QCompleter
       */
-    virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+    virtual QStandardItemModel* createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     /**
       * removes any old proceedings and connect it to the new one specified in the KLineEdit

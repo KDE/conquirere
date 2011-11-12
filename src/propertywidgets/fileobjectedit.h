@@ -20,6 +20,8 @@
 
 #include "propertyedit.h"
 
+class QStandardItemModel;
+
 /**
   * @brief Used to add NFO::FileDataObject(), NFO::RemoteDataObject() or NFO::WebsiteDataObject() to the publication
   *
@@ -52,7 +54,7 @@ protected:
     /**
       * completion is ignored for this widget, as direct edit is not allowed either
       */
-    virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+    virtual QStandardItemModel* createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     /**
       * is done externally via AddDataObject

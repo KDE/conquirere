@@ -26,6 +26,7 @@
 #include <QtCore/QModelIndex>
 #include <QtCore/QHash>
 #include <QtCore/QUrl>
+#include <QtCore/QFutureWatcher>
 
 class KLineEdit;
 class KSqueezedTextLabel;
@@ -33,6 +34,7 @@ class QCompleter;
 class QAbstractItemModel;
 class QFocusEvent;
 class QToolButton;
+class QStandardItemModel;
 
 /**
   * @brief Helper class to easily manipulate Nepomuk data
@@ -204,7 +206,7 @@ protected:
       *
       * @see setCompletionModel();
       */
-    virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries ) = 0;
+    virtual QStandardItemModel *createCompletionModel( const QList< Nepomuk::Query::Result > &entries ) = 0;
 
     /**
       * Sets the used completion model to the QCompleter.
@@ -234,12 +236,24 @@ protected:
     void changeEvent( QEvent * event );
 
 private slots:
-    void updateCompleter();
-    void insertCompletion(const QModelIndex & index);
-    void addCompletionData(const QList< Nepomuk::Query::Result > &entries);
-
     void editingFinished();
     void editingAborted();
+
+    void updateCompleter();
+    void insertCompletion(const QModelIndex & index);
+
+    /**
+      * Fills the completer with the query results from the m_queryClient
+      *
+      * On the first run, all results are cached in m_initialCompleterCache and processed in one large
+      * chunk as soon as the m_queryClient is finished.
+      *
+      * The subclasses implement the completion process as thread to avoid blocking the main worker thread
+      * when a huge amount of entries are available.
+      */
+    void addCompletionData(const QList< Nepomuk::Query::Result > &entries);
+    void initialQueryFinished();
+    void completionModelProcessed();
 
 protected:
     KLineEdit *m_lineEdit;
@@ -256,12 +270,13 @@ private:
 
     Nepomuk::Resource m_resource;
     QUrl m_propertyUrl;
-
-    Nepomuk::Query::QueryServiceClient *m_queryClient;
+    QHash<QString, QUrl> m_listCache; /**< caches the label text with its nepomuk uri to easily retrieve the resource */
 
     QCompleter *m_completer;
-
-    QHash<QString, QUrl> m_listCache;
+    Nepomuk::Query::QueryServiceClient *m_queryClient;
+    QList<Nepomuk::Query::Result> m_initialCompleterCache;
+    bool m_initialQueryFinished;
+    QFutureWatcher<QStandardItemModel*> *m_futureWatcher;
 };
 
 #endif // PROPERTYEDIT_H

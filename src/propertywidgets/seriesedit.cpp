@@ -62,7 +62,7 @@ void SeriesEdit::updateResource(const QString & text)
     }
 }
 
-void SeriesEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
+QStandardItemModel* SeriesEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
     QStandardItemModel *model = new QStandardItemModel();
     QStandardItem *parentItem = model->invisibleRootItem();
@@ -75,7 +75,7 @@ void SeriesEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &e
         parentItem->appendRow(item);
     }
 
-    setCompletionModel(model);
+    return model;
 }
 
 QUrl SeriesEdit::findSeriesType()

@@ -87,8 +87,9 @@ void DateEdit::updateResource(const QString & text)
     resource().setProperty(propertyUrl(),date.toString("yyyy-MM-ddTHH:mm:ss"));
 }
 
-void DateEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
+QStandardItemModel *DateEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
+    return 0;
 }
 
 void DateEdit::detailEditRequested()

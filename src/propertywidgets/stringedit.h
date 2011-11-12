@@ -20,6 +20,8 @@
 
 #include "propertyedit.h"
 
+class QStandardItemModel;
+
 /**
   * @brief Very simple edit widget, interpretes all propertys as string
   */
@@ -31,7 +33,7 @@ public:
 protected:
     void setupLabel();
 
-    virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+    virtual QStandardItemModel* createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     virtual void updateResource( const QString & text );
 };

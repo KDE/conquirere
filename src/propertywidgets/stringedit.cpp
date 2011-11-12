@@ -55,9 +55,11 @@ void StringEdit::updateResource(const QString & text)
     }
 }
 
-void StringEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
+QStandardItemModel* StringEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
     // this needs a change in the propertyedit class
     // so we can fetch any value of a certain property
     // instead of searching for all occurrences of a Resourcetype
+
+    return new QStandardItemModel;
 }

@@ -20,6 +20,8 @@
 
 #include "propertyedit.h"
 
+class QStandardItemModel;
+
 /**
   * @brief Allows to edit the volume/number of either a @c nbib:JournalIssue or usual @c nbib:Publication
   *
@@ -35,7 +37,7 @@ public:
 protected:
     void setupLabel();
 
-    virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+    virtual QStandardItemModel* createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     virtual void updateResource( const QString & text );
 };

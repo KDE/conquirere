@@ -56,7 +56,7 @@ void ContactEdit::setupLabel()
 
 void ContactEdit::updateResource(const QString & text)
 {
-    // remove allexisting contacts
+    // remove all existing contacts
     resource().removeProperty( propertyUrl() );
 
     if(text.isEmpty())
@@ -88,7 +88,7 @@ void ContactEdit::updateResource(const QString & text)
     }
 }
 
-void ContactEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
+QStandardItemModel* ContactEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
     QStandardItemModel *model = new QStandardItemModel();
     QStandardItem *parentItem = model->invisibleRootItem();
@@ -104,5 +104,5 @@ void ContactEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &
         parentItem->appendRow(item);
     }
 
-    setCompletionModel(model);
+    return model;
 }

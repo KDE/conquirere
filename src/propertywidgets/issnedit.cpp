@@ -55,6 +55,7 @@ void IssnEdit::updateResource(const QString & text)
     series.setProperty(Nepomuk::Vocabulary::NBIB::issn(), text);
 }
 
-void IssnEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
+QStandardItemModel* IssnEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
+    return new QStandardItemModel;
 }

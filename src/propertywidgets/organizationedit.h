@@ -20,6 +20,8 @@
 
 #include "propertyedit.h"
 
+class QStandardItemModel;
+
 /**
   * @brief Changes the @c nbib:organization of a proceedings
   *
@@ -39,7 +41,7 @@ protected:
     /**
       * fills the QCompleter with all fullnames of all available @c nco:OrganizationContact s
       */
-    virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+    virtual QStandardItemModel* createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     /**
       * Removes any old organization connected to the proceedings and adds the new entered.

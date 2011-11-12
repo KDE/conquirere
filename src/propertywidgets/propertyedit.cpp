@@ -34,6 +34,9 @@
 #include <QtGui/QCompleter>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QAbstractItemView>
+#include <QtCore/QThread>
+#include <QtCore/QtConcurrentRun>
+#include <QtGui/QStandardItemModel>
 
 #include <QtCore/QDebug>
 
@@ -42,6 +45,7 @@ PropertyEdit::PropertyEdit(QWidget *parent)
     , m_isListEdit(true)
     , m_useDetailDialog(false)
     , m_directEditAllowed(true)
+    , m_initialQueryFinished(false)
 {
     m_label = new KSqueezedTextLabel();
     m_label->setWordWrap(true);
@@ -74,6 +78,7 @@ PropertyEdit::PropertyEdit(QWidget *parent)
     //create the query client to fetch resource data for the autocompletion
     m_queryClient = new Nepomuk::Query::QueryServiceClient();
     connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addCompletionData(QList<Nepomuk::Query::Result>)));
+    connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(initialQueryFinished()));
 
     m_completer = new QCompleter(this);
     m_completer->setWidget(m_lineEdit);
@@ -85,6 +90,8 @@ PropertyEdit::PropertyEdit(QWidget *parent)
 
 PropertyEdit::~PropertyEdit()
 {
+    m_queryClient->close();
+
     delete m_label;
     delete m_lineEdit;
     delete m_queryClient;
@@ -148,7 +155,6 @@ void PropertyEdit::setUseDetailDialog(bool useIt)
     }
 }
 
-
 void PropertyEdit::setDirectEdit(bool directEdit)
 {
     m_directEditAllowed = directEdit;
@@ -167,7 +173,7 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
     if(range.isValid() && !range.uri().isEmpty()) {
         // get all resources of type range
         Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( QUrl(range.uri()) ) );
-        //m_queryClient->query(query);
+        m_queryClient->query(query);
     }
     // if we can't use the range for the check
     // get all entries for the propertyUrl that exist, maybe there is something in it we could reuse
@@ -286,6 +292,7 @@ void PropertyEdit::updateCompleter()
                 }
                 break;
             }
+            tempLength++; //adds the ";" to the length
         }
 
         //remove any string after text position
@@ -379,5 +386,38 @@ void PropertyEdit::resourceUpdatedExternally()
 
 void PropertyEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entries)
 {
-    createCompletionModel(entries);
+    if(m_initialQueryFinished) {
+        m_initialCompleterCache.append(entries);
+        // start background thread the data
+        QFuture<QStandardItemModel*> future = QtConcurrent::run(this, &PropertyEdit::createCompletionModel, m_initialCompleterCache);
+
+        m_futureWatcher = new QFutureWatcher<QStandardItemModel*>();
+        m_futureWatcher->setFuture(future);
+        connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(completionModelProcessed()));
+    }
+    else {
+        m_initialCompleterCache.append(entries);
+    }
+}
+
+void PropertyEdit::initialQueryFinished()
+{
+    m_initialQueryFinished = true;
+    // don't close the query client, this allows to update the completer
+
+    // start background thread the data
+    QFuture<QStandardItemModel*> future = QtConcurrent::run(this, &PropertyEdit::createCompletionModel, m_initialCompleterCache);
+
+    m_futureWatcher = new QFutureWatcher<QStandardItemModel*>();
+    m_futureWatcher->setFuture(future);
+    connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(completionModelProcessed()));
+}
+
+void PropertyEdit::completionModelProcessed()
+{
+    QStandardItemModel* result = m_futureWatcher->future().result();
+
+    m_completer->setModel(result);
+
+    disconnect(m_futureWatcher, SIGNAL(finished()),this, SLOT(completionModelProcessed()));
 }

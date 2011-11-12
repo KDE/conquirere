@@ -81,7 +81,7 @@ void TagEdit::updateResource(const QString & text)
     }
 }
 
-void TagEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
+QStandardItemModel* TagEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
     QStandardItemModel *model = new QStandardItemModel();
     QStandardItem *parentItem = model->invisibleRootItem();
@@ -97,5 +97,5 @@ void TagEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entr
         parentItem->appendRow(item);
     }
 
-    setCompletionModel(model);
+    return model;
 }

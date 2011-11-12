@@ -25,6 +25,7 @@
 class QMenu;
 class QWidgetAction;
 class KDatePicker;
+class QStandardItemModel;
 
 class DateEdit : public PropertyEdit
 {
@@ -36,7 +37,7 @@ public:
 protected:
     void setupLabel();
 
-    virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+    virtual QStandardItemModel *createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     virtual void updateResource( const QString & text );
 

@@ -72,7 +72,7 @@ void ChapterEdit::updateResource(const QString & text)
     chapter.setProperty(Nepomuk::Vocabulary::NBIB::documentPartOf(), bookResource);
 }
 
-void ChapterEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
+QStandardItemModel * ChapterEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
     // entries contain all Chapter from any book (that are created)
     // thats not so good ;)
@@ -91,5 +91,5 @@ void ChapterEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &
         parentItem->appendRow(item);
     }
 
-    setCompletionModel(model);
+    return model;
 }

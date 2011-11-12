@@ -22,6 +22,8 @@
 
 #include <QUrl>
 
+class QStandardItemModel;
+
 /**
   * @brief Used to edit a single Issue
   *
@@ -43,7 +45,7 @@ protected:
     /**
       * fills the QCompleter with the titles of all available nbib:collections
       */
-    virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+    virtual QStandardItemModel* createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     /**
       * changes the @c nie:title

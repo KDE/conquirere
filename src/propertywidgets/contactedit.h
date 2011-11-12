@@ -20,6 +20,8 @@
 
 #include "propertyedit.h"
 
+class QStandardItemModel;
+
 /**
   * @brief Used to manipulate an @c nco:Contact property.
   *
@@ -43,7 +45,7 @@ protected:
       *
       * Fill the completer with the @c nco::fullname strings
       */
-    virtual void createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+    virtual QStandardItemModel* createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     /**
       * update the resource with the @p text from the edit field

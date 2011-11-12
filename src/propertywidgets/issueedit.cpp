@@ -91,7 +91,7 @@ void IssueEdit::updateResource(const QString & text)
     }
 }
 
-void IssueEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
+QStandardItemModel* IssueEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
     QStandardItemModel *model = new QStandardItemModel();
     QStandardItem *parentItem = model->invisibleRootItem();
@@ -104,7 +104,7 @@ void IssueEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &en
         parentItem->appendRow(item);
     }
 
-    setCompletionModel(model);
+    return model;
 }
 
 void IssueEdit::detailEditRequested()

@@ -80,7 +80,7 @@ void OrganizationEdit::updateResource(const QString & text)
     }
 }
 
-void OrganizationEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
+QStandardItemModel* OrganizationEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
     QStandardItemModel *model = new QStandardItemModel();
     QStandardItem *parentItem = model->invisibleRootItem();
@@ -93,5 +93,5 @@ void OrganizationEdit::createCompletionModel( const QList< Nepomuk::Query::Resul
         parentItem->appendRow(item);
     }
 
-    setCompletionModel(model);
+    return model;
 }
