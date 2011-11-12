@@ -22,10 +22,15 @@
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
+#include <QtCore/QFutureWatcher>
+#include <QtCore/QThread>
+#include <QtCore/QtConcurrentRun>
 
 NepomukModel::NepomukModel(QObject *parent)
     : QAbstractTableModel(parent)
     , m_library(0)
+    , m_queryFinished(false)
+    , m_activeFutureWatchers(0)
 {
     m_queryClient = new Nepomuk::Query::QueryServiceClient();
     connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addData(QList<Nepomuk::Query::Result>)));
@@ -116,7 +121,6 @@ void NepomukModel::removeSelectedFromProject(const QModelIndex & index, Library 
     nr.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), l->pimoLibrary());
 
     //Nepomuk query client will call the slot to remove the file from the index
-
 }
 
 void NepomukModel::removeSelectedFromSystem(const QModelIndex & index)
@@ -138,9 +142,20 @@ void NepomukModel::removeSelectedFromSystem(const QModelIndex & index)
 
 void NepomukModel::addData(const QList< Nepomuk::Query::Result > &entries)
 {
-    // qDebug() << "addData(...)" << entries.size();
+    // start background thread the data
+    QFuture<QList<CachedRowEntry> > future = QtConcurrent::run(this, &NepomukModel::addToCache, entries);
+
+    QFutureWatcher<QList<CachedRowEntry> > *futureWatcher = new QFutureWatcher<QList<CachedRowEntry> >();
+    m_activeFutureWatchers++;
+    futureWatcher->setFuture(future);
+    connect(futureWatcher, SIGNAL(finished()),this, SLOT(dataCacheProcessed()));
+}
+
+void NepomukModel::dataCacheProcessed()
+{
+    QFutureWatcher<QList<CachedRowEntry> > *futureWatcher = static_cast<QFutureWatcher<QList<CachedRowEntry> > *>(sender());
     // take all results and prepare them for the entry cache
-    QList<CachedRowEntry> cacheEntries = addToCache(entries);
+    QList<CachedRowEntry> cacheEntries = futureWatcher->future().result();
 
     if(cacheEntries.size() > 0) {
         beginInsertRows(QModelIndex(), m_modelCacheData.size(), m_modelCacheData.size() + cacheEntries.size()-1);
@@ -149,6 +164,15 @@ void NepomukModel::addData(const QList< Nepomuk::Query::Result > &entries)
     }
 
     emit dataSizeChaged(m_modelCacheData.size());
+
+    disconnect(futureWatcher, SIGNAL(finished()),this, SLOT(dataCacheProcessed()));
+    delete futureWatcher;
+
+    m_activeFutureWatchers--;
+
+    if(m_queryFinished && m_activeFutureWatchers == 0) {
+        emit updateFetchDataFor(m_selection,false, m_library);
+    }
 }
 
 void NepomukModel::removeData( const QList< QUrl > &entries )
@@ -184,9 +208,11 @@ void NepomukModel::resultCount(int number)
 
 void NepomukModel::listingsFinished()
 {
-    qDebug() << "listingsFinished" << "added something? oO" << m_modelCacheData.size();
+    m_queryFinished = true;
 
-    emit updateFetchDataFor(m_selection,false, m_library);
+    if(m_activeFutureWatchers == 0) {
+        emit updateFetchDataFor(m_selection,false, m_library);
+    }
 }
 
 void NepomukModel::listingsError(const QString & errorMessage)
