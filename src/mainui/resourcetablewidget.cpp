@@ -159,7 +159,7 @@ void ResourceTableWidget::selectedResource( const QItemSelection & selected, con
     Q_UNUSED(selected);
     Q_UNUSED(deselected);
 
-    QModelIndexList selectedIndex =m_documentView->selectionModel()->selectedRows();
+    QModelIndexList selectedIndex = m_documentView->selectionModel()->selectedRows();
 
     if(selectedIndex.isEmpty()) {
         Nepomuk::Resource empty;
@@ -205,8 +205,10 @@ void ResourceTableWidget::removeSelectedFromProject()
     QItemSelectionModel *sm = m_documentView->selectionModel();
     QModelIndexList indexes = sm->selectedRows();
 
-    NepomukModel *rm = qobject_cast<NepomukModel *>(m_documentView->model());
-    rm->removeSelectedFromProject(indexes, m_curLibrary);
+    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
+    NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
+
+    rm->removeSelectedFromProject(sfpm->mapToSource(indexes.first()), m_curLibrary);
 }
 
 void ResourceTableWidget::removeSelectedFromSystem()
@@ -216,7 +218,8 @@ void ResourceTableWidget::removeSelectedFromSystem()
 
     QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
     NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
-    rm->removeSelectedFromSystem(indexes);
+
+    rm->removeSelectedFromSystem(sfpm->mapToSource(indexes.first()));
 }
 
 void ResourceTableWidget::openSelected()

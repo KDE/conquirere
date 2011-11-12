@@ -62,13 +62,6 @@ QVariant NepomukModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole) {
         CachedRowEntry entryCache = m_modelCacheData.at(index.row());
 
-//        if(entryCache.lastModified != entryCache.resource.property(Soprano::Vocabulary::NAO::lastModified()).toString()) {
-//            emit updateCacheEntry(index.row());
-//            //entryCache = updateCacheEntry(index.row());
-//            qDebug() << "cahce update requested for " << entryCache.resource.genericLabel();
-//            qDebug() << entryCache.lastModified << entryCache.resource.property(Soprano::Vocabulary::NAO::lastModified()).toString();
-//        }
-
         QVariantList columnList = entryCache.displayColums;
 
         return columnList.at(index.column());
@@ -111,35 +104,36 @@ void NepomukModel::stopFetchData()
     m_queryClient->close();
 }
 
-void NepomukModel::removeSelectedFromProject(const QModelIndexList & indexes, Library *l)
+void NepomukModel::removeSelectedFromProject(const QModelIndex & index, Library *l)
 {
-    //    if(m_library->libraryType() == Library_System) {
-    //        qWarning() << "try to remove data from the nepomuk system library @ PublicationModel::removeSelectedFromProject";
-    //    }
-    //    foreach(const QModelIndex & index, indexes) {
-    //        // get the nepomuk data at the row
-    //        Nepomuk::Resource nr = m_fileList.at(index.row());
+    if(m_library->libraryType() == Library_System) {
+        qWarning() << "try to remove data from the nepomuk system library @ PublicationModel::removeSelectedFromProject";
+    }
+    // get the nepomuk data at the row
+    Nepomuk::Resource nr = m_modelCacheData.at(index.row()).resource;
 
-    //        // remove project relation
-    //        nr.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), l->pimoLibrary());
+    // remove project relation
+    nr.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), l->pimoLibrary());
 
-    //        //Nepomuk query client will call the slot to remove the file from the index
-    //    }
+    //Nepomuk query client will call the slot to remove the file from the index
+
 }
 
-void NepomukModel::removeSelectedFromSystem(const QModelIndexList & indexes)
+void NepomukModel::removeSelectedFromSystem(const QModelIndex & index)
 {
-    //foreach(const QModelIndex & index, indexes) {
     // get the nepomuk data at the row
-    //Nepomuk::Resource nr = m_fileList.at(index.row());
+    Nepomuk::Resource nr =  m_modelCacheData.at(index.row()).resource;
 
     //get all connected references
-    //QList<Nepomuk::Resource> refList = nr.property(Nepomuk::Vocabulary::NBIB::)
-    qWarning() << "TODO delete all references of the publication we are about to remove from nepomuk";
+    QList<Nepomuk::Resource> refList = nr.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
+
+    foreach(Nepomuk::Resource r, refList) {
+        r.remove();
+    }
+
     // remove resource
-    //nr.remove();
+    nr.remove();
     //Nepomuk query client will call the slot to remove the file from the index
-    //}
 }
 
 void NepomukModel::addData(const QList< Nepomuk::Query::Result > &entries)
@@ -160,7 +154,7 @@ void NepomukModel::addData(const QList< Nepomuk::Query::Result > &entries)
 void NepomukModel::removeData( const QList< QUrl > &entries )
 {
     foreach(QUrl url, entries) {
-        //iterate through the full list of entriues and find the one we are giong to remove
+        //iterate through the full list of entries and find the one we are giong to remove
         int i = 0;
         int j = -1;
         foreach(const CachedRowEntry & cre, m_modelCacheData) {

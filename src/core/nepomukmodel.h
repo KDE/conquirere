@@ -49,8 +49,8 @@ public:
     virtual void setResourceType(ResourceSelection selection);
     virtual Nepomuk::Resource documentResource(const QModelIndex &selection);
 
-    virtual void removeSelectedFromProject(const QModelIndexList & indexes, Library *l);
-    virtual void removeSelectedFromSystem(const QModelIndexList & indexes);
+    virtual void removeSelectedFromProject(const QModelIndex & index, Library *l);
+    virtual void removeSelectedFromSystem(const QModelIndex & index);
 
 signals:
     void dataSizeChaged(int size);
