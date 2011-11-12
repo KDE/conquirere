@@ -1,6 +1,9 @@
 [Desktop Entry]
 Name=Conquirere
+Name[cs]=Conquirere
+Name[nds]=Conquirere
 Name[pt]=Conquirere
+Name[pt_BR]=Conquirere
 Name[sv]=Conquirere
 Name[uk]=Conquirere
 Name[x-test]=xxConquirerexx
@@ -10,6 +13,7 @@ Type=Application
 Terminal=false
 GenericName=Conquirere Research Helper Tool
 GenericName[pt]=Ferramenta de Auxílio à Pesquisa Conquirere
+GenericName[pt_BR]=Ferramenta de auxílio à pesquisa Conquirere
 GenericName[sv]=Conquirere hjälpverktyg för forskning
 GenericName[uk]=Інструмент сприяння дослідженням Conquirere
 GenericName[x-test]=xxConquirere Research Helper Toolxx
