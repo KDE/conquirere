@@ -262,14 +262,5 @@ void LibraryWidget::setupLibraryTree(QTreeWidgetItem *root)
         twi2->setIcon(0, KIcon(QLatin1String("mail-flag")));
         root->addChild(twi2);
         m_items.append(twi2);
-
-        QTreeWidgetItem *twi5 = new QTreeWidgetItem();
-        twi5->setText(0, i18n("Media"));
-        twi5->setData(0,Role_Library,root->data(0,Role_Library));
-        twi5->setData(0,Role_ResourceType,Resource_Media);
-        twi5->setData(0,Role_Project,root->data(0,Role_Project));
-        twi5->setIcon(0, KIcon(QLatin1String("applications-multimedia")));
-        root->addChild(twi5);
-        m_items.append(twi5);
     }
 }

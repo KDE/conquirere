@@ -53,17 +53,17 @@ void FileObjectEdit::setupLabel()
     foreach(const Nepomuk::Resource & nr, dataObjectList) {
         QString url = nr.property(Nepomuk::Vocabulary::NIE::url()).toString();
 
-        if(m_mode == Local && nr.hasType(Nepomuk::Vocabulary::NFO::FileDataObject())) {
+        if(m_mode == Local && nr.type() == Nepomuk::Vocabulary::NFO::FileDataObject().toString()) { //nr.hasType(Nepomuk::Vocabulary::NFO::FileDataObject())) {
             dataStringList.append(url);
             dataStringList.append(QLatin1String("; "));
             continue;
         }
-        if(m_mode == Remote && nr.hasType(Nepomuk::Vocabulary::NFO::RemoteDataObject())) {
+        else if(m_mode == Remote && nr.type() == Nepomuk::Vocabulary::NFO::RemoteDataObject().toString()) { //nr.hasType(Nepomuk::Vocabulary::NFO::RemoteDataObject())) {
             dataStringList.append(url);
             dataStringList.append(QLatin1String("; "));
             continue;
         }
-        if(m_mode == Website && nr.hasType(Nepomuk::Vocabulary::NFO::Website())) {
+        else if(m_mode == Website && nr.type() == Nepomuk::Vocabulary::NFO::Website().toString()) { //nr.hasType(Nepomuk::Vocabulary::NFO::Website())) {
             dataStringList.append(url);
             dataStringList.append(QLatin1String("; "));
             continue;
@@ -98,5 +98,6 @@ void FileObjectEdit::showFileSelection()
 
     ado.exec();
 
-    resourceUpdatedExternally();
+    setupLabel();
+    //resourceUpdatedExternally();
 }

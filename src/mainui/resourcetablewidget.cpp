@@ -23,6 +23,8 @@
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk/Vocabulary/NFO>
+#include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Variant>
 
 #include <KDE/KWidgetItemDelegate>
@@ -208,13 +210,21 @@ void ResourceTableWidget::addSelectedToProject()
 
 void ResourceTableWidget::removeSelectedFromProject()
 {
+    if(m_curLibrary->libraryType() == Library_System) {
+        qWarning() << "try to remove data from the nepomuk system library @ PublicationModel::removeSelectedFromProject";
+        return;
+    }
+
     QItemSelectionModel *sm = m_documentView->selectionModel();
     QModelIndexList indexes = sm->selectedRows();
 
     QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
     NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
 
-    rm->removeSelectedFromProject(sfpm->mapToSource(indexes.first()), m_curLibrary);
+    Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(indexes.first()));
+
+    // remove project relation
+    nr.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), m_curLibrary->pimoLibrary());
 }
 
 void ResourceTableWidget::removeSelectedFromSystem()
@@ -225,7 +235,17 @@ void ResourceTableWidget::removeSelectedFromSystem()
     QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
     NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
 
-    rm->removeSelectedFromSystem(sfpm->mapToSource(indexes.first()));
+    // the resource for this entry
+    Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(indexes.first()));
+
+    //get all connected references
+    QList<Nepomuk::Resource> refList = nr.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
+
+    foreach(Nepomuk::Resource r, refList) {
+        r.remove();
+    }
+    // remove resource
+    nr.remove();
 }
 
 void ResourceTableWidget::openSelected()
@@ -282,7 +302,12 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
                     name = file.fileName();
                 }
                 else {
-                    name = file.host();
+                    if(r.type() == Nepomuk::Vocabulary::NFO::RemoteDataObject().toString()) {
+                        name = file.path();
+                    }
+                    else {
+                        name = file.host();
+                    }
                 }
                 QAction *a = new QAction(icon, name, this);
                 a->setData(QUrl(file));

@@ -290,10 +290,10 @@ QVariantList PublicationModel::createDisplayData(const Nepomuk::Resource & res)
 
             if(m_selection == Resource_Reference) {
                 Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-                rating = publication.rating();
+                rating = publication.property(Soprano::Vocabulary::NAO::numericRating()).toInt();
             }
             else {
-                rating = res.rating();
+                rating = res.property(Soprano::Vocabulary::NAO::numericRating()).toInt();
             }
             newEntry = rating;
             break;

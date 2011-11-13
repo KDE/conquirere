@@ -71,20 +71,28 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
         m_allContacts.insert(fullname, nqr.resource());
     }
     qDebug() << "fetched all" << queryResult.size() << "contacts";
-    Nepomuk::Query::ResourceTypeTerm type2( Nepomuk::Vocabulary::NBIB::Publication() );
-    Nepomuk::Query::Query query2( type2 );
-    QList<Nepomuk::Query::Result> queryResult2 = Nepomuk::Query::QueryServiceClient::syncQuery(query2);
-    foreach(const Nepomuk::Query::Result & nqr, queryResult2) {
-        m_allPublications.append(nqr.resource());
+
+    Nepomuk::Query::ResourceTypeTerm typeP( Nepomuk::Vocabulary::NBIB::Proceedings() );
+    Nepomuk::Query::Query queryP( typeP );
+    QList<Nepomuk::Query::Result> queryResultP = Nepomuk::Query::QueryServiceClient::syncQuery(queryP);
+    foreach(const Nepomuk::Query::Result & nqr, queryResultP) {
+        QString title = nqr.resource().property(Nepomuk::Vocabulary::NIE::title()).toString();
+        m_allProceedings.insert(QString(title.toUtf8()), nqr.resource());
     }
-    qDebug() << "fetched all publications";
-    Nepomuk::Query::ResourceTypeTerm type3( Nepomuk::Vocabulary::NBIB::Reference() );
-    Nepomuk::Query::Query query3( type3 );
-    QList<Nepomuk::Query::Result> queryResult3 = Nepomuk::Query::QueryServiceClient::syncQuery(query3);
-    foreach(const Nepomuk::Query::Result & nqr, queryResult3) {
-        m_allReferences.append(nqr.resource());
-    }
-    qDebug() << "fetched all refrences";
+
+//    Nepomuk::Query::ResourceTypeTerm type2( Nepomuk::Vocabulary::NBIB::Publication() );
+//    Nepomuk::Query::Query query2( type2 );
+//    QList<Nepomuk::Query::Result> queryResult2 = Nepomuk::Query::QueryServiceClient::syncQuery(query2);
+//    foreach(const Nepomuk::Query::Result & nqr, queryResult2) {
+//        m_allPublications.append(nqr.resource());
+//    }
+//    qDebug() << "fetched all publications";
+//    Nepomuk::Query::ResourceTypeTerm type3( Nepomuk::Vocabulary::NBIB::Reference() );
+//    Nepomuk::Query::Query query3( type3 );
+//    QList<Nepomuk::Query::Result> queryResult3 = Nepomuk::Query::QueryServiceClient::syncQuery(query3);
+//    foreach(const Nepomuk::Query::Result & nqr, queryResult3) {
+//        m_allReferences.append(nqr.resource());
+//    }
 
     int maxValue = bibEntries.size();
     qreal perFileProgress = (100.0/(qreal)maxValue);
@@ -171,6 +179,10 @@ void BibTexToNepomukPipe::import(Entry *e)
     while (i.hasNext()) {
         i.next();
         addContent(i.key(), i.value(), publication, reference, e->type());
+    }
+
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Proceedings()) ) {
+        m_allProceedings.insert(publication.property(Nepomuk::Vocabulary::NIE::title()).toString(), publication);
     }
 }
 
@@ -460,7 +472,8 @@ void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &vol
         journalIssue.setProperty(Nepomuk::Vocabulary::NBIB::volume(), volume);
         // duplicate title join journal and journalissue, helps to easily identify those two
         // but is more like a better way to create a prefLabel / genericLabel
-        journalIssue.setProperty(Nepomuk::Vocabulary::NIE::title(), journalName);
+        QString issueName = QString("%1 : %2 (%3)").arg(journalName).arg(volume).arg(number);
+        journalIssue.setProperty(Nepomuk::Vocabulary::NIE::title(), issueName);
 
         // connect issue <-> journal
         journalIssue.setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), journalResource);
@@ -589,42 +602,13 @@ void BibTexToNepomukPipe::addBooktitle(const QString &content, Nepomuk::Resource
     if(originalEntryType == QLatin1String("inproceedings")) {
         //check if a resource @Proceedings with the name of content exist or create a new one
 
-        // fetcha data
-        Nepomuk::Query::ComparisonTerm title( Nepomuk::Vocabulary::NIE::title(), Nepomuk::Query::LiteralTerm( content.toUtf8() ) );
-        Nepomuk::Query::ResourceTypeTerm type( Nepomuk::Vocabulary::NBIB::Proceedings() );
+        Nepomuk::Resource proceedingsResource = m_allProceedings.value(QString(content.toUtf8()), Nepomuk::Resource());
 
-        Nepomuk::Query::Query query( Nepomuk::Query::AndTerm( type, title ) );
-
-        QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
-
-        Nepomuk::Resource proceedingsResource;
-        if(!queryResult.isEmpty()) {
-            if(queryResult.size() > 1) {
-                qWarning() << "found more than 1 proceedings with the name " << content;
-
-                //now we search deeper as we do get false results
-                // Example A.M. Bronstein and M.M. Bronstein will be found with the same query
-                foreach(const Nepomuk::Query::Result & nqr, queryResult) {
-                    if( nqr.resource().property(Nepomuk::Vocabulary::NIE::title()).toString() == content.toUtf8()) {
-                        proceedingsResource = nqr.resource();
-                    }
-                }
-
-                // we found just false results ... create a new one
-                if(!proceedingsResource.isValid()) {
-                    proceedingsResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Proceedings());
-                    proceedingsResource.setProperty(Nepomuk::Vocabulary::NIE::title(), QString(content.toUtf8()));
-                }
-            }
-            else {
-                qWarning() << "found another proceedings with the name " << content;
-                proceedingsResource = queryResult.first().resource();
-            }
-        }
-        else {
-            qWarning() << "found no existing proceedings with the name " << content << "create new one";
+        if(!proceedingsResource.isValid()) {
+            qWarning() << "found no existing proceedings with the name " << content.toUtf8() << "create new one";
             proceedingsResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Proceedings());
             proceedingsResource.setProperty(Nepomuk::Vocabulary::NIE::title(), QString(content.toUtf8()));
+            m_allProceedings.insert(QString(content.toUtf8()), proceedingsResource);
         }
 
         //at this point we have a valid proceedings entry connect it to the publication
@@ -974,7 +958,25 @@ void BibTexToNepomukPipe::addType(const QString &content, Nepomuk::Resource publ
 
 void BibTexToNepomukPipe::addUrl(const QString &content, Nepomuk::Resource publication)
 {
-    qDebug() << "BibTexToNepomukPipe::addUrl :: missing implementation currently";
+    // simple check, either the url ends with ".xxx" like .pdf
+    // than it is a RemoteDataObject
+    // otherwise a Website
+    // this will produce wrong results when the webpage is a php script that returns files
+
+    QString path = QUrl(content).path();
+
+    QUrl urlType;
+    if(path.contains(QRegExp(".*\\.\\D{3}$"))) {
+        urlType = Nepomuk::Vocabulary::NFO::RemoteDataObject();
+    }
+    else {
+        urlType = Nepomuk::Vocabulary::NFO::Website();
+    }
+
+    Nepomuk::Resource dataObject(QUrl(), urlType);
+    dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), QString(content.toUtf8()));
+
+    publication.addProperty(Nepomuk::Vocabulary::NBIB::isPublicationOf(), dataObject);
 }
 
 void BibTexToNepomukPipe::addVolume(const QString &content, Nepomuk::Resource publication)

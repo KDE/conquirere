@@ -124,12 +124,16 @@ private:
     void addSeries(const QString &content, Nepomuk::Resource publication);
     void addTitle(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
     void addType(const QString &content, Nepomuk::Resource publication);
+    /**
+      * @bug replace NFO::Website() with NFO::WebDataObject() when available
+      */
     void addUrl(const QString &content, Nepomuk::Resource publication);
     void addVolume(const QString &content, Nepomuk::Resource publication);
     void addYear(const QString &content, Nepomuk::Resource publication);
     void addKewords(const Value &content, Nepomuk::Resource publication);
 
     QMap<QString, Nepomuk::Resource> m_allContacts;
+    QMap<QString, Nepomuk::Resource> m_allProceedings;
     QList<Nepomuk::Resource> m_allPublications;
     QList<Nepomuk::Resource> m_allReferences;
     Akonadi::Collection m_addressbook;

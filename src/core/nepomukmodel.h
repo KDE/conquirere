@@ -45,22 +45,22 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
 
-    virtual void setLibrary(Library *library);
-    virtual void setResourceType(ResourceSelection selection);
-    virtual Nepomuk::Resource documentResource(const QModelIndex &selection);
-
-    virtual void removeSelectedFromProject(const QModelIndex & index, Library *l);
-    virtual void removeSelectedFromSystem(const QModelIndex & index);
+    void setLibrary(Library *library);
+    void setResourceType(ResourceSelection selection);
+    Nepomuk::Resource documentResource(const QModelIndex &selection);
 
 signals:
     void dataSizeChaged(int size);
     void updateFetchDataFor(ResourceSelection selection, bool start, Library *library);
     void updateEntry(int row);
     void hasTag(const QString & tag);
+    void addResource(const Nepomuk::Resource &resource);
+    void updateResource(const Nepomuk::Resource & resource);
+    void removeResource(const QUrl &resourceUrl);
 
 public slots:
     virtual void startFetchData() = 0;
-    virtual void stopFetchData();
+    void stopFetchData();
 
 protected:
     QList<CachedRowEntry> addToCache( const QList< Nepomuk::Query::Result > &entries );

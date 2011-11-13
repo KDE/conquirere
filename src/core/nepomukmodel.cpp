@@ -109,37 +109,6 @@ void NepomukModel::stopFetchData()
     m_queryClient->close();
 }
 
-void NepomukModel::removeSelectedFromProject(const QModelIndex & index, Library *l)
-{
-    if(m_library->libraryType() == Library_System) {
-        qWarning() << "try to remove data from the nepomuk system library @ PublicationModel::removeSelectedFromProject";
-    }
-    // get the nepomuk data at the row
-    Nepomuk::Resource nr = m_modelCacheData.at(index.row()).resource;
-
-    // remove project relation
-    nr.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), l->pimoLibrary());
-
-    //Nepomuk query client will call the slot to remove the file from the index
-}
-
-void NepomukModel::removeSelectedFromSystem(const QModelIndex & index)
-{
-    // get the nepomuk data at the row
-    Nepomuk::Resource nr =  m_modelCacheData.at(index.row()).resource;
-
-    //get all connected references
-    QList<Nepomuk::Resource> refList = nr.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
-
-    foreach(Nepomuk::Resource r, refList) {
-        r.remove();
-    }
-
-    // remove resource
-    nr.remove();
-    //Nepomuk query client will call the slot to remove the file from the index
-}
-
 void NepomukModel::addData(const QList< Nepomuk::Query::Result > &entries)
 {
     QFuture<QList<CachedRowEntry> > future = QtConcurrent::run(this, &NepomukModel::addToCache, entries);
@@ -205,6 +174,8 @@ void NepomukModel::removeData( const QList< QUrl > &entries )
             m_modelCacheData.removeAt(j);
             endRemoveRows();
         }
+
+        emit removeResource(url);
     }
 
     emit dataSizeChaged(m_modelCacheData.size());
@@ -246,6 +217,8 @@ QList<CachedRowEntry> NepomukModel::addToCache( const QList< Nepomuk::Query::Res
 
         newCache.append(cre);
 
+        emit addResource(r);
+
         QList<Nepomuk::Tag> tags = r.tags();
         foreach(Nepomuk::Tag t, tags) {
             hasTag(t.label());
@@ -267,4 +240,6 @@ void NepomukModel::updateCacheEntry(Nepomuk::Resource resource)
         }
         i++;
     }
+
+    emit updateResource(resource);
 }

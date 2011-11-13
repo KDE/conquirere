@@ -90,16 +90,33 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
 
     //fill the table of contents listWidget
     ui->editTOC->clear();
-    QList<Nepomuk::Resource> tocResources = m_publication.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
 
-    foreach(const Nepomuk::Resource & r, tocResources) {
-        QListWidgetItem *i = new QListWidgetItem();
-        QString title = r.property(Nepomuk::Vocabulary::NIE::title()).toString();
-        QString number = r.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
-        QString listEntry = QString ("%1 : %2").arg(number).arg(title);
-        i->setText(listEntry);
-        i->setData(Qt::UserRole, r.resourceUri());
-        ui->editTOC->addItem(i);
+    if(m_publication.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
+        ui->tocLabel->setText(i18n("List of articles:"));
+        QList<Nepomuk::Resource> tocResources = m_publication.property(Nepomuk::Vocabulary::NBIB::article()).toResourceList();
+
+        foreach(const Nepomuk::Resource & r, tocResources) {
+            QListWidgetItem *i = new QListWidgetItem();
+            QString title = r.property(Nepomuk::Vocabulary::NIE::title()).toString();
+            i->setText(title);
+            i->setData(Qt::UserRole, r.resourceUri());
+            ui->editTOC->addItem(i);
+        }
+
+    }
+    else {
+        ui->tocLabel->setText(i18n("Table of contents:"));
+        QList<Nepomuk::Resource> tocResources = m_publication.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
+
+        foreach(const Nepomuk::Resource & r, tocResources) {
+            QListWidgetItem *i = new QListWidgetItem();
+            QString title = r.property(Nepomuk::Vocabulary::NIE::title()).toString();
+            QString number = r.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
+            QString listEntry = QString ("%1 : %2").arg(number).arg(title);
+            i->setText(listEntry);
+            i->setData(Qt::UserRole, r.resourceUri());
+            ui->editTOC->addItem(i);
+        }
     }
 }
 
@@ -414,12 +431,12 @@ void PublicationWidget::setupWidget()
     ui->editTitle->setPropertyUrl( Nepomuk::Vocabulary::NIE::title() );
     ui->editType->setPropertyUrl( Nepomuk::Vocabulary::NBIB::type() );
     ui->editVolume->setPropertyUrl( Nepomuk::Vocabulary::NBIB::volume() );
-    ui->editFileObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
     ui->editFileObject->setMode(FileObjectEdit::Local);
-    ui->editRemoteObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
+    ui->editFileObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
     ui->editRemoteObject->setMode(FileObjectEdit::Remote);
-    ui->editWebObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
+    ui->editRemoteObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
     ui->editWebObject->setMode(FileObjectEdit::Website);
+    ui->editWebObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
     ui->editOrganization->setPropertyUrl( Nepomuk::Vocabulary::NBIB::organization());
     ui->editLastAccessed->setPropertyUrl( Nepomuk::Vocabulary::NUAO::lastUsage());
     ui->editKeywords->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
@@ -449,6 +466,7 @@ void PublicationWidget::setupWidget()
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editVolume, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editFileObject, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editRemoteObject, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editWebObject, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editOrganization, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLastAccessed, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editKeywords, SLOT(setResource(Nepomuk::Resource&)));
@@ -524,7 +542,7 @@ void PublicationWidget::layoutArticle()
     //Basics
     ui->editTitle->setEnabled(true);
     ui->editAuthors->setEnabled(true);
-    ui->editEditor->setEnabled(false);
+    ui->editEditor->setEnabled(true);
     ui->editDate->setEnabled(true);
     ui->editPublisher->setEnabled(true);
     ui->editOrganization->setEnabled(true);
