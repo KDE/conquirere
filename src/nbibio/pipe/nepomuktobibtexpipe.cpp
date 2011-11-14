@@ -284,7 +284,7 @@ void NepomukToBibTexPipe::setEditors(Entry *e, Nepomuk::Resource publication)
         }
 
         if(!v.isEmpty()) {
-            e->insert(Entry::ftAuthor, v);
+            e->insert(Entry::ftEditor, v);
         }
     }
 }
@@ -434,7 +434,22 @@ void NepomukToBibTexPipe::setOrganization(Entry *e, Nepomuk::Resource publicatio
 
 void NepomukToBibTexPipe::setUrl(Entry *e, Nepomuk::Resource publication)
 {
-    qDebug() << "NepomukToBibTexPipe::setUrl /!\\ needs proper implementation /!\\ ";
+    QList<Nepomuk::Resource> objectList = publication.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResourceList();
+
+    QString urlList;
+    foreach(Nepomuk::Resource dataObjects, objectList) {
+        QUrl url = dataObjects.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+
+        urlList.append(url.toString());
+        urlList.append(QLatin1String(", "));
+    }
+
+    urlList.chop(2);
+    if(!urlList.isEmpty()) {
+        Value v;
+        v.append(new PlainText(urlList));
+        e->insert(Entry::ftUrl, v);
+    }
 }
 
 void NepomukToBibTexPipe::setSeries(Entry *e, Nepomuk::Resource publication)

@@ -357,7 +357,7 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
 
 void BibTexToNepomukPipe::addPublisher(const Value &publisherValue, const Value &addressValue, Nepomuk::Resource publication)
 {
-    QString address = PlainTextValue::text(addressValue);
+    QString address = PlainTextValue::text(addressValue).toUtf8();
 
     // create the address object
     Nepomuk::Resource addr(QUrl(), Nepomuk::Vocabulary::NCO::PostalAddress());
