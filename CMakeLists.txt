@@ -30,6 +30,7 @@ include_directories (${CMAKE_SOURCE_DIR}
                      ${INCLUDE_INSTALL_DIR}/kbibtex
 )
 
+add_subdirectory( dms-copy )
 add_subdirectory( src )
 add_subdirectory( html )
 add_subdirectory( xslt )

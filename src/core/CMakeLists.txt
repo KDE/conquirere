@@ -1,6 +1,7 @@
 
 set(core_LIB_SRCS
     library.cpp
+    tagcloud.cpp
 
     delegates/ratingdelegate.cpp
     delegates/starrating.cpp

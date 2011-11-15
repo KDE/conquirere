@@ -19,6 +19,7 @@
 #include "ui_welcomewidget.h"
 
 #include "../core/library.h"
+#include "../core/tagcloud.h"
 #include "../core/models/nepomukmodel.h"
 
 #include <KDE/KHTMLPart>
@@ -65,11 +66,8 @@ void WelcomeWidget::setupGui()
         NepomukModel *m = qobject_cast<NepomukModel *>(aim);
         connect(m, SIGNAL(dataSizeChaged(int)),this, SLOT(updateStatistics()));
     }
-}
 
-bool sortTagPair(const QPair<int, QString> &s1, const QPair<int, QString> &s2)
-{
-     return s1.first > s2.first;
+    connect(m_library->tagCloud(), SIGNAL(tagCloudChanged()), this, SLOT(updateTagCloud()));
 }
 
 void WelcomeWidget::updateStatistics()
@@ -122,22 +120,12 @@ void WelcomeWidget::updateStatistics()
         }
         m_htmlPart->executeScript(m_htmlPart->htmlDocument(), jsFunction );
     }
+}
 
-    //sort tagcloud by occurence
-    QList<QPair<int, QString> > cloud;
-    QMapIterator<QString, int> j(m_library->tagCloud());
-    while (j.hasNext()) {
-        j.next();
-        cloud.append(QPair<int, QString>(j.value(),j.key()));
-    }
-
-    qSort(cloud.begin(), cloud.end(), sortTagPair);
-
-    // now take the highest 10 tags and add them to the list that will be shown
+void WelcomeWidget::updateTagCloud()
+{
     QString tagCloud;
-
-    //sort tagcloud by occurence
-    QListIterator<QPair<int, QString> > k(cloud);
+    QListIterator<QPair<int, QString> > k(m_library->tagCloud()->tagCloud());
     int l=0;
     while (k.hasNext()) {
         QPair<int, QString> p = k.next();

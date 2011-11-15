@@ -16,8 +16,10 @@
  */
 
 #include "library.h"
-#include "../mainui/librarywidget.h"
+#include "tagcloud.h"
+
 #include "models/nepomukmodel.h"
+#include "models/referencemodel.h"
 #include "models/publicationmodel.h"
 #include "models/publicationfiltermodel.h"
 #include "models/documentmodel.h"
@@ -45,7 +47,9 @@ Library::Library(LibraryType type)
     : QObject(0)
     , m_settings(0)
     , m_libraryType(type)
+    , m_tagCloud(0)
 {
+    m_tagCloud = new TagCloud;
     setupModels();
 }
 
@@ -58,6 +62,7 @@ Library::~Library()
     }
 
     m_resources.clear();
+    delete m_tagCloud;
 }
 
 LibraryType Library::libraryType() const
@@ -226,7 +231,7 @@ QMap<ResourceSelection, QSortFilterProxyModel*> Library::viewModels()
     return m_resources;
 }
 
-QMap<QString, int> Library::tagCloud()
+TagCloud *Library::tagCloud()
 {
     return m_tagCloud;
 }
@@ -248,17 +253,6 @@ void Library::scanLibraryFolders()
     }
 }
 
-void Library::addTag(const QString & tag)
-{
-    int tagNumber = m_tagCloud.value(tag, 0);
-
-    tagNumber++;
-
-    m_tagCloud.insert(tag, tagNumber);
-
-    emit tagCloudChanged();
-}
-
 void Library::setupModels()
 {
     DocumentModel *documentModel = new DocumentModel;
@@ -266,46 +260,54 @@ void Library::setupModels()
     QSortFilterProxyModel *documentFilter = new QSortFilterProxyModel;
     documentFilter->setSourceModel(documentModel);
     m_resources.insert(Resource_Document, documentFilter);
-    connect(documentModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
+    connectModelToTagCloud(documentModel);
 
     BookmarkModel *bookmarkModel = new BookmarkModel;
     bookmarkModel->setLibrary(this);
     QSortFilterProxyModel *bookmarkFilter = new QSortFilterProxyModel;
     bookmarkFilter->setSourceModel(bookmarkModel);
     m_resources.insert(Resource_Website, bookmarkFilter);
-    connect(bookmarkModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
+    connectModelToTagCloud(bookmarkModel);
 
-    PublicationModel *referencesModel = new PublicationModel;
+    ReferenceModel *referencesModel = new ReferenceModel;
     referencesModel->setLibrary(this);
     PublicationFilterModel *referenceFilter = new PublicationFilterModel;
     referenceFilter->setSourceModel(referencesModel);
     m_resources.insert(Resource_Reference, referenceFilter);
-    connect(referencesModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
+    connectModelToTagCloud(referencesModel);
 
     PublicationModel *publicationModel = new PublicationModel;
     publicationModel->setLibrary(this);
     PublicationFilterModel *publicationFilter = new PublicationFilterModel;
     publicationFilter->setSourceModel(publicationModel);
     m_resources.insert(Resource_Publication, publicationFilter);
-    connect(publicationModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
+    connectModelToTagCloud(publicationModel);
 
     NoteModel *noteModel = new NoteModel;
     noteModel->setLibrary(this);
     QSortFilterProxyModel *noteFilter = new QSortFilterProxyModel;
     noteFilter->setSourceModel(noteModel);
     m_resources.insert(Resource_Note, noteFilter);
-    connect(noteModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
+    connectModelToTagCloud(noteModel);
 
     if(m_libraryType == Library_Project) {
         /*
         ResourceModel *MailModel = new ResourceModel;
         MailModel->setLibrary(this);
         m_resources.insert(Resource_Mail, MailModel);
+        connectModelToTagCloud(MailModel);
 
         ResourceModel *MediaModel = new ResourceModel;
         MediaModel->setLibrary(this);
         m_resources.insert(Resource_Media, MediaModel);
+        connectModelToTagCloud(MediaModel);
         */
     }
 }
 
+void Library::connectModelToTagCloud(NepomukModel *model)
+{
+    connect(model, SIGNAL(resourceAdded(Nepomuk::Resource)), m_tagCloud, SLOT(addResource(Nepomuk::Resource)));
+    connect(model, SIGNAL(resourceRemoved(QUrl)), m_tagCloud, SLOT(removeResource(QUrl)));
+    connect(model, SIGNAL(resourceUpdated(Nepomuk::Resource)), m_tagCloud, SLOT(updateResource(Nepomuk::Resource)));
+}

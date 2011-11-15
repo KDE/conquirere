@@ -37,6 +37,7 @@ public:
 
 private slots:
     void updateStatistics();
+    void updateTagCloud();
 
 private:
     void setupGui();

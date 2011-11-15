@@ -30,6 +30,8 @@
 class QSettings;
 class LibraryWidget;
 class QSortFilterProxyModel;
+class TagCloud;
+class NepomukModel;
 
 /**
   * @brief A Library is a collection of files and Nepomuk::Resource data of a specific topic
@@ -168,7 +170,7 @@ public:
       */
     QMap<ResourceSelection, QSortFilterProxyModel*> viewModels();
 
-    QMap<QString, int> tagCloud();
+    TagCloud *tagCloud();
 
 public slots:
     /**
@@ -178,10 +180,7 @@ public slots:
       */
     void scanLibraryFolders();
 
-    void addTag(const QString & tag);
-
 signals:
-    void tagCloudChanged();
     /**
       * This signal gets thrown when the resource was changed and must be updated in the table model cache
       * redirects the signal from all propertywidgets
@@ -201,6 +200,8 @@ private:
       */
     void setupModels();
 
+    void connectModelToTagCloud(NepomukModel *model);
+
     LibraryType m_libraryType;
     QString m_name;
     QString m_path;
@@ -211,7 +212,7 @@ private:
     QSettings *m_settings;
 
     QMap<ResourceSelection, QSortFilterProxyModel*> m_resources;
-    QMap<QString, int> m_tagCloud;
+    TagCloud *m_tagCloud;
 
 };
 
