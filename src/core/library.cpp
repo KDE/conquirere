@@ -17,12 +17,12 @@
 
 #include "library.h"
 #include "../mainui/librarywidget.h"
-#include "nepomukmodel.h"
-#include "publicationmodel.h"
-#include "publicationfiltermodel.h"
-#include "documentmodel.h"
-#include "notemodel.h"
-#include "bookmarkmodel.h"
+#include "models/nepomukmodel.h"
+#include "models/publicationmodel.h"
+#include "models/publicationfiltermodel.h"
+#include "models/documentmodel.h"
+#include "models/notemodel.h"
+#include "models/bookmarkmodel.h"
 
 #include <Nepomuk/Variant>
 #include <Nepomuk/Tag>
@@ -226,17 +226,6 @@ QMap<ResourceSelection, QSortFilterProxyModel*> Library::viewModels()
     return m_resources;
 }
 
-void Library::connectFetchIndicator(LibraryWidget *treeWidget)
-{
-    foreach (QSortFilterProxyModel *model, m_resources) {
-        QAbstractItemModel *aim = model->sourceModel();
-        NepomukModel *m = qobject_cast<NepomukModel *>(aim);
-
-        connect(m, SIGNAL(updateFetchDataFor(ResourceSelection,bool,Library*)),treeWidget, SLOT(fetchDataFor(ResourceSelection,bool, Library *)));
-        m->startFetchData();
-    }
-}
-
 QMap<QString, int> Library::tagCloud()
 {
     return m_tagCloud;
@@ -274,7 +263,6 @@ void Library::setupModels()
 {
     DocumentModel *documentModel = new DocumentModel;
     documentModel->setLibrary(this);
-    documentModel->setResourceType(Resource_Document);
     QSortFilterProxyModel *documentFilter = new QSortFilterProxyModel;
     documentFilter->setSourceModel(documentModel);
     m_resources.insert(Resource_Document, documentFilter);
@@ -282,50 +270,40 @@ void Library::setupModels()
 
     BookmarkModel *bookmarkModel = new BookmarkModel;
     bookmarkModel->setLibrary(this);
-    bookmarkModel->setResourceType(Resource_Website);
     QSortFilterProxyModel *bookmarkFilter = new QSortFilterProxyModel;
     bookmarkFilter->setSourceModel(bookmarkModel);
     m_resources.insert(Resource_Website, bookmarkFilter);
     connect(bookmarkModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
-    connect(this, SIGNAL(resourceUpdated(Nepomuk::Resource)), bookmarkModel, SLOT(updateCacheEntry(Nepomuk::Resource)));
 
     PublicationModel *referencesModel = new PublicationModel;
     referencesModel->setLibrary(this);
-    referencesModel->setResourceType(Resource_Reference);
     PublicationFilterModel *referenceFilter = new PublicationFilterModel;
     referenceFilter->setSourceModel(referencesModel);
     m_resources.insert(Resource_Reference, referenceFilter);
     connect(referencesModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
-    connect(this, SIGNAL(resourceUpdated(Nepomuk::Resource)), referencesModel, SLOT(updateCacheEntry(Nepomuk::Resource)));
 
     PublicationModel *publicationModel = new PublicationModel;
     publicationModel->setLibrary(this);
-    publicationModel->setResourceType(Resource_Publication);
     PublicationFilterModel *publicationFilter = new PublicationFilterModel;
     publicationFilter->setSourceModel(publicationModel);
     m_resources.insert(Resource_Publication, publicationFilter);
     connect(publicationModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
-    connect(this, SIGNAL(resourceUpdated(Nepomuk::Resource)), publicationModel, SLOT(updateCacheEntry(Nepomuk::Resource)));
 
     NoteModel *noteModel = new NoteModel;
     noteModel->setLibrary(this);
-    noteModel->setResourceType(Resource_Note);
     QSortFilterProxyModel *noteFilter = new QSortFilterProxyModel;
     noteFilter->setSourceModel(noteModel);
     m_resources.insert(Resource_Note, noteFilter);
     connect(noteModel, SIGNAL(hasTag(QString)), this, SLOT(addTag(QString)));
-    connect(this, SIGNAL(resourceUpdated(Nepomuk::Resource)), noteModel, SLOT(updateCacheEntry(Nepomuk::Resource)));
 
     if(m_libraryType == Library_Project) {
         /*
         ResourceModel *MailModel = new ResourceModel;
         MailModel->setLibrary(this);
-        MailModel->setResourceType(Resource_Mail);
         m_resources.insert(Resource_Mail, MailModel);
 
         ResourceModel *MediaModel = new ResourceModel;
         MediaModel->setLibrary(this);
-        MediaModel->setResourceType(Resource_Media);
         m_resources.insert(Resource_Media, MediaModel);
         */
     }

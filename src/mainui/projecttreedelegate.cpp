@@ -21,6 +21,9 @@
 #include <QtGui/QIcon>
 #include <QtGui/QPainter>
 
+const int TREEFETCH = Qt::UserRole + 1000;
+const int TREEANGLE = Qt::UserRole + 1001;
+
 ProjectTreeDelegate::ProjectTreeDelegate(QWidget *parent)
     : QStyledItemDelegate(parent)
     , m_angle(0)
@@ -53,7 +56,7 @@ void ProjectTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
     }
 
     // draw fetch in prgress
-    if(index.data(80).toBool()) {
+    if(index.data(TREEFETCH).toBool()) {
         painter->save();
         int width = option.rect.height() - 1;
 
@@ -73,7 +76,7 @@ void ProjectTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
             painter->save();
             //painter->translate(option.rect.center());
             painter->translate(option.rect.x() + (option.rect.height() - 1)/2,option.rect.y() + (option.rect.height() - 1)/2);
-            painter->rotate(index.data(81).toInt() - i*30.0f);
+            painter->rotate(index.data(TREEANGLE).toInt() - i*30.0f);
             painter->drawRoundedRect(-capsuleWidth*0.5, -(innerRadius+capsuleHeight), capsuleWidth, capsuleHeight, capsuleRadius, capsuleRadius);
             painter->restore();
         }

@@ -18,6 +18,7 @@ set(conquirere_SRCS
     mainui/bibteximportwizard.cpp
     mainui/documentpreview.cpp
     mainui/websearchwidget.cpp
+    mainui/qlibrarytreewidgetitem.cpp
 
     sidebar/sidebarwidget.cpp
     sidebar/sidebarcomponent.cpp
@@ -80,6 +81,8 @@ kbibtexio
 kbibtexnetworking
 kbibtexgui
 kbibtexproc
+
+nepomukdatamanagement-copy
 )
 
 install(TARGETS conquirere DESTINATION ${BIN_INSTALL_DIR})

@@ -19,7 +19,7 @@
 #include "ui_welcomewidget.h"
 
 #include "../core/library.h"
-#include "../core/nepomukmodel.h"
+#include "../core/models/nepomukmodel.h"
 
 #include <KDE/KHTMLPart>
 #include <KDE/KHTMLView>

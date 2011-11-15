@@ -168,15 +168,6 @@ public:
       */
     QMap<ResourceSelection, QSortFilterProxyModel*> viewModels();
 
-    /**
-      * Connects the fetch indicator signal/slots
-      *
-      * This allows the @p treeWidget to show a spinning indicator
-      * as long as the model for a resource selection is fetching
-      * data from nepomuk.
-      */
-    void connectFetchIndicator(LibraryWidget *treeWidget);
-
     QMap<QString, int> tagCloud();
 
 public slots:

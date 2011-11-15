@@ -24,7 +24,7 @@
 #include <QtCore/QList>
 
 class Library;
-class QTreeWidgetItem;
+class QLibraryTreeWidgetItem;
 
 namespace Ui {
     class LibraryWidget;
@@ -44,20 +44,17 @@ public:
 signals:
     void newSelection(ResourceSelection selection, ResourceFilter filter, Library *p);
 
-public slots:
-    void fetchDataFor(ResourceSelection selection, bool start, Library *p=0);
-
 private slots:
     void selectionchanged();
-    void updateFetchAnimation();
 
 private:
-    void setupLibraryTree(QTreeWidgetItem *root);
+    void setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p);
+    void connectModelSignals(QLibraryTreeWidgetItem *root, Library *p, ResourceSelection resourceType);
+
+    Ui::LibraryWidget *ui;
 
     QList<Library *> m_openLibraries;
-    QList<QTreeWidgetItem *> m_items;
-    Ui::LibraryWidget *ui;
-    bool m_fetchingInProgress;
+    QList<QLibraryTreeWidgetItem *> m_items;
 };
 
 #endif // LIBRARYWIDGET_H

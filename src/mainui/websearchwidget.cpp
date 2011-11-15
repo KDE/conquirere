@@ -18,8 +18,8 @@
 #include "websearchwidget.h"
 #include "ui_websearchwidget.h"
 
-#include "../core/searchresultmodel.h"
-#include "../core/htmldelegate.h"
+#include "../core/models/searchresultmodel.h"
+#include "../core/delegates/htmldelegate.h"
 #include "../nbibio/pipe/bibtextoclipboardpipe.h"
 #include "../nbibio/pipe/bibtextonepomukpipe.h"
 

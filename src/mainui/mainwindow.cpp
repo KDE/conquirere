@@ -18,6 +18,7 @@
 #include "mainwindow.h"
 
 #include "../core/library.h"
+#include "../core/models/nepomukmodel.h"
 
 #include "../sidebar/sidebarwidget.h"
 #include "librarywidget.h"
@@ -41,6 +42,7 @@
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QSplitter>
+#include <QtGui/QSortFilterProxyModel>
 
 #include <QtCore/QDebug>
 
@@ -112,8 +114,11 @@ void MainWindow::openLibrary(Library *l)
 {
     m_libraryWidget->addLibrary(l);
 
-    //connect the fetch indicator to the treewidget
-    l->connectFetchIndicator(m_libraryWidget);
+    foreach (QSortFilterProxyModel *model, l->viewModels()) {
+        NepomukModel *m = qobject_cast<NepomukModel *>(model->sourceModel());
+
+        m->startFetchData();
+    }
 
     // create a welcome widget for the library
     WelcomeWidget *ww = new WelcomeWidget(l);

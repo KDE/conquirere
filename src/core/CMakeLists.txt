@@ -1,16 +1,26 @@
 
 set(core_LIB_SRCS
     library.cpp
-    nepomukmodel.cpp
-    publicationmodel.cpp
-    publicationfiltermodel.cpp
-    documentmodel.cpp
-    notemodel.cpp
-    bookmarkmodel.cpp
-    ratingdelegate.cpp
-    starrating.cpp
-    htmldelegate.cpp
-    searchresultmodel.cpp
+
+    delegates/ratingdelegate.cpp
+    delegates/starrating.cpp
+    delegates/htmldelegate.cpp
+
+    models/nepomukmodel.cpp
+    models/publicationmodel.cpp
+    models/publicationfiltermodel.cpp
+    models/documentmodel.cpp
+    models/notemodel.cpp
+    models/bookmarkmodel.cpp
+    models/referencemodel.cpp
+    models/searchresultmodel.cpp
+
+    queryclients/queryclient.cpp
+    queryclients/publicationquery.cpp
+    queryclients/referencequery.cpp
+    queryclients/documentquery.cpp
+    queryclients/notequery.cpp
+    queryclients/bookmarkquery.cpp
 )
 
 nepomuk_add_ontology_classes(core_LIB_SRCS ONTOLOGIES ${CMAKE_SOURCE_DIR}/nbib/nbib.trig)

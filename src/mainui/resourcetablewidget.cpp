@@ -17,9 +17,9 @@
 
 #include "resourcetablewidget.h"
 #include "../core/library.h"
-#include "../core/nepomukmodel.h"
-#include "../core/publicationfiltermodel.h"
-#include "../core/ratingdelegate.h"
+#include "../core/models/nepomukmodel.h"
+#include "../core/models/publicationfiltermodel.h"
+#include "../core/delegates/ratingdelegate.h"
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Vocabulary/NIE>
