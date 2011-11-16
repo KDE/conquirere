@@ -58,12 +58,12 @@ QVariantList ReferenceQuery::createDisplayData(const Nepomuk::Resource & res) co
 {
     QVariantList displayList;
     displayList.reserve(Max_columns-1);
+    Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
 
     for(int i = 0; i < Max_columns; i++) {
         QVariant newEntry;
         switch(i) {
         case Column_ResourceType: {
-            Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
 
             BibEntryType type = BibEntryTypeFromUrl(publication);
             QString typeSting = BibEntryTypeTranslation.at(type);
@@ -73,7 +73,6 @@ QVariantList ReferenceQuery::createDisplayData(const Nepomuk::Resource & res) co
         }
         case Column_Author: {
             QString authorSting;
-            Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
             QList<Nepomuk::Resource> authorList = publication.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
 
             foreach(const Nepomuk::Resource & a, authorList) {
@@ -86,14 +85,12 @@ QVariantList ReferenceQuery::createDisplayData(const Nepomuk::Resource & res) co
             break;
         }
         case Column_Title: {
-            Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
             QString titleSting = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
             newEntry = titleSting;
             break;
         }
         case Column_Date: {
-            Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
             QString dateSting = publication.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
 
             newEntry = dateSting;
@@ -101,7 +98,6 @@ QVariantList ReferenceQuery::createDisplayData(const Nepomuk::Resource & res) co
         }
         case Column_Editor: {
             QString authorSting;
-            Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
             QList<Nepomuk::Resource> authorList = publication.property(Nepomuk::Vocabulary::NBIB::editor()).toResourceList();
 
             foreach(const Nepomuk::Resource & a, authorList) {
@@ -115,7 +111,6 @@ QVariantList ReferenceQuery::createDisplayData(const Nepomuk::Resource & res) co
         }
         case Column_Publisher: {
             QString authorSting;
-            Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
             QList<Nepomuk::Resource> authorList = publication.property(Nepomuk::Vocabulary::NCO::publisher()).toResourceList();
 
             foreach(const Nepomuk::Resource & a, authorList) {
@@ -134,7 +129,6 @@ QVariantList ReferenceQuery::createDisplayData(const Nepomuk::Resource & res) co
             break;
         }
         case Column_StarRate: {
-            Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
             int rating = publication.property(Soprano::Vocabulary::NAO::numericRating()).toInt();
 
             newEntry = rating;
