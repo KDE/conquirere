@@ -180,6 +180,7 @@ void MainWindow::exportBibTex()
 void MainWindow::importBibTex()
 {
     BibTeXImportWizard bid;
+    bid.setSystemLibrary(m_systemLibrary);
 
     bid.exec();
 }
@@ -353,8 +354,8 @@ void MainWindow::setupMainWindow()
             this, SLOT(switchView(ResourceSelection,ResourceFilter,Library*)));
 
     //create the system library
-    Library *l = new Library(Library_System);
-    openLibrary(l);
+    m_systemLibrary = new Library(Library_System);
+    openLibrary(m_systemLibrary);
 
-    switchView(Resource_Library, Filter_None, l);
+    switchView(Resource_Library, Filter_None, m_systemLibrary);
 }

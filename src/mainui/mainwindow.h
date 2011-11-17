@@ -65,6 +65,7 @@ private:
     WebSearchWidget *m_webSearchWidget;
 
     QMap<Library *, QWidget *> m_libraryList; /**< holds the welcome widget for each opened library */
+    Library *m_systemLibrary;
 };
 
 #endif // MAINWINDOW_H
