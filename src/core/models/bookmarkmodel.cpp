@@ -35,6 +35,8 @@ BookmarkModel::BookmarkModel(QObject *parent)
 
 BookmarkModel::~BookmarkModel()
 {
+    // ignored for now, new threaded loading seems to be fast enough
+    //saveCache();
 }
 
 int BookmarkModel::columnCount(const QModelIndex &parent) const
@@ -84,4 +86,9 @@ QVariant BookmarkModel::headerData(int section, Qt::Orientation orientation, int
     }
 
     return QVariant();
+}
+
+QString BookmarkModel::id()
+{
+    return QLatin1String("bookmarks");
 }

@@ -114,12 +114,6 @@ void MainWindow::openLibrary(Library *l)
 {
     m_libraryWidget->addLibrary(l);
 
-    foreach (QSortFilterProxyModel *model, l->viewModels()) {
-        NepomukModel *m = qobject_cast<NepomukModel *>(model->sourceModel());
-
-        m->startFetchData();
-    }
-
     // create a welcome widget for the library
     WelcomeWidget *ww = new WelcomeWidget(l);
     ww->hide();
@@ -131,6 +125,11 @@ void MainWindow::openLibrary(Library *l)
         actionCollection()->action(QLatin1String("close_project"))->setEnabled(true);
     }
 
+    foreach (QSortFilterProxyModel *model, l->viewModels()) {
+        NepomukModel *m = qobject_cast<NepomukModel *>(model->sourceModel());
+
+        m->startFetchData();
+    }
 }
 
 void MainWindow::deleteLibrary()

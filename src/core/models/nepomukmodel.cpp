@@ -19,6 +19,11 @@
 
 #include "library.h"
 
+#include <KDE/KStandardDirs>
+
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
+
 NepomukModel::NepomukModel(QObject *parent)
     : QAbstractTableModel(parent)
     , m_library(0)
@@ -29,6 +34,7 @@ NepomukModel::NepomukModel(QObject *parent)
 NepomukModel::~NepomukModel()
 {
     m_queryClient->quit();
+    m_queryClient->wait();
     delete m_queryClient;
 
     m_modelCacheData.clear();
@@ -76,6 +82,9 @@ void NepomukModel::setLibrary(Library *library)
     if(m_library->libraryType() == Library_Project) {
         m_queryClient->setPimoProject(m_library->pimoLibrary());
     }
+
+    connect(m_library, SIGNAL(resourceUpdated(Nepomuk::Resource)), m_queryClient, SLOT(resourceChanged(Nepomuk::Resource)));
+    m_queryClient->start();
 }
 
 Nepomuk::Resource NepomukModel::documentResource(const QModelIndex &selection)
@@ -90,12 +99,19 @@ Nepomuk::Resource NepomukModel::documentResource(const QModelIndex &selection)
     return ret;
 }
 
+QString NepomukModel::id()
+{
+    return QString("abstract");
+}
+
 void NepomukModel::startFetchData()
 {
     Q_ASSERT(m_queryClient);
 
+    // ignored for now, new threaded loading seems to be fast enough
+    //loadCache();
+
     emit queryStarted();
-    m_queryClient->startFetchData();
 }
 
 void NepomukModel::stopFetchData()
@@ -105,16 +121,87 @@ void NepomukModel::stopFetchData()
     m_queryClient->stopFetchData();
 }
 
+void NepomukModel::saveCache()
+{
+    QString cacheName = QString("%1_%2").arg(m_library->name()).arg(id());
+    QString cachePath = KStandardDirs::locateLocal("appdata", cacheName);
+
+    qDebug() << "save modelcache" << cachePath;
+
+    QFile file(cachePath);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << "can't open model cache file" << cachePath;
+        return;
+    }
+
+    QTextStream out(&file);
+
+    foreach(const CachedRowEntry &cre, m_modelCacheData) {
+        foreach(const QVariant &v, cre.displayColums) {
+            out << v.toString() << "|#|";
+        }
+        out << "\n";
+        foreach(const QVariant &v, cre.decorationColums) {
+            out << v.toString() << "|#|";
+        }
+        out << "\n";
+        out << cre.resource.uri() << "\n";
+    }
+    file.close();
+}
+
+void NepomukModel::loadCache()
+{
+    QString cacheName = QString("%1_%2").arg(m_library->name()).arg(id());
+    QString cachePath = KStandardDirs::locateLocal("appdata", cacheName);
+
+    qDebug() << "load modelcache" << cachePath;
+
+    QFile file(cachePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "can't open model cache file" << cachePath;
+        return;
+    }
+
+    QTextStream in(&file);
+    QList<CachedRowEntry> cachedEntries;
+    while (!in.atEnd()) {
+        CachedRowEntry cre;
+        QString displayLine = in.readLine();
+        foreach(const QString &col, displayLine.split(QLatin1String("|#|"))) {
+            cre.displayColums.append(col);
+        }
+        QString decorationLine = in.readLine();
+        foreach(const QString &col, decorationLine.split(QLatin1String("|#|"))) {
+            if(col.isEmpty()) {
+                cre.decorationColums.append(QVariant());
+            }
+            else {
+                cre.decorationColums.append(col);
+            }
+        }
+        QString resUri = in.readLine();
+        cre.resource = Nepomuk::Resource(resUri);
+
+        // don't add entries which are removed already
+        if(cre.resource.isValid()) {
+            cachedEntries.append(cre);
+        }
+    }
+
+    addCacheData(cachedEntries);
+}
+
 void NepomukModel::addCacheData(const QList<CachedRowEntry> &entries)
 {
     if(entries.size() > 0) {
         beginInsertRows(QModelIndex(), m_modelCacheData.size(), m_modelCacheData.size() + entries.size()-1);
-        m_modelCacheData.append(entries);
+        foreach(CachedRowEntry cre, entries) {
+            m_modelCacheData.append(cre);
+            m_lookupCache.insert(cre.resource.uri(), m_modelCacheData.size()-1);
+            emit resourceAdded(cre.resource);
+        }
         endInsertRows();
-    }
-
-    foreach(CachedRowEntry cre, entries) {
-        emit resourceAdded(cre.resource);
     }
 
     emit dataSizeChaged(m_modelCacheData.size());
@@ -145,20 +232,19 @@ void NepomukModel::removeCacheData( QList<QUrl> urls )
 
 void NepomukModel::updateCacheData(const QList<CachedRowEntry> &entries)
 {
-    qDebug() << "update cahce data";
-
     foreach(CachedRowEntry entry, entries) {
 
-        // go through all cached entries and find the right resource
-        int i = 0;
-        foreach(CachedRowEntry cre, m_modelCacheData) {
-            if(cre.resource.uri() == entry.resource.uri()) {
-                m_modelCacheData.replace(i, cre);
-                emit resourceUpdated(cre.resource);
-            }
-            i++;
+        int pos = m_lookupCache.value(entry.resource.uri(), -1);
+        if(pos < 0) {
+            QList<CachedRowEntry> e;
+            e << entry;
+            addCacheData(e);
         }
-
+        else {
+            m_modelCacheData.replace(pos, entry);
+            emit resourceUpdated(entry.resource);
+            emit dataChanged(index(pos,0), index(pos,columnCount()));
+        }
     }
 }
 

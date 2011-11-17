@@ -60,6 +60,7 @@ Library::~Library()
     delete m_settings;
 
     foreach(QSortFilterProxyModel *atm, m_resources) {
+        delete atm->sourceModel();
         delete atm;
     }
 
@@ -258,7 +259,6 @@ void Library::scanLibraryFolders()
 void Library::finishedInitialImport()
 {
     m_initialImportFinished++;
-    qDebug() <<"Library::finishedInitialImport()" << m_initialImportFinished << m_resources.size();
 
     if(m_initialImportFinished == m_resources.size()) {
         m_tagCloud->pauseUpdates(false);

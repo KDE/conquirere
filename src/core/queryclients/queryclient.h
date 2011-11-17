@@ -31,6 +31,9 @@ struct CachedRowEntry {
     Nepomuk::Resource resource;
 };
 
+Q_DECLARE_METATYPE(CachedRowEntry)
+Q_DECLARE_METATYPE(QList<CachedRowEntry>)
+
 class QueryClient : public QThread
 {
     Q_OBJECT
@@ -39,10 +42,11 @@ public:
     virtual ~QueryClient();
 
     void setPimoProject(const Nepomuk::Resource & project);
+    void run();
+
+public slots:
     virtual void startFetchData() = 0;
     void stopFetchData();
-
-    void run();
 
 signals:
     void newCacheEntries(const QList<CachedRowEntry> &entries) const;
@@ -54,7 +58,14 @@ signals:
 private slots:
     void addToCache( const QList< Nepomuk::Query::Result > &entries ) const;
     void resultCount(int number) const;
-    void resourceChanged (const Nepomuk::Resource &resource, const Nepomuk::Types::Property &property, const QVariant &value) const;
+    void resourceChanged (const Nepomuk::Resource &resource, const Nepomuk::Types::Property &property, const QVariant &value);
+
+    /**
+      * @todo remove when starting to use ResourceWatcher later on
+      */
+    void resourceChanged (const Nepomuk::Resource &resource);
+
+    void finishedStartup();
 
 protected:
     virtual QVariantList createDisplayData(const Nepomuk::Resource & res) const = 0;
@@ -62,6 +73,7 @@ protected:
 
     Nepomuk::Resource m_pimoProject;
     Nepomuk::Query::QueryServiceClient *m_queryClient;
+    bool m_startupQuery;
     Nepomuk::ResourceWatcher *m_resourceWatcher;
 };
 

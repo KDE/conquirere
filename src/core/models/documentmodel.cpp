@@ -37,6 +37,8 @@ DocumentModel::DocumentModel(QObject *parent)
 
 DocumentModel::~DocumentModel()
 {
+    // ignored for now, new threaded loading seems to be fast enough
+    //saveCache();
 }
 
 int DocumentModel::columnCount(const QModelIndex &parent) const
@@ -109,4 +111,9 @@ QVariant DocumentModel::headerData(int section, Qt::Orientation orientation, int
     }
 
     return QVariant();
+}
+
+QString DocumentModel::id()
+{
+    return QLatin1String("documents");
 }

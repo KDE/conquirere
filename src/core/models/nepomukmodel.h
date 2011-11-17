@@ -42,6 +42,8 @@ public:
     void setLibrary(Library *library);
     Nepomuk::Resource documentResource(const QModelIndex &selection);
 
+    virtual QString id();
+
 signals:
     // connects to the library treeview
     void dataSizeChaged(int size);
@@ -56,6 +58,9 @@ signals:
 public slots:
     void startFetchData();
     void stopFetchData();
+
+    void saveCache();
+    void loadCache();
 
 private slots:
     void addCacheData(const QList<CachedRowEntry> &entries);
@@ -72,5 +77,6 @@ protected:
     // trigger chache changes too
     QueryClient *m_queryClient;
     QList<CachedRowEntry> m_modelCacheData;
+    QMap<QString, int> m_lookupCache;
 };
 #endif // NEPOMUKMODEL_H

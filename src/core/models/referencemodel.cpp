@@ -37,6 +37,8 @@ ReferenceModel::ReferenceModel(QObject *parent)
 
 ReferenceModel::~ReferenceModel()
 {
+    // ignored for now, new threaded loading seems to be fast enough
+    //saveCache();
 }
 
 int ReferenceModel::columnCount(const QModelIndex &parent) const
@@ -117,4 +119,9 @@ QVariant ReferenceModel::headerData(int section, Qt::Orientation orientation, in
     }
 
     return QVariant();
+}
+
+QString ReferenceModel::id()
+{
+    return QLatin1String("reference");
 }

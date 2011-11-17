@@ -36,6 +36,7 @@ public:
 
     explicit BookmarkQuery(QObject *parent = 0);
 
+public slots:
     void startFetchData();
 
 private:

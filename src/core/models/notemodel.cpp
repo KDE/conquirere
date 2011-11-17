@@ -35,6 +35,8 @@ NoteModel::NoteModel(QObject *parent)
 
 NoteModel::~NoteModel()
 {
+    // ignored for now, new threaded loading seems to be fast enough
+    //saveCache();
 }
 
 int NoteModel::columnCount(const QModelIndex &parent) const
@@ -80,4 +82,9 @@ QVariant NoteModel::headerData(int section, Qt::Orientation orientation, int rol
     }
 
     return QVariant();
+}
+
+QString NoteModel::id()
+{
+    return QLatin1String("notes");
 }

@@ -41,6 +41,7 @@ public:
 
     explicit ReferenceQuery(QObject *parent = 0);
 
+public slots:
     void startFetchData();
 
 private:

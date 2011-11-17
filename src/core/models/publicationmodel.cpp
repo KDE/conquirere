@@ -37,6 +37,8 @@ PublicationModel::PublicationModel(QObject *parent)
 
 PublicationModel::~PublicationModel()
 {
+    // ignored for now, new threaded loading seems to be fast enough
+    //saveCache();
 }
 
 int PublicationModel::columnCount(const QModelIndex &parent) const
@@ -117,4 +119,9 @@ QVariant PublicationModel::headerData(int section, Qt::Orientation orientation, 
     }
 
     return QVariant();
+}
+
+QString PublicationModel::id()
+{
+    return QLatin1String("publications");
 }

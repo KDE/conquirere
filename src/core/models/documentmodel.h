@@ -33,6 +33,8 @@ public:
     // implemented from QAbstractTableModel
     int columnCount(const QModelIndex &parent) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+
+    QString id();
 };
 
 #endif // DOCUMENTMODEL_H
