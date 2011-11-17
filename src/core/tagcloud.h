@@ -35,6 +35,8 @@ public:
 
     QList<QPair<int, QString> > tagCloud();
 
+    void pauseUpdates(bool pause);
+
 public slots:
     void addResource(const Nepomuk::Resource &resource);
     void updateResource(const Nepomuk::Resource &resource);
@@ -55,6 +57,7 @@ private:
     QList<QPair<int, QString> > m_tagCloud;
     QList<Nepomuk::Resource> m_resourceList;
     bool m_missingUpdate;
+    bool m_pauseUpdates;
 };
 
 #endif // TAGCLOUD_H

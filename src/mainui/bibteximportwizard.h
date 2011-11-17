@@ -31,6 +31,7 @@ class BibTexToNepomukPipe;
 class NBibImporterBibTex;
 class QPushButton;
 class KComboBox;
+class Library;
 
 namespace Ui {
     class BibTeXImportWizard;
@@ -44,8 +45,17 @@ public:
     explicit BibTeXImportWizard(QWidget *parent = 0);
     ~BibTeXImportWizard();
 
+    /**
+      * Set the system library to allow disabling live population
+      *
+      * Especially for the tag cloud generation this is really slow
+      */
+    void setSystemLibrary(Library *sl);
+    Library *systemLibrary();
+
 private:
     Ui::BibTeXImportWizard *ui;
+    Library *m_sl;
 };
 
 /**

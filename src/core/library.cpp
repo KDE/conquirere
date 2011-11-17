@@ -50,6 +50,8 @@ Library::Library(LibraryType type)
     , m_tagCloud(0)
 {
     m_tagCloud = new TagCloud;
+    m_initialImportFinished = 0;
+    m_tagCloud->pauseUpdates(true);
     setupModels();
 }
 
@@ -253,6 +255,16 @@ void Library::scanLibraryFolders()
     }
 }
 
+void Library::finishedInitialImport()
+{
+    m_initialImportFinished++;
+    qDebug() <<"Library::finishedInitialImport()" << m_initialImportFinished << m_resources.size();
+
+    if(m_initialImportFinished == m_resources.size()) {
+        m_tagCloud->pauseUpdates(false);
+    }
+}
+
 void Library::setupModels()
 {
     DocumentModel *documentModel = new DocumentModel;
@@ -310,4 +322,5 @@ void Library::connectModelToTagCloud(NepomukModel *model)
     connect(model, SIGNAL(resourceAdded(Nepomuk::Resource)), m_tagCloud, SLOT(addResource(Nepomuk::Resource)));
     connect(model, SIGNAL(resourceRemoved(QUrl)), m_tagCloud, SLOT(removeResource(QUrl)));
     connect(model, SIGNAL(resourceUpdated(Nepomuk::Resource)), m_tagCloud, SLOT(updateResource(Nepomuk::Resource)));
+    connect(model, SIGNAL(queryFinished()), this, SLOT(finishedInitialImport()));
 }

@@ -28,6 +28,7 @@ TagCloud::TagCloud(QObject *parent)
     , m_futureWatcher(0)
 {
     m_missingUpdate = false;
+    m_pauseUpdates = false;
 }
 
 void TagCloud::addResource(const Nepomuk::Resource &resource)
@@ -55,22 +56,14 @@ void TagCloud::removeResource(const QUrl &resourceUrl)
 
 void TagCloud::updateTagCloud()
 {
-    if(m_futureWatcher && m_futureWatcher->isRunning()) {
-        if(!m_missingUpdate) {
-            m_missingUpdate = true;
-            QTimer::singleShot(3000,this,SLOT(updateTagCloud()));
-        }
-        return;
+    if(!m_pauseUpdates) {
+        QFuture<QList<QPair<int, QString> > > future = QtConcurrent::run(this, &TagCloud::createTagCloud, m_resourceList);
+        m_futureWatcher = new QFutureWatcher<QList<QPair<int, QString> > >();
+
+        m_futureWatcher->setFuture(future);
+
+        connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(tagCloudUpdated()));
     }
-
-    QFuture<QList<QPair<int, QString> > > future = QtConcurrent::run(this, &TagCloud::createTagCloud, m_resourceList);
-    m_futureWatcher = new QFutureWatcher<QList<QPair<int, QString> > >();
-
-    m_futureWatcher->setFuture(future);
-
-    connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(tagCloudUpdated()));
-
-    m_missingUpdate = false;
 }
 
 void TagCloud::tagCloudUpdated()
@@ -85,6 +78,15 @@ void TagCloud::tagCloudUpdated()
 QList<QPair<int, QString> > TagCloud::tagCloud()
 {
     return m_tagCloud;
+}
+
+void TagCloud::pauseUpdates(bool pause)
+{
+    m_pauseUpdates = pause;
+
+    if(!m_pauseUpdates) {
+        updateTagCloud();
+    }
 }
 
 bool sortTagPair(const QPair<int, QString> &s1, const QPair<int, QString> &s2)

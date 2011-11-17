@@ -189,6 +189,9 @@ signals:
       */
     void resourceUpdated(Nepomuk::Resource resource);
 
+private slots:
+    void finishedInitialImport();
+
 private:
     /**
       * Creates all data models for the library
@@ -213,6 +216,7 @@ private:
 
     QMap<ResourceSelection, QSortFilterProxyModel*> m_resources;
     TagCloud *m_tagCloud;
+    int m_initialImportFinished;
 
 };
 

@@ -26,7 +26,7 @@ QueryClient::QueryClient(QObject *parent)
     connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addToCache(QList<Nepomuk::Query::Result>)));
     connect(m_queryClient, SIGNAL(entriesRemoved(QList<QUrl>)), this, SIGNAL(removeCacheEntries(QList<QUrl>)));
     connect(m_queryClient, SIGNAL(finishedListing()), this, SIGNAL(queryFinished()));
-            connect(m_queryClient, SIGNAL(resultCount(int)), this, SLOT(resultCount(int)));
+    connect(m_queryClient, SIGNAL(resultCount(int)), this, SLOT(resultCount(int)));
 
     m_resourceWatcher = new Nepomuk::ResourceWatcher(this);
     connect(m_resourceWatcher, SIGNAL(propertyAdded(Nepomuk::Resource, Nepomuk::Types::Property, QVariant)), this, SLOT(resourceChanged(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)));
@@ -74,10 +74,6 @@ void QueryClient::addToCache( const QList< Nepomuk::Query::Result > &entries ) c
 void QueryClient::resultCount(int number) const
 {
     //m_resourceWatcher->start();
-
-    if(number == 0) {
-        emit queryFinished();
-    }
 }
 
 void QueryClient::resourceChanged (const Nepomuk::Resource &resource, const Nepomuk::Types::Property &property, const QVariant &value) const

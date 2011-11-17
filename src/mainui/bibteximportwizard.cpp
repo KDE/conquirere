@@ -18,6 +18,8 @@
 #include "bibteximportwizard.h"
 #include "ui_bibteximportwizard.h"
 
+#include "../core/library.h"
+#include "../core/tagcloud.h"
 #include "../nbibio/nbibimporterbibtex.h"
 
 #include <kbibtex/fileimporterbibtex.h>
@@ -61,6 +63,16 @@ BibTeXImportWizard::BibTeXImportWizard(QWidget *parent)
 BibTeXImportWizard::~BibTeXImportWizard()
 {
     delete ui;
+}
+
+void BibTeXImportWizard::setSystemLibrary(Library *sl)
+{
+    m_sl = sl;
+}
+
+Library *BibTeXImportWizard::systemLibrary()
+{
+    return m_sl;
 }
 
 /*
@@ -342,6 +354,9 @@ NepomukImport::NepomukImport(QWidget *parent)
 
 void NepomukImport::initializePage()
 {
+    BibTeXImportWizard *biw = qobject_cast<BibTeXImportWizard *>(wizard());
+    biw->systemLibrary()->tagCloud()->pauseUpdates(true);
+
     ParseFile *pf = dynamic_cast<ParseFile *>(wizard()->page(1));
 
     connect(pf->importer, SIGNAL(progress(int)), progressBar, SLOT(setValue(int)) );
@@ -366,4 +381,7 @@ bool NepomukImport::isComplete() const
 void NepomukImport::importFinished()
 {
     qDebug() << "finished import";
+    BibTeXImportWizard *biw = qobject_cast<BibTeXImportWizard *>(wizard());
+    biw->systemLibrary()->tagCloud()->pauseUpdates(false);
 }
+
