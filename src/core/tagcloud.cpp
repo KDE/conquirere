@@ -45,7 +45,7 @@ void TagCloud::updateResource(const Nepomuk::Resource &resource)
 void TagCloud::removeResource(const QUrl &resourceUrl)
 {
     int i = 0;
-    foreach(Nepomuk::Resource r, m_resourceList) {
+    foreach(const Nepomuk::Resource &r, m_resourceList) {
         if(!r.isValid()) {
             m_resourceList.removeAt(i);
         }
@@ -98,11 +98,11 @@ QList<QPair<int, QString> > TagCloud::createTagCloud(QList<Nepomuk::Resource> re
 {
     // step one create a map with all tags and their ocurence count
     QMap<QString, int> cloudMap;
-    foreach(Nepomuk::Resource r, resourceList) {
+    foreach(const Nepomuk::Resource &r, resourceList) {
 
         QList<Nepomuk::Tag> tagList = r.tags();
 
-        foreach(Nepomuk::Tag t, tagList) {
+        foreach(const Nepomuk::Tag &t, tagList) {
             int count = cloudMap.value(t.label(), 0);
             count ++;
             cloudMap.insert(t.label(), count);

@@ -25,6 +25,7 @@ const int TREEANGLE = Qt::UserRole + 1001;
 
 QLibraryTreeWidgetItem::QLibraryTreeWidgetItem()
     : QTreeWidgetItem()
+    , m_fetchingInProgress(false)
 {
 }
 

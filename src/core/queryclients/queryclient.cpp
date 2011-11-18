@@ -51,8 +51,8 @@ void QueryClient::run()
     connect(m_queryClient, SIGNAL(resultCount(int)), this, SLOT(resultCount(int)));
 
     m_resourceWatcher = new Nepomuk::ResourceWatcher(this);
-    connect(m_resourceWatcher, SIGNAL(propertyAdded(Nepomuk::Resource, Nepomuk::Types::Property, QVariant)), this, SLOT(resourceChanged(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)));
-    connect(m_resourceWatcher, SIGNAL(propertyRemoved(Nepomuk::Resource, Nepomuk::Types::Property, QVariant)), this, SLOT(resourceChanged(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)));
+    connect(m_resourceWatcher, SIGNAL(propertyAdded(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)), this, SLOT(resourceChanged(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)));
+    connect(m_resourceWatcher, SIGNAL(propertyRemoved(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)), this, SLOT(resourceChanged(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)));
 
     startFetchData();
     exec();
@@ -66,7 +66,7 @@ void QueryClient::addToCache( const QList< Nepomuk::Query::Result > &entries ) c
 {
     QList<CachedRowEntry> newCache;
 
-    foreach(Nepomuk::Query::Result nqr, entries) {
+    foreach(const Nepomuk::Query::Result &nqr, entries) {
         Nepomuk::Resource r = nqr.resource();
         m_resourceWatcher->addResource(r);
         CachedRowEntry cre;

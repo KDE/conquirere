@@ -293,7 +293,7 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
         QList<Nepomuk::Resource> fileList = nr.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResourceList();
 
         if(!fileList.isEmpty()) {
-            foreach(Nepomuk::Resource r, fileList) {
+            foreach(const Nepomuk::Resource &r, fileList) {
                 KUrl file = r.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
                 QString name;
                 KIcon icon(KMimeType::iconNameForUrl(file));
@@ -434,13 +434,13 @@ void ResourceTableWidget::setupWidget()
     m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_documentView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(m_documentView, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(tableContextMenu(const QPoint &)));
+    connect(m_documentView, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(tableContextMenu(QPoint)));
 
     QHeaderView *hv = m_documentView->horizontalHeader();
     hv->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(hv, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(headerContextMenu(const QPoint &)));
+    connect(hv, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(headerContextMenu(QPoint)));
 
     mainLayout->addWidget(m_documentView);
 

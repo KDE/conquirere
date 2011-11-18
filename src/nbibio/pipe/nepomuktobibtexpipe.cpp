@@ -437,7 +437,7 @@ void NepomukToBibTexPipe::setUrl(Entry *e, Nepomuk::Resource publication)
     QList<Nepomuk::Resource> objectList = publication.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResourceList();
 
     QString urlList;
-    foreach(Nepomuk::Resource dataObjects, objectList) {
+    foreach(const Nepomuk::Resource &dataObjects, objectList) {
         QUrl url = dataObjects.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
 
         urlList.append(url.toString());

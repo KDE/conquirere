@@ -98,8 +98,8 @@ void WebSearchWidget::setupUi()
     ui->listView->setItemDelegate(new HtmlDelegate());
     ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(ui->listView, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(resultContextMenu(const QPoint &)));
+    connect(ui->listView, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(resultContextMenu(QPoint)));
 
     m_importSearchResult = new KAction(this);
     m_importSearchResult->setText(i18n("Import Entry"));
@@ -178,7 +178,7 @@ void WebSearchWidget::addEngine(OnlineSearchAbstract *engine)
     m_itemToOnlineSearch.insert(item, engine);
     connect(engine, SIGNAL(foundEntry(Entry*)), this, SLOT(foundEntry(Entry*)));
     connect(engine, SIGNAL(stoppedSearch(int)), this, SLOT(stoppedSearch(int)));
-    connect(engine, SIGNAL(progress(int, int)), this, SLOT(updateProgress(int, int)));
+    connect(engine, SIGNAL(progress(int,int)), this, SLOT(updateProgress(int,int)));
 }
 
 void WebSearchWidget::switchToEngines()
