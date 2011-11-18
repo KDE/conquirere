@@ -271,7 +271,8 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     else if(key == QLatin1String("copyrigth")) {
         addCopyrigth(PlainTextValue::text(value), publication);
     }
-    else if(key == QLatin1String("doi")) {
+    else if(key == QLatin1String("doi") ||
+            key == QLatin1String("ee")) {
         addDoi(PlainTextValue::text(value), publication);
     }
     else if(key == QLatin1String("edition")) {
@@ -338,7 +339,10 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     else if(key == QLatin1String("type")) {
         addType(PlainTextValue::text(value), publication);
     }
-    else if(key == QLatin1String("url")) {
+    else if(key == QLatin1String("url") ||
+            key == QLatin1String("localfile") ||
+            key == QLatin1String("biburl") ||
+            key == QLatin1String("bibsource")) {
         addUrl(PlainTextValue::text(value), publication);
     }
     else if(key == QLatin1String("volume")) {
@@ -349,6 +353,28 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     }
     else if(key == QLatin1String("keywords")) {
         addKewords(value, publication);
+    }
+    else if(key == QLatin1String("descriptor") ||
+            key == QLatin1String("classification") ||
+            key == QLatin1String("thesaurus") ||
+            key == QLatin1String("subject")) {
+
+        Value keywordList;
+        QString keywordString = PlainTextValue::text(value);
+        QStringList keywords;
+        if(keywordString.contains(";")) {
+           keywords = keywordString.split(";");
+        }
+        else {
+            keywords = keywordString.split(",");
+        }
+
+        foreach(const QString &s, keywords) {
+            Keyword *k = new Keyword(s.trimmed());
+            keywordList.append(k);
+        }
+
+        addKewords(keywordList, publication);
     }
     else {
         qDebug() << "BibTexToNepomukPipe::addContent | unknown key ::" << key << PlainTextValue::text(value);
@@ -958,19 +984,26 @@ void BibTexToNepomukPipe::addType(const QString &content, Nepomuk::Resource publ
 
 void BibTexToNepomukPipe::addUrl(const QString &content, Nepomuk::Resource publication)
 {
-    // simple check, either the url ends with ".xxx" like .pdf
-    // than it is a RemoteDataObject
-    // otherwise a Website
-    // this will produce wrong results when the webpage is a php script that returns files
-
-    QString path = QUrl(content).path();
-
     QUrl urlType;
-    if(path.contains(QRegExp(".*\\.\\D{3}$"))) {
-        urlType = Nepomuk::Vocabulary::NFO::RemoteDataObject();
+
+    // first check if the given url points to a local file
+    KUrl url = KUrl(content);
+    if(url.isLocalFile()) {
+        urlType = Nepomuk::Vocabulary::NFO::FileDataObject();
     }
     else {
-        urlType = Nepomuk::Vocabulary::NFO::Website();
+        // simple check, either the url ends with ".xxx" like .pdf
+        // than it is a RemoteDataObject
+        // otherwise a Website
+        // this will produce wrong results when the webpage is a php script that returns files
+        QString path = QUrl(content).path();
+
+        if(path.contains(QRegExp(".*\\.\\D{3}$"))) {
+            urlType = Nepomuk::Vocabulary::NFO::RemoteDataObject();
+        }
+        else {
+            urlType = Nepomuk::Vocabulary::NFO::Website();
+        }
     }
 
     Nepomuk::Resource dataObject(QUrl(), urlType);
@@ -1018,7 +1051,7 @@ void BibTexToNepomukPipe::addYear(const QString &content, Nepomuk::Resource publ
 void BibTexToNepomukPipe::addKewords(const Value &content, Nepomuk::Resource publication)
 {
     foreach(ValueItem *vi, content) {
-        Keyword *k = dynamic_cast<Keyword *>(vi);
+        Keyword *k = dynamic_cast<Keyword *>(vi);        
         Nepomuk::Tag tag(k->text().toUtf8());
         tag.setLabel(k->text().toUtf8());
         publication.addTag(tag);
