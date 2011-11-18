@@ -19,19 +19,21 @@
 #include "ui_listpublicationsdialog.h"
 
 #include "core/library.h"
+#include "../core/models/nepomukmodel.h"
+#include "../core/models/publicationfiltermodel.h"
+#include "../core/delegates/ratingdelegate.h"
 
-#include "nbib.h"
-#include <Nepomuk/Query/Term>
-#include <Nepomuk/Query/QueryServiceClient>
-#include <Nepomuk/Query/Result>
-#include <Nepomuk/Query/ResourceTypeTerm>
-#include <Nepomuk/Query/ResourceTerm>
-#include <Nepomuk/Query/ComparisonTerm>
-#include <Nepomuk/Query/AndTerm>
-#include <Nepomuk/Variant>
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/NCO>
-#include <Nepomuk/Vocabulary/PIMO>
+#include <KDE/KConfig>
+#include <KDE/KConfigGroup>
+#include <KDE/KLineEdit>
+#include <KDE/KComboBox>
+
+#include <QtGui/QTableView>
+#include <QtGui/QHeaderView>
+#include <QtGui/QMenu>
+#include <QtGui/QAction>
+#include <QtGui/QSortFilterProxyModel>
+#include <QtGui/QKeyEvent>
 
 ListPublicationsDialog::ListPublicationsDialog(QWidget *parent) :
     QDialog(parent),
@@ -39,86 +41,141 @@ ListPublicationsDialog::ListPublicationsDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //create the query client to fetch resource data for the autocompletion
-    m_queryClient = new Nepomuk::Query::QueryServiceClient();
-    connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addPublicationData(QList<Nepomuk::Query::Result>)));
-    connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(queryFinished()));
-    connect(ui->listWidget, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(showPublication(QListWidgetItem*)));
-    connect(ui->checkBoxLibrary, SIGNAL(toggled(bool)), this, SLOT(fetchData()));
+    // view that holds the table models for selection
+    ui->tableView->setSortingEnabled(true);
+    ui->tableView->setItemDelegateForColumn(0, new RatingDelegate());
+    ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableView->horizontalHeader()->setStretchLastSection(false);
+    ui->tableView->verticalHeader()->hide();
+    ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    fetchData();
+    QHeaderView *hv = ui->tableView->horizontalHeader();
+    hv->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(hv, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(headerContextMenu(const QPoint &)));
 }
 
 ListPublicationsDialog::~ListPublicationsDialog()
 {
     delete ui;
-    m_queryClient->close();
-    delete m_queryClient;
 }
 
 void ListPublicationsDialog::setLibrary(Library *p)
 {
     m_library = p;
+
+    ui->tableView->setModel(m_library->viewModel(Resource_Publication));
+
+    //load settings for visible/hidden columns
+    KConfig config;
+    QString group = QLatin1String("TableView_LinkDocument");
+    group.append((int)Resource_Publication);
+    KConfigGroup tableViewGroup( &config, group );
+
+    // go through all header elements and apply last known visibility status
+    // also add each header name to the search combobox for selection
+    ui->filterComboBox->clear();
+    ui->filterComboBox->addItem(i18n("all entries"), -1); //additem NAME, TABLEHEADERINDEX
+    QHeaderView *hv = ui->tableView->horizontalHeader();
+    int columnCount = ui->tableView->model()->columnCount();
+    for(int i=0; i < columnCount; i++) {
+        bool hidden = tableViewGroup.readEntry( QString::number(i), false );
+        hv->setSectionHidden(i, hidden);
+
+        QString headerName = ui->tableView->model()->headerData(i,Qt::Horizontal).toString();
+        if(!headerName.isEmpty()) {
+            ui->filterComboBox->addItem(headerName, i);
+        }
+    }
+
+    hv->setResizeMode(QHeaderView::Interactive);
+    ui->tableView->horizontalHeader()->resizeSection(1,25);
+    ui->tableView->horizontalHeader()->resizeSection(2,25);
+    hv->setResizeMode(6, QHeaderView::Stretch);
+    ui->tableView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+    ui->tableView->selectRow(0);
 }
 
 Nepomuk::Resource ListPublicationsDialog::selectedPublication()
 {
-    QUrl publicationURL = m_listCache.value( ui->listWidget->currentItem()->text() );
+    QItemSelectionModel *sm = ui->tableView->selectionModel();
+    QModelIndexList indexes = sm->selectedRows();
 
-    return Nepomuk::Resource(publicationURL);
+    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(ui->tableView->model());
+    NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
+
+    // the resource for this entry
+    Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(indexes.first()));
+
+    return nr;
 }
 
-void ListPublicationsDialog::fetchData()
+void ListPublicationsDialog::keyPressEvent(QKeyEvent * e)
 {
-    m_listCache.clear();
-    ui->listWidget->clear();
-    Nepomuk::Query::AndTerm andTerm;
-    andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Publication() ) );
-
-    if(m_library && ui->checkBoxLibrary->isChecked()) {
-        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(),
-                                                            Nepomuk::Query::ResourceTerm(m_library->pimoLibrary()) ) );
+    switch(e->key()){
+    case Qt::Key_Escape:
+        break;
+    case Qt::Key_Return:
+    case Qt::Key_Enter:
+        applyFilter();
+        break;
+    default:
+        break;
     }
-    Nepomuk::Query::Query query( andTerm );
-    m_queryClient->query(query);
 }
 
-void ListPublicationsDialog::addPublicationData(const QList< Nepomuk::Query::Result > &entries)
+void ListPublicationsDialog::applyFilter()
 {
-    foreach(const Nepomuk::Query::Result & e, entries) {
-        QString title = e.resource().property(Nepomuk::Vocabulary::NIE::title()).toString();
-        ui->listWidget->addItem(title);
-        m_listCache.insert(title, e.resource().uri());
+    QString searchKey = ui->filterLineEdit->text();
+    int curIndex = ui->filterComboBox->currentIndex();
+    int searchColumn = ui->filterComboBox->itemData(curIndex).toInt();
+
+    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(ui->tableView->model());
+
+    sfpm->setFilterKeyColumn(searchColumn);
+    sfpm->setFilterRegExp(searchKey);
+}
+
+void ListPublicationsDialog::headerContextMenu(const QPoint &pos)
+{
+    QMenu menu(this);
+
+    int columnCount = ui->tableView->model()->columnCount();
+
+    //iterate through all available header entries in the current model
+    for(int i=0; i < columnCount; i++) {
+        QString headerName = ui->tableView->model()->headerData(i,Qt::Horizontal).toString();
+        if(headerName.isEmpty()) {
+            headerName = ui->tableView->model()->headerData(i,Qt::Horizontal, Qt::ToolTipRole).toString();
+        }
+
+        // for each header create a checkable menu entry to change visibility
+        QAction *a = menu.addAction(headerName);
+        connect(a, SIGNAL(triggered()), this, SLOT(changeHeaderSectionVisibility()));
+        a->setData(i);
+        a->setCheckable(true);
+        a->setChecked(!ui->tableView->horizontalHeader()->isSectionHidden(i));
     }
 
+    menu.exec(mapToGlobal(pos));
 }
 
-void ListPublicationsDialog::queryFinished()
+void ListPublicationsDialog::changeHeaderSectionVisibility()
 {
-    m_queryClient->close();
-}
+    QAction *a = qobject_cast<QAction *>(sender());
 
-void ListPublicationsDialog::showPublication( QListWidgetItem * item )
-{
-    Nepomuk::Resource publication = m_listCache.value(item->text());
+    QHeaderView *hv = ui->tableView->horizontalHeader();
+    hv->setSectionHidden(a->data().toInt(),
+                         !hv->isSectionHidden(a->data().toInt()));
 
-    ui->entryTitle->setText(publication.property(Nepomuk::Vocabulary::NIE::title()).toString());
-
-    QList<Nepomuk::Resource> authors = publication.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
-
-    QString authorString;
-    foreach(const Nepomuk::Resource & a, authors) {
-        authorString.append(a.genericLabel());
-        authorString.append(QLatin1String("; "));
-    }
-    authorString.chop(2);
-
-    ui->entryAuthors->setText(authorString);
-
-    Nepomuk::Resource type(publication.type());
-    ui->entryType->setText(type.genericLabel());
-
-    ui->entryDate->setText(publication.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString());
-
-    ui->entryVolume->setText(publication.property(Nepomuk::Vocabulary::NBIB::volume()).toString());
+    // save selection in the application settings
+    KConfig config;
+    QString group = QLatin1String("TableView_LinkDocument");
+    group.append((int)Resource_Publication);
+    KConfigGroup tableViewGroup( &config, group );
+    tableViewGroup.writeEntry( a->data().toString(), hv->isSectionHidden(a->data().toInt()) );
+    tableViewGroup.config()->sync();
 }

@@ -29,7 +29,6 @@ namespace Ui {
 }
 
 class Library;
-class QListWidgetItem;
 
 class ListPublicationsDialog : public QDialog
 {
@@ -43,24 +42,17 @@ public:
 
     Nepomuk::Resource selectedPublication();
 
+    void keyPressEvent(QKeyEvent * e);
+
 private slots:
-    void fetchData();
-
-    void addPublicationData(const QList< Nepomuk::Query::Result > &entries);
-
-    // called when all values have been announced in addCompletionData
-    // quits the queryservice and calls createCompletionModel()
-    void queryFinished();
-
-    void showPublication( QListWidgetItem * item );
+    void applyFilter();
+    void headerContextMenu(const QPoint &pos);
+    void changeHeaderSectionVisibility();
 
 private:
     Ui::ListPublicationsDialog *ui;
 
     Library *m_library;
-
-    Nepomuk::Query::QueryServiceClient *m_queryClient;
-    QHash<QString, QUrl> m_listCache;
 };
 
 #endif // LISTPUBLICATIONSDIALOG_H
