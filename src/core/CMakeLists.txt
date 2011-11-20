@@ -13,6 +13,7 @@ set(core_LIB_SRCS
     models/documentmodel.cpp
     models/notemodel.cpp
     models/bookmarkmodel.cpp
+    models/mailmodel.cpp
     models/referencemodel.cpp
     models/searchresultmodel.cpp
 
@@ -22,6 +23,7 @@ set(core_LIB_SRCS
     queryclients/documentquery.cpp
     queryclients/notequery.cpp
     queryclients/bookmarkquery.cpp
+    queryclients/mailquery.cpp
 )
 
 nepomuk_add_ontology_classes(core_LIB_SRCS ONTOLOGIES ${CMAKE_SOURCE_DIR}/nbib/nbib.trig)

@@ -354,6 +354,7 @@ void MainWindow::setupMainWindow()
 
     //create the system library
     m_systemLibrary = new Library(Library_System);
+    m_systemLibrary->setupModels();
     openLibrary(m_systemLibrary);
 
     switchView(Resource_Library, Filter_None, m_systemLibrary);

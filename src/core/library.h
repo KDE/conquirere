@@ -69,6 +69,16 @@ public:
     virtual ~Library();
 
     /**
+      * Creates all data models for the library
+      *
+      * For each ResourceSelection there exists one model
+      * The model fetches all data from the Nepomuk storage and update itself
+      * when a Nepomuk::Resource is created or removed
+      *
+      */
+    void setupModels();
+
+    /**
       * The type of the Library
       *
       * @return Either System or Project
@@ -193,16 +203,6 @@ private slots:
     void finishedInitialImport();
 
 private:
-    /**
-      * Creates all data models for the library
-      *
-      * For each ResourceSelection there exists one model
-      * The model fetches all data from the Nepomuk storage and update itself
-      * when a Nepomuk::Resource is created or removed
-      *
-      */
-    void setupModels();
-
     void connectModelToTagCloud(NepomukModel *model);
 
     LibraryType m_libraryType;

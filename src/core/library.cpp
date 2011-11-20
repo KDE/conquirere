@@ -25,6 +25,7 @@
 #include "models/documentmodel.h"
 #include "models/notemodel.h"
 #include "models/bookmarkmodel.h"
+#include "models/mailmodel.h"
 
 #include <Nepomuk/Variant>
 #include <Nepomuk/Tag>
@@ -52,7 +53,6 @@ Library::Library(LibraryType type)
     m_tagCloud = new TagCloud;
     m_initialImportFinished = 0;
     m_tagCloud->pauseUpdates(true);
-    setupModels();
 }
 
 Library::~Library()
@@ -148,6 +148,7 @@ void Library::createLibrary()
 
     //in the case files did exist, scan and add them
     scanLibraryFolders();
+    setupModels();
 }
 
 void Library::loadLibrary(const QString & projectFile)
@@ -166,6 +167,7 @@ void Library::loadLibrary(const QString & projectFile)
 
     m_libraryTag = Nepomuk::Tag( m_name );
     m_libraryTag.setLabel(m_name);
+    setupModels();
 }
 
 void Library::deleteLibrary()
@@ -303,12 +305,14 @@ void Library::setupModels()
     connectModelToTagCloud(noteModel);
 
     if(m_libraryType == Library_Project) {
-        /*
-        ResourceModel *MailModel = new ResourceModel;
-        MailModel->setLibrary(this);
-        m_resources.insert(Resource_Mail, MailModel);
-        connectModelToTagCloud(MailModel);
+        MailModel *mailModel = new MailModel;
+        mailModel->setLibrary(this);
+        QSortFilterProxyModel *mailFilter = new QSortFilterProxyModel;
+        mailFilter->setSourceModel(mailModel);
+        m_resources.insert(Resource_Mail, mailFilter);
+        connectModelToTagCloud(mailModel);
 
+        /*
         ResourceModel *MediaModel = new ResourceModel;
         MediaModel->setLibrary(this);
         m_resources.insert(Resource_Media, MediaModel);
