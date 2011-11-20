@@ -54,12 +54,14 @@ enum ResourceFilter {
     Filter_None,
     Filter_Articles,
     Filter_Journals,
+    Filter_Magazine,
+    Filter_Newspaper,
     Filter_Books,
     Filter_Proceedings,
     Filter_Thesisis,
     Filter_Presentation,
     Filter_Script,
-    Filter_Techreport
+    Filter_Report
 };
 
 enum BibEntryType {

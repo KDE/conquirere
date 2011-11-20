@@ -45,19 +45,23 @@ bool PublicationFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &
     case Filter_Articles:
         return regexpCheck && (typeEnum == BibType_Article);
     case Filter_Journals:
-        return regexpCheck && ((typeEnum == BibType_Journal) || (typeEnum == BibType_JournalIssue));
+        return regexpCheck && ((typeEnum == BibType_JournalIssue) || (typeEnum == BibType_Journal));
+    case Filter_Magazine:
+        return regexpCheck && ((typeEnum == BibType_MagazinIssue) || (typeEnum == BibType_Magazin));
+    case Filter_Newspaper:
+        return regexpCheck && ((typeEnum == BibType_NewspaperIssue) || (typeEnum == BibType_Newspaper));
     case Filter_Books:
         return regexpCheck && ((typeEnum == BibType_Book) || (typeEnum == BibType_Booklet));
     case Filter_Proceedings:
-        return regexpCheck && ((typeEnum == BibType_Article) || (typeEnum == BibType_Proceedings));
+        return regexpCheck && (typeEnum == BibType_Proceedings);
     case Filter_Thesisis:
         return regexpCheck && ((typeEnum == BibType_Bachelorthesis) || (typeEnum == BibType_Phdthesis) || (typeEnum == BibType_Mastersthesis));
     case Filter_Presentation:
-        return false;
+         return regexpCheck && (typeEnum == BibType_Presentation);
     case Filter_Script:
-        return false;
-    case Filter_Techreport:
-        return regexpCheck && (typeEnum == BibType_Techreport);
+        return regexpCheck && (typeEnum == BibType_Script);
+    case Filter_Report:
+        return regexpCheck && (typeEnum == BibType_Report);
     }
 
     return regexpCheck;

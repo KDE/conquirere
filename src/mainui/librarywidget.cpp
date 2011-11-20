@@ -167,10 +167,10 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     m_items.append(pubSub5);
 
     QLibraryTreeWidgetItem *pubSub6 = new QLibraryTreeWidgetItem();
-    pubSub6->setText(0, i18n("Techreport"));
+    pubSub6->setText(0, i18n("Report"));
     pubSub6->setData(0,Role_Library,root->data(0,Role_Library));
     pubSub6->setData(0,Role_ResourceType,Resource_Publication);
-    pubSub6->setData(0,Role_ResourceFilter,Filter_Techreport);
+    pubSub6->setData(0,Role_ResourceFilter,Filter_Report);
     pubSub6->setData(0,Role_Project,root->data(0,Role_Project));
     pubSub6->setIcon(0, KIcon(QLatin1String("kjournal")));
     twi1a->addChild(pubSub6);
@@ -198,6 +198,39 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     twi1a->addChild(pubSub8);
     connectModelSignals(pubSub8, p, Resource_Publication);
     m_items.append(pubSub8);
+
+    QLibraryTreeWidgetItem *pubSub9 = new QLibraryTreeWidgetItem();
+    pubSub9->setText(0, i18n("Journal"));
+    pubSub9->setData(0,Role_Library,root->data(0,Role_Library));
+    pubSub9->setData(0,Role_ResourceType,Resource_Publication);
+    pubSub9->setData(0,Role_ResourceFilter,Filter_Journals);
+    pubSub9->setData(0,Role_Project,root->data(0,Role_Project));
+    pubSub9->setIcon(0, KIcon(QLatin1String("kjournal")));
+    twi1a->addChild(pubSub9);
+    connectModelSignals(pubSub9, p, Resource_Publication);
+    m_items.append(pubSub9);
+
+    QLibraryTreeWidgetItem *pubSub10 = new QLibraryTreeWidgetItem();
+    pubSub10->setText(0, i18n("Newspaper"));
+    pubSub10->setData(0,Role_Library,root->data(0,Role_Library));
+    pubSub10->setData(0,Role_ResourceType,Resource_Publication);
+    pubSub10->setData(0,Role_ResourceFilter,Filter_Newspaper);
+    pubSub10->setData(0,Role_Project,root->data(0,Role_Project));
+    pubSub10->setIcon(0, KIcon(QLatin1String("kjournal")));
+    twi1a->addChild(pubSub10);
+    connectModelSignals(pubSub10, p, Resource_Publication);
+    m_items.append(pubSub10);
+
+    QLibraryTreeWidgetItem *pubSub11 = new QLibraryTreeWidgetItem();
+    pubSub11->setText(0, i18n("Magazin"));
+    pubSub11->setData(0,Role_Library,root->data(0,Role_Library));
+    pubSub11->setData(0,Role_ResourceType,Resource_Publication);
+    pubSub11->setData(0,Role_ResourceFilter,Filter_Magazine);
+    pubSub11->setData(0,Role_Project,root->data(0,Role_Project));
+    pubSub11->setIcon(0, KIcon(QLatin1String("kjournal")));
+    twi1a->addChild(pubSub11);
+    connectModelSignals(pubSub11, p, Resource_Publication);
+    m_items.append(pubSub11);
 
     QLibraryTreeWidgetItem *twi4 = new QLibraryTreeWidgetItem();
     twi4->setText(0, i18n("References"));
