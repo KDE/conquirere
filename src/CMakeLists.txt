@@ -7,8 +7,7 @@ add_subdirectory( propertywidgets )
 set(conquirere_SRCS
     main.cpp
 
-    mainui/newprojectdialog.cpp
-    mainui/newprojectdialog.cpp
+    mainui/newprojectwizard.cpp
     mainui/welcomewidget.cpp
     mainui/librarywidget.cpp
     mainui/projecttreedelegate.cpp
@@ -34,7 +33,7 @@ set(conquirere_SRCS
 
 kde4_add_ui_files( conquirere_SRCS
 
-                   mainui/newprojectdialog.ui
+                   mainui/newprojectwizard.ui
                    mainui/welcomewidget.ui
                    mainui/librarywidget.ui
                    mainui/bibtexexportdialog.ui

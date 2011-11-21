@@ -98,19 +98,9 @@ public:
       */
     QString name() const;
 
-    /**
-      * Sets the path of the project library
-      *
-      * @pre Only for non System librarys
-      * @p path The path of the project
-      */
-    void setPath(const QString & path);
+    void setDescription(const QString & description);
 
-    /**
-      * Returns the path of the project library or
-      * an empty string for the System library
-      */
-    QString path() const;
+    QString description() const;
 
     /**
       * Creates a new project library
@@ -128,6 +118,7 @@ public:
       * @p projectFile the .ini project file
       */
     void loadLibrary(const QString & projectFile);
+    void loadLibrary(const Nepomuk::Resource & pimoProject);
 
     /**
       * Deletes the current project library
@@ -144,26 +135,11 @@ public:
     Nepomuk::Resource pimoLibrary() const;
 
     /**
-      * Checks if a specific file is available
-      * in the project folder structure
-      *
-      * @p filename name of the file to check for
-      */
-    bool isInPath(const QString &filename);
-
-    /**
       * Relates a Nepomuk::Resource to this project
       *
       * @p res the used Nepomuk::Resource
       */
     void addResource(Nepomuk::Resource & res);
-
-    /**
-      * Relates a file to the project library
-      *
-      * @p fileInfo the file to use
-      */
-    void addDocument(const QFileInfo &fileInfo);
 
     /**
       * Returns the model for a specific library Resource.
@@ -182,14 +158,6 @@ public:
 
     TagCloud *tagCloud();
 
-public slots:
-    /**
-      * Scans the project Library for new documents
-      *
-      * Used to automatically related files in the project folder to the project
-      */
-    void scanLibraryFolders();
-
 signals:
     /**
       * This signal gets thrown when the resource was changed and must be updated in the table model cache
@@ -207,7 +175,7 @@ private:
 
     LibraryType m_libraryType;
     QString m_name;
-    QString m_path;
+    QString m_description;
 
     Nepomuk::Resource m_pimoLibrary;
 

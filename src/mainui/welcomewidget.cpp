@@ -26,6 +26,7 @@
 #include <KDE/KHTMLView>
 #include <KDE/DOM/HTMLDocument>
 #include <KDE/KStandardDirs>
+#include <Nepomuk/Vocabulary/PIMO>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QSortFilterProxyModel>
@@ -147,7 +148,14 @@ void WelcomeWidget::updateTagCloud()
 
 void WelcomeWidget::generateHtml()
 {
-    const QString htmlFilename = KGlobal::dirs()->findResource("appdata", QLatin1String("html/index.html"));
+    QString htmlTemplate;
+    if(m_library->libraryType() == Library_System) {
+        htmlTemplate = QLatin1String("html/index_system.html");
+    }
+    else {
+        htmlTemplate = QLatin1String("html/index_library.html");
+    }
+    const QString htmlFilename = KGlobal::dirs()->findResource("appdata", htmlTemplate);
     const QString cssFilename = KGlobal::dirs()->findResource("appdata", QLatin1String("html/application.css"));
     QFile file(htmlFilename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -169,7 +177,8 @@ void WelcomeWidget::generateHtml()
     }
     else {
         libraryName = m_library->name();
-        libraryIntro = QLatin1String("description from prohect creation");
+        libraryIntro = m_library->description();
+        libraryIntro.replace(QLatin1String("\n"),QLatin1String("<br>"));
     }
 
     htmlPage.replace(QLatin1String("#CSSFILE#"), cssFilename);
@@ -177,6 +186,11 @@ void WelcomeWidget::generateHtml()
     htmlPage.replace(QLatin1String("#LIBRARYINTRO#"), libraryIntro);
     htmlPage.replace(QLatin1String("#STATISTICHEADER#"), i18n("Statistics"));
     htmlPage.replace(QLatin1String("#TAGCLOUDHEADER#"), i18n("Tag Cloud"));
+
+    if(m_library->libraryType() == Library_System) {
+        htmlPage.replace(QLatin1String("#LATESTPROJECTSHEADER#"), i18n("Latest Research"));
+        htmlPage.replace(QLatin1String("#LATESTPROJECTS#"), QString());
+    }
 
     m_htmlPart->begin();
     m_htmlPart->write(htmlPage);

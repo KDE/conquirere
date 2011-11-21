@@ -28,21 +28,25 @@
 #include "models/mailmodel.h"
 
 #include <Nepomuk/Variant>
+#include <Nepomuk/Resource>
 #include <Nepomuk/Tag>
+#include <Nepomuk/File>
 #include <Nepomuk/Vocabulary/NIE>
+#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Vocabulary/PIMO>
+#include "../dms-copy/simpleresource.h"
+#include "../dms-copy/simpleresourcegraph.h"
 
 #include <KDE/KUrl>
-#include <KDE/KIO/DeleteJob>
+#include <KDE/KStandardDirs>
+#include <KDE/KConfig>
+#include <KDE/KConfigGroup>
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfoList>
 #include <QtCore/QSettings>
 
 #include <QtCore/QDebug>
-
-const QString DOCPATH = QLatin1String("documents");  /**< @todo make this configurable */
-const QString NOTEPATH = QLatin1String("notes");     /**< @todo make this configurable */
 
 Library::Library(LibraryType type)
     : QObject(0)
@@ -93,14 +97,14 @@ QString Library::name() const
     }
 }
 
-void Library::setPath(const QString & path)
+void Library::setDescription(const QString & description)
 {
-    m_path = path;
+    m_description = description;
 }
 
-QString Library::path() const
+QString Library::description() const
 {
-    return m_path;
+    return m_description;
 }
 
 void Library::createLibrary()
@@ -112,42 +116,43 @@ void Library::createLibrary()
 
     // when a new library is created it is realized as pimo:Project
     QString identifier = QLatin1String("Conquirere Library:") + m_name;
-
     m_pimoLibrary = Nepomuk::Resource(identifier, Nepomuk::Vocabulary::PIMO::Project());
-
     m_pimoLibrary.setProperty( Nepomuk::Vocabulary::NIE::title() , m_name);
+    m_pimoLibrary.setProperty( Soprano::Vocabulary::NAO::description() , m_description);
 
     // relate each library to the conquiere pimo:thing
     // this allows us to find all existing projects
-    Nepomuk::Resource cp(QLatin1String("Conquirere Library"));
+    //DEBUG this creates duplicates resources for the conquire collection
+    // find a way to retrieve the unique resource
+    KSharedConfigPtr config = KSharedConfig::openConfig("conquirererc");
+    KConfigGroup generalGroup = config->group("General");
+    QString NepomukCollection = generalGroup.readEntry( "NepomukCollection", QString() );
 
-    m_pimoLibrary.setProperty( Nepomuk::Vocabulary::PIMO::isRelated() , cp);
+    Nepomuk::Resource conquiereCollections = Nepomuk::Resource(NepomukCollection);
+    m_pimoLibrary.setProperty( Nepomuk::Vocabulary::PIMO::isRelated() , conquiereCollections);
 
+    // create a tag with the project name
+    // this way we can relate publications/documents etc via PIMO::isRelated or the tag
     m_libraryTag = Nepomuk::Tag( m_name );
     m_libraryTag.setLabel(m_name);
 
-    QDir project;
-    // first check if the folder exist and create it otherwise
-    project.mkpath(m_path);
-    project.setPath(m_path);
-
     // create the project .ini file
-    m_settings = new QSettings(m_path + QLatin1String("/conquirere.ini"),QSettings::IniFormat);
+    QString projectPath = KStandardDirs::locateLocal("appdata", QLatin1String("projects"));
+    QString iniFile = projectPath + QLatin1String("/conquirere.ini");
+    m_settings = new QSettings(iniFile,QSettings::IniFormat);
     m_settings->beginGroup(QLatin1String("Conquirere"));
     m_settings->setValue(QLatin1String("name"), name());
-    m_settings->setValue(QLatin1String("path"), m_path);
+    m_settings->setValue(QLatin1String("description"), description());
     m_settings->setValue(QLatin1String("pimoProject"), m_pimoLibrary.uri());
     m_settings->endGroup();
-    m_settings->beginGroup(QLatin1String("Settings"));
-    m_settings->setValue(QLatin1String("copytoprojectfolder"), true);
-    m_settings->endGroup();
+    //m_settings->beginGroup(QLatin1String("Settings"));
+    //m_settings->endGroup();
     m_settings->sync();
 
-    // now check if the used structure exist or create it.
-    project.mkdir(DOCPATH);
+    Nepomuk::Resource settingsFile = Nepomuk::File(KUrl(iniFile));
+    settingsFile.setProperty(Nepomuk::Vocabulary::PIMO::occurrence(), m_pimoLibrary);
+    m_pimoLibrary.setProperty(Nepomuk::Vocabulary::PIMO::groundingOccurrence(), settingsFile );
 
-    //in the case files did exist, scan and add them
-    scanLibraryFolders();
     setupModels();
 }
 
@@ -155,13 +160,22 @@ void Library::loadLibrary(const QString & projectFile)
 {
     m_settings = new QSettings(projectFile,QSettings::IniFormat);
     m_settings->beginGroup(QLatin1String("Conquirere"));
-    m_path = m_settings->value(QLatin1String("path")).toString();
+    m_description = m_settings->value(QLatin1String("description")).toString();
     m_name = m_settings->value(QLatin1String("name")).toString();
+
     m_pimoLibrary = Nepomuk::Resource(m_settings->value(QLatin1String("pimoProject")).toString());
     m_settings->endGroup();
 
-    // add new files in the folders
-    scanLibraryFolders();
+    if(!m_pimoLibrary.isValid()) {
+        // DEBUG this creates duplicates resources for the conquire collection
+        // find a way to retrieve the unique resource
+        KSharedConfigPtr config = KSharedConfig::openConfig("conquirererc");
+        KConfigGroup generalGroup = config->group("General");
+        QString NepomukCollection = generalGroup.readEntry( "NepomukCollection", QString() );
+
+        Nepomuk::Resource conquiereCollections = Nepomuk::Resource(NepomukCollection);
+        m_pimoLibrary.setProperty( Nepomuk::Vocabulary::PIMO::isRelated() , conquiereCollections);
+    }
 
     m_libraryType = Library_Project;
 
@@ -170,24 +184,22 @@ void Library::loadLibrary(const QString & projectFile)
     setupModels();
 }
 
+void loadLibrary(const Nepomuk::Resource & pimoProject)
+{
+    Nepomuk::File settingsFile = pimoProject.property( Nepomuk::Vocabulary::PIMO::isRelated()).toResource();
+
+    loadLibrary(settingsFile.url().pathOrUrl());
+}
+
 void Library::deleteLibrary()
 {
     m_pimoLibrary.remove();
     m_libraryTag.remove();
-
-    KUrl path(m_path);
-
-    KIO::del(m_path);
 }
 
 Nepomuk::Resource Library::pimoLibrary() const
 {
     return m_pimoLibrary;
-}
-
-bool Library::isInPath(const QString &filename)
-{
-    return filename.contains(m_path);
 }
 
 void Library::addResource(Nepomuk::Resource & res)
@@ -207,25 +219,6 @@ void Library::addResource(Nepomuk::Resource & res)
     }
 }
 
-void Library::addDocument(const QFileInfo &fileInfo)
-{
-    if(m_libraryType == Library_System) {
-        qWarning() << "can't add documents to system library";
-        return;
-    }
-
-    // first check if the file is in the project path
-    QString projectDocPath = m_path + QLatin1String("/") + DOCPATH;
-    if(fileInfo.absolutePath() != projectDocPath) {
-        qDebug() << "file" << fileInfo.fileName() << "not in project path ask to copy it?";
-    }
-
-    //now if the files do not already have the project tag, add it
-    Nepomuk::Resource res( fileInfo.absoluteFilePath() );
-
-    addResource(res);
-}
-
 QSortFilterProxyModel* Library::viewModel(ResourceSelection selection)
 {
     return m_resources.value(selection);
@@ -239,23 +232,6 @@ QMap<ResourceSelection, QSortFilterProxyModel*> Library::viewModels()
 TagCloud *Library::tagCloud()
 {
     return m_tagCloud;
-}
-
-void Library::scanLibraryFolders()
-{
-    QDir project;
-    project.setPath(m_path);
-
-    // scan for new documents
-    project.cd(DOCPATH);
-
-    QFileInfoList list = project.entryInfoList();
-    for (int i = 0; i < list.size(); ++i) {
-        QFileInfo fileInfo = list.at(i);
-        if(fileInfo.isFile()) {
-            addDocument(fileInfo.absoluteFilePath());
-        }
-    }
 }
 
 void Library::finishedInitialImport()

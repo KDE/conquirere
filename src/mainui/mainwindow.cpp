@@ -22,7 +22,7 @@
 
 #include "../sidebar/sidebarwidget.h"
 #include "librarywidget.h"
-#include "newprojectdialog.h"
+#include "newprojectwizard.h"
 #include "welcomewidget.h"
 #include "resourcetablewidget.h"
 #include "documentpreview.h"
@@ -39,6 +39,11 @@
 #include <KDE/KMessageBox>
 #include <KDE/KIO/NetAccess>
 #include <KDE/KGlobalSettings>
+
+#include <Nepomuk/Resource>
+#include <Nepomuk/Variant>
+#include <Soprano/Vocabulary/NAO>
+#include <Nepomuk/Vocabulary/PIMO>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QSplitter>
@@ -81,17 +86,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::createLibrary()
 {
-    NewProjectDialog npd;
+    NewProjectWizard npw;
 
-    int ret = npd.exec();
+    int ret = npw.exec();
 
     if(ret == QDialog::Accepted) {
-        Library *customLibrary = new Library(Library_Project);
-        customLibrary->setName(npd.name());
-        customLibrary->setPath(npd.path());
-        customLibrary->createLibrary();
-
-        openLibrary(customLibrary);
+        openLibrary(npw.newLibrary());
     }
 }
 
@@ -358,4 +358,22 @@ void MainWindow::setupMainWindow()
     openLibrary(m_systemLibrary);
 
     switchView(Resource_Library, Filter_None, m_systemLibrary);
+
+    loadConfig();
+}
+
+void MainWindow::loadConfig()
+{
+    KSharedConfigPtr config = KSharedConfig::openConfig("conquirererc");
+
+    KConfigGroup generalGroup = config->group("General");
+    QString NepomukCollection = generalGroup.readEntry( "NepomukCollection", QString() );
+
+    if(NepomukCollection.isEmpty()) {
+        qDebug() << "create nepomuk collection";
+        Nepomuk::Resource collection(QUrl(), Nepomuk::Vocabulary::PIMO::Collection());
+        collection.setProperty(Soprano::Vocabulary::NAO::identifier(), QString("Conquirere Collection"));
+        generalGroup.writeEntry("NepomukCollection", collection.resourceUri().toString());
+        config->sync();
+    }
 }

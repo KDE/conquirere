@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>NewProjectWizard</class>
+ <widget class="QWizard" name="NewProjectWizard">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>474</width>
+    <height>401</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Create a new research</string>
+  </property>
+  <property name="options">
+   <set>QWizard::HaveFinishButtonOnEarlyPages|QWizard::HaveHelpButton|QWizard::NoBackButtonOnStartPage</set>
+  </property>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

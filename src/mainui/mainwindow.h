@@ -56,6 +56,8 @@ private:
     void setupActions();
     void setupMainWindow();
 
+    void loadConfig();
+
     QMainWindow *m_centerWindow;
     WelcomeWidget *m_welcomeWidget;
     ResourceTableWidget *m_mainView;
