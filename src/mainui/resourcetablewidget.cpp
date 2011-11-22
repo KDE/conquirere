@@ -259,6 +259,7 @@ void ResourceTableWidget::removeSelectedFromProject()
 
     // remove project relation
     nr.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), m_curLibrary->pimoLibrary());
+    m_curLibrary->pimoLibrary().removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), nr);
 }
 
 void ResourceTableWidget::removeSelectedFromSystem()

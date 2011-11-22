@@ -210,7 +210,7 @@ void NepomukModel::removeCacheData( QList<QUrl> urls )
         //iterate through the full list of entries and find the one we are going to remove
         int i = 0;
         foreach(const CachedRowEntry & cre, m_modelCacheData) {
-            if(!cre.resource.isValid()) {
+            if(!cre.resource.isValid() || cre.resource.resourceUri() == url) {
 
                 beginRemoveRows(QModelIndex(), i, i );
                 m_modelCacheData.removeAt(i);
