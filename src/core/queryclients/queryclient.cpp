@@ -32,9 +32,9 @@ QueryClient::~QueryClient()
 {
 }
 
-void QueryClient::setPimoProject(const Nepomuk::Resource & project)
+void QueryClient::setLibrary(Library *selectedLibrary)
 {
-    m_pimoProject = project;
+    m_library = selectedLibrary;
 }
 
 void QueryClient::stopFetchData()

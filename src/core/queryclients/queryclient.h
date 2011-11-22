@@ -34,6 +34,7 @@ struct CachedRowEntry {
 Q_DECLARE_METATYPE(CachedRowEntry)
 Q_DECLARE_METATYPE(QList<CachedRowEntry>)
 
+class Library;
 class QueryClient : public QThread
 {
     Q_OBJECT
@@ -41,7 +42,7 @@ public:
     explicit QueryClient(QObject *parent = 0);
     virtual ~QueryClient();
 
-    void setPimoProject(const Nepomuk::Resource & project);
+    void setLibrary(Library *selectedLibrary);
     void run();
 
 public slots:
@@ -71,7 +72,7 @@ protected:
     virtual QVariantList createDisplayData(const Nepomuk::Resource & res) const = 0;
     virtual QVariantList createDecorationData(const Nepomuk::Resource & res) const = 0;
 
-    Nepomuk::Resource m_pimoProject;
+    Library *m_library;
     Nepomuk::Query::QueryServiceClient *m_queryClient;
     bool m_startupQuery;
     Nepomuk::ResourceWatcher *m_resourceWatcher;

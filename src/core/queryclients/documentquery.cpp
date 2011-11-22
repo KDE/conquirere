@@ -16,6 +16,7 @@
  */
 
 #include "documentquery.h"
+#include "../library.h"
 
 #include "../../globals.h"
 
@@ -24,6 +25,7 @@
 #include <Nepomuk/Variant>
 #include <Nepomuk/Query/ResourceTerm>
 #include <Nepomuk/Query/AndTerm>
+#include <Nepomuk/Query/OrTerm>
 #include <Nepomuk/Query/ResourceTypeTerm>
 #include <Nepomuk/Query/ComparisonTerm>
 
@@ -32,6 +34,7 @@
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NFO>
+#include <Soprano/Vocabulary/NAO>
 
 #include <QtCore/QRegExp>
 
@@ -46,9 +49,13 @@ void DocumentQuery::startFetchData()
 
     andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::PaginatedTextDocument() ) );
 
-    if(m_pimoProject.isValid()) {
-        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(),
-                                                            Nepomuk::Query::ResourceTerm(m_pimoProject) ) );
+    if(m_library->libraryType() == Library_Project) {
+        Nepomuk::Query::OrTerm orTerm;
+        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
+                                                           Nepomuk::Query::ResourceTerm( m_library->pimoTag() ) ));
+        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(),
+                                                            Nepomuk::Query::ResourceTerm(m_library->pimoLibrary()) ) );
+        andTerm.addSubTerm(orTerm);
     }
 
     // build the query

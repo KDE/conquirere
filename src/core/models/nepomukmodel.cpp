@@ -78,10 +78,7 @@ QVariant NepomukModel::data(const QModelIndex &index, int role) const
 void NepomukModel::setLibrary(Library *library)
 {
     m_library = library;
-
-    if(m_library->libraryType() == Library_Project) {
-        m_queryClient->setPimoProject(m_library->pimoLibrary());
-    }
+    m_queryClient->setLibrary(m_library);
 
     connect(m_library, SIGNAL(resourceUpdated(Nepomuk::Resource)), m_queryClient, SLOT(resourceChanged(Nepomuk::Resource)));
     m_queryClient->start();

@@ -193,6 +193,11 @@ Nepomuk::Resource Library::pimoLibrary() const
     return m_pimoLibrary;
 }
 
+Nepomuk::Resource Library::pimoTag() const
+{
+    return m_libraryTag;
+}
+
 void Library::addResource(Nepomuk::Resource & res)
 {
     if(m_libraryType == Library_System) {

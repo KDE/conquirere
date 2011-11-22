@@ -132,6 +132,7 @@ public:
       * to this project.
       */
     Nepomuk::Resource pimoLibrary() const;
+    Nepomuk::Resource pimoTag() const;
 
     /**
       * Relates a Nepomuk::Resource to this project
