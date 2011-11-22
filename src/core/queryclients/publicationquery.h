@@ -43,6 +43,11 @@ public:
 
 public slots:
     void startFetchData();
+    /**
+      * @todo remove when starting to use ResourceWatcher later on
+      */
+    void resourceChanged (const Nepomuk::Resource &resource);
+
 
 private:
     QVariantList createDisplayData(const Nepomuk::Resource & res) const;

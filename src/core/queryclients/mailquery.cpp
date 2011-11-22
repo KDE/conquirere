@@ -50,6 +50,23 @@ void MailQuery::startFetchData()
     m_queryClient->query(query);
 }
 
+void MailQuery::resourceChanged (const Nepomuk::Resource &resource)
+{
+    if(!resource.hasType(Nepomuk::Vocabulary::NMO::Email()))
+        return;
+
+    //qDebug() << "QueryClient::resourceChanged without ResourceWatcher";
+    QList<CachedRowEntry> newCache;
+
+    CachedRowEntry cre;
+    cre.displayColums = createDisplayData(resource);
+    cre.decorationColums = createDecorationData(resource);
+    cre.resource = resource;
+    newCache.append(cre);
+
+    emit updateCacheEntries(newCache);
+}
+
 QVariantList MailQuery::createDisplayData(const Nepomuk::Resource & res) const
 {
     QVariantList displayList;

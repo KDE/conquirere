@@ -54,6 +54,23 @@ void ReferenceQuery::startFetchData()
     m_queryClient->query(query);
 }
 
+void ReferenceQuery::resourceChanged (const Nepomuk::Resource &resource)
+{
+    if(!resource.hasType(Nepomuk::Vocabulary::NBIB::Reference()))
+        return;
+
+    //qDebug() << "QueryClient::resourceChanged without ResourceWatcher";
+    QList<CachedRowEntry> newCache;
+
+    CachedRowEntry cre;
+    cre.displayColums = createDisplayData(resource);
+    cre.decorationColums = createDecorationData(resource);
+    cre.resource = resource;
+    newCache.append(cre);
+
+    emit updateCacheEntries(newCache);
+}
+
 QVariantList ReferenceQuery::createDisplayData(const Nepomuk::Resource & res) const
 {
     QVariantList displayList;

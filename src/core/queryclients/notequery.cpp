@@ -47,6 +47,23 @@ void NoteQuery::startFetchData()
     m_queryClient->query(query);
 }
 
+void NoteQuery::resourceChanged (const Nepomuk::Resource &resource)
+{
+    if(!resource.hasType(Nepomuk::Vocabulary::PIMO::Note()))
+        return;
+
+    //qDebug() << "QueryClient::resourceChanged without ResourceWatcher";
+    QList<CachedRowEntry> newCache;
+
+    CachedRowEntry cre;
+    cre.displayColums = createDisplayData(resource);
+    cre.decorationColums = createDecorationData(resource);
+    cre.resource = resource;
+    newCache.append(cre);
+
+    emit updateCacheEntries(newCache);
+}
+
 QVariantList NoteQuery::createDisplayData(const Nepomuk::Resource & res) const
 {
     QVariantList displayList;

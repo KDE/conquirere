@@ -102,20 +102,6 @@ void QueryClient::resourceChanged (const Nepomuk::Resource &resource, const Nepo
     emit updateCacheEntries(newCache);
 }
 
-void QueryClient::resourceChanged (const Nepomuk::Resource &resource)
-{
-    //qDebug() << "QueryClient::resourceChanged without ResourceWatcher";
-    QList<CachedRowEntry> newCache;
-
-    CachedRowEntry cre;
-    cre.displayColums = createDisplayData(resource);
-    cre.decorationColums = createDecorationData(resource);
-    cre.resource = resource;
-    newCache.append(cre);
-
-    emit updateCacheEntries(newCache);
-}
-
 void QueryClient::finishedStartup()
 {
     m_startupQuery = false;

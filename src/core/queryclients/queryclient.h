@@ -63,7 +63,7 @@ private slots:
     /**
       * @todo remove when starting to use ResourceWatcher later on
       */
-    void resourceChanged (const Nepomuk::Resource &resource);
+    virtual void resourceChanged (const Nepomuk::Resource &resource) = 0;
 
     void finishedStartup();
 
