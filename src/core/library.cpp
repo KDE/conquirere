@@ -44,13 +44,11 @@
 
 #include <QtCore/QDir>
 #include <QtCore/QFileInfoList>
-#include <QtCore/QSettings>
 
 #include <QtCore/QDebug>
 
 Library::Library(LibraryType type)
     : QObject(0)
-    , m_settings(0)
     , m_libraryType(type)
     , m_tagCloud(0)
 {
@@ -61,8 +59,6 @@ Library::Library(LibraryType type)
 
 Library::~Library()
 {
-    delete m_settings;
-
     foreach(QSortFilterProxyModel *atm, m_resources) {
         delete atm->sourceModel();
         delete atm;
@@ -122,14 +118,13 @@ void Library::createLibrary()
 
     // relate each library to the conquiere pimo:thing
     // this allows us to find all existing projects
-    //DEBUG this creates duplicates resources for the conquire collection
-    // find a way to retrieve the unique resource
     KSharedConfigPtr config = KSharedConfig::openConfig("conquirererc");
     KConfigGroup generalGroup = config->group("General");
     QString NepomukCollection = generalGroup.readEntry( "NepomukCollection", QString() );
 
     Nepomuk::Resource conquiereCollections = Nepomuk::Resource(NepomukCollection);
-    m_pimoLibrary.setProperty( Nepomuk::Vocabulary::PIMO::isRelated() , conquiereCollections);
+    conquiereCollections.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_pimoLibrary);
+    m_pimoLibrary.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , conquiereCollections);
 
     // create a tag with the project name
     // this way we can relate publications/documents etc via PIMO::isRelated or the tag
@@ -138,16 +133,14 @@ void Library::createLibrary()
 
     // create the project .ini file
     QString projectPath = KStandardDirs::locateLocal("appdata", QLatin1String("projects"));
-    QString iniFile = projectPath + QLatin1String("/conquirere.ini");
-    m_settings = new QSettings(iniFile,QSettings::IniFormat);
-    m_settings->beginGroup(QLatin1String("Conquirere"));
-    m_settings->setValue(QLatin1String("name"), name());
-    m_settings->setValue(QLatin1String("description"), description());
-    m_settings->setValue(QLatin1String("pimoProject"), m_pimoLibrary.uri());
-    m_settings->endGroup();
-    //m_settings->beginGroup(QLatin1String("Settings"));
-    //m_settings->endGroup();
-    m_settings->sync();
+    QString iniFile = projectPath + QLatin1String("/") + m_name + QLatin1String(".ini");
+
+    KConfig libconfig( iniFile, KConfig::SimpleConfig );
+    KConfigGroup libGroup( &libconfig, "Conquirere" );
+    libGroup.writeEntry(QLatin1String("name"), name());
+    libGroup.writeEntry(QLatin1String("description"), description());
+    libGroup.writeEntry(QLatin1String("pimoProject"), m_pimoLibrary.uri());
+    libconfig.sync();
 
     Nepomuk::Resource settingsFile = Nepomuk::File(KUrl(iniFile));
     settingsFile.setProperty(Nepomuk::Vocabulary::PIMO::occurrence(), m_pimoLibrary);
@@ -158,23 +151,21 @@ void Library::createLibrary()
 
 void Library::loadLibrary(const QString & projectFile)
 {
-    m_settings = new QSettings(projectFile,QSettings::IniFormat);
-    m_settings->beginGroup(QLatin1String("Conquirere"));
-    m_description = m_settings->value(QLatin1String("description")).toString();
-    m_name = m_settings->value(QLatin1String("name")).toString();
+    KConfig libconfig( projectFile, KConfig::SimpleConfig );
+    KConfigGroup libGroup( &libconfig, "Conquirere" );
+    m_description = libGroup.readEntry(QLatin1String("description"), QString());
+    m_name = libGroup.readEntry(QLatin1String("name"), QString());
 
-    m_pimoLibrary = Nepomuk::Resource(m_settings->value(QLatin1String("pimoProject")).toString());
-    m_settings->endGroup();
+    m_pimoLibrary = Nepomuk::Resource(libGroup.readEntry(QLatin1String("pimoProject"), QString()));
 
     if(!m_pimoLibrary.isValid()) {
-        // DEBUG this creates duplicates resources for the conquire collection
-        // find a way to retrieve the unique resource
         KSharedConfigPtr config = KSharedConfig::openConfig("conquirererc");
         KConfigGroup generalGroup = config->group("General");
         QString NepomukCollection = generalGroup.readEntry( "NepomukCollection", QString() );
 
         Nepomuk::Resource conquiereCollections = Nepomuk::Resource(NepomukCollection);
-        m_pimoLibrary.setProperty( Nepomuk::Vocabulary::PIMO::isRelated() , conquiereCollections);
+        conquiereCollections.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_pimoLibrary);
+        m_pimoLibrary.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , conquiereCollections);
     }
 
     m_libraryType = Library_Project;
@@ -184,9 +175,9 @@ void Library::loadLibrary(const QString & projectFile)
     setupModels();
 }
 
-void loadLibrary(const Nepomuk::Resource & pimoProject)
+void Library::loadLibrary(const Nepomuk::Resource & pimoProject)
 {
-    Nepomuk::File settingsFile = pimoProject.property( Nepomuk::Vocabulary::PIMO::isRelated()).toResource();
+    Nepomuk::File settingsFile = pimoProject.property( Nepomuk::Vocabulary::PIMO::groundingOccurrence()).toResource();
 
     loadLibrary(settingsFile.url().pathOrUrl());
 }
@@ -215,7 +206,7 @@ void Library::addResource(Nepomuk::Resource & res)
         qDebug() << "resource " <<  res.genericLabel() << "is alread related to ::" << m_pimoLibrary.genericLabel();
     }
     else {
-        res.setProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_pimoLibrary);
+        res.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_pimoLibrary);
     }
 }
 

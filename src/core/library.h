@@ -27,7 +27,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QString>
 
-class QSettings;
 class LibraryWidget;
 class QSortFilterProxyModel;
 class TagCloud;
@@ -178,9 +177,7 @@ private:
     QString m_description;
 
     Nepomuk::Resource m_pimoLibrary;
-
     Nepomuk::Tag m_libraryTag; /**< @todo add tag to resource models to be able to list Nepomuk::Resource not only based on the isRelated to fact */
-    QSettings *m_settings;
 
     QMap<ResourceSelection, QSortFilterProxyModel*> m_resources;
     TagCloud *m_tagCloud;

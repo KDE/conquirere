@@ -8,6 +8,7 @@ set(conquirere_SRCS
     main.cpp
 
     mainui/newprojectwizard.cpp
+    mainui/loadproject.cpp
     mainui/welcomewidget.cpp
     mainui/librarywidget.cpp
     mainui/projecttreedelegate.cpp
@@ -34,6 +35,7 @@ set(conquirere_SRCS
 kde4_add_ui_files( conquirere_SRCS
 
                    mainui/newprojectwizard.ui
+                   mainui/loadproject.ui
                    mainui/welcomewidget.ui
                    mainui/librarywidget.ui
                    mainui/bibtexexportdialog.ui

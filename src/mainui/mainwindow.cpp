@@ -23,6 +23,7 @@
 #include "../sidebar/sidebarwidget.h"
 #include "librarywidget.h"
 #include "newprojectwizard.h"
+#include "loadproject.h"
 #include "welcomewidget.h"
 #include "resourcetablewidget.h"
 #include "documentpreview.h"
@@ -97,17 +98,13 @@ void MainWindow::createLibrary()
 
 void MainWindow::loadLibrary()
 {
-    //select name and path of the project
-    QString fileNameFromDialog = KFileDialog::getOpenFileName(KGlobalSettings::documentPath(), QLatin1String("*.ini|Conquirere project (*.ini)"));
+    LoadProject lp;
 
-    if(fileNameFromDialog.isEmpty()) {
-        return;
+    int ret = lp.exec();
+
+    if(ret == QDialog::Accepted) {
+        openLibrary(lp.loadedLibrary());
     }
-
-    Library *customLibrary = new Library(Library_Project);
-    customLibrary->loadLibrary(fileNameFromDialog);
-
-    openLibrary(customLibrary);
 }
 
 void MainWindow::openLibrary(Library *l)
