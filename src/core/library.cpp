@@ -230,6 +230,11 @@ TagCloud *Library::tagCloud()
     return m_tagCloud;
 }
 
+void Library::removeFromSystem()
+{
+    qDebug() << "TODO remove library from system";
+}
+
 void Library::finishedInitialImport()
 {
     m_initialImportFinished++;

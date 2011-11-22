@@ -158,6 +158,8 @@ public:
 
     TagCloud *tagCloud();
 
+    void removeFromSystem();
+
 signals:
     /**
       * This signal gets thrown when the resource was changed and must be updated in the table model cache

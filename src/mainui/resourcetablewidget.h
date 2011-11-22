@@ -25,6 +25,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QItemSelection>
 
+class MainWindow;
 class Library;
 class QTableView;
 class PublicationModel;
@@ -44,7 +45,9 @@ class ResourceTableWidget : public QWidget
 
 public:
     explicit ResourceTableWidget(QWidget *parent = 0);
-    ~ResourceTableWidget();
+    virtual ~ResourceTableWidget();
+
+    void setMainWindow(MainWindow *mw);
 
 signals:
     void selectedResource(Nepomuk::Resource & nr);
@@ -69,6 +72,7 @@ private slots:
 private:
     void setupWidget();
 
+    MainWindow *m_parent;
     KLineEdit *m_searchBox;
     KComboBox *m_searchSelection;
     QTableView    *m_documentView;
@@ -77,7 +81,6 @@ private:
 
     KAction* m_removeFromSystem;
     KAction* m_removeFromProject;
-    KAction* m_addToProject;
     KAction* m_exportToBibTeX;
 };
 

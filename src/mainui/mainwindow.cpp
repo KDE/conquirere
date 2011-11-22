@@ -67,6 +67,7 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : KParts::MainWindow()
+    , m_curLibrary(0)
 {
     setupMainWindow();
     setupActions();
@@ -127,43 +128,47 @@ void MainWindow::openLibrary(Library *l)
 
         m->startFetchData();
     }
+
+    switchView(Resource_Library, Filter_None, l);
+}
+
+QList<Library *> MainWindow::openLibraries()
+{
+    QList<Library *> openLibraryList;
+
+    QMapIterator<Library *, QWidget *> i(m_libraryList);
+    while (i.hasNext()) {
+        i.next();
+        if(i.key()->libraryType() == Library_Project) {
+            openLibraryList.append(i.key());
+        }
+    }
+
+     return openLibraryList;
 }
 
 void MainWindow::deleteLibrary()
 {
-    qDebug() << "TODO delete library";
-    //    ProjectWidget *projectWidget = qobject_cast<ProjectWidget *>(centralWidget());
+    int ret = KMessageBox::warningYesNo(this,
+                                        QLatin1String("Do you really want to delete the project:<br><b>") +
+                                        m_curLibrary->name());
 
-    //    if(projectWidget) {
-    //        Project *p = projectWidget->project();
-    //        int ret = KMessageBox::warningYesNo(this,
-    //                                            QLatin1String("Do you really want to remove the project tag :<br><b>") +
-    //                                            p->pimoProject().genericLabel() +
-    //                                            QLatin1String("</b><br><br> and delete the folder :<br><b>") +
-    //                                            p->path(),
-    //                                            QLatin1String("Delete project ") + p->name());
-
-    //        if(ret == KMessageBox::Yes) {
-    //            projectWidget->project()->deleteProject();
-    //            closeProject();
-    //        }
-    //    }
+    if(ret == KMessageBox::Yes) {
+        m_curLibrary->removeFromSystem();
+        closeLibrary();
+    }
 }
 
 void MainWindow::closeLibrary()
 {
-    qDebug() << "TODO close library";
-//    m_libraryList.take()
-//    Library *l = m_libraries.takeLast();
+    m_libraryWidget->closeLibrary(m_curLibrary);
+    QWidget *w = m_libraryList.take(m_curLibrary);
+    w->hide();
+    w->deleteLater();
 
-//    m_libraryWidget->closeLibrary(l);
+    delete m_curLibrary;
 
-//    delete l;
-
-//    if(m_libraries.isEmpty()) {
-//        actionCollection()->action(QLatin1String("delete_project"))->setEnabled(false);
-//        actionCollection()->action(QLatin1String("close_project"))->setEnabled(false);
-//    }
+    switchView(Resource_Library, Filter_None, m_systemLibrary);
 }
 
 void MainWindow::exportBibTex()
@@ -213,6 +218,25 @@ void MainWindow::switchView(ResourceSelection selection, ResourceFilter filter, 
              w->hide();
 
         m_mainView->switchView(selection, filter, p);
+    }
+
+    m_curLibrary = p;
+
+    if(m_curLibrary->libraryType() == Library_System) {
+        QAction *a = actionCollection()->action(QLatin1String("delete_project"));
+        if(a)
+            a->setEnabled(false);
+        QAction *b = actionCollection()->action(QLatin1String("close_project"));
+        if(b)
+            b->setEnabled(false);
+    }
+    else {
+        QAction *a = actionCollection()->action(QLatin1String("delete_project"));
+        if(a)
+            a->setEnabled(true);
+        QAction *b = actionCollection()->action(QLatin1String("close_project"));
+        if(b)
+            b->setEnabled(true);
     }
 }
 
@@ -312,8 +336,9 @@ void MainWindow::setupMainWindow()
     m_centerWindow->setCentralWidget(nw);
     setCentralWidget(m_centerWindow);
 
-    m_mainView = new ResourceTableWidget;
+    m_mainView = new ResourceTableWidget();
     m_mainView->hide();
+    m_mainView->setMainWindow(this);
     mainLayout->addWidget(m_mainView);
 
     // the left project bar

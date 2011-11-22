@@ -42,6 +42,7 @@ public slots:
     void createLibrary();
     void loadLibrary();
     void openLibrary(Library *l);
+    QList<Library *> openLibraries();
     void deleteLibrary();
     void closeLibrary();
     void exportBibTex();
@@ -68,6 +69,7 @@ private:
 
     QMap<Library *, QWidget *> m_libraryList; /**< holds the welcome widget for each opened library */
     Library *m_systemLibrary;
+    Library *m_curLibrary;
 };
 
 #endif // MAINWINDOW_H

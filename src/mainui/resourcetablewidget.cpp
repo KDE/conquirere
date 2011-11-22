@@ -20,6 +20,7 @@
 #include "../core/models/nepomukmodel.h"
 #include "../core/models/publicationfiltermodel.h"
 #include "../core/delegates/ratingdelegate.h"
+#include "mainwindow.h"
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Vocabulary/NIE>
@@ -63,7 +64,11 @@ ResourceTableWidget::~ResourceTableWidget()
     delete m_removeFromSystem;
     delete m_removeFromProject;
     delete m_exportToBibTeX;
-    delete m_addToProject;
+}
+
+void ResourceTableWidget::setMainWindow(MainWindow *mw)
+{
+        m_parent = mw;
 }
 
 void ResourceTableWidget::switchView(ResourceSelection selection, ResourceFilter filter, Library *p)
@@ -205,7 +210,36 @@ void ResourceTableWidget::applyFilter()
 
 void ResourceTableWidget::addSelectedToProject()
 {
-    qDebug() << "TODO :: ResourceTableWidget::addSelectedToProject()";
+    QItemSelectionModel *sm = m_documentView->selectionModel();
+    QModelIndexList indexes = sm->selectedRows();
+
+    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
+    NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
+
+    // the resource for this entry
+    Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(indexes.first()));
+
+    // get the pimoProject we use to connect the data to
+    Nepomuk::Resource pimoProject;
+    QAction *a = static_cast<QAction *>(sender());
+    if(a) {
+        pimoProject = Nepomuk::Resource(a->data().toString());
+    }
+
+    if(pimoProject.isValid()) {
+        nr.addProperty(Nepomuk::Vocabulary::PIMO::isRelated(), pimoProject);
+        pimoProject.addProperty(Nepomuk::Vocabulary::PIMO::isRelated(), nr);
+
+        // small special case, if the resource was a reference add also the publication to the project
+        if(nr.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
+            Nepomuk::Resource pub = nr.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+            pub.addProperty(Nepomuk::Vocabulary::PIMO::isRelated(), pimoProject);
+            pimoProject.addProperty(Nepomuk::Vocabulary::PIMO::isRelated(), pub);
+        }
+    }
+    else {
+        qDebug() << "ResourceTableWidget::addSelectedToProject() | could not find pimo project the data should be connected to";
+    }
 }
 
 void ResourceTableWidget::removeSelectedFromProject()
@@ -261,6 +295,8 @@ void ResourceTableWidget::exportSelectedToBibTeX()
 {
     QItemSelectionModel *sm = m_documentView->selectionModel();
     QModelIndexList indexes = sm->selectedRows();
+
+    qDebug() << "TODO :: ResourceTableWidget::exportSelectedToBibTeX()";
 }
 
 void ResourceTableWidget::tableContextMenu(const QPoint & pos)
@@ -340,8 +376,32 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
 
     menu.addSeparator();
 
-    menu.addAction(m_addToProject);
-    menu.addAction(m_removeFromProject);
+    // ###########################################################
+    // # add to project menu
+    QMenu addToProject(this);
+    addToProject.setTitle(i18n("add to project"));
+    addToProject.setIcon(KIcon(QLatin1String("list-add")));
+    menu.addMenu(&addToProject);
+
+    QList<Library*> openLibList = m_parent->openLibraries();
+
+    if(openLibList.size() > 0) {
+        foreach(Library *l, openLibList) {
+            QAction *a = new QAction(KIcon(QLatin1String("conquirere")), l->name(), this);
+            a->setData(l->pimoLibrary().resourceUri());
+            actionCollection.append(a);
+            connect(a, SIGNAL(triggered(bool)),this, SLOT(addSelectedToProject()));
+            addToProject.addAction(a);
+        }
+    }
+    else {
+        addToProject.setEnabled(false);
+    }
+
+    if(m_curLibrary->libraryType() == Library_Project) {
+        menu.addAction(m_removeFromProject);
+    }
+
     menu.addAction(m_removeFromSystem);
 
     if(m_curLibrary->libraryType() == Library_System) {
@@ -443,11 +503,6 @@ void ResourceTableWidget::setupWidget()
             this, SLOT(headerContextMenu(QPoint)));
 
     mainLayout->addWidget(m_documentView);
-
-    m_addToProject = new KAction(this);
-    m_addToProject->setText(i18n("add to project"));
-    m_addToProject->setIcon(KIcon(QLatin1String("list-add")));
-    connect(m_addToProject, SIGNAL(triggered()), this, SLOT(addSelectedToProject()));
 
     m_removeFromProject = new KAction(this);
     m_removeFromProject->setText(i18n("Remove from project"));
