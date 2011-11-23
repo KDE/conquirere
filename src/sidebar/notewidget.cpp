@@ -38,7 +38,6 @@ NoteWidget::NoteWidget(QWidget *parent)
 
     ui->editTags->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
     ui->editTags->setPropertyUrl( Soprano::Vocabulary::NAO::hasTag() );
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editTags, SLOT(setResource(Nepomuk::Resource&)));
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 }
 
@@ -64,6 +63,7 @@ void NoteWidget::setResource(Nepomuk::Resource & resource)
     discardNote();
 
     ui->editRating->setRating(m_note.rating());
+    ui->editTags->setResource(m_note);
 }
 
 void NoteWidget::setLibrary(Library *p)
@@ -72,7 +72,8 @@ void NoteWidget::setLibrary(Library *p)
 
     //TODO remove and use ResourceWatcher later on
     connect(ui->editTags, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
-    connect(ui->editTitle, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
+    connect(ui->editTitle, SIGNAL(textChanged(QString)), this, SLOT(subResourceUpdated()));
+    connect(this, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
 }
 
 void NoteWidget::newButtonClicked()
@@ -116,6 +117,7 @@ void NoteWidget::saveNote()
     }
 
     nr.setProperty(Nepomuk::Vocabulary::NIE::htmlContent(), ui->editContent->document()->toHtml());
+    emit resourceUpdated(m_note);
 }
 
 void NoteWidget::discardNote()
@@ -151,5 +153,10 @@ void NoteWidget::changeRating(int newRating)
 {
     m_note.setRating(newRating);
 
+    emit resourceUpdated(m_note);
+}
+
+void NoteWidget::subResourceUpdated()
+{
     emit resourceUpdated(m_note);
 }
