@@ -96,7 +96,7 @@
         <x>0</x>
         <y>0</y>
         <width>259</width>
-        <height>429</height>
+        <height>457</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -120,79 +120,6 @@
      </widget>
     </widget>
    </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <spacer name="horizontalSpacer_4">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="addPublication">
-       <property name="minimumSize">
-        <size>
-         <width>22</width>
-         <height>22</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>22</width>
-         <height>22</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>Add Publication</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>22</width>
-         <height>22</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="removePublication">
-       <property name="minimumSize">
-        <size>
-         <width>22</width>
-         <height>22</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>22</width>
-         <height>22</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>Remove Publication</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>22</width>
-         <height>22</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -203,40 +130,7 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>addPublication</sender>
-   <signal>clicked()</signal>
-   <receiver>DocumentWidget</receiver>
-   <slot>setPublication()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>143</x>
-     <y>523</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>146</x>
-     <y>566</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>removePublication</sender>
-   <signal>clicked()</signal>
-   <receiver>DocumentWidget</receiver>
-   <slot>removePublication()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>241</x>
-     <y>529</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>239</x>
-     <y>551</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <slots>
   <slot>setPublication()</slot>
   <slot>removePublication()</slot>

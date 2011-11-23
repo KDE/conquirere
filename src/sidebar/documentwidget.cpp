@@ -38,8 +38,7 @@ DocumentWidget::DocumentWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->addPublication->setIcon(KIcon(QLatin1String("list-add")));
-    ui->removePublication->setIcon(KIcon(QLatin1String("list-remove")));
+    connect(this, SIGNAL(hasPublication(bool)), parent, SLOT(hasPublication(bool)));
 }
 
 DocumentWidget::~DocumentWidget()
@@ -72,12 +71,10 @@ void DocumentWidget::setResource(Nepomuk::Resource & resource)
 
         Nepomuk::Resource pa = m_document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
         if(pa.isValid()) {
-                 ui->addPublication->setEnabled(false);
-                 ui->removePublication->setEnabled(true);
+            emit hasPublication(true);
         }
         else {
-            ui->addPublication->setEnabled(true);
-            ui->removePublication->setEnabled(false);
+            emit hasPublication(false);
         }
     }
 }

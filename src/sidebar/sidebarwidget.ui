@@ -48,6 +48,120 @@
        </spacer>
       </item>
       <item>
+       <widget class="QPushButton" name="addPublication">
+        <property name="minimumSize">
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="removePublication">
+        <property name="minimumSize">
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Line" name="linePublication">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="linkAddButton">
+        <property name="minimumSize">
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="linkRemoveButton">
+        <property name="minimumSize">
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="newButton">
         <property name="minimumSize">
          <size>
@@ -134,8 +248,8 @@
    <slot>deleteButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>304</x>
-     <y>53</y>
+     <x>380</x>
+     <y>49</y>
     </hint>
     <hint type="destinationlabel">
      <x>387</x>
@@ -150,12 +264,44 @@
    <slot>newButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>229</x>
-     <y>53</y>
+     <x>354</x>
+     <y>49</y>
     </hint>
     <hint type="destinationlabel">
      <x>292</x>
      <y>17</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>linkAddButton</sender>
+   <signal>clicked()</signal>
+   <receiver>DockWidget</receiver>
+   <slot>addToProject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>286</x>
+     <y>38</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>52</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>linkRemoveButton</sender>
+   <signal>clicked()</signal>
+   <receiver>DockWidget</receiver>
+   <slot>removeFromProject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>314</x>
+     <y>40</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>312</x>
+     <y>52</y>
     </hint>
    </hints>
   </connection>
@@ -164,5 +310,7 @@
   <slot>deleteButtonClicked()</slot>
   <slot>newButtonClicked()</slot>
   <slot>attachButtonClicked()</slot>
+  <slot>addToProject()</slot>
+  <slot>removeFromProject()</slot>
  </slots>
 </ui>

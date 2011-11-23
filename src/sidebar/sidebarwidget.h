@@ -70,14 +70,19 @@ public slots:
       *
       * Updates the current widget
       */
-    virtual void setResource(Nepomuk::Resource & resource);
+    void setResource(Nepomuk::Resource & resource);
 
-    virtual void setMultipleResources(QList<Nepomuk::Resource> resourcelist);
+    void setMultipleResources(QList<Nepomuk::Resource> resourcelist);
 
     void clear();
 
     void newButtonClicked();
     void deleteButtonClicked();
+
+    void addToProject();
+    void addToSelectedProject();
+    void removeFromProject();
+    void removeFromSelectedProject();
 
     /**
       * sets a link to the mainwindow.
@@ -85,6 +90,8 @@ public slots:
       * Used to get the list of open libraries in the subcomponents
       */
     void setMainWindow(MainWindow *mw);
+
+    void hasPublication(bool publication);
 
 private:
     Ui::DockWidget *ui;
@@ -94,6 +101,7 @@ private:
     MergeResourcesWidget *m_mergeWidget;
     SidebarComponent *m_currentWidget;
     ResourceSelection m_curSelection;
+    Nepomuk::Resource m_curResource;
 };
 
 #endif // SIDEBARWIDGET_H

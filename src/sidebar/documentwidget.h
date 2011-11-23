@@ -57,7 +57,6 @@ public slots:
       */
     virtual void deleteButtonClicked();
 
-private slots:
     /**
       * opens the ListPublicationsDialog and sets the nbib:publishedAs
       */
@@ -67,6 +66,9 @@ private slots:
       * removes the nbib:publishedAs value again
       */
     void removePublication();
+
+signals:
+    void hasPublication(bool publication);
 
 private:
     Nepomuk::Resource m_document; /**< the nfo:Document resource */

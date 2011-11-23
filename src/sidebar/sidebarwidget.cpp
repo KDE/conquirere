@@ -26,11 +26,17 @@
 #include "mergeresourceswidget.h"
 
 #include "../mainui/mainwindow.h"
+#include "../core/library.h"
+
+#include <Nepomuk/Resource>
+#include <Nepomuk/Variant>
+#include <Nepomuk/Vocabulary/PIMO>
 
 #include <KDE/KGlobalSettings>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QStackedLayout>
+#include <QtGui/QMenu>
 
 #include <QtCore/QDebug>
 
@@ -56,6 +62,18 @@ SidebarWidget::SidebarWidget(QWidget *parent)
 
     ui->newButton->setEnabled(false);
     ui->deleteButton->setEnabled(false);
+
+    ui->linkAddButton->setIcon(KIcon(QLatin1String("insert-link")));
+    ui->linkRemoveButton->setIcon(KIcon(QLatin1String("remove-link")));
+    ui->linkAddButton->setEnabled(false);
+    ui->linkRemoveButton->setEnabled(false);
+
+    ui->addPublication->setIcon(KIcon(QLatin1String("news-subscribe")));
+    ui->removePublication->setIcon(KIcon(QLatin1String("news-unsubscribe")));
+    ui->addPublication->setVisible(false);
+    ui->removePublication->setVisible(false);
+    ui->addPublication->setEnabled(false);
+    ui->removePublication->setEnabled(false);
 }
 
 SidebarWidget::~SidebarWidget()
@@ -69,6 +87,8 @@ SidebarWidget::~SidebarWidget()
 
 void SidebarWidget::setResource(Nepomuk::Resource & resource)
 {
+    m_curResource = resource;
+
     if(m_currentWidget) {
         m_currentWidget->setResource(resource);
 
@@ -77,10 +97,14 @@ void SidebarWidget::setResource(Nepomuk::Resource & resource)
         if(resource.isValid()) {
             ui->deleteButton->setEnabled(true);
             m_stackedLayout->setCurrentWidget(m_currentWidget);
+            ui->linkAddButton->setEnabled(true);
+            ui->linkRemoveButton->setEnabled(true);
         }
         else {
             ui->deleteButton->setEnabled(false);
             m_stackedLayout->setCurrentWidget(m_blankPage);
+            ui->linkAddButton->setEnabled(false);
+            ui->linkRemoveButton->setEnabled(false);
         }
     }
 }
@@ -106,9 +130,93 @@ void SidebarWidget::deleteButtonClicked()
     }
 }
 
+void SidebarWidget::addToProject()
+{
+    QList<QAction*> actionCollection;
+    QMenu addToProjects;
+
+    if(m_parent->openLibraries().isEmpty()) {
+        addToProjects.addAction(i18n("no open collections"));
+    }
+    else {
+        foreach(Library *l, m_parent->openLibraries()) {
+            QAction *a = new QAction(l->name(), this);
+            a->setData(l->pimoLibrary().resourceUri());
+            connect(a, SIGNAL(triggered(bool)),this, SLOT(addToSelectedProject()));
+            addToProjects.addAction(a);
+            actionCollection.append(a);
+        }
+    }
+
+    addToProjects.exec(QCursor::pos());
+
+    qDeleteAll(actionCollection);
+}
+
+void SidebarWidget::addToSelectedProject()
+{
+    QAction *a = qobject_cast<QAction *>(sender());
+
+    if(!a)
+        return;
+
+    Nepomuk::Resource pimoProject = Nepomuk::Resource(a->data().toString());
+
+    if(m_curResource.isValid()) {
+        m_curResource.addProperty(Nepomuk::Vocabulary::PIMO::isRelated(), pimoProject);
+        pimoProject.addProperty(Nepomuk::Vocabulary::PIMO::isRelated(), m_curResource);
+    }
+}
+
+void SidebarWidget::removeFromProject()
+{
+    QList<QAction*> actionCollection;
+    QMenu addToProjects;
+
+    QList<Nepomuk::Resource> relatedList = m_curResource.property(Nepomuk::Vocabulary::PIMO::isRelated()).toResourceList();
+
+    if(relatedList.isEmpty()) {
+        addToProjects.addAction(i18n("not related to any project"));
+    }
+    else {
+        foreach(const Nepomuk::Resource &r, relatedList) {
+            QAction *a = new QAction(r.genericLabel(), this);
+            a->setData(r.resourceUri());
+            connect(a, SIGNAL(triggered(bool)),this, SLOT(removeFromSelectedProject()));
+            addToProjects.addAction(a);
+            actionCollection.append(a);
+        }
+    }
+
+    addToProjects.exec(QCursor::pos());
+
+    qDeleteAll(actionCollection);
+}
+
+void SidebarWidget::removeFromSelectedProject()
+{
+    QAction *a = qobject_cast<QAction *>(sender());
+
+    if(!a)
+        return;
+
+    Nepomuk::Resource pimoProject = Nepomuk::Resource(a->data().toString());
+
+    if(m_curResource.isValid()) {
+        m_curResource.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), pimoProject);
+        pimoProject.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), m_curResource);
+    }
+}
+
 void SidebarWidget::setMainWindow(MainWindow *mw)
 {
     m_parent = mw;
+}
+
+void SidebarWidget::hasPublication(bool publication)
+{
+    ui->addPublication->setEnabled(!publication);
+    ui->removePublication->setEnabled(publication);
 }
 
 void SidebarWidget::newSelection(ResourceSelection selection, ResourceFilter filter, Library *library)
@@ -119,15 +227,21 @@ void SidebarWidget::newSelection(ResourceSelection selection, ResourceFilter fil
     m_curSelection = selection;
 
     SidebarComponent *newWidget = 0;
+    ui->addPublication->setVisible(false);
+    ui->removePublication->setVisible(false);
 
     switch(selection) {
     case Resource_Library:
         ui->titleLabel->setText(QLatin1String(""));
         break;
     case Resource_Document:
-        newWidget = new DocumentWidget();
+        newWidget = new DocumentWidget(this);
         newWidget->setMainWindow(m_parent);
         ui->titleLabel->setText(i18n("Document"));
+        ui->addPublication->setVisible(true);
+        ui->removePublication->setVisible(true);
+        connect(ui->addPublication, SIGNAL(clicked()), newWidget, SLOT(setPublication()));
+        connect(ui->removePublication, SIGNAL(clicked()), newWidget, SLOT(removePublication()));
         break;
     case Resource_Mail:
         newWidget = new PublicationWidget();
