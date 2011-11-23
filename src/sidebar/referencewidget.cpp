@@ -22,14 +22,16 @@
 #include "propertywidgets/stringedit.h"
 #include "propertywidgets/contactedit.h"
 #include "listpublicationsdialog.h"
+#include "listpartswidget.h"
 
 #include "nbib.h"
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/PIMO>
+
 #include <KDE/KGlobalSettings>
-#include <KDE/KIcon>
+#include <KDE/KDialog>
 
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
@@ -48,16 +50,13 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     //set propertyURL of the edit elements
     ui->chapterEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::referencedPart() );
     ui->chapterEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
+    ui->chapterEdit->setUseDetailDialog(true);
     ui->citeKeyEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::citeKey() );
     ui->citeKeyEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
     ui->pagesEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::pages() );
     ui->pagesEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
     ui->publicationEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publication() );
     ui->publicationEdit->setUseDetailDialog(true);
-    ui->publicationEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
-    ui->chapterAuthorEdit->setPropertyUrl( Nepomuk::Vocabulary::NCO::creator() );
-    ui->chapterNumber->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
-    ui->chapterNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::chapterNumber() );
 
     showCreateReference(true);
 
@@ -68,10 +67,9 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->publicationEdit, SLOT(setResource(Nepomuk::Resource&)));
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 
-    connect(ui->publicationEdit, SIGNAL(textChanged(QString)), this, SLOT(showChapter()));
+    connect(ui->publicationEdit, SIGNAL(textChanged(QString)), this, SLOT(enableReferenceDetails()));
     connect(ui->publicationEdit, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showPublicationList()));
-
-    connect(ui->chapterEdit, SIGNAL(textChanged(QString)), this, SLOT(showChapterAuthor()));
+    connect(ui->chapterEdit, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showChapterList()));
 }
 
 void ReferenceWidget::setResource(Nepomuk::Resource & resource)
@@ -80,7 +78,7 @@ void ReferenceWidget::setResource(Nepomuk::Resource & resource)
     if (resource.hasType(Nepomuk::Vocabulary::NBIB::Reference()) ) {
         m_reference = resource;
         showCreateReference(false);
-        showChapter();
+        enableReferenceDetails();
 
         emit resourceChanged(m_reference);
 
@@ -120,7 +118,7 @@ void ReferenceWidget::showCreateReference(bool createRef)
     else {
         ui->frameWidget->setEnabled(true);
 
-        showChapter();
+        enableReferenceDetails();
     }
 }
 
@@ -132,57 +130,53 @@ void ReferenceWidget::showPublicationList()
     int ret = lpd.exec();
 
     if(ret == QDialog::Accepted) {
-        Nepomuk::Resource publication = lpd.selectedPublication();
+        Nepomuk::Resource selectedPart = lpd.selectedPublication();
 
-        m_reference.setProperty(Nepomuk::Vocabulary::NBIB::publication(), publication );
+        m_reference.setProperty(Nepomuk::Vocabulary::NBIB::publication(), selectedPart );
         ui->publicationEdit->setResource(m_reference);
     }
 }
 
-void ReferenceWidget::showChapter()
+void ReferenceWidget::showChapterList()
 {
-    // show chapter is called when the label of the publication edit widget
-    // changes, which only happens when the resource is adapted first
-    // so check the resource
-    QList<Nepomuk::Resource> list = ui->publicationEdit->propertyResources();
+    KDialog kd;
 
-    if(list.isEmpty()) {
-        ui->chapterEdit->setEnabled(false);
-        ui->label_Chapter->setEnabled(false);
-        ui->label->setEnabled(false);
-        ui->chapterAuthorEdit->setEnabled(false);
-        return;
-    }
+    ListPartsWidget lpw;
+    Nepomuk::Resource publication = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+    lpw.setPublication(publication);
 
-    Nepomuk::Resource publication = list.first();
-    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Book()) || publication.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
-        ui->chapterEdit->setEnabled(true);
-        ui->chapterEdit->setEnabled(true);
-        ui->label_Chapter->setEnabled(true);
-    }
-    else {
-        ui->chapterEdit->setEnabled(false);
-        ui->label_Chapter->setEnabled(false);
-        ui->label->setEnabled(false);
-        ui->chapterAuthorEdit->setEnabled(false);
+    kd.setMainWidget(&lpw);
+
+    int ret = kd.exec();
+
+    if(ret == KDialog::Accepted) {
+        Nepomuk::Resource selectedPart = lpw.selectedPart();
+        m_reference.setProperty(Nepomuk::Vocabulary::NBIB::referencedPart(), selectedPart);
+        //ui->chapterEdit->setResource(m_reference);
+
+        QString pageStart = selectedPart.property(Nepomuk::Vocabulary::NBIB::pageStart() ).toString();
+        QString pageEnd = selectedPart.property(Nepomuk::Vocabulary::NBIB::pageEnd() ).toString();
+        QString pages = pageStart + QLatin1String("-") + pageEnd;
+        m_reference.setProperty(Nepomuk::Vocabulary::NBIB::pages(), pages);
+
+        setResource(m_reference);
     }
 }
 
-void ReferenceWidget::showChapterAuthor()
+void ReferenceWidget::enableReferenceDetails()
 {
-    //check if a valid chapter exist
-    Nepomuk::Resource refChapter = m_reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
+    //check if a valid publication exist
+    Nepomuk::Resource publication = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
 
-    if(refChapter.isValid()) {
-        ui->label->setEnabled(true);
-        ui->chapterAuthorEdit->setEnabled(true);
-        ui->chapterAuthorEdit->setResource(refChapter);
+    if(publication.isValid()) {
+        ui->pagesEdit->setEnabled(true);
+        ui->citeKeyEdit->setEnabled(true);
+        ui->chapterEdit->setEnabled(true);
     }
     else {
-        ui->label->setEnabled(false);
-        ui->chapterAuthorEdit->setEnabled(false);
-        Nepomuk::Resource nr;
-        ui->chapterAuthorEdit->setResource(nr);
+        ui->pagesEdit->setEnabled(false);
+        ui->citeKeyEdit->setEnabled(false);
+        ui->chapterEdit->setEnabled(false);
     }
 }
 
@@ -195,6 +189,8 @@ void ReferenceWidget::newButtonClicked()
         //relate the ref to the project
         newReference.setProperty(Nepomuk::Vocabulary::PIMO::isRelated() , library()->pimoLibrary());
     }
+    newReference.setProperty(Nepomuk::Vocabulary::NBIB::citeKey(), i18n("new reference"));
+
     setResource(newReference);
 }
 

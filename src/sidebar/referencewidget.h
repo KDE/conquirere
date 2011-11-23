@@ -53,10 +53,10 @@ signals:
 
 private slots:
     void showPublicationList();
+    void showChapterList();
 
     //enables/disables the chapter widget if the publication is a valid book or not
-    void showChapter();
-    void showChapterAuthor();
+    void enableReferenceDetails();
     void newButtonClicked();
     void deleteButtonClicked();
     void changeRating(int newRating);

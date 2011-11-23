@@ -34,97 +34,67 @@
         </item>
        </layout>
       </item>
-      <item>
-       <layout class="QFormLayout" name="formLayout">
-        <property name="fieldGrowthPolicy">
-         <enum>QFormLayout::ExpandingFieldsGrow</enum>
-        </property>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_CiteKey">
-          <property name="text">
-           <string>Citekey:</string>
-          </property>
-          <property name="buddy">
-           <cstring>citeKeyEdit</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="StringEdit" name="citeKeyEdit"/>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_Pages">
-          <property name="text">
-           <string>Pages:</string>
-          </property>
-          <property name="buddy">
-           <cstring>pagesEdit</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="StringEdit" name="pagesEdit"/>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_Chapter">
-          <property name="text">
-           <string>Chapter:</string>
-          </property>
-          <property name="buddy">
-           <cstring>chapterEdit</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="ChapterEdit" name="chapterEdit"/>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Chapter Author:</string>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="ContactEdit" name="chapterAuthorEdit"/>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Rating:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
-         <widget class="KRatingWidget" name="editRating"/>
-        </item>
-        <item row="4" column="1">
-         <widget class="StringEdit" name="chapterNumber"/>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Chapter Number:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="2">
-         <widget class="Line" name="line">
-          <property name="lineWidth">
-           <number>1</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
      </layout>
     </widget>
+   </item>
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::ExpandingFieldsGrow</enum>
+     </property>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_CiteKey">
+       <property name="text">
+        <string>Citekey:</string>
+       </property>
+       <property name="buddy">
+        <cstring>citeKeyEdit</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="StringEdit" name="citeKeyEdit"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_Pages">
+       <property name="text">
+        <string>Pages:</string>
+       </property>
+       <property name="buddy">
+        <cstring>pagesEdit</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="StringEdit" name="pagesEdit"/>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Rating:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="KRatingWidget" name="editRating"/>
+     </item>
+     <item row="2" column="1">
+      <widget class="ChapterEdit" name="chapterEdit"/>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_Chapter">
+       <property name="toolTip">
+        <string>Part of the publication. A chapter or quote</string>
+       </property>
+       <property name="text">
+        <string>Part:</string>
+       </property>
+       <property name="buddy">
+        <cstring>chapterEdit</cstring>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <spacer name="verticalSpacer">
@@ -156,14 +126,6 @@
    </slots>
   </customwidget>
   <customwidget>
-   <class>ContactEdit</class>
-   <extends>QLineEdit</extends>
-   <header>propertywidgets/contactedit.h</header>
-   <slots>
-    <signal>widgetEnabled(bool)</signal>
-   </slots>
-  </customwidget>
-  <customwidget>
    <class>PublicationEdit</class>
    <extends>QLineEdit</extends>
    <header>propertywidgets/publicationedit.h</header>
@@ -172,10 +134,62 @@
    <class>ChapterEdit</class>
    <extends>QLineEdit</extends>
    <header>propertywidgets/chapteredit.h</header>
+   <slots>
+    <signal>widgetEnabled(bool)</signal>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>citeKeyEdit</sender>
+   <signal>widgetEnabled(bool)</signal>
+   <receiver>label_CiteKey</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>77</x>
+     <y>77</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>44</x>
+     <y>76</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pagesEdit</sender>
+   <signal>widgetEnabled(bool)</signal>
+   <receiver>label_Pages</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>104</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>52</x>
+     <y>105</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chapterEdit</sender>
+   <signal>widgetEnabled(bool)</signal>
+   <receiver>label_Chapter</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>112</x>
+     <y>133</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>54</x>
+     <y>135</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <slots>
   <slot>showPublicationList()</slot>
   <slot>createReference()</slot>

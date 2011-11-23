@@ -30,6 +30,7 @@ set(conquirere_SRCS
     sidebar/contactdialog.cpp
     sidebar/mergeresourceswidget.cpp
     sidebar/addchapterdialog.cpp
+    sidebar/listpartswidget.cpp
 )
 
 kde4_add_ui_files( conquirere_SRCS
@@ -52,6 +53,7 @@ kde4_add_ui_files( conquirere_SRCS
                    sidebar/contactdialog.ui
                    sidebar/mergeresourceswidget.ui
                    sidebar/addchapterdialog.ui
+                   sidebar/listpartswidget.ui
 )
 
 
