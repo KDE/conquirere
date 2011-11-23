@@ -466,6 +466,8 @@ void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &vol
             // we found just false results ... create a new one
             if(!journalResource.isValid()) {
                 journalResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Journal());
+                journalResource.addType(Nepomuk::Vocabulary::NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
+                journalResource.addType(Nepomuk::Vocabulary::NIE::InformationElement());
             }
         }
         else {
@@ -474,6 +476,8 @@ void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &vol
     }
     else {
         journalResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Journal());
+        journalResource.addType(Nepomuk::Vocabulary::NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
+        journalResource.addType(Nepomuk::Vocabulary::NIE::InformationElement());
     }
 
     journalResource.setProperty(Nepomuk::Vocabulary::NIE::title(), journalName);
@@ -793,7 +797,9 @@ void BibTexToNepomukPipe::addIssn(const QString &content, Nepomuk::Resource publ
     Nepomuk::Resource series = publication.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
     if(!series.isValid()) {
         series = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::BookSeries());
-        series.setProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), publication);
+        series.addType(Nepomuk::Vocabulary::NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
+        series.addType(Nepomuk::Vocabulary::NIE::InformationElement());
+        series.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), publication);
         publication.setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), series);
     }
 
@@ -947,8 +953,10 @@ void BibTexToNepomukPipe::addSeries(const QString &content, Nepomuk::Resource pu
     //fetch already existing Series or create a new one
     Nepomuk::Resource series = publication.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
     if(!series.isValid()) {
-        series = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::BookSeries());
-        series.setProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), publication);
+        series = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::BookSeries());;
+        series.addType(Nepomuk::Vocabulary::NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
+        series.addType(Nepomuk::Vocabulary::NIE::InformationElement());
+        series.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), publication);
         publication.setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), series);
     }
 

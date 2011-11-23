@@ -46,6 +46,7 @@ enum ResourceSelection {
     Resource_Media,
     Resource_Reference,
     Resource_Publication,
+    Resource_Series,
     Resource_Website,
     Resource_Note
 };
@@ -268,6 +269,45 @@ static BibEntryType BibEntryTypeFromUrl(const Nepomuk::Resource & resource)
         return BibType_Collection;
     }
     return BibType_Misc;
+}
+
+enum SeriesType {
+    SeriesType_Series = 0,
+    SeriesType_BookSeries,
+    SeriesType_Journal,
+    SeriesType_Magazin,
+    SeriesType_Newspaper,
+
+    Max_SeriesTypes
+};
+
+static const QStringList SeriesTypeTranslation = QStringList() << I18N_NOOP("Series")
+                                                                 << I18N_NOOP("Book Series")
+                                                                 << I18N_NOOP("Journal")
+                                                                 << I18N_NOOP("Magazin")
+                                                                 << I18N_NOOP("Newspaper");
+
+static const QList<QUrl> SeriesTypeURL = QList<QUrl>() << Nepomuk::Vocabulary::NBIB::Series()
+                                                       << Nepomuk::Vocabulary::NBIB::BookSeries()
+                                                       << Nepomuk::Vocabulary::NBIB::Journal()
+                                                       << Nepomuk::Vocabulary::NBIB::Magazin()
+                                                       << Nepomuk::Vocabulary::NBIB::Newspaper();
+
+static SeriesType SeriesTypeFromUrl(const Nepomuk::Resource & resource)
+{
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::BookSeries())) {
+        return SeriesType_BookSeries;
+    }
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Journal())) {
+        return SeriesType_Journal;
+    }
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Magazin())) {
+        return SeriesType_Magazin;
+    }
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Newspaper())) {
+        return SeriesType_Newspaper;
+    }
+    return SeriesType_Series;
 }
 
 #endif // GLOBALS_H

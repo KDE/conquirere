@@ -122,6 +122,7 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
 
 void PublicationWidget::newBibEntryTypeSelected(int index)
 {
+    qDebug() << "PublicationWidget::newBibEntryTypeSelected";
     KComboBox *kcb = qobject_cast<KComboBox *>(sender());
     BibEntryType entryType = (BibEntryType)kcb->itemData(index).toInt();
 
@@ -129,7 +130,7 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
 
     // update resource
     QUrl newEntryUrl = BibEntryTypeURL.at(entryType);
-    if(newEntryUrl.isValid()) {
+    if(!m_publication.hasType(newEntryUrl)) {
         // create the full hierarchy
         //DEBUG this seems wrong, but is currently the only way to preserve type hierarchy
         QList<QUrl>newtype;
@@ -156,11 +157,10 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
             m_publication.setTypes(newtype);
         }
 
-        // a special case when the new type sia a collectior or subclass of a collection
+        // a special case when the new type is a collection or subclass of a collection
         // change also the type of any connected Series.
         // this ensures we don't end up with a JournalIssue from Magazin or NewspaperIssue from a Journal
-        if(m_publication.hasType(Nepomuk::Vocabulary::NBIB::Collection()) ||
-           m_publication.hasType(Nepomuk::Vocabulary::NBIB::LegalDocument())) {
+        if(m_publication.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
             Nepomuk::Resource seriesResource = m_publication.property((Nepomuk::Vocabulary::NBIB::inSeries())).toResource();
 
             if(seriesResource.isValid()) {

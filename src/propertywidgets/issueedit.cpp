@@ -75,6 +75,8 @@ void IssueEdit::updateResource(const QString & text)
         // any issue is also part of an series.
         Nepomuk::Resource newSeries(QUrl(), m_seriesType);
         newSeries.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
+        newSeries.addType(Nepomuk::Vocabulary::NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
+        newSeries.addType(Nepomuk::Vocabulary::NIE::InformationElement());
 
         // important to note, the Issue and Series have the same name. Usually an issue does not need a name, as it
         // could simple use the name of the connected Series. but the genericLabel in the resource view

@@ -48,12 +48,17 @@ void SeriesEdit::updateResource(const QString & text)
     // try to find the propertyurl of an already existing series
     QUrl propUrl = propertyEntry(text);
 
+    qDebug() << "SeriesEdit::updateResource | resource" << propUrl << "for text" << text;
+
     if(propUrl.isValid()) {
         resource().addProperty( propertyUrl(), Nepomuk::Resource(propUrl));
     }
     else {
         // create a new series with the string s as title
         Nepomuk::Resource newSeries(QUrl(), findSeriesType());
+        newSeries.addType(Nepomuk::Vocabulary::NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
+        newSeries.addType(Nepomuk::Vocabulary::NIE::InformationElement());
+
         newSeries.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
         resource().addProperty( Nepomuk::Vocabulary::NBIB::inSeries() , newSeries);
 

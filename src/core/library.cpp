@@ -26,6 +26,7 @@
 #include "models/notemodel.h"
 #include "models/bookmarkmodel.h"
 #include "models/mailmodel.h"
+#include "models/seriesmodel.h"
 
 #include <Nepomuk/Variant>
 #include <Nepomuk/Resource>
@@ -273,6 +274,13 @@ void Library::setupModels()
     publicationFilter->setSourceModel(publicationModel);
     m_resources.insert(Resource_Publication, publicationFilter);
     connectModelToTagCloud(publicationModel);
+
+    SeriesModel *seriesModel = new SeriesModel;
+    seriesModel->setLibrary(this);
+    QSortFilterProxyModel *seriesFilter = new QSortFilterProxyModel;
+    seriesFilter->setSourceModel(seriesModel);
+    m_resources.insert(Resource_Series, seriesFilter);
+    connectModelToTagCloud(seriesModel);
 
     NoteModel *noteModel = new NoteModel;
     noteModel->setLibrary(this);
