@@ -110,8 +110,6 @@ void ReferenceWidget::setLibrary(Library *p)
 void ReferenceWidget::subResourceUpdated()
 {
     emit resourceUpdated(m_reference);
-
-    qDebug() << "update resource" << m_reference.genericLabel();
 }
 
 void ReferenceWidget::showCreateReference(bool createRef)
@@ -129,7 +127,7 @@ void ReferenceWidget::showCreateReference(bool createRef)
 void ReferenceWidget::showPublicationList()
 {
     ListPublicationsDialog lpd;
-    lpd.setLibrary(library());
+    lpd.setSystemLibrary(library());
 
     int ret = lpd.exec();
 

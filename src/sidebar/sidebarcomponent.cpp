@@ -17,6 +17,8 @@
 
 #include "sidebarcomponent.h"
 
+#include "../mainui/mainwindow.h"
+
 SidebarComponent::SidebarComponent(QWidget *parent)
     : QWidget(parent)
     , m_library(0)
@@ -28,7 +30,17 @@ void SidebarComponent::setLibrary(Library *p)
     m_library = p;
 }
 
-Library *SidebarComponent::library()
+Library *SidebarComponent::library() const
 {
     return m_library;
+}
+
+void SidebarComponent::setMainWindow(MainWindow *mw)
+{
+    m_parent = mw;
+}
+
+MainWindow *SidebarComponent::mainWindow() const
+{
+    return m_parent;
 }

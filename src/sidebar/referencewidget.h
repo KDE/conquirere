@@ -39,8 +39,7 @@ public slots:
     void showCreateReference(bool showIt);
 
     /**
-      * This slot gets called from the propertywidgets, replace the subresource with the main nepomuk resource
-      * and calls resourceUpdated()
+      * Sends changes in the connected property widgets to the connected table model to update the cache
       *
       * @todo This should be replaced by the Nepomuk::ResourceWatcher later
       */
@@ -64,7 +63,6 @@ private slots:
 
 private:
     Nepomuk::Resource m_reference;
-
     Ui::ReferenceWidget *ui;
 };
 

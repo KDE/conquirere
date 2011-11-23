@@ -76,8 +76,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>252</x>
+     <y>378</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -92,8 +92,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>320</x>
+     <y>378</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -101,5 +101,41 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>filterComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>ListPublicationsDialog</receiver>
+   <slot>applyFilter()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>551</x>
+     <y>42</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>545</x>
+     <y>53</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>libraryComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>ListPublicationsDialog</receiver>
+   <slot>changeLibrary()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>630</x>
+     <y>40</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>634</x>
+     <y>55</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
+ <slots>
+  <slot>applyFilter()</slot>
+  <slot>changeLibrary()</slot>
+ </slots>
 </ui>

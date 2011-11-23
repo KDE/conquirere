@@ -33,7 +33,7 @@ class MergeResourcesWidget : public QWidget
 
 public:
     explicit MergeResourcesWidget(QWidget *parent = 0);
-    ~MergeResourcesWidget();
+    virtual ~MergeResourcesWidget();
 
     void setResources(QList<Nepomuk::Resource> resourcelist);
 

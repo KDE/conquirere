@@ -109,7 +109,7 @@ QList<QPair<int, QString> > TagCloud::createTagCloud(QList<Nepomuk::Resource> re
         }
     }
 
-    // step two sort the map by occurence into a List
+    // step two sort the map by ocurence into a List
     QList<QPair<int, QString> > cloudList;
     QMapIterator<QString, int> iterator(cloudMap);
     while (iterator.hasNext()) {

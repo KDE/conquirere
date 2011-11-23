@@ -25,6 +25,7 @@
 #include <QtGui/QWidget>
 
 class Library;
+class MainWindow;
 
 class SidebarComponent : public QWidget
 {
@@ -34,7 +35,15 @@ public:
     virtual ~SidebarComponent() {}
 
     virtual void setLibrary(Library *p);
-    Library *library();
+    Library *library() const;
+
+    /**
+      * sets a link to the mainwindow.
+      *
+      * Used to get the list of open libraries in the subcomponents
+      */
+    void setMainWindow(MainWindow *mw);
+    MainWindow *mainWindow() const;
 
 signals:
     /**
@@ -53,6 +62,7 @@ public slots:
 
 private:
     Library *m_library;
+    MainWindow *m_parent;
 };
 
 #endif // SIDEBARCOMPONENT_H

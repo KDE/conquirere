@@ -29,25 +29,79 @@ namespace Ui {
 }
 
 class QListWidgetItem;
-class KJob;
 
+/**
+  * @brief Shows a new dialog to edit contacts in deeper detail
+  *
+  * Allows to create ne contacts eitehr in Nepomuk or as Akonadi::Item
+  * can push already existing nepomuk contacts to an akonadi adressbook collection
+  *
+  */
 class ContactDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     explicit ContactDialog(QWidget *parent = 0);
-    ~ContactDialog();
+    virtual ~ContactDialog();
 
+    /**
+      * Sets the resource which will be editied
+      *
+      * @p resource the resource which need additional contact details
+      * @p propertyUrl the property that should be changed for example nco:creator or nco:editor
+      */
     void setResource(Nepomuk::Resource & resource, const QUrl & propertyUrl);
 
 private slots:
+    /**
+      * edits a contact either via a simple fullname string for nepomuk only contacts or via Akonadi::ContactEditorDialog
+      */
     void editItem();
-    void addContactItem();
-    void addResourceItem();
+
+    /**
+      * Asks for the fullname of the contact via KInputDialog::getText() and creates a @c nco:PersonContact from it
+      *
+      * The inserted name corresponds to the nco:fullname property
+      */
+    void addNepomukContact();
+
+    /**
+      * opens a Akonadi::ContactEditorDialog to create a new contact.
+      *
+      * calls contactStored() when the dialog is closed
+      */
+    void addAkonadiContact();
+
+    /**
+      * create nepomuk resource from the akonadi item and connects it to the publication
+      *
+      * @todo fix resource duplication when a new akonadi item is created
+      */
     void contactStored( const Akonadi::Item& item);
+
+    /**
+      * removes the contact from the publication again
+      *
+      * does not delete the resource
+      */
     void removeItem();
+
+    /**
+      * enables / disables the akonadi export button when the selection is changed
+      *
+      * only enables akonadi export if the item is not available in akonadi already
+      */
     void itemChanged(QListWidgetItem* current, QListWidgetItem* previous);
+
+    /**
+      * creates a akonadi contact item from the current nepomuk resource
+      *
+      * uses Akonadi::CollectionDialog to show the collection selection and creates a new
+      * akonadi item in there
+      *
+      * @todo fix resource duplication when a new akonadi item is created
+      */
     void pushContactToAkonadi();
 
 private:

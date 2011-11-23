@@ -19,8 +19,6 @@
 #define LISTPUBLICATIONSDIALOG_H
 
 #include <Nepomuk/Resource>
-#include <Nepomuk/Query/QueryServiceClient>
-#include <Nepomuk/Query/Result>
 
 #include <QtGui/QDialog>
 
@@ -30,29 +28,51 @@ namespace Ui {
 
 class Library;
 
+/**
+  * @brief shows a simple table with all publications
+  *
+  * The table can be filtered by some keywords or restrict to a list of publications
+  * from one of the openeed libraries
+  */
 class ListPublicationsDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     explicit ListPublicationsDialog(QWidget *parent = 0);
-    ~ListPublicationsDialog();
+    virtual ~ListPublicationsDialog();
 
-    void setLibrary(Library *p);
+    /**
+      * sets the Library with all systemwide publication data
+      */
+    void setSystemLibrary(Library *p);
 
+    /**
+      * sets the list of all open libraries
+      *
+      * usefull to show only publications in a specific collection
+      */
+    void setOpenLibraries(QList<Library *> openLibList);
+
+    /**
+      * returns the current selected @c nbib:publication
+      */
     Nepomuk::Resource selectedPublication();
 
     void keyPressEvent(QKeyEvent * e);
 
 private slots:
     void applyFilter();
+    void changeLibrary();
     void headerContextMenu(const QPoint &pos);
     void changeHeaderSectionVisibility();
 
 private:
+    void showLibraryModel(Library *p);
     Ui::ListPublicationsDialog *ui;
 
-    Library *m_library;
+    Library *m_systemLibrary;
+    QList<Library *> m_openLibList;
 };
 
 #endif // LISTPUBLICATIONSDIALOG_H

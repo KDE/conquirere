@@ -347,6 +347,7 @@ void MainWindow::setupMainWindow()
 
     //add panel for the document info
     m_sidebarWidget = new SidebarWidget;
+    m_sidebarWidget->setMainWindow(this);
     addDockWidget(Qt::RightDockWidgetArea, m_sidebarWidget);
 
     //add panel for the document preview

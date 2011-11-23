@@ -60,7 +60,7 @@ void NoteWidget::setResource(Nepomuk::Resource & resource)
 
     emit resourceChanged(m_note);
 
-    // discard simply shows the original contet before saving any changes
+    // discard simply shows the original content before saving any changes
     discardNote();
 
     ui->editRating->setRating(m_note.rating());
@@ -71,7 +71,6 @@ void NoteWidget::setLibrary(Library *p)
     SidebarComponent::setLibrary(p);
 
     //TODO remove and use ResourceWatcher later on
-    connect(ui->editRating, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
     connect(ui->editTags, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
     connect(ui->editTitle, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
 }
@@ -89,7 +88,7 @@ void NoteWidget::newButtonClicked()
 
 void NoteWidget::deleteButtonClicked()
 {
-    //check if we have semnote note, we should delete the note and the connected conntent resource
+    //check if we have a pimo:note, we should delete the note and the connected conntent resource
     Nepomuk::Resource nr = m_note.property(Nepomuk::Vocabulary::PIMO::groundingOccurrence()).toResource();
     nr.remove();
 
@@ -128,6 +127,7 @@ void NoteWidget::discardNote()
     if(title.isEmpty())
         title = m_note.property(Soprano::Vocabulary::NAO::prefLabel()).toString();
 
+    // these exist because of the Semnote implementation
     if(title.isEmpty())
         title = m_note.property(QUrl(QLatin1String("http://purl.org/dc/elements/1.1/title"))).toString();
 
@@ -150,4 +150,6 @@ void NoteWidget::discardNote()
 void NoteWidget::changeRating(int newRating)
 {
     m_note.setRating(newRating);
+
+    emit resourceUpdated(m_note);
 }

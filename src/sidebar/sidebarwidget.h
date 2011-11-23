@@ -28,6 +28,7 @@ namespace Ui {
     class DockWidget;
 }
 
+class MainWindow;
 class QStackedLayout;
 class MergeResourcesWidget;
 class SidebarComponent;
@@ -78,8 +79,16 @@ public slots:
     void newButtonClicked();
     void deleteButtonClicked();
 
+    /**
+      * sets a link to the mainwindow.
+      *
+      * Used to get the list of open libraries in the subcomponents
+      */
+    void setMainWindow(MainWindow *mw);
+
 private:
     Ui::DockWidget *ui;
+    MainWindow *m_parent;
     QStackedLayout *m_stackedLayout;
     QWidget *m_blankPage;
     MergeResourcesWidget *m_mergeWidget;

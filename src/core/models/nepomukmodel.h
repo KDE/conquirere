@@ -70,7 +70,7 @@ private slots:
 protected:
     Library *m_library;
 
-    // instead of creating the data to display everytime it is requested, we cache the values for the
+    // instead of creating the data to display every time it is requested, we cache the values for the
     // display and decoration entries in here this speeds up the model for huge data sets
     // the cache is updated via updateCacheEntry() which will be triggered by the property widgets when they
     // update the data. Later this will be replaced by the ResourceWatcher so that external changes will

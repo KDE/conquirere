@@ -53,8 +53,8 @@ ListPublicationsDialog::ListPublicationsDialog(QWidget *parent) :
 
     QHeaderView *hv = ui->tableView->horizontalHeader();
     hv->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(hv, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(headerContextMenu(const QPoint &)));
+    connect(hv, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(headerContextMenu(QPoint)));
 }
 
 ListPublicationsDialog::~ListPublicationsDialog()
@@ -62,41 +62,21 @@ ListPublicationsDialog::~ListPublicationsDialog()
     delete ui;
 }
 
-void ListPublicationsDialog::setLibrary(Library *p)
+void ListPublicationsDialog::setSystemLibrary(Library *p)
 {
-    m_library = p;
+    m_systemLibrary = p;
+    showLibraryModel(m_systemLibrary);
 
-    ui->tableView->setModel(m_library->viewModel(Resource_Publication));
+    ui->libraryComboBox->addItem(m_systemLibrary->name());
+}
 
-    //load settings for visible/hidden columns
-    KConfig config;
-    QString group = QLatin1String("TableView_LinkDocument");
-    group.append((int)Resource_Publication);
-    KConfigGroup tableViewGroup( &config, group );
 
-    // go through all header elements and apply last known visibility status
-    // also add each header name to the search combobox for selection
-    ui->filterComboBox->clear();
-    ui->filterComboBox->addItem(i18n("all entries"), -1); //additem NAME, TABLEHEADERINDEX
-    QHeaderView *hv = ui->tableView->horizontalHeader();
-    int columnCount = ui->tableView->model()->columnCount();
-    for(int i=0; i < columnCount; i++) {
-        bool hidden = tableViewGroup.readEntry( QString::number(i), false );
-        hv->setSectionHidden(i, hidden);
-
-        QString headerName = ui->tableView->model()->headerData(i,Qt::Horizontal).toString();
-        if(!headerName.isEmpty()) {
-            ui->filterComboBox->addItem(headerName, i);
-        }
+void ListPublicationsDialog::setOpenLibraries(QList<Library *> openLibList)
+{
+    m_openLibList = openLibList;
+    foreach(Library *l, openLibList) {
+        ui->libraryComboBox->addItem(l->name());
     }
-
-    hv->setResizeMode(QHeaderView::Interactive);
-    ui->tableView->horizontalHeader()->resizeSection(1,25);
-    ui->tableView->horizontalHeader()->resizeSection(2,25);
-    hv->setResizeMode(6, QHeaderView::Stretch);
-    ui->tableView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-
-    ui->tableView->selectRow(0);
 }
 
 Nepomuk::Resource ListPublicationsDialog::selectedPublication()
@@ -139,6 +119,17 @@ void ListPublicationsDialog::applyFilter()
     sfpm->setFilterRegExp(searchKey);
 }
 
+void ListPublicationsDialog::changeLibrary()
+{
+    if(ui->libraryComboBox->currentIndex() < 1) {
+        showLibraryModel(m_systemLibrary);
+    }
+    else {
+        int index = ui->libraryComboBox->currentIndex() - 1;
+        showLibraryModel(m_openLibList.at(index));
+    }
+}
+
 void ListPublicationsDialog::headerContextMenu(const QPoint &pos)
 {
     QMenu menu(this);
@@ -178,4 +169,39 @@ void ListPublicationsDialog::changeHeaderSectionVisibility()
     KConfigGroup tableViewGroup( &config, group );
     tableViewGroup.writeEntry( a->data().toString(), hv->isSectionHidden(a->data().toInt()) );
     tableViewGroup.config()->sync();
+}
+
+void ListPublicationsDialog::showLibraryModel(Library *p)
+{
+    ui->tableView->setModel(p->viewModel(Resource_Publication));
+
+    //load settings for visible/hidden columns
+    KConfig config;
+    QString group = QLatin1String("TableView_LinkDocument");
+    group.append((int)Resource_Publication);
+    KConfigGroup tableViewGroup( &config, group );
+
+    // go through all header elements and apply last known visibility status
+    // also add each header name to the search combobox for selection
+    ui->filterComboBox->clear();
+    ui->filterComboBox->addItem(i18n("all entries"), -1); //additem NAME, TABLEHEADERINDEX
+    QHeaderView *hv = ui->tableView->horizontalHeader();
+    int columnCount = ui->tableView->model()->columnCount();
+    for(int i=0; i < columnCount; i++) {
+        bool hidden = tableViewGroup.readEntry( QString::number(i), false );
+        hv->setSectionHidden(i, hidden);
+
+        QString headerName = ui->tableView->model()->headerData(i,Qt::Horizontal).toString();
+        if(!headerName.isEmpty()) {
+            ui->filterComboBox->addItem(headerName, i);
+        }
+    }
+
+    hv->setResizeMode(QHeaderView::Interactive);
+    ui->tableView->horizontalHeader()->resizeSection(1,25);
+    ui->tableView->horizontalHeader()->resizeSection(2,25);
+    hv->setResizeMode(6, QHeaderView::Stretch);
+    ui->tableView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+    ui->tableView->selectRow(0);
 }

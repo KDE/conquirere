@@ -52,6 +52,12 @@ void TagEdit::setupLabel()
 
 void TagEdit::updateResource(const QString & text)
 {
+    // remove any tag first and add only what is specified in "text" again
+    resource().removeProperty(Soprano::Vocabulary::NAO::hasTag());
+
+    if(text.isEmpty())
+        return;
+
     QStringList entryList;
     if(hasMultipleCardinality()) {
         // for the contact we get a list of contact names divided by ;

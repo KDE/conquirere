@@ -25,6 +25,8 @@
 #include "notewidget.h"
 #include "mergeresourceswidget.h"
 
+#include "../mainui/mainwindow.h"
+
 #include <KDE/KGlobalSettings>
 
 #include <QtGui/QVBoxLayout>
@@ -86,7 +88,6 @@ void SidebarWidget::setResource(Nepomuk::Resource & resource)
 
 void SidebarWidget::setMultipleResources(QList<Nepomuk::Resource> resourcelist)
 {
-    qDebug() << "set multiple resources";
     m_stackedLayout->setCurrentWidget(m_mergeWidget);
     m_mergeWidget->setResources(resourcelist);
 }
@@ -105,6 +106,11 @@ void SidebarWidget::deleteButtonClicked()
     }
 }
 
+void SidebarWidget::setMainWindow(MainWindow *mw)
+{
+    m_parent = mw;
+}
+
 void SidebarWidget::newSelection(ResourceSelection selection, ResourceFilter filter, Library *library)
 {
     if(m_curSelection == selection)
@@ -120,6 +126,7 @@ void SidebarWidget::newSelection(ResourceSelection selection, ResourceFilter fil
         break;
     case Resource_Document:
         newWidget = new DocumentWidget();
+        newWidget->setMainWindow(m_parent);
         ui->titleLabel->setText(i18n("Document"));
         break;
     case Resource_Mail:

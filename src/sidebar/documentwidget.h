@@ -19,9 +19,8 @@
 #define DOCUMENTWIDGET_H
 
 #include "sidebarcomponent.h"
-#include <Nepomuk/Resource>
 
-#include <QtGui/QWidget>
+#include <Nepomuk/Resource>
 
 namespace Ui {
     class DocumentWidget;
@@ -29,24 +28,48 @@ namespace Ui {
 
 class KFileMetaDataWidget;
 
+/**
+  * @brief shows information about a specific document via KFileMetaDataWidget
+  *
+  * In addition it offers two buttons to set/remove a @c nbib:Publication for the document.
+  * The selection is made via the ListPublicationsDialog
+  */
 class DocumentWidget : public SidebarComponent
 {
     Q_OBJECT
 
 public:
     explicit DocumentWidget(QWidget *parent = 0);
-    ~DocumentWidget();
+    virtual ~DocumentWidget();
 
 public slots:
+    /**
+      * sets the document resource for the SidebarComponent
+      *
+      * @pre resource must be a nfo:Document
+      */
     virtual void setResource(Nepomuk::Resource & resource);
+
+    /**
+      * deletes the file from the disk together with its nepomuk metadata
+      *
+      * @todo implement file deletion
+      */
     virtual void deleteButtonClicked();
 
 private slots:
-    void addPublication();
+    /**
+      * opens the ListPublicationsDialog and sets the nbib:publishedAs
+      */
+    void setPublication();
+
+    /**
+      * removes the nbib:publishedAs value again
+      */
     void removePublication();
 
 private:
-    Nepomuk::Resource m_document;
+    Nepomuk::Resource m_document; /**< the nfo:Document resource */
 
     Ui::DocumentWidget *ui;
 };

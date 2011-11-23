@@ -27,6 +27,10 @@ namespace Ui {
     class NoteWidget;
 }
 
+/**
+  * @brief shows a sidebar widget to create/edit/remove pimo:note resources
+  *
+  */
 class NoteWidget : public SidebarComponent
 {
     Q_OBJECT
@@ -41,12 +45,24 @@ public slots:
     virtual void setResource(Nepomuk::Resource & resource);
 
 signals:
-    /* notify connected editwidgets to update their info */
+    /**
+      * Sends changes in the connected property widgets to the connected table model to update the cache
+      *
+      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      */
     void resourceChanged(Nepomuk::Resource & resource);
 
 private slots:
+    /**
+      * creates a new @c pimo:Note
+      */
     void newButtonClicked();
+
+    /**
+      * deletes the current @c pimo:Note
+      */
     void deleteButtonClicked();
+
     void saveNote();
     void discardNote();
     void changeRating(int newRating);

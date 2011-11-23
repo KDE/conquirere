@@ -208,7 +208,7 @@
    <sender>addPublication</sender>
    <signal>clicked()</signal>
    <receiver>DocumentWidget</receiver>
-   <slot>addPublication()</slot>
+   <slot>setPublication()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>143</x>
@@ -238,7 +238,7 @@
   </connection>
  </connections>
  <slots>
-  <slot>addPublication()</slot>
+  <slot>setPublication()</slot>
   <slot>removePublication()</slot>
  </slots>
 </ui>

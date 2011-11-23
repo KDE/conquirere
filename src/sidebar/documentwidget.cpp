@@ -17,21 +17,18 @@
 
 #include "documentwidget.h"
 #include "ui_documentwidget.h"
+#include "../mainui/mainwindow.h"
 
-#include "publicationwidget.h"
 #include "listpublicationsdialog.h"
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/NFO>
 #include <Nepomuk/Variant>
+
 #include <KDE/KFileMetaDataWidget>
 #include <KDE/KGlobalSettings>
 #include <KDE/KMimeType>
 #include <KDE/KIconLoader>
-
-#include <QtCore/QString>
-#include <QtGui/QVBoxLayout>
 
 #include <QtCore/QDebug>
 
@@ -87,14 +84,14 @@ void DocumentWidget::setResource(Nepomuk::Resource & resource)
 
 void DocumentWidget::deleteButtonClicked()
 {
-    //TODO delete file + metadata
     qDebug() << "TODO delete file + metadata";
 }
 
-void DocumentWidget::addPublication()
+void DocumentWidget::setPublication()
 {
     ListPublicationsDialog lpd;
-    lpd.setLibrary(library());
+    lpd.setSystemLibrary(library());
+    lpd.setOpenLibraries(mainWindow()->openLibraries());
 
     int ret = lpd.exec();
 
@@ -109,11 +106,9 @@ void DocumentWidget::addPublication()
 
 void DocumentWidget::removePublication()
 {
-    //TODO ask if publication should be deleted or just the link removed
-
     Nepomuk::Resource publication = m_document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
-    m_document.removeProperty(Nepomuk::Vocabulary::NBIB::publishedAs());
 
+    m_document.removeProperty(Nepomuk::Vocabulary::NBIB::publishedAs());
     publication.removeProperty(Nepomuk::Vocabulary::NBIB::isPublicationOf(), m_document);
 
     //update

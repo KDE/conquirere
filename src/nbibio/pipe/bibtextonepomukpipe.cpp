@@ -363,10 +363,10 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
         QString keywordString = PlainTextValue::text(value);
         QStringList keywords;
         if(keywordString.contains(";")) {
-           keywords = keywordString.split(";");
+            keywords = keywordString.split(';');
         }
         else {
-            keywords = keywordString.split(",");
+            keywords = keywordString.split(',');
         }
 
         foreach(const QString &s, keywords) {

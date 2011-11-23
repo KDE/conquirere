@@ -22,6 +22,10 @@
 
 class QStandardItemModel;
 
+/**
+  * @brief simple linedit to add/remove Tags to a resource with qcompleter help
+  *
+  */
 class TagEdit : public PropertyEdit
 {
     Q_OBJECT
@@ -31,9 +35,12 @@ public:
 protected:
     void setupLabel();
 
-    virtual QStandardItemModel* createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+    QStandardItemModel* createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
-    virtual void updateResource( const QString & text );
+    /**
+      * @bug Nepomuk::Tag does not add type Tag but twice type Resource
+      */
+    void updateResource( const QString & text );
 
 };
 

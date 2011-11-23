@@ -28,8 +28,11 @@
 #include <Nepomuk/Query/QueryParser>
 
 #include <Akonadi/Contact/ContactEditorDialog>
+#include <Akonadi/CollectionDialog>
 #include <Akonadi/ItemDeleteJob>
+#include <Akonadi/ItemCreateJob>
 #include <Akonadi/Job>
+
 #include <KABC/Addressee>
 #include <KDE/KIcon>
 #include <KDE/KInputDialog>
@@ -50,8 +53,8 @@ ContactDialog::ContactDialog(QWidget *parent) :
 
     connect(ui->editButton, SIGNAL(clicked()), this, SLOT(editItem()));
     connect(ui->akonadiExport, SIGNAL(clicked()), this, SLOT(pushContactToAkonadi()));
-    connect(ui->addContactButton, SIGNAL(clicked()), this, SLOT(addContactItem()));
-    connect(ui->addResourceButton, SIGNAL(clicked()), this, SLOT(addResourceItem()));
+    connect(ui->addContactButton, SIGNAL(clicked()), this, SLOT(addAkonadiContact()));
+    connect(ui->addResourceButton, SIGNAL(clicked()), this, SLOT(addNepomukContact()));
     connect(ui->removeButton, SIGNAL(clicked()), this, SLOT(removeItem()));
     connect(ui->klistwidget, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
             this, SLOT(itemChanged(QListWidgetItem*,QListWidgetItem*)));
@@ -101,7 +104,7 @@ void ContactDialog::editItem()
 
     if(akonadiItemID.isEmpty()) {
         bool ok;
-        QString text = KInputDialog::getText(i18n("Create new Nepomuk contact"),
+        QString text = KInputDialog::getText(i18n("Edit Nepomuk contact"),
                                              i18n("Name:"),i->text(), &ok, this);
 
         if (ok && !text.isEmpty()) {
@@ -119,14 +122,14 @@ void ContactDialog::editItem()
     }
 }
 
-void ContactDialog::addContactItem()
+void ContactDialog::addAkonadiContact()
 {
     Akonadi::ContactEditorDialog *dlg = new Akonadi::ContactEditorDialog( Akonadi::ContactEditorDialog::CreateMode, this );
-    connect( dlg, SIGNAL( contactStored(Akonadi::Item) ),this, SLOT( contactStored(Akonadi::Item) ) );
+    connect( dlg, SIGNAL(contactStored(Akonadi::Item)),this, SLOT(contactStored(Akonadi::Item)) );
     dlg->show();
 }
 
-void ContactDialog::addResourceItem()
+void ContactDialog::addNepomukContact()
 {
     bool ok;
     QString text = KInputDialog::getText(i18n("Create new Nepomuk contact"),
@@ -142,6 +145,7 @@ void ContactDialog::addResourceItem()
         // and add it to the listwidget
         QListWidgetItem *i = new QListWidgetItem;
         i->setText(newContact.genericLabel());
+        i->setData(Qt::UserRole + 1, newContact.resourceUri());
         ui->klistwidget->addItem(i);
     }
 }
@@ -182,6 +186,7 @@ void ContactDialog::contactStored( const Akonadi::Item& item)
     QListWidgetItem *i = new QListWidgetItem;
     i->setText(newContact.genericLabel());
     i->setData(Qt::UserRole, item.id());
+    i->setIcon(KIcon("view-pim-contacts"));
     ui->klistwidget->addItem(i);
 }
 
@@ -189,22 +194,10 @@ void ContactDialog::removeItem()
 {
     QListWidgetItem *i = ui->klistwidget->currentItem();
 
-    QString akonadiItemID = i->data(Qt::UserRole).toString();
     QUrl resUri = i->data(Qt::UserRole + 1).toUrl();
-
-    qDebug() << "remove item" << akonadiItemID << resUri;
     Nepomuk::Resource contactRes(resUri);
+    m_resource.removeProperty(m_propertyUrl, contactRes);
 
-    if(!akonadiItemID.isEmpty()) {
-        const Akonadi::Item contact = Akonadi::Item( i->data(Qt::UserRole).toInt() );
-        Akonadi::ItemDeleteJob *job = new Akonadi::ItemDeleteJob( contact );
-        m_resource.removeProperty(m_propertyUrl, contactRes);
-    }
-    else {
-        // remove only nepomuk resource
-        m_resource.removeProperty(m_propertyUrl, contactRes);
-        contactRes.remove();
-    }
     int row = ui->klistwidget->row(i);
     ui->klistwidget->takeItem(row);
     delete i;
@@ -212,6 +205,8 @@ void ContactDialog::removeItem()
 
 void ContactDialog::itemChanged(QListWidgetItem* current, QListWidgetItem* previous)
 {
+    Q_UNUSED(previous)
+
     if(!current)
         return;
 
@@ -227,5 +222,39 @@ void ContactDialog::itemChanged(QListWidgetItem* current, QListWidgetItem* previ
 
 void ContactDialog::pushContactToAkonadi()
 {
-    qDebug() << "TODO: push contact to akonadi";
+    // Show the user a dialog to select a writable collection of contacts
+    Akonadi::CollectionDialog dlg( Akonadi::CollectionDialog::AllowToCreateNewChildCollection, 0, this );
+    dlg.setMimeTypeFilter( QStringList() << KABC::Addressee::mimeType() );
+    dlg.setAccessRightsFilter( Akonadi::Collection::CanCreateItem);
+    dlg.setDescription( i18n( "Select an address book:" ) );
+
+    int ret = dlg.exec();
+    if ( ret == KDialog::Accepted ) {
+        const Akonadi::Collection collection = dlg.selectedCollection();
+
+        QListWidgetItem *i = ui->klistwidget->currentItem();
+
+        QUrl resUri = i->data(Qt::UserRole + 1).toUrl();
+        Nepomuk::Resource contactRes(resUri);
+
+        KABC::Addressee addr;
+        addr.setName( contactRes.property(Nepomuk::Vocabulary::NCO::fullname()).toString() );
+        addr.setFamilyName( contactRes.property(Nepomuk::Vocabulary::NCO::fullname()).toString() );
+        addr.setFormattedName( contactRes.property(Nepomuk::Vocabulary::NCO::fullname()).toString() );
+
+        Akonadi::Item item;
+        item.setMimeType( KABC::Addressee::mimeType() );
+        item.setPayload<KABC::Addressee>( addr );
+
+        Akonadi::ItemCreateJob *job = new Akonadi::ItemCreateJob( item, collection );
+
+        if ( !job->exec() ) {
+            qDebug() << "Error:" << job->errorString();
+        }
+
+        contactRes.setProperty("http://akonadi-project.org/ontologies/aneo#akonadiItemId",job->item().id() );
+
+        i->setData(Qt::UserRole, job->item().id());
+        i->setIcon(KIcon("view-pim-contacts"));
+    }
 }

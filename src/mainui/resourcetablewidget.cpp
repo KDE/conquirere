@@ -329,7 +329,11 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
 
         QList<Nepomuk::Resource> fileList = nr.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResourceList();
 
+        bool hasDataObjects = false;
+        bool hasDOI = false;
+        // this adds a  DataObject links
         if(!fileList.isEmpty()) {
+            hasDataObjects = true;
             foreach(const Nepomuk::Resource &r, fileList) {
                 KUrl file = r.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
                 QString name;
@@ -353,7 +357,26 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
                 actionCollection.append(a);
             }
         }
-        else {
+
+        // this adds the doi link
+        // add the DOI if availble as preview
+        QString doi = nr.property(Nepomuk::Vocabulary::NBIB::doi()).toString();
+
+        if(!doi.isEmpty()) {
+            hasDOI = true;
+            if(!doi.startsWith(QLatin1String("http"))) {
+                doi = QLatin1String("http://dx.doi.org/") + doi;
+            }
+            KIcon icon = KIcon("text-html");
+
+            QAction *a = new QAction(icon, doi, this);
+            a->setData(QUrl(doi));
+            connect(a, SIGNAL(triggered(bool)),this, SLOT(openSelected()));
+            openExternal.addAction(a);
+            actionCollection.append(a);
+        }
+
+        if(!hasDOI && !hasDataObjects) {
             openExternal.setEnabled(false);
         }
     }

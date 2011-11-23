@@ -75,6 +75,7 @@ void DocumentPreview::setResource(Nepomuk::Resource & resource)
             fileList.append(resource);
         }
 
+        // add all DataObjects to the preview
         foreach(const Nepomuk::Resource & r, fileList) {
             KIcon icon;
             KUrl url = KUrl(r.property(Nepomuk::Vocabulary::NIE::url()).toString());
@@ -83,12 +84,10 @@ void DocumentPreview::setResource(Nepomuk::Resource & resource)
             if(r.hasType(Nepomuk::Vocabulary::NFO::RemoteDataObject())) {
 
             }
-            /*
-            else if(r.hasType(Soprano::Vocabulary::NFO::WebDataObject())) {
+            else if(r.hasType(Nepomuk::Vocabulary::NFO::Website())) {
                 icon = KIcon("text-html");
                 mimetype = QLatin1String("text/html");
             }
-            */
             else if(r.hasType(Nepomuk::Vocabulary::NFO::FileDataObject())) {
                 mimetype = r.property(Nepomuk::Vocabulary::NIE::mimeType()).toString();
 
@@ -110,13 +109,28 @@ void DocumentPreview::setResource(Nepomuk::Resource & resource)
             }
 
             ui->urlSelector->addItem(icon,url.url(),QVariant(mimetype));
-
         }
 
-        KIcon icon(QLatin1String("text-html"));
-        KUrl url = KUrl(QLatin1String("http://www.google.de"));
-        QString mimetype = QLatin1String("application/xhtml+xml");
-        ui->urlSelector->addItem(icon,url.url(),QVariant(mimetype));
+        // add the DOI if availble as preview
+        QString doi;
+        if(resource.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
+            Nepomuk::Resource publication = resource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+            doi = publication.property(Nepomuk::Vocabulary::NBIB::doi()).toString();
+        }
+        else if(resource.hasType(Nepomuk::Vocabulary::NBIB::Publication())) {
+            doi = resource.property(Nepomuk::Vocabulary::NBIB::doi()).toString();
+        }
+
+        if(!doi.isEmpty()) {
+            if(!doi.startsWith(QLatin1String("http:/"))) {
+                doi = QLatin1String("http://dx.doi.org/") + doi;
+            }
+
+            KIcon icon = KIcon("text-html");
+            QString mimetype = QLatin1String("text/html");
+            KUrl url (doi);
+            ui->urlSelector->addItem(icon,url.url(),QVariant(mimetype));
+        }
 
     }
 }
