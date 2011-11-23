@@ -34,7 +34,8 @@ add_subdirectory( dms-copy )
 add_subdirectory( src )
 add_subdirectory( html )
 add_subdirectory( xslt )
-add_subdirectory( icons )
+add_subdirectory( icons/app )
+add_subdirectory( icons/actions )
 
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen)

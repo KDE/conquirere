@@ -44,6 +44,7 @@ SidebarWidget::SidebarWidget(QWidget *parent)
     : QDockWidget(parent)
     , ui(new Ui::DockWidget)
     , m_currentWidget(0)
+    , m_curSelection(Resource_Library)
 {
     ui->setupUi(this);
 
