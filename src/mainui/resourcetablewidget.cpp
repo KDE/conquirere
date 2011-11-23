@@ -71,7 +71,7 @@ void ResourceTableWidget::setMainWindow(MainWindow *mw)
         m_parent = mw;
 }
 
-void ResourceTableWidget::switchView(ResourceSelection selection, ResourceFilter filter, Library *p)
+void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType filter, Library *p)
 {
     m_selection = selection;
     m_curLibrary = p;

@@ -28,13 +28,13 @@ class PublicationFilterModel : public QSortFilterProxyModel
 public:
     explicit PublicationFilterModel(QObject *parent = 0);
 
-    void setResourceFilter(ResourceFilter filter);
+    void setResourceFilter(BibEntryType filter);
 
 protected:
      bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
 private:
-    ResourceFilter m_curFilter;
+    BibEntryType m_curFilter;
 };
 
 #endif // PUBLICATIONFILTERMODEL_H

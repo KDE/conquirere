@@ -54,7 +54,7 @@ signals:
     void selectedMultipleResources(QList<Nepomuk::Resource> resourceList);
 
 public slots:
-    void switchView(ResourceSelection selection, ResourceFilter filter, Library *p);
+    void switchView(ResourceSelection selection, BibEntryType filter, Library *p);
     void selectedResource( const QItemSelection & selected, const QItemSelection & deselected );
 
     void applyFilter();

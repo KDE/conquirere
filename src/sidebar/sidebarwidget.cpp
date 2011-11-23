@@ -220,7 +220,7 @@ void SidebarWidget::hasPublication(bool publication)
     ui->removePublication->setEnabled(publication);
 }
 
-void SidebarWidget::newSelection(ResourceSelection selection, ResourceFilter filter, Library *library)
+void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filter, Library *library)
 {
     if(m_curSelection == selection)
         return;

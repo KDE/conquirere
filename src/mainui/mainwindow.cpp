@@ -129,7 +129,7 @@ void MainWindow::openLibrary(Library *l)
         m->startFetchData();
     }
 
-    switchView(Resource_Library, Filter_None, l);
+    switchView(Resource_Library, Max_BibTypes, l);
 }
 
 QList<Library *> MainWindow::openLibraries()
@@ -168,7 +168,7 @@ void MainWindow::closeLibrary()
 
     delete m_curLibrary;
 
-    switchView(Resource_Library, Filter_None, m_systemLibrary);
+    switchView(Resource_Library, Max_BibTypes, m_systemLibrary);
 }
 
 void MainWindow::exportBibTex()
@@ -194,7 +194,7 @@ void MainWindow::connectKPartGui(KParts::Part * part)
     //createGUI(part);
 }
 
-void MainWindow::switchView(ResourceSelection selection, ResourceFilter filter, Library *p)
+void MainWindow::switchView(ResourceSelection selection, BibEntryType filter, Library *p)
 {
     if(selection == Resource_Library) {
         m_mainView->hide();
@@ -357,8 +357,8 @@ void MainWindow::setupMainWindow()
     m_webSearchWidget = new WebSearchWidget(this);
     addDockWidget(Qt::LeftDockWidgetArea, m_webSearchWidget);
 
-    connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,ResourceFilter,Library*)),
-            m_sidebarWidget, SLOT(newSelection(ResourceSelection,ResourceFilter,Library*)));
+    connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,BibEntryType,Library*)),
+            m_sidebarWidget, SLOT(newSelection(ResourceSelection,BibEntryType,Library*)));
 
     connect(m_mainView, SIGNAL(selectedResource(Nepomuk::Resource&)),
             m_sidebarWidget, SLOT(setResource(Nepomuk::Resource&)));
@@ -372,15 +372,15 @@ void MainWindow::setupMainWindow()
     connect(m_documentPreview, SIGNAL(activateKPart(KParts::Part*)),
             this, SLOT(connectKPartGui(KParts::Part*)));
 
-    connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,ResourceFilter,Library*)),
-            this, SLOT(switchView(ResourceSelection,ResourceFilter,Library*)));
+    connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,BibEntryType,Library*)),
+            this, SLOT(switchView(ResourceSelection,BibEntryType,Library*)));
 
     //create the system library
     m_systemLibrary = new Library(Library_System);
     m_systemLibrary->setupModels();
     openLibrary(m_systemLibrary);
 
-    switchView(Resource_Library, Filter_None, m_systemLibrary);
+    switchView(Resource_Library, Max_BibTypes, m_systemLibrary);
 
     loadConfig();
 }

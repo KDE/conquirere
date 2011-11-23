@@ -42,7 +42,7 @@ public:
     void closeLibrary(Library *p);
 
 signals:
-    void newSelection(ResourceSelection selection, ResourceFilter filter, Library *p);
+    void newSelection(ResourceSelection selection, BibEntryType filter, Library *p);
 
 private slots:
     void selectionchanged();

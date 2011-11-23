@@ -63,7 +63,7 @@ public slots:
       * @p filter some additional filter like Article, Book etc
       * @p library the library to use
       */
-    void newSelection(ResourceSelection selection, ResourceFilter filter, Library *library);
+    void newSelection(ResourceSelection selection, BibEntryType filter, Library *library);
 
     /**
       * Called when a Nepomuk::Resource was selected in the MainWidget

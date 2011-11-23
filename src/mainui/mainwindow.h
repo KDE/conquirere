@@ -49,7 +49,7 @@ public slots:
     void importBibTex();
 
     void connectKPartGui(KParts::Part * part);
-    void switchView(ResourceSelection selection, ResourceFilter filter, Library *p);
+    void switchView(ResourceSelection selection, BibEntryType filter, Library *p);
 
     void DEBUGDELETEALLDATA();
 

@@ -21,12 +21,12 @@
 
 PublicationFilterModel::PublicationFilterModel(QObject *parent)
     : QSortFilterProxyModel(parent)
-    , m_curFilter(Filter_None)
+    , m_curFilter(Max_BibTypes)
 {
     setDynamicSortFilter(false); // setting this to true slows down the view a lot
 }
 
-void PublicationFilterModel::setResourceFilter(ResourceFilter filter)
+void PublicationFilterModel::setResourceFilter(BibEntryType filter)
 {
     m_curFilter = filter;
     invalidate();
@@ -41,27 +41,8 @@ bool PublicationFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &
     QString type = sourceModel()->data(typeIndex).toString();
     BibEntryType typeEnum = (BibEntryType)BibEntryTypeTranslation.indexOf(type);
 
-    switch(m_curFilter) {
-    case Filter_Articles:
-        return regexpCheck && (typeEnum == BibType_Article);
-    case Filter_Journals:
-        return regexpCheck && ((typeEnum == BibType_JournalIssue) || (typeEnum == BibType_Journal));
-    case Filter_Magazine:
-        return regexpCheck && ((typeEnum == BibType_MagazinIssue) || (typeEnum == BibType_Magazin));
-    case Filter_Newspaper:
-        return regexpCheck && ((typeEnum == BibType_NewspaperIssue) || (typeEnum == BibType_Newspaper));
-    case Filter_Books:
-        return regexpCheck && ((typeEnum == BibType_Book) || (typeEnum == BibType_Booklet));
-    case Filter_Proceedings:
-        return regexpCheck && (typeEnum == BibType_Proceedings);
-    case Filter_Thesisis:
-        return regexpCheck && ((typeEnum == BibType_Bachelorthesis) || (typeEnum == BibType_Phdthesis) || (typeEnum == BibType_Mastersthesis));
-    case Filter_Presentation:
-         return regexpCheck && (typeEnum == BibType_Presentation);
-    case Filter_Script:
-        return regexpCheck && (typeEnum == BibType_Script);
-    case Filter_Report:
-        return regexpCheck && (typeEnum == BibType_Report);
+    if(m_curFilter != Max_BibTypes) {
+        return regexpCheck && (typeEnum == m_curFilter);
     }
 
     return regexpCheck;

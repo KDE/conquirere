@@ -50,20 +50,6 @@ enum ResourceSelection {
     Resource_Note
 };
 
-enum ResourceFilter {
-    Filter_None,
-    Filter_Articles,
-    Filter_Journals,
-    Filter_Magazine,
-    Filter_Newspaper,
-    Filter_Books,
-    Filter_Proceedings,
-    Filter_Thesisis,
-    Filter_Presentation,
-    Filter_Script,
-    Filter_Report
-};
-
 enum BibEntryType {
     BibType_Article = 0,       /**< An article from a journal or magazine. */
     BibType_Book,              /**< A book with an explicit publisher. */
@@ -72,6 +58,7 @@ enum BibEntryType {
     BibType_Bachelorthesis,    /**< A Bachelor thesis. */
     BibType_Mastersthesis,     /**< A Master's thesis. */
     BibType_Phdthesis,         /**< A PhD thesis. */
+    BibType_Thesis,            /**< any kind of thesis */
     BibType_Report,
     BibType_Techreport,        /**< A report published by a school or other institution, usually numbered within a series. */
     BibType_Electronic ,       /**< A electronic publication */
@@ -82,11 +69,8 @@ enum BibEntryType {
     BibType_Manual,            /**< Technical documentation. */
     BibType_Proceedings,       /**< The proceedings of a conference. */
     BibType_JournalIssue,      /**< An issue of journal */
-    BibType_Journal,           /**< An journal */
     BibType_NewspaperIssue,    /**< An issue of a newspaper */
-    BibType_Newspaper,         /**< An journal or newspaper */
     BibType_MagazinIssue,      /**< An issue of a magazine */
-    BibType_Magazin,           /**< An journal or magazine */
     BibType_Standard,
     BibType_Patent,            /**< A patent. */
     BibType_CodeOfLaw,
@@ -96,7 +80,9 @@ enum BibEntryType {
     BibType_Statute,
     BibType_LegalCaseDocument,
     BibType_Decision,
-    BibType_Brief
+    BibType_Brief,
+
+    Max_BibTypes
 };
  
 static const QStringList BibEntryTypeTranslation = QStringList() << I18N_NOOP("Article")
@@ -106,6 +92,7 @@ static const QStringList BibEntryTypeTranslation = QStringList() << I18N_NOOP("A
                                                                  << I18N_NOOP("Bachelor thesis")
                                                                  << I18N_NOOP("Master thesis")
                                                                  << I18N_NOOP("Phd thesis")
+                                                                 << I18N_NOOP("Thesis")
                                                                  << I18N_NOOP("Report")
                                                                  << I18N_NOOP("Techreport")
                                                                  << I18N_NOOP("Electronic")
@@ -116,11 +103,8 @@ static const QStringList BibEntryTypeTranslation = QStringList() << I18N_NOOP("A
                                                                  << I18N_NOOP("Manual")
                                                                  << I18N_NOOP("Proceedings")
                                                                  << I18N_NOOP("Journal Issue")
-                                                                 << I18N_NOOP("Journal")
                                                                  << I18N_NOOP("Newspaper Issue")
-                                                                 << I18N_NOOP("Newspaper")
                                                                  << I18N_NOOP("Magazin Issue")
-                                                                 << I18N_NOOP("Magazin")
                                                                  << I18N_NOOP("Standard")
                                                                  << I18N_NOOP("Patent")
                                                                  << I18N_NOOP("Code")
@@ -132,6 +116,37 @@ static const QStringList BibEntryTypeTranslation = QStringList() << I18N_NOOP("A
                                                                  << I18N_NOOP("Decision")
                                                                  << I18N_NOOP("Brief");
 
+static const QStringList BibEntryTypeIcon = QStringList()        << QString("knewsticker")
+                                                                 << QString("acroread")
+                                                                 << QString("acroread")
+                                                                 << QString("Collection")
+                                                                 << QString("applications-education-university")
+                                                                 << QString("applications-education-university")
+                                                                 << QString("applications-education-university")
+                                                                 << QString("applications-education-university")
+                                                                 << QString("kjournal")
+                                                                 << QString("kjournal")
+                                                                 << QString("applications-internet")
+                                                                 << QString("kjournal")
+                                                                 << QString("kpresenter")
+                                                                 << QString("acroread")
+                                                                 << QString("acroread")
+                                                                 << QString("kjournal")
+                                                                 << QString("preferences-system-time")
+                                                                 << QString("kjournal")
+                                                                 << QString("knewsticker")
+                                                                 << QString("kjournal")
+                                                                 << QString("knewsticker")
+                                                                 << QString("knewsticker")
+                                                                 << QString("knewsticker")
+                                                                 << QString("knewsticker")
+                                                                 << QString("knewsticker")
+                                                                 << QString("knewsticker")
+                                                                 << QString("knewsticker")
+                                                                 << QString("knewsticker")
+                                                                 << QString("knewsticker")
+                                                                 << QString("knewsticker");
+
 static const QList<QUrl> BibEntryTypeURL = QList<QUrl>() << Nepomuk::Vocabulary::NBIB::Article()
                                                          << Nepomuk::Vocabulary::NBIB::Book()
                                                          << Nepomuk::Vocabulary::NBIB::Booklet()
@@ -139,6 +154,7 @@ static const QList<QUrl> BibEntryTypeURL = QList<QUrl>() << Nepomuk::Vocabulary:
                                                          << Nepomuk::Vocabulary::NBIB::BachelorThesis()
                                                          << Nepomuk::Vocabulary::NBIB::MastersThesis()
                                                          << Nepomuk::Vocabulary::NBIB::PhdThesis()
+                                                         << Nepomuk::Vocabulary::NBIB::Thesis()
                                                          << Nepomuk::Vocabulary::NBIB::Report()
                                                          << Nepomuk::Vocabulary::NBIB::Techreport()
                                                          << Nepomuk::Vocabulary::NBIB::Electronic()
@@ -149,11 +165,8 @@ static const QList<QUrl> BibEntryTypeURL = QList<QUrl>() << Nepomuk::Vocabulary:
                                                          << Nepomuk::Vocabulary::NBIB::Manual()
                                                          << Nepomuk::Vocabulary::NBIB::Proceedings()
                                                          << Nepomuk::Vocabulary::NBIB::JournalIssue()
-                                                         << Nepomuk::Vocabulary::NBIB::Journal()
                                                          << Nepomuk::Vocabulary::NBIB::NewspaperIssue()
-                                                         << Nepomuk::Vocabulary::NBIB::Newspaper()
                                                          << Nepomuk::Vocabulary::NBIB::MagazinIssue()
-                                                         << Nepomuk::Vocabulary::NBIB::Magazin()
                                                          << Nepomuk::Vocabulary::NBIB::Standard()
                                                          << Nepomuk::Vocabulary::NBIB::Patent()
                                                          << Nepomuk::Vocabulary::NBIB::CodeOfLaw()
@@ -175,6 +188,9 @@ static BibEntryType BibEntryTypeFromUrl(const Nepomuk::Resource & resource)
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::BachelorThesis())) {
         return BibType_Bachelorthesis;
+    }
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Thesis())) {
+        return BibType_Thesis;
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Book())) {
         return BibType_Book;
@@ -209,14 +225,8 @@ static BibEntryType BibEntryTypeFromUrl(const Nepomuk::Resource & resource)
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::NewspaperIssue())) {
         return BibType_NewspaperIssue;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Newspaper())) {
-        return BibType_Newspaper;
-    }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::MagazinIssue())) {
         return BibType_MagazinIssue;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Magazin())) {
-        return BibType_Magazin;
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Report())) {
         return BibType_Report;
