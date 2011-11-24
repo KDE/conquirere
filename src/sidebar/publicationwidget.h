@@ -36,8 +36,6 @@ public:
     explicit PublicationWidget(QWidget *parent = 0);
     virtual ~PublicationWidget();
 
-    void setDialogMode(bool dialogMode);
-
     /** @todo remove and use ResourceWatcher later on */
     void setLibrary(Library *p);
 
@@ -57,6 +55,8 @@ signals:
     /* notify connected editwidgets to update their info */
     void resourceChanged(Nepomuk::Resource & resource);
 
+    void hasReference(bool reference);
+
 private slots:
     /**
       * @todo check how the chain of all types are assigned to a resource
@@ -70,6 +70,8 @@ private slots:
     void newButtonClicked();
     void deleteButtonClicked();
     void addReference();
+    void removeReference();
+    void removeFromSelectedReference();
 
     void acceptContentChanges();
     void discardContentChanges();

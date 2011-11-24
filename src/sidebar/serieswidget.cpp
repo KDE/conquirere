@@ -157,7 +157,6 @@ void SeriesWidget::addIssue()
 
     PublicationWidget *pw = new PublicationWidget();
     pw->setResource(tempIssue);
-    pw->setDialogMode(true);
     pw->setLibrary(library());
 
     addIssueWidget.setMainWidget(pw);
@@ -194,7 +193,6 @@ void SeriesWidget::editIssue()
 
     PublicationWidget *pw = new PublicationWidget();
     pw->setResource(selectedIssue);
-    pw->setDialogMode(true);
     pw->setLibrary(library());
 
     addIssueWidget.setMainWidget(pw);

@@ -92,6 +92,7 @@ public slots:
     void setMainWindow(MainWindow *mw);
 
     void hasPublication(bool publication);
+    void hasReference(bool reference);
 
 private:
     Ui::DockWidget *ui;

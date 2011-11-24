@@ -41,6 +41,8 @@
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
 #include <QtGui/QSpacerItem>
+#include <QtGui/QMenu>
+#include <QtGui/QAction>
 
 #include <QtCore/QDebug>
 
@@ -50,10 +52,12 @@ PublicationWidget::PublicationWidget(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->addReference->setIcon(KIcon(QLatin1String("list-add")));
     ui->tabWidget->setEnabled(false);
 
     setupWidget();
+
+
+    connect(this, SIGNAL(hasReference(bool)), parent, SLOT(hasReference(bool)));
 }
 
 PublicationWidget::~PublicationWidget()
@@ -74,6 +78,15 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
     }
 
     emit resourceChanged(m_publication);
+
+    QList<Nepomuk::Resource> references = m_publication.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
+
+    if(references.isEmpty()) {
+        emit hasReference(false);
+    }
+    else {
+        emit hasReference(true);
+    }
 
     BibEntryType entryType = BibEntryTypeFromUrl(m_publication);
 
@@ -210,11 +223,6 @@ void PublicationWidget::deleteButtonClicked()
     setResource(m_publication);
 }
 
-void PublicationWidget::setDialogMode(bool dialogMode)
-{
-    ui->addReference->setVisible(false);
-}
-
 void PublicationWidget::setLibrary(Library *p)
 {
     SidebarComponent::setLibrary(p);
@@ -280,6 +288,50 @@ void PublicationWidget::addReference()
     }
 }
 
+void PublicationWidget::removeReference()
+{
+    QList<QAction*> actionCollection;
+    QMenu removeReference;
+
+    QList<Nepomuk::Resource> referenceList = m_publication.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
+
+    foreach(const Nepomuk::Resource &r, referenceList) {
+        QAction *a = new QAction(r.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString(), this);
+        a->setData(r.resourceUri());
+        connect(a, SIGNAL(triggered(bool)),this, SLOT(removeFromSelectedReference()));
+        removeReference.addAction(a);
+        actionCollection.append(a);
+    }
+
+    removeReference.exec(QCursor::pos());
+
+    qDeleteAll(actionCollection);
+}
+
+void PublicationWidget::removeFromSelectedReference()
+{
+    QAction *a = qobject_cast<QAction *>(sender());
+
+    if(!a)
+        return;
+
+    Nepomuk::Resource reference = Nepomuk::Resource(a->data().toString());
+    m_publication.removeProperty(Nepomuk::Vocabulary::NBIB::reference(), reference);
+
+    reference.remove();
+
+
+    QList<Nepomuk::Resource> references = m_publication.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
+
+    if(references.isEmpty()) {
+        emit hasReference(false);
+    }
+    else {
+        emit hasReference(true);
+    }
+
+    emit resourceUpdated(m_publication);
+}
 
 void PublicationWidget::acceptContentChanges()
 {
@@ -472,7 +524,6 @@ void PublicationWidget::setupWidget()
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPubMed, SLOT(setResource(Nepomuk::Resource&)));
 
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
-    connect(ui->addReference, SIGNAL(clicked()), this, SLOT(addReference()));
 }
 
 void PublicationWidget::editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl)

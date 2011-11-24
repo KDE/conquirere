@@ -76,6 +76,13 @@ SidebarWidget::SidebarWidget(QWidget *parent)
     ui->removePublication->setVisible(false);
     ui->addPublication->setEnabled(false);
     ui->removePublication->setEnabled(false);
+
+    ui->addReference->setIcon(KIcon(QLatin1String("format-indent-more")));
+    ui->removeReference->setIcon(KIcon(QLatin1String("format-indent-less")));
+    ui->addReference->setVisible(false);
+    ui->removeReference->setVisible(false);
+    ui->addReference->setEnabled(true);
+    ui->removeReference->setEnabled(false);
 }
 
 SidebarWidget::~SidebarWidget()
@@ -221,6 +228,11 @@ void SidebarWidget::hasPublication(bool publication)
     ui->removePublication->setEnabled(publication);
 }
 
+void SidebarWidget::hasReference(bool reference)
+{
+    ui->removeReference->setEnabled(reference);
+}
+
 void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filter, Library *library)
 {
     if(m_curSelection == selection)
@@ -231,6 +243,8 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
     SidebarComponent *newWidget = 0;
     ui->addPublication->setVisible(false);
     ui->removePublication->setVisible(false);
+    ui->addReference->setVisible(false);
+    ui->removeReference->setVisible(false);
 
     switch(selection) {
     case Resource_Library:
@@ -266,8 +280,12 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         ui->titleLabel->setText(i18n("Note"));
         break;
     case Resource_Publication:
-        newWidget = new PublicationWidget();
+        newWidget = new PublicationWidget(this);
         ui->titleLabel->setText(i18n("Publication"));
+        ui->addReference->setVisible(true);
+        ui->removeReference->setVisible(true);
+        connect(ui->addReference, SIGNAL(clicked()), newWidget, SLOT(addReference()));
+        connect(ui->removeReference, SIGNAL(clicked()), newWidget, SLOT(removeReference()));
         break;
     case Resource_Series:
         newWidget = new SeriesWidget();
