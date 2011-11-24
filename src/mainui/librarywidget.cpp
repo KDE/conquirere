@@ -170,7 +170,7 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     connectModelSignals(twi5, p, Resource_Series);
     m_items.append(twi5);
 
-    for(int i=1; i < Max_SeriesTypes; i++) {
+    for(int i=0; i < Max_SeriesTypes; i++) {
         QLibraryTreeWidgetItem *refSub = new QLibraryTreeWidgetItem();
         refSub->setText(0, SeriesTypeTranslation.at(i));
         refSub->setData(0,Role_Library,root->data(0,Role_Library));

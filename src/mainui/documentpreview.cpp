@@ -28,6 +28,7 @@
 #include <KDE/KMimeTypeTrader>
 #include <KDE/KService>
 #include <KParts/Part>
+#include <KParts/OpenUrlEvent>
 
 #include <QtGui/QDesktopServices>
 #include <QtGui/QLabel>
@@ -172,16 +173,13 @@ void DocumentPreview::showUrl(int index)
 
     KUrl urlInfo(url);
     KService::Ptr serivcePtr;
-    if(!urlInfo.isLocalFile()) {
-        serivcePtr = KService::serviceByDesktopPath(QLatin1String("khtml.desktop"));
-    }
-    else
-        serivcePtr = KMimeTypeTrader::self()->preferredService(mimetype, QLatin1String("KParts/ReadOnlyPart"));
+    serivcePtr = KMimeTypeTrader::self()->preferredService(mimetype, QLatin1String("KParts/ReadOnlyPart"));
 
     if (!serivcePtr.isNull()) {
         m_part = serivcePtr->createInstance<KParts::ReadOnlyPart>(0);
     }
     if (m_part) {
+        m_part->setProgressInfoEnabled(true);
         ui->kpartWidget->layout()->addWidget(m_part->widget());
         m_part->openUrl(url);
         emit activateKPart(m_part);
