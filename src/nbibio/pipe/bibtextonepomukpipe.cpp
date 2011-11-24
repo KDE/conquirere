@@ -959,17 +959,60 @@ void BibTexToNepomukPipe::addSchool(const Value &content, Nepomuk::Resource publ
 
 void BibTexToNepomukPipe::addSeries(const QString &content, Nepomuk::Resource publication)
 {
-    //fetch already existing Series or create a new one
-    Nepomuk::Resource series = publication.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
-    if(!series.isValid()) {
-        series = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::BookSeries());;
-        series.addType(Nepomuk::Vocabulary::NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
-        series.addType(Nepomuk::Vocabulary::NIE::InformationElement());
-        series.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), publication);
-        publication.setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), series);
+    QUrl seriesType;
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Book()) ||
+       publication.hasType(Nepomuk::Vocabulary::NBIB::Booklet()) ) {
+        seriesType = Nepomuk::Vocabulary::NBIB::BookSeries();
+    }
+    else {
+        seriesType = Nepomuk::Vocabulary::NBIB::Series();
     }
 
-    series.setProperty(Nepomuk::Vocabulary::NIE::title(), QString(content.toUtf8()));
+    //find existing journal or create a new series of them
+    Nepomuk::Resource seriesResource;
+
+    // check if a sereis with the same name already exist
+    Nepomuk::Query::ComparisonTerm seriesName( Nepomuk::Vocabulary::NIE::title(), Nepomuk::Query::LiteralTerm( content ) );
+    Nepomuk::Query::ResourceTypeTerm type( Nepomuk::Vocabulary::NBIB::Series() );
+
+    Nepomuk::Query::Query query( Nepomuk::Query::AndTerm( type, seriesName ) );
+
+    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
+
+    if(!queryResult.isEmpty()) {
+        if(queryResult.size() > 1) {
+            qWarning() << "found more than 1 series with the name " << content;
+
+            //now we search deeper as we do get false results
+            // Example A.M. Bronstein and M.M. Bronstein will be found with the same query
+            foreach(const Nepomuk::Query::Result & nqr, queryResult) {
+                if( nqr.resource().property(Nepomuk::Vocabulary::NIE::title()).toString() == content) {
+                    seriesResource = nqr.resource();
+                }
+            }
+
+            // we found just false results ... create a new one
+            if(!seriesResource.isValid()) {
+                seriesResource = Nepomuk::Resource(QUrl(), seriesType);
+                seriesResource.addType(Nepomuk::Vocabulary::NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
+                seriesResource.addType(Nepomuk::Vocabulary::NIE::InformationElement());
+                seriesResource.setProperty(Nepomuk::Vocabulary::NIE::title(), QString(content.toUtf8()));
+            }
+        }
+        else {
+            seriesResource = queryResult.first().resource();
+        }
+    }
+    else {
+        seriesResource = Nepomuk::Resource(QUrl(), seriesType);
+        seriesResource.addType(Nepomuk::Vocabulary::NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
+        seriesResource.addType(Nepomuk::Vocabulary::NIE::InformationElement());
+        seriesResource.setProperty(Nepomuk::Vocabulary::NIE::title(), QString(content.toUtf8()));
+    }
+
+    seriesResource.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), publication);
+    publication.setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), seriesResource);
+
 }
 
 void BibTexToNepomukPipe::addTitle(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType)
