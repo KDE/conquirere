@@ -25,33 +25,10 @@
 
 #include <QtGui/QWidget>
 
-enum BibDataType {
-    BibData_Annote,
-    BibData_Author,
-    BibData_Booktitle,
-    BibData_Crossref,
-    BibData_Edition,
-    BibData_Editor,
-    BibData_Eprint,
-    BibData_EntryType,
-    BibData_Howpublished,
-    BibData_Institution,
-    BibData_Journal,
-    BibData_Note,
-    BibData_Pages,
-    BibData_Publisher,
-    BibData_School,
-    BibData_Series,
-    BibData_Title,
-    BibData_Type,
-    BibData_Url
-};
-
 namespace Ui {
     class PublicationWidget;
 }
 
-class KComboBox;
 class PublicationWidget : public SidebarComponent
 {
     Q_OBJECT

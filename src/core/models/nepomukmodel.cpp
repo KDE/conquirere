@@ -216,6 +216,17 @@ void NepomukModel::removeCacheData( QList<QUrl> urls )
                 m_modelCacheData.removeAt(i);
                 endRemoveRows();
 
+                // in order to keep the cache lookup right, replace all indexes
+                QMapIterator<QString, int> j(m_lookupCache);
+                 while (j.hasNext()) {
+                     j.next();
+                     int index = j.value();
+                     if(index >= i) {
+                         index--;
+                         m_lookupCache.insert(j.key(), index);
+                     }
+                 }
+
                 break;
             }
             i++;

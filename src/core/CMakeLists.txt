@@ -15,6 +15,7 @@ set(core_LIB_SRCS
     models/bookmarkmodel.cpp
     models/mailmodel.cpp
     models/seriesmodel.cpp
+    models/seriesfiltermodel.cpp
     models/referencemodel.cpp
     models/searchresultmodel.cpp
 

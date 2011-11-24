@@ -794,9 +794,18 @@ void BibTexToNepomukPipe::addIsbn(const QString &content, Nepomuk::Resource publ
 void BibTexToNepomukPipe::addIssn(const QString &content, Nepomuk::Resource publication)
 {
     //fetch already existing Series or create a new one
-    Nepomuk::Resource series = publication.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    Nepomuk::Resource journalIssue = publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+
+    if(!journalIssue.isValid()) {
+        qDebug() << "BibTexToNepomukPipe::addIssn | try to set ISSN but no journalissue available";
+        publication.setProperty(Nepomuk::Vocabulary::NBIB::issn(), QString(content.toUtf8()));
+        return;
+    }
+
+    Nepomuk::Resource series = journalIssue.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+
     if(!series.isValid()) {
-        series = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::BookSeries());
+        series = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Journal());
         series.addType(Nepomuk::Vocabulary::NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
         series.addType(Nepomuk::Vocabulary::NIE::InformationElement());
         series.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), publication);

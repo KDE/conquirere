@@ -163,12 +163,25 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     twi5->setText(0, i18n("Series"));
     twi5->setData(0,Role_Library,root->data(0,Role_Library));
     twi5->setData(0,Role_ResourceType,Resource_Series);
-    twi5->setData(0,Role_ResourceFilter,Max_BibTypes);
+    twi5->setData(0,Role_ResourceFilter,Max_SeriesTypes);
     twi5->setData(0,Role_Project,root->data(0,Role_Project));
-    twi5->setIcon(0, KIcon(QLatin1String("user-identity")));
+    twi5->setIcon(0, KIcon(SeriesTypeIcon.at(0)));
     root->addChild(twi5);
     connectModelSignals(twi5, p, Resource_Series);
     m_items.append(twi5);
+
+    for(int i=1; i < Max_SeriesTypes; i++) {
+        QLibraryTreeWidgetItem *refSub = new QLibraryTreeWidgetItem();
+        refSub->setText(0, SeriesTypeTranslation.at(i));
+        refSub->setData(0,Role_Library,root->data(0,Role_Library));
+        refSub->setData(0,Role_ResourceType,Resource_Series);
+        refSub->setData(0,Role_ResourceFilter,SeriesType(i));
+        refSub->setData(0,Role_Project,root->data(0,Role_Project));
+        refSub->setIcon(0, KIcon(SeriesTypeIcon.at(i)));
+        twi5->addChild(refSub);
+        connectModelSignals(refSub, p, Resource_Series);
+        m_items.append(refSub);
+    }
 
     QLibraryTreeWidgetItem *twi6 = new QLibraryTreeWidgetItem();
     twi6->setText(0, i18n("Notes"));

@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SeriesWidget</class>
+ <widget class="QWidget" name="SeriesWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>491</width>
+    <height>440</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Series Type:</string>
+       </property>
+       <property name="buddy">
+        <cstring>editType</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="KComboBox" name="editType"/>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Title:</string>
+       </property>
+       <property name="buddy">
+        <cstring>editTitle</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="StringEdit" name="editTitle"/>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Issn:</string>
+       </property>
+       <property name="buddy">
+        <cstring>editIssn</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="StringEdit" name="editIssn"/>
+     </item>
+     <item row="1" column="1">
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>10</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Rating:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="KRatingWidget" name="editRating"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Issues:</string>
+     </property>
+     <property name="buddy">
+      <cstring>issuesList</cstring>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="issuesList">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>100</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="editIssue">
+       <property name="text">
+        <string>edit</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="addIssue">
+       <property name="text">
+        <string>add</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="removeIssue">
+       <property name="text">
+        <string>remove</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>KComboBox</class>
+   <extends>QComboBox</extends>
+   <header>kcombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KRatingWidget</class>
+   <extends>QFrame</extends>
+   <header>kratingwidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>StringEdit</class>
+   <extends>QLineEdit</extends>
+   <header>propertywidgets/stringedit.h</header>
+   <slots>
+    <signal>widgetEnabled(bool)</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>editType</tabstop>
+  <tabstop>editTitle</tabstop>
+  <tabstop>editIssn</tabstop>
+  <tabstop>issuesList</tabstop>
+  <tabstop>editIssue</tabstop>
+  <tabstop>addIssue</tabstop>
+  <tabstop>removeIssue</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>editTitle</sender>
+   <signal>widgetEnabled(bool)</signal>
+   <receiver>label</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>101</x>
+     <y>66</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>70</x>
+     <y>63</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editIssn</sender>
+   <signal>widgetEnabled(bool)</signal>
+   <receiver>label_2</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>143</x>
+     <y>97</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>80</x>
+     <y>90</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editIssue</sender>
+   <signal>clicked()</signal>
+   <receiver>SeriesWidget</receiver>
+   <slot>editIssue()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>33</x>
+     <y>344</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>33</x>
+     <y>362</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addIssue</sender>
+   <signal>clicked()</signal>
+   <receiver>SeriesWidget</receiver>
+   <slot>addIssue()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>384</x>
+     <y>347</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>383</x>
+     <y>363</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>removeIssue</sender>
+   <signal>clicked()</signal>
+   <receiver>SeriesWidget</receiver>
+   <slot>removeIssue()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>449</x>
+     <y>340</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>450</x>
+     <y>363</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>editIssue()</slot>
+  <slot>addIssue()</slot>
+  <slot>removeIssue()</slot>
+ </slots>
+</ui>

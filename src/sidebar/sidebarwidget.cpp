@@ -23,6 +23,7 @@
 #include "referencewidget.h"
 #include "documentwidget.h"
 #include "notewidget.h"
+#include "serieswidget.h"
 #include "mergeresourceswidget.h"
 
 #include "../mainui/mainwindow.h"
@@ -267,6 +268,10 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
     case Resource_Publication:
         newWidget = new PublicationWidget();
         ui->titleLabel->setText(i18n("Publication"));
+        break;
+    case Resource_Series:
+        newWidget = new SeriesWidget();
+        ui->titleLabel->setText(i18n("Series"));
         break;
     }
 

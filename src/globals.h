@@ -287,6 +287,12 @@ static const QStringList SeriesTypeTranslation = QStringList() << I18N_NOOP("Ser
                                                                  << I18N_NOOP("Magazin")
                                                                  << I18N_NOOP("Newspaper");
 
+static const QStringList SeriesTypeIcon = QStringList()        << QString("acroread")
+                                                               << QString("acroread")
+                                                               << QString("kjournal")
+                                                               << QString("kjournal")
+                                                               << QString("knewsticker");
+
 static const QList<QUrl> SeriesTypeURL = QList<QUrl>() << Nepomuk::Vocabulary::NBIB::Series()
                                                        << Nepomuk::Vocabulary::NBIB::BookSeries()
                                                        << Nepomuk::Vocabulary::NBIB::Journal()

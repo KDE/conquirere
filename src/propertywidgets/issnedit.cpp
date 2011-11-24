@@ -32,9 +32,17 @@ IssnEdit::IssnEdit(QWidget *parent)
 
 void IssnEdit::setupLabel()
 {
-    //get the connected journal for the publication
-    Nepomuk::Resource series = resource().property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    Nepomuk::Resource series;
+    Nepomuk::Resource issue;
+    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Article())) {
+        issue = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+        series = issue.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    }
+    else {
+        series = resource().property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    }
 
+    //get the connected journal for the publication
     QString issn = series.property(Nepomuk::Vocabulary::NBIB::issn()).toString();
 
     addPropertryEntry(issn, resource().uri());
@@ -44,15 +52,49 @@ void IssnEdit::setupLabel()
 
 void IssnEdit::updateResource(const QString & text)
 {
-    Nepomuk::Resource series = resource().property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    Nepomuk::Resource series;
+    Nepomuk::Resource issue;
+
+    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Article())) {
+        issue = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+
+        if(!issue.isValid()) {
+            issue = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::JournalIssue());
+            //DEBUG this seems wrong, but is currently the only way to preserve type hierarchy
+            QList<QUrl>newtype;
+            newtype.append(Nepomuk::Vocabulary::NIE::InformationElement());
+            newtype.append(Nepomuk::Vocabulary::NBIB::Publication());
+            newtype.append(Nepomuk::Vocabulary::NBIB::Collection());
+            newtype.append(issue.types());
+            issue.setTypes(newtype);
+
+            // connect article<->journal issue
+            resource().setProperty(Nepomuk::Vocabulary::NBIB::collection(), issue);
+            issue.addProperty(Nepomuk::Vocabulary::NBIB::article(), resource());
+            series = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Journal());
+        }
+        else {
+            series = issue.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+        }
+    }
+    else {
+        series = resource().property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    }
 
     if(!series.isValid()) {
-        series = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::BookSeries());
-        resource().setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), series);
-        series.setProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), resource());
+        series = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Journal());
     }
 
     series.setProperty(Nepomuk::Vocabulary::NBIB::issn(), text);
+
+    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Article())) {
+        issue.setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), series);
+        series.setProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), issue);
+    }
+    else {
+        resource().setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), series);
+        series.setProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), resource());
+    }
 }
 
 QStandardItemModel* IssnEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )

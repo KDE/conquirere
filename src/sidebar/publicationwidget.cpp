@@ -65,7 +65,7 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
 {
     m_publication = resource;
 
-    //check if the resource has a publication attached
+    //check if the resource is a valid publication
     if(!m_publication.isValid()) {
         ui->tabWidget->setEnabled(false);
     }
@@ -122,7 +122,6 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
 
 void PublicationWidget::newBibEntryTypeSelected(int index)
 {
-    qDebug() << "PublicationWidget::newBibEntryTypeSelected";
     KComboBox *kcb = qobject_cast<KComboBox *>(sender());
     BibEntryType entryType = (BibEntryType)kcb->itemData(index).toInt();
 
@@ -195,7 +194,7 @@ void PublicationWidget::selectPublication()
 
 void PublicationWidget::newButtonClicked()
 {
-    //create a new resource if nothing is connected
+    //create a new resource
     Nepomuk::Resource nb;
     QList<QUrl> types;
     types.append(Nepomuk::Vocabulary::NBIB::Publication());
@@ -206,7 +205,6 @@ void PublicationWidget::newButtonClicked()
 
 void PublicationWidget::deleteButtonClicked()
 {
-    // link document to resource
     m_publication.remove();
 
     setResource(m_publication);
@@ -392,12 +390,12 @@ void PublicationWidget::removeChapter()
 void PublicationWidget::changeRating(int newRating)
 {
     m_publication.setRating(newRating);
+
+    emit resourceUpdated(m_publication);
 }
 
 void PublicationWidget::setupWidget()
 {
-    ui->editEntryType->setProperty("datatype", BibData_EntryType);
-
     int i=0;
     foreach(const QString &s, BibEntryTypeTranslation) {
         ui->editEntryType->addItem(s,(BibEntryType)i);

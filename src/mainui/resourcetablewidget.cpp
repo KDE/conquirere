@@ -19,6 +19,7 @@
 #include "../core/library.h"
 #include "../core/models/nepomukmodel.h"
 #include "../core/models/publicationfiltermodel.h"
+#include "../core/models/seriesfiltermodel.h"
 #include "../core/delegates/ratingdelegate.h"
 #include "mainwindow.h"
 
@@ -79,6 +80,12 @@ void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType f
     PublicationFilterModel * pfm = qobject_cast<PublicationFilterModel *>(p->viewModel(selection));
     if(pfm) {
         pfm->setResourceFilter(filter);
+    }
+    else {
+        SeriesFilterModel * pfm = qobject_cast<SeriesFilterModel *>(p->viewModel(selection));
+        if(pfm) {
+            pfm->setResourceFilter(SeriesType(filter));
+        }
     }
 
     // if we only need to change the filter, forget the rest after this check
