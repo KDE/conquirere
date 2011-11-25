@@ -95,6 +95,8 @@ public slots:
     void removeFromProject();
     void removeFromSelectedProject();
 
+    void findPdf();
+
     /**
       * sets a link to the mainwindow.
       *

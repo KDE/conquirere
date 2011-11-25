@@ -48,6 +48,41 @@
        </spacer>
       </item>
       <item>
+       <widget class="QPushButton" name="findPdf">
+        <property name="minimumSize">
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>Find the pdf for this publication</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>22</width>
+          <height>22</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Line" name="lineFindPdf">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="addReference">
         <property name="minimumSize">
          <size>
@@ -373,6 +408,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>findPdf</sender>
+   <signal>clicked()</signal>
+   <receiver>DockWidget</receiver>
+   <slot>findPdf()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>147</x>
+     <y>41</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>126</x>
+     <y>11</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>deleteButtonClicked()</slot>
@@ -380,5 +431,6 @@
   <slot>attachButtonClicked()</slot>
   <slot>addToProject()</slot>
   <slot>removeFromProject()</slot>
+  <slot>findPdf()</slot>
  </slots>
 </ui>

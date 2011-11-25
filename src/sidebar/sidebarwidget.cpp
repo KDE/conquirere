@@ -28,7 +28,11 @@
 
 #include "../mainui/mainwindow.h"
 #include "../core/library.h"
+#include "../nbibio/pipe/nepomuktobibtexpipe.h"
 
+/*
+#include <kbibtex/findpdfui.h>
+*/
 #include <Nepomuk/Resource>
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/PIMO>
@@ -83,6 +87,12 @@ SidebarWidget::SidebarWidget(QWidget *parent)
     ui->removeReference->setEnabled(false);
     ui->addReference->setVisible(false);
     ui->removeReference->setVisible(false);
+
+
+    ui->findPdf->setIcon(KIcon(QLatin1String("application-pdf")));
+    ui->findPdf->setEnabled(false);
+    ui->findPdf->setVisible(false);
+    ui->lineFindPdf->setVisible(false);
 }
 
 SidebarWidget::~SidebarWidget()
@@ -108,6 +118,7 @@ void SidebarWidget::setResource(Nepomuk::Resource & resource)
             m_stackedLayout->setCurrentWidget(m_currentWidget);
             ui->linkAddButton->setEnabled(true);
             ui->linkRemoveButton->setEnabled(true);
+            ui->findPdf->setEnabled(true);
         }
         else {
             ui->deleteButton->setEnabled(false);
@@ -217,6 +228,23 @@ void SidebarWidget::removeFromSelectedProject()
     }
 }
 
+void SidebarWidget::findPdf()
+{
+    qDebug() << "find pdf";
+
+/*
+    NepomukToBibTexPipe bibtexPipe;
+    QList<Nepomuk::Resource> exportList;
+    exportList.append(m_curResource);
+    bibtexPipe.pipeExport(exportList);
+    File bibFile = bibtexPipe.bibtexFile();
+
+    Entry *e = dynamic_cast<Entry *>(bibFile.first());
+    FindPDFUI::interactiveFindPDF(*e, bibFile, this);
+    */
+
+}
+
 void SidebarWidget::setMainWindow(MainWindow *mw)
 {
     m_parent = mw;
@@ -245,6 +273,8 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
     ui->removePublication->setVisible(false);
     ui->addReference->setVisible(false);
     ui->removeReference->setVisible(false);
+    ui->findPdf->setVisible(false);
+    ui->lineFindPdf->setVisible(false);
     ui->newButton->setToolTip(QString());
     ui->deleteButton->setToolTip(QString());
 
@@ -276,6 +306,8 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         ui->titleLabel->setText(i18n("Reference"));
         ui->newButton->setToolTip(i18n("New reference"));
         ui->deleteButton->setToolTip(i18n("Delete reference"));
+        ui->findPdf->setVisible(true);
+        ui->lineFindPdf->setVisible(true);
         break;
     case Resource_Website:
         newWidget = new PublicationWidget();
@@ -296,6 +328,8 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         connect(ui->removeReference, SIGNAL(clicked()), newWidget, SLOT(removeReference()));
         ui->newButton->setToolTip(i18n("New publication"));
         ui->deleteButton->setToolTip(i18n("Delete publication"));
+        ui->findPdf->setVisible(true);
+        ui->lineFindPdf->setVisible(true);
         break;
     case Resource_Series:
         newWidget = new SeriesWidget();
