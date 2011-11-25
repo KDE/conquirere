@@ -134,8 +134,7 @@ private:
 
     QMap<QString, Nepomuk::Resource> m_allContacts;
     QMap<QString, Nepomuk::Resource> m_allProceedings;
-    QList<Nepomuk::Resource> m_allPublications;
-    QList<Nepomuk::Resource> m_allReferences;
+    QMap<QString, QString> m_macroLookup;
     Akonadi::Collection m_addressbook;
 };
 
