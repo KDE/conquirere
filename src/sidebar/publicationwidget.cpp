@@ -56,8 +56,9 @@ PublicationWidget::PublicationWidget(QWidget *parent)
 
     setupWidget();
 
-
-    connect(this, SIGNAL(hasReference(bool)), parent, SLOT(hasReference(bool)));
+    if(parent) {
+        connect(this, SIGNAL(hasReference(bool)), parent, SLOT(hasReference(bool)));
+    }
 }
 
 PublicationWidget::~PublicationWidget()
@@ -101,36 +102,7 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
 
     selectLayout(entryType);
 
-    //fill the table of contents listWidget
-    ui->editTOC->clear();
-
-    if(m_publication.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
-        ui->tocLabel->setText(i18n("List of articles:"));
-        QList<Nepomuk::Resource> tocResources = m_publication.property(Nepomuk::Vocabulary::NBIB::article()).toResourceList();
-
-        foreach(const Nepomuk::Resource & r, tocResources) {
-            QListWidgetItem *i = new QListWidgetItem();
-            QString title = r.property(Nepomuk::Vocabulary::NIE::title()).toString();
-            i->setText(title);
-            i->setData(Qt::UserRole, r.resourceUri());
-            ui->editTOC->addItem(i);
-        }
-
-    }
-    else {
-        ui->tocLabel->setText(i18n("Table of contents:"));
-        QList<Nepomuk::Resource> tocResources = m_publication.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
-
-        foreach(const Nepomuk::Resource & r, tocResources) {
-            QListWidgetItem *i = new QListWidgetItem();
-            QString title = r.property(Nepomuk::Vocabulary::NIE::title()).toString();
-            QString number = r.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
-            QString listEntry = QString ("%1 : %2").arg(number).arg(title);
-            i->setText(listEntry);
-            i->setData(Qt::UserRole, r.resourceUri());
-            ui->editTOC->addItem(i);
-        }
-    }
+    ui->listPartsWidget->setResource(m_publication);
 }
 
 void PublicationWidget::newBibEntryTypeSelected(int index)
@@ -195,9 +167,6 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
             }
         }
     }
-    else {
-        qDebug() << "unknwon newEntryUrl url. this should never happen";
-    }
 }
 
 void PublicationWidget::selectPublication()
@@ -260,6 +229,7 @@ void PublicationWidget::setLibrary(Library *p)
 
 void PublicationWidget::subResourceUpdated(Nepomuk::Resource resource)
 {
+    Q_UNUSED(resource);
     emit resourceUpdated(m_publication);
 }
 
@@ -363,82 +333,6 @@ void PublicationWidget::discardNoteChanges()
     ui->editAnnote->document()->setPlainText(annote);
 }
 
-void PublicationWidget::addChapter()
-{
-    qDebug() << "##########################################################";
-    qDebug() << "all existing chapters before the add";
-
-    QList<Nepomuk::Resource> tocResources = m_publication.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
-
-    foreach(const Nepomuk::Resource & r, tocResources) {
-        QString title = r.property(Nepomuk::Vocabulary::NIE::title()).toString();
-        QString number = r.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
-        QString listEntry = QString ("%1 : %2").arg(number).arg(title);
-        qDebug() << listEntry << r.resourceUri();
-    }
-    qDebug() << "##########################################################";
-
-    AddChapterDialog acd;
-    acd.setPublication(m_publication);
-
-    int ret = acd.exec();
-    Nepomuk::Resource chapter = acd.resource();
-
-    if(ret == QDialog::Accepted) {
-        QListWidgetItem *i = new QListWidgetItem();
-        QString title = chapter.property(Nepomuk::Vocabulary::NIE::title()).toString();
-        QString number = chapter.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
-        QString listEntry = QString ("%1 : %2").arg(number).arg(title);
-        i->setText(listEntry);
-        i->setData(Qt::UserRole, chapter.resourceUri());
-        ui->editTOC->addItem(i);
-    }
-    else {
-        chapter.remove();
-    }
-
-    qDebug() << "##########################################################";
-    qDebug() << "all existing chapters after the add";
-
-    QList<Nepomuk::Resource> tocResources2 = m_publication.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
-
-    foreach(const Nepomuk::Resource & r, tocResources2) {
-        QString title = r.property(Nepomuk::Vocabulary::NIE::title()).toString();
-        QString number = r.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
-        QString listEntry = QString ("%1 : %2").arg(number).arg(title);
-        qDebug() << listEntry << r.resourceUri();
-    }
-    qDebug() << "##########################################################";
-}
-
-void PublicationWidget::editChapter()
-{
-    //get selected chapter
-    QListWidgetItem *i = ui->editTOC->currentItem();
-
-    Nepomuk::Resource tmpChapter(i->data(Qt::UserRole).toString());
-
-    AddChapterDialog acd;
-    acd.setResource(tmpChapter);
-
-    acd.exec();
-
-    //update chapter
-    QString title = tmpChapter.property(Nepomuk::Vocabulary::NIE::title()).toString();
-    QString number = tmpChapter.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
-    QString listEntry = QString ("%1 : %2").arg(number).arg(title);
-    i->setText(listEntry);
-}
-
-void PublicationWidget::removeChapter()
-{
-    QListWidgetItem *i = ui->editTOC->currentItem();
-    ui->editTOC->removeItemWidget(i);
-
-    Nepomuk::Resource chapter(i->data(Qt::UserRole).toUrl());
-    chapter.remove();
-}
-
 void PublicationWidget::changeRating(int newRating)
 {
     m_publication.setRating(newRating);
@@ -524,6 +418,8 @@ void PublicationWidget::setupWidget()
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPubMed, SLOT(setResource(Nepomuk::Resource&)));
 
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
+
+    connect(ui->listPartsWidget, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SIGNAL(resourceUpdated(Nepomuk::Resource)));
 }
 
 void PublicationWidget::editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl)

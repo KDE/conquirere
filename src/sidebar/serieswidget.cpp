@@ -21,6 +21,7 @@
 
 #include "propertywidgets/stringedit.h"
 #include "publicationwidget.h"
+#include "listpartswidget.h"
 
 #include "nbib.h"
 #include <Nepomuk/Variant>
@@ -64,19 +65,11 @@ void SeriesWidget::setResource(Nepomuk::Resource & resource)
         ui->editIssn->setEnabled(false);
         ui->editTitle->setEnabled(false);
         ui->editType->setEnabled(false);
-        ui->issuesList->setEnabled(false);
-        ui->addIssue->setEnabled(false);
-        ui->editIssue->setEnabled(false);
-        ui->removeIssue->setEnabled(false);
     }
     else {
         ui->editIssn->setEnabled(true);
         ui->editTitle->setEnabled(true);
         ui->editType->setEnabled(true);
-        ui->issuesList->setEnabled(true);
-        ui->addIssue->setEnabled(true);
-        ui->editIssue->setEnabled(true);
-        ui->removeIssue->setEnabled(true);
     }
 
     emit resourceChanged(m_series);
@@ -86,25 +79,12 @@ void SeriesWidget::setResource(Nepomuk::Resource & resource)
     int index = ui->editType->findData(seriesType);
     ui->editType->setCurrentIndex(index);
 
-    // fill list issues
-    ui->issuesList->clear();
-    QList<Nepomuk::Resource> tocResources = m_series.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
-
-    foreach(const Nepomuk::Resource & r, tocResources) {
-        QListWidgetItem *i = new QListWidgetItem();
-        QString title = r.property(Nepomuk::Vocabulary::NIE::title()).toString();
-        QString number = r.property(Nepomuk::Vocabulary::NBIB::number()).toString();
-        QString volume = r.property(Nepomuk::Vocabulary::NBIB::volume()).toString();
-        QString showString = QString("Volume %1 / Issue %2 :: %3").arg(volume).arg(number).arg(title);
-        i->setText(showString);
-        i->setData(Qt::UserRole, r.resourceUri());
-        ui->issuesList->addItem(i);
-    }
+    ui->listPartWidget->setResource(m_series);
 }
 
 void SeriesWidget::newSeriesTypeSelected(int index)
 {
-    qDebug() << "SeriesWidget::newSeriesTypeSelected";
+    qDebug() << "TODO SeriesWidget::newSeriesTypeSelected";
 }
 
 void SeriesWidget::newButtonClicked()
@@ -120,105 +100,11 @@ void SeriesWidget::newButtonClicked()
 
 void SeriesWidget::deleteButtonClicked()
 {
-    qDebug() << "remove all links fro mthe deleted series";
+    qDebug() << "remove all links from the deleted series";
 
     m_series.remove();
 
     setResource(m_series);
-}
-
-void SeriesWidget::addIssue()
-{
-    KDialog addIssueWidget;
-
-    QString seriesTitle = m_series.property(Nepomuk::Vocabulary::NIE::title()).toString();
-
-    QUrl type;
-    if(m_series.hasType(Nepomuk::Vocabulary::NBIB::Journal())) {
-        type = Nepomuk::Vocabulary::NBIB::JournalIssue();
-    }
-    else if(m_series.hasType(Nepomuk::Vocabulary::NBIB::Newspaper())) {
-        type = Nepomuk::Vocabulary::NBIB::NewspaperIssue();
-    }
-    else if(m_series.hasType(Nepomuk::Vocabulary::NBIB::Magazin())) {
-        type = Nepomuk::Vocabulary::NBIB::MagazinIssue();
-    }
-    else if(m_series.hasType(Nepomuk::Vocabulary::NBIB::BookSeries())) {
-        type = Nepomuk::Vocabulary::NBIB::Book();
-    }
-    else {
-        type = Nepomuk::Vocabulary::NBIB::Collection();
-    }
-
-    Nepomuk::Resource tempIssue(QUrl(), type);
-    tempIssue.setProperty(Nepomuk::Vocabulary::NIE::title(), seriesTitle);
-    tempIssue.setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), m_series);
-    m_series.setProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), tempIssue);
-
-    PublicationWidget *pw = new PublicationWidget();
-    pw->setResource(tempIssue);
-    pw->setLibrary(library());
-
-    addIssueWidget.setMainWidget(pw);
-    addIssueWidget.setInitialSize(QSize(400,300));
-
-    int ret = addIssueWidget.exec();
-
-    if(ret == KDialog::Accepted) {
-        QListWidgetItem *i = new QListWidgetItem();
-        QString title = tempIssue.property(Nepomuk::Vocabulary::NIE::title()).toString();
-        QString number = tempIssue.property(Nepomuk::Vocabulary::NBIB::number()).toString();
-        QString volume = tempIssue.property(Nepomuk::Vocabulary::NBIB::volume()).toString();
-        QString showString = QString("Volume %1 / Issue %2 :: %3").arg(volume).arg(number).arg(title);
-        i->setText(showString);
-        i->setData(Qt::UserRole, tempIssue.resourceUri());
-        ui->issuesList->addItem(i);
-        emit resourceUpdated(m_series);
-    }
-    else {
-        // remove temp issue again
-        m_series.removeProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), tempIssue);
-        tempIssue.remove();
-    }
-}
-
-void SeriesWidget::editIssue()
-{
-    QListWidgetItem *i = ui->issuesList->currentItem();
-
-    Nepomuk::Resource selectedIssue(i->data(Qt::UserRole).toString());
-    emit resourceUpdated(m_series);
-
-    KDialog addIssueWidget;
-
-    PublicationWidget *pw = new PublicationWidget();
-    pw->setResource(selectedIssue);
-    pw->setLibrary(library());
-
-    addIssueWidget.setMainWidget(pw);
-    addIssueWidget.setInitialSize(QSize(400,300));
-
-    addIssueWidget.exec();
-
-    QString title = selectedIssue.property(Nepomuk::Vocabulary::NIE::title()).toString();
-    QString number = selectedIssue.property(Nepomuk::Vocabulary::NBIB::number()).toString();
-    QString volume = selectedIssue.property(Nepomuk::Vocabulary::NBIB::volume()).toString();
-    QString showString = QString("Volume %1 / Issue %2 :: %3").arg(volume).arg(number).arg(title);
-    i->setText(showString);
-}
-
-void SeriesWidget::removeIssue()
-{
-    QListWidgetItem *i = ui->issuesList->currentItem();
-
-    Nepomuk::Resource selectedIssue(i->data(Qt::UserRole).toString());
-    m_series.removeProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), selectedIssue);
-
-    selectedIssue.remove();
-
-    ui->issuesList->removeItemWidget(i);
-    delete i;
-    emit resourceUpdated(m_series);
 }
 
 void SeriesWidget::changeRating(int newRating)
@@ -244,4 +130,6 @@ void SeriesWidget::setupWidget()
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editTitle, SLOT(setResource(Nepomuk::Resource&)));
 
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
+
+    connect(ui->listPartWidget, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SIGNAL(resourceUpdated(Nepomuk::Resource)));
 }

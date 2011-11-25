@@ -61,6 +61,9 @@
           <height>22</height>
          </size>
         </property>
+        <property name="toolTip">
+         <string>Add new reference</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -85,6 +88,9 @@
           <width>22</width>
           <height>22</height>
          </size>
+        </property>
+        <property name="toolTip">
+         <string>remove existing reference</string>
         </property>
         <property name="text">
          <string/>
@@ -111,6 +117,9 @@
           <height>22</height>
          </size>
         </property>
+        <property name="toolTip">
+         <string>Set publication</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -135,6 +144,9 @@
           <width>22</width>
           <height>22</height>
          </size>
+        </property>
+        <property name="toolTip">
+         <string>Remove publication</string>
         </property>
         <property name="text">
          <string/>
@@ -168,6 +180,9 @@
           <height>22</height>
          </size>
         </property>
+        <property name="toolTip">
+         <string>Add to project</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -192,6 +207,9 @@
           <width>22</width>
           <height>22</height>
          </size>
+        </property>
+        <property name="toolTip">
+         <string>Remove from project</string>
         </property>
         <property name="text">
          <string/>

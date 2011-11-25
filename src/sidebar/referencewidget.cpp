@@ -143,7 +143,7 @@ void ReferenceWidget::showChapterList()
 
     ListPartsWidget lpw;
     Nepomuk::Resource publication = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-    lpw.setPublication(publication);
+    lpw.setResource(publication);
 
     kd.setMainWidget(&lpw);
 

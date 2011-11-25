@@ -79,10 +79,10 @@ SidebarWidget::SidebarWidget(QWidget *parent)
 
     ui->addReference->setIcon(KIcon(QLatin1String("format-indent-more")));
     ui->removeReference->setIcon(KIcon(QLatin1String("format-indent-less")));
-    ui->addReference->setVisible(false);
-    ui->removeReference->setVisible(false);
     ui->addReference->setEnabled(true);
     ui->removeReference->setEnabled(false);
+    ui->addReference->setVisible(false);
+    ui->removeReference->setVisible(false);
 }
 
 SidebarWidget::~SidebarWidget()
@@ -245,6 +245,8 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
     ui->removePublication->setVisible(false);
     ui->addReference->setVisible(false);
     ui->removeReference->setVisible(false);
+    ui->newButton->setToolTip(QString());
+    ui->deleteButton->setToolTip(QString());
 
     switch(selection) {
     case Resource_Library:
@@ -258,6 +260,8 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         ui->removePublication->setVisible(true);
         connect(ui->addPublication, SIGNAL(clicked()), newWidget, SLOT(setPublication()));
         connect(ui->removePublication, SIGNAL(clicked()), newWidget, SLOT(removePublication()));
+        ui->newButton->setToolTip(i18n("New document details"));
+        ui->deleteButton->setToolTip(i18n("Delete document"));
         break;
     case Resource_Mail:
         newWidget = new PublicationWidget();
@@ -270,6 +274,8 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
     case Resource_Reference:
         newWidget = new ReferenceWidget();
         ui->titleLabel->setText(i18n("Reference"));
+        ui->newButton->setToolTip(i18n("New reference"));
+        ui->deleteButton->setToolTip(i18n("Delete reference"));
         break;
     case Resource_Website:
         newWidget = new PublicationWidget();
@@ -278,6 +284,8 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
     case Resource_Note:
         newWidget = new NoteWidget();
         ui->titleLabel->setText(i18n("Note"));
+        ui->newButton->setToolTip(i18n("New note"));
+        ui->deleteButton->setToolTip(i18n("Delete note"));
         break;
     case Resource_Publication:
         newWidget = new PublicationWidget(this);
@@ -286,10 +294,14 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         ui->removeReference->setVisible(true);
         connect(ui->addReference, SIGNAL(clicked()), newWidget, SLOT(addReference()));
         connect(ui->removeReference, SIGNAL(clicked()), newWidget, SLOT(removeReference()));
+        ui->newButton->setToolTip(i18n("New publication"));
+        ui->deleteButton->setToolTip(i18n("Delete publication"));
         break;
     case Resource_Series:
         newWidget = new SeriesWidget();
         ui->titleLabel->setText(i18n("Series"));
+        ui->newButton->setToolTip(i18n("New series"));
+        ui->deleteButton->setToolTip(i18n("Delete series"));
         break;
     }
 

@@ -30,12 +30,26 @@ class ListPartsWidget : public QWidget
     Q_OBJECT
 
 public:
+    enum PartType {
+        Chapter,
+        Series,
+        Collection
+    };
+
     explicit ListPartsWidget(QWidget *parent = 0);
     virtual ~ListPartsWidget();
 
-    void setPublication(Nepomuk::Resource publication);
+    /**
+      * sets the resource for this widget
+      *
+      * @pre publication must be a @c nbib:Publication
+      */
+    void setResource(Nepomuk::Resource resource);
 
     Nepomuk::Resource selectedPart() const;
+
+signals:
+    void resourceUpdated(Nepomuk::Resource resource);
 
 private slots:
     void editPart();
@@ -43,9 +57,26 @@ private slots:
     void removePart();
 
 private:
+    QString showChapterString(Nepomuk::Resource publication);
+    QString showSeriesOfString(Nepomuk::Resource publication);
+    QString showArticleString(Nepomuk::Resource publication);
+
+    void addChapter();
+    void editChapter(Nepomuk::Resource editResource);
+    void removeChapter(Nepomuk::Resource chapter);
+
+    void addSeries();
+    void editSeries(Nepomuk::Resource editResource);
+    void removeSeries(Nepomuk::Resource publication);
+
+    void addCollection();
+    void editCollection(Nepomuk::Resource editResource);
+    void removeCollection(Nepomuk::Resource article);
+
     Ui::ListPartsWidget *ui;
 
-    Nepomuk::Resource m_publication;
+    Nepomuk::Resource m_resource;
+    PartType m_partType;
 };
 
 #endif // LISTPARTSWIDGET_H

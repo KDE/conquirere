@@ -74,7 +74,6 @@ Nepomuk::Resource AddChapterDialog::resource()
 
 void AddChapterDialog::accept()
 {
-
     if(!m_resource.isValid()) {
         m_resource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Chapter());
     }

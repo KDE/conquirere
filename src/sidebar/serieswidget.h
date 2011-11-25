@@ -53,10 +53,6 @@ private slots:
     void newButtonClicked();
     void deleteButtonClicked();
 
-    void addIssue();
-    void editIssue();
-    void removeIssue();
-
     void changeRating(int newRating);
 
 private:

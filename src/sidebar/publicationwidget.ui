@@ -30,7 +30,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <property name="documentMode">
       <bool>true</bool>
@@ -503,52 +503,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="tocLabel">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QListWidget" name="editTOC"/>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="QPushButton" name="editChapter">
-           <property name="text">
-            <string>edit</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="addChapter">
-           <property name="text">
-            <string>add</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="removeChapter">
-           <property name="text">
-            <string>remove</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="ListPartsWidget" name="listPartsWidget" native="true"/>
        </item>
       </layout>
      </widget>
@@ -617,6 +572,12 @@
    <slots>
     <signal>widgetEnabled(bool)</signal>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>ListPartsWidget</class>
+   <extends>QWidget</extends>
+   <header>sidebar/listpartswidget.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>ContactEdit</class>
@@ -1147,54 +1108,6 @@
     <hint type="destinationlabel">
      <x>7</x>
      <y>42</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>editChapter</sender>
-   <signal>clicked()</signal>
-   <receiver>PublicationWidget</receiver>
-   <slot>editChapter()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>28</x>
-     <y>439</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>2</x>
-     <y>465</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>addChapter</sender>
-   <signal>clicked()</signal>
-   <receiver>PublicationWidget</receiver>
-   <slot>addChapter()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>303</x>
-     <y>441</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>267</x>
-     <y>457</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>removeChapter</sender>
-   <signal>clicked()</signal>
-   <receiver>PublicationWidget</receiver>
-   <slot>removeChapter()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>390</x>
-     <y>441</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>380</x>
-     <y>459</y>
     </hint>
    </hints>
   </connection>

@@ -65,7 +65,8 @@ void PublicationQuery::resourceChanged (const Nepomuk::Resource &resource)
     if(!resource.hasType(Nepomuk::Vocabulary::NBIB::Publication()))
         return;
 
-    //qDebug() << "QueryClient::resourceChanged without ResourceWatcher";
+    return;
+    qDebug() << "PublicationQuery::resourceChanged";
     QList<CachedRowEntry> newCache;
 
     CachedRowEntry cre;

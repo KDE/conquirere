@@ -62,7 +62,7 @@ void SeriesQuery::resourceChanged (const Nepomuk::Resource &resource)
     if(!resource.hasType(Nepomuk::Vocabulary::NBIB::Series()))
         return;
 
-    //qDebug() << "QueryClient::resourceChanged without ResourceWatcher";
+    qDebug() << "SeriesQuery::resourceChanged";
     QList<CachedRowEntry> newCache;
 
     CachedRowEntry cre;
