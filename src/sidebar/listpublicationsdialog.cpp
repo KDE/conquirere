@@ -70,7 +70,6 @@ void ListPublicationsDialog::setSystemLibrary(Library *p)
     ui->libraryComboBox->addItem(m_systemLibrary->name());
 }
 
-
 void ListPublicationsDialog::setOpenLibraries(QList<Library *> openLibList)
 {
     m_openLibList = openLibList;

@@ -26,26 +26,48 @@ namespace Ui {
     class AddChapterDialog;
 }
 
+/**
+  * @brief Small dialog to add details to a new or existing chapter
+  *
+  * Allows to add the @c nbib:number, @ nbib:title, @c nbib:author, @c nbib:pageStart and @c nbib:pageEnd
+  */
 class AddChapterDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     explicit AddChapterDialog(QWidget *parent = 0);
-    ~AddChapterDialog();
+    virtual ~AddChapterDialog();
 
     /**
       * Sets the DocumentPart resource. This must be valid
       *
-      * @pre valid NBIB:Chapter resource
+      * This is the part that is beeing edited
+      *
+      * @pre valid @c nbib:Chapter resource
       */
     void setResource(Nepomuk::Resource resource);
 
+    /**
+      * sets the publication where the new chapter should be aded to
+      *
+      * @pre valid @c nbib:Publication resource
+      */
     void setPublication(Nepomuk::Resource resource);
+
+    /**
+      * @return The newly crated @c nbib:Chapter
+      */
     Nepomuk::Resource resource();
 
 public slots:
     void accept();
+
+    /**
+      * Opens a new dialog to add contacts in more detail
+      *
+      * @see ContactDialog
+      */
     void editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl);
 
 private:

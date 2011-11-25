@@ -34,7 +34,7 @@ public:
 
 protected:
     /**
-      * Use nie:title of the @c nbib:Chapter
+      * Use @c nie:title of the @c nbib:Chapter
       */
     void setupLabel();
 

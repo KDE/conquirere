@@ -26,6 +26,7 @@
 #include <Nepomuk/Variant>
 
 #include <KDE/KDialog>
+#include <KDE/KIcon>
 
 #include <QtGui/QListWidgetItem>
 #include <QtCore/QDebug>
@@ -36,9 +37,15 @@ ListPartsWidget::ListPartsWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->editPart->setIcon(KIcon("document-edit"));
+    ui->addPart->setIcon(KIcon("list-add"));
+    ui->removePart->setIcon(KIcon("list-remove"));
+    ui->deletePart->setIcon(KIcon("edit-delete"));
+
     connect(ui->editPart, SIGNAL(clicked()), this, SLOT(editPart()));
     connect(ui->addPart, SIGNAL(clicked()), this, SLOT(addPart()));
     connect(ui->removePart, SIGNAL(clicked()), this, SLOT(removePart()));
+    connect(ui->deletePart, SIGNAL(clicked()), this, SLOT(deletePart()));
 }
 
 ListPartsWidget::~ListPartsWidget()
@@ -60,14 +67,17 @@ void ListPartsWidget::setResource(Nepomuk::Resource resource)
     QList<Nepomuk::Resource> resourceList;
     if(m_resource.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
         m_partType = Collection;
+        ui->labelTitel->setText(i18n("List of articles:"));
         resourceList = m_resource.property(Nepomuk::Vocabulary::NBIB::article()).toResourceList();
     }
     else if(m_resource.hasType(Nepomuk::Vocabulary::NBIB::Series())) {
         m_partType = Series;
+        ui->labelTitel->setText(i18n("List of Publications:"));
         resourceList = m_resource.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
     }
     else {
         m_partType = Chapter;
+        ui->labelTitel->setText(i18n("List of chapters:"));
         resourceList = m_resource.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
     }
 
@@ -106,6 +116,9 @@ QString ListPartsWidget::showChapterString(Nepomuk::Resource publication)
 {
     QString title = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
     QString number = publication.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
+    if(number.isEmpty())
+        number = QLatin1String("?");
+
     QString showString = QString ("%1 : %2").arg(number).arg(title);
 
     return showString;
@@ -224,6 +237,28 @@ void ListPartsWidget::removePart()
     }
 }
 
+void ListPartsWidget::deletePart()
+{
+    QListWidgetItem *i = ui->listWidget->currentItem();
+    if(!i) { return; }
+
+    Nepomuk::Resource resourceToBeDeleted(i->data(Qt::UserRole).toUrl());
+
+    removePart();
+
+    switch(m_partType) {
+    case Chapter:
+        deleteChapter(resourceToBeDeleted);
+        break;
+    case Series:
+        deleteSeries(resourceToBeDeleted);
+        break;
+    case Collection:
+        deleteCollection(resourceToBeDeleted);
+        break;
+    }
+}
+
 void ListPartsWidget::editChapter(Nepomuk::Resource editResource)
 {
     AddChapterDialog acd;
@@ -284,6 +319,10 @@ void ListPartsWidget::addChapter()
 void ListPartsWidget::removeChapter(Nepomuk::Resource  chapter)
 {
     m_resource.removeProperty(Nepomuk::Vocabulary::NBIB::documentPart(), chapter);
+}
+
+void ListPartsWidget::deleteChapter(Nepomuk::Resource  chapter)
+{
     chapter.remove();
 }
 
@@ -315,11 +354,11 @@ void ListPartsWidget::addSeries()
     tempIssue.setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), m_resource);
     m_resource.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), tempIssue);
 
-    PublicationWidget *pw = new PublicationWidget();
-    pw->setResource(tempIssue);
+    PublicationWidget pw;
+    pw.setResource(tempIssue);
     //pw->setLibrary(library());
 
-    addIssueWidget.setMainWidget(pw);
+    addIssueWidget.setMainWidget(&pw);
     addIssueWidget.setInitialSize(QSize(400,300));
 
     int ret = addIssueWidget.exec();
@@ -356,6 +395,16 @@ void ListPartsWidget::editSeries(Nepomuk::Resource editResource)
 void ListPartsWidget::removeSeries(Nepomuk::Resource  publication)
 {
     m_resource.removeProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), publication);
+}
+
+void ListPartsWidget::deleteSeries(Nepomuk::Resource  publication)
+{
+    //check if the resource has articles connected to it
+    QList<Nepomuk::Resource> articleList = publication.property(Nepomuk::Vocabulary::NBIB::article()).toResourceList();
+    foreach(Nepomuk::Resource r, articleList) {
+        r.removeProperty(Nepomuk::Vocabulary::NBIB::collection(), publication);
+    }
+
     publication.remove();
 }
 
@@ -367,11 +416,11 @@ void ListPartsWidget::addCollection()
     tempArticle.setProperty(Nepomuk::Vocabulary::NBIB::collection(), m_resource);
     m_resource.setProperty(Nepomuk::Vocabulary::NBIB::article(), tempArticle);
 
-    PublicationWidget *pw = new PublicationWidget();
-    pw->setResource(tempArticle);
+    PublicationWidget pw;
+    pw.setResource(tempArticle);
     //pw->setLibrary(library());
 
-    addIssueWidget.setMainWidget(pw);
+    addIssueWidget.setMainWidget(&pw);
     addIssueWidget.setInitialSize(QSize(400,300));
 
     int ret = addIssueWidget.exec();
@@ -395,11 +444,11 @@ void ListPartsWidget::editCollection(Nepomuk::Resource editResource)
 {
     KDialog addIssueWidget;
 
-    PublicationWidget *pw = new PublicationWidget();
-    pw->setResource(editResource);
+    PublicationWidget pw;
+    pw.setResource(editResource);
     //pw->setLibrary(library());
 
-    addIssueWidget.setMainWidget(pw);
+    addIssueWidget.setMainWidget(&pw);
     addIssueWidget.setInitialSize(QSize(400,300));
 
     addIssueWidget.exec();
@@ -408,5 +457,10 @@ void ListPartsWidget::editCollection(Nepomuk::Resource editResource)
 void ListPartsWidget::removeCollection(Nepomuk::Resource  article)
 {
     m_resource.removeProperty(Nepomuk::Vocabulary::NBIB::article(), article);
+    article.remove();
+}
+
+void ListPartsWidget::deleteCollection(Nepomuk::Resource  article)
+{
     article.remove();
 }

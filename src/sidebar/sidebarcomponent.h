@@ -27,6 +27,10 @@
 class Library;
 class MainWindow;
 
+/**
+  * @brief Abstract base class for all widgets in the SidbarWidget
+  *
+  */
 class SidebarComponent : public QWidget
 {
     Q_OBJECT
@@ -55,10 +59,15 @@ signals:
     void resourceUpdated(Nepomuk::Resource resource);
 
 public slots:
+    /**
+      * Sets the resource which should be shown in the widget
+      *
+      * Has to be implemented in the subclasses to fill the right PropertyEdit widgets
+      */
     virtual void setResource(Nepomuk::Resource & resource) = 0;
 
-    virtual void newButtonClicked() {}
-    virtual void deleteButtonClicked() {}
+    virtual void newButtonClicked() = 0;
+    virtual void deleteButtonClicked() = 0;
 
 private:
     Library *m_library;

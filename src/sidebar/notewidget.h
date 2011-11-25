@@ -21,14 +21,12 @@
 #include "sidebarcomponent.h"
 #include <Nepomuk/Resource>
 
-#include <QtGui/QWidget>
-
 namespace Ui {
     class NoteWidget;
 }
 
 /**
-  * @brief shows a sidebar widget to create/edit/remove pimo:note resources
+  * @brief shows a sidebar widget to create/edit/remove @c pimo:Note resources
   *
   */
 class NoteWidget : public SidebarComponent

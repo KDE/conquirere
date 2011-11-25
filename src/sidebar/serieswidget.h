@@ -23,12 +23,14 @@
 
 #include <Nepomuk/Resource>
 
-#include <QtGui/QWidget>
-
 namespace Ui {
     class SeriesWidget;
 }
 
+/**
+  * @brief Widget to manipulate the @c nbib:Series wich contain many other @c nbib:Publication
+  *
+  */
 class SeriesWidget : public SidebarComponent
 {
     Q_OBJECT
@@ -41,11 +43,15 @@ public:
     void setLibrary(Library *p);
 
 public slots:
-    /* called when something is selected in the project view */
+    /**
+      * called when something is selected in the project view
+      */
     void setResource(Nepomuk::Resource & resource);
 
 signals:
-    /* notify connected editwidgets to update their info */
+    /**
+      * notify connected editwidgets to update their info
+      */
     void resourceChanged(Nepomuk::Resource & resource);
 
 private slots:

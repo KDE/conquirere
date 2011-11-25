@@ -59,6 +59,9 @@ public:
       */
     Nepomuk::Resource selectedPublication();
 
+    /**
+      * activated the filter if enter/return is pressed
+      */
     void keyPressEvent(QKeyEvent * e);
 
 private slots:

@@ -15,9 +15,9 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="labelTitel">
      <property name="text">
-      <string>Part of the Publication:</string>
+      <string/>
      </property>
     </widget>
    </item>
@@ -57,6 +57,13 @@
       <widget class="QPushButton" name="removePart">
        <property name="text">
         <string>remove</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="deletePart">
+       <property name="text">
+        <string>delete</string>
        </property>
       </widget>
      </item>

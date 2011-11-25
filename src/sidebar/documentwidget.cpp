@@ -79,6 +79,11 @@ void DocumentWidget::setResource(Nepomuk::Resource & resource)
     }
 }
 
+void DocumentWidget::newButtonClicked()
+{
+    qDebug() << "TODO add file metadata";
+}
+
 void DocumentWidget::deleteButtonClicked()
 {
     qDebug() << "TODO delete file + metadata";

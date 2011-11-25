@@ -100,7 +100,11 @@ void SeriesWidget::newButtonClicked()
 
 void SeriesWidget::deleteButtonClicked()
 {
-    qDebug() << "remove all links from the deleted series";
+    QList<Nepomuk::Resource> list = m_series.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
+
+    foreach(Nepomuk::Resource r, list) {
+        r.removeProperty(Nepomuk::Vocabulary::NBIB::inSeries(), m_series);
+    }
 
     m_series.remove();
 

@@ -25,7 +25,10 @@ namespace Ui {
     class ReferenceWidget;
 }
 
-class QWidget;
+/**
+  * @brief shows a widget to manipulate the @c nbib:Reference for a @c nbib:Publication
+  *
+  */
 class ReferenceWidget : public SidebarComponent
 {
     Q_OBJECT
@@ -35,7 +38,7 @@ public:
     void setLibrary(Library *p);
 
 public slots:
-    virtual void setResource(Nepomuk::Resource & resource);
+    void setResource(Nepomuk::Resource & resource);
     void showCreateReference(bool showIt);
 
     /**
@@ -55,7 +58,9 @@ private slots:
     void showPublicationList();
     void showChapterList();
 
-    //enables/disables the chapter widget if the publication is a valid book or not
+    /**
+      * enables/disables the widgets is a valid publication is set or not
+      */
     void enableReferenceDetails();
     void newButtonClicked();
     void deleteButtonClicked();

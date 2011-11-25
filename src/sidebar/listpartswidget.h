@@ -25,11 +25,23 @@ namespace Ui {
     class ListPartsWidget;
 }
 
+/**
+  * @brief This widget offers a simple wya to edit/add/remove parts of a resource
+  *
+  * This widget is used to manipulate @c nbib:chapter of books and articles, the @c nbib:article from collections
+  * such as proceedings or journal issues and the @c nbib:inSeriesOf to connect a series with its content
+  * like a journal series with its single issues or a book sereis with all books
+  */
 class ListPartsWidget : public QWidget
 {
     Q_OBJECT
 
 public:
+    /**
+      * Reflects what kind of reource is beeing manipulated
+      *
+      * Will be set in setResource() and defines what function will be called for the edit, add, remove action
+      */
     enum PartType {
         Chapter,
         Series,
@@ -42,19 +54,64 @@ public:
     /**
       * sets the resource for this widget
       *
-      * @pre publication must be a @c nbib:Publication
+      * @pre publication must be a @c nbib:Publication or @c nbib:Series
       */
     void setResource(Nepomuk::Resource resource);
 
+    /**
+      * @returns the user selected resource
+      */
     Nepomuk::Resource selectedPart() const;
 
 signals:
+    /**
+      * This signal gets thrown when the resource was changed and must be updated in the table model cache
+      * redirects the signal from all propertywidgets
+      *
+      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      */
     void resourceUpdated(Nepomuk::Resource resource);
 
 private slots:
+    /**
+      * called when the user clicks the edit button
+      *
+      * depending on @c m_partType one of the edit function is called.
+      * @see editChapter()
+      * @see editSeries()
+      * @see editCollection()
+      */
     void editPart();
+
+    /**
+      * called when the user clicks the add button
+      *
+      * depending on @c m_partType one of the edit function is called.
+      * @see addChapter()
+      * @see addSeries()
+      * @see addCollection()
+      */
     void addPart();
+
+    /**
+      * called when the user clicks the remove button
+      *
+      * depending on @c m_partType one of the edit function is called.
+      * @see removeChapter()
+      * @see removeSeries()
+      * @see removeCollection()
+      */
     void removePart();
+
+    /**
+      * called when the user clicks the delete button
+      *
+      * depending on @c m_partType one of the edit function is called.
+      * @see deleteChapter()
+      * @see deleteSeries()
+      * @see deleteCollection()
+      */
+    void deletePart();
 
 private:
     QString showChapterString(Nepomuk::Resource publication);
@@ -64,14 +121,17 @@ private:
     void addChapter();
     void editChapter(Nepomuk::Resource editResource);
     void removeChapter(Nepomuk::Resource chapter);
+    void deleteChapter(Nepomuk::Resource chapter);
 
     void addSeries();
     void editSeries(Nepomuk::Resource editResource);
     void removeSeries(Nepomuk::Resource publication);
+    void deleteSeries(Nepomuk::Resource publication);
 
     void addCollection();
     void editCollection(Nepomuk::Resource editResource);
     void removeCollection(Nepomuk::Resource article);
+    void deleteCollection(Nepomuk::Resource article);
 
     Ui::ListPartsWidget *ui;
 

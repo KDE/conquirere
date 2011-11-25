@@ -51,6 +51,11 @@ public slots:
     virtual void setResource(Nepomuk::Resource & resource);
 
     /**
+      * @todo implement file add (push data into nepomuk which is not there yet)
+      */
+    virtual void newButtonClicked();
+
+    /**
       * deletes the file from the disk together with its nepomuk metadata
       *
       * @todo implement file deletion
@@ -68,10 +73,15 @@ public slots:
     void removePublication();
 
 signals:
+    /**
+      * Emits if the shown document has a @c nbib:Publication attached to it
+      *
+      * Used to enable/disable the icon in the SidebarWidget
+      */
     void hasPublication(bool publication);
 
 private:
-    Nepomuk::Resource m_document; /**< the nfo:Document resource */
+    Nepomuk::Resource m_document; /**< the @c nfo:Document resource */
 
     Ui::DocumentWidget *ui;
 };

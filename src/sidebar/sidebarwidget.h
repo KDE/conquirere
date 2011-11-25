@@ -76,7 +76,18 @@ public slots:
 
     void clear();
 
+    /**
+      * called when the new button was clicked
+      *
+      * redirects the call to the current SidebarComponent
+      */
     void newButtonClicked();
+
+    /**
+      * called when the delete button was clicked
+      *
+      * redirects the call to the current SidebarComponent
+      */
     void deleteButtonClicked();
 
     void addToProject();
@@ -91,7 +102,18 @@ public slots:
       */
     void setMainWindow(MainWindow *mw);
 
+    /**
+      * called from the DocumentWidget
+      *
+      * enable/disable the publication icons
+      */
     void hasPublication(bool publication);
+
+    /**
+      * called from the PublicationWidget
+      *
+      * enable/disable the reference icons
+      */
     void hasReference(bool reference);
 
 private:

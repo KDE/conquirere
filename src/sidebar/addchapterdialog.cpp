@@ -102,7 +102,6 @@ void AddChapterDialog::accept()
 
     // connect to publication
     if(m_publication.isValid() && m_resource.isValid()) {
-        qDebug() << "add " << chapterTitle << ":: uri" << m_resource.uri();
         m_resource.setProperty(Nepomuk::Vocabulary::NBIB::documentPartOf(), m_publication);
         m_publication.addProperty(Nepomuk::Vocabulary::NBIB::documentPart(), m_resource);
     }
@@ -114,7 +113,6 @@ void AddChapterDialog::editContactDialog(Nepomuk::Resource & resource, const QUr
 {
     ContactDialog cd;
     cd.setResource(resource, propertyUrl);
-
     cd.exec();
 
     ui->chapterAuthor->setResource(resource);
