@@ -2,6 +2,7 @@
 Name=Conquirere
 Name[cs]=Conquirere
 Name[es]=Conquirere
+Name[hu]=Conquirere
 Name[nds]=Conquirere
 Name[nl]=Conquirere
 Name[pt]=Conquirere
@@ -15,6 +16,7 @@ Type=Application
 Terminal=false
 GenericName=Conquirere Research Helper Tool
 GenericName[es]=Herramienta del asistente de investigación Conquirere
+GenericName[hu]=Conquirere kutatássegítő eszköz
 GenericName[nl]=Hulpgereedschap voor onderzoek Conquirere
 GenericName[pt]=Ferramenta de Auxílio à Pesquisa Conquirere
 GenericName[pt_BR]=Ferramenta de auxílio à pesquisa Conquirere
