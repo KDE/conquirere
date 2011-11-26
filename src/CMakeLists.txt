@@ -3,6 +3,7 @@
 add_subdirectory( core )
 add_subdirectory( nbibio )
 add_subdirectory( propertywidgets )
+add_subdirectory( onlinestorage )
 
 set(conquirere_SRCS
     main.cpp
@@ -69,6 +70,7 @@ target_link_libraries(conquirere
 core
 nbibio
 propertywidgets
+onlinestorage
                       #${KDEPIMLIBS_AKONADI_LIBS}
                       ${KDE4_AKONADI_LIBS}
                       ${KDE4_KABC_LIBS}

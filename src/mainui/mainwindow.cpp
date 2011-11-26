@@ -31,6 +31,9 @@
 #include "bibtexexportdialog.h"
 #include "bibteximportwizard.h"
 
+#include "../onlinestorage/zotero/readfromzotero.h"
+#include <kbibtex/fileexporterbibtex.h>
+
 #include <KDE/KApplication>
 #include <KDE/KAction>
 #include <KDE/KLocale>
@@ -261,6 +264,47 @@ void MainWindow::DEBUGDELETEALLDATA()
     }
 }
 
+void MainWindow::zoteroItems()
+{
+    ReadFromZotero *rfz = new ReadFromZotero();
+
+    rfz->setUserName(QString("795913"));
+    rfz->setPassword(QString("TBydrlOdZo05mmzMhO8PlWCv"));
+
+    rfz->fetchItems();
+    connect(rfz, SIGNAL(itemsInfo(File)), this, SLOT(showZoteroItems(File)));
+}
+
+void MainWindow::showZoteroItems(File bibFile)
+{
+    QFile exportFile(QString("/home/joerg/zotero_export.bib"));
+    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return;
+    }
+
+    FileExporterBibTeX feb;
+    feb.save(&exportFile, &bibFile);
+}
+
+void MainWindow::zoteroCollection()
+{
+    ReadFromZotero *rfz = new ReadFromZotero();
+
+    rfz->setUserName(QString("795913"));
+    rfz->setPassword(QString("TBydrlOdZo05mmzMhO8PlWCv"));
+
+    rfz->fetchCollections();
+
+    connect(rfz, SIGNAL(collectionsInfo(QList<CollectionInfo>)), this, SLOT(showZoteroCollection(QList<CollectionInfo>)));
+}
+
+void MainWindow::showZoteroCollection(QList<CollectionInfo> collection)
+{
+    foreach(const CollectionInfo &c, collection) {
+        qDebug() << c.name << "[" <<  c.id << "]" << "items:" << c.items << " subcollections:" << c.subCollections;
+    }
+}
+
 void MainWindow::setupActions()
 {
     KAction* newProjectAction = new KAction(this);
@@ -307,12 +351,25 @@ void MainWindow::setupActions()
     actionCollection()->addAction(QLatin1String("import_bibtex"), importBibTexAction);
     connect(importBibTexAction, SIGNAL(triggered(bool)),this, SLOT(importBibTex()));
 
+    // ##############################################
+    // Debug data
     KAction* debugDELETE = new KAction(this);
     debugDELETE->setText(i18n("DEBUG DELETE ALL DATA!"));
     debugDELETE->setIcon(KIcon(QLatin1String("document-close")));
-
     actionCollection()->addAction(QLatin1String("debug_delete"), debugDELETE);
     connect(debugDELETE, SIGNAL(triggered(bool)),this, SLOT(DEBUGDELETEALLDATA()));
+
+    KAction* debugFetchItems = new KAction(this);
+    debugFetchItems->setText(i18n("fetch zotero items"));
+    actionCollection()->addAction(QLatin1String("zotero_items"), debugFetchItems);
+    connect(debugFetchItems, SIGNAL(triggered(bool)),this, SLOT(zoteroItems()));
+
+    KAction* debugFetchCollection = new KAction(this);
+    debugFetchCollection->setText(i18n("fetch zotero collections"));
+    actionCollection()->addAction(QLatin1String("zotero_collection"), debugFetchCollection);
+    connect(debugFetchCollection, SIGNAL(triggered(bool)),this, SLOT(zoteroCollection()));
+
+    // ##############################################
 
     actionCollection()->addAction(QLatin1String("toggle_library"), m_libraryWidget->toggleViewAction());
     actionCollection()->addAction(QLatin1String("toggle_sidebar"), m_sidebarWidget->toggleViewAction());

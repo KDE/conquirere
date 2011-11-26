@@ -36,6 +36,8 @@
       <Action name="export_bibtex" />
       <Action name="import_bibtex" />
       <Action name="debug_delete" />
+      <Action name="zotero_collection" />
+      <Action name="zotero_items" />
   </ToolBar>
   
   <ToolBar name="mainToolBar" >

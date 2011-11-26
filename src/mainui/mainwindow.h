@@ -21,6 +21,8 @@
 #include "../globals.h"
 
 #include <KParts/MainWindow>
+#include "../onlinestorage/zotero/readfromzotero.h"
+#include <kbibtex/file.h>
 
 class Library;
 class WelcomeWidget;
@@ -52,6 +54,10 @@ public slots:
     void switchView(ResourceSelection selection, BibEntryType filter, Library *p);
 
     void DEBUGDELETEALLDATA();
+    void zoteroItems();
+    void showZoteroItems(File bibFile);
+    void zoteroCollection();
+    void showZoteroCollection(QList<CollectionInfo> collections);
 
 private:
     void setupActions();
