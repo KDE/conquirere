@@ -30,12 +30,13 @@
 #include "../core/library.h"
 #include "../nbibio/pipe/nepomuktobibtexpipe.h"
 
-/*
 #include <kbibtex/findpdfui.h>
-*/
+
 #include <Nepomuk/Resource>
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk/Vocabulary/NFO>
+#include <Nepomuk/Vocabulary/NIE>
 
 #include <KDE/KGlobalSettings>
 
@@ -230,9 +231,6 @@ void SidebarWidget::removeFromSelectedProject()
 
 void SidebarWidget::findPdf()
 {
-    qDebug() << "find pdf";
-
-/*
     NepomukToBibTexPipe bibtexPipe;
     QList<Nepomuk::Resource> exportList;
     exportList.append(m_curResource);
@@ -240,9 +238,79 @@ void SidebarWidget::findPdf()
     File bibFile = bibtexPipe.bibtexFile();
 
     Entry *e = dynamic_cast<Entry *>(bibFile.first());
-    FindPDFUI::interactiveFindPDF(*e, bibFile, this);
-    */
 
+    // cache previous file/url values
+    QString localFile = PlainTextValue::text(e->value(Entry::ftLocalFile));
+    int nrLF = 0;
+    if(localFile.isEmpty()) {
+        nrLF = 0;
+    }
+    else {
+        nrLF = 2;
+    }
+
+    QString urlFile = PlainTextValue::text(e->value(Entry::ftUrl));
+    int nrUF = 0;
+    if(urlFile.isEmpty()) {
+        nrUF = 0;
+    }
+    else {
+        nrUF = 2;
+    }
+
+    FindPDFUI::interactiveFindPDF(*e, bibFile, this);
+
+    // find newly added localfileXX entries
+    bool haveLocalfile = true;
+    while(haveLocalfile) {
+        QString newLocalFile;
+        if(nrLF>0) {
+            newLocalFile = PlainTextValue::text(e->value(QString("localfile%1").arg(nrLF)));
+            nrLF++;
+        }
+        else {
+            newLocalFile = PlainTextValue::text(e->value(QString("localfile")));
+            nrLF = 2;
+        }
+
+        if(newLocalFile.isEmpty()) {
+            haveLocalfile = false;
+        }
+        else {
+            Nepomuk::Resource dataObject(QUrl(), Nepomuk::Vocabulary::NFO::FileDataObject());
+            dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), newLocalFile);
+            // connect new dataobject to resource
+            m_curResource.addProperty( Nepomuk::Vocabulary::NBIB::isPublicationOf(), dataObject);
+            //and the backreference
+            dataObject.setProperty(Nepomuk::Vocabulary::NBIB::publishedAs(), m_curResource);
+        }
+    }
+
+    // find newly added urlXX entries
+    bool haveUrlfile = true;
+    while(haveUrlfile) {
+        QString newurlFile;
+        if(nrUF>0) {
+            newurlFile = PlainTextValue::text(e->value(QString("url%1").arg(nrUF)));
+            nrUF++;
+        }
+        else {
+            newurlFile = PlainTextValue::text(e->value(QString("url")));
+            nrUF = 2;
+        }
+
+        if(newurlFile.isEmpty()) {
+            haveUrlfile = false;
+        }
+        else {
+            Nepomuk::Resource dataObject(QUrl(), Nepomuk::Vocabulary::NFO::RemoteDataObject());
+            dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), newurlFile);
+            // connect new dataobject to resource
+            m_curResource.addProperty( Nepomuk::Vocabulary::NBIB::isPublicationOf(), dataObject);
+            //and the backreference
+            dataObject.setProperty(Nepomuk::Vocabulary::NBIB::publishedAs(), m_curResource);
+        }
+    }
 }
 
 void SidebarWidget::setMainWindow(MainWindow *mw)
