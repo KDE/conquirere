@@ -15,11 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "readfromstorage.h"
+#include "writetostorage.h"
 
 #include <QtNetwork/QNetworkReply>
 
-ReadFromStorage::ReadFromStorage(QObject *parent)
+WriteToStorage::WriteToStorage(QObject *parent)
     : QObject(parent)
     , m_requestType(Items)
     , m_reply(0)
@@ -28,54 +28,54 @@ ReadFromStorage::ReadFromStorage(QObject *parent)
     qRegisterMetaType<QList<CollectionInfo> >("QList<CollectionInfo>");
 }
 
-ReadFromStorage::~ReadFromStorage()
+WriteToStorage::~WriteToStorage()
 {
     delete m_reply;
 }
 
-void ReadFromStorage::setUserName(const QString & name)
+void WriteToStorage::setUserName(const QString & name)
 {
     m_name = name;
 }
 
-QString ReadFromStorage::userName() const
+QString WriteToStorage::userName() const
 {
     return m_name;
 }
 
-void ReadFromStorage::setPassword(const QString & pwd)
+void WriteToStorage::setPassword(const QString & pwd)
 {
     m_password = pwd;
 }
 
-QString ReadFromStorage::pasword() const
+QString WriteToStorage::pasword() const
 {
     return m_password;
 }
 
-void ReadFromStorage::setRequestType(RequestType type)
+void WriteToStorage::setRequestType(RequestType type)
 {
     m_requestType = type;
 }
 
-RequestType ReadFromStorage::requestType() const
+RequestType WriteToStorage::requestType() const
 {
     return m_requestType;
 }
 
-QNetworkReply *ReadFromStorage::reply() const
+QNetworkReply *WriteToStorage::reply() const
 {
     return m_reply;
 }
 
-void ReadFromStorage::startRequest(QUrl url)
+void WriteToStorage::startRequest(const QNetworkRequest &request, const QByteArray & payload)
 {
-    m_reply = m_qnam.get(QNetworkRequest(url));
+    m_reply = m_qnam.post(request, payload);
     connect(m_reply, SIGNAL(finished()),this, SLOT(requestFinished()));
     //connect(reply, SIGNAL(downloadProgress(qint64,qint64)),this, SLOT(updateDataReadProgress(qint64,qint64)));
 }
 
-void ReadFromStorage::cancelDownload()
+void WriteToStorage::cancelUpload()
 {
     m_reply->abort();
 }

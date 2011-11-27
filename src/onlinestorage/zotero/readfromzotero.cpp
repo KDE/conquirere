@@ -154,11 +154,23 @@ Element *ReadFromZotero::readItemEntry(QXmlStreamReader &xmlReader)
             PlainText *zKey = new PlainText(xmlReader.readElementText());
             Value zkValue;
             zkValue.append(zKey);
-            e->insert(QString("zotero"), zkValue);
+            e->insert(QString("zoteroKey"), zkValue);
         }
         else if(startelement && xmlReader.name() == "numChildren") {
-            // todo catch subitems
-            //ci.subCollections = xmlReader.readElementText().toInt();
+            QString zoteroChildren = xmlReader.readElementText();
+
+            PlainText *ptValue = new PlainText(zoteroChildren);
+            Value valueList;
+            valueList.append(ptValue);
+            e->insert(QString("zoteroChildren"), valueList);
+        }
+        else if(startelement && xmlReader.name() == "updated") {
+            QString zoteroUpdated = xmlReader.readElementText();
+
+            PlainText *ptValue = new PlainText(zoteroUpdated);
+            Value valueList;
+            valueList.append(ptValue);
+            e->insert(QString("zoteroUpdated"), valueList);
         }
         else if(xmlReader.name() == "content") {
             QString etag = xmlReader.attributes().value("etag").toString();
@@ -166,7 +178,7 @@ Element *ReadFromZotero::readItemEntry(QXmlStreamReader &xmlReader)
             PlainText *ptValue = new PlainText(etag);
             Value valueList;
             valueList.append(ptValue);
-            e->insert(QString("etag"), etag);
+            e->insert(QString("zoteroEtag"), valueList);
             readJsonContent(e, xmlReader.readElementText());
         }
         else if(xmlReader.name() == "entry") {

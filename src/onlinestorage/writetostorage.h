@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef READFROMSTORAGE_H
-#define READFROMSTORAGE_H
+#ifndef WRITETOSTORAGE_H
+#define WRITETOSTORAGE_H
 
 #include "storageglobals.h"
 #include <kbibtex/file.h>
@@ -24,23 +24,20 @@
 #include <QtCore/QObject>
 
 #include <QtCore/QUrl>
+#include <QtCore/QByteArray>
 #include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkRequest>
 
+class QIODevice;
 class QNetworkReply;
+class Entry;
 
-/**
-  * @brief Abstract base class for any kind of online publication storage
-  *
-  * Retrieves all available collections and the items in it from an online storage
-  *
-  * @author Jörg Ehrichs <joerg.ehrichs@gmx.de>
-  */
-class ReadFromStorage : public QObject
+class WriteToStorage : public QObject
 {
     Q_OBJECT
 public:
-    explicit ReadFromStorage(QObject *parent = 0);
-    virtual ~ReadFromStorage();
+    explicit WriteToStorage(QObject *parent = 0);
+    virtual ~WriteToStorage();
 
     void setUserName(const QString & name);
     QString userName() const;
@@ -61,32 +58,37 @@ signals:
     /**
       * This signal will be emitted if the processed data is ready
       *
-      * @p collections informations about all available collections
+      * @p collections informations about the changed collections
       */
     void collectionsInfo(QList<CollectionInfo> collections);
 
     /**
       * This signal will be emitted if the processed data is ready
       *
-      * @p items the bibtex files containing all available bibtex items
+      * @p items the bibtex file containing the changed made to the server
       */
     void itemsInfo(File items);
 
 public slots:
-    void cancelDownload();
-    virtual void fetchItems() = 0;
-    virtual void fetchItem(const QString &id, const QString &collection = QString() ) = 0;
+    void cancelUpload();
 
-    virtual void fetchCollections(const QString &parent = QString() ) = 0;
-    virtual void fetchCollection(const QString &collection ) = 0;
+    virtual void pushNewItems(File items) = 0;
+    virtual void updateItem(Entry *item) = 0;
+    virtual void addItemsToCollection(QList<QString> ids, const QString &collection) = 0;
+    virtual void removeItemsFromCollection(QList<QString> ids, const QString &collection) = 0;
+    virtual void deleteItems(QList<QString> ids) = 0;
+
+    virtual void createCollection(CollectionInfo ci, const QString &parent = QString()) = 0;
+    virtual void editCollection(CollectionInfo ci) = 0;
+    virtual void deleteCollection(const QString &id) = 0;
 
 protected:
     /**
-      * starts the http request to fetch the necessary data
+      * starts the http post request to push the necessary data
       *
       * @p url the url to get the data from
       */
-    void startRequest(QUrl url);
+    void startRequest(const QNetworkRequest &request, const QByteArray & payload);
 
     /**
       * sets the current request type
@@ -109,7 +111,7 @@ protected slots:
     /**
       * Called when the network request is finished
       *
-      * the reply() function holds the downloaded information about the items/collections
+      * the reply() function holds the server response for the write request
       */
     virtual void requestFinished() = 0;
 
@@ -122,4 +124,4 @@ private:
     QNetworkReply *m_reply;
 };
 
-#endif // READFROMSTORAGE_H
+#endif // WRITETOSTORAGE_H

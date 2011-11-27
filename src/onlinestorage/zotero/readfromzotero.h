@@ -21,11 +21,27 @@
 #include "../readfromstorage.h"
 
 #include <QtCore/QObject>
-#include <QXmlStreamReader>
+#include <QtCore/QXmlStreamReader>
 
 class Element;
 class Entry;
 
+/**
+  * @brief Fetch all items/collections from an Zotero storage for a specific user
+  *
+  * The items that will be fetched will be emitted via the itemsInfo() signal.
+  * The collections are emitted via collectionsInfo().
+  *
+  * Some entry types and key names are changed to respect the BibTeX format.
+  * To help synchronize the local items with the fetched items from the zotero storage some additinal
+  * keys are added to the BibTeX format.
+  *
+  * @li @c zoteroKey The unique id to identify an item in the online storage
+  * @li @c zoteroChildren The number of child items (notes/attachments) in the zotero storage
+  * @li @c zoteroUpdated The time this item was updated the last time in the zotero storage
+  * @li @c zoteroEtag An additinal key to help identify if the item has changed on the server
+  *                   since the last pull request, necessary for the writeback to the server
+  */
 class ReadFromZotero : public ReadFromStorage
 {
     Q_OBJECT
