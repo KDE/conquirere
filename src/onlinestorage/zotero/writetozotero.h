@@ -46,7 +46,42 @@ private:
 
     QVariantList createCreatorsJson(Entry *e);
     QVariantList createTagsJson(Entry *e);
+
+    QVariantMap createArtworkJson(Entry *e);
+    QVariantMap createAudioRecordingJson(Entry *e);
+    QVariantMap createBillJson(Entry *e);
+    QVariantMap createBlogPostJson(Entry *e);
     QVariantMap createBookJson(Entry *e);
+    QVariantMap createBookSectionJson(Entry *e);
+    QVariantMap createCaseJson(Entry *e);
+    QVariantMap createComputerProgramJson(Entry *e);
+    QVariantMap createConferencePaperJson(Entry *e);
+    QVariantMap createDictionaryEntryJson(Entry *e);
+    QVariantMap createDocumentJson(Entry *e);
+    QVariantMap createEmailJson(Entry *e);
+    QVariantMap createenCyclopediaArticleJson(Entry *e);
+    QVariantMap createFilmJson(Entry *e);
+    QVariantMap createForumPostJson(Entry *e);
+    QVariantMap createHearingJson(Entry *e);
+    QVariantMap createInstantMessageJson(Entry *e);
+    QVariantMap createInterviewJson(Entry *e);
+    QVariantMap createJournalArticleJson(Entry *e);
+    QVariantMap createLetterJson(Entry *e);
+    QVariantMap createMagazineArticleJson(Entry *e);
+    QVariantMap createManuscriptJson(Entry *e);
+    QVariantMap createMapJson(Entry *e);
+    QVariantMap createNewspaperArticleJson(Entry *e);
+    QVariantMap createNoteJson(Entry *e);
+    QVariantMap createPatentJson(Entry *e);
+    QVariantMap createPodcastJson(Entry *e);
+    QVariantMap createPresentationJson(Entry *e);
+    QVariantMap createRadioBroadcastJson(Entry *e);
+    QVariantMap createReportJson(Entry *e);
+    QVariantMap createStatuteJson(Entry *e);
+    QVariantMap createTvBroadcastJson(Entry *e);
+    QVariantMap createThesisJson(Entry *e);
+    QVariantMap createVideoRecordingJson(Entry *e);
+    QVariantMap createWebpageJson(Entry *e);
 };
 
 #endif // WRITETOZOTERO_H

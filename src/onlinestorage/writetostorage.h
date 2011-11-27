@@ -88,7 +88,7 @@ protected:
       *
       * @p url the url to get the data from
       */
-    void startRequest(const QNetworkRequest &request, const QByteArray & payload);
+    void startRequest(const QNetworkRequest &request, const QByteArray & payload, QNetworkAccessManager::Operation mode);
 
     /**
       * sets the current request type

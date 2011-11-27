@@ -68,8 +68,22 @@ QNetworkReply *WriteToStorage::reply() const
     return m_reply;
 }
 
-void WriteToStorage::startRequest(const QNetworkRequest &request, const QByteArray & payload)
+void WriteToStorage::startRequest(const QNetworkRequest &request, const QByteArray & payload, QNetworkAccessManager::Operation mode)
 {
+    switch(mode) {
+    case PutOperation:
+        m_reply = m_qnam.put(request, payload);
+        break;
+    case PostOperation:
+        m_reply = m_qnam.post(request, payload);
+        break;
+    case DeleteOperation:
+        m_reply = m_qnam.deleteResource(request);
+        break;
+    default:
+        m_reply = m_qnam.post(request, payload);
+    }
+
     m_reply = m_qnam.post(request, payload);
     connect(m_reply, SIGNAL(finished()),this, SLOT(requestFinished()));
     //connect(reply, SIGNAL(downloadProgress(qint64,qint64)),this, SLOT(updateDataReadProgress(qint64,qint64)));

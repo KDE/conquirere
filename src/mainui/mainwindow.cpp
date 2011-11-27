@@ -32,6 +32,8 @@
 #include "bibteximportwizard.h"
 
 #include "../onlinestorage/zotero/readfromzotero.h"
+#include "../onlinestorage/zotero/writetozotero.h"
+#include "../nbibio/pipe/nepomuktobibtexpipe.h"
 #include <kbibtex/fileexporterbibtex.h>
 
 #include <KDE/KApplication>
@@ -288,6 +290,31 @@ void MainWindow::showZoteroItems(File bibFile)
 
 void MainWindow::zoteroCollection()
 {
+    WriteToZotero *wtz = new WriteToZotero;
+    wtz->setUserName(QString("795913"));
+    wtz->setPassword(QString("TBydrlOdZo05mmzMhO8PlWCv"));
+
+//    Nepomuk::Query::AndTerm andTerm;
+//    andTerm.addSubTerm(  );
+
+    Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Book() ) );
+
+    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
+
+    QList<Nepomuk::Resource> resources;
+    foreach(const Nepomuk::Query::Result & r, queryResult) {
+        resources.append(r.resource());
+    }
+
+    qDebug() << "export books" << resources.size();
+
+    NepomukToBibTexPipe ntbp;
+    ntbp.pipeExport(resources);
+
+    File bibFile = ntbp.bibtexFile();
+    wtz->pushNewItems(bibFile);
+
+    /*
     ReadFromZotero *rfz = new ReadFromZotero();
 
     rfz->setUserName(QString("795913"));
@@ -296,6 +323,7 @@ void MainWindow::zoteroCollection()
     rfz->fetchCollections();
 
     connect(rfz, SIGNAL(collectionsInfo(QList<CollectionInfo>)), this, SLOT(showZoteroCollection(QList<CollectionInfo>)));
+    */
 }
 
 void MainWindow::showZoteroCollection(QList<CollectionInfo> collection)
