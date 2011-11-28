@@ -28,21 +28,26 @@ public:
     virtual ~WriteToZotero();
 
 public slots:
+    void pushItems(File items);
     void pushNewItems(File items);
     void updateItem(Entry *item);
     void addItemsToCollection(QList<QString> ids, const QString &collection );
     void removeItemsFromCollection(QList<QString> ids, const QString &collection );
-    void deleteItems(QList<QString> ids);
+    void deleteItems(File items);
 
-    void createCollection(CollectionInfo ci, const QString &parent = QString());
-    void editCollection(CollectionInfo ci);
-    void deleteCollection(const QString &id);
+    void createCollection(const CollectionInfo &ci);
+    void editCollection(const CollectionInfo &ci);
+    void deleteCollection(const CollectionInfo &ci);
 
 protected slots:
     void requestFinished();
 
 private:
+    bool m_allRequestsSend;
+    File m_entriesAfterSync;
+
     QByteArray writeJsonContent(File items);
+    QByteArray writeJsonContent(const CollectionInfo &collection);
 
     QVariantList createCreatorsJson(Entry *e);
     QVariantList createTagsJson(Entry *e);
@@ -59,7 +64,7 @@ private:
     QVariantMap createDictionaryEntryJson(Entry *e);
     QVariantMap createDocumentJson(Entry *e);
     QVariantMap createEmailJson(Entry *e);
-    QVariantMap createenCyclopediaArticleJson(Entry *e);
+    QVariantMap createEncyclopediaArticleJson(Entry *e);
     QVariantMap createFilmJson(Entry *e);
     QVariantMap createForumPostJson(Entry *e);
     QVariantMap createHearingJson(Entry *e);

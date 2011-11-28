@@ -72,15 +72,16 @@ signals:
 public slots:
     void cancelUpload();
 
+    virtual void pushItems(File items) = 0;
     virtual void pushNewItems(File items) = 0;
     virtual void updateItem(Entry *item) = 0;
     virtual void addItemsToCollection(QList<QString> ids, const QString &collection) = 0;
     virtual void removeItemsFromCollection(QList<QString> ids, const QString &collection) = 0;
-    virtual void deleteItems(QList<QString> ids) = 0;
+    virtual void deleteItems(File items) = 0;
 
-    virtual void createCollection(CollectionInfo ci, const QString &parent = QString()) = 0;
-    virtual void editCollection(CollectionInfo ci) = 0;
-    virtual void deleteCollection(const QString &id) = 0;
+    virtual void createCollection(const CollectionInfo &ci) = 0;
+    virtual void editCollection(const CollectionInfo &ci) = 0;
+    virtual void deleteCollection(const CollectionInfo &ci) = 0;
 
 protected:
     /**
@@ -88,7 +89,7 @@ protected:
       *
       * @p url the url to get the data from
       */
-    void startRequest(const QNetworkRequest &request, const QByteArray & payload, QNetworkAccessManager::Operation mode);
+    void startRequest(const QNetworkRequest &request, const QByteArray & payload, QNetworkAccessManager::Operation mode, Entry *item = 0);
 
     /**
       * sets the current request type
@@ -102,16 +103,18 @@ protected:
       */
     RequestType requestType() const;
 
-    /**
-      * @return the QNetworkReply instance with the data from the request
-      */
-    QNetworkReply *reply() const;
+    void serverReplyFinished(QNetworkReply *reply);
+    Entry * serverReplyEntry(QNetworkReply *reply);
+    int openReplies() const;
 
 protected slots:
     /**
       * Called when the network request is finished
       *
-      * the reply() function holds the server response for the write request
+      * If changes to the bibtex entry need to be made based on the result of the reply you can get the informations via
+      * QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+      *
+      * The m_replies QMap holds any made reply and the Entry it caused or 0
       */
     virtual void requestFinished() = 0;
 
@@ -121,7 +124,7 @@ private:
     RequestType m_requestType;
 
     QNetworkAccessManager m_qnam;
-    QNetworkReply *m_reply;
+    QMap<QNetworkReply *, Entry *> m_replies;
 };
 
 #endif // WRITETOSTORAGE_H

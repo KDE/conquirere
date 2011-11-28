@@ -16,14 +16,19 @@
  */
 
 #include "writetozotero.h"
+#include "readfromzotero.h"
 
 #include <kbibtex/entry.h>
 
 #include <qjson/serializer.h>
+#include <QtNetwork/QNetworkReply>
+#include <QtCore/QXmlStreamReader>
+
 #include <QDebug>
 
 WriteToZotero::WriteToZotero(QObject *parent)
     : WriteToStorage(parent)
+    , m_allRequestsSend(false)
 {
 }
 
@@ -32,11 +37,40 @@ WriteToZotero::~WriteToZotero()
 
 }
 
+void WriteToZotero::pushItems(File items)
+{
+    // seperate new items from the ones that send updates
+    File newItems;
+    File updatingItems;
+    foreach(Element* element, items) {
+        Entry *entry = dynamic_cast<Entry *>(element);
+        if(!entry) {
+            continue;
+        }
+        QString zoteroKey = PlainTextValue::text(entry->value("zoteroKey"));
+
+        if(zoteroKey.isEmpty()) {
+            newItems.append(entry);
+        }
+        else {
+            updatingItems.append(entry);
+            updateItem(entry);
+        }
+    }
+
+    qDebug() << "WriteToZotero::pushItems | new:" << newItems.size() << "update:" << updatingItems.size();
+
+    pushNewItems(newItems);
+
+    m_allRequestsSend = true;
+}
+
 void WriteToZotero::pushNewItems(File items)
 {
     //POST /users/1/items
     //Content-Type: application/json
     //X-Zotero-Write-Token: 19a4f01ad623aa7214f82347e3711f56
+
     QString pushString = QString("https://api.zotero.org/users/%1/items").arg(userName());
 
     if(!pasword().isEmpty()) {
@@ -46,6 +80,7 @@ void WriteToZotero::pushNewItems(File items)
 
     QNetworkRequest request(pushUrl);
     request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+    //equest.setRawHeader("X-Zotero-Write-Token", etag);
 
     startRequest(request, writeJsonContent(items), QNetworkAccessManager::PostOperation);
 }
@@ -54,28 +89,32 @@ void WriteToZotero::updateItem(Entry *item)
 {
     //PUT /users/1/items/ABCD2345
     //If-Match: "8e984e9b2a8fb560b0085b40f6c2c2b7"
-    QString zoteroKey = PlainTextValue::text(e->value("zoteroKey"));
+
+    QString zoteroKey = PlainTextValue::text(item->value("zoteroKey"));
+    QString etag = PlainTextValue::text(item->value("zoteroEtag"));
+
     QString pushString = QString("https://api.zotero.org/users/%1/items/%2").arg(userName()).arg(zoteroKey);
 
     if(!pasword().isEmpty()) {
         pushString.append(QString("?key=%1").arg(pasword()));
     }
+
     QUrl pushUrl(pushString);
 
     QNetworkRequest request(pushUrl);
     request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-
-    QString etag = PlainTextValue::text(e->value("zoteroEtag"));
-    request.setRawHeader("If-Match", etag);
+    request.setRawHeader("If-Match", etag.toLatin1());
 
     File itemFile;
     itemFile.append(item);
-    startRequest(request, writeJsonContent(itemFile), QNetworkAccessManager::PutOperation);
+    startRequest(request, writeJsonContent(itemFile), QNetworkAccessManager::PutOperation, item);
 }
 
 void WriteToZotero::addItemsToCollection(QList<QString> ids, const QString &collection )
 {
     //POST /users/1/collections/QRST9876/items
+    //ABCD2345 BCDE3456 CDEF4567 DEFG5678
+
     QString pushString = QString("https://api.zotero.org/users/%1/collections/%2/items").arg(userName().arg(collection));
 
     if(!pasword().isEmpty()) {
@@ -98,8 +137,9 @@ void WriteToZotero::addItemsToCollection(QList<QString> ids, const QString &coll
 
 void WriteToZotero::removeItemsFromCollection(QList<QString> ids, const QString &collection )
 {
+    //DELETE /users/1/collections/QRST9876/items/ABCD2345
+
     foreach(const QString &id, ids) {
-        //DELETE /users/1/collections/QRST9876/items/ABCD2345
         QString pushString = QString("https://api.zotero.org/users/%1/collections/%2/items/%3").arg(userName().arg(collection).arg(id));
 
         if(!pasword().isEmpty()) {
@@ -114,35 +154,132 @@ void WriteToZotero::removeItemsFromCollection(QList<QString> ids, const QString 
     }
 }
 
-void WriteToZotero::deleteItems(QList<QString> ids)
+void WriteToZotero::deleteItems(File items)
 {
     //DELETE /users/1/items/ABCD2345
     //If-Match: "8e984e9b2a8fb560b0085b40f6c2c2b7"
+
+    foreach(Element*element, items) {
+        Entry *entry = dynamic_cast<Entry *>(element);
+        if(!entry) {
+            continue;
+        }
+        QString zoteroKey = PlainTextValue::text(entry->value("zoteroKey"));
+        QString pushString = QString("https://api.zotero.org/users/%1/items/%3").arg(userName().arg(zoteroKey));
+
+        if(!pasword().isEmpty()) {
+            pushString.append(QString("?key=%1").arg(pasword()));
+        }
+        QUrl pushUrl(pushString);
+
+        QNetworkRequest request(pushUrl);
+        request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+        QString etag = PlainTextValue::text(entry->value("zoteroEtag"));
+        request.setRawHeader("If-Match", etag.toLatin1());
+
+        startRequest(request, 0, QNetworkAccessManager::DeleteOperation);
+    }
 }
 
-void WriteToZotero::createCollection(CollectionInfo ci, const QString &parent)
+void WriteToZotero::createCollection(const CollectionInfo &ci)
 {
+    //POST /users/1/collections
+    //X-Zotero-Write-Token: 19a4f01ad623aa7214f82347e3711f56
 
+    QString pushString = QString("https://api.zotero.org/users/%1/collections").arg(userName());
+
+    if(!pasword().isEmpty()) {
+        pushString.append(QString("?key=%1").arg(pasword()));
+    }
+    QUrl pushUrl(pushString);
+
+    QNetworkRequest request(pushUrl);
+    request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+    //equest.setRawHeader("X-Zotero-Write-Token", etag);
+
+    startRequest(request, writeJsonContent(ci), QNetworkAccessManager::PostOperation);
 }
 
-void WriteToZotero::editCollection(CollectionInfo ci)
+void WriteToZotero::editCollection(const CollectionInfo &ci)
 {
+    //PUT /users/1/collections/RSTU8765
+    //If-Match: "f0ebb2240a57f4115b3ce841d5218fa2"
 
+    QString pushString = QString("https://api.zotero.org/users/%1/collections/%2").arg(userName()).arg(ci.id);
+
+    if(!pasword().isEmpty()) {
+        pushString.append(QString("?key=%1").arg(pasword()));
+    }
+
+    QUrl pushUrl(pushString);
+
+    QNetworkRequest request(pushUrl);
+    request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+    request.setRawHeader("If-Match", ci.eTag.toLatin1());
+
+    startRequest(request, writeJsonContent(ci), QNetworkAccessManager::PutOperation);
 }
 
-void WriteToZotero::deleteCollection(const QString &id)
+void WriteToZotero::deleteCollection(const CollectionInfo &ci)
 {
+    //DELETE /users/1/collections/RSTU8765
+    //If-Match: "f0ebb2240a57f4115b3ce841d5218fa2"
 
+    QString pushString = QString("https://api.zotero.org/users/%1/collections/%3").arg(userName().arg(ci.id));
+
+    if(!pasword().isEmpty()) {
+        pushString.append(QString("?key=%1").arg(pasword()));
+    }
+    QUrl pushUrl(pushString);
+
+    QNetworkRequest request(pushUrl);
+    request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+    request.setRawHeader("If-Match", ci.eTag.toLatin1());
+
+    startRequest(request, 0, QNetworkAccessManager::DeleteOperation);
 }
 
 void WriteToZotero::requestFinished()
 {
+    // we get a reply from the server
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
+    qDebug() << "error reply" << reply->error() << reply->errorString();
+
+    if(reply->error() != QNetworkReply::NoError) {
+        qDebug() << "error reply" << reply->error() << reply->errorString();
+        qDebug() << reply->readAll();
+    }
+
+    serverReplyFinished(reply);
+    Entry * e = serverReplyEntry(reply);
+
+    // if the entry is 0 we pushed new items to the server
+    // otherwise we updated the item
+
+    // we parse the response
+    QXmlStreamReader xmlReader;
+    xmlReader.setDevice(reply);
+
+    while(!xmlReader.atEnd()) {
+        if(!xmlReader.readNextStartElement()) {
+            continue;
+        }
+        if(xmlReader.name() == "entry") {
+            ReadFromZotero rfz;
+            m_entriesAfterSync.append( rfz.readItemEntry(xmlReader) );
+        }
+    }
+
+    if(m_allRequestsSend && openReplies() == 0) {
+        // now we emit allllll the entries we retrived from the server as response to our sent action
+        // all items have updated etag fields and the new items have an additional zoterokey field
+        emit itemsInfo(m_entriesAfterSync);
+    }
 }
 
 QByteArray WriteToZotero::writeJsonContent(File items)
 {
-
     QVariantMap jsonMap;
     QVariantList itemList;
 
@@ -151,152 +288,185 @@ QByteArray WriteToZotero::writeJsonContent(File items)
         if(!entry) {
             continue;
         }
+
+        // none Zotero types which I try to squeeze into zotero
+
         if(entry->type().toLower() == QString("article")) {
+            QString articleType = PlainTextValue::text(entry->value("articletype"));
+
+            if(articleType == "newspaper") {
+                itemList.append( createNewspaperArticleJson( entry) );
+            }
+            else if(articleType == "magazine") {
+                itemList.append( createMagazineArticleJson( entry) );
+            }
+            else {
+                itemList.append( createJournalArticleJson( entry) );
+            }
 
         }
         else if(entry->type().toLower() == QString("inbook")) {
-
+            itemList.append( createBookSectionJson( entry) );
         }
         else if(entry->type().toLower() == QString("inproceedings")) {
-
+            itemList.append( createConferencePaperJson( entry) );
         }
         else if(entry->type().toLower() == QString("booklet")) {
-
+            itemList.append( createBookJson( entry) );
         }
         else if(entry->type().toLower() == QString("conference")) {
-
-        }
-        else if(entry->type().toLower() == QString("inproceedings")) {
-
-        }
-        else if(entry->type().toLower() == QString("incollection")) {
-
-        }
-        else if(entry->type().toLower() == QString("manual")) {
-
-        }
-        else if(entry->type().toLower() == QString("mastersthesis")) {
-
-        }
-        else if(entry->type().toLower() == QString("misc")) {
-
-        }
-        else if(entry->type().toLower() == QString("phdthesis")) {
-
+            itemList.append( createConferencePaperJson( entry) );
         }
         else if(entry->type().toLower() == QString("proceedings")) {
+            itemList.append( createConferencePaperJson( entry) );
+        }
+        else if(entry->type().toLower() == QString("incollection")) {
+            itemList.append( createDocumentJson( entry) );
+        }
+        else if(entry->type().toLower() == QString("manual")) {
+            itemList.append( createDocumentJson( entry) );
+        }
+        else if(entry->type().toLower() == QString("mastersthesis")) {
+            PlainText *ptValue = new PlainText("master");
+            Value valueList;
+            valueList.append(ptValue);
+            entry->insert(QString("thesisType"), valueList);
 
+            itemList.append( createThesisJson( entry ) );
+        }
+        else if(entry->type().toLower() == QString("misc")) {
+            itemList.append( createDocumentJson( entry) );
+        }
+        else if(entry->type().toLower() == QString("phdthesis")) {
+            PlainText *ptValue = new PlainText("phd");
+            Value valueList;
+            valueList.append(ptValue);
+            entry->insert(QString("thesisType"), valueList);
+
+            itemList.append( createThesisJson( entry) );
+        }
+        else if(entry->type().toLower() == QString("bachelor")) {
+            PlainText *ptValue = new PlainText("master");
+            Value valueList;
+            valueList.append(ptValue);
+            entry->insert(QString("thesisType"), valueList);
+
+            itemList.append( createThesisJson( entry) );
         }
         else if(entry->type().toLower() == QString("techreport")) {
-
+            itemList.append( createReportJson( entry) );
         }
         else if(entry->type().toLower() == QString("unpublished")) {
+            itemList.append( createDocumentJson( entry) );
 
         }
-        else if(entry->type().toLower() == QString("artwork")) {
 
+        // default Zotero types
+
+        else if(entry->type().toLower() == QString("artwork")) {
+            itemList.append( createArtworkJson(entry) );
         }
         else if(entry->type().toLower() == QString("audioRecording")) {
-
+            itemList.append( createAudioRecordingJson(entry) );
         }
         else if(entry->type().toLower() == QString("bill")) {
-
+            itemList.append( createBillJson(entry) );
         }
         else if(entry->type().toLower() == QString("blogPost")) {
-
+            itemList.append( createBlogPostJson(entry) );
         }
         else if(entry->type().toLower() == QString("book")) {
             itemList.append( createBookJson(entry) );
         }
         else if(entry->type().toLower() == QString("bookSection")) {
-
+            itemList.append( createBookSectionJson(entry) );
         }
         else if(entry->type().toLower() == QString("case")) {
-
+            itemList.append( createCaseJson(entry) );
         }
         else if(entry->type().toLower() == QString("computerProgram")) {
-
+            itemList.append( createComputerProgramJson(entry) );
         }
         else if(entry->type().toLower() == QString("conferencePaper")) {
-
+            itemList.append( createConferencePaperJson(entry) );
         }
         else if(entry->type().toLower() == QString("dictionaryEntry")) {
-
+            itemList.append( createDictionaryEntryJson(entry) );
         }
         else if(entry->type().toLower() == QString("document")) {
-
+            itemList.append( createDocumentJson(entry) );
         }
         else if(entry->type().toLower() == QString("email")) {
-
+            itemList.append( createEmailJson(entry) );
         }
         else if(entry->type().toLower() == QString("encyclopediaArticle")) {
-
+            itemList.append( createEncyclopediaArticleJson(entry) );
         }
         else if(entry->type().toLower() == QString("film")) {
-
+            itemList.append( createFilmJson(entry) );
         }
         else if(entry->type().toLower() == QString("forumPost")) {
-
+            itemList.append( createForumPostJson(entry) );
         }
         else if(entry->type().toLower() == QString("hearing")) {
-
+            itemList.append( createHearingJson(entry) );
         }
         else if(entry->type().toLower() == QString("instantMessage")) {
-
+            itemList.append( createInstantMessageJson(entry) );
         }
         else if(entry->type().toLower() == QString("interview")) {
-
+            itemList.append( createInterviewJson(entry) );
         }
         else if(entry->type().toLower() == QString("journalArticle")) {
-
+            itemList.append( createJournalArticleJson(entry) );
         }
         else if(entry->type().toLower() == QString("letter")) {
-
+            itemList.append( createLetterJson(entry) );
         }
         else if(entry->type().toLower() == QString("magazineArticle")) {
-
+            itemList.append( createMagazineArticleJson(entry) );
         }
         else if(entry->type().toLower() == QString("manuscript")) {
-
+            itemList.append( createManuscriptJson(entry) );
         }
         else if(entry->type().toLower() == QString("map")) {
-
+            itemList.append( createMapJson(entry) );
         }
         else if(entry->type().toLower() == QString("newspaperArticle")) {
-
+            itemList.append( createNewspaperArticleJson(entry) );
         }
         else if(entry->type().toLower() == QString("note")) {
-
+            itemList.append( createNoteJson(entry) );
         }
         else if(entry->type().toLower() == QString("patent")) {
-
+            itemList.append( createPatentJson(entry) );
         }
         else if(entry->type().toLower() == QString("podcast")) {
-
+            itemList.append( createPodcastJson(entry) );
         }
         else if(entry->type().toLower() == QString("presentation")) {
-
+            itemList.append( createPresentationJson(entry) );
         }
         else if(entry->type().toLower() == QString("radioBroadcast")) {
-
+            itemList.append( createRadioBroadcastJson(entry) );
         }
         else if(entry->type().toLower() == QString("report")) {
-
+            itemList.append( createReportJson(entry) );
         }
         else if(entry->type().toLower() == QString("statute")) {
-
+            itemList.append( createStatuteJson(entry) );
         }
         else if(entry->type().toLower() == QString("tvBroadcast")) {
-
+            itemList.append( createTvBroadcastJson(entry) );
         }
         else if(entry->type().toLower() == QString("thesis")) {
-
+            itemList.append( createThesisJson(entry) );
         }
         else if(entry->type().toLower() == QString("videoRecording")) {
-
+            itemList.append( createVideoRecordingJson(entry) );
         }
         else if(entry->type().toLower() == QString("webpage")) {
-
+            itemList.append( createWebpageJson(entry) );
         }
         else {
             qWarning() << "unknwon bibtex entry type" << entry->type() << "can't create zotero json from it";
@@ -308,7 +478,18 @@ QByteArray WriteToZotero::writeJsonContent(File items)
     QJson::Serializer serializer;
     QByteArray json = serializer.serialize(jsonMap);
 
-    qDebug() << json;
+    return json;
+}
+
+QByteArray WriteToZotero::writeJsonContent(const CollectionInfo &collection)
+{
+    QVariantMap jsonMap;
+
+    jsonMap.insert("name",collection.name);
+    jsonMap.insert("parent",collection.parentId);
+
+    QJson::Serializer serializer;
+    QByteArray json = serializer.serialize(jsonMap);
 
     return json;
 }
@@ -721,7 +902,7 @@ QVariantMap WriteToZotero::createEmailJson(Entry *e)
     return jsonMap;
 }
 
-QVariantMap WriteToZotero::createenCyclopediaArticleJson(Entry *e)
+QVariantMap WriteToZotero::createEncyclopediaArticleJson(Entry *e)
 {
     QVariantMap jsonMap;
 
@@ -1301,7 +1482,7 @@ QVariantMap WriteToZotero::createThesisJson(Entry *e)
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
     jsonMap.insert("creators",createCreatorsJson(e));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
-    jsonMap.insert("thesisType",PlainTextValue::text(e->value("thesisType")));
+    jsonMap.insert("thesisType",PlainTextValue::text(e->value("type")));
     jsonMap.insert("university",PlainTextValue::text(e->value("school")));
     jsonMap.insert("place",PlainTextValue::text(e->value("place")));
     //jsonMap.insert("date","");

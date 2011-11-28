@@ -48,6 +48,10 @@ class ReadFromZotero : public ReadFromStorage
 public:
     explicit ReadFromZotero(QObject *parent = 0);
 
+    CollectionInfo readCollectionEntry(QXmlStreamReader &xmlReader);
+    Element *readItemEntry(QXmlStreamReader &xmlReader);
+    void readJsonContent(Entry *e, const QString &content);
+
 public slots:
     void fetchItems();
     void fetchItem(const QString &id, const QString &collection = QString() );
@@ -58,10 +62,6 @@ protected slots:
     void requestFinished();
 
 private:
-    CollectionInfo readCollectionEntry(QXmlStreamReader &xmlReader);
-    Element *readItemEntry(QXmlStreamReader &xmlReader);
-    void readJsonContent(Entry *e, const QString &content);
-
     QList<CollectionInfo> m_cachedCollectionResult;
     File m_bibFile;
 };

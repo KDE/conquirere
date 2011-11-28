@@ -112,8 +112,8 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
         }
     }
     else if(publication.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
-        Nepomuk::Resource proceedings = publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
-        if(proceedings.isValid()) {
+        Nepomuk::Resource collection = publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+        if(collection.hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
             type = QLatin1String("Inproceedings"); //article in some proceedings paper
         }
         else {

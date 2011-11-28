@@ -26,6 +26,8 @@
 struct CollectionInfo {
     QString name;
     QString id;
+    QString parentId;
+    QString eTag;
     int subCollections;
     int items;
 };

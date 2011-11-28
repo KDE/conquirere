@@ -19,6 +19,8 @@
 
 #include <QtNetwork/QNetworkReply>
 
+#include <QDebug>
+
 ReadFromStorage::ReadFromStorage(QObject *parent)
     : QObject(parent)
     , m_requestType(Items)

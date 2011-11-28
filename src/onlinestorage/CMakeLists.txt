@@ -4,6 +4,7 @@ set(onlinestorage_LIB_SRCS
     writetostorage.cpp
     zotero/readfromzotero.cpp
     zotero/writetozotero.cpp
+    zotero/synczotero.cpp
 )
 
 kde4_add_library( onlinestorage STATIC ${onlinestorage_LIB_SRCS} )

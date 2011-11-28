@@ -69,6 +69,7 @@ signals:
       * This signal will be emitted if the processed data is ready
       *
       * @p items the bibtex files containing all available bibtex items
+      *          the result should be merged with the current entries
       */
     void itemsInfo(File items);
 

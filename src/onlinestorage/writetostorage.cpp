@@ -22,7 +22,6 @@
 WriteToStorage::WriteToStorage(QObject *parent)
     : QObject(parent)
     , m_requestType(Items)
-    , m_reply(0)
 {
     qRegisterMetaType<CollectionInfo>("CollectionInfo");
     qRegisterMetaType<QList<CollectionInfo> >("QList<CollectionInfo>");
@@ -30,7 +29,11 @@ WriteToStorage::WriteToStorage(QObject *parent)
 
 WriteToStorage::~WriteToStorage()
 {
-    delete m_reply;
+    QMapIterator<QNetworkReply *, Entry *> i(m_replies);
+    while (i.hasNext()) {
+        i.next();
+        i.key()->deleteLater();
+    }
 }
 
 void WriteToStorage::setUserName(const QString & name)
@@ -63,33 +66,51 @@ RequestType WriteToStorage::requestType() const
     return m_requestType;
 }
 
-QNetworkReply *WriteToStorage::reply() const
+void WriteToStorage::serverReplyFinished(QNetworkReply *reply)
 {
-    return m_reply;
+    m_replies.remove(reply);
+
+    reply->deleteLater();
 }
 
-void WriteToStorage::startRequest(const QNetworkRequest &request, const QByteArray & payload, QNetworkAccessManager::Operation mode)
+Entry * WriteToStorage::serverReplyEntry(QNetworkReply *reply)
 {
+    return m_replies.value(reply);
+}
+
+int WriteToStorage::openReplies() const
+{
+    return m_replies.size();
+}
+
+void WriteToStorage::startRequest(const QNetworkRequest &request, const QByteArray & payload, QNetworkAccessManager::Operation mode, Entry *item)
+{
+    QNetworkReply *reply;
     switch(mode) {
-    case PutOperation:
-        m_reply = m_qnam.put(request, payload);
+    case QNetworkAccessManager::PutOperation:
+        reply = m_qnam.put(request, payload);
         break;
-    case PostOperation:
-        m_reply = m_qnam.post(request, payload);
+    case QNetworkAccessManager::PostOperation:
+        reply = m_qnam.post(request, payload);
         break;
-    case DeleteOperation:
-        m_reply = m_qnam.deleteResource(request);
+    case QNetworkAccessManager::DeleteOperation:
+        reply = m_qnam.deleteResource(request);
         break;
     default:
-        m_reply = m_qnam.post(request, payload);
+        reply = m_qnam.post(request, payload);
     }
 
-    m_reply = m_qnam.post(request, payload);
-    connect(m_reply, SIGNAL(finished()),this, SLOT(requestFinished()));
+    connect(reply, SIGNAL(finished()),this, SLOT(requestFinished()));
     //connect(reply, SIGNAL(downloadProgress(qint64,qint64)),this, SLOT(updateDataReadProgress(qint64,qint64)));
+
+    m_replies.insert( reply, item );
 }
 
 void WriteToStorage::cancelUpload()
 {
-    m_reply->abort();
+    QMapIterator<QNetworkReply *, Entry *> i(m_replies);
+    while (i.hasNext()) {
+        i.next();
+        i.key()->abort();
+    }
 }

@@ -173,12 +173,13 @@ Element *ReadFromZotero::readItemEntry(QXmlStreamReader &xmlReader)
             e->insert(QString("zoteroUpdated"), valueList);
         }
         else if(xmlReader.name() == "content") {
-            QString etag = xmlReader.attributes().value("etag").toString();
+            QString etag = xmlReader.attributes().value("zapi:etag").toString();
 
             PlainText *ptValue = new PlainText(etag);
             Value valueList;
             valueList.append(ptValue);
             e->insert(QString("zoteroEtag"), valueList);
+
             readJsonContent(e, xmlReader.readElementText());
         }
         else if(xmlReader.name() == "entry") {
@@ -306,6 +307,15 @@ void ReadFromZotero::readJsonContent(Entry *e, const QString &content)
             Value valueList;
             valueList.append(ptValue);
             e->insert(QString("abstract"), valueList);
+        }
+        else if(i.key() == "seriesTitle") {
+            QString text = i.value().toString();
+            if(text.isEmpty())
+                continue;
+            PlainText *ptValue = new PlainText(text);
+            Value valueList;
+            valueList.append(ptValue);
+            e->insert(QString("series"), valueList);
         }
         else {
             QString text = i.value().toString();
