@@ -39,6 +39,8 @@ WriteToZotero::~WriteToZotero()
 
 void WriteToZotero::pushItems(File items)
 {
+    m_progressPerFile = (qreal)items.size() / 100.0;
+
     // seperate new items from the ones that send updates
     File newItems;
     File updatingItems;
@@ -273,6 +275,7 @@ void WriteToZotero::requestFinished()
     QXmlStreamReader xmlReader;
     xmlReader.setDevice(reply);
 
+    int newFilesAdded = 0;
     while(!xmlReader.atEnd()) {
         if(!xmlReader.readNextStartElement()) {
             continue;
@@ -280,6 +283,10 @@ void WriteToZotero::requestFinished()
         if(xmlReader.name() == "entry") {
             ReadFromZotero rfz;
             Entry *newElement = dynamic_cast<Entry *>(rfz.readItemEntry(xmlReader));
+
+            m_progress = m_progress + m_progressPerFile;
+
+            emit progress(m_progress);
 
             // if we got an earliers Entry in the server reply we know we updated the item
             // updatethe tag and updated date
@@ -293,8 +300,14 @@ void WriteToZotero::requestFinished()
             // otherwise if we have no updateEntry we got a responce from an item creation request
             else {
                 m_entriesAfterSync.append( newElement );
+                newFilesAdded++;
             }
         }
+    }
+
+    if(newFilesAdded != 0) {
+        m_progress = m_progress + m_progressPerFile * newFilesAdded;
+        emit progress(m_progress);
     }
 
     if(m_allRequestsSend && openReplies() == 0) {

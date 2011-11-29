@@ -30,6 +30,8 @@
   * merge them with the available items in the @p bibfile pointer and sends all changed/new items back to the server
   *
   * The @c bibfile will have the sync state as soon as @c syncInProgress(false) is emitted
+  *
+  * @author Jörg Ehrichs <joerg.ehrichs@gmx.de>
   */
 class SyncStorage : public QObject
 {
@@ -45,6 +47,8 @@ public:
 
 signals:
     void syncInProgress(bool active);
+    void progress(int percent);
+    void currentStatus(const QString &status);
 
 public slots:
     /**

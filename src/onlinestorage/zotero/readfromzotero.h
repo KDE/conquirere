@@ -41,6 +41,10 @@ class Entry;
   * @li @c zoteroUpdated The time this item was updated the last time in the zotero storage
   * @li @c zoteroEtag An additinal key to help identify if the item has changed on the server
   *                   since the last pull request, necessary for the writeback to the server
+  *
+  * @see https://www.zotero.org/support/dev/server_api/read_api
+  *
+  * @author Jörg Ehrichs <joerg.ehrichs@gmx.de>
   */
 class ReadFromZotero : public ReadFromStorage
 {

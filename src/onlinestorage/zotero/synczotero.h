@@ -23,6 +23,11 @@
 class ReadFromZotero;
 class WriteToZotero;
 
+/**
+  * @brief sync bibtex file with zotero storage
+  *
+  * @author Jörg Ehrichs <joerg.ehrichs@gmx.de>
+  */
 class SyncZotero : public SyncStorage
 {
     Q_OBJECT
@@ -46,6 +51,11 @@ private slots:
       *       zoteroKey, zoteroetag, zoteroupdated fields and has no citekey
       */
     void writeSync(File serverFiles);
+
+    /**
+      * fit the 0-100 % progress from the write action into the 50-100 % for the overall progress
+      */
+    void writeProgress(int writeProgress);
 
 private:
     File *m_systemFiles;

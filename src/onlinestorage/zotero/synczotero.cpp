@@ -22,6 +22,9 @@
 
 #include <kbibtex/entry.h>
 #include <kbibtex/findduplicates.h>
+#include <kbibtex/findduplicatesui.h>
+
+#include <KDE/KDialog>
 
 #include <QDebug>
 
@@ -39,6 +42,7 @@ SyncZotero::~SyncZotero()
 void SyncZotero::syncWithStorage(File *bibfile)
 {
     emit syncInProgress(true);
+    emit progress(0);
 
     m_systemFiles = bibfile;
 
@@ -53,6 +57,7 @@ void SyncZotero::syncWithStorage(File *bibfile)
 
 void SyncZotero::readSync(File serverFiles)
 {
+    emit progress(30);
     qDebug() << "SyncZotero::itemsFromServer || entries" << m_systemFiles->size() << " + new" << serverFiles.size();
 
     // now go through all retrieved serverFiles and see if we have to merge something
@@ -60,19 +65,21 @@ void SyncZotero::readSync(File serverFiles)
     // if the zoteroetag is different, the file changed on the server and must be merged
     // if no entry with the zoterokey exist, add the new entry
 
+    QStringList updatedKeys;
     // go through all retrieved entries
     foreach(Element* element, serverFiles) {
         Entry *entry = dynamic_cast<Entry *>(element);
         if(!entry) { continue; }
 
         QString zoteroKey = PlainTextValue::text(entry->value("zoterokey"));
+        updatedKeys.append(zoteroKey);
         QString zoteroEtag = PlainTextValue::text(entry->value("zoteroetag"));
 
         bool addEntry = true;
         // check if the zoterokey exist
         foreach(Element* checkElement, *m_systemFiles) {
             Entry *checkEntry = dynamic_cast<Entry *>(checkElement);
-            if(!entry) { continue; }
+            if(!checkEntry) { continue; }
 
             QString checkZoteroKey = PlainTextValue::text(checkEntry->value("zoterokey"));
             if(!checkZoteroKey.isEmpty() && checkZoteroKey == zoteroKey) {
@@ -94,6 +101,25 @@ void SyncZotero::readSync(File serverFiles)
         }
     }
 
+    emit progress(40);
+
+    // now we delete all entries that have a zoterokey which we did not retrieve from teh server
+    // this means we deleted the entry on theserver
+    foreach(Element* element, *m_systemFiles) {
+        Entry *entry = dynamic_cast<Entry *>(element);
+        if(!entry) { continue; }
+
+        QString checkZoteroKey = PlainTextValue::text(entry->value("zoterokey"));
+
+        if(!checkZoteroKey.isEmpty() && !updatedKeys.contains(checkZoteroKey)) {
+            m_systemFiles->removeAll(element);
+            delete element;
+            qDebug() << "delete entry with old key" << checkZoteroKey;
+        }
+    }
+
+    emit progress(50);
+
     //################################################################################################
     // now we have the list of existing entries together with all server entries that changed
     // merge them automatically or via user interaction
@@ -108,10 +134,18 @@ void SyncZotero::readSync(File serverFiles)
     fd.findDuplicateEntries(m_systemFiles, cliques);
 
     qDebug() << "duplicates" << cliques.size() << "of entries" << m_systemFiles->size() << "ask user what he wants to do with it";
+/*
+    if(cliques.size() > 0) {
+        KDialog dlg;
+        MergeWidget mw(m_systemFiles, cliques, &dlg);
+        dlg.setMainWidget(&mw);
 
-    MergeDuplicates md(0);
-    md.mergeDuplicateEntries(cliques, m_systemFiles);
+        dlg.exec();
 
+        MergeDuplicates md(0);
+        md.mergeDuplicateEntries(cliques, m_systemFiles);
+    }
+*/
     // from this point on, we have all data from the server merged with the local items
     // now its time to send all data to the server, update changed items and create new ones
     m_wtz = new WriteToZotero;
@@ -120,6 +154,7 @@ void SyncZotero::readSync(File serverFiles)
     m_wtz->pushItems(*m_systemFiles);
 
     connect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(writeSync(File)));
+    connect(m_wtz, SIGNAL(progress(int)), this, SLOT(writeProgress(int)));
 }
 
 void SyncZotero::writeSync(File serverFiles)
@@ -129,16 +164,14 @@ void SyncZotero::writeSync(File serverFiles)
     // whats left are the newly created items
     // these are identical to some other entry but they have no "citekey" and the zoterotags added
 
-    qDebug() << "new entries we need to merge and add a zoterokey to" << serverFiles.size();
+    qDebug() << "new entries we need to add a zoterokey to" << serverFiles.size();
 
     m_systemFiles->append(serverFiles);
-    int sensitivity = 100; // taken from KBibTeX
+
+    int sensitivity = 4000; // taken from KBibTeX
     FindDuplicates fd(0, sensitivity);
     QList<EntryClique*> cliques;
     fd.findDuplicateEntries(m_systemFiles, cliques);
-    foreach(EntryClique* ec, cliques) {
-        ec->setEntryChecked(ec->entryList().first(), true);
-    }
 
     qDebug() << "duplicates" << cliques.size() << "of entries" << m_systemFiles->size();
 
@@ -147,5 +180,13 @@ void SyncZotero::writeSync(File serverFiles)
 
     qDebug() << "entries after merge" << m_systemFiles->size();
 
+    emit progress(100);
     emit syncInProgress(false);
+}
+
+void SyncZotero::writeProgress(int writeProgress)
+{
+    qreal curProgress = ((qreal)writeProgress * 0.5) + 50;
+
+    emit progress(curProgress);
 }

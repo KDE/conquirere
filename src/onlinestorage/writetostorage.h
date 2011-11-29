@@ -32,6 +32,11 @@ class QIODevice;
 class QNetworkReply;
 class Entry;
 
+/**
+  * @brief Abstract Base class to write bibtex entries to an online storage
+  *
+  * @author Jörg Ehrichs <joerg.ehrichs@gmx.de>
+  */
 class WriteToStorage : public QObject
 {
     Q_OBJECT

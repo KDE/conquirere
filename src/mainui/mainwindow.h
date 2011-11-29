@@ -58,7 +58,6 @@ public slots:
     void showZoteroItems(File bibFile);
     void zoteroCollection();
     //void showZoteroCollection(QList<CollectionInfo> collections);
-    void saveOnlineStoreItems(bool status);
 
 private:
     void setupActions();

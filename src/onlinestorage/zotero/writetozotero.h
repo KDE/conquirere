@@ -20,6 +20,23 @@
 
 #include "../writetostorage.h"
 
+/**
+  * @brief sync bibtex items with the zotero online storage
+  *
+  * Before an item can be updated in the storage it must be fetched to retrieve the latest
+  * etag value. This ensures the item wasn't changed on the server in the meantime.
+  *
+  * When a new item was created or updated a new etag value and zotero updated date is retrieved from
+  * the server, these values are write back to the bibte file.
+  *
+  * Only the allowed zotero item and their allowed values are synced to the server.
+  * The @c writeJsonContent() tries to fit bibtex entries that do not relate directly to corresponding
+  * zotero values.
+  *
+  * @see https://www.zotero.org/support/dev/server_api/write_api
+  *
+  * @author Jörg Ehrichs <joerg.ehrichs@gmx.de>
+  */
 class WriteToZotero : public WriteToStorage
 {
     Q_OBJECT
@@ -45,6 +62,8 @@ protected slots:
 private:
     bool m_allRequestsSend;
     File m_entriesAfterSync;
+    qreal m_progressPerFile;
+    qreal m_progress;
 
     QByteArray writeJsonContent(File items, bool onlyUpdate = false);
     QByteArray writeJsonContent(const CollectionInfo &collection);
