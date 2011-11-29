@@ -18,6 +18,7 @@
 #include "writetostorage.h"
 
 #include <QtNetwork/QNetworkReply>
+#include <QDebug>
 
 WriteToStorage::WriteToStorage(QObject *parent)
     : QObject(parent)

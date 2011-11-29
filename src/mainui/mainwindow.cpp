@@ -37,6 +37,7 @@
 
 #include "../nbibio/pipe/nepomuktobibtexpipe.h"
 #include <kbibtex/fileexporterbibtex.h>
+#include <kbibtex/fileimporterbibtex.h>
 #include "../onlinestorage/zotero/synczotero.h"
 
 #include <KDE/KApplication>
@@ -293,33 +294,61 @@ void MainWindow::showZoteroItems(File bibFile)
 
 void MainWindow::zoteroCollection()
 {
+    FileImporterBibTeX febImp;
+
+    QFile exportFile(QString("/home/joerg/zotero_export.bib"));
+    if (!exportFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "can't open testfile";
+        return;
+    }
+    m_bibFile = febImp.load(&exportFile);
+
+    qDebug() << "imported files" << m_bibFile->size();
+
     SyncZotero *wtz = new SyncZotero;
     wtz->setUserName(QString("795913"));
     wtz->setPassword(QString("TBydrlOdZo05mmzMhO8PlWCv"));
 
-    Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Publication() ) );
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
+//    Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Publication() ) );
+//    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
 
-    QList<Nepomuk::Resource> resources;
-    foreach(const Nepomuk::Query::Result & r, queryResult) {
-        resources.append(r.resource());
-    }
+//    QList<Nepomuk::Resource> resources;
+//    foreach(const Nepomuk::Query::Result & r, queryResult) {
+//        resources.append(r.resource());
+//    }
 
-    NepomukToBibTexPipe ntbp;
-    ntbp.pipeExport(resources);
+//    NepomukToBibTexPipe ntbp;
+//    ntbp.pipeExport(resources);
 
-    File bibFile = ntbp.bibtexFile();
+//    File bibFile = ntbp.bibtexFile();
 
     qDebug() << "start syncing";
-    wtz->syncWithStorage(bibFile);
+    wtz->syncWithStorage(m_bibFile);
+
+    connect(wtz, SIGNAL(syncInProgress(bool)), this, SLOT(saveOnlineStoreItems(bool)));
 }
 
-void MainWindow::showZoteroCollection(QList<CollectionInfo> collection)
+void MainWindow::saveOnlineStoreItems(bool status)
 {
-    foreach(const CollectionInfo &c, collection) {
-        qDebug() << c.name << "[" <<  c.id << "]" << "items:" << c.items << " subcollections:" << c.subCollections;
+    if(!status) {
+        QFile exportFile(QString("/home/joerg/zotero_export.bib"));
+        if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            return;
+        }
+
+        qDebug() << "MainWindow::saveOnlineStoreItems" << status << m_bibFile->size();
+
+        FileExporterBibTeX feb;
+        feb.save(&exportFile, m_bibFile);
     }
 }
+
+//void MainWindow::showZoteroCollection(QList<CollectionInfo> collection)
+//{
+//    foreach(const CollectionInfo &c, collection) {
+//        qDebug() << c.name << "[" <<  c.id << "]" << "items:" << c.items << " subcollections:" << c.subCollections;
+//    }
+//}
 
 void MainWindow::setupActions()
 {

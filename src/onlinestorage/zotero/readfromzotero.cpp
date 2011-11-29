@@ -220,10 +220,10 @@ void ReadFromZotero::readJsonContent(Entry *e, const QString &content)
             e->insert(QString("keywords"), tagList);
         }
         else if(i.key() == "itemType") {
-            QString text = i.value().toString();
+            QString text = i.value().toString().toLower();
 
             if(text == "booksection") {
-                e->setType(QString("inbook"));
+                e->setType(QString("incollection")); // as incollection is part of a book with its own name
             }
             else if(text == "conferencepaper") {
                 e->setType(QString("inproceedings"));
@@ -269,7 +269,7 @@ void ReadFromZotero::readJsonContent(Entry *e, const QString &content)
                     editorList.append(p);
                 }
             }
-            e->insert(QString("authors"), authorList);
+            e->insert(QString("author"), authorList);
             e->insert(QString("editor"), editorList);
         }
         else if(i.key() == "proceedingstitle") {

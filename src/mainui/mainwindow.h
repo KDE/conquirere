@@ -21,7 +21,7 @@
 #include "../globals.h"
 
 #include <KParts/MainWindow>
-#include "../onlinestorage/zotero/readfromzotero.h"
+
 #include <kbibtex/file.h>
 
 class Library;
@@ -57,7 +57,8 @@ public slots:
     void zoteroItems();
     void showZoteroItems(File bibFile);
     void zoteroCollection();
-    void showZoteroCollection(QList<CollectionInfo> collections);
+    //void showZoteroCollection(QList<CollectionInfo> collections);
+    void saveOnlineStoreItems(bool status);
 
 private:
     void setupActions();
@@ -76,6 +77,8 @@ private:
     QMap<Library *, QWidget *> m_libraryList; /**< holds the welcome widget for each opened library */
     Library *m_systemLibrary;
     Library *m_curLibrary;
+
+    File *m_bibFile;
 };
 
 #endif // MAINWINDOW_H

@@ -55,12 +55,18 @@ void WriteToZotero::pushItems(File items)
         else {
             updatingItems.append(entry);
             updateItem(entry);
+            qDebug() << "send item update for" << zoteroKey;
         }
     }
 
     qDebug() << "WriteToZotero::pushItems | new:" << newItems.size() << "update:" << updatingItems.size();
 
-    pushNewItems(newItems);
+    if(!newItems.isEmpty()) {
+        pushNewItems(newItems);
+    }
+    else {
+        emit itemsInfo(m_entriesAfterSync);
+    }
 
     m_allRequestsSend = true;
 }
@@ -107,7 +113,7 @@ void WriteToZotero::updateItem(Entry *item)
 
     File itemFile;
     itemFile.append(item);
-    startRequest(request, writeJsonContent(itemFile), QNetworkAccessManager::PutOperation, item);
+    startRequest(request, writeJsonContent(itemFile, true), QNetworkAccessManager::PutOperation, item);
 }
 
 void WriteToZotero::addItemsToCollection(QList<QString> ids, const QString &collection )
@@ -244,15 +250,21 @@ void WriteToZotero::requestFinished()
     // we get a reply from the server
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
-    qDebug() << "error reply" << reply->error() << reply->errorString();
-
     if(reply->error() != QNetworkReply::NoError) {
         qDebug() << "error reply" << reply->error() << reply->errorString();
-        qDebug() << reply->readAll();
+
+        serverReplyFinished(reply);
+        return;
     }
 
+    Entry * updateEntry = serverReplyEntry(reply);
     serverReplyFinished(reply);
-    Entry * e = serverReplyEntry(reply);
+    if(updateEntry) {
+        qDebug() << "found old updateEntry";
+    }
+    else {
+        qDebug() << "found NO old updateEntry";
+    }
 
     // if the entry is 0 we pushed new items to the server
     // otherwise we updated the item
@@ -267,18 +279,31 @@ void WriteToZotero::requestFinished()
         }
         if(xmlReader.name() == "entry") {
             ReadFromZotero rfz;
-            m_entriesAfterSync.append( rfz.readItemEntry(xmlReader) );
+            Entry *newElement = dynamic_cast<Entry *>(rfz.readItemEntry(xmlReader));
+
+            // if we got an earliers Entry in the server reply we know we updated the item
+            // updatethe tag and updated date
+            if(updateEntry) {
+                    updateEntry->remove("zoteroupdated");
+                    updateEntry->insert("zoteroupdated", newElement->value("zoteroupdated"));
+                    updateEntry->remove("zoteroetag");
+                    updateEntry->insert("zoteroetag", newElement->value("zoteroetag"));
+                    break;
+            }
+            // otherwise if we have no updateEntry we got a responce from an item creation request
+            else {
+                m_entriesAfterSync.append( newElement );
+            }
         }
     }
 
     if(m_allRequestsSend && openReplies() == 0) {
-        // now we emit allllll the entries we retrived from the server as response to our sent action
-        // all items have updated etag fields and the new items have an additional zoterokey field
+        // now we emit all the new entries we retrived from the server as response to our sent action
         emit itemsInfo(m_entriesAfterSync);
     }
 }
 
-QByteArray WriteToZotero::writeJsonContent(File items)
+QByteArray WriteToZotero::writeJsonContent(File items, bool onlyUpdate)
 {
     QVariantMap jsonMap;
     QVariantList itemList;
@@ -290,7 +315,6 @@ QByteArray WriteToZotero::writeJsonContent(File items)
         }
 
         // none Zotero types which I try to squeeze into zotero
-
         if(entry->type().toLower() == QString("article")) {
             QString articleType = PlainTextValue::text(entry->value("articletype"));
 
@@ -366,31 +390,31 @@ QByteArray WriteToZotero::writeJsonContent(File items)
         else if(entry->type().toLower() == QString("artwork")) {
             itemList.append( createArtworkJson(entry) );
         }
-        else if(entry->type().toLower() == QString("audioRecording")) {
+        else if(entry->type().toLower() == QString("audiorecording")) {
             itemList.append( createAudioRecordingJson(entry) );
         }
         else if(entry->type().toLower() == QString("bill")) {
             itemList.append( createBillJson(entry) );
         }
-        else if(entry->type().toLower() == QString("blogPost")) {
+        else if(entry->type().toLower() == QString("blogpost")) {
             itemList.append( createBlogPostJson(entry) );
         }
         else if(entry->type().toLower() == QString("book")) {
             itemList.append( createBookJson(entry) );
         }
-        else if(entry->type().toLower() == QString("bookSection")) {
+        else if(entry->type().toLower() == QString("booksection")) {
             itemList.append( createBookSectionJson(entry) );
         }
         else if(entry->type().toLower() == QString("case")) {
             itemList.append( createCaseJson(entry) );
         }
-        else if(entry->type().toLower() == QString("computerProgram")) {
+        else if(entry->type().toLower() == QString("computerprogram")) {
             itemList.append( createComputerProgramJson(entry) );
         }
-        else if(entry->type().toLower() == QString("conferencePaper")) {
+        else if(entry->type().toLower() == QString("conferencepaper")) {
             itemList.append( createConferencePaperJson(entry) );
         }
-        else if(entry->type().toLower() == QString("dictionaryEntry")) {
+        else if(entry->type().toLower() == QString("dictionaryentry")) {
             itemList.append( createDictionaryEntryJson(entry) );
         }
         else if(entry->type().toLower() == QString("document")) {
@@ -399,31 +423,31 @@ QByteArray WriteToZotero::writeJsonContent(File items)
         else if(entry->type().toLower() == QString("email")) {
             itemList.append( createEmailJson(entry) );
         }
-        else if(entry->type().toLower() == QString("encyclopediaArticle")) {
+        else if(entry->type().toLower() == QString("encyclopediaarticle")) {
             itemList.append( createEncyclopediaArticleJson(entry) );
         }
         else if(entry->type().toLower() == QString("film")) {
             itemList.append( createFilmJson(entry) );
         }
-        else if(entry->type().toLower() == QString("forumPost")) {
+        else if(entry->type().toLower() == QString("forumpost")) {
             itemList.append( createForumPostJson(entry) );
         }
         else if(entry->type().toLower() == QString("hearing")) {
             itemList.append( createHearingJson(entry) );
         }
-        else if(entry->type().toLower() == QString("instantMessage")) {
+        else if(entry->type().toLower() == QString("instantmessage")) {
             itemList.append( createInstantMessageJson(entry) );
         }
         else if(entry->type().toLower() == QString("interview")) {
             itemList.append( createInterviewJson(entry) );
         }
-        else if(entry->type().toLower() == QString("journalArticle")) {
+        else if(entry->type().toLower() == QString("journalarticle")) {
             itemList.append( createJournalArticleJson(entry) );
         }
         else if(entry->type().toLower() == QString("letter")) {
             itemList.append( createLetterJson(entry) );
         }
-        else if(entry->type().toLower() == QString("magazineArticle")) {
+        else if(entry->type().toLower() == QString("magazinearticle")) {
             itemList.append( createMagazineArticleJson(entry) );
         }
         else if(entry->type().toLower() == QString("manuscript")) {
@@ -432,7 +456,7 @@ QByteArray WriteToZotero::writeJsonContent(File items)
         else if(entry->type().toLower() == QString("map")) {
             itemList.append( createMapJson(entry) );
         }
-        else if(entry->type().toLower() == QString("newspaperArticle")) {
+        else if(entry->type().toLower() == QString("newspaperarticle")) {
             itemList.append( createNewspaperArticleJson(entry) );
         }
         else if(entry->type().toLower() == QString("note")) {
@@ -447,7 +471,7 @@ QByteArray WriteToZotero::writeJsonContent(File items)
         else if(entry->type().toLower() == QString("presentation")) {
             itemList.append( createPresentationJson(entry) );
         }
-        else if(entry->type().toLower() == QString("radioBroadcast")) {
+        else if(entry->type().toLower() == QString("radiobroadcast")) {
             itemList.append( createRadioBroadcastJson(entry) );
         }
         else if(entry->type().toLower() == QString("report")) {
@@ -456,13 +480,13 @@ QByteArray WriteToZotero::writeJsonContent(File items)
         else if(entry->type().toLower() == QString("statute")) {
             itemList.append( createStatuteJson(entry) );
         }
-        else if(entry->type().toLower() == QString("tvBroadcast")) {
+        else if(entry->type().toLower() == QString("tvbroadcast")) {
             itemList.append( createTvBroadcastJson(entry) );
         }
         else if(entry->type().toLower() == QString("thesis")) {
             itemList.append( createThesisJson(entry) );
         }
-        else if(entry->type().toLower() == QString("videoRecording")) {
+        else if(entry->type().toLower() == QString("videorecording")) {
             itemList.append( createVideoRecordingJson(entry) );
         }
         else if(entry->type().toLower() == QString("webpage")) {
@@ -470,13 +494,22 @@ QByteArray WriteToZotero::writeJsonContent(File items)
         }
         else {
             qWarning() << "unknwon bibtex entry type" << entry->type() << "can't create zotero json from it";
+
+            QByteArray tmp;
+            return tmp;
         }
     }
 
     jsonMap.insert("items", itemList);
 
     QJson::Serializer serializer;
-    QByteArray json = serializer.serialize(jsonMap);
+    QByteArray json;
+    if(onlyUpdate) {
+        json = serializer.serialize(itemList.first());
+    }
+    else {
+        json = serializer.serialize(jsonMap);
+    }
 
     return json;
 }

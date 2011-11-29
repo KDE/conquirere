@@ -2,6 +2,7 @@
 set(onlinestorage_LIB_SRCS
     readfromstorage.cpp
     writetostorage.cpp
+    syncstorage.cpp
     zotero/readfromzotero.cpp
     zotero/writetozotero.cpp
     zotero/synczotero.cpp

@@ -18,26 +18,22 @@
 #ifndef SYNCZOTERO_H
 #define SYNCZOTERO_H
 
-#include <QObject>
-
-#include <kbibtex/file.h>
+#include "../syncstorage.h"
 
 class ReadFromZotero;
 class WriteToZotero;
 
-class SyncZotero : public QObject
+class SyncZotero : public SyncStorage
 {
     Q_OBJECT
 public:
     explicit SyncZotero(QObject *parent = 0);
     virtual ~SyncZotero();
 
-    void setUserName(const QString & name);
-    QString userName() const;
-    void setPassword(const QString & pwd);
-    QString pasword() const;
-
-    void syncWithStorage(File bibfile);
+    /**
+      * @todo merge results from server with local if server side changed
+      */
+    void syncWithStorage(File *bibfile);
 
 private slots:
     /**
@@ -45,15 +41,16 @@ private slots:
       */
     void readSync(File serverFiles);
 
+    /**
+      * @todo merge newly created zotero items with local ones, all fields are the same but server version adds
+      *       zoteroKey, zoteroetag, zoteroupdated fields and has no citekey
+      */
     void writeSync(File serverFiles);
 
 private:
-    File m_systemFiles;
+    File *m_systemFiles;
     ReadFromZotero *m_rfz;
     WriteToZotero *m_wtz;
-
-    QString m_name;
-    QString m_password;
 };
 
 #endif // SYNCZOTERO_H

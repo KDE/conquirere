@@ -103,8 +103,23 @@ protected:
       */
     RequestType requestType() const;
 
+    /**
+      * removes the reply from the m_replies map and called deleteLater() on them
+      */
     void serverReplyFinished(QNetworkReply *reply);
+
+    /**
+      * returns the entry that was used to call the reply
+      *
+      * Usefull when updating items one by one, as we cann directly and easily update the entry with the response
+      */
     Entry * serverReplyEntry(QNetworkReply *reply);
+
+    /**
+      * Tells how many open reply we still have
+      *
+      * if the value is 0 and we are not ading new requests we are definitly finished
+      */
     int openReplies() const;
 
 protected slots:

@@ -46,7 +46,7 @@ private:
     bool m_allRequestsSend;
     File m_entriesAfterSync;
 
-    QByteArray writeJsonContent(File items);
+    QByteArray writeJsonContent(File items, bool onlyUpdate = false);
     QByteArray writeJsonContent(const CollectionInfo &collection);
 
     QVariantList createCreatorsJson(Entry *e);

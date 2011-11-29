@@ -20,54 +20,32 @@
 #include "readfromzotero.h"
 #include "writetozotero.h"
 
-#include <kbibtex/file.h>
 #include <kbibtex/entry.h>
 #include <kbibtex/findduplicates.h>
 
 #include <QDebug>
 
-// debug
-#include <QFile>
-#include <kbibtex/fileexporterbibtex.h>
-
 SyncZotero::SyncZotero(QObject *parent)
-    : QObject(parent)
+    : SyncStorage(parent)
 {
 }
 
 SyncZotero::~SyncZotero()
 {
     delete m_rfz;
+    delete m_wtz;
 }
 
-void SyncZotero::setUserName(const QString & name)
+void SyncZotero::syncWithStorage(File *bibfile)
 {
-    m_name = name;
-}
+    emit syncInProgress(true);
 
-QString SyncZotero::userName() const
-{
-    return m_name;
-}
-
-void SyncZotero::setPassword(const QString & pwd)
-{
-    m_password = pwd;
-}
-
-QString SyncZotero::pasword() const
-{
-    return m_password;
-}
-
-void SyncZotero::syncWithStorage(File bibfile)
-{
     m_systemFiles = bibfile;
 
     //lets start by retrieving all items from the server and merge them with the current files
     m_rfz = new ReadFromZotero;
-    m_rfz->setUserName(m_name);
-    m_rfz->setPassword(m_password);
+    m_rfz->setUserName(userName());
+    m_rfz->setPassword(pasword());
 
     connect(m_rfz, SIGNAL(itemsInfo(File)), this, SLOT(readSync(File)));
     m_rfz->fetchItems();
@@ -75,7 +53,7 @@ void SyncZotero::syncWithStorage(File bibfile)
 
 void SyncZotero::readSync(File serverFiles)
 {
-    qDebug() << "itemsFromServer" << m_systemFiles.size() << " + new " << serverFiles.size();
+    qDebug() << "SyncZotero::itemsFromServer || entries" << m_systemFiles->size() << " + new" << serverFiles.size();
 
     // now go through all retrieved serverFiles and see if we have to merge something
     // if we find another entry with the same zoterokey and the same zoteroetag skip this entry
@@ -92,7 +70,7 @@ void SyncZotero::readSync(File serverFiles)
 
         bool addEntry = true;
         // check if the zoterokey exist
-        foreach(Element* checkElement, serverFiles) {
+        foreach(Element* checkElement, *m_systemFiles) {
             Entry *checkEntry = dynamic_cast<Entry *>(checkElement);
             if(!entry) { continue; }
 
@@ -106,49 +84,40 @@ void SyncZotero::readSync(File serverFiles)
                     // item did not change, ignore it
                     addEntry = false;
                 }
-                else {
-                    // #####################################################################################
-                    // # TODO create QList<EntryClique*> from the two entries
-                    // #####################################################################################
-                    // this replace the find duplicates stuff so we don't start guessing
-                    // which entries are duplicates and simple show the different entries
-
-                    // also define the way of merging (automatic merge local/serveruser decision)
-                    // #####################################################################################
-                }
 
                 break; // stop checking here we found an entry with the right zoterokey
             }
         }
 
         if(addEntry) {
-            m_systemFiles.append(element);
+            m_systemFiles->append(element);
         }
     }
 
-    // now we have list of existing entries together with all server entries that changed
-    // merge them
+    //################################################################################################
+    // now we have the list of existing entries together with all server entries that changed
+    // merge them automatically or via user interaction
+    //
+    // this means we also get duplicates if an item changed on the server
+    // this item will have the same zoterokey as another one but a different etag and some other keys will differ too
+    // these must be merged here somehow.
 
-/*
-    int sensitivity = 4000; // taken from KBibTeX
+    int sensitivity = 100; // taken from KBibTeX
     FindDuplicates fd(0, sensitivity);
     QList<EntryClique*> cliques;
-    fd.findDuplicateEntries(&m_systemFiles, cliques);
+    fd.findDuplicateEntries(m_systemFiles, cliques);
 
-    qDebug() << "duplicates" << cliques.size() << "of entries" << m_systemFiles.size();
+    qDebug() << "duplicates" << cliques.size() << "of entries" << m_systemFiles->size() << "ask user what he wants to do with it";
 
     MergeDuplicates md(0);
-    md.mergeDuplicateEntries(cliques, &m_systemFiles);
-
-    qDebug() << "entries after merge" << m_systemFiles.size();
-*/
+    md.mergeDuplicateEntries(cliques, m_systemFiles);
 
     // from this point on, we have all data from the server merged with the local items
     // now its time to send all data to the server, update changed items and create new ones
     m_wtz = new WriteToZotero;
-    m_wtz->setUserName(m_name);
-    m_wtz->setPassword(m_password);
-    m_wtz->pushItems(m_systemFiles);
+    m_wtz->setUserName(userName());
+    m_wtz->setPassword(pasword());
+    m_wtz->pushItems(*m_systemFiles);
 
     connect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(writeSync(File)));
 }
@@ -156,18 +125,27 @@ void SyncZotero::readSync(File serverFiles)
 void SyncZotero::writeSync(File serverFiles)
 {
     // this function is called after all items are send to the server
-    // as zotero sends updated infos with the new zoterokey and/or an updated zotero etag
+    // items that where simply updated are handled by the WroteToZotero function directly
+    // whats left are the newly created items
+    // these are identical to some other entry but they have no "citekey" and the zoterotags added
 
+    qDebug() << "new entries we need to merge and add a zoterokey to" << serverFiles.size();
 
-
-    qDebug() << "sync complete debug write it to disk";
-    // debug write all to disk
-
-    QFile exportFile(QString("/home/joerg/zotero_export.bib"));
-    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        return;
+    m_systemFiles->append(serverFiles);
+    int sensitivity = 100; // taken from KBibTeX
+    FindDuplicates fd(0, sensitivity);
+    QList<EntryClique*> cliques;
+    fd.findDuplicateEntries(m_systemFiles, cliques);
+    foreach(EntryClique* ec, cliques) {
+        ec->setEntryChecked(ec->entryList().first(), true);
     }
 
-    FileExporterBibTeX feb;
-    feb.save(&exportFile, &serverFiles);
+    qDebug() << "duplicates" << cliques.size() << "of entries" << m_systemFiles->size();
+
+    MergeDuplicates md(0);
+    md.mergeDuplicateEntries(cliques, m_systemFiles);
+
+    qDebug() << "entries after merge" << m_systemFiles->size();
+
+    emit syncInProgress(false);
 }
