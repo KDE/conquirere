@@ -33,6 +33,9 @@
 
 SyncZotero::SyncZotero(QObject *parent)
     : SyncStorage(parent)
+    , m_systemFiles(0)
+    , m_rfz(0)
+    , m_wtz(0)
 {
 }
 
@@ -77,9 +80,9 @@ void SyncZotero::readSync(File serverFiles)
         Entry *entry = dynamic_cast<Entry *>(element);
         if(!entry) { continue; }
 
-        QString zoteroKey = PlainTextValue::text(entry->value("zoterokey"));
+        QString zoteroKey = PlainTextValue::text(entry->value(QLatin1String("zoterokey")));
         updatedKeys.append(zoteroKey);
-        QString zoteroEtag = PlainTextValue::text(entry->value("zoteroetag"));
+        QString zoteroEtag = PlainTextValue::text(entry->value(QLatin1String("zoteroetag")));
 
         bool addEntry = true;
         // check if the zoterokey exist
@@ -87,12 +90,12 @@ void SyncZotero::readSync(File serverFiles)
             Entry *checkEntry = dynamic_cast<Entry *>(checkElement);
             if(!checkEntry) { continue; }
 
-            QString checkZoteroKey = PlainTextValue::text(checkEntry->value("zoterokey"));
+            QString checkZoteroKey = PlainTextValue::text(checkEntry->value(QLatin1String("zoterokey")));
             if(!checkZoteroKey.isEmpty() && checkZoteroKey == zoteroKey) {
                 // ok the entry we retrieved from the server exist in the local version already
 
                 // check if the entry changed on the server
-                QString checkZoteroEtag = PlainTextValue::text(checkEntry->value("zoteroetag"));
+                QString checkZoteroEtag = PlainTextValue::text(checkEntry->value(QLatin1String("zoteroetag")));
                 if(zoteroEtag == checkZoteroEtag ) {
                     // item did not change, ignore it
                     addEntry = false;
@@ -116,7 +119,7 @@ void SyncZotero::readSync(File serverFiles)
         Entry *entry = dynamic_cast<Entry *>(element);
         if(!entry) { continue; }
 
-        QString checkZoteroKey = PlainTextValue::text(entry->value("zoterokey"));
+        QString checkZoteroKey = PlainTextValue::text(entry->value(QLatin1String("zoterokey")));
 
         if(!checkZoteroKey.isEmpty() && !updatedKeys.contains(checkZoteroKey)) {
             toBeDeleted.append(element);
@@ -137,10 +140,10 @@ void SyncZotero::readSync(File serverFiles)
             // remove zoteroinfo so they will be uploaded again
             foreach(Element* element, toBeDeleted) {
                 Entry *entry = dynamic_cast<Entry *>(element);
-                entry->remove("zoterokey");
-                entry->remove("zoteroetag");
-                entry->remove("zoteroupdated");
-                entry->remove("zoterochildren");
+                entry->remove(QLatin1String("zoterokey"));
+                entry->remove(QLatin1String("zoteroetag"));
+                entry->remove(QLatin1String("zoteroupdated"));
+                entry->remove(QLatin1String("zoterochildren"));
 
             }
         }

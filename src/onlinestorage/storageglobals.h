@@ -21,7 +21,7 @@
 #include <QtCore/QMetaType>
 
 /**
-  * @brief holds informations about a collection
+  * @brief holds information about a collection
   */
 struct CollectionInfo {
     QString name;

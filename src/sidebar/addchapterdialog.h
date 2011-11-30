@@ -42,7 +42,7 @@ public:
     /**
       * Sets the DocumentPart resource. This must be valid
       *
-      * This is the part that is beeing edited
+      * This is the part that is being edited
       *
       * @pre valid @c nbib:Chapter resource
       */

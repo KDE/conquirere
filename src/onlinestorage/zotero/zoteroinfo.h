@@ -30,9 +30,9 @@ public:
     ZoteroInfo():StorageInfo(),wts(new WriteToZotero),rfs(new ReadFromZotero),ss(new SyncZotero) {}
     virtual ~ZoteroInfo() { delete wts; delete rfs; delete ss;}
 
-    QString providerId() { return QString("zotero"); }
-    QString providerName() { return QString("Zotero"); }
-    KIcon providerIcon() { return KIcon("storage-zotero"); }
+    QString providerId() { return QLatin1String("zotero"); }
+    QString providerName() { return QLatin1String("Zotero"); }
+    KIcon providerIcon() { return KIcon(QLatin1String("storage-zotero")); }
 
     WriteToStorage *writeHandle() { return wts; }
     ReadFromStorage *readHandle() { return rfs; }

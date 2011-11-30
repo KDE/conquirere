@@ -69,7 +69,7 @@ signals:
     /**
       * This signal will be emitted if the processed data is ready
       *
-      * @p collections informations about all available collections
+      * @p collections information about all available collections
       */
     void collectionsInfo(QList<CollectionInfo> collections);
 

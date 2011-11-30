@@ -40,15 +40,15 @@ SyncStorageUi::SyncStorageUi(QWidget *parent)
     ui->setupUi(this);
 
     m_wallet = KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(),winId(), KWallet::Wallet::Synchronous);
-    if(!m_wallet->hasFolder(QString("kbibtex"))) {
-        m_wallet->createFolder(QString("kbibtex"));
+    if(!m_wallet->hasFolder(QLatin1String("kbibtex"))) {
+        m_wallet->createFolder(QLatin1String("kbibtex"));
     }
-    m_wallet->setFolder(QString("kbibtex"));
+    m_wallet->setFolder(QLatin1String("kbibtex"));
 
     //ui->providerUserName->setText(QString("795913"));
     //ui->providerPwd->setText(QString("TBydrlOdZo05mmzMhO8PlWCv"));
 
-    // add all available plugins for the syncronization
+    // add all available plugins for the synchronization
     StorageInfo *zotero = new ZoteroInfo;
     m_availableProvider.append(zotero);
     ui->providerSelection->addItem(zotero->providerIcon(),zotero->providerName());
@@ -58,10 +58,10 @@ SyncStorageUi::SyncStorageUi(QWidget *parent)
     connect(ui->cancelCloseButton, SIGNAL(clicked()), this, SLOT(cancelClose()));
     connect(ui->startSync, SIGNAL(clicked()), this, SLOT(startSync()));
 
-    ui->fetchCollection->setIcon(KIcon("svn-update"));
-    ui->addCollection->setIcon(KIcon("list-add"));
+    ui->fetchCollection->setIcon(KIcon(QLatin1String("svn-update")));
+    ui->addCollection->setIcon(KIcon(QLatin1String("list-add")));
     ui->addCollection->hide();
-    ui->removeCollection->setIcon(KIcon("list-remove"));
+    ui->removeCollection->setIcon(KIcon(QLatin1String("list-remove")));
     ui->removeCollection->hide();
     connect(ui->fetchCollection, SIGNAL(clicked()), this, SLOT(fetchCollection()));
 
@@ -91,14 +91,14 @@ void SyncStorageUi::setBibTeXFile(File *fileToSync)
 
     foreach(Element *e, *m_fileToSync) {
         Comment *c = dynamic_cast<Comment *>(e);
-        if(c && c->text().startsWith(QString("x-syncprovider="))){
-            providerId = c->text().remove(QString("x-syncprovider="));
+        if(c && c->text().startsWith(QLatin1String("x-syncprovider="))){
+            providerId = c->text().remove(QLatin1String("x-syncprovider="));
         }
-        if(c && c->text().startsWith(QString("x-syncusername="))){
-            userName = c->text().remove(QString("x-syncusername="));
+        if(c && c->text().startsWith(QLatin1String("x-syncusername="))){
+            userName = c->text().remove(QLatin1String("x-syncusername="));
         }
-        if(c && c->text().startsWith(QString("x-syncurl="))){
-            url = c->text().remove(QString("x-syncurl="));
+        if(c && c->text().startsWith(QLatin1String("x-syncurl="))){
+            url = c->text().remove(QLatin1String("x-syncurl="));
         }
     }
 
@@ -108,7 +108,12 @@ void SyncStorageUi::setBibTeXFile(File *fileToSync)
     if(!providerId.isEmpty()) {
         ui->providerUserName->setText(userName);
 
-        QString pwdKey = QString("%1:%2:%3").arg(providerId).arg(userName).arg(url);
+        QString pwdKey;
+        pwdKey.append(providerId);
+        pwdKey.append(QLatin1String(":"));
+        pwdKey.append(userName);
+        pwdKey.append(QLatin1String(":"));
+        pwdKey.append(url);
         if(m_wallet->hasEntry(pwdKey)) {
             QString pwd;
             m_wallet->readPassword(pwdKey, pwd);
@@ -125,7 +130,6 @@ void SyncStorageUi::setBibTeXFile(File *fileToSync)
 void SyncStorageUi::switchProvider()
 {
     int curIndex = ui->providerSelection->currentIndex();
-    SyncStorage *syncStorage = m_availableProvider.at(curIndex)->syncHandle();
 
     connect(m_availableProvider.at(curIndex)->syncHandle(), SIGNAL(syncInProgress(bool)), this, SLOT(syncStatus(bool)));
     connect(m_availableProvider.at(curIndex)->syncHandle(), SIGNAL(progress(int)), ui->progressBar, SLOT(setValue(int)));
@@ -160,7 +164,12 @@ void SyncStorageUi::startSync()
     syncStorage->setUserName(ui->providerUserName->text());
 
     // check if password is in the KWallet storage, if not ask if the user wants to save it
-    QString pwdKey = QString("%1:%2:%3").arg(m_availableProvider.at(curIndex)->providerId()).arg(ui->providerUserName->text()).arg(ui->providerUrl->text());
+    QString pwdKey;
+    pwdKey.append(m_availableProvider.at(curIndex)->providerId());
+    pwdKey.append(QLatin1String(":"));
+    pwdKey.append(ui->providerUserName->text());
+    pwdKey.append(QLatin1String(":"));
+    pwdKey.append(ui->providerUrl->text());
     m_wallet->writePassword(pwdKey, ui->providerPwd->text());
 
     syncStorage->setPassword(ui->providerPwd->text());
@@ -179,15 +188,15 @@ void SyncStorageUi::syncStatus(bool inProgress)
     m_syncInProgress = inProgress;
 
     if(inProgress) {
-        ui->startSync->setIcon(KIcon("view-refresh")); // animate button
+        ui->startSync->setIcon(KIcon(QLatin1String("view-refresh"))); // animate button
         ui->cancelCloseButton->setText(i18n("Cancel"));
-        ui->cancelCloseButton->setIcon(KIcon("dialog-cancel"));
+        ui->cancelCloseButton->setIcon(KIcon(QLatin1String("dialog-cancel")));
     }
     // sync finished
     else {
-        ui->startSync->setIcon(KIcon("view-refresh"));
+        ui->startSync->setIcon(KIcon(QLatin1String("view-refresh")));
         ui->cancelCloseButton->setText(i18n("Close"));
-        ui->cancelCloseButton->setIcon(KIcon("dialog-close"));
+        ui->cancelCloseButton->setIcon(KIcon(QLatin1String("dialog-close")));
 
         // write sync information into bibtex file
         if(m_fileToSync) {
@@ -200,29 +209,41 @@ void SyncStorageUi::syncStatus(bool inProgress)
             // find the right comment
             foreach(Element *e, *m_fileToSync) {
                 Comment *c = dynamic_cast<Comment *>(e);
-                if(c && c->text().startsWith(QString("x-syncprovider="))){
+                if(c && c->text().startsWith(QLatin1String("x-syncprovider="))){
                     foundProvider = true;
-                    c->setText(QString("x-syncprovider=%1").arg(providerId));
+                    QString sp = QLatin1String("x-syncprovider=%1");
+                    sp.append(providerId);
+                    c->setText(sp);
                 }
-                else if(c && c->text().startsWith(QString("x-syncusername="))){
+                else if(c && c->text().startsWith(QLatin1String("x-syncusername="))){
                     foundUsername = true;
-                    c->setText(QString("x-syncusername=%1").arg(ui->providerUserName->text()));
+                    QString sp = QLatin1String("x-syncusername=%1");
+                    sp.append(ui->providerUserName->text());
+                    c->setText(sp);
                 }
-                else if(c && c->text().startsWith(QString("x-syncurl="))){
+                else if(c && c->text().startsWith(QLatin1String("x-syncurl="))){
                     foundUrl = true;
-                    c->setText(QString("x-syncurl=%1").arg(ui->providerUrl->text()));
+                    QString sp = QLatin1String("x-syncurl=%1");
+                    sp.append(ui->providerUrl->text());
+                    c->setText(sp);
                 }
             }
             if(!foundProvider) {
-                Comment *c =new Comment(QString("x-syncprovider=%1").arg(providerId), true);
+                QString sp = QLatin1String("x-syncprovider=%1");
+                sp.append(providerId);
+                Comment *c =new Comment(sp, true);
                 m_fileToSync->prepend(c);
             }
             if(!foundUsername) {
-                Comment *c =new Comment(QString("x-syncusername=%1").arg(ui->providerUserName->text()), true);
+                QString sp = QLatin1String("x-syncusername=%1");
+                sp.append(ui->providerUserName->text());
+                Comment *c =new Comment(sp, true);
                 m_fileToSync->prepend(c);
             }
             if(!foundUrl) {
-                Comment *c =new Comment(QString("x-syncurl=%1").arg(ui->providerUrl->text()), true);
+                QString sp = QLatin1String("x-syncurl=%1");
+                sp.append(ui->providerUrl->text());
+                Comment *c =new Comment(sp, true);
                 m_fileToSync->prepend(c);
             }
         }

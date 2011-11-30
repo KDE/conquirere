@@ -29,6 +29,7 @@
 #include <KDE/KIcon>
 
 #include <QtGui/QListWidgetItem>
+#include <QtCore/QPointer>
 #include <QtCore/QDebug>
 
 ListPartsWidget::ListPartsWidget(QWidget *parent) :
@@ -328,7 +329,7 @@ void ListPartsWidget::deleteChapter(Nepomuk::Resource  chapter)
 
 void ListPartsWidget::addSeries()
 {
-    KDialog addIssueWidget;
+    QPointer<KDialog> addIssueWidget = new KDialog();
 
     QString seriesTitle = m_resource.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
@@ -358,10 +359,10 @@ void ListPartsWidget::addSeries()
     pw.setResource(tempIssue);
     //pw->setLibrary(library());
 
-    addIssueWidget.setMainWidget(&pw);
-    addIssueWidget.setInitialSize(QSize(400,300));
+    addIssueWidget->setMainWidget(&pw);
+    addIssueWidget->setInitialSize(QSize(400,300));
 
-    int ret = addIssueWidget.exec();
+    int ret = addIssueWidget->exec();
 
     if(ret == KDialog::Accepted) {
         QListWidgetItem *i = new QListWidgetItem();
@@ -376,6 +377,8 @@ void ListPartsWidget::addSeries()
         m_resource.removeProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), tempIssue);
         tempIssue.remove();
     }
+
+    delete addIssueWidget;
 }
 
 void ListPartsWidget::editSeries(Nepomuk::Resource editResource)

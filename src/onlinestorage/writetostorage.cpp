@@ -22,6 +22,7 @@
 
 WriteToStorage::WriteToStorage(QObject *parent)
     : QObject(parent)
+    , m_adoptBibtexTypes(true)
     , m_requestType(Items)
 {
     qRegisterMetaType<CollectionInfo>("CollectionInfo");

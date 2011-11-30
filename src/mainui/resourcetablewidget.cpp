@@ -366,7 +366,7 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
         }
 
         // this adds the doi link
-        // add the DOI if availble as preview
+        // add the DOI if available as preview
         QString doi = nr.property(Nepomuk::Vocabulary::NBIB::doi()).toString();
 
         if(!doi.isEmpty()) {

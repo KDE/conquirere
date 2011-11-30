@@ -37,6 +37,7 @@
 #include <KDE/KIcon>
 #include <KDE/KInputDialog>
 
+#include <QtCore/QPointer>
 #include <QtCore/QDebug>
 
 ContactDialog::ContactDialog(QWidget *parent) :
@@ -223,14 +224,14 @@ void ContactDialog::itemChanged(QListWidgetItem* current, QListWidgetItem* previ
 void ContactDialog::pushContactToAkonadi()
 {
     // Show the user a dialog to select a writable collection of contacts
-    Akonadi::CollectionDialog dlg( Akonadi::CollectionDialog::AllowToCreateNewChildCollection, 0, this );
-    dlg.setMimeTypeFilter( QStringList() << KABC::Addressee::mimeType() );
-    dlg.setAccessRightsFilter( Akonadi::Collection::CanCreateItem);
-    dlg.setDescription( i18n( "Select an address book:" ) );
+    QPointer<Akonadi::CollectionDialog> dlg = new Akonadi::CollectionDialog( Akonadi::CollectionDialog::AllowToCreateNewChildCollection, 0, this );
+    dlg->setMimeTypeFilter( QStringList() << KABC::Addressee::mimeType() );
+    dlg->setAccessRightsFilter( Akonadi::Collection::CanCreateItem);
+    dlg->setDescription( i18n( "Select an address book:" ) );
 
-    int ret = dlg.exec();
+    int ret = dlg->exec();
     if ( ret == KDialog::Accepted ) {
-        const Akonadi::Collection collection = dlg.selectedCollection();
+        const Akonadi::Collection collection = dlg->selectedCollection();
 
         QListWidgetItem *i = ui->klistwidget->currentItem();
 
@@ -257,4 +258,6 @@ void ContactDialog::pushContactToAkonadi()
         i->setData(Qt::UserRole, job->item().id());
         i->setIcon(KIcon("view-pim-contacts"));
     }
+
+    delete dlg;
 }

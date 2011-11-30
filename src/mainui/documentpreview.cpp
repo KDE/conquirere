@@ -112,7 +112,7 @@ void DocumentPreview::setResource(Nepomuk::Resource & resource)
             ui->urlSelector->addItem(icon,url.url(),QVariant(mimetype));
         }
 
-        // add the DOI if availble as preview
+        // add the DOI if available as preview
         QString doi;
         if(resource.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
             Nepomuk::Resource publication = resource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();

@@ -50,7 +50,7 @@ public:
     /**
       * sets the list of all open libraries
       *
-      * usefull to show only publications in a specific collection
+      * useful to show only publications in a specific collection
       */
     void setOpenLibraries(QList<Library *> openLibList);
 

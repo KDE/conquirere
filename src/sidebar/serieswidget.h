@@ -28,7 +28,7 @@ namespace Ui {
 }
 
 /**
-  * @brief Widget to manipulate the @c nbib:Series wich contain many other @c nbib:Publication
+  * @brief Widget to manipulate the @c nbib:Series which contain many other @c nbib:Publication
   *
   */
 class SeriesWidget : public SidebarComponent

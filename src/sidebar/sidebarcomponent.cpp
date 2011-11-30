@@ -22,6 +22,7 @@
 SidebarComponent::SidebarComponent(QWidget *parent)
     : QWidget(parent)
     , m_library(0)
+    , m_parent(0)
 {
 }
 

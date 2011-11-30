@@ -72,7 +72,7 @@ signals:
     /**
       * This signal will be emitted if the processed data is ready
       *
-      * @p collections informations about the changed collections
+      * @p collections information about the changed collections
       */
     void collectionsInfo(QList<CollectionInfo> collections);
 
@@ -125,7 +125,7 @@ protected:
     /**
       * returns the entry that was used to call the reply
       *
-      * Usefull when updating items one by one, as we cann directly and easily update the entry with the response
+      * Useful when updating items one by one, as we cann directly and easily update the entry with the response
       */
     Entry * serverReplyEntry(QNetworkReply *reply);
 
@@ -140,7 +140,7 @@ protected slots:
     /**
       * Called when the network request is finished
       *
-      * If changes to the bibtex entry need to be made based on the result of the reply you can get the informations via
+      * If changes to the bibtex entry need to be made based on the result of the reply you can get the information via
       * QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
       *
       * The m_replies QMap holds any made reply and the Entry it caused or 0

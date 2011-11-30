@@ -38,7 +38,7 @@ class ListPartsWidget : public QWidget
 
 public:
     /**
-      * Reflects what kind of reource is beeing manipulated
+      * Reflects what kind of reource is being manipulated
       *
       * Will be set in setResource() and defines what function will be called for the edit, add, remove action
       */
