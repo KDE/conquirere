@@ -296,7 +296,7 @@ void MainWindow::showZoteroItems(File bibFile)
 
 void MainWindow::zoteroCollection()
 {
-    FileImporterBibTeX febImp;
+    FileImporterBibTeX febImp(false);
 
     QFile importFile(QString("/home/joerg/zotero_export.bib"));
     if (!importFile.open(QIODevice::ReadOnly | QIODevice::Text)) {

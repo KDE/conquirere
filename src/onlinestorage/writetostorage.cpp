@@ -57,6 +57,16 @@ QString WriteToStorage::pasword() const
     return m_password;
 }
 
+void WriteToStorage::setUrl(const QString & url)
+{
+    m_url = url;
+}
+
+QString WriteToStorage::url() const
+{
+    return m_url;
+}
+
 void WriteToStorage::setAdoptBibtexTypes(bool adopt)
 {
     m_adoptBibtexTypes = adopt;

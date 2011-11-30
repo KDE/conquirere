@@ -55,6 +55,16 @@ QString ReadFromStorage::pasword() const
     return m_password;
 }
 
+void ReadFromStorage::setUrl(const QString & url)
+{
+    m_url = url;
+}
+
+QString ReadFromStorage::url() const
+{
+    return m_url;
+}
+
 void ReadFromStorage::setAdoptBibtexTypes(bool adopt)
 {
     m_adoptBibtexTypes = adopt;

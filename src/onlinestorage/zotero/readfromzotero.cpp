@@ -28,16 +28,17 @@
 ReadFromZotero::ReadFromZotero(QObject *parent)
     : ReadFromStorage(parent)
 {
+    setUrl(QString("users"));
 }
 
 void ReadFromZotero::fetchItems(const QString &collection)
 {
     QString apiCommand;
     if(collection.isEmpty()) {
-        apiCommand = QString("https://api.zotero.org/users/%1/items/top?format=atom&content=json").arg(userName());
+        apiCommand = QString("https://api.zotero.org/%1/%2/items/top?format=atom&content=json").arg(url()).arg(userName());
     }
     else {
-        apiCommand = QString("https://api.zotero.org/users/%1/collections/%2/items?format=atom&content=json").arg(userName()).arg(collection);
+        apiCommand = QString("https://api.zotero.org/%1/%2/collections/%3/items?format=atom&content=json").arg(url()).arg(userName()).arg(collection);
     }
 
     if(!pasword().isEmpty()) {
@@ -50,7 +51,7 @@ void ReadFromZotero::fetchItems(const QString &collection)
 
 void ReadFromZotero::fetchItem(const QString &id, const QString &collection )
 {
-    QString apiCommand = QString("https://api.zotero.org/users/%1/items/top?format=atom&content=json&limit=10").arg(userName());
+    QString apiCommand = QString("https://api.zotero.org/%1/%2/items/top?format=atom&content=json&limit=10").arg(url()).arg(userName());
     if(!pasword().isEmpty()) {
         apiCommand.append( QString("&key=%2").arg(pasword()));
     }
@@ -66,7 +67,7 @@ void ReadFromZotero::fetchCollections(const QString &parent )
         subCollection = QString("/%1/collections").arg(parent);
     }
 
-    QString apiCommand = QString("https://api.zotero.org/users/%1/collections%2?format=atom").arg(userName()).arg(subCollection);
+    QString apiCommand = QString("https://api.zotero.org/%1/%2/collections%2?format=atom").arg(url()).arg(userName()).arg(subCollection);
     if(!pasword().isEmpty()) {
         apiCommand.append( QString("&key=%2").arg(pasword()));
     }
@@ -77,7 +78,7 @@ void ReadFromZotero::fetchCollections(const QString &parent )
 
 void ReadFromZotero::fetchCollection(const QString &collection )
 {
-    QString apiCommand = QString("https://api.zotero.org/users/%1/collections/%2?format=atom").arg(userName()).arg(collection);
+    QString apiCommand = QString("https://api.zotero.org/%1/%2/collections/%2?format=atom").arg(url()).arg(userName()).arg(collection);
     if(!pasword().isEmpty()) {
         apiCommand.append( QString("&key=%2").arg(pasword()));
     }

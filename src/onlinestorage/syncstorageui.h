@@ -22,12 +22,13 @@
 
 #include "storageglobals.h"
 #include <kbibtex/file.h>
+#include <KWallet/Wallet>
 
 namespace Ui {
     class SyncStorageUi;
 }
 
-class SyncStorage;
+class StorageInfo;
 
 /**
   * @brief Simple GUI to sync a bibtex file with an online storage
@@ -42,6 +43,9 @@ public:
     explicit SyncStorageUi(QWidget *parent = 0);
     ~SyncStorageUi();
 
+    /**
+      * @pre load the bibtex file with comments
+      */
     void setBibTeXFile(File *fileToSync);
 
 private slots:
@@ -56,8 +60,10 @@ private slots:
 private:
     Ui::SyncStorageUi *ui;
 
+    QList<StorageInfo*> m_availableProvider;
+    KWallet::Wallet* m_wallet;
+
     File *m_fileToSync;
-    SyncStorage *m_syncStorage;
     bool m_syncInProgress;
 };
 

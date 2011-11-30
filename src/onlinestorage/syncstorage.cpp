@@ -50,6 +50,16 @@ QString SyncStorage::pasword() const
     return m_password;
 }
 
+void SyncStorage::setUrl(const QString & url)
+{
+        m_url = url;
+}
+
+QString SyncStorage::url() const
+{
+    return m_url;
+}
+
 void SyncStorage::setAdoptBibtexTypes(bool adopt)
 {
     m_adoptBibtexTypes = adopt;

@@ -49,6 +49,12 @@ public:
     void setPassword(const QString & pwd);
     QString pasword() const;
 
+    /**
+      * url should either be "users" or "groups"
+      */
+    void setUrl(const QString & url);
+    QString url() const;
+
     void setAdoptBibtexTypes(bool adopt);
     bool adoptBibtexTypes() const;
 
@@ -144,6 +150,8 @@ protected slots:
 private:
     QString m_name;
     QString m_password;
+    QString m_url;
+
     bool m_adoptBibtexTypes;
     RequestType m_requestType;
 

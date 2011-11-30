@@ -30,6 +30,7 @@ WriteToZotero::WriteToZotero(QObject *parent)
     : WriteToStorage(parent)
     , m_allRequestsSend(false)
 {
+    setUrl(QString("users"));
 }
 
 WriteToZotero::~WriteToZotero()
@@ -80,7 +81,7 @@ void WriteToZotero::pushNewItems(File items, const QString &collection)
     //Content-Type: application/json
     //X-Zotero-Write-Token: 19a4f01ad623aa7214f82347e3711f56
 
-    QString pushString = QString("https://api.zotero.org/users/%1/items").arg(userName());
+    QString pushString = QString("https://api.zotero.org/%1/%2/items").arg(url()).arg(userName());
 
     if(!pasword().isEmpty()) {
         pushString.append(QString("?key=%1").arg(pasword()));
@@ -124,7 +125,7 @@ void WriteToZotero::addItemsToCollection(QList<QString> ids, const QString &coll
     //POST /users/1/collections/QRST9876/items
     //ABCD2345 BCDE3456 CDEF4567 DEFG5678
 
-    QString pushString = QString("https://api.zotero.org/users/%1/collections/%2/items").arg(userName()).arg(collection);
+    QString pushString = QString("https://api.zotero.org/%1/%2/collections/%3/items").arg(url()).arg(userName()).arg(collection);
 
     if(!pasword().isEmpty()) {
         pushString.append(QString("?key=%1").arg(pasword()));
@@ -149,7 +150,7 @@ void WriteToZotero::removeItemsFromCollection(QList<QString> ids, const QString 
     //DELETE /users/1/collections/QRST9876/items/ABCD2345
 
     foreach(const QString &id, ids) {
-        QString pushString = QString("https://api.zotero.org/users/%1/collections/%2/items/%3").arg(userName().arg(collection).arg(id));
+        QString pushString = QString("https://api.zotero.org/%1/%2/collections/%3/items/%4").arg(url()).arg(userName().arg(collection).arg(id));
 
         if(!pasword().isEmpty()) {
             pushString.append(QString("?key=%1").arg(pasword()));
@@ -174,7 +175,7 @@ void WriteToZotero::deleteItems(File items)
             continue;
         }
         QString zoteroKey = PlainTextValue::text(entry->value("zoteroKey"));
-        QString pushString = QString("https://api.zotero.org/users/%1/items/%3").arg(userName().arg(zoteroKey));
+        QString pushString = QString("https://api.zotero.org/%1/%2/items/%3").arg(url()).arg(userName().arg(zoteroKey));
 
         if(!pasword().isEmpty()) {
             pushString.append(QString("?key=%1").arg(pasword()));
@@ -195,7 +196,7 @@ void WriteToZotero::createCollection(const CollectionInfo &ci)
     //POST /users/1/collections
     //X-Zotero-Write-Token: 19a4f01ad623aa7214f82347e3711f56
 
-    QString pushString = QString("https://api.zotero.org/users/%1/collections").arg(userName());
+    QString pushString = QString("https://api.zotero.org/%1/%2/collections").arg(url()).arg(userName());
 
     if(!pasword().isEmpty()) {
         pushString.append(QString("?key=%1").arg(pasword()));
@@ -214,7 +215,7 @@ void WriteToZotero::editCollection(const CollectionInfo &ci)
     //PUT /users/1/collections/RSTU8765
     //If-Match: "f0ebb2240a57f4115b3ce841d5218fa2"
 
-    QString pushString = QString("https://api.zotero.org/users/%1/collections/%2").arg(userName()).arg(ci.id);
+    QString pushString = QString("https://api.zotero.org/%1/%2/collections/%3").arg(url()).arg(userName()).arg(ci.id);
 
     if(!pasword().isEmpty()) {
         pushString.append(QString("?key=%1").arg(pasword()));
@@ -234,7 +235,7 @@ void WriteToZotero::deleteCollection(const CollectionInfo &ci)
     //DELETE /users/1/collections/RSTU8765
     //If-Match: "f0ebb2240a57f4115b3ce841d5218fa2"
 
-    QString pushString = QString("https://api.zotero.org/users/%1/collections/%3").arg(userName().arg(ci.id));
+    QString pushString = QString("https://api.zotero.org/%1/%2/collections/%3").arg(url()).arg(userName().arg(ci.id));
 
     if(!pasword().isEmpty()) {
         pushString.append(QString("?key=%1").arg(pasword()));
