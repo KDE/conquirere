@@ -26,10 +26,10 @@
   * @brief Convenient class to do the dirty work when syncing with an online storage
   *
   * This is just the abstract base, each supported storage must inplement its version of it.
-  * The idea is that when @c syncWithStorage() is called the which retrieves all items from the server
+  * The idea is that when @c syncWithStorage() is called the provider which retrieves all items from the server
   * merge them with the available items in the @p bibfile pointer and sends all changed/new items back to the server
   *
-  * The @c bibfile will have the sync state as soon as @c syncInProgress(false) is emitted
+  * The @c bibfile will have the synced state as soon as @c syncInProgress(false) is emitted
   *
   * @author Jörg Ehrichs <joerg.ehrichs@gmx.de>
   */
@@ -45,6 +45,14 @@ public:
     void setPassword(const QString & pwd);
     QString pasword() const;
 
+    void setAdoptBibtexTypes(bool adopt);
+    bool adoptBibtexTypes() const;
+    void setAskBeforeDeletion(bool ask);
+    bool askBeforeDeletion() const;
+
+    void setDownloadOnly(bool downloadOnly);
+    bool downloadOnly() const;
+
 signals:
     void syncInProgress(bool active);
     void progress(int percent);
@@ -57,11 +65,15 @@ public slots:
       * emit @c syncInProgress(true) on start and @c syncInProgress(false) when it is finished
       * @p bibfile pointer to the bibtex entries which will be synced with the storage
       */
-    virtual void syncWithStorage(File *bibfile) = 0;
+    virtual void syncWithStorage(File *bibfile, const QString &collection) = 0;
 
 private:
     QString m_name;
     QString m_password;
+
+    bool m_adoptBibtexTypes;
+    bool m_askBeforeDeletion;
+    bool m_downloadOnly;
 };
 
 #endif // SYNCSTORAGE_H

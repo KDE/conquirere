@@ -45,8 +45,8 @@ public:
     virtual ~WriteToZotero();
 
 public slots:
-    void pushItems(File items);
-    void pushNewItems(File items);
+    void pushItems(File items, const QString &collection = QString());
+    void pushNewItems(File items, const QString &collection = QString());
     void updateItem(Entry *item);
     void addItemsToCollection(QList<QString> ids, const QString &collection );
     void removeItemsFromCollection(QList<QString> ids, const QString &collection );
@@ -64,11 +64,14 @@ private:
     File m_entriesAfterSync;
     qreal m_progressPerFile;
     qreal m_progress;
+    QString m_addToCollection;
 
     QByteArray writeJsonContent(File items, bool onlyUpdate = false);
     QByteArray writeJsonContent(const CollectionInfo &collection);
 
-    QVariantList createCreatorsJson(Entry *e);
+    QVariantList createCreatorsJson(Entry *e, const QString &type);
+    QStringList creatorTypeForZoteroMapping(const QString &type);
+    QStringList bibtexCreatorZoteroMapping(const QString &type);
     QVariantList createTagsJson(Entry *e);
 
     QVariantMap createArtworkJson(Entry *e);

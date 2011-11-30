@@ -1,4 +1,6 @@
 
+add_subdirectory( zotero )
+
 set(onlinestorage_LIB_SRCS
     readfromstorage.cpp
     writetostorage.cpp
@@ -21,5 +23,4 @@ target_link_libraries(onlinestorage
                       ${KDE4_KDECORE_LIBS} )
 
 install( TARGETS onlinestorage  ${INSTALL_TARGETS_DEFAULT_ARGS} )
-
 

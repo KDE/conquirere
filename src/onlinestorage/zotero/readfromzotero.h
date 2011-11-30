@@ -57,7 +57,7 @@ public:
     void readJsonContent(Entry *e, const QString &content);
 
 public slots:
-    void fetchItems();
+    void fetchItems(const QString &collection = QString());
     void fetchItem(const QString &id, const QString &collection = QString() );
     void fetchCollections(const QString &parent = QString() );
     void fetchCollection(const QString &collection );
@@ -66,6 +66,9 @@ protected slots:
     void requestFinished();
 
 private:
+    void readJsonContentOriginal(Entry *e, const QString &content);
+    void readJsonContentBibTeX(Entry *e, const QString &content);
+
     QList<CollectionInfo> m_cachedCollectionResult;
     File m_bibFile;
 };

@@ -23,8 +23,11 @@
 #include <kbibtex/entry.h>
 #include <kbibtex/findduplicates.h>
 #include <kbibtex/findduplicatesui.h>
+#include <kbibtex/bibtexeditor.h>
 
 #include <KDE/KDialog>
+#include <KDE/KMessageBox>
+#include <KDE/KLocale>
 
 #include <QDebug>
 
@@ -39,8 +42,10 @@ SyncZotero::~SyncZotero()
     delete m_wtz;
 }
 
-void SyncZotero::syncWithStorage(File *bibfile)
+void SyncZotero::syncWithStorage(File *bibfile, const QString &collection)
 {
+    m_addToCollection = collection;
+
     emit syncInProgress(true);
     emit progress(0);
 
@@ -50,9 +55,10 @@ void SyncZotero::syncWithStorage(File *bibfile)
     m_rfz = new ReadFromZotero;
     m_rfz->setUserName(userName());
     m_rfz->setPassword(pasword());
+    m_rfz->setAdoptBibtexTypes(adoptBibtexTypes());
 
     connect(m_rfz, SIGNAL(itemsInfo(File)), this, SLOT(readSync(File)));
-    m_rfz->fetchItems();
+    m_rfz->fetchItems(m_addToCollection);
 }
 
 void SyncZotero::readSync(File serverFiles)
@@ -105,6 +111,7 @@ void SyncZotero::readSync(File serverFiles)
 
     // now we delete all entries that have a zoterokey which we did not retrieve from teh server
     // this means we deleted the entry on theserver
+    QList<Element*> toBeDeleted;
     foreach(Element* element, *m_systemFiles) {
         Entry *entry = dynamic_cast<Entry *>(element);
         if(!entry) { continue; }
@@ -112,11 +119,40 @@ void SyncZotero::readSync(File serverFiles)
         QString checkZoteroKey = PlainTextValue::text(entry->value("zoterokey"));
 
         if(!checkZoteroKey.isEmpty() && !updatedKeys.contains(checkZoteroKey)) {
-            m_systemFiles->removeAll(element);
-            delete element;
-            qDebug() << "delete entry with old key" << checkZoteroKey;
+            toBeDeleted.append(element);
+            qDebug() << "item to be deleted " << checkZoteroKey;
         }
     }
+
+    if(askBeforeDeletion() && !toBeDeleted.isEmpty()) {
+        int ret = KMessageBox::warningYesNo(0,i18n("%1 items are deleted on the server.\n\nDo you want to delete them locally too?.\nOtherwise they will be uploaded again.", toBeDeleted.size()));
+
+        if(ret == KMessageBox::Yes) {
+            foreach(Element* e, toBeDeleted) {
+                m_systemFiles->removeAll(e);
+                delete e;
+            }
+        }
+        else {
+            // remove zoteroinfo so they will be uploaded again
+            foreach(Element* element, toBeDeleted) {
+                Entry *entry = dynamic_cast<Entry *>(element);
+                entry->remove("zoterokey");
+                entry->remove("zoteroetag");
+                entry->remove("zoteroupdated");
+                entry->remove("zoterochildren");
+
+            }
+        }
+    }
+    else {
+        foreach(Element* e, toBeDeleted) {
+            m_systemFiles->removeAll(e);
+            delete e;
+        }
+    }
+
+    toBeDeleted.clear();
 
     emit progress(50);
 
@@ -134,7 +170,7 @@ void SyncZotero::readSync(File serverFiles)
     fd.findDuplicateEntries(m_systemFiles, cliques);
 
     qDebug() << "duplicates" << cliques.size() << "of entries" << m_systemFiles->size() << "ask user what he wants to do with it";
-/*
+
     if(cliques.size() > 0) {
         KDialog dlg;
         MergeWidget mw(m_systemFiles, cliques, &dlg);
@@ -145,16 +181,23 @@ void SyncZotero::readSync(File serverFiles)
         MergeDuplicates md(0);
         md.mergeDuplicateEntries(cliques, m_systemFiles);
     }
-*/
-    // from this point on, we have all data from the server merged with the local items
-    // now its time to send all data to the server, update changed items and create new ones
-    m_wtz = new WriteToZotero;
-    m_wtz->setUserName(userName());
-    m_wtz->setPassword(pasword());
-    m_wtz->pushItems(*m_systemFiles);
 
-    connect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(writeSync(File)));
-    connect(m_wtz, SIGNAL(progress(int)), this, SLOT(writeProgress(int)));
+    if(downloadOnly()) {
+        emit progress(100);
+        emit syncInProgress(false);
+    }
+    else {
+        // from this point on, we have all data from the server merged with the local items
+        // now its time to send all data to the server, update changed items and create new ones
+        m_wtz = new WriteToZotero;
+        m_wtz->setUserName(userName());
+        m_wtz->setPassword(pasword());
+        m_wtz->setAdoptBibtexTypes(adoptBibtexTypes());
+        m_wtz->pushItems(*m_systemFiles, m_addToCollection);
+
+        connect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(writeSync(File)));
+        connect(m_wtz, SIGNAL(progress(int)), this, SLOT(writeProgress(int)));
+    }
 }
 
 void SyncZotero::writeSync(File serverFiles)

@@ -55,6 +55,16 @@ QString ReadFromStorage::pasword() const
     return m_password;
 }
 
+void ReadFromStorage::setAdoptBibtexTypes(bool adopt)
+{
+    m_adoptBibtexTypes = adopt;
+}
+
+bool ReadFromStorage::adoptBibtexTypes() const
+{
+    return m_adoptBibtexTypes;
+}
+
 void ReadFromStorage::setRequestType(RequestType type)
 {
     m_requestType = type;

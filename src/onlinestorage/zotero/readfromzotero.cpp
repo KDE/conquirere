@@ -30,9 +30,16 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
 {
 }
 
-void ReadFromZotero::fetchItems()
+void ReadFromZotero::fetchItems(const QString &collection)
 {
-    QString apiCommand = QString("https://api.zotero.org/users/%1/items/top?format=atom&content=json").arg(userName());
+    QString apiCommand;
+    if(collection.isEmpty()) {
+        apiCommand = QString("https://api.zotero.org/users/%1/items/top?format=atom&content=json").arg(userName());
+    }
+    else {
+        apiCommand = QString("https://api.zotero.org/users/%1/collections/%2/items?format=atom&content=json").arg(userName()).arg(collection);
+    }
+
     if(!pasword().isEmpty()) {
         apiCommand.append( QString("&key=%2").arg(pasword()));
     }
@@ -192,6 +199,16 @@ Element *ReadFromZotero::readItemEntry(QXmlStreamReader &xmlReader)
 
 void ReadFromZotero::readJsonContent(Entry *e, const QString &content)
 {
+    if(adoptBibtexTypes()) {
+        readJsonContentBibTeX(e, content);
+    }
+    else {
+        readJsonContentOriginal(e, content);
+    }
+}
+
+void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
+{
     QJson::Parser parser;
     bool ok;
 
@@ -316,6 +333,64 @@ void ReadFromZotero::readJsonContent(Entry *e, const QString &content)
             Value valueList;
             valueList.append(ptValue);
             e->insert(QString("series"), valueList);
+        }
+        else {
+            QString text = i.value().toString();
+            if(text.isEmpty())
+                continue;
+            PlainText *ptValue = new PlainText(text);
+            Value valueList;
+            valueList.append(ptValue);
+            e->insert(i.key(), valueList);
+        }
+    }
+}
+
+void ReadFromZotero::readJsonContentOriginal(Entry *e, const QString &content)
+{
+    QJson::Parser parser;
+    bool ok;
+
+    QVariantMap result = parser.parse (content.toLatin1(), &ok).toMap();
+    if (!ok) {
+        qFatal("ReadFromZotero::readJsonContent :: An error occurred during json parsing");
+        return;
+    }
+
+    QMapIterator<QString, QVariant> i(result);
+    while (i.hasNext()) {
+        i.next();
+
+        if(i.key() == "tags") {
+            Value tagList;
+            foreach (QVariant tag, i.value().toList()) {
+                QVariantMap tagMap = tag.toMap();
+                Keyword *k = new Keyword(tagMap.value(QString("tag")).toString());
+                if(k->text().isEmpty()) {
+                    delete k;
+                }
+                else {
+                    tagList.append(k);
+                }
+            }
+            e->insert(QString("tags"), tagList);
+        }
+        else if(i.key() == "itemType") {
+            QString text = i.value().toString().toLower();
+
+            e->setType(text);
+        }
+        else if(i.key() == "creators") {
+            foreach (QVariant author, i.value().toList()) {
+                QVariantMap authorMap = author.toMap();
+                Person *p = new Person(authorMap.value(QString("firstName")).toString(), authorMap.value(QString("lastName")).toString());
+
+                QString type = authorMap.value(QString("creatorType")).toString();
+                Value list = e->value(type);
+                list.append(p);
+                e->remove(type);
+                e->insert(type, list);
+            }
         }
         else {
             QString text = i.value().toString();

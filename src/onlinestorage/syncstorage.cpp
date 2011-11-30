@@ -17,8 +17,11 @@
 
 #include "syncstorage.h"
 
-SyncStorage::SyncStorage(QObject *parent) :
-    QObject(parent)
+SyncStorage::SyncStorage(QObject *parent)
+    : QObject(parent)
+    , m_adoptBibtexTypes(true)
+    , m_askBeforeDeletion(false)
+    , m_downloadOnly(false)
 {
 }
 
@@ -45,4 +48,34 @@ void SyncStorage::setPassword(const QString & pwd)
 QString SyncStorage::pasword() const
 {
     return m_password;
+}
+
+void SyncStorage::setAdoptBibtexTypes(bool adopt)
+{
+    m_adoptBibtexTypes = adopt;
+}
+
+bool SyncStorage::adoptBibtexTypes() const
+{
+    return m_adoptBibtexTypes;
+}
+
+void SyncStorage::setAskBeforeDeletion(bool ask)
+{
+    m_askBeforeDeletion = ask;
+}
+
+bool SyncStorage::askBeforeDeletion() const
+{
+    return m_askBeforeDeletion;
+}
+
+void SyncStorage::setDownloadOnly(bool downloadOnly)
+{
+    m_downloadOnly = downloadOnly;
+}
+
+bool SyncStorage::downloadOnly() const
+{
+    return m_downloadOnly;
 }

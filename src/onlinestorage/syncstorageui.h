@@ -20,6 +20,7 @@
 
 #include <QDialog>
 
+#include "storageglobals.h"
 #include <kbibtex/file.h>
 
 namespace Ui {
@@ -49,6 +50,8 @@ private slots:
     void syncStatus(bool inProgress);
     void cancelSync();
     void cancelClose();
+    void fetchCollection();
+    void fillCollectionList(QList<CollectionInfo> collectionList);
 
 private:
     Ui::SyncStorageUi *ui;

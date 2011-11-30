@@ -38,7 +38,7 @@ public:
     /**
       * @todo merge results from server with local if server side changed
       */
-    void syncWithStorage(File *bibfile);
+    void syncWithStorage(File *bibfile, const QString &collection);
 
 private slots:
     /**
@@ -61,6 +61,7 @@ private:
     File *m_systemFiles;
     ReadFromZotero *m_rfz;
     WriteToZotero *m_wtz;
+    QString m_addToCollection;
 };
 
 #endif // SYNCZOTERO_H

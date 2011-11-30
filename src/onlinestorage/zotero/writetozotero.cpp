@@ -37,8 +37,9 @@ WriteToZotero::~WriteToZotero()
 
 }
 
-void WriteToZotero::pushItems(File items)
+void WriteToZotero::pushItems(File items, const QString &collection)
 {
+    m_addToCollection = collection;
     m_progressPerFile = (qreal)items.size() / 100.0;
 
     // seperate new items from the ones that send updates
@@ -57,14 +58,13 @@ void WriteToZotero::pushItems(File items)
         else {
             updatingItems.append(entry);
             updateItem(entry);
-            qDebug() << "send item update for" << zoteroKey;
         }
     }
 
     qDebug() << "WriteToZotero::pushItems | new:" << newItems.size() << "update:" << updatingItems.size();
 
     if(!newItems.isEmpty()) {
-        pushNewItems(newItems);
+        pushNewItems(newItems, m_addToCollection);
     }
     else {
         emit itemsInfo(m_entriesAfterSync);
@@ -73,8 +73,9 @@ void WriteToZotero::pushItems(File items)
     m_allRequestsSend = true;
 }
 
-void WriteToZotero::pushNewItems(File items)
+void WriteToZotero::pushNewItems(File items, const QString &collection)
 {
+    m_addToCollection = collection;
     //POST /users/1/items
     //Content-Type: application/json
     //X-Zotero-Write-Token: 19a4f01ad623aa7214f82347e3711f56
@@ -123,7 +124,7 @@ void WriteToZotero::addItemsToCollection(QList<QString> ids, const QString &coll
     //POST /users/1/collections/QRST9876/items
     //ABCD2345 BCDE3456 CDEF4567 DEFG5678
 
-    QString pushString = QString("https://api.zotero.org/users/%1/collections/%2/items").arg(userName().arg(collection));
+    QString pushString = QString("https://api.zotero.org/users/%1/collections/%2/items").arg(userName()).arg(collection);
 
     if(!pasword().isEmpty()) {
         pushString.append(QString("?key=%1").arg(pasword()));
@@ -261,12 +262,6 @@ void WriteToZotero::requestFinished()
 
     Entry * updateEntry = serverReplyEntry(reply);
     serverReplyFinished(reply);
-    if(updateEntry) {
-        qDebug() << "found old updateEntry";
-    }
-    else {
-        qDebug() << "found NO old updateEntry";
-    }
 
     // if the entry is 0 we pushed new items to the server
     // otherwise we updated the item
@@ -276,6 +271,7 @@ void WriteToZotero::requestFinished()
     xmlReader.setDevice(reply);
 
     int newFilesAdded = 0;
+    QList<QString> ids;
     while(!xmlReader.atEnd()) {
         if(!xmlReader.readNextStartElement()) {
             continue;
@@ -288,24 +284,33 @@ void WriteToZotero::requestFinished()
 
             emit progress(m_progress);
 
-            // if we got an earliers Entry in the server reply we know we updated the item
+            // if we got an earlier Entry in the server reply we know we updated the item
             // updatethe tag and updated date
             if(updateEntry) {
                     updateEntry->remove("zoteroupdated");
                     updateEntry->insert("zoteroupdated", newElement->value("zoteroupdated"));
                     updateEntry->remove("zoteroetag");
                     updateEntry->insert("zoteroetag", newElement->value("zoteroetag"));
+
                     break;
             }
             // otherwise if we have no updateEntry we got a responce from an item creation request
             else {
                 m_entriesAfterSync.append( newElement );
                 newFilesAdded++;
+
+                if(!m_addToCollection.isEmpty()) {
+                    ids << PlainTextValue::text(newElement->value("zoterokey"));
+                }
             }
         }
     }
 
     if(newFilesAdded != 0) {
+        // push items to collection
+        if(!m_addToCollection.isEmpty()) {
+            addItemsToCollection(ids, m_addToCollection);
+        }
         m_progress = m_progress + m_progressPerFile * newFilesAdded;
         emit progress(m_progress);
     }
@@ -328,79 +333,80 @@ QByteArray WriteToZotero::writeJsonContent(File items, bool onlyUpdate)
         }
 
         // none Zotero types which I try to squeeze into zotero
-        if(entry->type().toLower() == QString("article")) {
-            QString articleType = PlainTextValue::text(entry->value("articletype"));
+        if(adoptBibtexTypes()) {
+            if(entry->type().toLower() == QString("article")) {
+                QString articleType = PlainTextValue::text(entry->value("articletype"));
 
-            if(articleType == "newspaper") {
-                itemList.append( createNewspaperArticleJson( entry) );
+                if(articleType == "newspaper") {
+                    itemList.append( createNewspaperArticleJson( entry) );
+                }
+                else if(articleType == "magazine") {
+                    itemList.append( createMagazineArticleJson( entry) );
+                }
+                else {
+                    itemList.append( createJournalArticleJson( entry) );
+                }
             }
-            else if(articleType == "magazine") {
-                itemList.append( createMagazineArticleJson( entry) );
+            else if(entry->type().toLower() == QString("inbook")) {
+                itemList.append( createBookSectionJson( entry) );
             }
-            else {
-                itemList.append( createJournalArticleJson( entry) );
+            else if(entry->type().toLower() == QString("inproceedings")) {
+                itemList.append( createConferencePaperJson( entry) );
             }
+            else if(entry->type().toLower() == QString("booklet")) {
+                itemList.append( createBookJson( entry) );
+            }
+            else if(entry->type().toLower() == QString("conference")) {
+                itemList.append( createConferencePaperJson( entry) );
+            }
+            else if(entry->type().toLower() == QString("proceedings")) {
+                itemList.append( createConferencePaperJson( entry) );
+            }
+            else if(entry->type().toLower() == QString("incollection")) {
+                itemList.append( createDocumentJson( entry) );
+            }
+            else if(entry->type().toLower() == QString("manual")) {
+                itemList.append( createDocumentJson( entry) );
+            }
+            else if(entry->type().toLower() == QString("mastersthesis")) {
+                PlainText *ptValue = new PlainText("master");
+                Value valueList;
+                valueList.append(ptValue);
+                entry->insert(QString("thesisType"), valueList);
 
-        }
-        else if(entry->type().toLower() == QString("inbook")) {
-            itemList.append( createBookSectionJson( entry) );
-        }
-        else if(entry->type().toLower() == QString("inproceedings")) {
-            itemList.append( createConferencePaperJson( entry) );
-        }
-        else if(entry->type().toLower() == QString("booklet")) {
-            itemList.append( createBookJson( entry) );
-        }
-        else if(entry->type().toLower() == QString("conference")) {
-            itemList.append( createConferencePaperJson( entry) );
-        }
-        else if(entry->type().toLower() == QString("proceedings")) {
-            itemList.append( createConferencePaperJson( entry) );
-        }
-        else if(entry->type().toLower() == QString("incollection")) {
-            itemList.append( createDocumentJson( entry) );
-        }
-        else if(entry->type().toLower() == QString("manual")) {
-            itemList.append( createDocumentJson( entry) );
-        }
-        else if(entry->type().toLower() == QString("mastersthesis")) {
-            PlainText *ptValue = new PlainText("master");
-            Value valueList;
-            valueList.append(ptValue);
-            entry->insert(QString("thesisType"), valueList);
+                itemList.append( createThesisJson( entry ) );
+            }
+            else if(entry->type().toLower() == QString("misc")) {
+                itemList.append( createDocumentJson( entry) );
+            }
+            else if(entry->type().toLower() == QString("phdthesis")) {
+                PlainText *ptValue = new PlainText("phd");
+                Value valueList;
+                valueList.append(ptValue);
+                entry->insert(QString("thesisType"), valueList);
 
-            itemList.append( createThesisJson( entry ) );
-        }
-        else if(entry->type().toLower() == QString("misc")) {
-            itemList.append( createDocumentJson( entry) );
-        }
-        else if(entry->type().toLower() == QString("phdthesis")) {
-            PlainText *ptValue = new PlainText("phd");
-            Value valueList;
-            valueList.append(ptValue);
-            entry->insert(QString("thesisType"), valueList);
+                itemList.append( createThesisJson( entry) );
+            }
+            else if(entry->type().toLower() == QString("bachelor")) {
+                PlainText *ptValue = new PlainText("master");
+                Value valueList;
+                valueList.append(ptValue);
+                entry->insert(QString("thesisType"), valueList);
 
-            itemList.append( createThesisJson( entry) );
-        }
-        else if(entry->type().toLower() == QString("bachelor")) {
-            PlainText *ptValue = new PlainText("master");
-            Value valueList;
-            valueList.append(ptValue);
-            entry->insert(QString("thesisType"), valueList);
+                itemList.append( createThesisJson( entry) );
+            }
+            else if(entry->type().toLower() == QString("techreport")) {
+                itemList.append( createReportJson( entry) );
+            }
+            else if(entry->type().toLower() == QString("unpublished")) {
+                itemList.append( createDocumentJson( entry) );
 
-            itemList.append( createThesisJson( entry) );
-        }
-        else if(entry->type().toLower() == QString("techreport")) {
-            itemList.append( createReportJson( entry) );
-        }
-        else if(entry->type().toLower() == QString("unpublished")) {
-            itemList.append( createDocumentJson( entry) );
-
+            }
         }
 
         // default Zotero types
 
-        else if(entry->type().toLower() == QString("artwork")) {
+        if(entry->type().toLower() == QString("artwork")) {
             itemList.append( createArtworkJson(entry) );
         }
         else if(entry->type().toLower() == QString("audiorecording")) {
@@ -540,44 +546,312 @@ QByteArray WriteToZotero::writeJsonContent(const CollectionInfo &collection)
     return json;
 }
 
-QVariantList WriteToZotero::createCreatorsJson(Entry *e)
+QVariantList WriteToZotero::createCreatorsJson(Entry *e, const QString &type)
 {
     QVariantList jsonMap;
 
-    // start by authors
-    foreach(ValueItem* vi, e->value("author")) {
-        Person *p = dynamic_cast<Person *>(vi);
+    QStringList creatorList;
+    creatorList = creatorTypeForZoteroMapping(type);
 
-        if(p) {
+    foreach(const QString &creatorType, creatorList) {
+        foreach(ValueItem* vi, e->value(creatorType)) {
+
             QVariantMap personMap;
-            personMap.insert("creatorType","author");
-            personMap.insert("firstName",p->firstName());
-            personMap.insert("lastName",p->lastName());
+            personMap.insert("creatorType",creatorType);
+
+            Person *p = dynamic_cast<Person *>(vi);
+
+            if(p) {
+                personMap.insert("firstName",p->firstName());
+                personMap.insert("lastName",p->lastName());
+            }
+            else {
+                PlainText *pt = dynamic_cast<PlainText *>(vi);
+                if(pt)
+                    personMap.insert("lastName",pt->text());
+            }
+
             jsonMap.append(personMap);
         }
     }
 
-    // go through editors
-    foreach(ValueItem* vi, e->value("editor")) {
-        Person *p = dynamic_cast<Person *>(vi);
 
-        if(p) {
-            QVariantMap personMap;
-            personMap.insert("creatorType","editor");
-            personMap.insert("firstName",p->firstName());
-            personMap.insert("lastName",p->lastName());
-            jsonMap.append(personMap);
+    // beside the zotero key, fetch the normal bibtex entries
+    // these have to be mapped to something that fits into the zotero version
+    if(adoptBibtexTypes()) {
+        QStringList bibTexCreatorList;
+        bibTexCreatorList << "author" << "editor";
+        QStringList mappingList = bibtexCreatorZoteroMapping(type);
+
+        int pos = 0;
+        foreach(const QString &creatorType, bibTexCreatorList) {
+            foreach(ValueItem* vi, e->value(creatorType)) {
+
+                QVariantMap personMap;
+                personMap.insert("creatorType",mappingList.at(pos));
+
+                Person *p = dynamic_cast<Person *>(vi);
+
+                if(p) {
+                    personMap.insert("firstName",p->firstName());
+                    personMap.insert("lastName",p->lastName());
+                }
+                else {
+                    PlainText *pt = dynamic_cast<PlainText *>(vi);
+                    if(pt)
+                        personMap.insert("lastName",pt->text());
+                }
+
+                jsonMap.append(personMap);
+            }
+            pos++;
         }
     }
 
     return jsonMap;
 }
 
+QStringList WriteToZotero::creatorTypeForZoteroMapping(const QString &type)
+{
+    QStringList creatorTypes;
+
+    // taken from https://api.zotero.org/itemTypeCreatorTypes?itemType=webpage
+
+    if(type.toLower() == QString("artwork")) {
+        creatorTypes << "artist" << "contributor";
+    }
+    else if(type.toLower() == QString("audiorecording")) {
+        creatorTypes << "performer" << "composer" << "contributor" << "wordsBy";
+    }
+    else if(type.toLower() == QString("bill")) {
+        creatorTypes << "sponsor" << "contributor" << "cosponsor";
+    }
+    else if(type.toLower() == QString("blogpost")) {
+        creatorTypes << "author" << "commenter" << "contributor";
+    }
+    else if(type.toLower() == QString("book")) {
+        creatorTypes << "author" << "editor" << "contributor" << "seriesEditor" << "translator";
+    }
+    else if(type.toLower() == QString("booksection")) {
+        creatorTypes << "author" << "bookAuthor" << "editor" << "contributor" << "seriesEditor" << "translator";
+    }
+    else if(type.toLower() == QString("case")) {
+        creatorTypes << "author" << "contributor" << "counsel";
+    }
+    else if(type.toLower() == QString("computerprogram")) {
+        creatorTypes << "programmer" << "contributor";
+    }
+    else if(type.toLower() == QString("conferencepaper")) {
+        creatorTypes << "author" << "contributor" << "editor" << "seriesEditor" << "translator";
+    }
+    else if(type.toLower() == QString("dictionaryentry")) {
+        creatorTypes << "author" << "contributor" << "editor" << "seriesEditor" << "translator";
+    }
+    else if(type.toLower() == QString("document")) {
+        creatorTypes << "author" << "contributor" << "editor" << "reviewedAuthor" << "translator";
+    }
+    else if(type.toLower() == QString("email")) {
+        creatorTypes << "author" << "contributor" << "recipient";
+    }
+    else if(type.toLower() == QString("encyclopediaarticle")) {
+        creatorTypes << "author" << "contributor" << "editor" << "seriesEditor" << "translator";
+    }
+    else if(type.toLower() == QString("film")) {
+        creatorTypes << "director" << "contributor" << "producer" << "scriptwriter";
+    }
+    else if(type.toLower() == QString("forumpost")) {
+        creatorTypes << "author" << "contributor";
+    }
+    else if(type.toLower() == QString("hearing")) {
+        creatorTypes << "contributor";
+    }
+    else if(type.toLower() == QString("instantmessage")) {
+        creatorTypes << "author" << "contributor" << "recipient";
+    }
+    else if(type.toLower() == QString("interview")) {
+        creatorTypes << "interviewee" << "contributor" << "interviewer" << "translator";
+    }
+    else if(type.toLower() == QString("journalarticle")) {
+        creatorTypes << "author" << "contributor" << "editor" << "reviewedAuthor" << "translator";
+    }
+    else if(type.toLower() == QString("letter")) {
+        creatorTypes << "author" << "contributor" << "recipient";
+    }
+    else if(type.toLower() == QString("magazinearticle")) {
+        creatorTypes << "author" << "contributor" << "reviewedAuthor" << "translator";
+    }
+    else if(type.toLower() == QString("manuscript")) {
+        creatorTypes << "author" << "contributor" << "translator";
+    }
+    else if(type.toLower() == QString("map")) {
+        creatorTypes << "cartographer" << "contributor" << "seriesEditor";
+    }
+    else if(type.toLower() == QString("newspaperarticle")) {
+        creatorTypes << "author" << "contributor" << "reviewedAuthor" << "translator";
+    }
+    else if(type.toLower() == QString("note")) {
+    }
+    else if(type.toLower() == QString("patent")) {
+        creatorTypes << "inventor" << "attorneyAgent" << "contributor";
+    }
+    else if(type.toLower() == QString("podcast")) {
+        creatorTypes << "podcaster" << "contributor" << "guest";
+    }
+    else if(type.toLower() == QString("presentation")) {
+        creatorTypes << "presenter" << "contributor";
+    }
+    else if(type.toLower() == QString("radiobroadcast")) {
+        creatorTypes << "director" << "castMember" << "contributor" << "guest" << "producer" << "scriptwriter";
+    }
+    else if(type.toLower() == QString("report")) {
+        creatorTypes << "author" << "contributor" << "seriesEditor" << "translator";
+    }
+    else if(type.toLower() == QString("statute")) {
+        creatorTypes << "author" << "contributor";
+    }
+    else if(type.toLower() == QString("tvbroadcast")) {
+        creatorTypes << "director" << "castMember" << "contributor" << "guest" << "producer" << "scriptwriter";
+    }
+    else if(type.toLower() == QString("thesis")) {
+        creatorTypes << "author" << "contributor";
+    }
+    else if(type.toLower() == QString("videorecording")) {
+        creatorTypes << "director" << "castMember" << "contributor" << "producer" << "scriptwriter";
+    }
+    else if(type.toLower() == QString("webpage")) {
+        creatorTypes << "author" << "contributor" << "translator";
+    }
+
+    return creatorTypes;
+}
+
+QStringList WriteToZotero::bibtexCreatorZoteroMapping(const QString &type)
+{
+    // here we map what the author and editor fiel in bibtex means for the zotero fields
+    // first entry is the author 2nd the editor
+
+    QStringList creatorTypes;
+
+    if(type.toLower() == QString("artwork")) {
+        creatorTypes << "artist" << "contributor";
+    }
+    else if(type.toLower() == QString("audiorecording")) {
+        creatorTypes << "performer" << "composer";
+    }
+    else if(type.toLower() == QString("bill")) {
+        creatorTypes << "sponsor" << "contributor";
+    }
+    else if(type.toLower() == QString("blogpost")) {
+        creatorTypes << "author" << "contributor";
+    }
+    else if(type.toLower() == QString("book")) {
+        creatorTypes << "author" << "editor";
+    }
+    else if(type.toLower() == QString("booksection")) {
+        creatorTypes << "author" << "editor";
+    }
+    else if(type.toLower() == QString("case")) {
+        creatorTypes << "author" << "contributor";
+    }
+    else if(type.toLower() == QString("computerprogram")) {
+        creatorTypes << "programmer" << "contributor";
+    }
+    else if(type.toLower() == QString("conferencepaper")) {
+        creatorTypes << "author" << "editor";
+    }
+    else if(type.toLower() == QString("dictionaryentry")) {
+        creatorTypes << "author" << "editor";
+    }
+    else if(type.toLower() == QString("document")) {
+        creatorTypes << "author" << "editor";
+    }
+    else if(type.toLower() == QString("email")) {
+        creatorTypes << "author" << "contributor";
+    }
+    else if(type.toLower() == QString("encyclopediaarticle")) {
+        creatorTypes << "author" << "editor";
+    }
+    else if(type.toLower() == QString("film")) {
+        creatorTypes << "director" << "contributor";
+    }
+    else if(type.toLower() == QString("forumpost")) {
+        creatorTypes << "author" << "contributor";
+    }
+    else if(type.toLower() == QString("hearing")) {
+        creatorTypes << "contributor" << "contributor";
+    }
+    else if(type.toLower() == QString("instantmessage")) {
+        creatorTypes << "author" << "contributor";
+    }
+    else if(type.toLower() == QString("interview")) {
+        creatorTypes << "interviewee" << "contributor";
+    }
+    else if(type.toLower() == QString("journalarticle")) {
+        creatorTypes << "author" << "editor";
+    }
+    else if(type.toLower() == QString("letter")) {
+        creatorTypes << "author" << "contributor";
+    }
+    else if(type.toLower() == QString("magazinearticle")) {
+        creatorTypes << "author" << "contributor";
+    }
+    else if(type.toLower() == QString("manuscript")) {
+        creatorTypes << "author" << "contributor";
+    }
+    else if(type.toLower() == QString("map")) {
+        creatorTypes << "cartographer" << "seriesEditor";
+    }
+    else if(type.toLower() == QString("newspaperarticle")) {
+        creatorTypes << "author" << "contributor";
+    }
+    else if(type.toLower() == QString("note")) {
+    }
+    else if(type.toLower() == QString("patent")) {
+        creatorTypes << "inventor" << "contributor";
+    }
+    else if(type.toLower() == QString("podcast")) {
+        creatorTypes << "podcaster" << "contributor";
+    }
+    else if(type.toLower() == QString("presentation")) {
+        creatorTypes << "presenter" << "contributor";
+    }
+    else if(type.toLower() == QString("radiobroadcast")) {
+        creatorTypes << "director" << "contributor";
+    }
+    else if(type.toLower() == QString("report")) {
+        creatorTypes << "author" << "seriesEditor";
+    }
+    else if(type.toLower() == QString("statute")) {
+        creatorTypes << "author" << "contributor";
+    }
+    else if(type.toLower() == QString("tvbroadcast")) {
+        creatorTypes << "director" << "contributor";
+    }
+    else if(type.toLower() == QString("thesis")) {
+        creatorTypes << "author" << "contributor";
+    }
+    else if(type.toLower() == QString("videorecording")) {
+        creatorTypes << "director" << "contributor";
+    }
+    else if(type.toLower() == QString("webpage")) {
+        creatorTypes << "author" << "contributor";
+    }
+
+    return creatorTypes;
+}
+
 QVariantList WriteToZotero::createTagsJson(Entry *e)
 {
     QVariantList jsonMap;
+    QString checkValue;
+    if(adoptBibtexTypes()) {
+        checkValue =QString("keywords");
+    }
+    else {
+        checkValue =QString("tag");
+    }
 
-    foreach(ValueItem* vi, e->value("keywords")) {
+    foreach(ValueItem* vi, e->value(checkValue)) {
         Keyword *k = dynamic_cast<Keyword *>(vi);
 
         if(k) {
@@ -596,7 +870,7 @@ QVariantMap WriteToZotero::createArtworkJson(Entry *e)
 
     jsonMap.insert("itemType","artwork");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "artwork"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("artworkMedium",PlainTextValue::text(e->value("artworkMedium")));
     jsonMap.insert("artworkSize",PlainTextValue::text(e->value("artworkSize")));
@@ -609,7 +883,6 @@ QVariantMap WriteToZotero::createArtworkJson(Entry *e)
     jsonMap.insert("callNumber",PlainTextValue::text(e->value("lccn")));
     jsonMap.insert("url",PlainTextValue::text(e->value("url")));
     jsonMap.insert("accessDate",PlainTextValue::text(e->value("accessDate")));
-    jsonMap.insert("callNumber",PlainTextValue::text(e->value("lccn")));
     jsonMap.insert("rights",PlainTextValue::text(e->value("rights")));
     jsonMap.insert("extra",PlainTextValue::text(e->value("extra")));
     jsonMap.insert("tags",createTagsJson(e));
@@ -624,7 +897,7 @@ QVariantMap WriteToZotero::createAudioRecordingJson(Entry *e)
 
     jsonMap.insert("itemType","audioRecording");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e)); //TODO "creatorType":"performer"
+    jsonMap.insert("creators",createCreatorsJson(e, "audioRecording"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("audioRecordingFormat",PlainTextValue::text(e->value("audioRecordingFormat")));
     jsonMap.insert("seriesTitle",PlainTextValue::text(e->value("series")));
@@ -657,7 +930,7 @@ QVariantMap WriteToZotero::createBillJson(Entry *e)
 
     jsonMap.insert("itemType","bill");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e)); //TODO "creatorType":"sponsor"
+    jsonMap.insert("creators",createCreatorsJson(e, "bill"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("billNumber",PlainTextValue::text(e->value("billNumber")));
     jsonMap.insert("code",PlainTextValue::text(e->value("code")));
@@ -686,7 +959,7 @@ QVariantMap WriteToZotero::createBlogPostJson(Entry *e)
 
     jsonMap.insert("itemType","blogPost");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "blogPost"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("blogTitle",PlainTextValue::text(e->value("blogTitle")));
     jsonMap.insert("websiteType",PlainTextValue::text(e->value("websiteType")));
@@ -709,7 +982,7 @@ QVariantMap WriteToZotero::createBookJson(Entry *e)
 
     jsonMap.insert("itemType","book");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "book"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("series",PlainTextValue::text(e->value("series")));
     jsonMap.insert("seriesNumber",PlainTextValue::text(e->value("issue")));
@@ -743,7 +1016,7 @@ QVariantMap WriteToZotero::createBookSectionJson(Entry *e)
 
     jsonMap.insert("itemType","bookSection");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "bookSection"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("bookTitle",PlainTextValue::text(e->value("bookTitle")));
     jsonMap.insert("series",PlainTextValue::text(e->value("series")));
@@ -777,7 +1050,7 @@ QVariantMap WriteToZotero::createCaseJson(Entry *e)
     QVariantMap jsonMap;
 
     jsonMap.insert("itemType","case");
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "case"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
 
     jsonMap.insert("caseName",PlainTextValue::text(e->value("caseName")));
@@ -806,7 +1079,7 @@ QVariantMap WriteToZotero::createComputerProgramJson(Entry *e)
 
     jsonMap.insert("itemType","computerProgram");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e)); //TODO "creatorType":"programmer"
+    jsonMap.insert("creators",createCreatorsJson(e, "computerProgram"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("seriesTitle",PlainTextValue::text(e->value("series")));
     jsonMap.insert("version",PlainTextValue::text(e->value("version")));
@@ -837,7 +1110,7 @@ QVariantMap WriteToZotero::createConferencePaperJson(Entry *e)
 
     jsonMap.insert("itemType","conferencePaper");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "conferencePaper"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     //jsonMap.insert("date","");
     jsonMap.insert("proceedingsTitle",PlainTextValue::text(e->value("booktitle")));
@@ -871,7 +1144,7 @@ QVariantMap WriteToZotero::createDictionaryEntryJson(Entry *e)
 
     jsonMap.insert("itemType","dictionaryEntry");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "dictionaryEntry"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("dictionaryTitle",PlainTextValue::text(e->value("dictionaryTitle")));
     jsonMap.insert("series",PlainTextValue::text(e->value("series")));
@@ -906,7 +1179,7 @@ QVariantMap WriteToZotero::createDocumentJson(Entry *e)
 
     jsonMap.insert("itemType","document");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "document"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("publisher",PlainTextValue::text(e->value("publisher")));
     //jsonMap.insert("date","");
@@ -931,7 +1204,7 @@ QVariantMap WriteToZotero::createEmailJson(Entry *e)
     QVariantMap jsonMap;
 
     jsonMap.insert("itemType","email");
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "email"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
 
     jsonMap.insert("subject",PlainTextValue::text(e->value("subject")));
@@ -954,7 +1227,7 @@ QVariantMap WriteToZotero::createEncyclopediaArticleJson(Entry *e)
 
     jsonMap.insert("itemType","encyclopediaArticle");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "encyclopediaArticle"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("encyclopediaTitle",PlainTextValue::text(e->value("encyclopediaTitle")));
     jsonMap.insert("series",PlainTextValue::text(e->value("series")));
@@ -989,7 +1262,7 @@ QVariantMap WriteToZotero::createFilmJson(Entry *e)
 
     jsonMap.insert("itemType","film");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e)); //TODO "creatorType":"director"
+    jsonMap.insert("creators",createCreatorsJson(e, "film"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("distributor",PlainTextValue::text(e->value("distributor")));
     //jsonMap.insert("date","");
@@ -1018,7 +1291,7 @@ QVariantMap WriteToZotero::createForumPostJson(Entry *e)
 
     jsonMap.insert("itemType","forumPost");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "forumPost"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("forumTitle",PlainTextValue::text(e->value("forumTitle")));
     jsonMap.insert("postType",PlainTextValue::text(e->value("postType")));
@@ -1041,7 +1314,7 @@ QVariantMap WriteToZotero::createHearingJson(Entry *e)
 
     jsonMap.insert("itemType","hearing");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e)); //TODO "creatorType":"contributor"
+    jsonMap.insert("creators",createCreatorsJson(e, "hearing"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("committee",PlainTextValue::text(e->value("committee")));
     jsonMap.insert("place",PlainTextValue::text(e->value("place")));
@@ -1071,7 +1344,7 @@ QVariantMap WriteToZotero::createInstantMessageJson(Entry *e)
 
     jsonMap.insert("itemType","instantMessage");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "instantMessage"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     //jsonMap.insert("date","");
     jsonMap.insert("language",PlainTextValue::text(e->value("language")));
@@ -1092,7 +1365,7 @@ QVariantMap WriteToZotero::createInterviewJson(Entry *e)
 
     jsonMap.insert("itemType","interview");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e)); //TODO "creatorType":"interviewee"
+    jsonMap.insert("creators",createCreatorsJson(e, "interview"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     //jsonMap.insert("date","");
     jsonMap.insert("interviewMedium",PlainTextValue::text(e->value("interviewMedium")));
@@ -1118,7 +1391,7 @@ QVariantMap WriteToZotero::createJournalArticleJson(Entry *e)
 
     jsonMap.insert("itemType","journalArticle");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "journalArticle"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
 
     jsonMap.insert("publicationTitle",PlainTextValue::text(e->value("publicationTitle")));
@@ -1154,7 +1427,7 @@ QVariantMap WriteToZotero::createLetterJson(Entry *e)
 
     jsonMap.insert("itemType","letter");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e,"letter"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("letterType",PlainTextValue::text(e->value("letterType")));
     //jsonMap.insert("date","");
@@ -1180,7 +1453,7 @@ QVariantMap WriteToZotero::createMagazineArticleJson(Entry *e)
 
     jsonMap.insert("itemType","magazineArticle");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "magazineArticle"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
 
     jsonMap.insert("publicationTitle",PlainTextValue::text(e->value("publicationTitle")));
@@ -1216,7 +1489,7 @@ QVariantMap WriteToZotero::createManuscriptJson(Entry *e)
 
     jsonMap.insert("itemType","manuscript");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "manuscript"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("manuscriptType",PlainTextValue::text(e->value("manuscriptType")));
     jsonMap.insert("place",PlainTextValue::text(e->value("place")));
@@ -1244,7 +1517,7 @@ QVariantMap WriteToZotero::createMapJson(Entry *e)
 
     jsonMap.insert("itemType","map");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e)); //TODO "creatorType":"cartographer"
+    jsonMap.insert("creators",createCreatorsJson(e, "map"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("mapType",PlainTextValue::text(e->value("mapType")));
     jsonMap.insert("scale",PlainTextValue::text(e->value("scale")));
@@ -1276,7 +1549,7 @@ QVariantMap WriteToZotero::createNewspaperArticleJson(Entry *e)
 
     jsonMap.insert("itemType","newspaperArticle");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "newspaperArticle"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
 
     jsonMap.insert("publicationTitle",PlainTextValue::text(e->value("publicationTitle")));
@@ -1323,7 +1596,7 @@ QVariantMap WriteToZotero::createPatentJson(Entry *e)
 
     jsonMap.insert("itemType","patent");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e)); //TODO "creatorType":"inventor"
+    jsonMap.insert("creators",createCreatorsJson(e, "patent"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
 
     jsonMap.insert("place",PlainTextValue::text(e->value("place")));
@@ -1356,7 +1629,7 @@ QVariantMap WriteToZotero::createPodcastJson(Entry *e)
 
     jsonMap.insert("itemType","podcast");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e)); //TODO"creatorType":"podcaster"
+    jsonMap.insert("creators",createCreatorsJson(e, "podcast"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("seriesTitle",PlainTextValue::text(e->value("series")));
     jsonMap.insert("episodeNumber",PlainTextValue::text(e->value("episodeNumber")));
@@ -1380,7 +1653,7 @@ QVariantMap WriteToZotero::createPresentationJson(Entry *e)
 
     jsonMap.insert("itemType","presentation");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e)); //TODO "creatorType":"presenter"
+    jsonMap.insert("creators",createCreatorsJson(e, "presentation"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("presentationType",PlainTextValue::text(e->value("presentationType")));
     //jsonMap.insert("date","");
@@ -1403,7 +1676,7 @@ QVariantMap WriteToZotero::createRadioBroadcastJson(Entry *e)
 
     jsonMap.insert("itemType","radioBroadcast");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e)); //TODO "creatorType":"director"
+    jsonMap.insert("creators",createCreatorsJson(e,"radioBroadcast"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("programTitle",PlainTextValue::text(e->value("programTitle")));
     jsonMap.insert("episodeNumber",PlainTextValue::text(e->value("episodeNumber")));
@@ -1430,12 +1703,11 @@ QVariantMap WriteToZotero::createRadioBroadcastJson(Entry *e)
 
 QVariantMap WriteToZotero::createReportJson(Entry *e)
 {
-    //"url":"","accessDate":"","archive":"","archiveLocation":"","libraryCatalog":"","callNumber":"","rights":"","extra":"","tags":[],"notes":[]}
     QVariantMap jsonMap;
 
     jsonMap.insert("itemType","report");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e,"report"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
 
     jsonMap.insert("reportNumber",PlainTextValue::text(e->value("reportNumber")));
@@ -1467,7 +1739,7 @@ QVariantMap WriteToZotero::createStatuteJson(Entry *e)
 
     jsonMap.insert("itemType","statute");
     jsonMap.insert("nameOfAct","nameOfAct");
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "statute"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("code",PlainTextValue::text(e->value("code")));
     jsonMap.insert("codeNumber",PlainTextValue::text(e->value("codeNumber")));
@@ -1495,7 +1767,7 @@ QVariantMap WriteToZotero::createTvBroadcastJson(Entry *e)
 
     jsonMap.insert("itemType","tvBroadcast");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e)); //TODO "creatorType":"director"
+    jsonMap.insert("creators",createCreatorsJson(e, "tvBroadcast"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("programTitle",PlainTextValue::text(e->value("programTitle")));
     jsonMap.insert("episodeNumber",PlainTextValue::text(e->value("episodeNumber")));
@@ -1526,7 +1798,7 @@ QVariantMap WriteToZotero::createThesisJson(Entry *e)
 
     jsonMap.insert("itemType","thesis");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "thesis"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("thesisType",PlainTextValue::text(e->value("type")));
     jsonMap.insert("university",PlainTextValue::text(e->value("school")));
@@ -1555,7 +1827,7 @@ QVariantMap WriteToZotero::createVideoRecordingJson(Entry *e)
 
     jsonMap.insert("itemType","videoRecording");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e)); //TODO "creatorType":"director"
+    jsonMap.insert("creators",createCreatorsJson(e, "videoRecording"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("videoRecordingFormat",PlainTextValue::text(e->value("videoRecordingFormat")));
     jsonMap.insert("seriesTitle",PlainTextValue::text(e->value("series")));
@@ -1588,7 +1860,7 @@ QVariantMap WriteToZotero::createWebpageJson(Entry *e)
 
     jsonMap.insert("itemType","webpage");
     jsonMap.insert("title", PlainTextValue::text(e->value("title")));
-    jsonMap.insert("creators",createCreatorsJson(e));
+    jsonMap.insert("creators",createCreatorsJson(e, "webpage"));
     jsonMap.insert("abstractNote",PlainTextValue::text(e->value("abstract")));
     jsonMap.insert("websiteTitle",PlainTextValue::text(e->value("websiteTitle")));
     jsonMap.insert("websiteType",PlainTextValue::text(e->value("websiteType")));
@@ -1605,4 +1877,5 @@ QVariantMap WriteToZotero::createWebpageJson(Entry *e)
 
     return jsonMap;
 }
+
 

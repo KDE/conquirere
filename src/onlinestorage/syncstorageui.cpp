@@ -19,6 +19,7 @@
 #include "ui_syncstorageui.h"
 
 #include "zotero/synczotero.h"
+#include "zotero/readfromzotero.h"
 
 #include <KDE/KIcon>
 
@@ -33,6 +34,15 @@ SyncStorageUi::SyncStorageUi(QWidget *parent)
 
     connect(ui->cancelCloseButton, SIGNAL(clicked()), this, SLOT(cancelClose()));
     connect(ui->startSync, SIGNAL(clicked()), this, SLOT(startSync()));
+
+    ui->fetchCollection->setIcon(KIcon("svn-update"));
+    ui->addCollection->setIcon(KIcon("list-add"));
+    ui->addCollection->hide();
+    ui->removeCollection->setIcon(KIcon("list-remove"));
+    ui->removeCollection->hide();
+    connect(ui->fetchCollection, SIGNAL(clicked()), this, SLOT(fetchCollection()));
+
+    ui->providerSelection->addItem(KIcon("storage-zotero"),QString("Zotero"));
 
     m_syncStorage = new SyncZotero;
     connect(m_syncStorage, SIGNAL(syncInProgress(bool)), this, SLOT(syncStatus(bool)));
@@ -56,6 +66,28 @@ void SyncStorageUi::switchProvider()
 
 }
 
+void SyncStorageUi::fetchCollection()
+{
+    ReadFromZotero *rfz = new ReadFromZotero;
+
+    rfz->setUserName(QString("795913"));
+    rfz->setPassword(QString("TBydrlOdZo05mmzMhO8PlWCv"));
+
+    rfz->fetchCollections();
+
+    connect(rfz, SIGNAL(collectionsInfo(QList<CollectionInfo>)), this, SLOT(fillCollectionList(QList<CollectionInfo>)));
+}
+
+void SyncStorageUi::fillCollectionList(QList<CollectionInfo> collectionList)
+{
+    ui->listCollection->addItem(i18n("no collection"), QString());
+    foreach(const CollectionInfo &ci, collectionList) {
+        ui->listCollection->addItem(ci.name, ci.id);
+    }
+
+    delete sender();
+}
+
 void SyncStorageUi::startSync()
 {
     //m_syncStorage->setUserName(ui->providerUserName->text());
@@ -64,7 +96,13 @@ void SyncStorageUi::startSync()
     m_syncStorage->setUserName(QString("795913"));
     m_syncStorage->setPassword(QString("TBydrlOdZo05mmzMhO8PlWCv"));
 
-    m_syncStorage->syncWithStorage(m_fileToSync);
+    m_syncStorage->setAdoptBibtexTypes(ui->cbAdaptToBibTeX->isChecked());
+    m_syncStorage->setAskBeforeDeletion(ui->cbAskDeletion->isChecked());
+    m_syncStorage->setDownloadOnly(ui->cbDownloadOnly->isChecked());
+
+    int curIndex = ui->listCollection->currentIndex();
+    QString collectionID = ui->listCollection->itemData(curIndex).toString();
+    m_syncStorage->syncWithStorage(m_fileToSync, collectionID);
 }
 
 void SyncStorageUi::syncStatus(bool inProgress)

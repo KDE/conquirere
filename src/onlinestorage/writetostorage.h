@@ -49,6 +49,9 @@ public:
     void setPassword(const QString & pwd);
     QString pasword() const;
 
+    void setAdoptBibtexTypes(bool adopt);
+    bool adoptBibtexTypes() const;
+
 signals:
     /**
       * Emits a string telling whats going on right now
@@ -77,8 +80,8 @@ signals:
 public slots:
     void cancelUpload();
 
-    virtual void pushItems(File items) = 0;
-    virtual void pushNewItems(File items) = 0;
+    virtual void pushItems(File items, const QString &collection = QString()) = 0;
+    virtual void pushNewItems(File items, const QString &collection = QString()) = 0;
     virtual void updateItem(Entry *item) = 0;
     virtual void addItemsToCollection(QList<QString> ids, const QString &collection) = 0;
     virtual void removeItemsFromCollection(QList<QString> ids, const QString &collection) = 0;
@@ -141,6 +144,7 @@ protected slots:
 private:
     QString m_name;
     QString m_password;
+    bool m_adoptBibtexTypes;
     RequestType m_requestType;
 
     QNetworkAccessManager m_qnam;
