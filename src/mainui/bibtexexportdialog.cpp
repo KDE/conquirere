@@ -53,9 +53,12 @@ bool concurrentExport(NBibExporterBibTex *exporter, const QString &fileName, Nep
     return result;
 }
 
-BibTexExportDialog::BibTexExportDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::BibTexExportDialog)
+BibTexExportDialog::BibTexExportDialog(QWidget *parent)
+    : QDialog(parent)
+    , ui(new Ui::BibTexExportDialog)
+    , m_exporter(0)
+    , m_progress(0)
+    , m_futureWatcher(0)
 {
     ui->setupUi(this);
 }

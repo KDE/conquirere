@@ -21,6 +21,8 @@ set(conquirere_SRCS
     mainui/websearchwidget.cpp
     mainui/qlibrarytreewidgetitem.cpp
 
+    mainui/sync/synczoterodialog.cpp
+
     sidebar/sidebarwidget.cpp
     sidebar/sidebarcomponent.cpp
     sidebar/publicationwidget.cpp
@@ -45,6 +47,8 @@ kde4_add_ui_files( conquirere_SRCS
                    mainui/bibteximportwizard.ui
                    mainui/documentpreview.ui
                    mainui/websearchwidget.ui
+
+                   mainui/sync/synczoterodialog.ui
 
                    sidebar/referencewidget.ui
                    sidebar/listpublicationsdialog.ui

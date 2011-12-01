@@ -38,6 +38,8 @@ class NepomukToBibTexPipe : public NepomukPipe
 public:
     NepomukToBibTexPipe();
 
+    virtual ~NepomukToBibTexPipe();
+
     /**
       * Does the piping action
       *
@@ -99,6 +101,8 @@ private:
 
     File m_bibtexFile;
     bool m_strict;
+
+    qreal m_percentPerResource;
 };
 
 #endif // NEPOMUKTOBIBTEXPIPE_H

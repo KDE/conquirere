@@ -42,11 +42,13 @@ WriteToZotero::~WriteToZotero()
 void WriteToZotero::pushItems(File items, const QString &collection)
 {
     m_addToCollection = collection;
-    m_progressPerFile = (qreal)items.size() / 100.0;
+    m_progressPerFile = (qreal)items.size() / 200.0;
+    m_progress = 0;
 
     // separate new items from the ones that send updates
     File newItems;
     File updatingItems;
+
     foreach(Element* element, items) {
         Entry *entry = dynamic_cast<Entry *>(element);
         if(!entry) {
@@ -61,6 +63,9 @@ void WriteToZotero::pushItems(File items, const QString &collection)
             updatingItems.append(entry);
             updateItem(entry);
         }
+
+        m_progress = m_progress + m_progressPerFile;
+        emit progress(m_progress);
     }
 
     qDebug() << QLatin1String("WriteToZotero::pushItems | new:") <<  newItems.size() << QLatin1String("update:") <<  updatingItems.size();

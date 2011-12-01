@@ -36,6 +36,7 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     m_zoteroToBibTeX["tags"] = QLatin1String("keywords");
     m_zoteroToBibTeX["seriesTitle"] = QLatin1String("serie");
     m_zoteroToBibTeX["blogTitle"] = QLatin1String("booktitle");
+    m_zoteroToBibTeX["abstractNote"] = QLatin1String("abstract");
     m_zoteroToBibTeX["dictionaryTitle"] = QLatin1String("booktitle");
     m_zoteroToBibTeX["encyclopediaTitle"] = QLatin1String("booktitle");
     m_zoteroToBibTeX["publicationTitle"] = QLatin1String("journal");

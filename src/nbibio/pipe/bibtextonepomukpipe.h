@@ -19,6 +19,7 @@
 #define BIBTEXTONEPOMUKPIPE_H
 
 #include "bibtexpipe.h"
+#include "nbib.h"
 
 #include <kbibtex/value.h>
 #include <Nepomuk/Resource>
@@ -85,7 +86,9 @@ private:
 
     /* Helping functions */
     void addPublisher(const Value &publisherString, const Value &address, Nepomuk::Resource publication);
-    void addJournal(const Value &journal, const Value &volume, const Value &number, Nepomuk::Resource publication);
+    void addJournal(const Value &journal, const Value &volume, const Value &number, Nepomuk::Resource publication,
+                    QUrl seriesUrl = Nepomuk::Vocabulary::NBIB::Journal(),
+                    QUrl issueUrl = Nepomuk::Vocabulary::NBIB::JournalIssue());
     void addAbstract(const QString &content, Nepomuk::Resource publication);
     void addAnnote(const QString &content, Nepomuk::Resource publication);
 
@@ -95,6 +98,7 @@ private:
       */
     void addAuthor(const Value &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
     void addBooktitle(const QString &content, Nepomuk::Resource publication, const QString & originalEntryType);
+    void addBookAuthor(const Value &contentValue, Nepomuk::Resource publication);
     void addChapter(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference);
     void addCopyrigth(const QString &content, Nepomuk::Resource publication);
     void addCrossref(const QString &content, Nepomuk::Resource publication);
@@ -130,6 +134,7 @@ private:
     void addUrl(const QString &content, Nepomuk::Resource publication);
     void addVolume(const QString &content, Nepomuk::Resource publication);
     void addYear(const QString &content, Nepomuk::Resource publication);
+    void addLastUsage(const QString &content, Nepomuk::Resource publication);
     void addKewords(const Value &content, Nepomuk::Resource publication);
 
     QMap<QString, Nepomuk::Resource> m_allContacts;

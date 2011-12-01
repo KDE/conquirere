@@ -103,7 +103,7 @@ void SyncStorageUi::setBibTeXFile(File *fileToSync)
     }
 
     // now if we have a provider find it in our list and change the kcombobox
-    // as we have only zoter right now I'll leave it out ;)
+    // as we have only zotero right now I'll leave it out ;)
 
     if(!providerId.isEmpty()) {
         ui->providerUserName->setText(userName);
@@ -179,6 +179,7 @@ void SyncStorageUi::startSync()
     syncStorage->setDownloadOnly(ui->cbDownloadOnly->isChecked());
     syncStorage->setUrl(ui->providerUrl->text());
 
+    curIndex = ui->listCollection->currentIndex();
     QString collectionID = ui->listCollection->itemData(curIndex).toString();
     syncStorage->syncWithStorage(m_fileToSync, collectionID);
 }

@@ -35,12 +35,23 @@ NepomukToBibTexPipe::NepomukToBibTexPipe()
 {
 }
 
+NepomukToBibTexPipe::~NepomukToBibTexPipe()
+{
+
+}
+
 void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
 {
     int citeKeyNumer = 1;
     QString citeRef = QLatin1String("BibTexExport");
 
+    m_percentPerResource = (qreal)resources.size() / 100.0;
+
+    int i = 0;
     foreach(const Nepomuk::Resource & resource, resources) {
+        int curProgress = i * m_percentPerResource;
+        emit progress(curProgress);
+        i++;
 
         Nepomuk::Resource reference;
         Nepomuk::Resource publication;

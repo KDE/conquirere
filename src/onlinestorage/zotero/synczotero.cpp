@@ -112,7 +112,7 @@ void SyncZotero::readSync(File serverFiles)
 
     emit progress(40);
 
-    // now we delete all entries that have a zoterokey which we did not retrieve from teh server
+    // now we delete all entries that have a zoterokey which we did not retrieve from the server
     // this means we deleted the entry on theserver
     QList<Element*> toBeDeleted;
     foreach(Element* element, *m_systemFiles) {

@@ -31,6 +31,8 @@
 #include "bibtexexportdialog.h"
 #include "bibteximportwizard.h"
 
+#include "sync/synczoterodialog.h"
+
 #include <KDE/KApplication>
 #include <KDE/KAction>
 #include <KDE/KLocale>
@@ -182,6 +184,21 @@ void MainWindow::closeLibrary()
     switchView(Resource_Library, Max_BibTypes, m_systemLibrary);
 }
 
+void MainWindow::importBibTex()
+{
+    BibTeXImportWizard bid;
+    bid.setSystemLibrary(m_systemLibrary);
+
+    bid.exec();
+}
+
+void MainWindow::importZotero()
+{
+    SyncZoteroDialog szd;
+
+    szd.exec();
+}
+
 void MainWindow::exportBibTex()
 {
     BibTexExportDialog bed;
@@ -189,12 +206,33 @@ void MainWindow::exportBibTex()
     bed.exec();
 }
 
-void MainWindow::importBibTex()
+void MainWindow::exportZotero()
 {
-    BibTeXImportWizard bid;
-    bid.setSystemLibrary(m_systemLibrary);
+    SyncZoteroDialog szd;
 
-    bid.exec();
+    szd.exec();
+}
+
+void MainWindow::exportPdf()
+{
+    qDebug() << "export to pdf";
+}
+
+void MainWindow::syncZotero()
+{
+    SyncZoteroDialog szd;
+
+    szd.exec();
+}
+
+void MainWindow::dbCheck()
+{
+    qDebug() << "MainWindow::dbCheck()";
+}
+
+void MainWindow::dbBackup()
+{
+    qDebug() << "MainWindow::dbBackup()";
 }
 
 void MainWindow::connectKPartGui(KParts::Part * part)
@@ -272,28 +310,6 @@ void MainWindow::DEBUGDELETEALLDATA()
     }
 }
 
-void MainWindow::zoteroItems()
-{
-    ReadFromZotero *rfz = new ReadFromZotero();
-
-    rfz->setUserName(QString("795913"));
-    rfz->setPassword(QString("TBydrlOdZo05mmzMhO8PlWCv"));
-
-    rfz->fetchItems();
-    connect(rfz, SIGNAL(itemsInfo(File)), this, SLOT(showZoteroItems(File)));
-}
-
-void MainWindow::showZoteroItems(File bibFile)
-{
-    QFile exportFile(QString("/home/joerg/zotero_export.bib"));
-    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        return;
-    }
-
-    FileExporterBibTeX feb;
-    feb.save(&exportFile, &bibFile);
-}
-
 void MainWindow::zoteroCollection()
 {
     FileImporterBibTeX febImp(false);
@@ -322,26 +338,18 @@ void MainWindow::zoteroCollection()
     feb.save(&exportFile, m_bibFile);
 }
 
-//void MainWindow::showZoteroCollection(QList<CollectionInfo> collection)
-//{
-//    foreach(const CollectionInfo &c, collection) {
-//        qDebug() << c.name << "[" <<  c.id << "]" << "items:" << c.items << " subcollections:" << c.subCollections;
-//    }
-//}
-
 void MainWindow::setupActions()
 {
+    //File action menu
     KAction* newProjectAction = new KAction(this);
     newProjectAction->setText(i18n("&Create Project"));
     newProjectAction->setIcon(KIcon(QLatin1String("document-new")));
-
     actionCollection()->addAction(QLatin1String("new_project"), newProjectAction);
     connect(newProjectAction, SIGNAL(triggered(bool)),this, SLOT(createLibrary()));
 
     KAction* loadProjectAction = new KAction(this);
     loadProjectAction->setText(i18n("&Load Project"));
     loadProjectAction->setIcon(KIcon(QLatin1String("document-open")));
-
     actionCollection()->addAction(QLatin1String("load_project"), loadProjectAction);
     connect(loadProjectAction, SIGNAL(triggered(bool)),this, SLOT(loadLibrary()));
 
@@ -349,7 +357,6 @@ void MainWindow::setupActions()
     removeProjectAction->setText(i18n("&Delete Project"));
     removeProjectAction->setIcon(KIcon(QLatin1String("document-close")));
     removeProjectAction->setEnabled(false);
-
     actionCollection()->addAction(QLatin1String("delete_project"), removeProjectAction);
     connect(removeProjectAction, SIGNAL(triggered(bool)),this, SLOT(deleteLibrary()));
 
@@ -357,23 +364,63 @@ void MainWindow::setupActions()
     closeProjectAction->setText(i18n("&Close Project"));
     closeProjectAction->setIcon(KIcon(QLatin1String("document-close")));
     closeProjectAction->setEnabled(false);
-
     actionCollection()->addAction(QLatin1String("close_project"), closeProjectAction);
     connect(closeProjectAction, SIGNAL(triggered(bool)),this, SLOT(closeLibrary()));
 
-    KAction* exportBibTexAction = new KAction(this);
-    exportBibTexAction->setText(i18n("&Export to BibTex"));
-    exportBibTexAction->setIcon(KIcon(QLatin1String("document-export")));
+    // Database menu
+    // import section
+    KAction* importBibTexAction = new KAction(this);
+    importBibTexAction->setText(i18n("BibTeX"));
+    importBibTexAction->setIcon(KIcon(QLatin1String("kbibtex")));
+    actionCollection()->addAction(QLatin1String("db_import_bibtex"), importBibTexAction);
+    connect(importBibTexAction, SIGNAL(triggered(bool)),this, SLOT(importBibTex()));
 
-    actionCollection()->addAction(QLatin1String("export_bibtex"), exportBibTexAction);
+    KAction* importZoteroAction = new KAction(this);
+    importZoteroAction->setText(i18n("Zotero"));
+    importZoteroAction->setIcon(KIcon(QLatin1String("storage-zotero")));
+    actionCollection()->addAction(QLatin1String("db_import_zotero"), importZoteroAction);
+    connect(importZoteroAction, SIGNAL(triggered(bool)),this, SLOT(importZotero()));
+
+    // export section
+    KAction* exportBibTexAction = new KAction(this);
+    exportBibTexAction->setText(i18n("BibTeX"));
+    exportBibTexAction->setIcon(KIcon(QLatin1String("kbibtex")));
+    actionCollection()->addAction(QLatin1String("db_export_bibtex"), exportBibTexAction);
     connect(exportBibTexAction, SIGNAL(triggered(bool)),this, SLOT(exportBibTex()));
 
-    KAction* importBibTexAction = new KAction(this);
-    importBibTexAction->setText(i18n("&Import from BibTex"));
-    importBibTexAction->setIcon(KIcon(QLatin1String("document-import")));
+    KAction* exportZoteroAction = new KAction(this);
+    exportZoteroAction->setText(i18n("Zotero"));
+    exportZoteroAction->setIcon(KIcon(QLatin1String("storage-zotero")));
+    actionCollection()->addAction(QLatin1String("db_export_zotero"), exportZoteroAction);
+    connect(exportZoteroAction, SIGNAL(triggered(bool)),this, SLOT(exportZotero()));
 
-    actionCollection()->addAction(QLatin1String("import_bibtex"), importBibTexAction);
-    connect(importBibTexAction, SIGNAL(triggered(bool)),this, SLOT(importBibTex()));
+    KAction* exportPdfAction = new KAction(this);
+    exportPdfAction->setText(i18n("Pdf"));
+    exportPdfAction->setIcon(KIcon(QLatin1String("application-pdf")));
+    actionCollection()->addAction(QLatin1String("db_export_pdf"), exportPdfAction);
+    connect(exportPdfAction, SIGNAL(triggered(bool)),this, SLOT(exportPdf()));
+
+    // sync actions
+    KAction* syncZoteroAction = new KAction(this);
+    syncZoteroAction->setText(i18n("Zotero"));
+    syncZoteroAction->setIcon(KIcon(QLatin1String("storage-zotero")));
+    actionCollection()->addAction(QLatin1String("db_sync_zotero"), syncZoteroAction);
+    connect(syncZoteroAction, SIGNAL(triggered(bool)),this, SLOT(syncZotero()));
+
+    // other database actions
+    KAction* dbCheckAction = new KAction(this);
+    dbCheckAction->setText(i18n("Check Database"));
+    dbCheckAction->setIcon(KIcon(QLatin1String("document-preview-archive")));
+    actionCollection()->addAction(QLatin1String("db_check"), dbCheckAction);
+    connect(dbCheckAction, SIGNAL(triggered(bool)),this, SLOT(dbCheck()));
+
+    KAction* dbBackupAction = new KAction(this);
+    dbBackupAction->setText(i18n("Backup Database"));
+    dbBackupAction->setIcon(KIcon(QLatin1String("svn-update")));
+    actionCollection()->addAction(QLatin1String("db_backup"), dbBackupAction);
+    connect(dbBackupAction, SIGNAL(triggered(bool)),this, SLOT(dbBackup()));
+
+
 
     // ##############################################
     // Debug data
@@ -383,13 +430,8 @@ void MainWindow::setupActions()
     actionCollection()->addAction(QLatin1String("debug_delete"), debugDELETE);
     connect(debugDELETE, SIGNAL(triggered(bool)),this, SLOT(DEBUGDELETEALLDATA()));
 
-    KAction* debugFetchItems = new KAction(this);
-    debugFetchItems->setText(i18n("fetch zotero items"));
-    actionCollection()->addAction(QLatin1String("zotero_items"), debugFetchItems);
-    connect(debugFetchItems, SIGNAL(triggered(bool)),this, SLOT(zoteroItems()));
-
     KAction* debugFetchCollection = new KAction(this);
-    debugFetchCollection->setText(i18n("fetch zotero collections"));
+    debugFetchCollection->setText(i18n("zotero test"));
     actionCollection()->addAction(QLatin1String("zotero_collection"), debugFetchCollection);
     connect(debugFetchCollection, SIGNAL(triggered(bool)),this, SLOT(zoteroCollection()));
 

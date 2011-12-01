@@ -15,6 +15,25 @@
       <Separator/>
       <Merge/>
     </Menu>
+    <Menu name="database">
+      <text>Database</text>
+      <Menu name="db_import"><text>Import from</text>
+	<Action name="db_import_bibtex" />
+	<Action name="db_import_zotero" />
+      </Menu>
+      <Menu name="db_export"><text>Export to</text>
+	<Action name="db_export_bibtex" />
+	<Action name="db_export_zotero" />
+	<Action name="db_export_pdf" />
+      </Menu>
+      <Menu name="db_sync"><text>Syncronize</text>
+	<Action name="db_sync_zotero" />
+      </Menu>
+      <Separator/>
+	<Action name="db_check" />
+	<Action name="db_backup" />
+      <Merge/>
+    </Menu>
     <Menu name="settings">
       <Menu name="toggle"><text>Toggle Docks</text>
 	<Action name="toggle_library" />

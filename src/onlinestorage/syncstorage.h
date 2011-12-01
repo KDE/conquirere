@@ -53,6 +53,8 @@ public:
     bool askBeforeDeletion() const;
     void setDownloadOnly(bool downloadOnly);
     bool downloadOnly() const;
+    void setUploadOnly(bool uploadOnly);
+    bool uploadOnly() const;
 
 signals:
     void syncInProgress(bool active);
@@ -76,6 +78,7 @@ private:
     bool m_adoptBibtexTypes;
     bool m_askBeforeDeletion;
     bool m_downloadOnly;
+    bool m_uploadOnly;
 };
 
 #endif // SYNCSTORAGE_H

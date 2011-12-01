@@ -63,6 +63,9 @@ enum BibEntryType {
     BibType_Report,
     BibType_Techreport,        /**< A report published by a school or other institution, usually numbered within a series. */
     BibType_Electronic ,       /**< A electronic publication */
+    BibType_ForumPost ,        /**< A electronic publication */
+    BibType_BlogPost ,         /**< A electronic publication */
+    BibType_WebPage ,          /**< A electronic publication */
     BibType_Script,
     BibType_Presentation,
     BibType_Unpublished,       /**< A document having an author and title, but not formally published. */
@@ -97,6 +100,9 @@ static const QStringList BibEntryTypeTranslation = QStringList() << I18N_NOOP("A
                                                                  << I18N_NOOP("Report")
                                                                  << I18N_NOOP("Techreport")
                                                                  << I18N_NOOP("Electronic")
+                                                                 << I18N_NOOP("Forum post")
+                                                                 << I18N_NOOP("Blog post")
+                                                                 << I18N_NOOP("Webpage")
                                                                  << I18N_NOOP("Script")
                                                                  << I18N_NOOP("Presentation")
                                                                  << I18N_NOOP("Unpublished")
@@ -127,6 +133,9 @@ static const QStringList BibEntryTypeIcon = QStringList()        << QString("kne
                                                                  << QString("applications-education-university")
                                                                  << QString("kjournal")
                                                                  << QString("kjournal")
+                                                                 << QString("applications-internet")
+                                                                 << QString("applications-internet")
+                                                                 << QString("applications-internet")
                                                                  << QString("applications-internet")
                                                                  << QString("kjournal")
                                                                  << QString("kpresenter")
@@ -159,6 +168,9 @@ static const QList<QUrl> BibEntryTypeURL = QList<QUrl>() << Nepomuk::Vocabulary:
                                                          << Nepomuk::Vocabulary::NBIB::Report()
                                                          << Nepomuk::Vocabulary::NBIB::Techreport()
                                                          << Nepomuk::Vocabulary::NBIB::Electronic()
+                                                         << Nepomuk::Vocabulary::NBIB::ForumPost()
+                                                         << Nepomuk::Vocabulary::NBIB::BlogPost()
+                                                         << Nepomuk::Vocabulary::NBIB::WebPage()
                                                          << Nepomuk::Vocabulary::NBIB::Script()
                                                          << Nepomuk::Vocabulary::NBIB::Presentation()
                                                          << Nepomuk::Vocabulary::NBIB::Unpublished()
@@ -219,6 +231,15 @@ static BibEntryType BibEntryTypeFromUrl(const Nepomuk::Resource & resource)
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Electronic())) {
         return BibType_Electronic;
+    }
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::ForumPost())) {
+        return BibType_ForumPost;
+    }
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::BlogPost())) {
+        return BibType_BlogPost;
+    }
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::WebPage())) {
+        return BibType_WebPage;
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::JournalIssue())) {
         return BibType_JournalIssue;

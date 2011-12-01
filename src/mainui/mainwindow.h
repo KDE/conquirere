@@ -40,24 +40,38 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    QList<Library *> openLibraries();
+
 public slots:
+    // Slots for the menu KAction events
+
+    // File menu
     void createLibrary();
     void loadLibrary();
     void openLibrary(Library *l);
-    QList<Library *> openLibraries();
     void deleteLibrary();
     void closeLibrary();
-    void exportBibTex();
-    void importBibTex();
 
+    // database menu
+    void importBibTex();
+    void importZotero();
+
+    void exportBibTex();
+    void exportZotero();
+    void exportPdf();
+
+    void syncZotero();
+
+    void dbCheck();
+    void dbBackup();
+
+
+    // other helping slots
     void connectKPartGui(KParts::Part * part);
     void switchView(ResourceSelection selection, BibEntryType filter, Library *p);
 
     void DEBUGDELETEALLDATA();
-    void zoteroItems();
-    void showZoteroItems(File bibFile);
     void zoteroCollection();
-    //void showZoteroCollection(QList<CollectionInfo> collections);
 
 private:
     void setupActions();

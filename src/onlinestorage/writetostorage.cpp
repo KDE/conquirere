@@ -34,6 +34,7 @@ WriteToStorage::~WriteToStorage()
     QMapIterator<QNetworkReply *, Entry *> i(m_replies);
     while (i.hasNext()) {
         i.next();
+        i.key()->close();
         i.key()->deleteLater();
     }
 }

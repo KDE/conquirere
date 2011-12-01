@@ -22,6 +22,7 @@ SyncStorage::SyncStorage(QObject *parent)
     , m_adoptBibtexTypes(true)
     , m_askBeforeDeletion(false)
     , m_downloadOnly(false)
+    , m_uploadOnly(false)
 {
 }
 
@@ -88,4 +89,14 @@ void SyncStorage::setDownloadOnly(bool downloadOnly)
 bool SyncStorage::downloadOnly() const
 {
     return m_downloadOnly;
+}
+
+void SyncStorage::setUploadOnly(bool uploadOnly)
+{
+    m_uploadOnly = uploadOnly;
+}
+
+bool SyncStorage::uploadOnly() const
+{
+    return m_uploadOnly;
 }

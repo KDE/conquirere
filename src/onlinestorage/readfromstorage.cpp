@@ -33,6 +33,7 @@ ReadFromStorage::ReadFromStorage(QObject *parent)
 
 ReadFromStorage::~ReadFromStorage()
 {
+    m_reply->close();
     delete m_reply;
 }
 

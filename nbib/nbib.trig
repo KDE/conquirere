@@ -100,6 +100,24 @@ nbib: {
           rdfs:label "Electronic source" ;
           rdfs:subClassOf nbib:Publication .
 
+    nbib:ForumPost
+          a       rdfs:Class ;
+          rdfs:comment "Reference the post in a forum or other electronic list" ;
+          rdfs:label "ForumPost" ;
+          rdfs:subClassOf nbib:Electronic .
+
+    nbib:BlogPost
+          a       rdfs:Class ;
+          rdfs:comment "Reference the post in a web log (blog)" ;
+          rdfs:label "BlogPost" ;
+          rdfs:subClassOf nbib:Electronic .
+
+    nbib:WebPage
+          a       rdfs:Class ;
+          rdfs:comment "Reference a webpage in general" ;
+          rdfs:label "WebPage" ;
+          rdfs:subClassOf nbib:Electronic .
+
     nbib:LegalDocument
           a       rdfs:Class ;
           rdfs:comment "A legal document; for example, a court decision, a brief, and so forth." ;

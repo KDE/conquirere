@@ -478,6 +478,7 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
         layoutCollection();
         break;
     default:
+        qDebug() << "PublicationWidget::selectLayout use default layout";
         layoutMisc();
     }
 }

@@ -15,34 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NEPOMUKPIPE_H
-#define NEPOMUKPIPE_H
+#include "nepomukpipe.h"
 
-#include <Nepomuk/Resource>
 
-#include <QtCore/QObject>
-#include <QtCore/QList>
-
-/**
-  * Interface for any pipe action that transforms a list of Nepomuk resources into something else
-  *
-  * Only used for NBIB:;Publication and NBIB::Reference
-  */
-class NepomukPipe : public QObject
+NepomukPipe::NepomukPipe()
+    : QObject(0)
 {
-    Q_OBJECT
-public:
-    NepomukPipe();
-    virtual ~NepomukPipe();
 
-    /**
-      * Does the piping action
-      *
-      * @p resources list of publication or reference resources
-      */
-    virtual void pipeExport(QList<Nepomuk::Resource> resources) = 0;
+}
 
-signals:
-    void progress(int value);
-};
-#endif // NEPOMUKPIPE_H
+NepomukPipe::~NepomukPipe()
+{
+
+}
