@@ -71,6 +71,7 @@ private:
 
     QList<CollectionInfo> m_cachedCollectionResult;
     File m_bibFile;
+    QMap<QString, QString> m_zoteroToBibTeX;
 };
 
 #endif // READFROMZOTERO_H

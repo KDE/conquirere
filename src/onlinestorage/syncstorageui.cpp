@@ -211,31 +211,34 @@ void SyncStorageUi::syncStatus(bool inProgress)
                 Comment *c = dynamic_cast<Comment *>(e);
                 if(c && c->text().startsWith(QLatin1String("x-syncprovider="))){
                     foundProvider = true;
-                    QString sp = QLatin1String("x-syncprovider=%1");
+                    QString sp = QLatin1String("x-syncprovider=");
                     sp.append(providerId);
                     c->setText(sp);
+                    c->setUseCommand(true);
                 }
                 else if(c && c->text().startsWith(QLatin1String("x-syncusername="))){
                     foundUsername = true;
-                    QString sp = QLatin1String("x-syncusername=%1");
+                    QString sp = QLatin1String("x-syncusername=");
                     sp.append(ui->providerUserName->text());
                     c->setText(sp);
+                    c->setUseCommand(true);
                 }
                 else if(c && c->text().startsWith(QLatin1String("x-syncurl="))){
                     foundUrl = true;
-                    QString sp = QLatin1String("x-syncurl=%1");
+                    QString sp = QLatin1String("x-syncurl=");
                     sp.append(ui->providerUrl->text());
                     c->setText(sp);
+                    c->setUseCommand(true);
                 }
             }
             if(!foundProvider) {
-                QString sp = QLatin1String("x-syncprovider=%1");
+                QString sp = QLatin1String("x-syncprovider=");
                 sp.append(providerId);
                 Comment *c =new Comment(sp, true);
                 m_fileToSync->prepend(c);
             }
             if(!foundUsername) {
-                QString sp = QLatin1String("x-syncusername=%1");
+                QString sp = QLatin1String("x-syncusername=");
                 sp.append(ui->providerUserName->text());
                 Comment *c =new Comment(sp, true);
                 m_fileToSync->prepend(c);

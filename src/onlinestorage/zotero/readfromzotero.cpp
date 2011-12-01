@@ -29,6 +29,52 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     : ReadFromStorage(parent)
 {
     setUrl(QLatin1String("users"));
+
+    // build the mappinglist
+    m_zoteroToBibTeX["callNumber"] = QLatin1String("lccn");
+    m_zoteroToBibTeX["rights"] = QLatin1String("copyright");
+    m_zoteroToBibTeX["tags"] = QLatin1String("keywords");
+    m_zoteroToBibTeX["seriesTitle"] = QLatin1String("serie");
+    m_zoteroToBibTeX["blogTitle"] = QLatin1String("booktitle");
+    m_zoteroToBibTeX["dictionaryTitle"] = QLatin1String("booktitle");
+    m_zoteroToBibTeX["encyclopediaTitle"] = QLatin1String("booktitle");
+    m_zoteroToBibTeX["publicationTitle"] = QLatin1String("journal");
+    m_zoteroToBibTeX["forumTitle"] = QLatin1String("booktitle");
+    m_zoteroToBibTeX["proceedingsTitle"] = QLatin1String("booktitle");
+    m_zoteroToBibTeX["websiteType"] = QLatin1String("type");
+    m_zoteroToBibTeX["seriesNumber"] = QLatin1String("number");
+    m_zoteroToBibTeX["distributor"] = QLatin1String("publisher");
+    m_zoteroToBibTeX["manuscriptType"] = QLatin1String("type");
+    m_zoteroToBibTeX["episodeNumber"] = QLatin1String("number");
+    m_zoteroToBibTeX["presentationType"] = QLatin1String("type");
+    m_zoteroToBibTeX["reportType"] = QLatin1String("type");
+    m_zoteroToBibTeX["reportNumber"] = QLatin1String("number");
+    m_zoteroToBibTeX["thesisType"] = QLatin1String("type");
+    m_zoteroToBibTeX["university"] = QLatin1String("school");
+    m_zoteroToBibTeX["websiteTitle"] = QLatin1String("booktitle");
+    m_zoteroToBibTeX["programTitle"] = QLatin1String("booktitle");
+    m_zoteroToBibTeX["websiteType"] = QLatin1String("type");
+    m_zoteroToBibTeX["place"] = QLatin1String("location");
+    m_zoteroToBibTeX["billNumber"] = QLatin1String("number");
+    m_zoteroToBibTeX["codeVolume"] = QLatin1String("volume");
+    m_zoteroToBibTeX["reporterVolume"] = QLatin1String("volume");
+    m_zoteroToBibTeX["docketNumber"] = QLatin1String("number");
+    m_zoteroToBibTeX["caseName"] = QLatin1String("title");
+    m_zoteroToBibTeX["documentNumber"] = QLatin1String("number");
+    m_zoteroToBibTeX["issue"] = QLatin1String("number");
+    m_zoteroToBibTeX["patentNumber"] = QLatin1String("number");
+    m_zoteroToBibTeX["publicLawNumber"] = QLatin1String("number");
+    m_zoteroToBibTeX["letterType"] = QLatin1String("type");
+
+    //creator type adoption
+    m_zoteroToBibTeX["artist"] = QLatin1String("author");
+    m_zoteroToBibTeX["performer"] = QLatin1String("author");
+    m_zoteroToBibTeX["programmer"] = QLatin1String("author");
+    m_zoteroToBibTeX["director"] = QLatin1String("author");
+    m_zoteroToBibTeX["cartographer"] = QLatin1String("author");
+    m_zoteroToBibTeX["inventor"] = QLatin1String("author");
+    m_zoteroToBibTeX["presenter"] = QLatin1String("author");
+
 }
 
 void ReadFromZotero::fetchItems(const QString &collection)
@@ -222,6 +268,9 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
     while (i.hasNext()) {
         i.next();
 
+        //##########################################################################
+        //# special tag handling
+
         if(i.key() == QLatin1String("tags")) {
             Value tagList;
             foreach (const QVariant &tag, i.value().toList()) {
@@ -234,8 +283,12 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
                     tagList.append(k);
                 }
             }
-            e->insert(QLatin1String("keywords"), tagList);
+            e->insert(m_zoteroToBibTeX.value(QLatin1String("tags"), QLatin1String("keywords")), tagList);
         }
+
+        //##########################################################################
+        //# change the entry type to something bibtex offers if possible
+
         else if(i.key() == QLatin1String("itemType")) {
             QString text = i.value().toString().toLower();
 
@@ -251,7 +304,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
                 PlainText *ptValue = new PlainText(QLatin1String("journal"));
                 Value valueList;
                 valueList.append(ptValue);
-                e->insert(QLatin1String("journalType"), valueList);
+                e->insert(QLatin1String("type"), valueList);
             }
             else if(text == QLatin1String("magazinearticle")) {
                 e->setType(QLatin1String("article"));
@@ -259,7 +312,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
                 PlainText *ptValue = new PlainText(QLatin1String("magazine"));
                 Value valueList;
                 valueList.append(ptValue);
-                e->insert(QLatin1String("journalType"), valueList);
+                e->insert(QLatin1String("type"), valueList);
             }
             else if(text == QLatin1String("newspaperarticle")) {
                 e->setType(QLatin1String("article"));
@@ -267,72 +320,34 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
                 PlainText *ptValue = new PlainText(QLatin1String("newspaper"));
                 Value valueList;
                 valueList.append(ptValue);
-                e->insert(QLatin1String("journalType"), valueList);
+                e->insert(QLatin1String("type"), valueList);
             }
             else {
                 e->setType(text);
             }
         }
+
+        //##########################################################################
+        //# parse creators, change some fields to author/editor if possible
+        //# all otherfields are left alone and inserted with their normal name (like creator type translator)
+
         else if(i.key() == QLatin1String("creators")) {
-            Value authorList;
-            Value editorList;
             foreach (const QVariant &author, i.value().toList()) {
                 QVariantMap authorMap = author.toMap();
-                Person *p = new Person(authorMap.value(QLatin1String("firstName")).toString(), authorMap.value(QLatin1String("lastName")).toString());
-                if(authorMap.value(QLatin1String("creatorType")).toString() == QLatin1String("author")) {
-                    authorList.append(p);
-                }
-                else {
-                    editorList.append(p);
-                }
+
+                Person *p = new Person(authorMap.value(QLatin1String("firstName")).toString(),
+                                       authorMap.value(QLatin1String("lastName")).toString());
+
+                // get the Valuelist for the current creator type
+                // either the translated one if availabe or the zotero one, if none exist an empty new Value
+                QString creatorType = authorMap.value(QLatin1String("creatorType")).toString();
+                QString translatedCreatorType = m_zoteroToBibTeX.value(creatorType, creatorType);
+                Value creatorValue = e->value(translatedCreatorType);
+
+                creatorValue.append(p);
+                e->remove(m_zoteroToBibTeX.value(creatorType, creatorType));
+                e->insert(m_zoteroToBibTeX.value(creatorType, creatorType), creatorValue);
             }
-            e->insert(QLatin1String("author"), authorList);
-            e->insert(QLatin1String("editor"), editorList);
-        }
-        else if(i.key() == QLatin1String("proceedingstitle")) {
-            QString text = i.value().toString();
-            if(text.isEmpty())
-                continue;
-            PlainText *ptValue = new PlainText(text);
-            Value valueList;
-            valueList.append(ptValue);
-            e->insert(QLatin1String("booktitle"), valueList);
-        }
-        else if(i.key() == QLatin1String("seriesNumber")) {
-            QString text = i.value().toString();
-            if(text.isEmpty())
-                continue;
-            PlainText *ptValue = new PlainText(text);
-            Value valueList;
-            valueList.append(ptValue);
-            e->insert(QLatin1String("number"), valueList);
-        }
-        else if(i.key() == QLatin1String("publicationtitle")) {
-            QString text = i.value().toString();
-            if(text.isEmpty())
-                continue;
-            PlainText *ptValue = new PlainText(text);
-            Value valueList;
-            valueList.append(ptValue);
-            e->insert(QLatin1String("journal"), valueList);
-        }
-        else if(i.key() == QLatin1String("abstractNote")) {
-            QString text = i.value().toString();
-            if(text.isEmpty())
-                continue;
-            PlainText *ptValue = new PlainText(text);
-            Value valueList;
-            valueList.append(ptValue);
-            e->insert(QLatin1String("abstract"), valueList);
-        }
-        else if(i.key() == QLatin1String("seriesTitle")) {
-            QString text = i.value().toString();
-            if(text.isEmpty())
-                continue;
-            PlainText *ptValue = new PlainText(text);
-            Value valueList;
-            valueList.append(ptValue);
-            e->insert(QLatin1String("series"), valueList);
         }
         else {
             QString text = i.value().toString();
@@ -341,7 +356,9 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
             PlainText *ptValue = new PlainText(text);
             Value valueList;
             valueList.append(ptValue);
-            e->insert(i.key(), valueList);
+            // here either the transformed key name from the lookup table is used
+            // or if nothing is found the key from zotero is used
+            e->insert(m_zoteroToBibTeX.value(i.key(), i.key()), valueList);
         }
     }
 }

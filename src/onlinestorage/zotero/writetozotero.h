@@ -20,6 +20,8 @@
 
 #include "../writetostorage.h"
 
+//class Person;
+
 /**
   * @brief sync bibtex items with the zotero online storage
   *
@@ -109,6 +111,21 @@ private:
     QVariantMap createThesisJson(Entry *e);
     QVariantMap createVideoRecordingJson(Entry *e);
     QVariantMap createWebpageJson(Entry *e);
+
+    // copied from kbibtex/fileimporterbibtex
+    // necessary to detect/parse propper persons from entries like translator= etc.
+    // kbibtex supports this only for author/editor fields
+    enum CommaContainment { ccNoComma = 0, ccContainsComma = 1 };/**
+     * Split a person's name into its parts and construct a Person object from them.
+     * This is a functions specialized on the properties of (La)TeX code considering
+     * e.g. curly brackets.
+     * @param name The persons name
+     * @return A Person object containing the name
+     * @see Person
+     */
+    //static Person *splitName(const QString& name);
+    void splitPersonList(const QString& name, QStringList &resultList);
+    //static CommaContainment splitName(const QString& name, QStringList& segments);
 };
 
 #endif // WRITETOZOTERO_H
