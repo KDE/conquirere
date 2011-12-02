@@ -18,10 +18,10 @@
 #include "websearchwidget.h"
 #include "ui_websearchwidget.h"
 
-#include "../core/models/searchresultmodel.h"
-#include "../core/delegates/htmldelegate.h"
-#include "../nbibio/pipe/bibtextoclipboardpipe.h"
-#include "../nbibio/pipe/bibtextonepomukpipe.h"
+#include "../../core/models/searchresultmodel.h"
+#include "../../core/delegates/htmldelegate.h"
+#include "../../nbibio/pipe/bibtextoclipboardpipe.h"
+#include "../../nbibio/pipe/bibtextonepomukpipe.h"
 
 #include <kbibtex/onlinesearchabstract.h>
 #include <kbibtex/onlinesearchgeneral.h>

@@ -19,12 +19,20 @@
 #define SYNCZOTERONEPOMUK_H
 
 #include <QObject>
+#include <QtCore/QMetaType>
+
+#include <kbibtex/file.h>
 
 class ReadFromZotero;
 class WriteToZotero;
-class File;
 class BibTexToNepomukPipe;
 class NepomukToBibTexPipe;
+class Element;
+class EntryClique;
+
+
+Q_DECLARE_METATYPE(EntryClique*)
+Q_DECLARE_METATYPE(QList<EntryClique*>)
 
 class SyncZoteroNepomuk : public QObject
 {
@@ -37,25 +45,48 @@ public:
     void setPassword(const QString &pwd);
     void setUrl(const QString &url);
     void setCollection(const QString &collection);
+    void askBeforeDeletion(bool ask);
 
 public slots:
     void startUpload();
     void startDownload();
     void startSync();
 
+    /**
+      * connectes to the response of askForDeletion() and proceeds with the zoteroSync
+      */
+    void deleteLocalFiles(bool deleteThem);
+    void resultsMerged(QList<EntryClique*> cliques);
+
 signals:
     void progress(int value);
     void progressStatus(const QString &status);
 
+    /**
+      * emited if items from the server are deletet
+      * emits a signal so we can show a dialog box not possible here as we run this class in a different thread than the gui thread
+      */
+    void askForDeletion(int items);
+    void mergeResults(QList<EntryClique*> cliques, File *bibCache);
+
 private slots:
     void calculateProgress(int value);
 
+    /**
+      * called from startDownload
+      */
     void readDownloadSync(File zoteroData);
+
+    /**
+      * clalled from startSync
+      */
+    void readSyncronizeSync(File zoteroData);
+    void writeSync(File zoteroData);
 
 private:
     ReadFromZotero *m_rfz;
     WriteToZotero *m_wtz;
-    File *m_bibCache;
+    File m_bibCache;
     BibTexToNepomukPipe *m_btnp;
     NepomukToBibTexPipe *m_ntnp;
 
@@ -63,8 +94,11 @@ private:
     QString m_pwd;
     QString m_url;
     QString m_collection;
+    bool m_askBeforeDeletion;
     int m_syncSteps;
     int m_curStep;
+
+    QList<Element*> temp_toBeDeleted;
 };
 
 #endif // SYNCZOTERONEPOMUK_H

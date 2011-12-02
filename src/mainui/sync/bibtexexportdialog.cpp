@@ -18,7 +18,7 @@
 #include "bibtexexportdialog.h"
 #include "ui_bibtexexportdialog.h"
 
-#include "../nbibio/nbibexporterbibtex.h"
+#include "../../nbibio/nbibexporterbibtex.h"
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/PIMO>

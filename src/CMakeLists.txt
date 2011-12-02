@@ -8,18 +8,21 @@ add_subdirectory( onlinestorage )
 set(conquirere_SRCS
     main.cpp
 
-    mainui/newprojectwizard.cpp
-    mainui/loadproject.cpp
-    mainui/welcomewidget.cpp
-    mainui/librarywidget.cpp
-    mainui/projecttreedelegate.cpp
     mainui/resourcetablewidget.cpp
     mainui/mainwindow.cpp
-    mainui/bibtexexportdialog.cpp
-    mainui/bibteximportwizard.cpp
-    mainui/documentpreview.cpp
-    mainui/websearchwidget.cpp
-    mainui/qlibrarytreewidgetitem.cpp
+    mainui/welcomewidget.cpp
+
+    mainui/dialogs/newprojectwizard.cpp
+    mainui/dialogs/loadproject.cpp
+
+    mainui/docklets/librarywidget.cpp
+    mainui/docklets/projecttreedelegate.cpp
+    mainui/docklets/documentpreview.cpp
+    mainui/docklets/websearchwidget.cpp
+    mainui/docklets/qlibrarytreewidgetitem.cpp
+
+    mainui/sync/bibtexexportdialog.cpp
+    mainui/sync/bibteximportwizard.cpp
 
     mainui/sync/synczoterodialog.cpp
 
@@ -39,15 +42,17 @@ set(conquirere_SRCS
 
 kde4_add_ui_files( conquirere_SRCS
 
-                   mainui/newprojectwizard.ui
-                   mainui/loadproject.ui
                    mainui/welcomewidget.ui
-                   mainui/librarywidget.ui
-                   mainui/bibtexexportdialog.ui
-                   mainui/bibteximportwizard.ui
-                   mainui/documentpreview.ui
-                   mainui/websearchwidget.ui
 
+                   mainui/dialogs/newprojectwizard.ui
+                   mainui/dialogs/loadproject.ui
+
+                   mainui/docklets/librarywidget.ui
+                   mainui/docklets/documentpreview.ui
+                   mainui/docklets/websearchwidget.ui
+
+                   mainui/sync/bibtexexportdialog.ui
+                   mainui/sync/bibteximportwizard.ui
                    mainui/sync/synczoterodialog.ui
 
                    sidebar/referencewidget.ui

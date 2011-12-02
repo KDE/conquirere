@@ -18,9 +18,9 @@
 #include "bibteximportwizard.h"
 #include "ui_bibteximportwizard.h"
 
-#include "../core/library.h"
-#include "../core/tagcloud.h"
-#include "../nbibio/nbibimporterbibtex.h"
+#include "../../core/library.h"
+#include "../../core/tagcloud.h"
+#include "../../nbibio/nbibimporterbibtex.h"
 
 #include <kbibtex/fileimporterbibtex.h>
 #include <kbibtex/file.h>

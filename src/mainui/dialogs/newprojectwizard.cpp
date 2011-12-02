@@ -18,7 +18,7 @@
 #include "newprojectwizard.h"
 #include "ui_newprojectwizard.h"
 
-#include "../core/library.h"
+#include "../../core/library.h"
 
 #include <KDE/KLineEdit>
 #include <KDE/KUrlRequester>

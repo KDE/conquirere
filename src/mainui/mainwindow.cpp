@@ -20,17 +20,18 @@
 #include "../core/library.h"
 #include "../core/models/nepomukmodel.h"
 
-#include "../sidebar/sidebarwidget.h"
-#include "librarywidget.h"
-#include "newprojectwizard.h"
-#include "loadproject.h"
 #include "welcomewidget.h"
 #include "resourcetablewidget.h"
-#include "documentpreview.h"
-#include "websearchwidget.h"
-#include "bibtexexportdialog.h"
-#include "bibteximportwizard.h"
 
+#include "../sidebar/sidebarwidget.h"
+#include "dialogs/newprojectwizard.h"
+#include "dialogs/loadproject.h"
+#include "docklets/librarywidget.h"
+#include "docklets/documentpreview.h"
+#include "docklets/websearchwidget.h"
+
+#include "sync/bibtexexportdialog.h"
+#include "sync/bibteximportwizard.h"
 #include "sync/synczoterodialog.h"
 
 #include <KDE/KApplication>

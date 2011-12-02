@@ -33,6 +33,10 @@ class QAbstractButton;
 class SyncZoteroNepomuk;
 class ReadFromZotero;
 class KProgressDialog;
+class EntryClique;
+class File;
+class KDialog;
+class MergeWidget;
 
 class SyncZoteroDialog : public QDialog
 {
@@ -44,12 +48,22 @@ public:
 
 private slots:
     void collectionsReceived( const Akonadi::Collection::List& );
+
     void fetchCollection();
-    void clicked(QAbstractButton* button);
     void processCollectionResults(QList<CollectionInfo> collectionList);
+
+    void clicked(QAbstractButton* button);
     void setProgressStatus(const QString &status);
 
     void checkWalletForPwd();
+    void checkSyncMode(int mode);
+
+    void popDeletionQuestion(int items);
+    void popMergeDialog(QList<EntryClique*> cliques, File *bibCache);
+
+signals:
+    void deleteLocalFiles(bool deleteThem);
+    void mergedResults(QList<EntryClique*> cliques);
 
 private:
     Ui::SyncZoteroDialog *ui;
@@ -59,6 +73,8 @@ private:
     ReadFromZotero *m_rfz;
 
     KProgressDialog *m_pdlg;
+    KDialog *m_MergeDialog;
+    MergeWidget *m_mw;
 };
 
 #endif // SYNCZOTERODIALOG_H

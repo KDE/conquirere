@@ -187,6 +187,9 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
     setAnnote(e, publication);
     setPages(e, reference);
     setKewords(e, publication);
+
+    // Zotero additions
+    setArticleType(e, publication);
 }
 
 void NepomukToBibTexPipe::setTitle(Entry *e, Nepomuk::Resource publication, Nepomuk::Resource reference)
@@ -732,3 +735,25 @@ void NepomukToBibTexPipe::setKewords(Entry *e, Nepomuk::Resource publication)
     }
 }
 
+void NepomukToBibTexPipe::setArticleType(Entry *e, Nepomuk::Resource publication)
+{
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
+        QString articleType;
+        Nepomuk::Resource collection = publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+        if(collection.hasType(Nepomuk::Vocabulary::NBIB::JournalIssue())) {
+            articleType = QLatin1String("journal"); //article in some proceedings paper
+        }
+        else if(collection.hasType(Nepomuk::Vocabulary::NBIB::NewspaperIssue())) {
+            articleType = QLatin1String("newspaper"); //normal article in a journal or magazine
+        }
+        else if(collection.hasType(Nepomuk::Vocabulary::NBIB::MagazinIssue())) {
+            articleType = QLatin1String("magazine"); //normal article in a journal or magazine
+        }
+
+        if(!articleType.isEmpty()) {
+            Value v;
+            v.append(new PlainText(articleType));
+            e->insert(QLatin1String("articletype"), v);
+        }
+    }
+}

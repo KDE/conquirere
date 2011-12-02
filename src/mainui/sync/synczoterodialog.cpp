@@ -22,20 +22,29 @@
 #include "../../nbibio/synczoteronepomuk.h"
 
 #include <kbibtex/file.h>
+#include <kbibtex/findduplicates.h>
+#include <kbibtex/findduplicatesui.h>
 
 #include <Akonadi/CollectionFetchJob>
 #include <Akonadi/CollectionFetchScope>
 #include <KDE/KProgressDialog>
 
 #include <QtCore/QThread>
+#include <KDE/KMessageBox>
+#include <KDE/KDialog>
+
 #include <QtCore/QDebug>
 
 SyncZoteroDialog::SyncZoteroDialog(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::SyncZoteroDialog)
     , m_pdlg(0)
+    , m_MergeDialog(new KDialog)
+    , m_mw(0)
 {
     ui->setupUi(this);
+
+    connect(ui->syncMode, SIGNAL(currentIndexChanged(int)), this, SLOT(checkSyncMode(int)));
 
     // fetching all collections containing emails recursively, starting at the root collection
     Akonadi::CollectionFetchJob *job = new Akonadi::CollectionFetchJob( Akonadi::Collection::root(), Akonadi::CollectionFetchJob::Recursive, this );
@@ -64,6 +73,8 @@ SyncZoteroDialog::~SyncZoteroDialog()
     delete m_szn;
     //delete m_rfz;
     delete m_wallet;
+    delete m_MergeDialog;
+    delete m_mw;
 }
 
 void SyncZoteroDialog::collectionsReceived( const Akonadi::Collection::List& list)
@@ -113,9 +124,16 @@ void SyncZoteroDialog::clicked(QAbstractButton* button)
         delete m_pdlg;
         m_pdlg = new KProgressDialog;
         m_pdlg->setFocus();
+        delete m_mw;
+        m_mw = 0;
 
         connect(m_szn, SIGNAL(progress(int)), m_pdlg->progressBar(), SLOT(setValue(int)));
         connect(m_szn, SIGNAL(progressStatus(QString)), this, SLOT(setProgressStatus(QString)));
+
+        connect(m_szn, SIGNAL(askForDeletion(int)), this, SLOT(popDeletionQuestion(int)));
+        connect(this, SIGNAL(deleteLocalFiles(bool)), m_szn, SLOT(deleteLocalFiles(bool)));
+        connect(m_szn, SIGNAL(mergeResults(QList<EntryClique*>,File*)), this, SLOT(popMergeDialog(QList<EntryClique*>,File*)));
+        connect(this, SIGNAL(mergedResults(QList<EntryClique*>)), m_szn, SLOT(resultsMerged(QList<EntryClique*>)));
 
         QThread *newThread = new QThread;
         m_szn->moveToThread(newThread);
@@ -135,6 +153,28 @@ void SyncZoteroDialog::clicked(QAbstractButton* button)
 
         m_pdlg->exec();
     }
+}
+
+void SyncZoteroDialog::popDeletionQuestion(int items)
+{
+    int ret = KMessageBox::warningYesNo(0,i18n("%1 items are deleted on the server.\n\nDo you want to delete them locally too?.\nOtherwise they will be uploaded again.", items));
+
+    if(ret == KMessageBox::Yes) {
+        emit deleteLocalFiles(true);
+    }
+    else {
+        emit deleteLocalFiles(false);
+    }
+}
+
+void SyncZoteroDialog::popMergeDialog(QList<EntryClique*> cliques, File *bibCache)
+{
+    m_mw = new MergeWidget(bibCache, cliques, m_MergeDialog);
+    m_MergeDialog->setMainWidget(m_mw);
+
+    m_MergeDialog->exec(); // do not delete the KDialog yet, as this crashes the sync importer when we try to access QStrig refs that will be deleted
+
+    emit mergedResults(cliques);
 }
 
 void SyncZoteroDialog::setProgressStatus(const QString &status)
@@ -172,5 +212,15 @@ void SyncZoteroDialog::checkWalletForPwd()
         QString pwd;
         m_wallet->readPassword(pwdKey, pwd);
         ui->apiKey->setText(pwd);
+    }
+}
+
+void SyncZoteroDialog::checkSyncMode(int mode)
+{
+    if(mode == 1) {
+        ui->addContactsToAkonadi->setEnabled(false);
+    }
+    else {
+        ui->addContactsToAkonadi->setEnabled(true);
     }
 }

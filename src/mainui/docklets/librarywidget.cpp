@@ -21,7 +21,7 @@
 #include "core/library.h"
 #include "qlibrarytreewidgetitem.h"
 #include "projecttreedelegate.h"
-#include "../core/models/nepomukmodel.h"
+#include "../../core/models/nepomukmodel.h"
 
 #include <KDE/KStandardDirs>
 

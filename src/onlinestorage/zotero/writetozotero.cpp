@@ -96,7 +96,7 @@ void WriteToZotero::pushNewItems(File items, const QString &collection)
 
     QNetworkRequest request(pushUrl);
     request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-    //equest.setRawHeader("X-Zotero-Write-Token", etag);
+    //request.setRawHeader("X-Zotero-Write-Token", etag);
 
     startRequest(request, writeJsonContent(items), QNetworkAccessManager::PostOperation);
 }
@@ -341,6 +341,7 @@ QByteArray WriteToZotero::writeJsonContent(File items, bool onlyUpdate)
 
         // none Zotero types which I try to squeeze into zotero
         if(adoptBibtexTypes()) {
+            qDebug() << "WriteToZotero :: with adoptBibtexTypes";
             if(entry->type().toLower() == QLatin1String("article")) {
                 QString articleType = PlainTextValue::text(entry->value(QLatin1String("articletype")));
 
@@ -411,7 +412,6 @@ QByteArray WriteToZotero::writeJsonContent(File items, bool onlyUpdate)
             }
         }
 
-        // default Zotero types
 
         if(entry->type().toLower() == QLatin1String("artwork")) {
             itemList.append( createArtworkJson(entry) );
@@ -519,10 +519,13 @@ QByteArray WriteToZotero::writeJsonContent(File items, bool onlyUpdate)
             itemList.append( createWebpageJson(entry) );
         }
         else {
-            qWarning() << "unknwon bibtex entry type" <<  entry->type() << "can't create zotero json from it";
+            if(itemList.isEmpty()) { // this elce is thrown whene adoptToBibtex is on
+                                     // if we filled the itemList in this case, we ignore the return here
+                qWarning() << "unknwon bibtex entry type" <<  entry->type() << "can't create zotero json from it";
 
-            QByteArray tmp;
-            return tmp;
+                QByteArray tmp;
+                return tmp;
+            }
         }
     }
 

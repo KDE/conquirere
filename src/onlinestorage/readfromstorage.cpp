@@ -33,8 +33,8 @@ ReadFromStorage::ReadFromStorage(QObject *parent)
 
 ReadFromStorage::~ReadFromStorage()
 {
-    m_reply->close();
-    delete m_reply;
+    //m_reply->close();
+    //delete m_reply;
 }
 
 void ReadFromStorage::setUserName(const QString & name)

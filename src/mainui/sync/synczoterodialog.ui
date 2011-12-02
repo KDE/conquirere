@@ -193,7 +193,7 @@
         <item row="2" column="0" colspan="2">
          <widget class="QCheckBox" name="addContactsToAkonadi">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
            <string>Add Contacts to Akonadi</string>
@@ -203,7 +203,7 @@
         <item row="2" column="2">
          <widget class="KComboBox" name="contactCollection">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">

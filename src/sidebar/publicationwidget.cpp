@@ -129,6 +129,16 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
         case BibType_JournalIssue:
             newtype.append(Nepomuk::Vocabulary::NBIB::Collection());
             break;
+        case BibType_Bachelorthesis:
+        case BibType_Mastersthesis:
+        case BibType_Phdthesis:
+            newtype.append(Nepomuk::Vocabulary::NBIB::Thesis());
+            break;
+        case BibType_BlogPost:
+        case BibType_ForumPost:
+        case BibType_WebPage:
+            newtype.append(Nepomuk::Vocabulary::NBIB::Electronic());
+            break;
         case BibType_Bill:
         case BibType_Decision:
         case BibType_Brief:
@@ -447,18 +457,19 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
     case BibType_Manual:
         layoutManual();
         break;
+    case BibType_Thesis:
+    case BibType_Phdthesis:
     case BibType_Mastersthesis:
-        layoutMastersthesis();
+    case BibType_Bachelorthesis:
+        layoutThesis();
         break;
     case BibType_Misc:
         layoutMisc();
         break;
-    case BibType_Phdthesis:
-        layoutPhdthesis();
-        break;
     case BibType_Proceedings:
         layoutProceedings();
         break;
+    case BibType_Report:
     case BibType_Techreport:
         layoutTechreport();
         break;
@@ -469,6 +480,9 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
         layoutPatent();
         break;
     case BibType_Electronic:
+    case BibType_ForumPost:
+    case BibType_BlogPost:
+    case BibType_WebPage:
         layoutElectronic();
         break;
     case BibType_Collection:
@@ -638,16 +652,6 @@ void PublicationWidget::layoutManual()
     ui->editDOI->setEnabled(true);
 }
 
-void PublicationWidget::layoutBachelorthesis()
-{
-    layoutThesis();
-}
-
-void PublicationWidget::layoutMastersthesis()
-{
-    layoutThesis();
-}
-
 void PublicationWidget::layoutMisc()
 {
     //Basics
@@ -677,11 +681,6 @@ void PublicationWidget::layoutMisc()
     ui->editLCCN->setEnabled(true);
     ui->editMRNumber->setEnabled(true);
     ui->editDOI->setEnabled(true);
-}
-
-void PublicationWidget::layoutPhdthesis()
-{
-    layoutThesis();
 }
 
 void PublicationWidget::layoutThesis()

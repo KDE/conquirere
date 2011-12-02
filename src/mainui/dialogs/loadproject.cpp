@@ -18,7 +18,7 @@
 #include "loadproject.h"
 #include "ui_loadproject.h"
 
-#include "../core/library.h"
+#include "../../core/library.h"
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Variant>

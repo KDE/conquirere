@@ -99,6 +99,10 @@ private:
     void setPages(Entry *e, Nepomuk::Resource reference);
     void setKewords(Entry *e, Nepomuk::Resource publication);
 
+    // Zotero addition
+    void setArticleType(Entry *e, Nepomuk::Resource publication);
+
+
     File m_bibtexFile;
     bool m_strict;
 
