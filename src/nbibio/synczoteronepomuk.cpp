@@ -116,8 +116,23 @@ void SyncZoteroNepomuk::startUpload()
     // step 2 pipe to bibtex
     emit progressStatus(i18n("prepare data for Zotero"));
     m_curStep = 1;
+    QString url = m_url + QLatin1String("/") + m_collection;
+    m_ntnp->setSyncDetails(url, m_name);
     m_ntnp->pipeExport(exportList);
     File bibfile = m_ntnp->bibtexFile();
+
+
+    QFile exportFile(QString("/home/joerg/zotero_upload_DEBUG.bib"));
+    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return;
+    }
+
+    qDebug() << "SyncStorageUi save after sync"  << bibfile.size();
+
+    FileExporterBibTeX feb;
+    feb.save(&exportFile, &bibfile);
+    emit progress(100);
+    return;
 
     // step 3 upload to zotero
     emit progressStatus(i18n("upload to Zotero"));
@@ -300,7 +315,6 @@ void SyncZoteroNepomuk::readSyncronizeSync(File zoteroData)
         deleteLocalFiles(true); // or simply delete them
     }
 }
-
 
 void SyncZoteroNepomuk::deleteLocalFiles(bool deleteThem)
 {

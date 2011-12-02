@@ -21,6 +21,7 @@
 #include <kbibtex/value.h>
 
 #include "nbib.h"
+#include "sync.h"
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NFO>
 #include <Nepomuk/Vocabulary/NCO>
@@ -182,14 +183,17 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
     setPubMed(e, publication);
     setDOI(e, publication);
     setAbstract(e, publication);
-    setTOC(e, publication);
     setNote(e, publication);
     setAnnote(e, publication);
     setPages(e, reference);
     setKewords(e, publication);
+    setEvent(e, publication);
+    setCode(e, publication);
+    setCodeNumber(e, publication);
 
     // Zotero additions
     setArticleType(e, publication);
+    setSyncDetails(e, publication);
 }
 
 void NepomukToBibTexPipe::setTitle(Entry *e, Nepomuk::Resource publication, Nepomuk::Resource reference)
@@ -588,7 +592,7 @@ void NepomukToBibTexPipe::setLastAccessed(Entry *e, Nepomuk::Resource publicatio
     if(!string.isEmpty()) {
         Value v;
         v.append(new PlainText(string));
-        e->insert(QLatin1String("lastUsage"), v);
+        e->insert(QLatin1String("accessdate"), v);
     }
 }
 
@@ -681,12 +685,6 @@ void NepomukToBibTexPipe::setAbstract(Entry *e, Nepomuk::Resource publication)
     }
 }
 
-void NepomukToBibTexPipe::setTOC(Entry *e, Nepomuk::Resource publication)
-{
-    qDebug() << "NBibExporterBibTex::getTOC needs proper implementation ";
-
-}
-
 void NepomukToBibTexPipe::setNote(Entry *e, Nepomuk::Resource publication)
 {
     QString string = publication.property(Nepomuk::Vocabulary::NIE::description()).toString();
@@ -720,6 +718,55 @@ void NepomukToBibTexPipe::setPages(Entry *e, Nepomuk::Resource reference)
     }
 }
 
+void NepomukToBibTexPipe::setNumOfPages(Entry *e, Nepomuk::Resource reference)
+{
+    QString string = reference.property(Nepomuk::Vocabulary::NBIB::numberOfPages()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(new PlainText(string));
+        e->insert(QLatin1String("numpages"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setEvent(Entry *e, Nepomuk::Resource publication)
+{
+    Nepomuk::Resource event = publication.property(Nepomuk::Vocabulary::NBIB::event()).toResource();
+
+    if(!event.isValid())
+        return;
+
+    QString string = event.property(Nepomuk::Vocabulary::NIE::title()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(new PlainText(string));
+        e->insert(QLatin1String("event"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setCode(Entry *e, Nepomuk::Resource publication)
+{
+    QString string = publication.property(Nepomuk::Vocabulary::NBIB::code()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(new PlainText(string));
+        e->insert(QLatin1String("code"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setCodeNumber(Entry *e, Nepomuk::Resource publication)
+{
+    QString string = publication.property(Nepomuk::Vocabulary::NBIB::codeNumber()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(new PlainText(string));
+        e->insert(QLatin1String("codenumber"), v);
+    }
+}
+
 void NepomukToBibTexPipe::setKewords(Entry *e, Nepomuk::Resource publication)
 {
     QList<Nepomuk::Tag> tags = publication.tags();
@@ -733,6 +780,45 @@ void NepomukToBibTexPipe::setKewords(Entry *e, Nepomuk::Resource publication)
     if(!v.isEmpty()) {
         e->insert(Entry::ftKeywords, v);
     }
+}
+
+void NepomukToBibTexPipe::setSyncDetails(Entry *e, Nepomuk::Resource publication)
+{
+    QList<Nepomuk::Resource> sycList = publication.property(Nepomuk::Vocabulary::SYNC::serverSyncData()).toResourceList();
+
+    // only add the sync details the the right storage
+    foreach(Nepomuk::Resource r, sycList) {
+        if(r.property(Nepomuk::Vocabulary::SYNC::provider()).toString() != QString("zotero"))//TODO make this possible for others too
+            continue;
+        if(r.property(Nepomuk::Vocabulary::SYNC::userId()).toString() != m_syncUserId)//TODO make this possible for others too
+            continue;
+        if(r.property(Nepomuk::Vocabulary::SYNC::url()).toString() != m_syncUrl)//TODO make this possible for others too
+            continue;
+
+        //now we have the right object, write down sync details
+        QString etag = r.property(Nepomuk::Vocabulary::SYNC::etag()).toString();
+        Value v1;
+        v1.append(new PlainText(etag));
+        e->insert(QLatin1String("zoteroetag"), v1);
+
+        QString key = r.property(Nepomuk::Vocabulary::SYNC::id()).toString();
+        Value v2;
+        v2.append(new PlainText(key));
+        e->insert(QLatin1String("zoterokey"), v2);
+
+        QString updated = r.property(Nepomuk::Vocabulary::NUAO::lastModification()).toString();
+        Value v3;
+        v3.append(new PlainText(updated));
+        e->insert(QLatin1String("zoteroupdated"), v3);
+
+        break;
+    }
+}
+
+void NepomukToBibTexPipe::setSyncDetails(const QString &url, const QString &userid)
+{
+    m_syncUrl = url;
+    m_syncUserId = userid;
 }
 
 void NepomukToBibTexPipe::setArticleType(Entry *e, Nepomuk::Resource publication)

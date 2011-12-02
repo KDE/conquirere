@@ -58,6 +58,7 @@ public:
       * For example @BachelorThesis becomes Masterthesis
       */
     void useStrictTypes(bool strict);
+    void setSyncDetails(const QString &url, const QString &userid);
 
 private:
     /**
@@ -67,6 +68,7 @@ private:
     void collectContent(Entry *e, Nepomuk::Resource reference, Nepomuk::Resource publication);
 
     // Helper function to get the nepomuk data
+    // title + booktitle
     void setTitle(Entry *e, Nepomuk::Resource publication, Nepomuk::Resource reference);
     void setAuthors(Entry *e, Nepomuk::Resource publication);
     void setEditors(Entry *e, Nepomuk::Resource publication);
@@ -92,12 +94,16 @@ private:
     void setDOI(Entry *e, Nepomuk::Resource publication);
     void setPubMed(Entry *e, Nepomuk::Resource publication);
     void setAbstract(Entry *e, Nepomuk::Resource publication);
-    void setTOC(Entry *e, Nepomuk::Resource publication);
     void setNote(Entry *e, Nepomuk::Resource publication);
     void setAnnote(Entry *e, Nepomuk::Resource publication);
     void setChapter(Entry *e, Nepomuk::Resource reference);
     void setPages(Entry *e, Nepomuk::Resource reference);
+    void setNumOfPages(Entry *e, Nepomuk::Resource reference);
+    void setEvent(Entry *e, Nepomuk::Resource publication);
+    void setCode(Entry *e, Nepomuk::Resource publication);
+    void setCodeNumber(Entry *e, Nepomuk::Resource publication);
     void setKewords(Entry *e, Nepomuk::Resource publication);
+    void setSyncDetails(Entry *e, Nepomuk::Resource publication);
 
     // Zotero addition
     void setArticleType(Entry *e, Nepomuk::Resource publication);
@@ -105,6 +111,8 @@ private:
 
     File m_bibtexFile;
     bool m_strict;
+    QString m_syncUrl;
+    QString m_syncUserId;
 
     qreal m_percentPerResource;
 };

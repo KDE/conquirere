@@ -34,7 +34,7 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     m_zoteroToBibTeX["callNumber"] = QLatin1String("lccn");
     m_zoteroToBibTeX["rights"] = QLatin1String("copyright");
     m_zoteroToBibTeX["tags"] = QLatin1String("keywords");
-    m_zoteroToBibTeX["seriesTitle"] = QLatin1String("serie");
+    m_zoteroToBibTeX["seriesTitle"] = QLatin1String("series");
     m_zoteroToBibTeX["blogTitle"] = QLatin1String("booktitle");
     m_zoteroToBibTeX["abstractNote"] = QLatin1String("abstract");
     m_zoteroToBibTeX["dictionaryTitle"] = QLatin1String("booktitle");
@@ -70,6 +70,7 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     m_zoteroToBibTeX["label"] = QLatin1String("publisher");
     m_zoteroToBibTeX["section"] = QLatin1String("chapter");
     m_zoteroToBibTeX["nameOfAct"] = QLatin1String("title");
+    m_zoteroToBibTeX["postType"] = QLatin1String("type");
     m_zoteroToBibTeX["codePages"] = QLatin1String("pages");
     m_zoteroToBibTeX["court"] = QLatin1String("institution");
     m_zoteroToBibTeX["issuingAuthority"] = QLatin1String("institution");

@@ -148,6 +148,10 @@ void BibTexToNepomukPipe::import(Entry *e)
                              PlainTextValue::text(e->value(QLatin1String("zoterokey"))),
                              PlainTextValue::text(e->value(QLatin1String("zoteroetag"))),
                              PlainTextValue::text(e->value(QLatin1String("zoteroupdated"))));
+
+        e->remove(QLatin1String("zoterokey"));
+        e->remove(QLatin1String("zoteroetag"));
+        e->remove(QLatin1String("zoteroupdated"));
     }
 
 
