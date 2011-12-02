@@ -36,6 +36,11 @@
 #include <Nepomuk/Query/Result>
 #include <Nepomuk/Query/QueryParser>
 
+//DEBUG
+#include <QDebug>
+#include <QFile>
+#include <kbibtex/fileexporterbibtex.h>
+
 SyncZoteroNepomuk::SyncZoteroNepomuk(QObject *parent)
     : QObject(parent)
     , m_rfz(0)
@@ -156,7 +161,20 @@ void SyncZoteroNepomuk::readDownloadSync(File zoteroData)
     emit progressStatus(i18n("push Zotero data into Nepomuk"));
     //as we download the files only we push them directly into nepomuk
     m_curStep = 1;
+    QString url = m_url + QLatin1String("/") + m_collection;
+    m_btnp->setSyncDetails(url, m_name);
     m_btnp->pipeExport(zoteroData);
+
+
+    QFile exportFile(QString("/home/joerg/zotero_export.bib"));
+    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return;
+    }
+
+    qDebug() << "SyncStorageUi save after sync"  << zoteroData.size();
+
+    FileExporterBibTeX feb;
+    feb.save(&exportFile, &zoteroData);
 }
 
 void SyncZoteroNepomuk::startSync()

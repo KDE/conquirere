@@ -60,6 +60,8 @@ public:
       */
     void setAkonadiAddressbook(Akonadi::Collection & addressbook);
 
+    void setSyncDetails(const QString &url, const QString &userid);
+
 private:
     /**
       * Used to transform the KBibTeX Person ValueItem.
@@ -112,7 +114,6 @@ private:
     void addEditor(const Value &content, Nepomuk::Resource publication);
     void addEprint(const QString &content, Nepomuk::Resource publication);
     void addHowPublished(const QString &content, Nepomuk::Resource publication);
-    void addInstitution(const Value &content, Nepomuk::Resource publication);
     void addIsbn(const QString &content, Nepomuk::Resource publication);
     void addIssn(const QString &content, Nepomuk::Resource publication);
     void addLanguage(const QString &content, Nepomuk::Resource publication);
@@ -122,9 +123,12 @@ private:
     void addNote(const QString &content, Nepomuk::Resource publication);
     void addNumber(const QString &content, Nepomuk::Resource publication);
     void addOrganization(const QString &content, Nepomuk::Resource publication);
+    void addCode(const QString &content, Nepomuk::Resource publication);
+    void addCodeNumber(const QString &content, Nepomuk::Resource publication);
     void addPages(const QString &content, Nepomuk::Resource reference);
+    void addNumberOfPages(const QString &content, Nepomuk::Resource publication);
     void addPubMed(const QString &content, Nepomuk::Resource publication);
-    void addSchool(const Value &content, Nepomuk::Resource publication);
+    void addEvent(const QString &content, Nepomuk::Resource publication);
     void addSeries(const QString &content, Nepomuk::Resource publication);
     void addTitle(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
     void addType(const QString &content, Nepomuk::Resource publication);
@@ -137,10 +141,17 @@ private:
     void addLastUsage(const QString &content, Nepomuk::Resource publication);
     void addKewords(const Value &content, Nepomuk::Resource publication);
 
+    void addZoteroSyncDetails(Nepomuk::Resource publication, const QString &id,
+                              const QString &etag, const QString &updated);
+
     QMap<QString, Nepomuk::Resource> m_allContacts;
     QMap<QString, Nepomuk::Resource> m_allProceedings;
     QMap<QString, QString> m_macroLookup;
     Akonadi::Collection m_addressbook;
+
+    QString m_syncUrl;
+    QString m_syncUserId;
 };
 
 #endif // BIBTEXTONEPOMUKPIPE_H
+

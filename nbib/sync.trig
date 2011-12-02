@@ -1,0 +1,159 @@
+#
+# Copyright (c) 2011 Joerg Ehrichs <Joerg.Ehrichs@gmx.de>
+#
+# All rights reserved, licensed under either CC-BY or BSD.
+#
+# You are free:
+#  * to Share - to copy, distribute and transmit the work
+#  * to Remix - to adapt the work
+# Under the following conditions:
+#  * Attribution - You must attribute the work in the manner specified by the author
+#    or licensor (but not in any way that suggests that they endorse you or your use 
+#    of the work).
+#
+# Redistribution and use in source and binary forms, with or without modification, 
+# are permitted provided that the following conditions are met:
+#  * Redistributions of source code must retain the above copyright notice, this 
+#    list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright notice, this 
+#    list of conditions and the following disclaimer in the documentation and/or 
+#    other materials provided with the distribution.
+#  * Neither the names of the authors nor the names of contributors may
+#    be used to endorse or promote products derived from this ontology without 
+#    specific prior written permission.
+#
+# THIS ONTOLOGY IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+# IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+# IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+# NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS ONTOLOGY, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+
+@prefix sync:    <http://www.example.com/sync#> .
+@prefix nbib:    <http://www.example.com/nbib#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix nie:     <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
+@prefix nao:     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
+@prefix nrl:     <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
+
+sync: {
+    sync:ServerSyncData
+          a       rdfs:Class ;
+          rdfs:comment "Class to hold additional information about a synced publication" ;
+          rdfs:label "Server Sync Data" ;
+          rdfs:subClassOf nie:InformationElement .
+
+    sync:provider
+          a       rdf:Property ;
+          rdfs:domain sync:ServerSyncData ;
+          rdfs:comment "The provider name the sync info comes from. for example zotero" ;
+          rdfs:label "Provider" ;
+          rdfs:range xsd:string ;
+          nrl:cardinality 1 ;
+          nrl:maxCardinality 1 .
+
+    sync:url
+          a       rdf:Property ;
+          rdfs:domain sync:ServerSyncData ;
+          rdfs:comment "The provider url addition. for zotero this is 'users' or 'groups' could be full url in other cases" ;
+          rdfs:label "Sync URl" ;
+          rdfs:range xsd:string ;
+          nrl:cardinality 1 ;
+          nrl:maxCardinality 1 .
+
+    sync:userId
+          a       rdf:Property ;
+          rdfs:domain sync:ServerSyncData ;
+          rdfs:comment "The user name  or user id the sync is done" ;
+          rdfs:label "User id" ;
+          rdfs:range xsd:string ;
+          nrl:cardinality 1 ;
+          nrl:maxCardinality 1 .
+
+    sync:id
+          a       rdf:Property ;
+          rdfs:domain sync:ServerSyncData ;
+          rdfs:comment "The unique ID of the publication for teh specific provider at the specific url with the given userid" ;
+          rdfs:label "Item ID" ;
+          rdfs:range xsd:string ;
+          nrl:cardinality 1 ;
+          nrl:maxCardinality 1 .
+
+    sync:etag
+          a       rdf:Property ;
+          rdfs:domain sync:ServerSyncData ;
+          rdfs:comment "Special hash to denote if teh item was manipulated on the server since last sync" ;
+          rdfs:label "etag" ;
+          rdfs:range xsd:string ;
+          nrl:cardinality 1 ;
+          nrl:maxCardinality 1 .
+
+# // use nuoa:lastModified
+#    sync:lastUpdates
+
+#############################################################
+#
+# conenction to the NBIB ontology
+#
+    sync:serverSyncData
+          a       rdf:Property ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "adds the server sync data to the publication" ;
+          rdfs:label "serverSyncData connection" ;
+          rdfs:range sync:ServerSyncData ;
+
+}
+
+<http://www.example.com/sync#>
+{<http://www.example.com/sync#>
+          a       nrl:GraphMetadata ;
+          nrl:coreGraphMetadataFor
+                  sync: .
+
+sync:  a       nrl:Ontology ;
+          nao:creator <Joerg.Ehrichs@gmx.de> ;
+          nao:hasDefaultNamespace
+                  "http://www.example.com/sync#" ;
+          nao:hasDefaultNamespaceAbbreviation
+                  "sync" ;
+          nao:lastModified "2011-09-16T10:36:58Z" ;
+          nao:status "Unstable" ;
+          nao:updatable "0 " ;
+          nao:version "0.1" ;
+          nao:prefLabel "Sync NBIB Ontology" ;
+          nao:description "describes all necessary parts to keep the publication from NBIB insync with an online storage such as zotero" .
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

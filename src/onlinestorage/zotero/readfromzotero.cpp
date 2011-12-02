@@ -55,7 +55,7 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     m_zoteroToBibTeX["websiteTitle"] = QLatin1String("booktitle");
     m_zoteroToBibTeX["programTitle"] = QLatin1String("booktitle");
     m_zoteroToBibTeX["websiteType"] = QLatin1String("type");
-    m_zoteroToBibTeX["place"] = QLatin1String("location");
+    m_zoteroToBibTeX["place"] = QLatin1String("address");
     m_zoteroToBibTeX["billNumber"] = QLatin1String("number");
     m_zoteroToBibTeX["codeVolume"] = QLatin1String("volume");
     m_zoteroToBibTeX["reporterVolume"] = QLatin1String("volume");
@@ -66,6 +66,13 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     m_zoteroToBibTeX["patentNumber"] = QLatin1String("number");
     m_zoteroToBibTeX["publicLawNumber"] = QLatin1String("number");
     m_zoteroToBibTeX["letterType"] = QLatin1String("type");
+    m_zoteroToBibTeX["serie"] = QLatin1String("series");
+    m_zoteroToBibTeX["label"] = QLatin1String("publisher");
+    m_zoteroToBibTeX["section"] = QLatin1String("chapter");
+    m_zoteroToBibTeX["nameOfAct"] = QLatin1String("title");
+    m_zoteroToBibTeX["codePages"] = QLatin1String("pages");
+    m_zoteroToBibTeX["court"] = QLatin1String("institution");
+    m_zoteroToBibTeX["issuingAuthority"] = QLatin1String("institution");
 
     //creator type adoption
     m_zoteroToBibTeX["artist"] = QLatin1String("author");
@@ -294,7 +301,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
             QString text = i.value().toString().toLower();
 
             if(text == QLatin1String("booksection")) {
-                e->setType(QLatin1String("incollection")); // as incollection is part of a book with its own name
+                e->setType(QLatin1String("inbook")); // as inbook/incollection is part of a book with its own name
             }
             else if(text == QLatin1String("conferencepaper")) {
                 e->setType(QLatin1String("inproceedings"));

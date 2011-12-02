@@ -45,6 +45,7 @@
 @prefix nco:     <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#> .
 @prefix nao:     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
 @prefix ncal:    <http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#> .
+@prefix pimo:    <http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#> .
 
 nbib: {
     nbib:Reference
@@ -212,7 +213,7 @@ nbib: {
           a       rdfs:Class ;
           rdfs:comment "A report published by a school or other institution, usually numbered within a series." ;
           rdfs:label "Techreport" ;
-          rdfs:subClassOf nbib:Publication .
+          rdfs:subClassOf nbib:Report .
 
     nbib:Thesis
           a       rdfs:Class ;
@@ -386,7 +387,7 @@ nbib: {
           a       rdf:Property ;
           rdfs:domain nbib:Decision ;
           rdfs:comment "A legal decision that affirms a ruling." ;
-          rdfs:label "CiteKey" ;
+          rdfs:label "affirmedBy" ;
           rdfs:range nbib:Decision .
 
    nbib:publishedAs
@@ -425,12 +426,20 @@ nbib: {
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:court
+    nbib:code
           a       rdf:Property ;
-          rdfs:domain nbib:LegalDocument ;
-          rdfs:comment "A court associated with a legal document; for example, that which issues a decision." ;
-          rdfs:label "Organization" ;
-          rdfs:range nco:OrganizationContact ;
+          rdfs:domain nbib:Legislation ;
+          rdfs:comment "The code of an legislation" ;
+          rdfs:label "Legislation Code" ;
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
+
+    nbib:codeNumber
+          a       rdf:Property ;
+          rdfs:domain nbib:Legislation ;
+          rdfs:comment "The code number of an legislation" ;
+          rdfs:label "Legislation Code number" ;
+          rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
     nie:abstract
@@ -606,22 +615,19 @@ nbib: {
           nrl:inverseProperty nbib:conference ;
           nrl:maxCardinality 1 .
 
-    nbib:conference
+    nbib:event
           a       rdf:Property ;
-          rdfs:domain nbib:Proceedings ;
-          rdfs:comment "The conference of a proceedings" ;
-          rdfs:label "Conference" ;
-          rdfs:range ncal:Event ;
-          nrl:inverseProperty nbib:organization ;
-          nrl:maxCardinality 1 .
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "The event this publication was shown, represented, published etc" ;
+          rdfs:label "Event" ;
+          rdfs:range pimo:Event .
 
-    nbib:conference
+    nbib:eventPublication
           a       rdf:Property ;
-          rdfs:domain ncal:Event ;
-          rdfs:comment "The proceedings of a conference" ;
-          rdfs:label "conference" ;
-          rdfs:range ncal:Proceedings ;
-          nrl:maxCardinality 1 .
+          rdfs:domain pimo:Event ;
+          rdfs:comment "the publications that fornm the result of an event" ;
+          rdfs:label "Event Publications" ;
+          rdfs:range nbib:Publication .
 
     nbib:pages
           a       rdf:Property ;
@@ -645,14 +651,6 @@ nbib: {
           rdfs:comment "Ending page number of the chapter" ;
           rdfs:label "ending page" ;
           rdfs:range xsd:integer ;
-          nrl:maxCardinality 1 .
-
-    nbib:patentNumber
-          a       rdf:Property ;
-          rdfs:domain nbib:Patent ;
-          rdfs:comment "The patent number" ;
-          rdfs:label "Patent Number" ;
-          rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
     nbib:applicationNumber
@@ -733,8 +731,8 @@ nbib: {
           nrl:maxCardinality 1 .
 }
 
-<http://www.example.com/nbib_metadata#>
-{<http://www.example.com/nbib_metadata#>
+<http://www.example.com/nbib#>
+{<http://www.example.com/nbib#>
           a       nrl:GraphMetadata ;
           nrl:coreGraphMetadataFor
                   nbib: .

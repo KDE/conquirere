@@ -233,6 +233,7 @@ void PublicationWidget::setLibrary(Library *p)
     connect(ui->editKeywords, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editProceedings, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editPubMed, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
+    connect(ui->editEvent, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
 
     connect(this, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
 }
@@ -397,6 +398,7 @@ void PublicationWidget::setupWidget()
     ui->editKeywords->setPropertyUrl( Soprano::Vocabulary::NAO::hasTag() );
     ui->editProceedings->setPropertyUrl( Nepomuk::Vocabulary::NBIB::collection() );
     ui->editPubMed->setPropertyUrl( Nepomuk::Vocabulary::NBIB::pubMed() );
+    ui->editEvent->setPropertyUrl( Nepomuk::Vocabulary::NBIB::event() );
 
     //connect signal/slots
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editAuthors, SLOT(setResource(Nepomuk::Resource&)));
@@ -426,6 +428,7 @@ void PublicationWidget::setupWidget()
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editKeywords, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editProceedings, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPubMed, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editEvent, SLOT(setResource(Nepomuk::Resource&)));
 
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 
