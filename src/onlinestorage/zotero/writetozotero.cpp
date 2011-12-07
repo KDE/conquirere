@@ -341,7 +341,6 @@ QByteArray WriteToZotero::writeJsonContent(File items, bool onlyUpdate)
 
         // none Zotero types which I try to squeeze into zotero
         if(adoptBibtexTypes()) {
-            qDebug() << "WriteToZotero :: with adoptBibtexTypes";
             if(entry->type().toLower() == QLatin1String("article")) {
                 QString articleType = PlainTextValue::text(entry->value(QLatin1String("articletype")));
 
@@ -519,7 +518,7 @@ QByteArray WriteToZotero::writeJsonContent(File items, bool onlyUpdate)
             itemList.append( createWebpageJson(entry) );
         }
         else {
-            if(itemList.isEmpty()) { // this elce is thrown whene adoptToBibtex is on
+            if(itemList.isEmpty()) { // this else is thrown whene adoptToBibtex is on
                                      // if we filled the itemList in this case, we ignore the return here
                 qWarning() << "unknwon bibtex entry type" <<  entry->type() << "can't create zotero json from it";
 

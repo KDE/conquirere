@@ -62,7 +62,7 @@ nbib: {
     nbib:Publication
           a       rdfs:Class ;
           rdfs:comment "A bibliographic reference resource type (article, book, paper and such)" ;
-          rdfs:label "Bibliographic Resource" ;
+          rdfs:label "Bibliographic Publication" ;
           rdfs:subClassOf nie:InformationElement .
 
     nbib:Article
@@ -743,9 +743,9 @@ nbib:  a       nrl:Ontology ;
                   "http://www.example.com/nbib#" ;
           nao:hasDefaultNamespaceAbbreviation
                   "nbib" ;
-          nao:lastModified "2011-09-16T10:36:58Z" ;
+          nao:lastModified "2011-12-07T10:36:58Z" ;
           nao:status "Unstable" ;
-          nao:updatable "0 " ;
+          nao:updatable "1" ;
           nao:version "0.1" ;
           nao:prefLabel "Nepomuk BibTex Ontology" ;
           nao:description "The Nepomuk BibTex Ontology provides vocabulary to express bibliografic information" .

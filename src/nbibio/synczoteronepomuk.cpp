@@ -28,10 +28,14 @@
 #include <kbibtex/findduplicatesui.h>
 
 #include "nbib.h"
+#include "sync.h"
+#include <Nepomuk/Variant>
 #include <Nepomuk/Query/Term>
 #include <Nepomuk/Query/ResourceTerm>
 #include <Nepomuk/Query/ResourceTypeTerm>
 #include <Nepomuk/Query/ComparisonTerm>
+#include <Nepomuk/Query/LiteralTerm>
+#include <Nepomuk/Query/AndTerm>
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Result>
 #include <Nepomuk/Query/QueryParser>
@@ -173,23 +177,78 @@ void SyncZoteroNepomuk::startDownload()
 
 void SyncZoteroNepomuk::readDownloadSync(File zoteroData)
 {
-    emit progressStatus(i18n("push Zotero data into Nepomuk"));
-    //as we download the files only we push them directly into nepomuk
+    emit progressStatus(i18n("sync zotero data with local Nepomuk storage"));
     m_curStep = 1;
-    QString url = m_url + QLatin1String("/") + m_collection;
-    m_btnp->setSyncDetails(url, m_name);
-    m_btnp->pipeExport(zoteroData);
 
+    // for each downloaded item from zotero we try to find the item in the local storage
+    // we can itendify this via the unique zotero Key
 
-    QFile exportFile(QString("/home/joerg/zotero_export.bib"));
-    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        return;
+    // In the case we found such an entry, we check if the zotero etag value are different
+    // If this is the case, the item has been changed on the server side and we need to merge them
+
+    File newEntries;
+
+    foreach(Element* element, zoteroData) {
+        Entry *entry = dynamic_cast<Entry *>(element);
+        if(!entry) { continue; }
+
+        // define what we are looking for in the nepomuk storage
+        Nepomuk::Query::AndTerm andTerm;
+        andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::SYNC::ServerSyncData() ) );
+        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::SYNC::provider(), Nepomuk::Query::LiteralTerm( "zotero" ) ));
+        //andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::SYNC::userId(), Nepomuk::Query::LiteralTerm( m_name ) ));
+        //QString itemID = PlainTextValue::text(entry->value( QLatin1String("zoterokey")) );
+        //andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::SYNC::id(),  Nepomuk::Query::LiteralTerm( itemID )));
+        Nepomuk::Query::Query query( andTerm );
+
+        QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
+
+        // nothing found, means we have a new entry
+        if(queryResult.isEmpty()) {
+            qDebug() << "did not find any related items";
+            newEntries.append(element);
+        }
+        // we found something, means we need to check if it changed on the server
+        else {
+            if(queryResult.size() > 1) {
+                qWarning() << "error database error, found more than 1 item to sync the zotero data to size::" << queryResult.size();
+            }
+
+            Nepomuk::Resource r = queryResult.first().resource();
+
+            QString localEtag = r.property(Nepomuk::Vocabulary::SYNC::etag()).toString();
+            QString serverEtag = PlainTextValue::text(entry->value(QLatin1String("zoteroetag")));
+
+            qDebug() << "check if the item changed on the server local" << localEtag << "server" << serverEtag;
+
+            if(localEtag != serverEtag) {
+                qDebug() << "item need merge action" << PlainTextValue::text(entry->value(QLatin1String("title")));
+            }
+            else {
+                qDebug() << "item is up to date" << PlainTextValue::text(entry->value(QLatin1String("title")));
+            }
+        }
     }
 
-    qDebug() << "SyncStorageUi save after sync"  << zoteroData.size();
 
-    FileExporterBibTeX feb;
-    feb.save(&exportFile, &zoteroData);
+    // up to this point we have a list of new entries we need to add
+    // and a list of items that need an update, that either means merging automatic server/local or let the user decide how to merge
+    return;
+
+    emit progressStatus(i18n("push new Zotero data into Nepomuk"));
+    QString url = m_url + QLatin1String("/") + m_collection;
+    m_btnp->setSyncDetails(url, m_name);
+    m_btnp->pipeExport(newEntries);
+
+//    QFile exportFile(QString("/home/joerg/zotero_export.bib"));
+//    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+//        return;
+//    }
+
+//    qDebug() << "SyncStorageUi save after sync"  << zoteroData.size();
+
+//    FileExporterBibTeX feb;
+//    feb.save(&exportFile, &zoteroData);
 }
 
 void SyncZoteroNepomuk::startSync()

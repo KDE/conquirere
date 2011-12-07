@@ -35,7 +35,7 @@ class Entry;
 /**
   * @brief Pipes the content of a KBibTeX File to the Nepomuk storage
   *
-  * For each BibTeX new resources for the publication, reference, the contacts and others will be created.
+  * For each BibTeX entry new resources for the publication, reference, the contacts and others will be created.
   *
   * @see NBIB ontology
   */

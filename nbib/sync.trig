@@ -81,7 +81,7 @@ sync: {
     sync:id
           a       rdf:Property ;
           rdfs:domain sync:ServerSyncData ;
-          rdfs:comment "The unique ID of the publication for teh specific provider at the specific url with the given userid" ;
+          rdfs:comment "The unique ID of the publication for the specific provider at the specific url with the given userid" ;
           rdfs:label "Item ID" ;
           rdfs:range xsd:string ;
           nrl:cardinality 1 ;
@@ -96,38 +96,34 @@ sync: {
           nrl:cardinality 1 ;
           nrl:maxCardinality 1 .
 
-# // use nuoa:lastModified
-#    sync:lastUpdates
-
 #############################################################
 #
-# conenction to the NBIB ontology
+# connection to the NBIB ontology
 #
     sync:serverSyncData
           a       rdf:Property ;
           rdfs:domain nbib:Publication ;
           rdfs:comment "adds the server sync data to the publication" ;
           rdfs:label "serverSyncData connection" ;
-          rdfs:range sync:ServerSyncData ;
+          rdfs:range sync:ServerSyncData .
 
 }
 
-<http://www.example.com/sync#>
-{<http://www.example.com/sync#>
+<http://www.example.com/sync_metadata#>
+{
+
+<http://www.example.com/sync_metadata#>
           a       nrl:GraphMetadata ;
-          nrl:coreGraphMetadataFor
-                  sync: .
+          nrl:coreGraphMetadataFor sync: .
 
 sync:  a       nrl:Ontology ;
           nao:creator <Joerg.Ehrichs@gmx.de> ;
-          nao:hasDefaultNamespace
-                  "http://www.example.com/sync#" ;
-          nao:hasDefaultNamespaceAbbreviation
-                  "sync" ;
-          nao:lastModified "2011-09-16T10:36:58Z" ;
+          nao:hasDefaultNamespace "http://www.example.com/sync#" ;
+          nao:hasDefaultNamespaceAbbreviation "sync" ;
+          nao:lastModified "2011-12-07T11:36:58Z" ;
           nao:status "Unstable" ;
           nao:updatable "0 " ;
-          nao:version "0.1" ;
+          nao:version "0.2" ;
           nao:prefLabel "Sync NBIB Ontology" ;
           nao:description "describes all necessary parts to keep the publication from NBIB insync with an online storage such as zotero" .
 
