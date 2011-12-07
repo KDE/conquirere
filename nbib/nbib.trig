@@ -729,10 +729,11 @@ nbib: {
           rdfs:label "Volume" ;
           rdfs:range xsd:integer ;
           nrl:maxCardinality 1 .
+
 }
 
-<http://www.example.com/nbib#>
-{<http://www.example.com/nbib#>
+<http://www.example.com/nbib_metadata#>
+{<http://www.example.com/nbib_metadata#>
           a       nrl:GraphMetadata ;
           nrl:coreGraphMetadataFor
                   nbib: .
@@ -745,10 +746,10 @@ nbib:  a       nrl:Ontology ;
                   "nbib" ;
           nao:lastModified "2011-12-07T10:36:58Z" ;
           nao:status "Unstable" ;
-          nao:updatable "1" ;
+          nao:updatable "0 " ;
           nao:version "0.1" ;
-          nao:prefLabel "Nepomuk BibTex Ontology" ;
-          nao:description "The Nepomuk BibTex Ontology provides vocabulary to express bibliografic information" .
+          nao:prefLabel "Sync NBIB Ontology" ;
+          nao:description "Describes all necessary parts to keep the publication from NBIB insync with an online storage such as zotero" .
 
 }
 

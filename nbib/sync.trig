@@ -40,9 +40,9 @@
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix dc:      <http://purl.org/dc/elements/1.1/> .
 @prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix nrl:     <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
 @prefix nie:     <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
 @prefix nao:     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
-@prefix nrl:     <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
 
 sync: {
     sync:ServerSyncData
@@ -63,7 +63,7 @@ sync: {
     sync:url
           a       rdf:Property ;
           rdfs:domain sync:ServerSyncData ;
-          rdfs:comment "The provider url addition. for zotero this is 'users' or 'groups' could be full url in other cases" ;
+          rdfs:comment "The provider url addition. for zotero this is users or groups could be full url in other cases" ;
           rdfs:label "Sync URl" ;
           rdfs:range xsd:string ;
           nrl:cardinality 1 ;
@@ -106,29 +106,28 @@ sync: {
           rdfs:comment "adds the server sync data to the publication" ;
           rdfs:label "serverSyncData connection" ;
           rdfs:range sync:ServerSyncData .
-
 }
 
 <http://www.example.com/sync_metadata#>
-{
-
-<http://www.example.com/sync_metadata#>
+{<http://www.example.com/sync_metadata#>
           a       nrl:GraphMetadata ;
-          nrl:coreGraphMetadataFor sync: .
+          nrl:coreGraphMetadataFor
+                  sync: .
 
 sync:  a       nrl:Ontology ;
           nao:creator <Joerg.Ehrichs@gmx.de> ;
-          nao:hasDefaultNamespace "http://www.example.com/sync#" ;
-          nao:hasDefaultNamespaceAbbreviation "sync" ;
-          nao:lastModified "2011-12-07T11:36:58Z" ;
+          nao:hasDefaultNamespace
+                  "http://www.example.com/sync#" ;
+          nao:hasDefaultNamespaceAbbreviation
+                  "sync" ;
+          nao:lastModified "2011-12-07T10:36:58Z" ;
           nao:status "Unstable" ;
           nao:updatable "0 " ;
-          nao:version "0.2" ;
-          nao:prefLabel "Sync NBIB Ontology" ;
-          nao:description "describes all necessary parts to keep the publication from NBIB insync with an online storage such as zotero" .
+          nao:version "0.1" ;
+          nao:prefLabel "Nepomuk BibTex Ontology" ;
+          nao:description "The Nepomuk BibTex Ontology provides vocabulary to express bibliografic information" .
 
 }
-
 
 
 
