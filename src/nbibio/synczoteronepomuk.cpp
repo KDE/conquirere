@@ -35,8 +35,10 @@
 #include <Nepomuk/Query/ResourceTerm>
 #include <Nepomuk/Query/ResourceTypeTerm>
 #include <Nepomuk/Query/ComparisonTerm>
+#include <Nepomuk/Query/NegationTerm>
 #include <Nepomuk/Query/LiteralTerm>
 #include <Nepomuk/Query/AndTerm>
+#include <Nepomuk/Query/OrTerm>
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Result>
 #include <Nepomuk/Query/QueryParser>
@@ -99,6 +101,25 @@ void SyncZoteroNepomuk::readDownloadSync(File zoteroData)
     emit progressStatus(i18n("sync zotero data with local Nepomuk storage"));
     m_curStep++;
 
+    m_tmpUserDeleteRequest.clear();
+    findDeletedEntries(zoteroData, m_tmpUserDeleteRequest);
+
+    if(!m_tmpUserDeleteRequest.isEmpty()) {
+        qDebug() << m_tmpUserDeleteRequest.size() << "items deletet on the server delete them in the localstorage too";
+    }
+
+    m_bibCache.clear();
+    m_bibCache = zoteroData;
+    if(m_askBeforeDeletion && !m_tmpUserDeleteRequest.isEmpty()) {
+        emit askForDeletion(m_tmpUserDeleteRequest);
+    }
+    else {
+        deleteLocalFiles(true);
+    }
+}
+
+void SyncZoteroNepomuk::readDownloadSyncAfterDelete(File zoteroData)
+{
     File newEntries;
     QList<SyncDetails> userMergeRequest;
 
@@ -297,7 +318,35 @@ void SyncZoteroNepomuk::startSync()
 
 void SyncZoteroNepomuk::deleteLocalFiles(bool deleteThem)
 {
+    foreach(SyncDetails sd, m_tmpUserDeleteRequest) {
+        if(deleteThem) {
+            Nepomuk::Resource publication = sd.syncResource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+            qDebug() << "delete publication" << publication.resourceUri();
+            publication.remove();
+            // delete the series of the publication if no other publication is in the series
+            Nepomuk::Resource series = publication.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+            QList<Nepomuk::Resource> seriesPubilcations = series.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
+            if(seriesPubilcations.isEmpty())
+                series.remove();
+            // delete the collection of the publication if no other article is in the collection
+            Nepomuk::Resource collection = publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+            QList<Nepomuk::Resource> articles = collection.property(Nepomuk::Vocabulary::NBIB::article()).toResourceList();
+            if(articles.isEmpty())
+                collection.remove();
+            Nepomuk::Resource reference = sd.syncResource.property(Nepomuk::Vocabulary::NBIB::reference()).toResource();
+            reference.remove();
+            sd.syncResource.remove();
+        }
+        else {
+            Nepomuk::Resource publication = sd.syncResource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+            publication.removeProperty(Nepomuk::Vocabulary::SYNC::serverSyncData());
+            Nepomuk::Resource reference = sd.syncResource.property(Nepomuk::Vocabulary::NBIB::reference()).toResource();
+            reference.removeProperty(Nepomuk::Vocabulary::SYNC::serverSyncData());
+            sd.syncResource.remove();
+        }
+    }
 
+    readDownloadSyncAfterDelete(m_bibCache);
 }
 
 void SyncZoteroNepomuk::findDuplicates(const File &zoteroData, File &newEntries, QList<SyncDetails> &userMergeRequest)
@@ -373,6 +422,39 @@ void SyncZoteroNepomuk::findDuplicates(const File &zoteroData, File &newEntries,
 
         curProgress += percentPerFile;
         emit calculateProgress(curProgress);
+    }
+}
+
+void SyncZoteroNepomuk::findDeletedEntries(const File &zoteroData, QList<SyncDetails> &userDeleteRequest)
+{
+    // here we find any sync:ServerSyncData object in teh nepomuk storage that does not have one of the
+    // zoteroKeys in zoteroData
+    Nepomuk::Query::AndTerm andTerm;
+    andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::SYNC::ServerSyncData() ) );
+    andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::SYNC::provider(), Nepomuk::Query::LiteralTerm( "zotero" ) ));
+    andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::SYNC::userId(), Nepomuk::Query::LiteralTerm( m_name ) ));
+
+    QStringList idLookup;
+
+    foreach(Element* zoteroElement, zoteroData) {
+        Entry *zoteroEntry = dynamic_cast<Entry *>(zoteroElement);
+        if(!zoteroEntry) { continue; }
+
+        QString itemID = PlainTextValue::text(zoteroEntry->value( QLatin1String("zoterokey")) );
+        idLookup.append(itemID);
+    }
+    Nepomuk::Query::Query query( andTerm );
+    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
+
+    foreach(Nepomuk::Query::Result nqr, queryResult) {
+        Nepomuk::Resource syncRes = nqr.resource();
+        QString id = syncRes.property(Nepomuk::Vocabulary::SYNC::id()).toString();
+        if(!idLookup.contains(id)) {
+            SyncDetails sd;
+            sd.syncResource = syncRes;
+            sd.externalResource = 0;
+            userDeleteRequest.append(sd);
+        }
     }
 }
 

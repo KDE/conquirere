@@ -58,7 +58,7 @@ signals:
       * emited if items from the server are deletet
       * emits a signal so we can show a dialog box not possible here as we run this class in a different thread than the gui thread
       */
-    void askForDeletion(int items);
+    void askForDeletion(QList<SyncDetails>);
 
     void userMerge(QList<SyncDetails>);
 

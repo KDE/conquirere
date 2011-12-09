@@ -71,7 +71,7 @@ SyncZoteroDialog::~SyncZoteroDialog()
 {
     delete ui;
     delete m_szn;
-    //delete m_rfz;
+    delete m_rfz;
     delete m_wallet;
     delete m_MergeDialog;
     delete m_mw;
@@ -120,6 +120,7 @@ void SyncZoteroDialog::clicked(QAbstractButton* button)
         int curIndex = ui->collectionSelection->currentIndex();
         QString collectionID = ui->collectionSelection->itemData(curIndex).toString();
         m_szn->setCollection(collectionID);
+        m_szn->askBeforeDeletion(ui->askDeletion->isChecked());
 
         int curMergeIndex = ui->mergeMode->currentIndex();
         m_szn->mergeStrategy( (SyncZoteroNepomuk::MergeStrategy)curMergeIndex );
@@ -133,7 +134,7 @@ void SyncZoteroDialog::clicked(QAbstractButton* button)
         connect(m_szn, SIGNAL(progress(int)), m_pdlg->progressBar(), SLOT(setValue(int)));
         connect(m_szn, SIGNAL(progressStatus(QString)), this, SLOT(setProgressStatus(QString)));
 
-        connect(m_szn, SIGNAL(askForDeletion(int)), this, SLOT(popDeletionQuestion(int)));
+        connect(m_szn, SIGNAL(askForDeletion(QList<SyncDetails>)), this, SLOT(popDeletionQuestion(QList<SyncDetails>)));
         connect(this, SIGNAL(deleteLocalFiles(bool)), m_szn, SLOT(deleteLocalFiles(bool)));
         //connect(m_szn, SIGNAL(mergeResults(QList<EntryClique*>,File*)), this, SLOT(popMergeDialog(QList<EntryClique*>,File*)));
         //connect(this, SIGNAL(mergedResults(QList<EntryClique*>)), m_szn, SLOT(resultsMerged(QList<EntryClique*>)));
@@ -158,9 +159,9 @@ void SyncZoteroDialog::clicked(QAbstractButton* button)
     }
 }
 
-void SyncZoteroDialog::popDeletionQuestion(int items)
+void SyncZoteroDialog::popDeletionQuestion(QList<SyncDetails> items)
 {
-    int ret = KMessageBox::warningYesNo(0,i18n("%1 items are deleted on the server.\n\nDo you want to delete them locally too?.\nOtherwise they will be uploaded again.", items));
+    int ret = KMessageBox::warningYesNo(0,i18n("%1 items are deleted on the server.\n\nDo you want to delete them locally too?.\nOtherwise they will be uploaded again.", items.size()));
 
     if(ret == KMessageBox::Yes) {
         emit deleteLocalFiles(true);

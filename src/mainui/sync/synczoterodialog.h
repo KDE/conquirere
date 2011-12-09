@@ -21,6 +21,7 @@
 #include <QDialog>
 
 #include "../../onlinestorage/storageglobals.h"
+#include "../../nbibio/synczoteronepomuk.h"
 
 #include <Akonadi/Collection>
 #include <KWallet/Wallet>
@@ -58,7 +59,7 @@ private slots:
     void checkWalletForPwd();
     void checkSyncMode(int mode);
 
-    void popDeletionQuestion(int items);
+    void popDeletionQuestion(QList<SyncDetails> items);
     void popMergeDialog(QList<EntryClique*> cliques, File *bibCache);
 
 signals:

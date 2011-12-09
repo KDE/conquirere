@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>543</width>
-    <height>379</height>
+    <height>404</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -170,7 +170,7 @@
           </item>
          </widget>
         </item>
-        <item row="2" column="0" colspan="2">
+        <item row="3" column="0" colspan="2">
          <widget class="QCheckBox" name="importAttachments">
           <property name="enabled">
            <bool>false</bool>
@@ -180,7 +180,7 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
+        <item row="3" column="2">
          <widget class="QCheckBox" name="exportAttachments">
           <property name="enabled">
            <bool>false</bool>
@@ -190,7 +190,7 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0" colspan="2">
+        <item row="4" column="0" colspan="2">
          <widget class="QCheckBox" name="addContactsToAkonadi">
           <property name="enabled">
            <bool>true</bool>
@@ -200,7 +200,7 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="2">
+        <item row="4" column="2">
          <widget class="KComboBox" name="contactCollection">
           <property name="enabled">
            <bool>true</bool>
@@ -213,7 +213,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0" colspan="2">
+        <item row="5" column="0" colspan="2">
          <widget class="QCheckBox" name="addEventsToAkonadi">
           <property name="enabled">
            <bool>false</bool>
@@ -223,7 +223,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="2">
+        <item row="5" column="2">
          <widget class="KComboBox" name="eventCollection">
           <property name="enabled">
            <bool>false</bool>
@@ -260,6 +260,13 @@
             <string>Keep local changes</string>
            </property>
           </item>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="3">
+         <widget class="QCheckBox" name="askDeletion">
+          <property name="text">
+           <string>Ask before local entries are deleted</string>
+          </property>
          </widget>
         </item>
        </layout>

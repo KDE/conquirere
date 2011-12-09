@@ -47,6 +47,7 @@ private slots:
       * process all data retrieved from the zotero server
       */
     void readDownloadSync(File zoteroData);
+    void readDownloadSyncAfterDelete(File zoteroData);
 
     /**
       * process syncdata retrived from zotero server when new items are send to the server
@@ -57,6 +58,7 @@ private slots:
 
 private:
     void findDuplicates(const File &zoteroData, File &newEntries, QList<SyncDetails> &userMergeRequest);
+    void findDeletedEntries(const File &zoteroData, QList<SyncDetails> &userDeleteRequest);
     void writeSyncDetailsToNepomuk(Entry *localData, Entry *zoteroData);
 
 private:
@@ -66,6 +68,7 @@ private:
     NepomukToBibTexPipe *m_ntnp;
     File m_bibCache;
     bool m_syncMode;
+    QList<SyncDetails> m_tmpUserDeleteRequest;
 };
 
 #endif // SYNCZOTERONEPOMUK_H
