@@ -38,6 +38,7 @@
 SyncZoteroDialog::SyncZoteroDialog(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::SyncZoteroDialog)
+    , m_szn(0)
     , m_pdlg(0)
     , m_MergeDialog(new KDialog)
     , m_mw(0)
@@ -63,8 +64,6 @@ SyncZoteroDialog::SyncZoteroDialog(QWidget *parent)
     connect(m_rfz, SIGNAL(collectionsInfo(QList<CollectionInfo>)), this, SLOT(processCollectionResults(QList<CollectionInfo>)));
     ui->fetchCollection->setIcon(KIcon(QLatin1String("svn-update")));
     connect(ui->fetchCollection, SIGNAL(clicked()), this, SLOT(fetchCollection()));
-
-    m_szn = new SyncZoteroNepomuk;
 }
 
 SyncZoteroDialog::~SyncZoteroDialog()
@@ -96,6 +95,8 @@ void SyncZoteroDialog::clicked(QAbstractButton* button)
 {
     if(ui->buttonBox->buttonRole(button) == QDialogButtonBox::ApplyRole)
     {
+        delete m_szn;
+        m_szn = new SyncZoteroNepomuk;
         m_szn->setUserName(ui->userID->text());
         m_szn->setPassword(ui->apiKey->text());
         int urlIndex = ui->libTypeSelection->currentIndex();
