@@ -52,6 +52,7 @@ public:
       * @p bibEntries File is a list of all Entry elements which form a bibtex entry
       */
     void pipeExport(File & bibEntries);
+    void merge(Nepomuk::Resource syncResource, Entry *external, bool keepLocal);
 
     /**
       * Sets the Akonadi addressbook where all contacts (authors, editors etc) are imported to beside the Nepomuk storage.
@@ -77,7 +78,7 @@ private:
     };
 
     /**
-      * This imports a singe Bibtex Entry
+      * This imports a single Bibtex Entry
       *
       * @p e One BibTeX entry
       */
@@ -85,6 +86,9 @@ private:
 
     QUrl typeToUrl(const QString & entryType);
     void addContent(const QString &key, const Value &value, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
+
+    /* updating entry */
+    Entry * getDiff(Nepomuk::Resource local, Entry *externalEntry, bool keepLocal);
 
     /* Helping functions */
     void addPublisher(const Value &publisherString, const Value &address, Nepomuk::Resource publication);
@@ -141,7 +145,8 @@ private:
     void addLastUsage(const QString &content, Nepomuk::Resource publication);
     void addKewords(const Value &content, Nepomuk::Resource publication);
 
-    void addZoteroSyncDetails(Nepomuk::Resource publication, const QString &id,
+    void addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference,
+                              const QString &id,
                               const QString &etag, const QString &updated);
 
     QMap<QString, Nepomuk::Resource> m_allContacts;
@@ -151,6 +156,8 @@ private:
 
     QString m_syncUrl;
     QString m_syncUserId;
+
+    bool m_mergeMode;
 };
 
 #endif // BIBTEXTONEPOMUKPIPE_H

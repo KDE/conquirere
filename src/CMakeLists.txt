@@ -68,9 +68,9 @@ kde4_add_ui_files( conquirere_SRCS
                    sidebar/serieswidget.ui
 )
 
-
-nepomuk_add_ontology_classes(conquirere_SRCS ONTOLOGIES ${CMAKE_SOURCE_DIR}/nbib/nbib.trig)
+nepomuk_add_ontology_classes(conquirere_SRCS ONTOLOGIES ${CMAKE_SOURCE_DIR}/nbib/nbib.trig ${CMAKE_SOURCE_DIR}/nbib/sync.trig)
 soprano_add_ontology(conquirere_SRCS ${CMAKE_SOURCE_DIR}/nbib/nbib.trig "NBIB" "Nepomuk::Vocabulary" "trig")
+soprano_add_ontology(conquirere_SRCS ${CMAKE_SOURCE_DIR}/nbib/sync.trig "SYNC" "Nepomuk::Vocabulary" "trig")
 
 kde4_add_app_icon(conquirere_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/../icons/hi*-app-conquirere.png")
 kde4_add_executable(conquirere ${conquirere_SRCS})

@@ -60,6 +60,11 @@ public:
     void useStrictTypes(bool strict);
     void setSyncDetails(const QString &url, const QString &userid);
 
+    /**
+      * Includes the nepomu kresource uri for the publication and reference to the bibtex output
+      */
+    void addNepomukUries(bool addThem);
+
 private:
     /**
       * @todo implement strict bibtex entry type export
@@ -111,6 +116,7 @@ private:
 
     File m_bibtexFile;
     bool m_strict;
+    bool m_addNepomukUris;
     QString m_syncUrl;
     QString m_syncUserId;
 

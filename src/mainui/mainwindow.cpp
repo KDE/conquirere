@@ -58,6 +58,7 @@
 
 //DEBUG ADD to delete all nepomuk data
 #include "nbib.h"
+#include "sync.h"
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Query/Term>
 #include <Nepomuk/Query/ResourceTerm>
@@ -301,6 +302,7 @@ void MainWindow::DEBUGDELETEALLDATA()
     orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::DocumentPart() ) );
     orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Series() ) );
     orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Journal() ) );
+    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::SYNC::ServerSyncData() ) );
 
     Nepomuk::Query::Query query( orTerm );
 

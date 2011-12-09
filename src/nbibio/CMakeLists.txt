@@ -6,13 +6,15 @@ set(nbibio_LIB_SRCS
     nbibimporter.cpp
     nbibimporterbibtex.cpp
 
+    nbibsync.cpp
     synczoteronepomuk.cpp
 
+    pipe/bibtexpipe.cpp
     pipe/bibtextoclipboardpipe.cpp
     pipe/bibtextonepomukpipe.cpp
-    pipe/nepomuktobibtexpipe.cpp
-    pipe/bibtexpipe.cpp
+
     pipe/nepomukpipe.cpp
+    pipe/nepomuktobibtexpipe.cpp
 )
 
 nepomuk_add_ontology_classes(nbibio_LIB_SRCS ONTOLOGIES ${CMAKE_SOURCE_DIR}/nbib/nbib.trig ${CMAKE_SOURCE_DIR}/nbib/sync.trig)

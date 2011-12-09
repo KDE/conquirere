@@ -102,10 +102,17 @@ sync: {
 #
     sync:serverSyncData
           a       rdf:Property ;
-          rdfs:domain nbib:Publication ;
+          rdfs:domain nie:InformationElement ;
           rdfs:comment "adds the server sync data to the publication" ;
           rdfs:label "serverSyncData connection" ;
           rdfs:range sync:ServerSyncData .
+
+#
+# To connect the nbib:reference or nbib:publication to the sync data
+# as inverse property use
+# + nbib:publication
+# + nbib:reference
+#
 }
 
 <http://www.example.com/sync_metadata#>

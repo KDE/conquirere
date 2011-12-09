@@ -109,7 +109,7 @@ void WriteToZotero::updateItem(Entry *item)
     QString zoteroKey = PlainTextValue::text(item->value(QLatin1String("zoteroKey")));
     QString etag = PlainTextValue::text(item->value(QLatin1String("zoteroEtag")));
 
-    QString pushString = QLatin1String("https://api.zotero.org/users/") + url() + QLatin1String("/") + userName() + QLatin1String("/items/") + zoteroKey;
+    QString pushString = QLatin1String("https://api.zotero.org/") + url() + QLatin1String("/") + userName() + QLatin1String("/items/") + zoteroKey;
 
     if(!pasword().isEmpty()) {
         pushString.append(QLatin1String("?key=") + pasword());

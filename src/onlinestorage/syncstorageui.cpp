@@ -45,9 +45,6 @@ SyncStorageUi::SyncStorageUi(QWidget *parent)
     }
     m_wallet->setFolder(QLatin1String("kbibtex"));
 
-    //ui->providerUserName->setText(QString("795913"));
-    //ui->providerPwd->setText(QString("TBydrlOdZo05mmzMhO8PlWCv"));
-
     // add all available plugins for the synchronization
     StorageInfo *zotero = new ZoteroInfo;
     m_availableProvider.append(zotero);

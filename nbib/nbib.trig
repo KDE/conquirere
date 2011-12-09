@@ -521,7 +521,7 @@ nbib: {
 
     nbib:reference
           a       rdf:Property ;
-          rdfs:domain nbib:Publication ;
+          rdfs:domain nie:InformationElement ;
           rdfs:comment "All references of a publication. Used to quickly get all different references (different quotes, chapters etc)" ;
           rdfs:label "reference" ;
           nrl:inverseProperty nbib:publication ;
@@ -529,7 +529,7 @@ nbib: {
 
     nbib:publication
           a       rdf:Property ;
-          rdfs:domain nbib:Reference ;
+          rdfs:domain nie:InformationElement ;
           rdfs:comment "The publication used for this reference" ;
           rdfs:label "publication" ;
           nrl:inverseProperty nbib:reference ;

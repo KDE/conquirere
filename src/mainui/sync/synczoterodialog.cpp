@@ -121,6 +121,9 @@ void SyncZoteroDialog::clicked(QAbstractButton* button)
         QString collectionID = ui->collectionSelection->itemData(curIndex).toString();
         m_szn->setCollection(collectionID);
 
+        int curMergeIndex = ui->mergeMode->currentIndex();
+        m_szn->mergeStrategy( (SyncZoteroNepomuk::MergeStrategy)curMergeIndex );
+
         delete m_pdlg;
         m_pdlg = new KProgressDialog;
         m_pdlg->setFocus();
@@ -132,8 +135,8 @@ void SyncZoteroDialog::clicked(QAbstractButton* button)
 
         connect(m_szn, SIGNAL(askForDeletion(int)), this, SLOT(popDeletionQuestion(int)));
         connect(this, SIGNAL(deleteLocalFiles(bool)), m_szn, SLOT(deleteLocalFiles(bool)));
-        connect(m_szn, SIGNAL(mergeResults(QList<EntryClique*>,File*)), this, SLOT(popMergeDialog(QList<EntryClique*>,File*)));
-        connect(this, SIGNAL(mergedResults(QList<EntryClique*>)), m_szn, SLOT(resultsMerged(QList<EntryClique*>)));
+        //connect(m_szn, SIGNAL(mergeResults(QList<EntryClique*>,File*)), this, SLOT(popMergeDialog(QList<EntryClique*>,File*)));
+        //connect(this, SIGNAL(mergedResults(QList<EntryClique*>)), m_szn, SLOT(resultsMerged(QList<EntryClique*>)));
 
         QThread *newThread = new QThread;
         m_szn->moveToThread(newThread);

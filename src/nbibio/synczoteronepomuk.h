@@ -18,8 +18,7 @@
 #ifndef SYNCZOTERONEPOMUK_H
 #define SYNCZOTERONEPOMUK_H
 
-#include <QObject>
-#include <QtCore/QMetaType>
+#include "nbibsync.h"
 
 #include <kbibtex/file.h>
 
@@ -28,77 +27,45 @@ class WriteToZotero;
 class BibTexToNepomukPipe;
 class NepomukToBibTexPipe;
 class Element;
+class Entry;
 class EntryClique;
 
-
-Q_DECLARE_METATYPE(EntryClique*)
-Q_DECLARE_METATYPE(QList<EntryClique*>)
-
-class SyncZoteroNepomuk : public QObject
+class SyncZoteroNepomuk : public NBibSync
 {
     Q_OBJECT
 public:
     explicit SyncZoteroNepomuk(QObject *parent = 0);
     virtual ~SyncZoteroNepomuk();
 
-    void setUserName(const QString &name);
-    void setPassword(const QString &pwd);
-    void setUrl(const QString &url);
-    void setCollection(const QString &collection);
-    void askBeforeDeletion(bool ask);
-
 public slots:
     void startUpload();
     void startDownload();
     void startSync();
 
-    /**
-      * connectes to the response of askForDeletion() and proceeds with the zoteroSync
-      */
-    void deleteLocalFiles(bool deleteThem);
-    void resultsMerged(QList<EntryClique*> cliques);
-
-signals:
-    void progress(int value);
-    void progressStatus(const QString &status);
-
-    /**
-      * emited if items from the server are deletet
-      * emits a signal so we can show a dialog box not possible here as we run this class in a different thread than the gui thread
-      */
-    void askForDeletion(int items);
-    void mergeResults(QList<EntryClique*> cliques, File *bibCache);
-
 private slots:
-    void calculateProgress(int value);
-
     /**
-      * called from startDownload
+      * process all data retrieved from the zotero server
       */
     void readDownloadSync(File zoteroData);
 
     /**
-      * clalled from startSync
+      * process syncdata retrived from zotero server when new items are send to the server
       */
-    void readSyncronizeSync(File zoteroData);
-    void writeSync(File zoteroData);
+    void readUploadSync(File zoteroData);
+
+    void deleteLocalFiles(bool deleteThem);
+
+private:
+    void findDuplicates(const File &zoteroData, File &newEntries, QList<SyncDetails> &userMergeRequest);
+    void writeSyncDetailsToNepomuk(Entry *localData, Entry *zoteroData);
 
 private:
     ReadFromZotero *m_rfz;
     WriteToZotero *m_wtz;
-    File m_bibCache;
     BibTexToNepomukPipe *m_btnp;
     NepomukToBibTexPipe *m_ntnp;
-
-    QString m_name;
-    QString m_pwd;
-    QString m_url;
-    QString m_collection;
-    bool m_askBeforeDeletion;
-    int m_syncSteps;
-    int m_curStep;
-
-    QList<Element*> temp_toBeDeleted;
+    File m_bibCache;
+    bool m_syncMode;
 };
 
 #endif // SYNCZOTERONEPOMUK_H

@@ -33,6 +33,7 @@
 
 NepomukToBibTexPipe::NepomukToBibTexPipe()
     :m_strict(false)
+    , m_addNepomukUris(false)
 {
 }
 
@@ -65,7 +66,7 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
         }
         else {
             //we have a publication and no idea what reference to use with it
-            // we will extract as many information sas possible anyway
+            // we will extract as many information as possible anyway
             publication = resource;
         }
 
@@ -87,6 +88,17 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
         e->setType(entryType);
         e->setId(citeKey);
         collectContent(e, reference, publication);
+
+        if(m_addNepomukUris) {
+            Value v1;
+            v1.append(new PlainText(publication.resourceUri().toString()));
+            e->insert(QLatin1String("nepomuk-publication-uri"), v1);
+            if(reference.isValid()) {
+                Value v2;
+                v2.append(new PlainText(reference.resourceUri().toString()));
+                e->insert(QLatin1String("nepomuk-reference-uri"), v2);
+            }
+        }
         m_bibtexFile.append(e);
     }
 }
@@ -799,17 +811,17 @@ void NepomukToBibTexPipe::setSyncDetails(Entry *e, Nepomuk::Resource publication
         QString etag = r.property(Nepomuk::Vocabulary::SYNC::etag()).toString();
         Value v1;
         v1.append(new PlainText(etag));
-        e->insert(QLatin1String("zoteroetag"), v1);
+        e->insert(QLatin1String("zoteroEtag"), v1);
 
         QString key = r.property(Nepomuk::Vocabulary::SYNC::id()).toString();
         Value v2;
         v2.append(new PlainText(key));
-        e->insert(QLatin1String("zoterokey"), v2);
+        e->insert(QLatin1String("zoteroKey"), v2);
 
         QString updated = r.property(Nepomuk::Vocabulary::NUAO::lastModification()).toString();
         Value v3;
         v3.append(new PlainText(updated));
-        e->insert(QLatin1String("zoteroupdated"), v3);
+        e->insert(QLatin1String("zoteroUpdated"), v3);
 
         break;
     }
@@ -819,6 +831,11 @@ void NepomukToBibTexPipe::setSyncDetails(const QString &url, const QString &user
 {
     m_syncUrl = url;
     m_syncUserId = userid;
+}
+
+void NepomukToBibTexPipe::addNepomukUries(bool addThem)
+{
+    m_addNepomukUris = addThem;
 }
 
 void NepomukToBibTexPipe::setArticleType(Entry *e, Nepomuk::Resource publication)
