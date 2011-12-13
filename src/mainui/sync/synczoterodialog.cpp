@@ -20,8 +20,10 @@
 
 #include "onlinestorage/zotero/readfromzotero.h"
 #include "../../nbibio/synczoteronepomuk.h"
+#include "../../nbibio/pipe/bibtextonepomukpipe.h"
 
 #include <kbibtex/file.h>
+#include <kbibtex/entry.h>
 #include <kbibtex/findduplicates.h>
 #include <kbibtex/findduplicatesui.h>
 
@@ -137,8 +139,8 @@ void SyncZoteroDialog::clicked(QAbstractButton* button)
 
         connect(m_szn, SIGNAL(askForDeletion(QList<SyncDetails>)), this, SLOT(popDeletionQuestion(QList<SyncDetails>)));
         connect(this, SIGNAL(deleteLocalFiles(bool)), m_szn, SLOT(deleteLocalFiles(bool)));
-        //connect(m_szn, SIGNAL(mergeResults(QList<EntryClique*>,File*)), this, SLOT(popMergeDialog(QList<EntryClique*>,File*)));
-        //connect(this, SIGNAL(mergedResults(QList<EntryClique*>)), m_szn, SLOT(resultsMerged(QList<EntryClique*>)));
+        connect(m_szn, SIGNAL(userMerge(QList<SyncDetails>)), this, SLOT(popMergeDialog(QList<SyncDetails>)));
+        connect(this, SIGNAL(mergeFinished()), m_szn, SLOT(mergeFinished()));
 
         QThread *newThread = new QThread;
         m_szn->moveToThread(newThread);
@@ -172,14 +174,28 @@ void SyncZoteroDialog::popDeletionQuestion(QList<SyncDetails> items)
     }
 }
 
-void SyncZoteroDialog::popMergeDialog(QList<EntryClique*> cliques, File *bibCache)
+void SyncZoteroDialog::popMergeDialog(QList<SyncDetails> items)
 {
-    m_mw = new MergeWidget(bibCache, cliques, m_MergeDialog);
-    m_MergeDialog->setMainWidget(m_mw);
+    qDebug() << "show blocking merge dialog for " << items.size() << "items";
 
-    m_MergeDialog->exec(); // do not delete the KDialog yet, as this crashes the sync importer when we try to access QStrig refs that will be deleted
+    KMessageBox::sorry( this, i18n("TODO:: User selected entry merging, default to use server verion for now."), i18n("Sorry") );
 
-    emit mergedResults(cliques);
+    QString url;
+    int urlIndex = ui->libTypeSelection->currentIndex();
+    if(urlIndex == 1) {
+        url = QLatin1String("groups");
+    }
+    else {
+        url = QLatin1String("users");
+    }
+
+    foreach(SyncDetails sd, items) {
+        BibTexToNepomukPipe mergePipe;
+        mergePipe.setSyncDetails(url, ui->userID->text());
+        mergePipe.merge(sd.syncResource, sd.externalResource, false);
+    }
+
+    emit mergeFinished();
 }
 
 void SyncZoteroDialog::setProgressStatus(const QString &status)
@@ -222,10 +238,24 @@ void SyncZoteroDialog::checkWalletForPwd()
 
 void SyncZoteroDialog::checkSyncMode(int mode)
 {
-    if(mode == 1) {
+    if(mode == 1) { // export mode
         ui->addContactsToAkonadi->setEnabled(false);
+        ui->contactCollection->setEnabled(false);
+        ui->addEventsToAkonadi->setEnabled(false);
+        ui->eventCollection->setEnabled(false);
+        //ui->importAttachments->setEnabled(false);
+        //ui->exportAttachments->setEnabled(true);
+        ui->mergeMode->setEnabled(false);
+        ui->askDeletion->setEnabled(false);
     }
     else {
         ui->addContactsToAkonadi->setEnabled(true);
+        ui->contactCollection->setEnabled(true);
+        ui->addEventsToAkonadi->setEnabled(true);
+        ui->eventCollection->setEnabled(true);
+        //ui->importAttachments->setEnabled(true);
+        //ui->exportAttachments->setEnabled(false);
+        ui->mergeMode->setEnabled(true);
+        ui->askDeletion->setEnabled(true);
     }
 }

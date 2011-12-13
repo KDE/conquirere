@@ -77,7 +77,7 @@ void SyncZoteroNepomuk::startDownload()
     // if we do not use syncmode, we initialize the syncSteps here
     // they are used to properly calculate the current progress
     if(!m_syncMode) {
-        m_syncSteps = 3;
+        m_syncSteps = 4;
         m_curStep = 0;
     }
     else {
@@ -131,12 +131,14 @@ void SyncZoteroNepomuk::readDownloadSync(File zoteroData)
 void SyncZoteroNepomuk::readDownloadSyncAfterDelete(File zoteroData)
 {
     File newEntries;
-    QList<SyncDetails> userMergeRequest;
+    findDuplicates(zoteroData, newEntries, m_tmpUserMergeRequest);
 
-    findDuplicates(zoteroData, newEntries, userMergeRequest);
+    if(!m_tmpUserMergeRequest.isEmpty()) {
+        qDebug() << "SyncZoteroNepomuk::readDownloadSync user merge request necessary for " << m_tmpUserMergeRequest.size() << "items";
 
-    if(!userMergeRequest.isEmpty()) {
-        qDebug() << "SyncZoteroNepomuk::readDownloadSync user merge request necessary for " << userMergeRequest.size() << "items";
+        if(m_mergeStrategy == Manual) {
+            emit userMerge(m_tmpUserMergeRequest);
+        }
     }
 
     // up to this point we have a list of new entries we need to add
@@ -151,6 +153,21 @@ void SyncZoteroNepomuk::readDownloadSyncAfterDelete(File zoteroData)
     m_btnp->setSyncDetails(url, m_name);
     m_btnp->pipeExport(newEntries);
 
+    m_curStep++;
+    emit calculateProgress(50);
+
+    // wait until the user merged all entries on its own
+    if(m_tmpUserMergeRequest.size() > 0) {
+        emit progressStatus(i18n("wait until user merge is finished"));
+    }
+    else {
+        mergeFinished();
+    }
+}
+
+void SyncZoteroNepomuk::mergeFinished()
+{
+    emit calculateProgress(100);
     //we finished everything, so cleanup
     delete m_rfz;
     m_rfz = 0;
@@ -331,7 +348,7 @@ void SyncZoteroNepomuk::readUploadSync(File zoteroData)
 void SyncZoteroNepomuk::startSync()
 {
     m_syncMode = true;
-    m_syncSteps = 8;
+    m_syncSteps = 9;
     m_curStep = 0;
     startDownload();
 }

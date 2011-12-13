@@ -71,6 +71,7 @@ public slots:
       * connects to the response of askForDeletion() and proceeds with the sync
       */
     virtual void deleteLocalFiles(bool deleteThem) = 0;
+    virtual void mergeFinished() = 0;
 
 protected slots:
     void calculateProgress(int value);

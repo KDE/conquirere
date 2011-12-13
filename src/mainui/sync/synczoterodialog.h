@@ -34,7 +34,6 @@ class QAbstractButton;
 class SyncZoteroNepomuk;
 class ReadFromZotero;
 class KProgressDialog;
-class EntryClique;
 class File;
 class KDialog;
 class MergeWidget;
@@ -60,11 +59,12 @@ private slots:
     void checkSyncMode(int mode);
 
     void popDeletionQuestion(QList<SyncDetails> items);
-    void popMergeDialog(QList<EntryClique*> cliques, File *bibCache);
+    void popMergeDialog(QList<SyncDetails> items);
 
 signals:
     void deleteLocalFiles(bool deleteThem);
-    void mergedResults(QList<EntryClique*> cliques);
+    void mergedResults(QList<SyncDetails> items);
+    void mergeFinished();
 
 private:
     Ui::SyncZoteroDialog *ui;

@@ -42,6 +42,9 @@ public slots:
     void startDownload();
     void startSync();
 
+    void deleteLocalFiles(bool deleteThem);
+    void mergeFinished();
+
 private slots:
     /**
       * process all data retrieved from the zotero server
@@ -53,8 +56,6 @@ private slots:
       * process syncdata retrived from zotero server when new items are send to the server
       */
     void readUploadSync(File zoteroData);
-
-    void deleteLocalFiles(bool deleteThem);
 
 private:
     void findDuplicates(const File &zoteroData, File &newEntries, QList<SyncDetails> &userMergeRequest);
@@ -69,6 +70,7 @@ private:
     File m_bibCache;
     bool m_syncMode;
     QList<SyncDetails> m_tmpUserDeleteRequest;
+    QList<SyncDetails> m_tmpUserMergeRequest;
 };
 
 #endif // SYNCZOTERONEPOMUK_H
