@@ -22,6 +22,7 @@
 #include <QtCore/QMetaType>
 
 #include <Nepomuk/Resource>
+#include <Akonadi/Collection>
 
 class Entry;
 
@@ -50,6 +51,12 @@ public:
     void setCollection(const QString &collection);
     void askBeforeDeletion(bool ask);
     void mergeStrategy( MergeStrategy strategy);
+    /**
+      * Sets the Akonadi addressbook where all contacts (authors, editors etc) are imported to beside the Nepomuk storage.
+      *
+      * @p addressbook a valid Akonadi::Collection representing a addressbook
+      */
+    void setAkonadiAddressbook(Akonadi::Collection & addressbook);
 
 signals:
     void progress(int value);
@@ -83,6 +90,7 @@ protected:
     QString m_collection;
     bool m_askBeforeDeletion;
     MergeStrategy m_mergeStrategy;
+    Akonadi::Collection m_addressbook;
     int m_syncSteps;
     int m_curStep;
 };

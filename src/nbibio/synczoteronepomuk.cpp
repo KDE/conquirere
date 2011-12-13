@@ -151,6 +151,7 @@ void SyncZoteroNepomuk::readDownloadSyncAfterDelete(File zoteroData)
     m_curStep++;
     QString url = m_url + QLatin1String("/") + m_collection;
     m_btnp->setSyncDetails(url, m_name);
+    m_btnp->setAkonadiAddressbook(m_addressbook);
     m_btnp->pipeExport(newEntries);
 
     m_curStep++;

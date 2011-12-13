@@ -128,6 +128,12 @@ void SyncZoteroDialog::clicked(QAbstractButton* button)
         int curMergeIndex = ui->mergeMode->currentIndex();
         m_szn->mergeStrategy( (SyncZoteroNepomuk::MergeStrategy)curMergeIndex );
 
+        if(ui->addContactsToAkonadi->isChecked()) {
+            int curAddressBook = ui->contactCollection->currentIndex();
+            Akonadi::Collection c(ui->contactCollection->itemData(curAddressBook).toInt());
+            m_szn->setAkonadiAddressbook(c);
+        }
+
         delete m_pdlg;
         m_pdlg = new KProgressDialog;
         m_pdlg->setFocus();

@@ -57,6 +57,10 @@ void NBibSync::mergeStrategy( MergeStrategy strategy)
 {
     m_mergeStrategy = strategy;
 }
+void NBibSync::setAkonadiAddressbook(Akonadi::Collection & addressbook)
+{
+    m_addressbook = addressbook;
+}
 
 void NBibSync::calculateProgress(int value)
 {
