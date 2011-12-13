@@ -372,6 +372,12 @@ QByteArray WriteToZotero::writeJsonContent(File items, bool onlyUpdate)
             else if(entry->type().toLower() == QLatin1String("incollection")) {
                 itemList.append( createDocumentJson( entry) );
             }
+            else if(entry->type().toLower() == QLatin1String("dictionary")) {
+                itemList.append( createEncyclopediaArticleJson(entry) );
+            }
+            else if(entry->type().toLower() == QLatin1String("encyclopedia")) {
+                itemList.append( createEncyclopediaArticleJson(entry) );
+            }
             else if(entry->type().toLower() == QLatin1String("manual")) {
                 itemList.append( createDocumentJson( entry) );
             }
@@ -405,9 +411,14 @@ QByteArray WriteToZotero::writeJsonContent(File items, bool onlyUpdate)
             else if(entry->type().toLower() == QLatin1String("techreport")) {
                 itemList.append( createReportJson( entry) );
             }
+            else if(entry->type().toLower() == QLatin1String("script")) {
+                itemList.append( createManuscriptJson(entry) );
+            }
             else if(entry->type().toLower() == QLatin1String("unpublished")) {
                 itemList.append( createDocumentJson( entry) );
-
+            }
+            else if(entry->type().toLower() == QLatin1String("legalcasedocument")) {
+                itemList.append( createCaseJson( entry) );
             }
         }
 
@@ -1197,6 +1208,13 @@ QVariantMap WriteToZotero::createCaseJson(Entry *e)
         jsonMap.insert(QLatin1String("docketNumber"),PlainTextValue::text(e->value(QLatin1String("docketNumber"))));
         jsonMap.insert(QLatin1String("caseName"),PlainTextValue::text(e->value(QLatin1String("caseName"))));
     }
+
+    QString institution = PlainTextValue::text(e->value(QLatin1String("institution")));
+    if(institution.isEmpty()) {
+        institution = PlainTextValue::text(e->value(QLatin1String("publisher")));
+    }
+
+    jsonMap.insert(QLatin1String("institution"),institution);
 
     return jsonMap;
 }

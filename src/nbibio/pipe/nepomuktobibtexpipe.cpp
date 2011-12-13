@@ -117,7 +117,22 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
 {
     QString type;
 
-    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Book()) || publication.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
+    // handle some special NBIB::Collection types first
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Encyclopedia())) {
+        type = QLatin1String("Encyclopedia");
+    }
+    else if(publication.hasType(Nepomuk::Vocabulary::NBIB::Dictionary())) {
+        QString pages = reference.property(Nepomuk::Vocabulary::NBIB::pages()).toString();
+        Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
+        if(!pages.isEmpty() || chapter.isValid()) {
+            type = QLatin1String("DictionaryEntry");
+        }
+        else {
+            type = QLatin1String("Dictionary");
+        }
+    }
+    // handle general book/collections then
+    else if(publication.hasType(Nepomuk::Vocabulary::NBIB::Book()) || publication.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
         QString pages = reference.property(Nepomuk::Vocabulary::NBIB::pages()).toString();
         Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
         Nepomuk::Resource chapterAuthor = chapter.property(Nepomuk::Vocabulary::NCO::creator()).toResource();
@@ -135,15 +150,20 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
             type = typeResource.genericLabel();
         }
     }
+    // handle special articles
     else if(publication.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
         Nepomuk::Resource collection = publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
         if(collection.hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
             type = QLatin1String("Inproceedings"); //article in some proceedings paper
         }
+        if(collection.hasType(Nepomuk::Vocabulary::NBIB::Encyclopedia())) {
+            type = QLatin1String("EncyclopediaArticle"); //article in some proceedings paper
+        }
         else {
             type = QLatin1String("Article"); //normal article in a journal or magazine
         }
     }
+    // all other cases
     else {
         Nepomuk::Resource typeResource(publication.type());
         type = typeResource.genericLabel();
@@ -214,7 +234,7 @@ void NepomukToBibTexPipe::setTitle(Entry *e, Nepomuk::Resource publication, Nepo
     QString booktitle;
     Nepomuk::Resource collection = publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
 
-    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Article()) && collection.hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
         booktitle = collection.property(Nepomuk::Vocabulary::NIE::title()).toString();
         title = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
     }

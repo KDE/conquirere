@@ -313,34 +313,6 @@ void MainWindow::DEBUGDELETEALLDATA()
     }
 }
 
-void MainWindow::zoteroCollection()
-{
-    FileImporterBibTeX febImp(false);
-
-    QFile importFile(QString("/home/joerg/zotero_export.bib"));
-    if (!importFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "can't open testfile";
-        return;
-    }
-    m_bibFile = febImp.load(&importFile);
-
-    qDebug() << "SyncStorageUi load before sync" << m_bibFile->size();
-
-    SyncStorageUi ssui;
-    ssui.setBibTeXFile(m_bibFile);
-    ssui.exec();
-
-    QFile exportFile(QString("/home/joerg/zotero_export.bib"));
-    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        return;
-    }
-
-    qDebug() << "SyncStorageUi save after sync"  << m_bibFile->size();
-
-    FileExporterBibTeX feb;
-    feb.save(&exportFile, m_bibFile);
-}
-
 void MainWindow::setupActions()
 {
     //File action menu
@@ -432,11 +404,6 @@ void MainWindow::setupActions()
     debugDELETE->setIcon(KIcon(QLatin1String("document-close")));
     actionCollection()->addAction(QLatin1String("debug_delete"), debugDELETE);
     connect(debugDELETE, SIGNAL(triggered(bool)),this, SLOT(DEBUGDELETEALLDATA()));
-
-    KAction* debugFetchCollection = new KAction(this);
-    debugFetchCollection->setText(i18n("zotero test"));
-    actionCollection()->addAction(QLatin1String("zotero_collection"), debugFetchCollection);
-    connect(debugFetchCollection, SIGNAL(triggered(bool)),this, SLOT(zoteroCollection()));
 
     // ##############################################
 

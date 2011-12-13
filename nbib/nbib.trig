@@ -95,6 +95,18 @@ nbib: {
           rdfs:label "Collection" ;
           rdfs:subClassOf nbib:Publication .
 
+    nbib:Dictionary
+          a       rdfs:Class ;
+          rdfs:comment "A dictionary" ;
+          rdfs:label "Dictionary" ;
+          rdfs:subClassOf nbib:Book .
+
+    nbib:Encyclopedia
+          a       rdfs:Class ;
+          rdfs:comment "A encyclopedia" ;
+          rdfs:label "Encyclopedia" ;
+          rdfs:subClassOf nbib:Collection .
+
     nbib:Electronic
           a       rdfs:Class ;
           rdfs:comment "An electronic publication (for example website or presentations)" ;

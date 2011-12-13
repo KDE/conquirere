@@ -98,6 +98,16 @@ void SyncZoteroNepomuk::startDownload()
 
 void SyncZoteroNepomuk::readDownloadSync(File zoteroData)
 {
+    //#########################################################################################
+    QFile exportFile(QString("/home/joerg/zotero_download.bib"));
+    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return;
+    }
+
+    FileExporterBibTeX feb;
+    feb.save(&exportFile, &zoteroData);
+    //#########################################################################################
+
     emit progressStatus(i18n("sync zotero data with local Nepomuk storage"));
     m_curStep++;
 
@@ -105,7 +115,7 @@ void SyncZoteroNepomuk::readDownloadSync(File zoteroData)
     findDeletedEntries(zoteroData, m_tmpUserDeleteRequest);
 
     if(!m_tmpUserDeleteRequest.isEmpty()) {
-        qDebug() << m_tmpUserDeleteRequest.size() << "items deletet on the server delete them in the localstorage too";
+        qDebug() << m_tmpUserDeleteRequest.size() << "items deleted on the server delete them in the localstorage too";
     }
 
     m_bibCache.clear();
@@ -192,6 +202,16 @@ void SyncZoteroNepomuk::startUpload()
     m_ntnp->addNepomukUries(true);
     m_ntnp->pipeExport(exportList);
     m_bibCache = m_ntnp->bibtexFile();
+
+    //#########################################################################################
+    QFile exportFile(QString("/home/joerg/zotero_upload.bib"));
+    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        return;
+    }
+
+    FileExporterBibTeX feb;
+    feb.save(&exportFile, &m_bibCache);
+    //#########################################################################################
 
     // step 3 upload to zotero
     emit progressStatus(i18n("upload to Zotero"));

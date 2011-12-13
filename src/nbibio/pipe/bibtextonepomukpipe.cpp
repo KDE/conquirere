@@ -223,7 +223,7 @@ void BibTexToNepomukPipe::import(Entry *e)
         addContent(i.key().toLower(), i.value(), publication, reference, e->type());
     }
 
-    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Proceedings()) ) {
+    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Collection()) ) {
         m_allProceedings.insert(publication.property(Nepomuk::Vocabulary::NIE::title()).toString(), publication);
     }
 }
@@ -303,10 +303,10 @@ QUrl BibTexToNepomukPipe::typeToUrl(const QString & entryType)
         return Nepomuk::Vocabulary::NBIB::Bill();
     }
     else if(entryType == QLatin1String("encyclopediaarticle")) {
-        return Nepomuk::Vocabulary::NBIB::Collection();
+        return Nepomuk::Vocabulary::NBIB::Article();
     }
     else if(entryType == QLatin1String("dictionaryentry")) {
-        return Nepomuk::Vocabulary::NBIB::Collection();
+        return Nepomuk::Vocabulary::NBIB::Dictionary();
     }
     else if(entryType == QLatin1String("forumpost")) {
         return Nepomuk::Vocabulary::NBIB::ForumPost();
@@ -833,15 +833,21 @@ void BibTexToNepomukPipe::addBooktitle(const QString &content, Nepomuk::Resource
     // I. "booktitle" means the title of a book where "title" than means the title of the chapter
     // this is valid for any publication other than @InProceedings
     // II. "booktitle" marks the title of the @proceedings from an @InProceedings or @Conference
+    //                 the same is true for encyclopediaarticles
 
-    if(originalEntryType == QLatin1String("inproceedings")) {
+    if(originalEntryType == QLatin1String("inproceedings") ||
+       originalEntryType == QLatin1String("encyclopediaarticle")) {
         //check if a resource @Proceedings with the name of content exist or create a new one
 
         Nepomuk::Resource proceedingsResource = m_allProceedings.value(utfContent, Nepomuk::Resource());
 
         if(!proceedingsResource.isValid()) {
             qWarning() << "found no existing proceedings with the name " << utfContent << "create new one";
-            proceedingsResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Proceedings());
+            if(originalEntryType == QLatin1String("inproceedings"))
+                    proceedingsResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Proceedings());
+            else if(originalEntryType == QLatin1String("encyclopediaarticle"))
+                    proceedingsResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Encyclopedia());
+
             proceedingsResource.setProperty(Nepomuk::Vocabulary::NIE::title(), utfContent);
             m_allProceedings.insert(utfContent, proceedingsResource);
         }
@@ -1328,7 +1334,9 @@ void BibTexToNepomukPipe::addTitle(const QString &content, Nepomuk::Resource pub
 
     // in the case of @InCollection title means title of the chapter
     // while booktitle is the actual title of the book
-    if(originalEntryType == QLatin1String("incollection") ) {
+    if(originalEntryType == QLatin1String("incollection") ||
+       originalEntryType == QLatin1String("inbook") ||
+       originalEntryType == QLatin1String("dictionaryentry")) {
 
         Nepomuk::Resource chapterResource = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
 

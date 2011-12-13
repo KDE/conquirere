@@ -71,7 +71,6 @@ public slots:
     void switchView(ResourceSelection selection, BibEntryType filter, Library *p);
 
     void DEBUGDELETEALLDATA();
-    void zoteroCollection();
 
 private:
     void setupActions();

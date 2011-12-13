@@ -56,6 +56,8 @@ enum BibEntryType {
     BibType_Book,              /**< A book with an explicit publisher. */
     BibType_Booklet,           /**< A work that is printed and bound, but without a named publisher or sponsoring institution. */
     BibType_Collection,        /**< A collection of different publications */
+    BibType_Encyclopedia,      /**< A encyclopedia publications */
+    BibType_Dictionary,        /**< A dictionary publications */
     BibType_Bachelorthesis,    /**< A Bachelor thesis. */
     BibType_Mastersthesis,     /**< A Master's thesis. */
     BibType_Phdthesis,         /**< A PhD thesis. */
@@ -93,6 +95,8 @@ static const QStringList BibEntryTypeTranslation = QStringList() << I18N_NOOP("A
                                                                  << I18N_NOOP("Book")
                                                                  << I18N_NOOP("Booklet")
                                                                  << I18N_NOOP("Collection")
+                                                                 << I18N_NOOP("Encyclopedia")
+                                                                 << I18N_NOOP("Dictionary")
                                                                  << I18N_NOOP("Bachelor thesis")
                                                                  << I18N_NOOP("Master thesis")
                                                                  << I18N_NOOP("Phd thesis")
@@ -127,6 +131,8 @@ static const QStringList BibEntryTypeIcon = QStringList()        << QString("kne
                                                                  << QString("acroread")
                                                                  << QString("acroread")
                                                                  << QString("Collection")
+                                                                 << QString("accessories-dictionary")
+                                                                 << QString("accessories-dictionary")
                                                                  << QString("applications-education-university")
                                                                  << QString("applications-education-university")
                                                                  << QString("applications-education-university")
@@ -161,6 +167,8 @@ static const QList<QUrl> BibEntryTypeURL = QList<QUrl>() << Nepomuk::Vocabulary:
                                                          << Nepomuk::Vocabulary::NBIB::Book()
                                                          << Nepomuk::Vocabulary::NBIB::Booklet()
                                                          << Nepomuk::Vocabulary::NBIB::Collection()
+                                                         << Nepomuk::Vocabulary::NBIB::Encyclopedia()
+                                                         << Nepomuk::Vocabulary::NBIB::Dictionary()
                                                          << Nepomuk::Vocabulary::NBIB::BachelorThesis()
                                                          << Nepomuk::Vocabulary::NBIB::MastersThesis()
                                                          << Nepomuk::Vocabulary::NBIB::PhdThesis()
@@ -229,9 +237,6 @@ static BibEntryType BibEntryTypeFromUrl(const Nepomuk::Resource & resource)
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Patent())) {
         return BibType_Patent;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Electronic())) {
-        return BibType_Electronic;
-    }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::ForumPost())) {
         return BibType_ForumPost;
     }
@@ -258,6 +263,12 @@ static BibEntryType BibEntryTypeFromUrl(const Nepomuk::Resource & resource)
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Presentation())) {
         return BibType_Presentation;
+    }
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Encyclopedia())) {
+        return BibType_Encyclopedia;
+    }
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Dictionary())) {
+        return BibType_Dictionary;
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Standard())) {
         return BibType_Standard;
@@ -288,6 +299,9 @@ static BibEntryType BibEntryTypeFromUrl(const Nepomuk::Resource & resource)
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
         return BibType_Collection;
+    }
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Electronic())) {
+        return BibType_Electronic;
     }
     return BibType_Misc;
 }
