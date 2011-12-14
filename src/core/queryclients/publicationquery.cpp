@@ -65,7 +65,6 @@ void PublicationQuery::resourceChanged (const Nepomuk::Resource &resource)
     if(!resource.hasType(Nepomuk::Vocabulary::NBIB::Publication()))
         return;
 
-    return;
     qDebug() << "PublicationQuery::resourceChanged";
     QList<CachedRowEntry> newCache;
 
