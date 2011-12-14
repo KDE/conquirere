@@ -129,39 +129,45 @@ void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType f
     if(lastSelection != -1)
         m_searchSelection->setCurrentIndex(lastSelection);
 
-    hv->setResizeMode(QHeaderView::Interactive);
+//    hv->setResizeMode(QHeaderView::ResizeToContents);
 
-    switch(m_selection) {
-    case Resource_Library:
-        break;
-    case Resource_Document:
-        m_documentView->horizontalHeader()->resizeSection(1,25);
-        m_documentView->horizontalHeader()->resizeSection(2,25);
-        hv->setResizeMode(5, QHeaderView::Stretch);
-        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
-        break;
-    case Resource_Mail:
-        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
-        break;
-    case Resource_Media:
-        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
-        break;
-    case Resource_Publication:
-    case Resource_Reference:
-        m_documentView->horizontalHeader()->resizeSection(1,25);
-        m_documentView->horizontalHeader()->resizeSection(2,25);
-        hv->setResizeMode(6, QHeaderView::Stretch);
-        m_documentView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-        break;
-    case Resource_Website:
-        hv->setResizeMode(1, QHeaderView::Stretch);
-        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
-        break;
-    case Resource_Note:
-        hv->setResizeMode(1, QHeaderView::Stretch);
-        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
-        break;
-    }
+//    switch(m_selection) {
+//    case Resource_Library:
+//        break;
+//    case Resource_Document:
+//        m_documentView->horizontalHeader()->resizeSection(1,25);
+//        m_documentView->horizontalHeader()->resizeSection(2,25);
+//        hv->setResizeMode(5, QHeaderView::Stretch);
+//        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
+//        break;
+//    case Resource_Mail:
+//        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
+//        break;
+//    case Resource_Media:
+//        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
+//        break;
+//    case Resource_Series:
+//        hv->setResizeMode(1, QHeaderView::Stretch);
+//        break;
+//    case Resource_Publication:
+//    case Resource_Reference:
+//        m_documentView->horizontalHeader()->resizeSection(1,25);
+//        m_documentView->horizontalHeader()->resizeSection(2,25);
+//        hv->setResizeMode(6, QHeaderView::Stretch);
+//        m_documentView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+//        break;
+//    case Resource_Website:
+//        hv->setResizeMode(1, QHeaderView::Stretch);
+//        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
+//        break;
+//    case Resource_Note:
+//        hv->setResizeMode(1, QHeaderView::Stretch);
+//        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
+//        break;
+//    }
+
+//    hv->setResizeMode(QHeaderView::Interactive);
+    hv->setResizeMode(QHeaderView::ResizeToContents);
 
     connect(m_documentView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(selectedResource(QItemSelection,QItemSelection)));

@@ -18,6 +18,7 @@ set(core_LIB_SRCS
     models/seriesfiltermodel.cpp
     models/referencemodel.cpp
     models/searchresultmodel.cpp
+    models/eventmodel.cpp
 
     queryclients/queryclient.cpp
     queryclients/publicationquery.cpp
@@ -27,6 +28,7 @@ set(core_LIB_SRCS
     queryclients/bookmarkquery.cpp
     queryclients/mailquery.cpp
     queryclients/seriesquery.cpp
+    queryclients/eventquery.cpp
 )
 
 nepomuk_add_ontology_classes(core_LIB_SRCS ONTOLOGIES ${CMAKE_SOURCE_DIR}/nbib/nbib.trig)

@@ -111,6 +111,30 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     connectModelSignals(twi1, p, Resource_Document);
     m_items.append(twi1);
 
+    QLibraryTreeWidgetItem *twi5 = new QLibraryTreeWidgetItem();
+    twi5->setText(0, i18n("Series"));
+    twi5->setData(0,Role_Library,root->data(0,Role_Library));
+    twi5->setData(0,Role_ResourceType,Resource_Series);
+    twi5->setData(0,Role_ResourceFilter,Max_SeriesTypes);
+    twi5->setData(0,Role_Project,root->data(0,Role_Project));
+    twi5->setIcon(0, KIcon(SeriesTypeIcon.at(0)));
+    root->addChild(twi5);
+    connectModelSignals(twi5, p, Resource_Series);
+    m_items.append(twi5);
+
+    for(int i=0; i < Max_SeriesTypes; i++) {
+        QLibraryTreeWidgetItem *refSub = new QLibraryTreeWidgetItem();
+        refSub->setText(0, SeriesTypeTranslation.at(i));
+        refSub->setData(0,Role_Library,root->data(0,Role_Library));
+        refSub->setData(0,Role_ResourceType,Resource_Series);
+        refSub->setData(0,Role_ResourceFilter,SeriesType(i));
+        refSub->setData(0,Role_Project,root->data(0,Role_Project));
+        refSub->setIcon(0, KIcon(SeriesTypeIcon.at(i)));
+        twi5->addChild(refSub);
+        connectModelSignals(refSub, p, Resource_Series);
+        m_items.append(refSub);
+    }
+
     QLibraryTreeWidgetItem *twi1a = new QLibraryTreeWidgetItem();
     twi1a->setText(0, i18n("Publications"));
     twi1a->setData(0,Role_Library,root->data(0,Role_Library));
@@ -159,29 +183,15 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
         m_items.append(refSub);
     }
 
-    QLibraryTreeWidgetItem *twi5 = new QLibraryTreeWidgetItem();
-    twi5->setText(0, i18n("Series"));
-    twi5->setData(0,Role_Library,root->data(0,Role_Library));
-    twi5->setData(0,Role_ResourceType,Resource_Series);
-    twi5->setData(0,Role_ResourceFilter,Max_SeriesTypes);
-    twi5->setData(0,Role_Project,root->data(0,Role_Project));
-    twi5->setIcon(0, KIcon(SeriesTypeIcon.at(0)));
-    root->addChild(twi5);
-    connectModelSignals(twi5, p, Resource_Series);
-    m_items.append(twi5);
-
-    for(int i=0; i < Max_SeriesTypes; i++) {
-        QLibraryTreeWidgetItem *refSub = new QLibraryTreeWidgetItem();
-        refSub->setText(0, SeriesTypeTranslation.at(i));
-        refSub->setData(0,Role_Library,root->data(0,Role_Library));
-        refSub->setData(0,Role_ResourceType,Resource_Series);
-        refSub->setData(0,Role_ResourceFilter,SeriesType(i));
-        refSub->setData(0,Role_Project,root->data(0,Role_Project));
-        refSub->setIcon(0, KIcon(SeriesTypeIcon.at(i)));
-        twi5->addChild(refSub);
-        connectModelSignals(refSub, p, Resource_Series);
-        m_items.append(refSub);
-    }
+    QLibraryTreeWidgetItem *twi8 = new QLibraryTreeWidgetItem();
+    twi8->setText(0, i18n("Events"));
+    twi8->setData(0,Role_Library,root->data(0,Role_Library));
+    twi8->setData(0,Role_ResourceType,Resource_Event);
+    twi8->setData(0,Role_Project,root->data(0,Role_Project));
+    twi8->setIcon(0, KIcon(QLatin1String("view-pim-calendar")));
+    root->addChild(twi8);
+    connectModelSignals(twi8, p, Resource_Event);
+    m_items.append(twi8);
 
     QLibraryTreeWidgetItem *twi6 = new QLibraryTreeWidgetItem();
     twi6->setText(0, i18n("Notes"));

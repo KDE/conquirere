@@ -48,7 +48,8 @@ enum ResourceSelection {
     Resource_Publication,
     Resource_Series,
     Resource_Website,
-    Resource_Note
+    Resource_Note,
+    Resource_Event
 };
 
 enum BibEntryType {

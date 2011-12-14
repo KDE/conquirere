@@ -28,6 +28,7 @@
 #include "models/mailmodel.h"
 #include "models/seriesmodel.h"
 #include "models/seriesfiltermodel.h"
+#include "models/eventmodel.h"
 
 #include <Nepomuk/Variant>
 #include <Nepomuk/Resource>
@@ -289,6 +290,13 @@ void Library::setupModels()
     noteFilter->setSourceModel(noteModel);
     m_resources.insert(Resource_Note, noteFilter);
     connectModelToTagCloud(noteModel);
+
+    EventModel *eventModel = new EventModel;
+    eventModel->setLibrary(this);
+    QSortFilterProxyModel *eventFilter = new QSortFilterProxyModel;
+    eventFilter->setSourceModel(eventModel);
+    m_resources.insert(Resource_Event, eventFilter);
+    connectModelToTagCloud(eventModel);
 
     if(m_libraryType == Library_Project) {
         MailModel *mailModel = new MailModel;
