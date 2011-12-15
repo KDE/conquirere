@@ -24,6 +24,7 @@
 #include "documentwidget.h"
 #include "notewidget.h"
 #include "serieswidget.h"
+#include "eventwidget.h"
 #include "mergeresourceswidget.h"
 
 #include "../mainui/mainwindow.h"
@@ -386,6 +387,12 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         ui->titleLabel->setText(i18n("Note"));
         ui->newButton->setToolTip(i18n("New note"));
         ui->deleteButton->setToolTip(i18n("Delete note"));
+        break;
+    case Resource_Event:
+        newWidget = new EventWidget();
+        ui->titleLabel->setText(i18n("Event"));
+        ui->newButton->setToolTip(i18n("New event"));
+        ui->deleteButton->setToolTip(i18n("Delete event"));
         break;
     case Resource_Publication:
         newWidget = new PublicationWidget(this);

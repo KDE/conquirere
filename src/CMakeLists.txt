@@ -38,6 +38,7 @@ set(conquirere_SRCS
     sidebar/addchapterdialog.cpp
     sidebar/listpartswidget.cpp
     sidebar/serieswidget.cpp
+    sidebar/eventwidget.cpp
 )
 
 kde4_add_ui_files( conquirere_SRCS
@@ -66,6 +67,7 @@ kde4_add_ui_files( conquirere_SRCS
                    sidebar/addchapterdialog.ui
                    sidebar/listpartswidget.ui
                    sidebar/serieswidget.ui
+                   sidebar/eventwidget.ui
 )
 
 nepomuk_add_ontology_classes(conquirere_SRCS ONTOLOGIES ${CMAKE_SOURCE_DIR}/nbib/nbib.trig ${CMAKE_SOURCE_DIR}/nbib/sync.trig)

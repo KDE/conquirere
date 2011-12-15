@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EventWidget</class>
+ <widget class="QWidget" name="EventWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>404</width>
+    <height>513</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QWidget" name="frameWidget" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item>
+       <layout class="QFormLayout" name="formLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Name:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="StringEdit" name="editName"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Place:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="StringEdit" name="editPlace"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Start:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="KDateTimeWidget" name="editStartTime"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>End:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="KDateTimeWidget" name="editEndTime"/>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Attendee:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="TagEdit" name="editAttendee"/>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>Keywords:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="TagEdit" name="editTags"/>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Rating:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="KRatingWidget" name="editRating"/>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="ListPartsWidget" name="listPartsWidget" native="true"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>KDateTimeWidget</class>
+   <extends>QWidget</extends>
+   <header>kdatetimewidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KRatingWidget</class>
+   <extends>QFrame</extends>
+   <header>kratingwidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TagEdit</class>
+   <extends>QLineEdit</extends>
+   <header>propertywidgets/tagedit.h</header>
+   <slots>
+    <signal>widgetEnabled(bool)</signal>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>StringEdit</class>
+   <extends>QLineEdit</extends>
+   <header>propertywidgets/stringedit.h</header>
+   <slots>
+    <signal>widgetEnabled(bool)</signal>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>ListPartsWidget</class>
+   <extends>QWidget</extends>
+   <header>sidebar/listpartswidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

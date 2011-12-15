@@ -45,7 +45,8 @@ public:
     enum PartType {
         Chapter,
         Series,
-        Collection
+        Collection,
+        Publication
     };
 
     explicit ListPartsWidget(QWidget *parent = 0);
@@ -132,6 +133,12 @@ private:
     void editCollection(Nepomuk::Resource editResource);
     void removeCollection(Nepomuk::Resource article);
     void deleteCollection(Nepomuk::Resource article);
+
+    // for events
+    void addPublication();
+    void editPublication(Nepomuk::Resource editResource);
+    void removePublication(Nepomuk::Resource publication);
+    void deletePublication(Nepomuk::Resource publication);
 
     Ui::ListPartsWidget *ui;
 
