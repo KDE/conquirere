@@ -85,7 +85,7 @@ QVariantList EventQuery::createDisplayData(const Nepomuk::Resource & res) const
         case Column_Publication: {
             QList<Nepomuk::Resource> publicationList = res.property(Nepomuk::Vocabulary::NBIB::eventPublication()).toResourceList();
             QString pubString;
-            foreach(Nepomuk::Resource r, publicationList) {
+            foreach(const Nepomuk::Resource & r, publicationList) {
                 pubString.append( r.property(Nepomuk::Vocabulary::NIE::title()).toString() );
                 pubString.append( QLatin1String("; "));
             }

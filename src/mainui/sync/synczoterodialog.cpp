@@ -195,7 +195,7 @@ void SyncZoteroDialog::popMergeDialog(QList<SyncDetails> items)
         url = QLatin1String("users");
     }
 
-    foreach(SyncDetails sd, items) {
+    foreach(const SyncDetails &sd, items) {
         BibTexToNepomukPipe mergePipe;
         mergePipe.setSyncDetails(url, ui->userID->text());
         mergePipe.merge(sd.syncResource, sd.externalResource, false);
