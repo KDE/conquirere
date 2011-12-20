@@ -20,6 +20,11 @@
 
 #include "queryclient.h"
 
+/**
+  * @brief QueryClient to fetch all document data. @c nfo:PaginatedTextDocument
+  *
+  * @see DocumentModel
+  */
 class DocumentQuery : public QueryClient
 {
     Q_OBJECT
@@ -47,11 +52,9 @@ public slots:
       */
     void resourceChanged (const Nepomuk::Resource &resource);
 
-
 private:
     QVariantList createDisplayData(const Nepomuk::Resource & res) const;
     QVariantList createDecorationData(const Nepomuk::Resource & res) const;
-
 };
 
 #endif // DOCUMENTQUERY_H

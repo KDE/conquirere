@@ -20,6 +20,11 @@
 
 #include "nepomukmodel.h"
 
+/**
+  * @brief the Model to hold all @c nbib:Series objects
+  *
+  * @see SeriesQuery
+  */
 class SeriesModel : public NepomukModel
 {
     Q_OBJECT

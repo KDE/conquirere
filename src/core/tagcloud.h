@@ -32,6 +32,7 @@ class TagCloud : public QObject
     Q_OBJECT
 public:
     explicit TagCloud(QObject *parent = 0);
+    ~TagCloud();
 
     QList<QPair<int, QString> > tagCloud();
 

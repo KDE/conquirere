@@ -25,6 +25,11 @@
 #include <Nepomuk/Query/Result>
 #include "dms-copy/resourcewatcher.h"
 
+/**
+  * @brief cache for one row
+  *
+  * Contains the nepomuk resource and the processed text + decoration data for each column of this row
+  */
 struct CachedRowEntry {
     QVariantList displayColums;
     QVariantList decorationColums;
@@ -35,6 +40,15 @@ Q_DECLARE_METATYPE(CachedRowEntry)
 Q_DECLARE_METATYPE(QList<CachedRowEntry>)
 
 class Library;
+
+/**
+  * @brief Abstract base class for any nepomuk query client.
+  *
+  * Subclasses implement the threaded nepomuk query and table model population. It is necessary
+  * to do this threaded behaviour to allow large data sets to be shown. Furthermore cache entries are used
+  * as  @c CachedRowEntry to speed up the display, sorting and filtering of these queries
+  *
+  */
 class QueryClient : public QThread
 {
     Q_OBJECT

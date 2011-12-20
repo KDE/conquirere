@@ -19,8 +19,6 @@
 
 #include "../queryclients/seriesquery.h"
 
-#include <KDE/KIcon>
-
 #include <QModelIndex>
 
 SeriesModel::SeriesModel(QObject *parent)

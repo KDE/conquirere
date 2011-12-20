@@ -27,6 +27,17 @@
 class Entry;
 class FileExporterXSLT;
 
+/**
+  * @brief Model to list all the serach results from the KBibTeX websearch
+  *
+  * Unlike most other TableModels this one does not get its data from nepomuk.
+  * Instead this ListModel will be populated by the Websearch widget and each
+  * KBibTeX file parsed with a simple citation style xsl file.
+  *
+  * @see FileExporterXSLT
+  * @see HtmlDelegate
+  * @see WebSearchWidget
+  */
 class SearchResultModel : public QAbstractListModel
 {
     Q_OBJECT

@@ -20,6 +20,11 @@
 
 #include "nepomukmodel.h"
 
+/**
+  * @brief Model to list all @c nbib:Reference objects
+  *
+  * @see ReferenceQuery
+  */
 class ReferenceModel : public NepomukModel
 {
 public:

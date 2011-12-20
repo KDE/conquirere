@@ -20,6 +20,11 @@
 
 #include "nepomukmodel.h"
 
+/**
+  * @brief MailModel to list all @c nmo::Email data
+  *
+  * @see MailQuery
+  */
 class MailModel : public NepomukModel
 {
     Q_OBJECT

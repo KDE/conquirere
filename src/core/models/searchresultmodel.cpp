@@ -42,6 +42,7 @@ SearchResultModel::SearchResultModel(QObject *parent) :
 SearchResultModel::~SearchResultModel()
 {
     qDeleteAll(m_searchResults);
+    delete exporterXSLT;
 }
 
 int SearchResultModel::rowCount(const QModelIndex &parent) const

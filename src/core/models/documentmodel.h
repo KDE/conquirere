@@ -21,7 +21,7 @@
 #include "nepomukmodel.h"
 
 /**
-  * @brief table model to contain all @c nfo:PaginatedTextDocument in the nepomuk storage
+  * @brief table model to list all @c nfo:PaginatedTextDocument in the nepomuk storage
   */
 class DocumentModel : public NepomukModel
 {

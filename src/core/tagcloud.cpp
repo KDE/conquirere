@@ -31,6 +31,11 @@ TagCloud::TagCloud(QObject *parent)
     m_pauseUpdates = false;
 }
 
+TagCloud::~TagCloud()
+{
+    delete m_futureWatcher;
+}
+
 void TagCloud::addResource(const Nepomuk::Resource &resource)
 {
     m_resourceList.append(resource);
@@ -73,6 +78,9 @@ void TagCloud::tagCloudUpdated()
     m_tagCloud = newCloud;
 
     emit tagCloudChanged();
+
+    delete m_futureWatcher;
+    m_futureWatcher = 0;
 }
 
 QList<QPair<int, QString> > TagCloud::tagCloud()

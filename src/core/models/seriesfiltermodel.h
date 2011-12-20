@@ -22,12 +22,20 @@
 
 #include <QtGui/QSortFilterProxyModel>
 
+/**
+  * @brief Extended filter model to filter all series by it's type
+  *
+  * Used only to limit the set of series shown from the main project tree widget
+  */
 class SeriesFilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
     explicit SeriesFilterModel(QObject *parent = 0);
 
+    /**
+      * The @p SeriesType to filter for
+      */
     void setResourceFilter(SeriesType filter);
 
 protected:

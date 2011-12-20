@@ -20,6 +20,11 @@
 
 #include "queryclient.h"
 
+/**
+  * @brief QueryClient to fetch all @c nbib:Reference objects
+  *
+  * @see ReferenceModel
+  */
 class ReferenceQuery : public QueryClient
 {
     Q_OBJECT
@@ -52,7 +57,6 @@ public slots:
 private:
     QVariantList createDisplayData(const Nepomuk::Resource & res) const;
     QVariantList createDecorationData(const Nepomuk::Resource & res) const;
-
 };
 
 #endif // REFERENCEQUERY_H

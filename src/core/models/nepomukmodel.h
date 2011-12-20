@@ -27,8 +27,21 @@
 
 class Library;
 class QModelIndex;
-class QueryClient;
 
+/**
+  * @brief The Nepomuk model is a tablemodel that fetches and caches all nepomuk data automatically.
+  *
+  * In order to list and sort large sets of nepomuk data in a table model it is necessary to create a string cache for
+  * the displayed data. This Model and the necessary subcalsses realize these via the @c CachedRowEntry
+  *
+  * The data is internally fetched with the coresponding @c QueryClient that retrieves the nepomuk data and updates the cache.
+  * The @c QueryClient is realized as QThread to allow nonblocking polution of the TableModel.
+  *
+  * To alter the content of the table change the necessary header data in the @c headerData() function of the subclasses or
+  * the @c createDisplayData() and @c createDecorationData() of the cofrresponding @c QueryClient
+  *
+  * @todo implement cache update via Nepomuk::ResourceWatcher
+  */
 class NepomukModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -59,7 +72,24 @@ public slots:
     void startFetchData();
     void stopFetchData();
 
+    /**
+      * saves the content of the table to disk
+      *
+      * Can be used to speed up the startup time of the program when very large
+      * data sets are used. Currently disabled
+      *
+      * @see loadCache
+      */
     void saveCache();
+
+    /**
+      * load the saved content of the table from disk
+      *
+      * Can be used to speed up the startup time of the program when very large
+      * data sets are used. Currently disabled
+      *
+      * @see saveCache
+      */
     void loadCache();
 
 private slots:
@@ -79,4 +109,5 @@ protected:
     QList<CachedRowEntry> m_modelCacheData;
     QMap<QString, int> m_lookupCache;
 };
+
 #endif // NEPOMUKMODEL_H

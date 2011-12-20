@@ -20,6 +20,11 @@
 
 #include "queryclient.h"
 
+/**
+  * @brief QueryClient to fetch all @c nbib:Publication objects
+  *
+  * @see PublicationModel
+  */
 class PublicationQuery : public QueryClient
 {
     Q_OBJECT
@@ -47,7 +52,6 @@ public slots:
       * @todo remove when starting to use ResourceWatcher later on
       */
     void resourceChanged (const Nepomuk::Resource &resource);
-
 
 private:
     QVariantList createDisplayData(const Nepomuk::Resource & res) const;

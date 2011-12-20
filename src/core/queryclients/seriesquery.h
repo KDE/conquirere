@@ -20,6 +20,11 @@
 
 #include "queryclient.h"
 
+/**
+  * @brief QueryClient to fetch all @c nbib:Series objects
+  *
+  * @see SeriesModel
+  */
 class SeriesQuery : public QueryClient
 {
     Q_OBJECT
@@ -46,7 +51,6 @@ public slots:
 private:
     QVariantList createDisplayData(const Nepomuk::Resource & res) const;
     QVariantList createDecorationData(const Nepomuk::Resource & res) const;
-
 };
 
 #endif // SERIESQUERY_H

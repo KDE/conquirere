@@ -54,7 +54,7 @@ void DocumentQuery::startFetchData()
         orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
                                                            Nepomuk::Query::ResourceTerm( m_library->pimoTag() ) ));
         orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(),
-                                                            Nepomuk::Query::ResourceTerm(m_library->pimoLibrary()) ) );
+                                                           Nepomuk::Query::ResourceTerm(m_library->pimoLibrary()) ) );
         andTerm.addSubTerm(orTerm);
     }
 
@@ -96,7 +96,6 @@ QVariantList DocumentQuery::createDisplayData(const Nepomuk::Resource & res) con
             }
             else {
                 QString titleSting = res.property(Nepomuk::Vocabulary::NIE::title()).toString();
-
                 newEntry = titleSting;
             }
             break;

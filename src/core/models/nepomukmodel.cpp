@@ -35,9 +35,10 @@ NepomukModel::~NepomukModel()
 {
     m_queryClient->quit();
     m_queryClient->wait();
-    delete m_queryClient;
+    m_queryClient->deleteLater();
 
     m_modelCacheData.clear();
+    m_lookupCache.clear();
 }
 
 int NepomukModel::rowCount(const QModelIndex &parent) const

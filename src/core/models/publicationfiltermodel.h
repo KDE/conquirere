@@ -22,12 +22,21 @@
 
 #include <QtGui/QSortFilterProxyModel>
 
+/**
+  * @brief Extended filter model to allow filtering by publication type
+  *
+  * Used to restrict the table in the project by its type only.
+  * @see BibEntryType
+  */
 class PublicationFilterModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
     explicit PublicationFilterModel(QObject *parent = 0);
 
+    /**
+      * The @p BibEntryType type to filter
+      */
     void setResourceFilter(BibEntryType filter);
 
 protected:

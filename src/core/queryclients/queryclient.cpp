@@ -30,6 +30,9 @@ QueryClient::QueryClient(QObject *parent)
 
 QueryClient::~QueryClient()
 {
+    m_queryClient->close();
+    delete m_queryClient;
+    delete m_resourceWatcher;
 }
 
 void QueryClient::setLibrary(Library *selectedLibrary)
@@ -58,8 +61,10 @@ void QueryClient::run()
     exec();
 
     delete m_resourceWatcher;
+    m_resourceWatcher = 0;
     m_queryClient->close();
     delete m_queryClient;
+    m_queryClient = 0;
 }
 
 void QueryClient::addToCache( const QList< Nepomuk::Query::Result > &entries ) const

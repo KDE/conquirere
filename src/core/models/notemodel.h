@@ -20,6 +20,11 @@
 
 #include "nepomukmodel.h"
 
+/**
+  * @brief NoteModel to list all @c pimo::Note objects
+  *
+  * @see NoteQuery
+  */
 class NoteModel : public NepomukModel
 {
     Q_OBJECT

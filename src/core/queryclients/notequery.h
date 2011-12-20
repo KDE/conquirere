@@ -20,6 +20,11 @@
 
 #include "queryclient.h"
 
+/**
+  * @brief QueryClient to fetch all @c pimo::Notes objects
+  *
+  * @see NoteModel
+  */
 class NoteQuery : public QueryClient
 {
     Q_OBJECT

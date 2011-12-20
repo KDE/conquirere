@@ -20,6 +20,11 @@
 
 #include "nepomukmodel.h"
 
+/**
+  * @brief Model to list all @c nbib:Publication objects
+  *
+  * @see PublicationQuery
+  */
 class PublicationModel : public NepomukModel
 {
     Q_OBJECT

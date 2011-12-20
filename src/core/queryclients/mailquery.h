@@ -20,6 +20,11 @@
 
 #include "queryclient.h"
 
+/**
+  * @brief QUeryClient to fetch all @c nmo::Email objects
+  *
+  * @see MailModel
+  */
 class MailQuery : public QueryClient
 {
     Q_OBJECT
