@@ -42,6 +42,16 @@ void VolumeNumberEdit::setupLabel()
     if(resource().hasType(Nepomuk::Vocabulary::NBIB::Article())) {
         issueResource = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
     }
+    else if(resource().hasType(Nepomuk::Vocabulary::NBIB::Legislation())) {
+        // the number in this case is for the bill not the codeOfLaw
+        if(propertyUrl() == Nepomuk::Vocabulary::NBIB::volume())
+            issueResource = resource().property(Nepomuk::Vocabulary::NBIB::codeOfLaw()).toResource();
+    }
+    else if(resource().hasType(Nepomuk::Vocabulary::NBIB::LegalCaseDocument())) {
+        // the number in this case is for the case not the courtreporter
+        if(propertyUrl() == Nepomuk::Vocabulary::NBIB::volume())
+            issueResource = resource().property(Nepomuk::Vocabulary::NBIB::courtReporter()).toResource();
+    }
     else if(resource().hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
         issueResource = resource();
     }
@@ -64,13 +74,24 @@ void VolumeNumberEdit::updateResource(const QString & text)
     // happens for techreport for example
 
     // or it marks the volume/number of an JournalIssue or any other issue collection where an article was published in.
+    // or the volume for the CodeOfLaw of an legislation
 
     // check if the resource has a journalIssue attaced to it
     Nepomuk::Resource journalIssue = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+    Nepomuk::Resource codeOfLaw = resource().property(Nepomuk::Vocabulary::NBIB::codeOfLaw()).toResource();
+    Nepomuk::Resource courtReporter = resource().property(Nepomuk::Vocabulary::NBIB::courtReporter()).toResource();
 
     if(journalIssue.isValid()) {
         // in this case attach volume/number to the issue rather than the publication from resource()
         journalIssue.setProperty(propertyUrl(), text);
+    }
+    else if(codeOfLaw.isValid()) {
+        // in this case attach volume/number to the issue rather than the publication from resource()
+        codeOfLaw.setProperty(propertyUrl(), text);
+    }
+    else if(courtReporter.isValid()) {
+        // in this case attach volume/number to the issue rather than the publication from resource()
+        courtReporter.setProperty(propertyUrl(), text);
     }
     else {
         resource().setProperty(propertyUrl(), text);

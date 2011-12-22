@@ -461,13 +461,20 @@ nbib: {
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
-    nbib:code
+    nbib:codeOfLaw
           a       rdf:Property ;
           rdfs:domain nbib:Legislation ;
-          rdfs:comment "The code of an legislation" ;
-          rdfs:label "Legislation Code" ;
-          rdfs:range xsd:string ;
+          rdfs:comment "The code of law the legislation is contained in" ;
+          rdfs:label "Code of Law" ;
+          rdfs:range nbib:CodeOfLaw ;
           nrl:maxCardinality 1 .
+
+    nbib:legislation
+          a       rdf:Property ;
+          rdfs:domain nbib:CodeOfLaw ;
+          rdfs:comment "links to a legislation (Bill, Statute) in a Code of Law" ;
+          rdfs:label "Legislation" ;
+          rdfs:range nbib:Legislation .
 
     nbib:codeNumber
           a       rdf:Property ;
@@ -718,15 +725,7 @@ nbib: {
           rdfs:range xsd:dateTime ;
           nrl:maxCardinality 1 .
 
-    nbib:codeOfLaw
-          a       rdf:Property ;
-          rdfs:domain nbib:Legislation ;
-          rdfs:comment "The code of law the legislation is contained in" ;
-          rdfs:label "Code of Law" ;
-          rdfs:range nbib:CodeOfLaw ;
-          nrl:maxCardinality 1 .
-
-    nbib:fillingDate
+    nbib:filingDate
           a       rdf:Property ;
           rdfs:domain nbib:Patent ;
           rdfs:comment "The date when the patent was filled, the issue date is the same as the publication date" ;

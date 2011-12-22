@@ -32,14 +32,14 @@ OrganizationEdit::OrganizationEdit(QWidget *parent)
 void OrganizationEdit::setupLabel()
 {
     QString title;
-    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
-        Nepomuk::Resource organization = resource().property(propertyUrl()).toResource();
+    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Article())) {
+        Nepomuk::Resource proceedings = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+        Nepomuk::Resource organization = proceedings.property(propertyUrl()).toResource();
 
         title = organization.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
     }
     else {
-        Nepomuk::Resource proceedings = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
-        Nepomuk::Resource organization = proceedings.property(propertyUrl()).toResource();
+        Nepomuk::Resource organization = resource().property(propertyUrl()).toResource();
 
         title = organization.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
     }

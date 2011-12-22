@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>426</width>
-    <height>541</height>
+    <height>545</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -313,7 +313,7 @@
         </widget>
        </item>
        <item row="6" column="1">
-        <widget class="StringEdit" name="editCode"/>
+        <widget class="CodeOfLawEdit" name="editCode"/>
        </item>
        <item row="8" column="0">
         <widget class="QLabel" name="labelVolume">
@@ -475,7 +475,7 @@
         <widget class="StringEdit" name="editPublicLawNumber"/>
        </item>
        <item row="7" column="1">
-        <widget class="StringEdit" name="editCourtReporter"/>
+        <widget class="EventEdit" name="editCourtReporter"/>
        </item>
        <item row="7" column="0">
         <widget class="QLabel" name="label_7">
@@ -805,6 +805,11 @@
    <extends>QLineEdit</extends>
    <header>propertywidgets/collectionedit.h</header>
   </customwidget>
+  <customwidget>
+   <class>CodeOfLawEdit</class>
+   <extends>QLineEdit</extends>
+   <header>propertywidgets/codeoflawedit.h</header>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
@@ -815,8 +820,8 @@
    <slot>acceptContentChanges()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>495</y>
+     <x>103</x>
+     <y>522</y>
     </hint>
     <hint type="destinationlabel">
      <x>425</x>
@@ -831,8 +836,8 @@
    <slot>discardContentChanges()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>495</y>
+     <x>103</x>
+     <y>522</y>
     </hint>
     <hint type="destinationlabel">
      <x>284</x>
@@ -847,8 +852,8 @@
    <slot>acceptNoteChanges()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>60</y>
+     <x>103</x>
+     <y>536</y>
     </hint>
     <hint type="destinationlabel">
      <x>256</x>
@@ -863,8 +868,8 @@
    <slot>discardNoteChanges()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>60</y>
+     <x>103</x>
+     <y>536</y>
     </hint>
     <hint type="destinationlabel">
      <x>425</x>

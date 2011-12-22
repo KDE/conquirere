@@ -370,7 +370,7 @@ void PublicationWidget::setupWidget()
     connect(ui->editEditor, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
     ui->editAssignee->setPropertyUrl( Nepomuk::Vocabulary::NBIB::assignee() );
     ui->editDate->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationDate() );
-    ui->editFillingDate->setPropertyUrl( Nepomuk::Vocabulary::NBIB::fillingDate() );
+    ui->editFillingDate->setPropertyUrl( Nepomuk::Vocabulary::NBIB::filingDate() );
     ui->editPublisher->setPropertyUrl( Nepomuk::Vocabulary::NCO::publisher() );
     ui->editPublisher->setUseDetailDialog(true);
     connect(ui->editPublisher, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
@@ -524,8 +524,7 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
         layoutPatent();
         break;
     case BibType_CodeOfLaw:
-        layoutMisc();
-        qWarning() << "BibType_CodeOfLaw no layout available, what is necessary?";
+        layoutCodeOfLaw();
         break;
     case BibType_CourtReporter:
         layoutMisc();
@@ -865,7 +864,7 @@ void PublicationWidget::layoutPatent()
     ui->editDate->setVisible(true);
     ui->editFillingDate->setVisible(true);
     ui->editPublisher->setVisible(false);
-    ui->editOrganization->setVisible(false);
+    ui->editOrganization->setVisible(true);
 
     //Extra
     ui->editEdition->setVisible(false);
@@ -945,6 +944,36 @@ void PublicationWidget::layoutStatute()
     ui->editLegalStatus->setVisible(false);
 }
 
+void PublicationWidget::layoutCodeOfLaw()
+{
+    //Basics
+    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(false);
+    ui->editAssignee->setVisible(false);
+    ui->editDate->setVisible(false);
+    ui->editFillingDate->setVisible(false);
+    ui->editPublisher->setVisible(false);
+    ui->editOrganization->setVisible(true);
+
+    //Extra
+    ui->editEdition->setVisible(false);
+    ui->editEvent->setVisible(true);
+    ui->editCollection->setVisible(false);
+    ui->editSeries->setVisible(false);
+    ui->editCode->setVisible(true);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(true);
+    ui->editNumber->setVisible(true);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editHowPublished->setVisible(false);
+    ui->editType->setVisible(false);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
+}
+
 void PublicationWidget::layoutCase()
 {
     //Basics
@@ -960,7 +989,7 @@ void PublicationWidget::layoutCase()
     //Extra
     ui->editEdition->setVisible(false);
     ui->editEvent->setVisible(false);
-    ui->editCollection->setVisible(true);
+    ui->editCollection->setVisible(false);
     ui->editSeries->setVisible(false);
     ui->editCode->setVisible(false);
     ui->editCourtReporter->setVisible(true);

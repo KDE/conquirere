@@ -99,6 +99,7 @@ private:
     void layoutBill();
     void layoutStatute();
     void layoutCase();
+    void layoutCodeOfLaw();
 
     Nepomuk::Resource m_publication;
 

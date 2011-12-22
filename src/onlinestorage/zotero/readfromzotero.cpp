@@ -57,8 +57,6 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     m_zoteroToBibTeX["websiteType"] = QLatin1String("type");
     m_zoteroToBibTeX["place"] = QLatin1String("address");
     m_zoteroToBibTeX["billNumber"] = QLatin1String("number");
-    m_zoteroToBibTeX["codeVolume"] = QLatin1String("volume");
-    m_zoteroToBibTeX["reporterVolume"] = QLatin1String("volume");
     m_zoteroToBibTeX["docketNumber"] = QLatin1String("number");
     m_zoteroToBibTeX["caseName"] = QLatin1String("title");
     m_zoteroToBibTeX["documentNumber"] = QLatin1String("number");
@@ -72,8 +70,13 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     m_zoteroToBibTeX["nameOfAct"] = QLatin1String("title");
     m_zoteroToBibTeX["postType"] = QLatin1String("type");
     m_zoteroToBibTeX["codePages"] = QLatin1String("pages");
-    m_zoteroToBibTeX["court"] = QLatin1String("institution");
-    m_zoteroToBibTeX["issuingAuthority"] = QLatin1String("institution");
+    m_zoteroToBibTeX["court"] = QLatin1String("organization");
+    m_zoteroToBibTeX["issuingAuthority"] = QLatin1String("organization");
+    m_zoteroToBibTeX["legislativebody"] = QLatin1String("institution");
+    m_zoteroToBibTeX["session"] = QLatin1String("event");
+    m_zoteroToBibTeX["dateDecided"] = QLatin1String("date");
+    m_zoteroToBibTeX["firstPage"] = QLatin1String("pages");
+    m_zoteroToBibTeX["issueDate"] = QLatin1String("date");
 
     //creator type adoption
     m_zoteroToBibTeX["artist"] = QLatin1String("author");
@@ -83,6 +86,7 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     m_zoteroToBibTeX["cartographer"] = QLatin1String("author");
     m_zoteroToBibTeX["inventor"] = QLatin1String("author");
     m_zoteroToBibTeX["presenter"] = QLatin1String("author");
+    m_zoteroToBibTeX["sponsor"] = QLatin1String("author");
 
 }
 

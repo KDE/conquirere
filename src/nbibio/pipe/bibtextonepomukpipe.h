@@ -130,6 +130,9 @@ private:
     void addOrganization(const QString &content, Nepomuk::Resource publication);
     void addCode(const QString &content, Nepomuk::Resource publication);
     void addCodeNumber(const QString &content, Nepomuk::Resource publication);
+    void addCodeVolume(const QString &content, Nepomuk::Resource publication);
+    void addReporter(const QString &content, Nepomuk::Resource publication);
+    void addReporterVolume(const QString &content, Nepomuk::Resource publication);
     void addPages(const QString &content, Nepomuk::Resource reference);
     void addNumberOfPages(const QString &content, Nepomuk::Resource publication);
     void addPubMed(const QString &content, Nepomuk::Resource publication);
@@ -137,6 +140,12 @@ private:
     void addSeries(const QString &content, Nepomuk::Resource publication);
     void addTitle(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
     void addType(const QString &content, Nepomuk::Resource publication);
+    void addApplicationNumber(const QString &content, Nepomuk::Resource publication);
+    void addPriorityNumbers(const QString &content, Nepomuk::Resource publication);
+    void addAssignee(const QString &content, Nepomuk::Resource publication);
+    void addReferences(const QString &content, Nepomuk::Resource publication);
+    void addLegalStatus(const QString &contente, Nepomuk::Resource publication);
+    void addFilingDate(const QString &content, Nepomuk::Resource publication);
     /**
       * @bug replace NFO::Website() with NFO::WebDataObject() when available
       */

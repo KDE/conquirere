@@ -17,6 +17,8 @@ set(propertywidgets_LIB_SRCS
     adddataobject.cpp
     eventedit.cpp
     collectionedit.cpp
+    codeoflawedit.cpp
+    courtreporteredit.cpp
 )
 
 kde4_add_ui_files( propertywidgets_LIB_SRCS

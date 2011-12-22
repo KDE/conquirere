@@ -576,8 +576,9 @@ QVariantList WriteToZotero::createCreatorsJson(Entry *e, const QString &type)
 
     QStringList creatorList;
     creatorList = creatorTypeForZoteroMapping(type);
-    bool handledAuthor;
-    bool handledEditor;
+
+    bool handledAuthor = false;
+    bool handledEditor = false;
 
     foreach(const QString &creatorType, creatorList) {
         foreach(ValueItem* vi, e->value(creatorType)) {
@@ -625,10 +626,9 @@ QVariantList WriteToZotero::createCreatorsJson(Entry *e, const QString &type)
         }
     }
 
-
     // beside the zotero key, fetch the normal bibtex entries
     // these have to be mapped to something that fits into the zotero version
-    if(adoptBibtexTypes() && !(handledAuthor && handledEditor)) {
+    if(adoptBibtexTypes()) {
         QStringList bibTexCreatorList;
         if(!handledEditor)
             bibTexCreatorList << QLatin1String("author");
@@ -1023,10 +1023,7 @@ QVariantMap WriteToZotero::createBillJson(Entry *e)
     jsonMap.insert(QLatin1String("title"), PlainTextValue::text(e->value(QLatin1String("title"))));
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("bill")));
     jsonMap.insert(QLatin1String("code"),PlainTextValue::text(e->value(QLatin1String("code"))));
-    jsonMap.insert(QLatin1String("section"),PlainTextValue::text(e->value(QLatin1String("section"))));
-    jsonMap.insert(QLatin1String("codePages"),PlainTextValue::text(e->value(QLatin1String("codePages"))));
-    jsonMap.insert(QLatin1String("legislativeBody"),PlainTextValue::text(e->value(QLatin1String("legislativeBody"))));
-    jsonMap.insert(QLatin1String("session"),PlainTextValue::text(e->value(QLatin1String("session"))));
+    jsonMap.insert(QLatin1String("codeVolume"),PlainTextValue::text(e->value(QLatin1String("codeVolume"))));
     jsonMap.insert(QLatin1String("history"),PlainTextValue::text(e->value(QLatin1String("history"))));
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
@@ -1040,14 +1037,20 @@ QVariantMap WriteToZotero::createBillJson(Entry *e)
     if(adoptBibtexTypes()) {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstract"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
-        jsonMap.insert(QLatin1String("codeVolume"),PlainTextValue::text(e->value(QLatin1String("volume"))));
         jsonMap.insert(QLatin1String("billNumber"),PlainTextValue::text(e->value(QLatin1String("number"))));
+        jsonMap.insert(QLatin1String("section"),PlainTextValue::text(e->value(QLatin1String("chapter"))));
+        jsonMap.insert(QLatin1String("codePages"),PlainTextValue::text(e->value(QLatin1String("pages"))));
+        jsonMap.insert(QLatin1String("legislativeBody"),PlainTextValue::text(e->value(QLatin1String("organization"))));
+        jsonMap.insert(QLatin1String("session"),PlainTextValue::text(e->value(QLatin1String("event"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
-        jsonMap.insert(QLatin1String("codeVolume"),PlainTextValue::text(e->value(QLatin1String("codeVolume"))));
         jsonMap.insert(QLatin1String("billNumber"),PlainTextValue::text(e->value(QLatin1String("billNumber"))));
+        jsonMap.insert(QLatin1String("section"),PlainTextValue::text(e->value(QLatin1String("section"))));
+        jsonMap.insert(QLatin1String("codePages"),PlainTextValue::text(e->value(QLatin1String("codePages"))));
+        jsonMap.insert(QLatin1String("legislativeBody"),PlainTextValue::text(e->value(QLatin1String("legislativeBody"))));
+        jsonMap.insert(QLatin1String("session"),PlainTextValue::text(e->value(QLatin1String("session"))));
     }
 
     return jsonMap;
@@ -1183,15 +1186,13 @@ QVariantMap WriteToZotero::createCaseJson(Entry *e)
     jsonMap.insert(QLatin1String("itemType"),QLatin1String("case"));
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("case")));
     jsonMap.insert(QLatin1String("reporter"),PlainTextValue::text(e->value(QLatin1String("reporter"))));
-    jsonMap.insert(QLatin1String("court"),PlainTextValue::text(e->value(QLatin1String("court"))));
-    jsonMap.insert(QLatin1String("firstPage"),PlainTextValue::text(e->value(QLatin1String("firstPage"))));
     jsonMap.insert(QLatin1String("history"),PlainTextValue::text(e->value(QLatin1String("history"))));
-    jsonMap.insert(QLatin1String("dateDecided"),PlainTextValue::text(e->value(QLatin1String("dateDecided"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
     jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
+    jsonMap.insert(QLatin1String("reporterVolume"),PlainTextValue::text(e->value(QLatin1String("reportervolume"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1199,25 +1200,22 @@ QVariantMap WriteToZotero::createCaseJson(Entry *e)
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstract"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
-        jsonMap.insert(QLatin1String("reporterVolume"),PlainTextValue::text(e->value(QLatin1String("volume"))));
         jsonMap.insert(QLatin1String("docketNumber"),PlainTextValue::text(e->value(QLatin1String("number"))));
         jsonMap.insert(QLatin1String("caseName"),PlainTextValue::text(e->value(QLatin1String("title"))));
+        jsonMap.insert(QLatin1String("dateDecided"),PlainTextValue::text(e->value(QLatin1String("date"))));
+        jsonMap.insert(QLatin1String("firstPage"),PlainTextValue::text(e->value(QLatin1String("pages"))));
+        jsonMap.insert(QLatin1String("court"),PlainTextValue::text(e->value(QLatin1String("organization"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
-        jsonMap.insert(QLatin1String("reporterVolume"),PlainTextValue::text(e->value(QLatin1String("reporterVolume"))));
         jsonMap.insert(QLatin1String("docketNumber"),PlainTextValue::text(e->value(QLatin1String("docketNumber"))));
         jsonMap.insert(QLatin1String("caseName"),PlainTextValue::text(e->value(QLatin1String("caseName"))));
+        jsonMap.insert(QLatin1String("dateDecided"),PlainTextValue::text(e->value(QLatin1String("dateDecided"))));
+        jsonMap.insert(QLatin1String("firstPage"),PlainTextValue::text(e->value(QLatin1String("firstPage"))));
+        jsonMap.insert(QLatin1String("court"),PlainTextValue::text(e->value(QLatin1String("court"))));
     }
-
-    QString institution = PlainTextValue::text(e->value(QLatin1String("institution")));
-    if(institution.isEmpty()) {
-        institution = PlainTextValue::text(e->value(QLatin1String("publisher")));
-    }
-
-    jsonMap.insert(QLatin1String("institution"),institution);
 
     return jsonMap;
 }
@@ -1908,12 +1906,10 @@ QVariantMap WriteToZotero::createPatentJson(Entry *e)
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("patent")));
     jsonMap.insert(QLatin1String("country"),PlainTextValue::text(e->value(QLatin1String("country"))));
     jsonMap.insert(QLatin1String("assignee"),PlainTextValue::text(e->value(QLatin1String("assignee"))));
-    jsonMap.insert(QLatin1String("issuingAuthority"),PlainTextValue::text(e->value(QLatin1String("issuingAuthority"))));
     jsonMap.insert(QLatin1String("filingDate"),PlainTextValue::text(e->value(QLatin1String("filingDate"))));
     jsonMap.insert(QLatin1String("pages"),PlainTextValue::text(e->value(QLatin1String("pages"))));
     jsonMap.insert(QLatin1String("applicationNumber"),PlainTextValue::text(e->value(QLatin1String("applicationNumber"))));
     jsonMap.insert(QLatin1String("priorityNumbers"),PlainTextValue::text(e->value(QLatin1String("priorityNumbers"))));
-    jsonMap.insert(QLatin1String("issueDate"),PlainTextValue::text(e->value(QLatin1String("issueDate"))));
     jsonMap.insert(QLatin1String("references"),PlainTextValue::text(e->value(QLatin1String("references"))));
     jsonMap.insert(QLatin1String("legalStatus"),PlainTextValue::text(e->value(QLatin1String("legalStatus"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
@@ -1929,12 +1925,16 @@ QVariantMap WriteToZotero::createPatentJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("patentNumber"),PlainTextValue::text(e->value(QLatin1String("number"))));
+        jsonMap.insert(QLatin1String("issueDate"),PlainTextValue::text(e->value(QLatin1String("date"))));
+        jsonMap.insert(QLatin1String("issuingAuthority"),PlainTextValue::text(e->value(QLatin1String("organization"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("patentNumber"),PlainTextValue::text(e->value(QLatin1String("patentNumber"))));
+        jsonMap.insert(QLatin1String("issueDate"),PlainTextValue::text(e->value(QLatin1String("issueDate"))));
+        jsonMap.insert(QLatin1String("issuingAuthority"),PlainTextValue::text(e->value(QLatin1String("issuingAuthority"))));
     }
 
     return jsonMap;

@@ -111,6 +111,15 @@ private:
     void setEvent(Entry *e, Nepomuk::Resource publication);
     void setCode(Entry *e, Nepomuk::Resource publication);
     void setCodeNumber(Entry *e, Nepomuk::Resource publication);
+    void setCodeVolume(Entry *e, Nepomuk::Resource publication);
+    void setReporter(Entry *e, Nepomuk::Resource publication);
+    void setReporterVolume(Entry *e, Nepomuk::Resource publication);
+    void setApplicationNumber(Entry *e, Nepomuk::Resource publication);
+    void setPriorityNumbers(Entry *e, Nepomuk::Resource publication);
+    void setPatentReferences(Entry *e, Nepomuk::Resource publication);
+    void setLegalStatus(Entry *e, Nepomuk::Resource publication);
+    void setFilingDate(Entry *e, Nepomuk::Resource publication);
+    void setAssignee(Entry *e, Nepomuk::Resource publication);
     void setKewords(Entry *e, Nepomuk::Resource publication);
     void setSyncDetails(Entry *e, Nepomuk::Resource publication);
 

@@ -228,6 +228,15 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
     setEvent(e, publication);
     setCode(e, publication);
     setCodeNumber(e, publication);
+    setCodeVolume(e, publication);
+    setReporter(e, publication);
+    setReporterVolume(e, publication);
+    setPriorityNumbers(e, publication);
+    setApplicationNumber(e, publication);
+    setPatentReferences(e, publication);
+    setLegalStatus(e, publication);
+    setFilingDate(e, publication);
+    setAssignee(e, publication);
 
     // Zotero additions
     setArticleType(e, publication);
@@ -276,6 +285,8 @@ void NepomukToBibTexPipe::setChapter(Entry *e, Nepomuk::Resource reference)
 
     Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
     QString chapterTitle = chapter.property(Nepomuk::Vocabulary::NIE::title()).toString();
+    QString chapterNumber = chapter.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
+    chapterTitle.prepend(chapterNumber);
 
     Nepomuk::Resource author = chapter.property(Nepomuk::Vocabulary::NCO::creator()).toResource();
     QString chapterAuthor = author.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
@@ -289,7 +300,12 @@ void NepomukToBibTexPipe::setChapter(Entry *e, Nepomuk::Resource reference)
         e->insert(chapterEntry, v);
         Value v2;
         v2.append(new PlainText(bookTitle));
-        e->insert(Entry::ftBookTitle, v2);
+        if(publication.hasType(Nepomuk::Vocabulary::NBIB::Bill())) {
+            e->insert(Entry::ftTitle, v2);
+        }
+        else {
+            e->insert(Entry::ftBookTitle, v2);
+        }
 
         if(!chapterAuthor.isEmpty()) {
             Value v;
@@ -854,7 +870,8 @@ void NepomukToBibTexPipe::setEvent(Entry *e, Nepomuk::Resource publication)
 
 void NepomukToBibTexPipe::setCode(Entry *e, Nepomuk::Resource publication)
 {
-    QString string = publication.property(Nepomuk::Vocabulary::NBIB::code()).toString();
+    Nepomuk::Resource codeOfLaw = publication.property(Nepomuk::Vocabulary::NBIB::codeOfLaw()).toResource();
+    QString string = codeOfLaw.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
     if(!string.isEmpty()) {
         Value v;
@@ -871,6 +888,110 @@ void NepomukToBibTexPipe::setCodeNumber(Entry *e, Nepomuk::Resource publication)
         Value v;
         v.append(new PlainText(string));
         e->insert(QLatin1String("codenumber"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setCodeVolume(Entry *e, Nepomuk::Resource publication)
+{
+    Nepomuk::Resource codeOfLaw = publication.property(Nepomuk::Vocabulary::NBIB::codeOfLaw()).toResource();
+    QString string = codeOfLaw.property(Nepomuk::Vocabulary::NBIB::volume()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(new PlainText(string));
+        e->insert(QLatin1String("codevolume"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setReporter(Entry *e, Nepomuk::Resource publication)
+{
+    Nepomuk::Resource courtReporter = publication.property(Nepomuk::Vocabulary::NBIB::courtReporter()).toResource();
+    QString string = courtReporter.property(Nepomuk::Vocabulary::NIE::title()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(new PlainText(string));
+        e->insert(QLatin1String("reporter"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setReporterVolume(Entry *e, Nepomuk::Resource publication)
+{
+    Nepomuk::Resource courtReporter = publication.property(Nepomuk::Vocabulary::NBIB::courtReporter()).toResource();
+    QString string = courtReporter.property(Nepomuk::Vocabulary::NBIB::volume()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(new PlainText(string));
+        e->insert(QLatin1String("reportervolume"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setApplicationNumber(Entry *e, Nepomuk::Resource publication)
+{
+    QString string = publication.property(Nepomuk::Vocabulary::NBIB::applicationNumber()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(new PlainText(string));
+        e->insert(QLatin1String("applicationnumber"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setPatentReferences(Entry *e, Nepomuk::Resource publication)
+{
+    QString string = publication.property(Nepomuk::Vocabulary::NBIB::patentReferences()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(new PlainText(string));
+        e->insert(QLatin1String("references"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setLegalStatus(Entry *e, Nepomuk::Resource publication)
+{
+    QString string = publication.property(Nepomuk::Vocabulary::NBIB::legalStatus()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(new PlainText(string));
+        e->insert(QLatin1String("legalstatus"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setFilingDate(Entry *e, Nepomuk::Resource publication)
+{
+    QString string = publication.property(Nepomuk::Vocabulary::NBIB::filingDate()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(new PlainText(string));
+        e->insert(QLatin1String("filingdate"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setAssignee(Entry *e, Nepomuk::Resource publication)
+{
+    Nepomuk::Resource assignee = publication.property(Nepomuk::Vocabulary::NBIB::assignee()).toResource();
+
+    QString string = assignee.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(new PlainText(string));
+        e->insert(QLatin1String("assignee"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setPriorityNumbers(Entry *e, Nepomuk::Resource publication)
+{
+    QString string = publication.property(Nepomuk::Vocabulary::NBIB::priorityNumbers()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(new PlainText(string));
+        e->insert(QLatin1String("prioritynumbers"), v);
     }
 }
 
