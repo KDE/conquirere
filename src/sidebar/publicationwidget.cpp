@@ -561,7 +561,7 @@ void PublicationWidget::layoutArticle()
     ui->editAuthors->setVisible(true);
     ui->editEditor->setVisible(true);
     ui->editDate->setVisible(true);
-    ui->editPublisher->setVisible(false);
+    ui->editPublisher->setVisible(true);
     ui->editOrganization->setVisible(false);
     ui->editAssignee->setVisible(false);
     ui->editFillingDate->setVisible(false);
@@ -573,7 +573,7 @@ void PublicationWidget::layoutArticle()
     ui->editSeries->setVisible(true);
     ui->editCode->setVisible(false);
     ui->editCourtReporter->setVisible(false);
-    ui->editVolume->setVisible(false);
+    ui->editVolume->setVisible(true);
     ui->editNumber->setVisible(false);
     ui->editApplicationNumber->setVisible(false);
     ui->editPriorityNumbers->setVisible(false);
@@ -687,7 +687,7 @@ void PublicationWidget::layoutCollection()
     ui->editFillingDate->setVisible(false);
 
     //Extra
-    ui->editEdition->setVisible(false);
+    ui->editEdition->setVisible(true);
     ui->editEvent->setVisible(true);
     ui->editCollection->setVisible(false);
     ui->editSeries->setVisible(true);

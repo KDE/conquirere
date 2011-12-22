@@ -156,7 +156,7 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
         if(collection.hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
             type = QLatin1String("Inproceedings"); //article in some proceedings paper
         }
-        if(collection.hasType(Nepomuk::Vocabulary::NBIB::Encyclopedia())) {
+        else if(collection.hasType(Nepomuk::Vocabulary::NBIB::Encyclopedia())) {
             type = QLatin1String("EncyclopediaArticle"); //article in some proceedings paper
         }
         else {
