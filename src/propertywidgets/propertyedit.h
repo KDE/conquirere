@@ -145,6 +145,14 @@ signals:
     void widgetEnabled(bool enabled);
 
     /**
+      * Hide / Show the widget.
+      *
+      * Used to hide/show the setVisible property of the QLabel/QEditlabel
+      */
+    void widgetShown(bool shown);
+    void widgetHidden(bool hidden);
+
+    /**
       * This signal gets thrown when the resource was changed and must be updated in the table model cache
       *
       * @todo This should be replaced by the Nepomuk::ResourceWatcher later
@@ -178,6 +186,8 @@ public slots:
       * For example by an externalEditRequested() Dialog
       */
     void resourceUpdatedExternally();
+
+    void setVisible(bool visible);
 
 protected:
     /**

@@ -236,10 +236,18 @@ QUrl PropertyEdit::propertyEntry(const QString &entryname)
 
 void PropertyEdit::changeEvent( QEvent * event )
 {
-    if(event->type() == QEvent::EnabledChange)
-    {
-        emit widgetEnabled(isEnabled());
-    }
+//    emit widgetShown(m_label->isVisible());
+//    qDebug() << "QEvent::EnabledChange" << m_label->text() << isVisible();
+
+//    if(event->type() == QEvent::EnabledChange)
+//    {
+//        //qDebug() << "QEvent::EnabledChange" << isVisible();
+//        //emit widgetShown(isVisible());
+////        if(isVisible())
+////            emit widgetShown(isVisible());
+////        else
+////            emit widgetHidden(isVisible());
+//    }
 }
 
 void PropertyEdit::keyPressEvent(QKeyEvent * e)
@@ -380,6 +388,12 @@ void PropertyEdit::resourceUpdatedExternally()
 {
     setupLabel();
     editingFinished();
+}
+
+void PropertyEdit::setVisible(bool visible)
+{
+    QWidget::setVisible(visible);
+    emit widgetShown(visible);
 }
 
 void PropertyEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entries)

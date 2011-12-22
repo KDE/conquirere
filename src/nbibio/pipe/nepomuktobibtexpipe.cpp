@@ -192,8 +192,12 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
     if(!e->contains(QLatin1String("author"))){
         setAuthors(e, publication);
     }
+    else {
+        setBookAuthors(e, publication);
+    }
 
     setEditors(e, publication);
+    setSeriesEditors(e, publication);
     setPublicationDate(e, publication);
     setPublisher(e, publication);
     setOrganization(e, publication);
@@ -203,10 +207,11 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
     setJournal(e, publication);
     setVolume(e, publication);
     setNumber(e, publication);
+    setCopyright(e, publication);
     setPublicationMethod(e, publication);
     setType(e, publication);
-    setCopyrigth(e, publication);
     setLastAccessed(e, publication);
+    setDate(e, publication);
     setEPrint(e, publication);
     setISBN(e, publication);
     setISSN(e, publication);
@@ -217,6 +222,7 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
     setAbstract(e, publication);
     setNote(e, publication);
     setAnnote(e, publication);
+    setLanguage(e, publication);
     setPages(e, reference);
     setKewords(e, publication);
     setEvent(e, publication);
@@ -316,6 +322,29 @@ void NepomukToBibTexPipe::setAuthors(Entry *e, Nepomuk::Resource publication)
     }
 }
 
+void NepomukToBibTexPipe::setBookAuthors(Entry *e, Nepomuk::Resource publication)
+{
+    QList<Nepomuk::Resource> authors = publication.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
+
+    Value v;
+    if(!authors.isEmpty()) {
+        foreach(const Nepomuk::Resource & a, authors) {
+            QString firstName = a.property(Nepomuk::Vocabulary::NCO::nameGiven()).toString();
+            QString lastName = a.property(Nepomuk::Vocabulary::NCO::nameFamily()).toString();
+            QString suffix = a.property(Nepomuk::Vocabulary::NCO::nameHonorificSuffix()).toString();
+            if(firstName.isEmpty())
+                firstName = a.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+
+            Person *p = new Person(firstName, lastName, suffix);
+            v.append(p);
+        }
+
+        if(!v.isEmpty()) {
+            e->insert(QLatin1String("bookAuthor"), v);
+        }
+    }
+}
+
 void NepomukToBibTexPipe::setEditors(Entry *e, Nepomuk::Resource publication)
 {
     QList<Nepomuk::Resource> authors = publication.property(Nepomuk::Vocabulary::NBIB::editor()).toResourceList();
@@ -335,6 +364,30 @@ void NepomukToBibTexPipe::setEditors(Entry *e, Nepomuk::Resource publication)
 
         if(!v.isEmpty()) {
             e->insert(Entry::ftEditor, v);
+        }
+    }
+}
+
+void NepomukToBibTexPipe::setSeriesEditors(Entry *e, Nepomuk::Resource publication)
+{
+    Nepomuk::Resource series =  publication.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    QList<Nepomuk::Resource> authors = series.property(Nepomuk::Vocabulary::NBIB::editor()).toResourceList();
+
+    Value v;
+    if(!authors.isEmpty()) {
+        foreach(const Nepomuk::Resource & a, authors) {
+            QString firstName = a.property(Nepomuk::Vocabulary::NCO::nameGiven()).toString();
+            QString lastName = a.property(Nepomuk::Vocabulary::NCO::nameFamily()).toString();
+            QString suffix = a.property(Nepomuk::Vocabulary::NCO::nameHonorificSuffix()).toString();
+            if(firstName.isEmpty())
+                firstName = a.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+
+            Person *p = new Person(firstName, lastName, suffix);
+            v.append(p);
+        }
+
+        if(!v.isEmpty()) {
+            e->insert(QLatin1String("seriesEditor"), v);
         }
     }
 }
@@ -606,7 +659,7 @@ void NepomukToBibTexPipe::setType(Entry *e, Nepomuk::Resource publication)
     }
 }
 
-void NepomukToBibTexPipe::setCopyrigth(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setCopyright(Entry *e, Nepomuk::Resource publication)
 {
     QString string = publication.property(Nepomuk::Vocabulary::NIE::copyright()).toString();
 
@@ -625,6 +678,28 @@ void NepomukToBibTexPipe::setLastAccessed(Entry *e, Nepomuk::Resource publicatio
         Value v;
         v.append(new PlainText(string));
         e->insert(QLatin1String("accessdate"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setDate(Entry *e, Nepomuk::Resource publication)
+{
+    QString string = publication.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(new PlainText(string));
+        e->insert(QLatin1String("date"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setLanguage(Entry *e, Nepomuk::Resource publication)
+{
+    QString string = publication.property(Nepomuk::Vocabulary::NIE::language()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(new PlainText(string));
+        e->insert(QLatin1String("language"), v);
     }
 }
 

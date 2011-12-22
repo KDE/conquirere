@@ -402,6 +402,13 @@ nbib: {
           rdfs:label "affirmedBy" ;
           rdfs:range nbib:Decision .
 
+    nbib:assignee
+          a       rdf:Property ;
+          rdfs:domain nbib:Patent ;
+          rdfs:comment "The assignee of an patent" ;
+          rdfs:label "assignee" ;
+          rdfs:range nco:Contact .
+
    nbib:publishedAs
          a       rdf:Property ;
          rdfs:domain nfo:Document ;
@@ -419,6 +426,22 @@ nbib: {
          rdfs:subPropertyOf nie:hasLogicalPart ;
          rdfs:range nfo:Document ;
          nrl:inverseProperty nbib:publishedAs .
+
+   nbib:courtReporter
+         a       rdf:Property ;
+         rdfs:domain nfo:LegalCaseDocument ;
+         rdfs:comment "Links case document to the collection of legal cases it belongs to." ;
+         rdfs:label "courtReporter" ;
+         rdfs:range nbib:CourtReporter ;
+         nrl:inverseProperty nbib:legalCase .
+
+   nbib:legalCase
+         a       rdf:Property ;
+         rdfs:domain nfo:CourtReporter ;
+         rdfs:comment "Backlinks all legal cases from the court reporter it is from" ;
+         rdfs:label "courtReporter" ;
+         rdfs:range nbib:LegalCaseDocument ;
+         nrl:inverseProperty nbib:courtReporter .
 
     nbib:citeKey
           a       rdf:Property ;
@@ -673,6 +696,20 @@ nbib: {
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
+    nbib:priorityNumbers
+          a       rdf:Property ;
+          rdfs:domain nbib:Patent ;
+          rdfs:comment "The priority number of a patent" ;
+          rdfs:label "Priority Number" ;
+          rdfs:range xsd:string .
+
+    nbib:publicLawNumber
+          a       rdf:Property ;
+          rdfs:domain nbib:Statute ;
+          rdfs:comment "The public law number of the statute" ;
+          rdfs:label "Public Law Number" ;
+          rdfs:range xsd:string .
+
     nie:publicationDate
           a       rdf:Property ;
           rdfs:domain nie:InformationElement ;
@@ -680,6 +717,36 @@ nbib: {
           rdfs:label "Publication Date" ;
           rdfs:range xsd:dateTime ;
           nrl:maxCardinality 1 .
+
+    nbib:codeOfLaw
+          a       rdf:Property ;
+          rdfs:domain nbib:Legislation ;
+          rdfs:comment "The code of law the legislation is contained in" ;
+          rdfs:label "Code of Law" ;
+          rdfs:range nbib:CodeOfLaw ;
+          nrl:maxCardinality 1 .
+
+    nbib:fillingDate
+          a       rdf:Property ;
+          rdfs:domain nbib:Patent ;
+          rdfs:comment "The date when the patent was filled, the issue date is the same as the publication date" ;
+          rdfs:label "Filling Date" ;
+          rdfs:range xsd:dateTime ;
+          nrl:maxCardinality 1 .
+
+    nbib:patentReferences
+          a       rdf:Property ;
+          rdfs:domain nbib:Patent ;
+          rdfs:comment "The references for this patent" ;
+          rdfs:label "Patent references" ;
+          rdfs:range xsd:string .
+
+    nbib:legalStatus
+          a       rdf:Property ;
+          rdfs:domain nbib:Patent ;
+          rdfs:comment "The legal status of this patent" ;
+          rdfs:label "Legal Status" ;
+          rdfs:range xsd:string .
 
     nbib:arguedDate
           a       rdf:Property ;
@@ -704,7 +771,6 @@ nbib: {
           rdfs:comment "The series the publication was published in. (for example a series of books, a series of lecture notes, a journal series" ;
           rdfs:label "inSeries" ;
           rdfs:range nbib:Series ;
-          nrl:inverseProperty nbib:seriesOf ;
           rdfs:subPropertyOf nie:hasLogicalPart ;
           nrl:maxCardinality 1 .
 
@@ -714,8 +780,7 @@ nbib: {
           rdfs:comment "The book this series belongs to" ;
           rdfs:label "seriesOf" ;
           rdfs:range nbib:Book ;
-          rdfs:subPropertyOf nie:hasLogicalPart ;
-          nrl:inverseProperty nbib:inSeries .
+          rdfs:subPropertyOf nie:hasLogicalPart .
 
     nbib:type
           a       rdf:Property ;

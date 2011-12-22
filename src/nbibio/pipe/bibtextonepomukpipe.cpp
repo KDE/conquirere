@@ -446,6 +446,9 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     else if(key == QLatin1String("bookauthor")) {
         addBookAuthor(value, publication);
     }
+    else if(key == QLatin1String("serieseditor")) {
+        addSeriesEditor(value, publication);
+    }
     else if(key == QLatin1String("booktitle")) {
         addBooktitle(PlainTextValue::text(value), publication, originalEntryType);
     }
@@ -557,6 +560,9 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     }
     else if(key == QLatin1String("accessdate")) {
         addLastUsage(PlainTextValue::text(value), publication);
+    }
+    else if(key == QLatin1String("date")) {
+        addDate(PlainTextValue::text(value), publication);
     }
     else if(key == QLatin1String("descriptor") ||
             key == QLatin1String("classification") ||
@@ -947,6 +953,96 @@ void BibTexToNepomukPipe::addBookAuthor(const Value &contentValue, Nepomuk::Reso
         }
 
         authorResource.addProperty(Nepomuk::Vocabulary::NCO::creator(), a);
+    }
+}
+
+void BibTexToNepomukPipe::addSeriesEditor(const Value &contentValue, Nepomuk::Resource publication)
+{
+    Nepomuk::Resource seriesResource = publication.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+
+    if(!seriesResource.isValid()) {
+        seriesResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Series());
+    }
+
+    // in merge mode we remove all existing editors first and add all editors from the current entry again
+    if(m_mergeMode) {
+        seriesResource.removeProperty(Nepomuk::Vocabulary::NBIB::editor());
+    }
+
+    foreach(ValueItem *authorItem, contentValue) {
+        //transform KBibTex representation of the name into my own Name
+        Name editor;
+        Person *person = dynamic_cast<Person *>(authorItem);
+        if(person) {
+            editor.first = person->firstName().toUtf8();
+            editor.last = person->lastName().toUtf8();
+            editor.suffix = person->suffix().toUtf8();
+            editor.full = editor.first + QLatin1String(" ") + editor.last + QLatin1String(" ") + editor.suffix;
+        }
+        else {
+            editor.full = PlainTextValue::text(*authorItem).toUtf8();
+            editor.full = m_macroLookup.value(editor.full, editor.full);
+        }
+
+        //check if the author already exist in the database
+        Nepomuk::Resource a = m_allContacts.value(editor.full, Nepomuk::Resource());
+
+        if(!a.isValid()) {
+            qDebug() << "create a new Contact resource for " << editor.full;
+
+            if(m_addressbook.isValid()) {
+                qDebug() << "add author to akonadi";
+                KABC::Addressee addr;
+                addr.setFamilyName( editor.last );
+                addr.setGivenName( editor.first );
+                addr.setAdditionalName( editor.suffix );
+                addr.setName( editor.full );
+                addr.setFormattedName( editor.full );
+
+                Akonadi::Item item;
+                item.setMimeType( KABC::Addressee::mimeType() );
+                item.setPayload<KABC::Addressee>( addr );
+
+                Akonadi::ItemCreateJob *job = new Akonadi::ItemCreateJob( item, m_addressbook );
+
+                if ( !job->exec() ) {
+                    qDebug() << "Error:" << job->errorString();
+                }
+
+                // akonadi saves its contacts with a specific nepomuk uri, we use it here to
+                // connect the resource to the publication
+                // akonadi will then always update this resource
+                a = Nepomuk::Resource(job->item().url(), Nepomuk::Vocabulary::NCO::PersonContact());
+                a.setProperty(Nepomuk::Vocabulary::NIE::url(), job->item().url());
+
+                a.setProperty(Nepomuk::Vocabulary::NCO::fullname(), editor.full);
+
+                if(!editor.first.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), editor.first);
+                if(!editor.last.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameFamily(), editor.last);
+                if(!editor.suffix.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), editor.suffix);
+
+                qDebug() << "akonadi/nepomuk id" << job->item().url() << a.isValid() << a.resourceUri();
+            }
+            else {
+                a = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::PersonContact());
+
+                a.setProperty(Nepomuk::Vocabulary::NCO::fullname(), editor.full);
+
+                if(!editor.first.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameGiven(), editor.first);
+                if(!editor.last.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameFamily(), editor.last);
+                if(!editor.suffix.isEmpty())
+                    a.setProperty(Nepomuk::Vocabulary::NCO::nameAdditional(), editor.suffix);
+            }
+
+            m_allContacts.insert(editor.full,a);
+        }
+
+        seriesResource.addProperty(Nepomuk::Vocabulary::NBIB::editor(), a);
     }
 }
 
@@ -1444,6 +1540,11 @@ void BibTexToNepomukPipe::addKewords(const Value &content, Nepomuk::Resource pub
 void BibTexToNepomukPipe::addLastUsage(const QString &content, Nepomuk::Resource publication)
 {
     publication.setProperty(Nepomuk::Vocabulary::NUAO::lastUsage(), QString(content.toUtf8()));
+}
+
+void BibTexToNepomukPipe::addDate(const QString &content, Nepomuk::Resource publication)
+{
+    publication.setProperty(Nepomuk::Vocabulary::NBIB::publicationDate(), QString(content.toUtf8()));
 }
 
 void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference, const QString &id,

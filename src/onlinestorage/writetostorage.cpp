@@ -93,7 +93,7 @@ void WriteToStorage::serverReplyFinished(QNetworkReply *reply)
 {
     m_replies.remove(reply);
 
-    reply->deleteLater();
+    //reply->deleteLater();
 }
 
 Entry * WriteToStorage::serverReplyEntry(QNetworkReply *reply)

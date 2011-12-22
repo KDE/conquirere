@@ -48,8 +48,6 @@ void SeriesEdit::updateResource(const QString & text)
     // try to find the propertyurl of an already existing series
     QUrl propUrl = propertyEntry(text);
 
-    qDebug() << "SeriesEdit::updateResource | resource" << propUrl << "for text" << text;
-
     if(propUrl.isValid()) {
         resource().addProperty( propertyUrl(), Nepomuk::Resource(propUrl));
     }

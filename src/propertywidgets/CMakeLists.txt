@@ -16,6 +16,7 @@ set(propertywidgets_LIB_SRCS
     volumenumberedit.cpp
     adddataobject.cpp
     eventedit.cpp
+    collectionedit.cpp
 )
 
 kde4_add_ui_files( propertywidgets_LIB_SRCS

@@ -79,8 +79,8 @@ void TagCloud::tagCloudUpdated()
 
     emit tagCloudChanged();
 
-    delete m_futureWatcher;
-    m_futureWatcher = 0;
+    //delete m_futureWatcher;
+    //m_futureWatcher = 0;
 }
 
 QList<QPair<int, QString> > TagCloud::tagCloud()

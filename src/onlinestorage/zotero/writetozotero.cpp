@@ -41,6 +41,7 @@ WriteToZotero::~WriteToZotero()
 
 void WriteToZotero::pushItems(File items, const QString &collection)
 {
+    m_allRequestsSend = false;
     m_addToCollection = collection;
     m_progressPerFile = (qreal)items.size() / 200.0;
     m_progress = 0;
@@ -74,7 +75,7 @@ void WriteToZotero::pushItems(File items, const QString &collection)
         pushNewItems(newItems, m_addToCollection);
     }
     else {
-        emit itemsInfo(m_entriesAfterSync);
+        //emit itemsInfo(m_entriesAfterSync);
     }
 
     m_allRequestsSend = true;
@@ -259,6 +260,7 @@ void WriteToZotero::requestFinished()
 {
     // we get a reply from the server
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    qDebug() << "WriteToZotero::requestFinished()" <<  reply->error() << reply->errorString();
 
     if(reply->error() != QNetworkReply::NoError) {
         qDebug() << QLatin1String("error reply") <<  reply->error() << reply->errorString();
@@ -370,7 +372,7 @@ QByteArray WriteToZotero::writeJsonContent(File items, bool onlyUpdate)
                 itemList.append( createConferencePaperJson( entry) );
             }
             else if(entry->type().toLower() == QLatin1String("incollection")) {
-                itemList.append( createDocumentJson( entry) );
+                itemList.append( createBookSectionJson( entry) );
             }
             else if(entry->type().toLower() == QLatin1String("dictionary")) {
                 itemList.append( createEncyclopediaArticleJson(entry) );
@@ -1133,7 +1135,6 @@ QVariantMap WriteToZotero::createBookSectionJson(Entry *e)
     QVariantMap jsonMap;
 
     jsonMap.insert(QLatin1String("itemType"),QLatin1String("bookSection"));
-    jsonMap.insert(QLatin1String("title"), PlainTextValue::text(e->value(QLatin1String("title"))));
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("bookSection")));
     jsonMap.insert(QLatin1String("bookTitle"),PlainTextValue::text(e->value(QLatin1String("bookTitle"))));
     jsonMap.insert(QLatin1String("series"),PlainTextValue::text(e->value(QLatin1String("series"))));
@@ -1161,6 +1162,7 @@ QVariantMap WriteToZotero::createBookSectionJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
         jsonMap.insert(QLatin1String("seriesNumber"),PlainTextValue::text(e->value(QLatin1String("number"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
+        jsonMap.insert(QLatin1String("title"), PlainTextValue::text(e->value(QLatin1String("chapter"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -1168,6 +1170,7 @@ QVariantMap WriteToZotero::createBookSectionJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("seriesNumber"),PlainTextValue::text(e->value(QLatin1String("seriesNumber"))));
+        jsonMap.insert(QLatin1String("title"), PlainTextValue::text(e->value(QLatin1String("title"))));
     }
 
     return jsonMap;

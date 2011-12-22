@@ -105,6 +105,7 @@ private:
     void addAuthor(const Value &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
     void addBooktitle(const QString &content, Nepomuk::Resource publication, const QString & originalEntryType);
     void addBookAuthor(const Value &contentValue, Nepomuk::Resource publication);
+    void addSeriesEditor(const Value &contentValue, Nepomuk::Resource publication);
     void addChapter(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference);
     void addCopyrigth(const QString &content, Nepomuk::Resource publication);
     void addCrossref(const QString &content, Nepomuk::Resource publication);
@@ -143,6 +144,7 @@ private:
     void addVolume(const QString &content, Nepomuk::Resource publication);
     void addYear(const QString &content, Nepomuk::Resource publication);
     void addLastUsage(const QString &content, Nepomuk::Resource publication);
+    void addDate(const QString &content, Nepomuk::Resource publication);
     void addKewords(const Value &content, Nepomuk::Resource publication);
 
     void addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference,

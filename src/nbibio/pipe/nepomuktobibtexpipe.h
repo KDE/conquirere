@@ -76,7 +76,9 @@ private:
     // title + booktitle
     void setTitle(Entry *e, Nepomuk::Resource publication, Nepomuk::Resource reference);
     void setAuthors(Entry *e, Nepomuk::Resource publication);
+    void setBookAuthors(Entry *e, Nepomuk::Resource publication);
     void setEditors(Entry *e, Nepomuk::Resource publication);
+    void setSeriesEditors(Entry *e, Nepomuk::Resource publication);
     void setPublicationDate(Entry *e, Nepomuk::Resource publication);
     void setPublisher(Entry *e, Nepomuk::Resource publication);
     void setOrganization(Entry *e, Nepomuk::Resource publication);
@@ -89,8 +91,10 @@ private:
     void setNumber(Entry *e, Nepomuk::Resource publication);
     void setPublicationMethod(Entry *e, Nepomuk::Resource publication);
     void setType(Entry *e, Nepomuk::Resource publication);
-    void setCopyrigth(Entry *e, Nepomuk::Resource publication);
+    void setCopyright(Entry *e, Nepomuk::Resource publication);
     void setLastAccessed(Entry *e, Nepomuk::Resource publication);
+    void setDate(Entry *e, Nepomuk::Resource publication);
+    void setLanguage(Entry *e, Nepomuk::Resource publication);
     void setEPrint(Entry *e, Nepomuk::Resource publication);
     void setISBN(Entry *e, Nepomuk::Resource publication);
     void setISSN(Entry *e, Nepomuk::Resource publication);

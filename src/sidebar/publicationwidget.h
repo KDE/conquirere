@@ -87,19 +87,18 @@ private:
     void selectLayout(BibEntryType entryType);
     void layoutArticle();
     void layoutBook();
-    void layoutBachelorthesis();
-    void layoutBooklet();
-    void layoutCollection();
-    void layoutProceedings();
-    void layoutInproceedings();
-    void layoutManual();
-    void layoutMastersthesis();
-    void layoutMisc();
     void layoutThesis();
-    void layoutTechreport();
-    void layoutUnpublished();
-    void layoutPatent();
+    void layoutReport();
+    void layoutCollection();
+    void layoutMisc();
     void layoutElectronic();
+    void layoutScript();
+    void layoutUnpublished();
+    void layoutManual();
+    void layoutPatent();
+    void layoutBill();
+    void layoutStatute();
+    void layoutCase();
 
     Nepomuk::Resource m_publication;
 

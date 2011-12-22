@@ -217,7 +217,6 @@ void PublicationWidget::setLibrary(Library *p)
     connect(ui->editHowPublished, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editISBN, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editISSN, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editJournal, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editLCCN, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editMRNumber, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editNumber, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
@@ -231,7 +230,7 @@ void PublicationWidget::setLibrary(Library *p)
     connect(ui->editOrganization, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editLastAccessed, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editKeywords, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editProceedings, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
+    connect(ui->editCollection, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editPubMed, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editEvent, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
 
@@ -361,74 +360,99 @@ void PublicationWidget::setupWidget()
 
     connect(ui->editEntryType, SIGNAL(currentIndexChanged(int)), this, SLOT(newBibEntryTypeSelected(int)));
 
+    // Basics section
+    ui->editTitle->setPropertyUrl( Nepomuk::Vocabulary::NIE::title() );
     ui->editAuthors->setPropertyUrl( Nepomuk::Vocabulary::NCO::creator() );
     ui->editAuthors->setUseDetailDialog(true);
     connect(ui->editAuthors, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
-    ui->editCopyright->setPropertyUrl( Nepomuk::Vocabulary::NIE::copyright() );
-    ui->editDate->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationDate() );
-    ui->editDOI->setPropertyUrl( Nepomuk::Vocabulary::NBIB::doi() );
-    ui->editEdition->setPropertyUrl( Nepomuk::Vocabulary::NBIB::edition() );
     ui->editEditor->setPropertyUrl( Nepomuk::Vocabulary::NBIB::editor() );
     ui->editEditor->setUseDetailDialog(true);
     connect(ui->editEditor, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
-    ui->editEprint->setPropertyUrl( Nepomuk::Vocabulary::NBIB::eprint() );
-    ui->editHowPublished->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationMethod() );
-    ui->editISBN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isbn() );
-    ui->editISSN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::issn() );
-    ui->editJournal->setPropertyUrl( Nepomuk::Vocabulary::NBIB::seriesOf() );
-    ui->editLCCN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::lccn() );
-    ui->editMRNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::mrNumber() );
-    ui->editNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::number() );
+    ui->editAssignee->setPropertyUrl( Nepomuk::Vocabulary::NBIB::assignee() );
+    ui->editDate->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationDate() );
+    ui->editFillingDate->setPropertyUrl( Nepomuk::Vocabulary::NBIB::fillingDate() );
     ui->editPublisher->setPropertyUrl( Nepomuk::Vocabulary::NCO::publisher() );
     ui->editPublisher->setUseDetailDialog(true);
     connect(ui->editPublisher, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
-    ui->editSeries->setPropertyUrl( Nepomuk::Vocabulary::NBIB::inSeries() );
-    ui->editTitle->setPropertyUrl( Nepomuk::Vocabulary::NIE::title() );
-    ui->editType->setPropertyUrl( Nepomuk::Vocabulary::NBIB::type() );
-    ui->editVolume->setPropertyUrl( Nepomuk::Vocabulary::NBIB::volume() );
+    ui->editOrganization->setPropertyUrl( Nepomuk::Vocabulary::NBIB::organization());
     ui->editFileObject->setMode(FileObjectEdit::Local);
     ui->editFileObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
     ui->editRemoteObject->setMode(FileObjectEdit::Remote);
     ui->editRemoteObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
     ui->editWebObject->setMode(FileObjectEdit::Website);
     ui->editWebObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
-    ui->editOrganization->setPropertyUrl( Nepomuk::Vocabulary::NBIB::organization());
-    ui->editLastAccessed->setPropertyUrl( Nepomuk::Vocabulary::NUAO::lastUsage());
     ui->editKeywords->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
     ui->editKeywords->setPropertyUrl( Soprano::Vocabulary::NAO::hasTag() );
-    ui->editProceedings->setPropertyUrl( Nepomuk::Vocabulary::NBIB::collection() );
-    ui->editPubMed->setPropertyUrl( Nepomuk::Vocabulary::NBIB::pubMed() );
+
+    // Extra section
+    ui->editEdition->setPropertyUrl( Nepomuk::Vocabulary::NBIB::edition() );
     ui->editEvent->setPropertyUrl( Nepomuk::Vocabulary::NBIB::event() );
+    ui->editCollection->setPropertyUrl( Nepomuk::Vocabulary::NBIB::collection() );
+    ui->editSeries->setPropertyUrl( Nepomuk::Vocabulary::NBIB::inSeries() );
+    ui->editCode->setPropertyUrl( Nepomuk::Vocabulary::NBIB::codeOfLaw() );
+    ui->editCourtReporter->setPropertyUrl( Nepomuk::Vocabulary::NBIB::courtReporter() );
+    ui->editVolume->setPropertyUrl( Nepomuk::Vocabulary::NBIB::volume() );
+    ui->editNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::number() );
+    ui->editApplicationNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::applicationNumber() );
+    ui->editPriorityNumbers->setPropertyUrl( Nepomuk::Vocabulary::NBIB::priorityNumbers() );
+    ui->editPublicLawNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicLawNumber() );
+    ui->editReferences->setPropertyUrl( Nepomuk::Vocabulary::NBIB::patentReferences() );
+    ui->editLegalStatus->setPropertyUrl( Nepomuk::Vocabulary::NBIB::legalStatus() );
+    ui->editHowPublished->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationMethod() );
+    ui->editType->setPropertyUrl( Nepomuk::Vocabulary::NBIB::type() );
+    ui->editCopyright->setPropertyUrl( Nepomuk::Vocabulary::NIE::copyright() );
+    ui->editLastAccessed->setPropertyUrl( Nepomuk::Vocabulary::NUAO::lastUsage());
+    ui->editLanguage->setPropertyUrl( Nepomuk::Vocabulary::NIE::language());
+
+    // identification section
+    ui->editEprint->setPropertyUrl( Nepomuk::Vocabulary::NBIB::eprint() );
+    ui->editISBN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isbn() );
+    ui->editISSN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::issn() );
+    ui->editLCCN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::lccn() );
+    ui->editMRNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::mrNumber() );
+    ui->editPubMed->setPropertyUrl( Nepomuk::Vocabulary::NBIB::pubMed() );
+    ui->editDOI->setPropertyUrl( Nepomuk::Vocabulary::NBIB::doi() );
 
     //connect signal/slots
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editAuthors, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editCopyright, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editDate, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editDOI, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editEdition, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editEditor, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editEprint, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editHowPublished, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editISBN, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editISSN, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editJournal, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLCCN, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editMRNumber, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editNumber, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPublisher, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editSeries, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editTitle, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editType, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editVolume, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editAuthors, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editEditor, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editAssignee, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editDate, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editFillingDate, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPublisher, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editOrganization, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editFileObject, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editRemoteObject, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editWebObject, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editOrganization, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLastAccessed, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editKeywords, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editProceedings, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPubMed, SLOT(setResource(Nepomuk::Resource&)));
+
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editEdition, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editEvent, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editCollection, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editSeries, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editCode, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editCourtReporter, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editVolume, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editNumber, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editApplicationNumber, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPriorityNumbers, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPublicLawNumber, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editReferences, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLegalStatus, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editHowPublished, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editType, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editCopyright, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLastAccessed, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLanguage, SLOT(setResource(Nepomuk::Resource&)));
+
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editEprint, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editISBN, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editISSN, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLCCN, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editMRNumber, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPubMed, SLOT(setResource(Nepomuk::Resource&)));
+    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editDOI, SLOT(setResource(Nepomuk::Resource&)));
 
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 
@@ -452,422 +476,503 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
         layoutArticle();
         break;
     case BibType_Book:
+    case BibType_Booklet:
+    case BibType_Dictionary:
         layoutBook();
         break;
-    case BibType_Booklet:
-        layoutBooklet();
-        break;
-    case BibType_Manual:
-        layoutManual();
-        break;
-    case BibType_Thesis:
-    case BibType_Phdthesis:
-    case BibType_Mastersthesis:
-    case BibType_Bachelorthesis:
-        layoutThesis();
-        break;
-    case BibType_Misc:
-        layoutMisc();
-        break;
+    case BibType_Collection:
+    case BibType_Encyclopedia:
+    case BibType_JournalIssue:
+    case BibType_NewspaperIssue:
+    case BibType_MagazinIssue:
     case BibType_Proceedings:
-        layoutProceedings();
+        layoutCollection();
+        break;
+    case BibType_Bachelorthesis:
+    case BibType_Mastersthesis:
+    case BibType_Phdthesis:
+    case BibType_Thesis:
+        layoutThesis();
         break;
     case BibType_Report:
     case BibType_Techreport:
-        layoutTechreport();
-        break;
-    case BibType_Unpublished:
-        layoutUnpublished();
-        break;
-    case BibType_Patent:
-        layoutPatent();
+        layoutReport();
         break;
     case BibType_Electronic:
     case BibType_ForumPost:
     case BibType_BlogPost:
     case BibType_WebPage:
+    case BibType_Presentation:
         layoutElectronic();
         break;
-    case BibType_Collection:
-    case BibType_MagazinIssue:
-    case BibType_NewspaperIssue:
-    case BibType_JournalIssue:
-        layoutCollection();
+    case BibType_Script:
+        layoutScript();
         break;
-    default:
-        qDebug() << "PublicationWidget::selectLayout use default layout";
+    case BibType_Unpublished:
+        layoutUnpublished();
+        break;
+    case BibType_Misc:
         layoutMisc();
+        break;
+    case BibType_Manual:
+        layoutManual();
+        break;
+    case BibType_Standard:
+        layoutMisc(); //TODO what is neccessary for a standard? ISO etc
+        break;
+    case BibType_Patent:
+        layoutPatent();
+        break;
+    case BibType_CodeOfLaw:
+        layoutMisc();
+        qWarning() << "BibType_CodeOfLaw no layout available, what is necessary?";
+        break;
+    case BibType_CourtReporter:
+        layoutMisc();
+        qWarning() << "BibType_CourtReporter no layout available, what is necessary?";
+        break;
+    case BibType_Legislation:
+        layoutMisc();
+        qWarning() << "BibType_Legislation no layout available, what is necessary?";
+        break;
+    case BibType_Bill:
+        layoutBill();
+        break;
+    case BibType_Statute:
+        layoutStatute();
+        break;
+    case BibType_LegalCaseDocument:
+        layoutCase();
+        break;
+    case BibType_Decision:
+        layoutMisc();
+        qWarning() << "BibType_Decision no layout available, what is necessary?";
+        break;
+    case BibType_Brief:
+        layoutMisc();
+        qWarning() << "BibType_Brief no layout available, what is necessary?";
+        break;
     }
 }
 
 void PublicationWidget::layoutArticle()
 {
     //Basics
-    ui->editTitle->setEnabled(true);
-    ui->editAuthors->setEnabled(true);
-    ui->editEditor->setEnabled(true);
-    ui->editDate->setEnabled(true);
-    ui->editPublisher->setEnabled(true);
-    ui->editOrganization->setEnabled(true);
+    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(true);
+    ui->editDate->setVisible(true);
+    ui->editPublisher->setVisible(false);
+    ui->editOrganization->setVisible(false);
+    ui->editAssignee->setVisible(false);
+    ui->editFillingDate->setVisible(false);
 
     //Extra
-    ui->editSeries->setEnabled(false);
-    ui->editEdition->setEnabled(false);
-    ui->editProceedings->setEnabled(true);
-    ui->editJournal->setEnabled(true);
-    ui->editVolume->setEnabled(true);
-    ui->editNumber->setEnabled(true);
-    ui->editHowPublished->setEnabled(false);
-    ui->editType->setEnabled(false);
-    ui->editCopyright->setEnabled(true);
-    ui->editLastAccessed->setEnabled(false);
-
-    //identification
-    ui->editEprint->setEnabled(true);
-    ui->editISBN->setEnabled(true);
-    ui->editISSN->setEnabled(true);
-    ui->editLCCN->setEnabled(false);
-    ui->editMRNumber->setEnabled(true);
-    ui->editDOI->setEnabled(true);
+    ui->editEdition->setVisible(false);
+    ui->editEvent->setVisible(true);
+    ui->editCollection->setVisible(true);
+    ui->editSeries->setVisible(true);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(false);
+    ui->editNumber->setVisible(false);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editHowPublished->setVisible(false);
+    ui->editType->setVisible(false);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
 }
 
 void PublicationWidget::layoutBook()
 {
     //Basics
-    ui->editTitle->setEnabled(true);
-    ui->editAuthors->setEnabled(true);
-    ui->editEditor->setEnabled(true);
-    ui->editDate->setEnabled(true);
-    ui->editPublisher->setEnabled(true);
-    ui->editOrganization->setEnabled(false);
+    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(true);
+    ui->editDate->setVisible(true);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(false);
+    ui->editAssignee->setVisible(false);
+    ui->editFillingDate->setVisible(false);
 
     //Extra
-    ui->editSeries->setEnabled(true);
-    ui->editEdition->setEnabled(true);
-    ui->editProceedings->setEnabled(false);
-    ui->editJournal->setEnabled(false);
-    ui->editVolume->setEnabled(true);
-    ui->editNumber->setEnabled(false);
-    ui->editHowPublished->setEnabled(false);
-    ui->editType->setEnabled(false);
-    ui->editCopyright->setEnabled(true);
-    ui->editLastAccessed->setEnabled(false);
-
-    //identification
-    ui->editEprint->setEnabled(false);
-    ui->editISBN->setEnabled(true);
-    ui->editISSN->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editMRNumber->setEnabled(false);
-    ui->editDOI->setEnabled(true);
-}
-
-void PublicationWidget::layoutBooklet()
-{
-    //Basics
-    ui->editTitle->setEnabled(true);
-    ui->editAuthors->setEnabled(true);
-    ui->editEditor->setEnabled(false);
-    ui->editDate->setEnabled(true);
-    ui->editPublisher->setEnabled(false);
-    ui->editOrganization->setEnabled(false);
-
-    //Extra
-    ui->editSeries->setEnabled(false);
-    ui->editEdition->setEnabled(false);
-    ui->editProceedings->setEnabled(false);
-    ui->editJournal->setEnabled(false);
-    ui->editVolume->setEnabled(false);
-    ui->editNumber->setEnabled(false);
-    ui->editHowPublished->setEnabled(true);
-    ui->editType->setEnabled(false);
-    ui->editCopyright->setEnabled(true);
-    ui->editLastAccessed->setEnabled(false);
-
-    //identification
-    ui->editEprint->setEnabled(false);
-    ui->editISBN->setEnabled(true);
-    ui->editISSN->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editMRNumber->setEnabled(false);
-    ui->editDOI->setEnabled(true);
-}
-
-void PublicationWidget::layoutCollection()
-{
-    //Basics
-    ui->editTitle->setEnabled(true);
-    ui->editAuthors->setEnabled(true);
-    ui->editEditor->setEnabled(true);
-    ui->editDate->setEnabled(true);
-    ui->editPublisher->setEnabled(true);
-    ui->editOrganization->setEnabled(true);
-
-    //Extra
-    ui->editSeries->setEnabled(true);
-    ui->editEdition->setEnabled(false);
-    ui->editProceedings->setEnabled(false);
-    ui->editJournal->setEnabled(false);
-    ui->editVolume->setEnabled(true);
-    ui->editNumber->setEnabled(true);
-    ui->editHowPublished->setEnabled(true);
-    ui->editType->setEnabled(false);
-    ui->editCopyright->setEnabled(true);
-    ui->editLastAccessed->setEnabled(true);
-
-    //identification
-    ui->editEprint->setEnabled(false);
-    ui->editISBN->setEnabled(false);
-    ui->editISSN->setEnabled(true);
-    ui->editLCCN->setEnabled(false);
-    ui->editMRNumber->setEnabled(false);
-    ui->editDOI->setEnabled(true);
-}
-
-void PublicationWidget::layoutManual()
-{
-    //Basics
-    ui->editTitle->setEnabled(true);
-    ui->editAuthors->setEnabled(true);
-    ui->editEditor->setEnabled(false);
-    ui->editDate->setEnabled(true);
-    ui->editPublisher->setEnabled(false);
-    ui->editOrganization->setEnabled(true);
-
-    //Extra
-    ui->editSeries->setEnabled(false);
-    ui->editEdition->setEnabled(true);
-    ui->editProceedings->setEnabled(false);
-    ui->editJournal->setEnabled(false);
-    ui->editVolume->setEnabled(false);
-    ui->editNumber->setEnabled(false);
-    ui->editHowPublished->setEnabled(false);
-    ui->editType->setEnabled(false);
-    ui->editCopyright->setEnabled(true);
-    ui->editLastAccessed->setEnabled(false);
-
-    //identification
-    ui->editEprint->setEnabled(false);
-    ui->editISBN->setEnabled(false);
-    ui->editISSN->setEnabled(false);
-    ui->editLCCN->setEnabled(false);
-    ui->editMRNumber->setEnabled(false);
-    ui->editDOI->setEnabled(true);
-}
-
-void PublicationWidget::layoutMisc()
-{
-    //Basics
-    ui->editTitle->setEnabled(true);
-    ui->editAuthors->setEnabled(true);
-    ui->editEditor->setEnabled(true);
-    ui->editDate->setEnabled(true);
-    ui->editPublisher->setEnabled(true);
-    ui->editOrganization->setEnabled(true);
-
-    //Extra
-    ui->editSeries->setEnabled(true);
-    ui->editEdition->setEnabled(true);
-    ui->editProceedings->setEnabled(true);
-    ui->editJournal->setEnabled(true);
-    ui->editVolume->setEnabled(true);
-    ui->editNumber->setEnabled(true);
-    ui->editHowPublished->setEnabled(true);
-    ui->editType->setEnabled(true);
-    ui->editCopyright->setEnabled(true);
-    ui->editLastAccessed->setEnabled(true);
-
-    //identification
-    ui->editEprint->setEnabled(true);
-    ui->editISBN->setEnabled(true);
-    ui->editISSN->setEnabled(true);
-    ui->editLCCN->setEnabled(true);
-    ui->editMRNumber->setEnabled(true);
-    ui->editDOI->setEnabled(true);
+    ui->editEdition->setVisible(true);
+    ui->editEvent->setVisible(true);
+    ui->editCollection->setVisible(false);
+    ui->editSeries->setVisible(true);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(true);
+    ui->editNumber->setVisible(true);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(false);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
 }
 
 void PublicationWidget::layoutThesis()
 {
     //Basics
-    ui->editTitle->setEnabled(true);
-    ui->editAuthors->setEnabled(true);
-    ui->editEditor->setEnabled(false);
-    ui->editDate->setEnabled(true);
-    ui->editPublisher->setEnabled(true);
-    ui->editOrganization->setEnabled(false);
+    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(true);
+    ui->editDate->setVisible(true);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editFillingDate->setVisible(false);
 
     //Extra
-    ui->editSeries->setEnabled(false);
-    ui->editEdition->setEnabled(false);
-    ui->editProceedings->setEnabled(false);
-    ui->editJournal->setEnabled(false);
-    ui->editVolume->setEnabled(false);
-    ui->editNumber->setEnabled(true);
-    ui->editHowPublished->setEnabled(true);
-    ui->editType->setEnabled(true);
-    ui->editCopyright->setEnabled(true);
-    ui->editLastAccessed->setEnabled(false);
-
-    //identification
-    ui->editEprint->setEnabled(false);
-    ui->editISBN->setEnabled(false);
-    ui->editISSN->setEnabled(false);
-    ui->editLCCN->setEnabled(false);
-    ui->editMRNumber->setEnabled(false);
-    ui->editDOI->setEnabled(true);
+    ui->editEdition->setVisible(false);
+    ui->editEvent->setVisible(false);
+    ui->editCollection->setVisible(false);
+    ui->editSeries->setVisible(true);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(false);
+    ui->editNumber->setVisible(false);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
 }
 
-void PublicationWidget::layoutProceedings()
+void PublicationWidget::layoutReport()
 {
     //Basics
-    ui->editTitle->setEnabled(true);
-    ui->editAuthors->setEnabled(false);
-    ui->editEditor->setEnabled(true);
-    ui->editDate->setEnabled(true);
-    ui->editPublisher->setEnabled(true);
-    ui->editOrganization->setEnabled(true);
+    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(true);
+    ui->editDate->setVisible(true);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editFillingDate->setVisible(false);
 
     //Extra
-    ui->editSeries->setEnabled(false);
-    ui->editEdition->setEnabled(false);
-    ui->editProceedings->setEnabled(false);
-    ui->editJournal->setEnabled(false);
-    ui->editVolume->setEnabled(false);
-    ui->editNumber->setEnabled(false);
-    ui->editHowPublished->setEnabled(false);
-    ui->editType->setEnabled(false);
-    ui->editCopyright->setEnabled(true);
-    ui->editLastAccessed->setEnabled(false);
-
-    //identification
-    ui->editEprint->setEnabled(false);
-    ui->editISBN->setEnabled(false);
-    ui->editISSN->setEnabled(false);
-    ui->editLCCN->setEnabled(false);
-    ui->editMRNumber->setEnabled(false);
-    ui->editDOI->setEnabled(true);
+    ui->editEdition->setVisible(true);
+    ui->editEvent->setVisible(true);
+    ui->editCollection->setVisible(false);
+    ui->editSeries->setVisible(true);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(true);
+    ui->editNumber->setVisible(true);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
 }
 
-void PublicationWidget::layoutTechreport()
+void PublicationWidget::layoutCollection()
 {
     //Basics
-    ui->editTitle->setEnabled(true);
-    ui->editAuthors->setEnabled(true);
-    ui->editEditor->setEnabled(false);
-    ui->editDate->setEnabled(true);
-    ui->editPublisher->setEnabled(true);
-    ui->editOrganization->setEnabled(false);
+    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(true);
+    ui->editDate->setVisible(true);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editFillingDate->setVisible(false);
 
     //Extra
-    ui->editSeries->setEnabled(false);
-    ui->editEdition->setEnabled(false);
-    ui->editProceedings->setEnabled(false);
-    ui->editJournal->setEnabled(false);
-    ui->editVolume->setEnabled(false);
-    ui->editNumber->setEnabled(true);
-    ui->editHowPublished->setEnabled(false);
-    ui->editType->setEnabled(true);
-    ui->editCopyright->setEnabled(true);
-    ui->editLastAccessed->setEnabled(false);
-
-    //identification
-    ui->editEprint->setEnabled(false);
-    ui->editISBN->setEnabled(false);
-    ui->editISSN->setEnabled(false);
-    ui->editLCCN->setEnabled(false);
-    ui->editMRNumber->setEnabled(false);
-    ui->editDOI->setEnabled(true);
+    ui->editEdition->setVisible(false);
+    ui->editEvent->setVisible(true);
+    ui->editCollection->setVisible(false);
+    ui->editSeries->setVisible(true);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(true);
+    ui->editNumber->setVisible(true);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
 }
 
-void PublicationWidget::layoutUnpublished()
+void PublicationWidget::layoutMisc()
 {
     //Basics
-    ui->editTitle->setEnabled(true);
-    ui->editAuthors->setEnabled(true);
-    ui->editEditor->setEnabled(false);
-    ui->editDate->setEnabled(true);
-    ui->editPublisher->setEnabled(false);
-    ui->editOrganization->setEnabled(false);
+    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(true);
+    ui->editDate->setVisible(true);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(true);
+    ui->editAssignee->setVisible(true);
+    ui->editFillingDate->setVisible(true);
 
     //Extra
-    ui->editSeries->setEnabled(false);
-    ui->editEdition->setEnabled(false);
-    ui->editProceedings->setEnabled(false);
-    ui->editJournal->setEnabled(false);
-    ui->editVolume->setEnabled(false);
-    ui->editNumber->setEnabled(false);
-    ui->editHowPublished->setEnabled(false);
-    ui->editType->setEnabled(false);
-    ui->editCopyright->setEnabled(true);
-    ui->editLastAccessed->setEnabled(false);
-
-    //identification
-    ui->editEprint->setEnabled(false);
-    ui->editISBN->setEnabled(false);
-    ui->editISSN->setEnabled(false);
-    ui->editLCCN->setEnabled(false);
-    ui->editMRNumber->setEnabled(false);
-    ui->editDOI->setEnabled(false);
-}
-
-void PublicationWidget::layoutPatent()
-{
-    //Basics
-    ui->editTitle->setEnabled(true);
-    ui->editAuthors->setEnabled(true);
-    ui->editEditor->setEnabled(false);
-    ui->editDate->setEnabled(true);
-    ui->editPublisher->setEnabled(true);
-    ui->editOrganization->setEnabled(true);
-
-    //Extra
-    ui->editSeries->setEnabled(false);
-    ui->editEdition->setEnabled(true);
-    ui->editProceedings->setEnabled(false);
-    ui->editJournal->setEnabled(false);
-    ui->editVolume->setEnabled(false);
-    ui->editNumber->setEnabled(true);
-    ui->editHowPublished->setEnabled(false);
-    ui->editType->setEnabled(false);
-    ui->editCopyright->setEnabled(true);
-    ui->editLastAccessed->setEnabled(false);
-
-    //identification
-    ui->editEprint->setEnabled(false);
-    ui->editISBN->setEnabled(false);
-    ui->editISSN->setEnabled(false);
-    ui->editLCCN->setEnabled(false);
-    ui->editMRNumber->setEnabled(false);
-    ui->editDOI->setEnabled(true);
+    ui->editEdition->setVisible(true);
+    ui->editEvent->setVisible(true);
+    ui->editCollection->setVisible(true);
+    ui->editSeries->setVisible(true);
+    ui->editCode->setVisible(true);
+    ui->editCourtReporter->setVisible(true);
+    ui->editVolume->setVisible(true);
+    ui->editNumber->setVisible(true);
+    ui->editApplicationNumber->setVisible(true);
+    ui->editPriorityNumbers->setVisible(true);
+    ui->editPublicLawNumber->setVisible(true);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+    ui->editReferences->setVisible(true);
+    ui->editLegalStatus->setVisible(true);
 }
 
 void PublicationWidget::layoutElectronic()
 {
     //Basics
-    ui->editTitle->setEnabled(true);
-    ui->editAuthors->setEnabled(true);
-    ui->editEditor->setEnabled(false);
-    ui->editDate->setEnabled(true);
-    ui->editPublisher->setEnabled(true);
-    ui->editOrganization->setEnabled(true);
+    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(true);
+    ui->editDate->setVisible(true);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editFillingDate->setVisible(false);
 
     //Extra
-    ui->editSeries->setEnabled(false);
-    ui->editEdition->setEnabled(false);
-    ui->editProceedings->setEnabled(false);
-    ui->editJournal->setEnabled(false);
-    ui->editVolume->setEnabled(false);
-    ui->editNumber->setEnabled(false);
-    ui->editHowPublished->setEnabled(false);
-    ui->editType->setEnabled(false);
-    ui->editCopyright->setEnabled(true);
-    ui->editLastAccessed->setEnabled(false);
-
-    //identification
-    ui->editEprint->setEnabled(false);
-    ui->editISBN->setEnabled(false);
-    ui->editISSN->setEnabled(false);
-    ui->editLCCN->setEnabled(false);
-    ui->editMRNumber->setEnabled(false);
-    ui->editDOI->setEnabled(true);
+    ui->editEdition->setVisible(false);
+    ui->editEvent->setVisible(true);
+    ui->editCollection->setVisible(false);
+    ui->editSeries->setVisible(true);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(false);
+    ui->editNumber->setVisible(false);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
 }
+
+void PublicationWidget::layoutScript()
+{
+    //Basics
+    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(true);
+    ui->editDate->setVisible(true);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editFillingDate->setVisible(false);
+
+    //Extra
+    ui->editEdition->setVisible(true);
+    ui->editEvent->setVisible(true);
+    ui->editCollection->setVisible(false);
+    ui->editSeries->setVisible(true);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(false);
+    ui->editNumber->setVisible(true);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
+}
+
+void PublicationWidget::layoutUnpublished()
+{
+    //Basics
+    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(false);
+    ui->editDate->setVisible(false);
+    ui->editPublisher->setVisible(false);
+    ui->editOrganization->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editFillingDate->setVisible(false);
+
+    //Extra
+    ui->editEdition->setVisible(false);
+    ui->editEvent->setVisible(true);
+    ui->editCollection->setVisible(false);
+    ui->editSeries->setVisible(true);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(false);
+    ui->editNumber->setVisible(false);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editHowPublished->setVisible(false);
+    ui->editType->setVisible(true);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
+}
+
+void PublicationWidget::layoutManual()
+{
+    //Basics
+    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(true);
+    ui->editDate->setVisible(true);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(false);
+    ui->editAssignee->setVisible(false);
+    ui->editFillingDate->setVisible(false);
+
+    //Extra
+    ui->editEdition->setVisible(true);
+    ui->editEvent->setVisible(false);
+    ui->editCollection->setVisible(false);
+    ui->editSeries->setVisible(true);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(false);
+    ui->editNumber->setVisible(true);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(false);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
+}
+
+void PublicationWidget::layoutPatent()
+{
+    //Basics
+    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(true);
+    ui->editAssignee->setVisible(true);
+    ui->editDate->setVisible(true);
+    ui->editFillingDate->setVisible(true);
+    ui->editPublisher->setVisible(false);
+    ui->editOrganization->setVisible(false);
+
+    //Extra
+    ui->editEdition->setVisible(false);
+    ui->editEvent->setVisible(false);
+    ui->editCollection->setVisible(false);
+    ui->editSeries->setVisible(false);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(false);
+    ui->editNumber->setVisible(false);
+    ui->editApplicationNumber->setVisible(true);
+    ui->editPriorityNumbers->setVisible(true);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editHowPublished->setVisible(false);
+    ui->editType->setVisible(false);
+    ui->editReferences->setVisible(true);
+    ui->editLegalStatus->setVisible(true);
+}
+
+void PublicationWidget::layoutBill()
+{
+    //Basics
+    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(false);
+    ui->editAssignee->setVisible(false);
+    ui->editDate->setVisible(false);
+    ui->editFillingDate->setVisible(false);
+    ui->editPublisher->setVisible(false);
+    ui->editOrganization->setVisible(true);
+
+    //Extra
+    ui->editEdition->setVisible(false);
+    ui->editEvent->setVisible(true);
+    ui->editCollection->setVisible(false);
+    ui->editSeries->setVisible(false);
+    ui->editCode->setVisible(true);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(true);
+    ui->editNumber->setVisible(true);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editHowPublished->setVisible(false);
+    ui->editType->setVisible(false);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
+}
+
+void PublicationWidget::layoutStatute()
+{
+    //Basics
+    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(false);
+    ui->editAssignee->setVisible(false);
+    ui->editDate->setVisible(true);
+    ui->editFillingDate->setVisible(false);
+    ui->editPublisher->setVisible(false);
+    ui->editOrganization->setVisible(false);
+
+    //Extra
+    ui->editEdition->setVisible(false);
+    ui->editEvent->setVisible(true);
+    ui->editCollection->setVisible(false);
+    ui->editSeries->setVisible(false);
+    ui->editCode->setVisible(true);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(false);
+    ui->editNumber->setVisible(true);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(true);
+    ui->editHowPublished->setVisible(false);
+    ui->editType->setVisible(false);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
+}
+
+void PublicationWidget::layoutCase()
+{
+    //Basics
+    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(false);
+    ui->editAssignee->setVisible(false);
+    ui->editDate->setVisible(true);
+    ui->editFillingDate->setVisible(false);
+    ui->editPublisher->setVisible(false);
+    ui->editOrganization->setVisible(true);
+
+    //Extra
+    ui->editEdition->setVisible(false);
+    ui->editEvent->setVisible(false);
+    ui->editCollection->setVisible(true);
+    ui->editSeries->setVisible(false);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(true);
+    ui->editVolume->setVisible(true);
+    ui->editNumber->setVisible(true);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editHowPublished->setVisible(false);
+    ui->editType->setVisible(false);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
+}
+
+
