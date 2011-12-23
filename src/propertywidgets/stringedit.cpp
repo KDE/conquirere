@@ -29,9 +29,22 @@ StringEdit::StringEdit(QWidget *parent)
 
 void StringEdit::setupLabel()
 {
-    QString string = resource().property(propertyUrl()).toString();
+    QString stringLabel;
+    if(hasMultipleCardinality()) {
+        QList<Nepomuk::Resource> stringList = resource().property(propertyUrl()).toResourceList();
 
-    setLabelText(string);
+        foreach(const Nepomuk::Resource & r, stringList) {
+            stringLabel.append(r.property(propertyUrl()).toString());
+            stringLabel.append(QLatin1String("; "));
+        }
+        stringLabel.chop(2);
+    }
+    else {
+
+    }
+    stringLabel = resource().property(propertyUrl()).toString();
+
+    setLabelText(stringLabel);
 }
 
 void StringEdit::updateResource(const QString & text)

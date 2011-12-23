@@ -45,7 +45,7 @@ void IssnEdit::setupLabel()
     //get the connected journal for the publication
     QString issn = series.property(Nepomuk::Vocabulary::NBIB::issn()).toString();
 
-    addPropertryEntry(issn, resource().uri());
+    addPropertryEntry(issn, series.uri());
 
     setLabelText(issn);
 }
@@ -53,47 +53,72 @@ void IssnEdit::setupLabel()
 void IssnEdit::updateResource(const QString & text)
 {
     Nepomuk::Resource series;
-    Nepomuk::Resource issue;
-
     if(resource().hasType(Nepomuk::Vocabulary::NBIB::Article())) {
-        issue = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
-
-        if(!issue.isValid()) {
-            issue = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::JournalIssue());
-            //DEBUG this seems wrong, but is currently the only way to preserve type hierarchy
-            QList<QUrl>newtype;
-            newtype.append(Nepomuk::Vocabulary::NIE::InformationElement());
-            newtype.append(Nepomuk::Vocabulary::NBIB::Publication());
-            newtype.append(Nepomuk::Vocabulary::NBIB::Collection());
-            newtype.append(issue.types());
-            issue.setTypes(newtype);
-
-            // connect article<->journal issue
-            resource().setProperty(Nepomuk::Vocabulary::NBIB::collection(), issue);
-            issue.addProperty(Nepomuk::Vocabulary::NBIB::article(), resource());
-            series = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Journal());
-        }
-        else {
-            series = issue.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
-        }
+        Nepomuk::Resource issue = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+        series = issue.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
     }
     else {
         series = resource().property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
     }
 
-    if(!series.isValid()) {
-        series = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Journal());
+    if(text.isEmpty()) {
+        series.removeProperty(Nepomuk::Vocabulary::NBIB::issn());
+        return;
     }
 
-    series.setProperty(Nepomuk::Vocabulary::NBIB::issn(), text);
+    // else change the issn
+    if(series.isValid()) {
+        series.setProperty(Nepomuk::Vocabulary::NBIB::issn(), text);
+        return;
+    }
 
+    // series is not valid, as an issn can only be attached to a series, we create a series here
     if(resource().hasType(Nepomuk::Vocabulary::NBIB::Article())) {
-        issue.setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), series);
-        series.setProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), issue);
+        Nepomuk::Resource issue = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+
+        // no collection available for the article, create one
+        if(!issue.isValid()) {
+            issue = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Collection());
+
+            resource().setProperty(Nepomuk::Vocabulary::NBIB::collection(), issue);
+            issue.addProperty(Nepomuk::Vocabulary::NBIB::article(), resource());
+        }
+
+        series = issue.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+
+        if(!series.isValid()) {
+            QUrl seriesUrl = Nepomuk::Vocabulary::NBIB::Series();
+            if(issue.hasType(Nepomuk::Vocabulary::NBIB::JournalIssue()))
+                seriesUrl = Nepomuk::Vocabulary::NBIB::Journal();
+            else if(issue.hasType(Nepomuk::Vocabulary::NBIB::MagazinIssue()))
+                seriesUrl = Nepomuk::Vocabulary::NBIB::Magazin();
+            else if(issue.hasType(Nepomuk::Vocabulary::NBIB::NewspaperIssue()))
+                seriesUrl = Nepomuk::Vocabulary::NBIB::Newspaper();
+
+            series = Nepomuk::Resource(QUrl(), seriesUrl);
+            issue.setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), series);
+            series.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), issue);
+        }
+
+        // now we have a valid series add the issn to it
+         series.setProperty(Nepomuk::Vocabulary::NBIB::issn(), text);
+         return;
     }
+    // if we operate on something else than a article
     else {
-        resource().setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), series);
-        series.setProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), resource());
+        if(!series.isValid()) {
+            QUrl seriesUrl = Nepomuk::Vocabulary::NBIB::Series();
+            if(resource().hasType(Nepomuk::Vocabulary::NBIB::Book()))
+                seriesUrl = Nepomuk::Vocabulary::NBIB::BookSeries();
+
+            series = Nepomuk::Resource(QUrl(), seriesUrl);
+            resource().setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), series);
+            series.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), resource());
+        }
+
+        // now we have a valid series add the issn to it
+         series.setProperty(Nepomuk::Vocabulary::NBIB::issn(), text);
+         return;
     }
 }
 

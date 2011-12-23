@@ -41,30 +41,45 @@ void CodeOfLawEdit::setupLabel()
 
 void CodeOfLawEdit::updateResource(const QString & text)
 {
-    // remove the existing publication
-    Nepomuk::Resource codeOfLaw = resource().property( Nepomuk::Vocabulary::NBIB::codeOfLaw() ).toResource();
-    resource().removeProperty( Nepomuk::Vocabulary::NBIB::codeOfLaw() );
-    // remove backlink too
-    codeOfLaw.removeProperty( Nepomuk::Vocabulary::NBIB::legislation(), resource());
+    Nepomuk::Resource currentCodeOfLaw = resource().property( Nepomuk::Vocabulary::NBIB::codeOfLaw() ).toResource();
 
-    if(text.isEmpty())
+    if(text.isEmpty()) {
+        resource().removeProperty( Nepomuk::Vocabulary::NBIB::codeOfLaw() );
+        // remove backlink too
+        currentCodeOfLaw.removeProperty( Nepomuk::Vocabulary::NBIB::legislation(), resource());
         return;
+    }
 
     // add the selected publication
     QUrl propUrl = propertyEntry(text);
+    Nepomuk::Resource newCodeOfLaw(propUrl);
 
-    if(propUrl.isValid()) {
-        Nepomuk::Resource selectedPublication(propUrl);
-        resource().addProperty( Nepomuk::Vocabulary::NBIB::codeOfLaw(), selectedPublication);
-        selectedPublication.addProperty(Nepomuk::Vocabulary::NBIB::legislation(), resource());
+    if(currentCodeOfLaw.isValid()) {
+        if(newCodeOfLaw.isValid()) {
+            // change link to new CodeOfLaw
+            resource().removeProperty( Nepomuk::Vocabulary::NBIB::codeOfLaw() );
+            currentCodeOfLaw.removeProperty( Nepomuk::Vocabulary::NBIB::legislation(), resource());
+
+            resource().setProperty( Nepomuk::Vocabulary::NBIB::codeOfLaw(), newCodeOfLaw);
+            newCodeOfLaw.addProperty( Nepomuk::Vocabulary::NBIB::legislation(), resource());
+        }
+        else {
+            //rename current CodeOflaw
+            currentCodeOfLaw.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
+        }
+        return;
     }
-    else {
+
+    // no current CodeOfLaw available
+
+    if(!newCodeOfLaw.isValid()) {
         // create a new publication with the string text as title
-        Nepomuk::Resource newCodeOfLaw(propUrl, Nepomuk::Vocabulary::NBIB::CodeOfLaw());
+        newCodeOfLaw = Nepomuk::Resource(propUrl, Nepomuk::Vocabulary::NBIB::CodeOfLaw());
         newCodeOfLaw.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-        resource().setProperty( Nepomuk::Vocabulary::NBIB::codeOfLaw(), newCodeOfLaw);
-        newCodeOfLaw.addProperty( Nepomuk::Vocabulary::NBIB::legislation(), resource());
+
     }
+    resource().setProperty( Nepomuk::Vocabulary::NBIB::codeOfLaw(), newCodeOfLaw);
+    newCodeOfLaw.addProperty( Nepomuk::Vocabulary::NBIB::legislation(), resource());
 }
 
 QStandardItemModel* CodeOfLawEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )

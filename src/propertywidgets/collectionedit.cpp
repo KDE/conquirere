@@ -28,6 +28,7 @@
 CollectionEdit::CollectionEdit(QWidget *parent) :
     PropertyEdit(parent)
 {
+    setPropertyUrl( Nepomuk::Vocabulary::NBIB::collection() );
     setUseDetailDialog(true);
 
     m_collectionType = Nepomuk::Vocabulary::NBIB::Collection();
@@ -43,6 +44,9 @@ void CollectionEdit::setupLabel()
     if(collectionResource.isValid()) {
         Nepomuk::Resource seriesResource = collectionResource.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
 
+        // we show the name of the collection
+        // if it has no name we have a look at the series and show this name instead
+        // makes sense for Article with Issue as collection we like to show the Name of the Journal for example
         title = collectionResource.property(Nepomuk::Vocabulary::NIE::title()).toString();
         if(title.isEmpty()) {
             title = seriesResource.property(Nepomuk::Vocabulary::NIE::title()).toString();
@@ -59,23 +63,42 @@ void CollectionEdit::setupLabel()
 
 void CollectionEdit::updateResource(const QString & text)
 {
-    // remove the existing collection (issue) from the article
-    resource().removeProperty( propertyUrl() );
+    Nepomuk::Resource currentColection = resource().property( propertyUrl() ).toResource();
 
-    if(text.isEmpty())
+    if(text.isEmpty()) {
+        resource().removeProperty( propertyUrl() );
+        currentColection.removeProperty(Nepomuk::Vocabulary::NBIB::article(), resource());
         return;
+    }
 
+    // ok text is not empty
     // try to find the propertyurl of an already existing collection (issue)
     QUrl propUrl = propertyEntry(text);
+    Nepomuk::Resource newCollection = Nepomuk::Resource(propUrl);
 
-    if(propUrl.isValid()) {
-        resource().addProperty( propertyUrl(), Nepomuk::Resource(propUrl));
+    if(currentColection.isValid()) {
+        if(newCollection.isValid()) {
+            //remove old links
+            resource().removeProperty( propertyUrl() );
+            currentColection.removeProperty(Nepomuk::Vocabulary::NBIB::article(), resource());
+
+            //add new collection
+            resource().setProperty( propertyUrl(), newCollection);
+            newCollection.addProperty(Nepomuk::Vocabulary::NBIB::article(), resource());
+        }
+        else {
+            // rename the current collection
+            currentColection.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
+        }
+        return;
     }
-    else {
-        // create a new collection with the string text as title
-        Nepomuk::Resource newCollection(QUrl(), m_collectionType);
-        newCollection.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
 
+    // no currentCollection available
+
+    if(!newCollection.isValid()) {
+        // create a new collection with the string text as title
+        newCollection = Nepomuk::Resource(QUrl(), m_collectionType);
+        newCollection.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
         // any issue is also part of an series.
         // only true for MagazinIssue, NewspaperIssue, JournalIssue
         if( m_collectionType == Nepomuk::Vocabulary::NBIB::JournalIssue() ||
@@ -96,10 +119,11 @@ void CollectionEdit::updateResource(const QString & text)
             newSeries.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), newCollection);
         }
 
-        //connect article and issue
-        resource().addProperty( Nepomuk::Vocabulary::NBIB::collection(), newCollection);
-        newCollection.addProperty( Nepomuk::Vocabulary::NBIB::article(), resource());
     }
+
+    //connect article and collection
+    resource().addProperty( Nepomuk::Vocabulary::NBIB::collection(), newCollection);
+    newCollection.addProperty( Nepomuk::Vocabulary::NBIB::article(), resource());
 }
 
 QStandardItemModel* CollectionEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )

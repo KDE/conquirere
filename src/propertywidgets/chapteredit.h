@@ -25,7 +25,7 @@ class QStandardItemModel;
 /**
   * @brief Used to add a chapter to a bibreference
   *
-  * @pre setResource must be a @c nbib:Publication
+  * @pre setResource must be a @c nbib:Reference
   */
 class ChapterEdit : public PropertyEdit
 {

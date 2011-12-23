@@ -27,57 +27,81 @@
 OrganizationEdit::OrganizationEdit(QWidget *parent)
     :PropertyEdit(parent)
 {
+    setPropertyUrl( Nepomuk::Vocabulary::NBIB::organization() );
 }
 
 void OrganizationEdit::setupLabel()
 {
     QString title;
+
+    //different cases are handled here
+    Nepomuk::Resource organization;
+
+    // I. the resource is an Article, means the organization is attached to the Collection
+    // not the article itself
     if(resource().hasType(Nepomuk::Vocabulary::NBIB::Article())) {
-        Nepomuk::Resource proceedings = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
-        Nepomuk::Resource organization = proceedings.property(propertyUrl()).toResource();
-
-        title = organization.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+        Nepomuk::Resource collection = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+        organization = collection.property(propertyUrl()).toResource();
     }
+    // otherwise the organization is directly connected to the publication
+    // institution for a thesis, court for a case, and so on
     else {
-        Nepomuk::Resource organization = resource().property(propertyUrl()).toResource();
-
-        title = organization.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+        organization = resource().property(propertyUrl()).toResource();
     }
 
-    addPropertryEntry(title, resource().uri());
+    title = organization.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+
+    addPropertryEntry(title, organization.uri());
 
     setLabelText(title);
 }
 
 void OrganizationEdit::updateResource(const QString & text)
 {
-    // remove the existing organizatzion
-    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
-        Nepomuk::Resource organization = resource().property(propertyUrl()).toResource();
-        resource().removeProperty(organization.uri());
+    // the publication is the resource where the organization is attached to
+    // it is the resource directly for most parts, but the Collection for an article
+    Nepomuk::Resource publication;
+    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Article())) {
+        publication = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
     }
     else {
-        Nepomuk::Resource proceedings = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
-        Nepomuk::Resource organization = proceedings.property(propertyUrl()).toResource();
-        resource().removeProperty(organization.uri());
+        publication = resource();
     }
 
-    if(text.isEmpty())
+    // only remove organization if no text was specified
+    if(text.isEmpty()) {
+        publication.removeProperty(propertyUrl());
         return;
+    }
+
+    // else the text changed
+    Nepomuk::Resource currentOrganization = publication.property(propertyUrl()).toResource();;
 
     // try to find the propertyurl of an already existing organizatzion
     QUrl propUrl = propertyEntry(text);
+    Nepomuk::Resource newOrganizatzion = Nepomuk::Resource(propUrl);
 
-    if(propUrl.isValid()) {
-        resource().addProperty( propertyUrl(), Nepomuk::Resource(propUrl));
+    if(currentOrganization.isValid()) {
+        if(newOrganizatzion.isValid()) {
+            // switch to new organization
+            publication.setProperty( propertyUrl(), newOrganizatzion);
+        }
+        else {
+            // rename current organization
+            currentOrganization.setProperty(Nepomuk::Vocabulary::NCO::fullname(), text);
+        }
+        return;
     }
-    else {
-        // create a new organization with the string text as fullname
-        Nepomuk::Resource newOrganizatzion(QUrl(), Nepomuk::Vocabulary::NCO::OrganizationContact());
+
+    // if no current organization can be found
+    // add existing organizatzion with the name of text
+    // or create a new one
+    if(!newOrganizatzion.isValid()) {
+        newOrganizatzion = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::OrganizationContact());
         newOrganizatzion.setProperty(Nepomuk::Vocabulary::NCO::fullname(), text);
-
-        resource().addProperty( propertyUrl(), newOrganizatzion);
     }
+
+    publication.setProperty( propertyUrl(), newOrganizatzion);
 }
 
 QStandardItemModel* OrganizationEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )

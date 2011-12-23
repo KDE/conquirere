@@ -28,6 +28,7 @@
 EventEdit::EventEdit(QWidget *parent)
     :PropertyEdit(parent)
 {
+    setPropertyUrl(Nepomuk::Vocabulary::NBIB::event());
 }
 
 void EventEdit::setupLabel()
@@ -37,31 +38,50 @@ void EventEdit::setupLabel()
 
     title = event.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
-    addPropertryEntry(title, resource().uri());
+    addPropertryEntry(title, event.uri());
 
     setLabelText(title);
 }
 
 void EventEdit::updateResource(const QString & text)
 {
-    resource().removeProperty( propertyUrl() );
+    Nepomuk::Resource currentEvent = resource().property(propertyUrl()).toResource();
 
-    if(text.isEmpty())
+    if(text.isEmpty()) {
+        resource().removeProperty( propertyUrl() );
+        currentEvent.removeProperty(Nepomuk::Vocabulary::NBIB::eventPublication(), resource());
         return;
+    }
 
     // try to find the propertyurl of an already existing event
     QUrl propUrl = propertyEntry(text);
+    Nepomuk::Resource newEvent = Nepomuk::Resource(propUrl);
 
-    if(propUrl.isValid()) {
-        resource().addProperty( propertyUrl(), Nepomuk::Resource(propUrl));
+    if(currentEvent.isValid()) {
+        if(newEvent.isValid()) {
+            // remove old link
+            resource().removeProperty( propertyUrl() );
+            currentEvent.removeProperty(Nepomuk::Vocabulary::NBIB::eventPublication(), resource());
+
+            // set link to new event
+            resource().setProperty( propertyUrl(), newEvent);
+            newEvent.addProperty(Nepomuk::Vocabulary::NBIB::eventPublication(), resource());
+        }
+        else {
+            //rename existing event
+            currentEvent.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
+        }
+        return;
     }
-    else {
-        // create a new event with the string text as title
-        Nepomuk::Resource newEvent(QUrl(), Nepomuk::Vocabulary::PIMO::Event());
+
+    // no current event available, set to newEvent or create a new event
+    if(!newEvent.isValid()) {
+        newEvent = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::PIMO::Event());
         newEvent.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-
-        resource().addProperty( propertyUrl(), newEvent);
     }
+
+    resource().setProperty( propertyUrl(), newEvent);
+    newEvent.addProperty(Nepomuk::Vocabulary::NBIB::eventPublication(), resource());
 }
 
 QStandardItemModel* EventEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )

@@ -219,7 +219,7 @@ Element *ReadFromZotero::readItemEntry(QXmlStreamReader &xmlReader)
         if(startelement && xmlReader.name() == QLatin1String("key")) {
             PlainText *zKey = new PlainText(xmlReader.readElementText());
             Value zkValue;
-            zkValue.append(zKey);
+            zkValue.append(QSharedPointer<ValueItem>(zKey));
             e->insert(QLatin1String("zoteroKey"), zkValue);
         }
         else if(startelement && xmlReader.name() == QLatin1String("numChildren")) {
@@ -227,7 +227,7 @@ Element *ReadFromZotero::readItemEntry(QXmlStreamReader &xmlReader)
 
             PlainText *ptValue = new PlainText(zoteroChildren);
             Value valueList;
-            valueList.append(ptValue);
+            valueList.append(QSharedPointer<ValueItem>(ptValue));
             e->insert(QLatin1String("zoteroChildren"), valueList);
         }
         else if(startelement && xmlReader.name() == QLatin1String("updated")) {
@@ -235,7 +235,7 @@ Element *ReadFromZotero::readItemEntry(QXmlStreamReader &xmlReader)
 
             PlainText *ptValue = new PlainText(zoteroUpdated);
             Value valueList;
-            valueList.append(ptValue);
+            valueList.append(QSharedPointer<ValueItem>(ptValue));
             e->insert(QLatin1String("zoteroUpdated"), valueList);
         }
         else if(xmlReader.name() == "content") {
@@ -243,7 +243,7 @@ Element *ReadFromZotero::readItemEntry(QXmlStreamReader &xmlReader)
 
             PlainText *ptValue = new PlainText(etag);
             Value valueList;
-            valueList.append(ptValue);
+            valueList.append(QSharedPointer<ValueItem>(ptValue));
             e->insert(QLatin1String("zoteroEtag"), valueList);
 
             readJsonContent(e, xmlReader.readElementText());
@@ -293,7 +293,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
                     delete k;
                 }
                 else {
-                    tagList.append(k);
+                    tagList.append(QSharedPointer<ValueItem>(k));
                 }
             }
             e->insert(m_zoteroToBibTeX.value(QLatin1String("tags"), QLatin1String("keywords")), tagList);
@@ -316,7 +316,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
 
                 PlainText *ptValue = new PlainText(QLatin1String("journal"));
                 Value valueList;
-                valueList.append(ptValue);
+                valueList.append(QSharedPointer<ValueItem>(ptValue));
                 e->insert(QLatin1String("type"), valueList);
             }
             else if(text == QLatin1String("magazinearticle")) {
@@ -324,7 +324,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
 
                 PlainText *ptValue = new PlainText(QLatin1String("magazine"));
                 Value valueList;
-                valueList.append(ptValue);
+                valueList.append(QSharedPointer<ValueItem>(ptValue));
                 e->insert(QLatin1String("type"), valueList);
             }
             else if(text == QLatin1String("newspaperarticle")) {
@@ -332,7 +332,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
 
                 PlainText *ptValue = new PlainText(QLatin1String("newspaper"));
                 Value valueList;
-                valueList.append(ptValue);
+                valueList.append(QSharedPointer<ValueItem>(ptValue));
                 e->insert(QLatin1String("type"), valueList);
             }
             else {
@@ -357,7 +357,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
                 QString translatedCreatorType = m_zoteroToBibTeX.value(creatorType, creatorType);
                 Value creatorValue = e->value(translatedCreatorType);
 
-                creatorValue.append(p);
+                creatorValue.append(QSharedPointer<ValueItem>(p));
                 e->remove(m_zoteroToBibTeX.value(creatorType, creatorType));
                 e->insert(m_zoteroToBibTeX.value(creatorType, creatorType), creatorValue);
             }
@@ -368,7 +368,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
                 continue;
             PlainText *ptValue = new PlainText(text);
             Value valueList;
-            valueList.append(ptValue);
+            valueList.append(QSharedPointer<ValueItem>(ptValue));
             // here either the transformed key name from the lookup table is used
             // or if nothing is found the key from zotero is used
             e->insert(m_zoteroToBibTeX.value(i.key(), i.key()), valueList);
@@ -400,7 +400,7 @@ void ReadFromZotero::readJsonContentOriginal(Entry *e, const QString &content)
                     delete k;
                 }
                 else {
-                    tagList.append(k);
+                    tagList.append(QSharedPointer<ValueItem>(k));
                 }
             }
             e->insert(QLatin1String("tags"), tagList);
@@ -417,7 +417,7 @@ void ReadFromZotero::readJsonContentOriginal(Entry *e, const QString &content)
 
                 QString type = authorMap.value(QLatin1String("creatorType")).toString();
                 Value list = e->value(type);
-                list.append(p);
+                list.append(QSharedPointer<ValueItem>(p));
                 e->remove(type);
                 e->insert(type, list);
             }
@@ -428,7 +428,7 @@ void ReadFromZotero::readJsonContentOriginal(Entry *e, const QString &content)
                 continue;
             PlainText *ptValue = new PlainText(text);
             Value valueList;
-            valueList.append(ptValue);
+            valueList.append(QSharedPointer<ValueItem>(ptValue));
             e->insert(i.key(), valueList);
         }
     }

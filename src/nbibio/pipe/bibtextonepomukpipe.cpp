@@ -51,6 +51,7 @@
 #include <Akonadi/CollectionFetchJob>
 #include <Akonadi/CollectionFetchScope>
 
+#include <QtCore/QSharedPointer>
 #include <QtCore/QDebug>
 
 BibTexToNepomukPipe::BibTexToNepomukPipe()
@@ -608,7 +609,7 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
 
         foreach(const QString &s, keywords) {
             Keyword *k = new Keyword(s.trimmed());
-            keywordList.append(k);
+            keywordList.append(QSharedPointer<ValueItem>(k));
         }
 
         addKewords(keywordList, publication);
@@ -634,10 +635,10 @@ void BibTexToNepomukPipe::addPublisher(const Value &publisherValue, const Value 
     if(!address.isEmpty())
         addr.setProperty(Nepomuk::Vocabulary::NCO::extendedAddress(), address);
 
-    foreach(ValueItem *publisherItem, publisherValue) {
+    foreach(QSharedPointer<ValueItem> publisherItem, publisherValue) {
         //transform KBibTex representation of the name into my own Name
         Name publisher;
-        Person *person = dynamic_cast<Person *>(publisherItem);
+        Person *person = dynamic_cast<Person *>(publisherItem.data());
         if(person) {
             publisher.first = person->firstName().toUtf8();
             publisher.last = person->lastName().toUtf8();
@@ -781,10 +782,10 @@ void BibTexToNepomukPipe::addAuthor(const Value &contentValue, Nepomuk::Resource
         authorResource.removeProperty(Nepomuk::Vocabulary::NCO::creator());
     }
 
-    foreach(ValueItem *authorItem, contentValue) {
+    foreach(QSharedPointer<ValueItem> authorItem, contentValue) {
         //transform KBibTex representation of the name into my own Name
         Name author;
-        Person *person = dynamic_cast<Person *>(authorItem);
+        Person *person = dynamic_cast<Person *>(authorItem.data());
         if(person) {
             author.first = person->firstName().toUtf8();
             author.last = person->lastName().toUtf8();
@@ -906,10 +907,10 @@ void BibTexToNepomukPipe::addBookAuthor(const Value &contentValue, Nepomuk::Reso
         authorResource.removeProperty(Nepomuk::Vocabulary::NCO::creator());
     }
 
-    foreach(ValueItem *authorItem, contentValue) {
+    foreach(QSharedPointer<ValueItem> authorItem, contentValue) {
         //transform KBibTex representation of the name into my own Name
         Name author;
-        Person *person = dynamic_cast<Person *>(authorItem);
+        Person *person = dynamic_cast<Person *>(authorItem.data());
         if(person) {
             author.first = person->firstName().toUtf8();
             author.last = person->lastName().toUtf8();
@@ -996,10 +997,10 @@ void BibTexToNepomukPipe::addSeriesEditor(const Value &contentValue, Nepomuk::Re
         seriesResource.removeProperty(Nepomuk::Vocabulary::NBIB::editor());
     }
 
-    foreach(ValueItem *authorItem, contentValue) {
+    foreach(QSharedPointer<ValueItem> authorItem, contentValue) {
         //transform KBibTex representation of the name into my own Name
         Name editor;
-        Person *person = dynamic_cast<Person *>(authorItem);
+        Person *person = dynamic_cast<Person *>(authorItem.data());
         if(person) {
             editor.first = person->firstName().toUtf8();
             editor.last = person->lastName().toUtf8();
@@ -1122,10 +1123,10 @@ void BibTexToNepomukPipe::addEditor(const Value &contentValue, Nepomuk::Resource
         publication.removeProperty(Nepomuk::Vocabulary::NBIB::editor());
     }
 
-    foreach(ValueItem *editorItem, contentValue) {
+    foreach(QSharedPointer<ValueItem> editorItem, contentValue) {
         //transform KBibTex representation of the name into my own Name
         Name editor;
-        Person *person = dynamic_cast<Person *>(editorItem);
+        Person *person = dynamic_cast<Person *>(editorItem.data());
         if(person) {
             editor.first = person->firstName().toUtf8();
             editor.last = person->lastName().toUtf8();
@@ -1623,8 +1624,8 @@ void BibTexToNepomukPipe::addKewords(const Value &content, Nepomuk::Resource pub
         publication.removeProperty(Soprano::Vocabulary::NAO::hasTag());
     }
 
-    foreach(ValueItem *vi, content) {
-        Keyword *k = dynamic_cast<Keyword *>(vi);        
+    foreach(QSharedPointer<ValueItem> vi, content) {
+        Keyword *k = dynamic_cast<Keyword *>(vi.data());
         Nepomuk::Tag tag(k->text().toUtf8());
         tag.setLabel(k->text().toUtf8());
         publication.addTag(tag);

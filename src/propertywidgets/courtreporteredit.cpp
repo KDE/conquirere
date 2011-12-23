@@ -27,12 +27,13 @@
 CourtReporterEdit::CourtReporterEdit(QWidget *parent) :
     PropertyEdit(parent)
 {
+    setPropertyUrl( Nepomuk::Vocabulary::NBIB::courtReporter() );
 }
 
 void CourtReporterEdit::setupLabel()
 {
     QString title;
-    Nepomuk::Resource courtReporter = resource().property(Nepomuk::Vocabulary::NBIB::courtReporter()).toResource();
+    Nepomuk::Resource courtReporter = resource().property(propertyUrl()).toResource();
     title = courtReporter.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
     addPropertryEntry(title, courtReporter.uri());
@@ -42,25 +43,41 @@ void CourtReporterEdit::setupLabel()
 
 void CourtReporterEdit::updateResource(const QString & text)
 {
-    //remove exsting courtReporter
-    resource().removeProperty(Nepomuk::Vocabulary::NBIB::courtReporter());
-
-    if(text.isEmpty())
+    Nepomuk::Resource currentCourtReporter = resource().property( propertyUrl() ).toResource();
+    if(text.isEmpty()) {
+        resource().removeProperty(propertyUrl());
+        currentCourtReporter.removeProperty( Nepomuk::Vocabulary::NBIB::legalCase() , resource());
         return;
+    }
 
     // try to find the propertyurl of an already existing organizatzion
     QUrl propUrl = propertyEntry(text);
+    Nepomuk::Resource newCourtReporter = Nepomuk::Resource(propUrl);
 
-    if(propUrl.isValid()) {
-        resource().addProperty( propertyUrl(), Nepomuk::Resource(propUrl));
+    if(currentCourtReporter.isValid()) {
+        if(newCourtReporter.isValid()) {
+            currentCourtReporter.removeProperty( Nepomuk::Vocabulary::NBIB::legalCase() , resource());
+
+            // change links
+            resource().setProperty( propertyUrl() , newCourtReporter);
+            newCourtReporter.addProperty( Nepomuk::Vocabulary::NBIB::legalCase() , resource());
+        }
+        else {
+            // rename
+            currentCourtReporter.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
+        }
+        return;
     }
-    else {
-        // create a new organization with the string text as fullname
-        Nepomuk::Resource newCourtReporter(QUrl(), Nepomuk::Vocabulary::NBIB::CourtReporter());
+
+    // if no current courtReporter exist
+
+    if(!newCourtReporter.isValid()) {
+        newCourtReporter = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::CourtReporter());
         newCourtReporter.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-
-        resource().addProperty( Nepomuk::Vocabulary::NBIB::courtReporter(), newCourtReporter);
     }
+
+    resource().setProperty( propertyUrl() , newCourtReporter);
+    newCourtReporter.addProperty( Nepomuk::Vocabulary::NBIB::legalCase() , resource());
 }
 
 QStandardItemModel* CourtReporterEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )

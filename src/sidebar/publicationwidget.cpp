@@ -374,7 +374,6 @@ void PublicationWidget::setupWidget()
     ui->editPublisher->setPropertyUrl( Nepomuk::Vocabulary::NCO::publisher() );
     ui->editPublisher->setUseDetailDialog(true);
     connect(ui->editPublisher, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
-    ui->editOrganization->setPropertyUrl( Nepomuk::Vocabulary::NBIB::organization());
     ui->editFileObject->setMode(FileObjectEdit::Local);
     ui->editFileObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
     ui->editRemoteObject->setMode(FileObjectEdit::Remote);
@@ -386,9 +385,7 @@ void PublicationWidget::setupWidget()
 
     // Extra section
     ui->editEdition->setPropertyUrl( Nepomuk::Vocabulary::NBIB::edition() );
-    ui->editEvent->setPropertyUrl( Nepomuk::Vocabulary::NBIB::event() );
     ui->editCollection->setPropertyUrl( Nepomuk::Vocabulary::NBIB::collection() );
-    ui->editSeries->setPropertyUrl( Nepomuk::Vocabulary::NBIB::inSeries() );
     ui->editCode->setPropertyUrl( Nepomuk::Vocabulary::NBIB::codeOfLaw() );
     ui->editCourtReporter->setPropertyUrl( Nepomuk::Vocabulary::NBIB::courtReporter() );
     ui->editVolume->setPropertyUrl( Nepomuk::Vocabulary::NBIB::volume() );
@@ -574,7 +571,7 @@ void PublicationWidget::layoutArticle()
     ui->editCode->setVisible(false);
     ui->editCourtReporter->setVisible(false);
     ui->editVolume->setVisible(true);
-    ui->editNumber->setVisible(false);
+    ui->editNumber->setVisible(true);
     ui->editApplicationNumber->setVisible(false);
     ui->editPriorityNumbers->setVisible(false);
     ui->editPublicLawNumber->setVisible(false);

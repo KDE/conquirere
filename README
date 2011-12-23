@@ -59,6 +59,8 @@ and start via $HOME/bin/conquirere
 copy
 nbib/nbib.trig
 nbib/nbib.ontology
+nbib/sync.trig
+nbib/sync.ontology
 
 into
 /usr/share/ontology/nie

@@ -33,12 +33,10 @@ void VolumeNumberEdit::setupLabel()
 {
     QString string;
 
-    // two different cases must be checked here
-    // I. resource() is an article, with an attached Issue, from a Series
-    // II. resource() is an Issue, from a Series
-
-    // 1st get the issue
+    // three different cases must be checked here
     Nepomuk::Resource issueResource;
+
+    // I. resource() is an article, with an attached Collection, from a Series
     if(resource().hasType(Nepomuk::Vocabulary::NBIB::Article())) {
         issueResource = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
     }
@@ -52,6 +50,7 @@ void VolumeNumberEdit::setupLabel()
         if(propertyUrl() == Nepomuk::Vocabulary::NBIB::volume())
             issueResource = resource().property(Nepomuk::Vocabulary::NBIB::courtReporter()).toResource();
     }
+    // IV. resource() is an Collection, from a Series
     else if(resource().hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
         issueResource = resource();
     }
@@ -76,7 +75,7 @@ void VolumeNumberEdit::updateResource(const QString & text)
     // or it marks the volume/number of an JournalIssue or any other issue collection where an article was published in.
     // or the volume for the CodeOfLaw of an legislation
 
-    // check if the resource has a journalIssue attaced to it
+    // check if the resource has a Collection attaced to it
     Nepomuk::Resource journalIssue = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
     Nepomuk::Resource codeOfLaw = resource().property(Nepomuk::Vocabulary::NBIB::codeOfLaw()).toResource();
     Nepomuk::Resource courtReporter = resource().property(Nepomuk::Vocabulary::NBIB::courtReporter()).toResource();
@@ -85,12 +84,14 @@ void VolumeNumberEdit::updateResource(const QString & text)
         // in this case attach volume/number to the issue rather than the publication from resource()
         journalIssue.setProperty(propertyUrl(), text);
     }
-    else if(codeOfLaw.isValid()) {
-        // in this case attach volume/number to the issue rather than the publication from resource()
+    else if(codeOfLaw.isValid() && propertyUrl() == Nepomuk::Vocabulary::NBIB::volume()) {
+        // in this case attach volume to the issue rather than the publication from resource()
+        // the number is the bill number for the Legislation
         codeOfLaw.setProperty(propertyUrl(), text);
     }
-    else if(courtReporter.isValid()) {
-        // in this case attach volume/number to the issue rather than the publication from resource()
+    else if(courtReporter.isValid() && propertyUrl() == Nepomuk::Vocabulary::NBIB::volume()) {
+        // in this case attach volume to the issue rather than the publication from resource()
+        // the number is the docket number for the LegalCaseDocument
         courtReporter.setProperty(propertyUrl(), text);
     }
     else {

@@ -26,6 +26,8 @@
 PublicationEdit::PublicationEdit(QWidget *parent)
     :PropertyEdit(parent)
 {
+    setPropertyUrl(Nepomuk::Vocabulary::NBIB::publication());
+    setUseDetailDialog(true);
 }
 
 void PublicationEdit::setupLabel()
@@ -41,30 +43,46 @@ void PublicationEdit::setupLabel()
 
 void PublicationEdit::updateResource(const QString & text)
 {
-    // remove the existing publication
-    Nepomuk::Resource publication = resource().property( propertyUrl() ).toResource();
-    resource().removeProperty( propertyUrl() );
-    // remove backlink too
-    publication.removeProperty( Nepomuk::Vocabulary::NBIB::reference(), resource());
+    // resource is a nbib:reference
+    Nepomuk::Resource currentPublication = resource().property( propertyUrl() ).toResource();
 
-    if(text.isEmpty())
+    if(text.isEmpty()) {
+        // remove the existing publication
+        resource().removeProperty( propertyUrl() );
+        // remove backlink too
+        currentPublication.removeProperty( Nepomuk::Vocabulary::NBIB::reference(), resource());
         return;
+    }
 
-    // add the selected publication
     QUrl propUrl = propertyEntry(text);
+    Nepomuk::Resource selectedPublication = Nepomuk::Resource(propUrl);
 
-    if(propUrl.isValid()) {
-        Nepomuk::Resource selectedPublication(propUrl);
-        resource().addProperty( propertyUrl(), selectedPublication);
-        selectedPublication.addProperty(Nepomuk::Vocabulary::NBIB::reference(), resource());
+    if(currentPublication.isValid()) {
+        if(selectedPublication.isValid()) {
+            //remove old links
+            resource().removeProperty( propertyUrl() );
+            currentPublication.removeProperty( Nepomuk::Vocabulary::NBIB::reference(), resource());
+
+            //add the new links
+            resource().addProperty( propertyUrl(), selectedPublication);
+            selectedPublication.addProperty(Nepomuk::Vocabulary::NBIB::reference(), resource());
+            return;
+        }
+        else {
+            //rename if no publication with the new name already exist
+            currentPublication.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
+            return;
+        }
     }
-    else {
-        // create a new publication with the string text as title
-        Nepomuk::Resource newPublication(propUrl, Nepomuk::Vocabulary::NBIB::Publication());
-        newPublication.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-        resource().setProperty( propertyUrl(), newPublication);
-        newPublication.addProperty( Nepomuk::Vocabulary::NBIB::reference(), resource());
+
+    // if no current publication exist, but we found one with the new name, link to it
+    if(!selectedPublication.isValid()) {
+        selectedPublication = Nepomuk::Resource (propUrl, Nepomuk::Vocabulary::NBIB::Publication());
+        selectedPublication.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
     }
+
+    resource().setProperty( propertyUrl(), selectedPublication);
+    selectedPublication.addProperty(Nepomuk::Vocabulary::NBIB::reference(), resource());
 }
 
 QStandardItemModel* PublicationEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )

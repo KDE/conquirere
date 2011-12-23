@@ -29,6 +29,7 @@
 #include <Nepomuk/Variant>
 #include <Nepomuk/Tag>
 
+#include <QtCore/QSharedPointer>
 #include <QtCore/QDebug>
 
 NepomukToBibTexPipe::NepomukToBibTexPipe()
@@ -91,11 +92,11 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
 
         if(m_addNepomukUris) {
             Value v1;
-            v1.append(new PlainText(publication.resourceUri().toString()));
+            v1.append(QSharedPointer<ValueItem>(new PlainText(publication.resourceUri().toString())));
             e->insert(QLatin1String("nepomuk-publication-uri"), v1);
             if(reference.isValid()) {
                 Value v2;
-                v2.append(new PlainText(reference.resourceUri().toString()));
+                v2.append(QSharedPointer<ValueItem>(new PlainText(reference.resourceUri().toString())));
                 e->insert(QLatin1String("nepomuk-reference-uri"), v2);
             }
         }
@@ -264,13 +265,13 @@ void NepomukToBibTexPipe::setTitle(Entry *e, Nepomuk::Resource publication, Nepo
 
     if(!title.isEmpty()) {
         Value v;
-        v.append(new PlainText(title));
+        v.append(QSharedPointer<ValueItem>(new PlainText(title)));
         e->insert(Entry::ftTitle, v);
     }
 
     if(!booktitle.isEmpty()) {
         Value v;
-        v.append(new PlainText(booktitle));
+        v.append(QSharedPointer<ValueItem>(new PlainText(booktitle)));
         e->insert(Entry::ftBookTitle, v);
     }
 }
@@ -296,10 +297,10 @@ void NepomukToBibTexPipe::setChapter(Entry *e, Nepomuk::Resource reference)
 
     if(!chapterTitle.isEmpty()) {
         Value v;
-        v.append(new PlainText(chapterTitle));
+        v.append(QSharedPointer<ValueItem>(new PlainText(chapterTitle)));
         e->insert(chapterEntry, v);
         Value v2;
-        v2.append(new PlainText(bookTitle));
+        v2.append(QSharedPointer<ValueItem>(new PlainText(bookTitle)));
         if(publication.hasType(Nepomuk::Vocabulary::NBIB::Bill())) {
             e->insert(Entry::ftTitle, v2);
         }
@@ -309,7 +310,7 @@ void NepomukToBibTexPipe::setChapter(Entry *e, Nepomuk::Resource reference)
 
         if(!chapterAuthor.isEmpty()) {
             Value v;
-            v.append(new PlainText(chapterAuthor));
+            v.append(QSharedPointer<ValueItem>(new PlainText(chapterAuthor)));
             e->insert(Entry::ftAuthor, v);
         }
     }
@@ -329,7 +330,7 @@ void NepomukToBibTexPipe::setAuthors(Entry *e, Nepomuk::Resource publication)
                 firstName = a.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
 
             Person *p = new Person(firstName, lastName, suffix);
-            v.append(p);
+            v.append(QSharedPointer<ValueItem>(p));
         }
 
         if(!v.isEmpty()) {
@@ -352,7 +353,7 @@ void NepomukToBibTexPipe::setBookAuthors(Entry *e, Nepomuk::Resource publication
                 firstName = a.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
 
             Person *p = new Person(firstName, lastName, suffix);
-            v.append(p);
+            v.append(QSharedPointer<ValueItem>(p));
         }
 
         if(!v.isEmpty()) {
@@ -375,7 +376,7 @@ void NepomukToBibTexPipe::setEditors(Entry *e, Nepomuk::Resource publication)
                 firstName = a.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
 
             Person *p = new Person(firstName, lastName, suffix);
-            v.append(p);
+            v.append(QSharedPointer<ValueItem>(p));
         }
 
         if(!v.isEmpty()) {
@@ -399,7 +400,7 @@ void NepomukToBibTexPipe::setSeriesEditors(Entry *e, Nepomuk::Resource publicati
                 firstName = a.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
 
             Person *p = new Person(firstName, lastName, suffix);
-            v.append(p);
+            v.append(QSharedPointer<ValueItem>(p));
         }
 
         if(!v.isEmpty()) {
@@ -470,14 +471,14 @@ void NepomukToBibTexPipe::setPublicationDate(Entry *e, Nepomuk::Resource publica
 
         if(!monthName.isEmpty()) {
             Value v;
-            v.append(new PlainText(monthName));
+            v.append(QSharedPointer<ValueItem>(new PlainText(monthName)));
             e->insert(Entry::ftMonth, v);
         }
     }
 
     if(!year.isEmpty()) {
         Value v;
-        v.append(new PlainText(year));
+        v.append(QSharedPointer<ValueItem>(new PlainText(year)));
         e->insert(Entry::ftYear, v);
 
     }
@@ -518,12 +519,12 @@ void NepomukToBibTexPipe::setPublisher(Entry *e, Nepomuk::Resource publication)
 
         if(!names.isEmpty()) {
             Value v;
-            v.append(new PlainText(names));
+            v.append(QSharedPointer<ValueItem>(new PlainText(names)));
             e->insert(publisherEntry, v);
         }
         if(!address.isEmpty()) {
             Value v;
-            v.append(new PlainText(address));
+            v.append(QSharedPointer<ValueItem>(new PlainText(address)));
             e->insert(Entry::ftAddress, v);
         }
     }
@@ -546,7 +547,7 @@ void NepomukToBibTexPipe::setOrganization(Entry *e, Nepomuk::Resource publicatio
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("organization"), v);
     }
 }
@@ -566,7 +567,7 @@ void NepomukToBibTexPipe::setUrl(Entry *e, Nepomuk::Resource publication)
     urlList.chop(2);
     if(!urlList.isEmpty()) {
         Value v;
-        v.append(new PlainText(urlList));
+        v.append(QSharedPointer<ValueItem>(new PlainText(urlList)));
         e->insert(Entry::ftUrl, v);
     }
 }
@@ -578,7 +579,7 @@ void NepomukToBibTexPipe::setSeries(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(Entry::ftSeries, v);
     }
 }
@@ -589,7 +590,7 @@ void NepomukToBibTexPipe::setEdition(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("edition"), v);
     }
 }
@@ -611,17 +612,17 @@ void NepomukToBibTexPipe::setJournal(Entry *e, Nepomuk::Resource publication)
 
     if(!journalNumber.isEmpty()) {
         Value v;
-        v.append(new PlainText(journalNumber));
+        v.append(QSharedPointer<ValueItem>(new PlainText(journalNumber)));
         e->insert(Entry::ftNumber, v);
     }
     if(!journalVolume.isEmpty()) {
         Value v;
-        v.append(new PlainText(journalVolume));
+        v.append(QSharedPointer<ValueItem>(new PlainText(journalVolume)));
         e->insert(Entry::ftVolume, v);
     }
     if(!journalName.isEmpty()) {
         Value v;
-        v.append(new PlainText(journalName));
+        v.append(QSharedPointer<ValueItem>(new PlainText(journalName)));
         e->insert(Entry::ftJournal, v);
     }
 }
@@ -634,7 +635,7 @@ void NepomukToBibTexPipe::setVolume(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(Entry::ftVolume, v);
     }
 }
@@ -647,7 +648,7 @@ void NepomukToBibTexPipe::setNumber(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(Entry::ftNumber, v);
     }
 }
@@ -658,7 +659,7 @@ void NepomukToBibTexPipe::setPublicationMethod(Entry *e, Nepomuk::Resource publi
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("howpublished"), v);
     }
 }
@@ -670,7 +671,7 @@ void NepomukToBibTexPipe::setType(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("type"), v);
     }
 }
@@ -681,7 +682,7 @@ void NepomukToBibTexPipe::setCopyright(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("copyrigth"), v);
     }
 }
@@ -692,7 +693,7 @@ void NepomukToBibTexPipe::setLastAccessed(Entry *e, Nepomuk::Resource publicatio
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("accessdate"), v);
     }
 }
@@ -703,7 +704,7 @@ void NepomukToBibTexPipe::setDate(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("date"), v);
     }
 }
@@ -714,7 +715,7 @@ void NepomukToBibTexPipe::setLanguage(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("language"), v);
     }
 }
@@ -725,7 +726,7 @@ void NepomukToBibTexPipe::setEPrint(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("eprint"), v);
     }
 }
@@ -736,7 +737,7 @@ void NepomukToBibTexPipe::setISBN(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("isbn"), v);
     }
 }
@@ -748,7 +749,7 @@ void NepomukToBibTexPipe::setISSN(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("issn"), v);
     }
 }
@@ -759,7 +760,7 @@ void NepomukToBibTexPipe::setLCCN(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("lccn"), v);
     }
 }
@@ -770,7 +771,7 @@ void NepomukToBibTexPipe::setMRNumber(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("mrnumber"), v);
     }
 }
@@ -781,7 +782,7 @@ void NepomukToBibTexPipe::setDOI(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("doi"), v);
     }
 }
@@ -792,7 +793,7 @@ void NepomukToBibTexPipe::setPubMed(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("pubmed"), v);
     }
 }
@@ -803,7 +804,7 @@ void NepomukToBibTexPipe::setAbstract(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("abstract"), v);
     }
 }
@@ -814,7 +815,7 @@ void NepomukToBibTexPipe::setNote(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("note"), v);
     }
 }
@@ -825,7 +826,7 @@ void NepomukToBibTexPipe::setAnnote(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("annote"), v);
     }
 }
@@ -836,7 +837,7 @@ void NepomukToBibTexPipe::setPages(Entry *e, Nepomuk::Resource reference)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("pages"), v);
     }
 }
@@ -847,7 +848,7 @@ void NepomukToBibTexPipe::setNumOfPages(Entry *e, Nepomuk::Resource reference)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("numpages"), v);
     }
 }
@@ -863,7 +864,7 @@ void NepomukToBibTexPipe::setEvent(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("event"), v);
     }
 }
@@ -875,7 +876,7 @@ void NepomukToBibTexPipe::setCode(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("code"), v);
     }
 }
@@ -886,7 +887,7 @@ void NepomukToBibTexPipe::setCodeNumber(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("codenumber"), v);
     }
 }
@@ -898,7 +899,7 @@ void NepomukToBibTexPipe::setCodeVolume(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("codevolume"), v);
     }
 }
@@ -910,7 +911,7 @@ void NepomukToBibTexPipe::setReporter(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("reporter"), v);
     }
 }
@@ -922,7 +923,7 @@ void NepomukToBibTexPipe::setReporterVolume(Entry *e, Nepomuk::Resource publicat
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("reportervolume"), v);
     }
 }
@@ -933,7 +934,7 @@ void NepomukToBibTexPipe::setApplicationNumber(Entry *e, Nepomuk::Resource publi
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("applicationnumber"), v);
     }
 }
@@ -944,7 +945,7 @@ void NepomukToBibTexPipe::setPatentReferences(Entry *e, Nepomuk::Resource public
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("references"), v);
     }
 }
@@ -955,7 +956,7 @@ void NepomukToBibTexPipe::setLegalStatus(Entry *e, Nepomuk::Resource publication
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("legalstatus"), v);
     }
 }
@@ -966,7 +967,7 @@ void NepomukToBibTexPipe::setFilingDate(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("filingdate"), v);
     }
 }
@@ -979,7 +980,7 @@ void NepomukToBibTexPipe::setAssignee(Entry *e, Nepomuk::Resource publication)
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("assignee"), v);
     }
 }
@@ -990,7 +991,7 @@ void NepomukToBibTexPipe::setPriorityNumbers(Entry *e, Nepomuk::Resource publica
 
     if(!string.isEmpty()) {
         Value v;
-        v.append(new PlainText(string));
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("prioritynumbers"), v);
     }
 }
@@ -1002,7 +1003,7 @@ void NepomukToBibTexPipe::setKewords(Entry *e, Nepomuk::Resource publication)
     Value v;
     foreach(const Nepomuk::Tag & tag, tags) {
         Keyword *p = new Keyword(tag.genericLabel());
-        v.append(p);
+        v.append(QSharedPointer<ValueItem>(p));
     }
 
     if(!v.isEmpty()) {
@@ -1026,17 +1027,17 @@ void NepomukToBibTexPipe::setSyncDetails(Entry *e, Nepomuk::Resource publication
         //now we have the right object, write down sync details
         QString etag = r.property(Nepomuk::Vocabulary::SYNC::etag()).toString();
         Value v1;
-        v1.append(new PlainText(etag));
+        v1.append(QSharedPointer<ValueItem>(new PlainText(etag)));
         e->insert(QLatin1String("zoteroEtag"), v1);
 
         QString key = r.property(Nepomuk::Vocabulary::SYNC::id()).toString();
         Value v2;
-        v2.append(new PlainText(key));
+        v2.append(QSharedPointer<ValueItem>(new PlainText(key)));
         e->insert(QLatin1String("zoteroKey"), v2);
 
         QString updated = r.property(Nepomuk::Vocabulary::NUAO::lastModification()).toString();
         Value v3;
-        v3.append(new PlainText(updated));
+        v3.append(QSharedPointer<ValueItem>(new PlainText(updated)));
         e->insert(QLatin1String("zoteroUpdated"), v3);
 
         break;
@@ -1071,7 +1072,7 @@ void NepomukToBibTexPipe::setArticleType(Entry *e, Nepomuk::Resource publication
 
         if(!articleType.isEmpty()) {
             Value v;
-            v.append(new PlainText(articleType));
+            v.append(QSharedPointer<ValueItem>(new PlainText(articleType)));
             e->insert(QLatin1String("articletype"), v);
         }
     }

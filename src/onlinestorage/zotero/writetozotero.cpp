@@ -386,7 +386,7 @@ QByteArray WriteToZotero::writeJsonContent(File items, bool onlyUpdate)
             else if(entry->type().toLower() == QLatin1String("mastersthesis")) {
                 PlainText *ptValue = new PlainText(QLatin1String("master"));
                 Value valueList;
-                valueList.append(ptValue);
+                valueList.append(QSharedPointer<ValueItem>(ptValue));
                 entry->insert(QLatin1String("thesisType"), valueList);
 
                 itemList.append( createThesisJson( entry ) );
@@ -397,7 +397,7 @@ QByteArray WriteToZotero::writeJsonContent(File items, bool onlyUpdate)
             else if(entry->type().toLower() == QLatin1String("phdthesis")) {
                 PlainText *ptValue = new PlainText(QLatin1String("phd"));
                 Value valueList;
-                valueList.append(ptValue);
+                valueList.append(QSharedPointer<ValueItem>(ptValue));
                 entry->insert(QLatin1String("thesisType"), valueList);
 
                 itemList.append( createThesisJson( entry) );
@@ -405,7 +405,7 @@ QByteArray WriteToZotero::writeJsonContent(File items, bool onlyUpdate)
             else if(entry->type().toLower() == QLatin1String("bachelor")) {
                 PlainText *ptValue = new PlainText(QLatin1String("master"));
                 Value valueList;
-                valueList.append(ptValue);
+                valueList.append(QSharedPointer<ValueItem>(ptValue));
                 entry->insert(QLatin1String("thesisType"), valueList);
 
                 itemList.append( createThesisJson( entry) );
@@ -581,9 +581,9 @@ QVariantList WriteToZotero::createCreatorsJson(Entry *e, const QString &type)
     bool handledEditor = false;
 
     foreach(const QString &creatorType, creatorList) {
-        foreach(ValueItem* vi, e->value(creatorType)) {
+        foreach(QSharedPointer<ValueItem> vi, e->value(creatorType)) {
 
-            Person *p = dynamic_cast<Person *>(vi);
+            Person *p = dynamic_cast<Person *>(vi.data());
 
             if(p) {
                 QVariantMap personMap;
@@ -639,9 +639,9 @@ QVariantList WriteToZotero::createCreatorsJson(Entry *e, const QString &type)
 
         int pos = 0;
         foreach(const QString &creatorType, bibTexCreatorList) {
-            foreach(ValueItem* vi, e->value(creatorType)) {
+            foreach(QSharedPointer<ValueItem> vi, e->value(creatorType)) {
 
-                Person *p = dynamic_cast<Person *>(vi);
+                Person *p = dynamic_cast<Person *>(vi.data());
 
                 if(p) {
                     QVariantMap personMap;
@@ -922,8 +922,8 @@ QVariantList WriteToZotero::createTagsJson(Entry *e)
         checkValue = QLatin1String("tag");
     }
 
-    foreach(ValueItem* vi, e->value(checkValue)) {
-        Keyword *k = dynamic_cast<Keyword *>(vi);
+    foreach(QSharedPointer<ValueItem> vi, e->value(checkValue)) {
+        Keyword *k = dynamic_cast<Keyword *>(vi.data());
 
         if(k) {
             QVariantMap tagMap;

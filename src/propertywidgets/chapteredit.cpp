@@ -41,35 +41,45 @@ void ChapterEdit::setupLabel()
 
 void ChapterEdit::updateResource(const QString & text)
 {
-    // we restrict editing of the chapter
-    // it is only possible to select a chapter when a book publication is added
-    // to the resource (which is a nbib:BibReference)
+    Nepomuk::Resource currentChapter = resource().property(propertyUrl()).toResource();
 
-    // remove the existing chapter
-    resource().removeProperty( propertyUrl() );
-
-    if(text.isEmpty())
+    if(text.isEmpty()) {
+        resource().removeProperty( propertyUrl(), currentChapter );
         return;
-
-    // add the selected chapter
-    QUrl propUrl = propertyEntry(text);
-
-    if(propUrl.isValid()) {
-        resource().addProperty( propertyUrl(), Nepomuk::Resource(propUrl));
     }
-    else {
-        // create a new chapter with the string s as title
-        Nepomuk::Resource newChapter(propUrl, Nepomuk::Vocabulary::NBIB::Chapter());
+
+    // find existing chapter
+    QUrl propUrl = propertyEntry(text);
+    Nepomuk::Resource newChapter = Nepomuk::Resource(propUrl);
+
+    if(currentChapter.isValid()) {
+        if(newChapter.isValid()) {
+            // link to new chapter
+            resource().setProperty( propertyUrl(), newChapter);
+        }
+        else {
+            //rename current Chapter
+            currentChapter.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
+        }
+        return;
+    }
+
+    // now current chapter available
+    if(!newChapter.isValid()) {
+        newChapter = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Chapter());
         newChapter.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-        resource().addProperty( propertyUrl(), newChapter);
+    }
+
+    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
+        resource().setProperty( Nepomuk::Vocabulary::NBIB::referencedPart(), newChapter);
     }
 
     // connect the chapter to the book
-    Nepomuk::Resource chapter = resource().property( Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
     Nepomuk::Resource bookResource = resource().property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-
-    bookResource.setProperty(Nepomuk::Vocabulary::NBIB::documentPart(), chapter);
-    chapter.setProperty(Nepomuk::Vocabulary::NBIB::documentPartOf(), bookResource);
+    if(bookResource.isValid()) {
+        bookResource.addProperty(Nepomuk::Vocabulary::NBIB::documentPart(), currentChapter);
+        currentChapter.setProperty(Nepomuk::Vocabulary::NBIB::documentPartOf(), bookResource);
+    }
 }
 
 QStandardItemModel * ChapterEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )

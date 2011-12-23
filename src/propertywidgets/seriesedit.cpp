@@ -26,43 +26,66 @@
 SeriesEdit::SeriesEdit(QWidget *parent)
     :PropertyEdit(parent)
 {
+    setPropertyUrl(Nepomuk::Vocabulary::NBIB::inSeries());
 }
 
 void SeriesEdit::setupLabel()
 {
-    Nepomuk::Resource seriesResource = resource().property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    Nepomuk::Resource seriesResource = resource().property( propertyUrl() ).toResource();
     QString title = seriesResource.property(Nepomuk::Vocabulary::NIE::title()).toString();
-    addPropertryEntry(title, resource().uri());
+    addPropertryEntry(title, seriesResource.uri());
 
     setLabelText(title);
 }
 
 void SeriesEdit::updateResource(const QString & text)
 {
-    // remove the existing series from publication
-    resource().removeProperty( propertyUrl() );
+    Nepomuk::Resource currentSeriesResource = resource().property( propertyUrl() ).toResource();
 
-    if(text.isEmpty())
+    // if the text is empty, remove Series and its backlink
+    if(text.isEmpty()) {
+        resource().removeProperty( propertyUrl() );
+        currentSeriesResource.removeProperty( Nepomuk::Vocabulary::NBIB::seriesOf(), resource() );
         return;
+    }
 
     // try to find the propertyurl of an already existing series
     QUrl propUrl = propertyEntry(text);
+    Nepomuk::Resource newSeriesResource = Nepomuk::Resource(propUrl);
 
-    if(propUrl.isValid()) {
-        resource().addProperty( propertyUrl(), Nepomuk::Resource(propUrl));
+    // if the text is not empty and we have a valid series
+    // rename the series if no other series resource with the new name exist
+    if(currentSeriesResource.isValid()) {
+        if(!newSeriesResource.isValid()) {
+            currentSeriesResource.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
+            return;
+        }
+        // we found a valid series resource with the new name, do not rename current series but select new one
+        else {
+            // remove old links
+            resource().removeProperty( propertyUrl() );
+            currentSeriesResource.removeProperty( Nepomuk::Vocabulary::NBIB::seriesOf(), resource() );
+
+            // add new ones
+            resource().setProperty( propertyUrl(), newSeriesResource);
+            newSeriesResource.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), resource());
+            return;
+        }
     }
-    else {
+
+    // if we had no valid series connected to the resource jus tconnect the new series or create a new one
+    if(!newSeriesResource.isValid()) {
         // create a new series with the string s as title
-        Nepomuk::Resource newSeries(QUrl(), findSeriesType());
-        newSeries.addType(Nepomuk::Vocabulary::NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
-        newSeries.addType(Nepomuk::Vocabulary::NIE::InformationElement());
+        newSeriesResource = Nepomuk::Resource(QUrl(), findSeriesType());
+        // seems to be a bug, not the full hierachry will be set otherwise
+        newSeriesResource.addType(Nepomuk::Vocabulary::NBIB::Series());
+        newSeriesResource.addType(Nepomuk::Vocabulary::NIE::InformationElement());
 
-        newSeries.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-        resource().addProperty( Nepomuk::Vocabulary::NBIB::inSeries() , newSeries);
-
-        //add backlink
-        newSeries.setProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), resource());
+        newSeriesResource.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
     }
+
+    resource().setProperty( propertyUrl(), newSeriesResource);
+    newSeriesResource.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), resource());
 }
 
 QStandardItemModel* SeriesEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
