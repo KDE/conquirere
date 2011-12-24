@@ -40,6 +40,17 @@ class NBibImporterBibTex : public NBibImporter
 {
     Q_OBJECT
 public:
+    enum FileType {
+        EXPORT_BIBTEX,
+//        EXPORT_COPAC,
+//        EXPORT_ENDNOTE,
+//        EXPORT_ISI,
+//        EXPORT_MEDLINE,
+//        EXPORT_MODS,
+        EXPORT_PDF,
+        EXPORT_RIS
+    };
+
     explicit NBibImporterBibTex();
     virtual ~NBibImporterBibTex();
 
@@ -72,6 +83,8 @@ public:
       * The duplicates can be retrieved via duplicates() and changed via KBibTeX::FindDuplicatesUi
       */
     void setFindDuplicates(bool findThem);
+
+    void setFileType(NBibImporterBibTex::FileType selectedFileType);
 
     /**
       * Calls KBibTeX::FileImporterBibTeX to read the bibtex file @p filename into the system.
@@ -120,6 +133,7 @@ private slots:
 private:
     File *m_importedEntries;
     bool m_findDuplicates;
+    NBibImporterBibTex::FileType m_selectedFileType;
     QList<EntryClique*> m_cliques;
     Akonadi::Collection m_addressbook;
 };

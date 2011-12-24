@@ -74,6 +74,7 @@ private slots:
 
 public:
     KComboBox *addressComboBox;
+    KComboBox *fileType;
     KUrlRequester *fileName;
 };
 

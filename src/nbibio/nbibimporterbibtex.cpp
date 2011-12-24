@@ -19,6 +19,8 @@
 
 #include "pipe/bibtextonepomukpipe.h"
 #include <kbibtex/fileimporterbibtex.h>
+#include <kbibtex/fileimporterpdf.h>
+#include <kbibtex/fileimporterris.h>
 #include <kbibtex/findduplicates.h>
 
 #include <QtCore/QFile>
@@ -59,9 +61,55 @@ void NBibImporterBibTex::setFindDuplicates(bool findThem)
     m_findDuplicates = findThem;
 }
 
+void NBibImporterBibTex::setFileType(NBibImporterBibTex::FileType selectedFileType)
+{
+    m_selectedFileType = selectedFileType;
+}
+
 bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
 {
-    FileImporterBibTeX *importer = new FileImporterBibTeX;
+    qDebug() << "NBibImporterBibTex::load with type" << m_selectedFileType;
+    FileImporter *importer;
+    switch(m_selectedFileType) {
+    case EXPORT_BIBTEX:
+    {
+        importer = new FileImporterBibTeX;
+        break;
+    }
+//    case EXPORT_COPAC:
+//    {
+//        //FileImporterBibUtils *importerBibUtils = new FileImporterBibTeX;
+//        break;
+//    }
+//    case EXPORT_ENDNOTE:
+//    {
+//        break;
+//    }
+//    case EXPORT_ISI:
+//    {
+//        break;
+//    }
+//    case EXPORT_MEDLINE:
+//    {
+//        break;
+//    }
+//    case EXPORT_MODS:
+//    {
+//        break;
+//    }
+    case EXPORT_PDF:
+    {
+        importer = new FileImporterPDF;
+        break;
+    }
+    case EXPORT_RIS:
+    {
+        importer = new FileImporterRIS;
+        break;
+    }
+
+    }
+
     connect(importer, SIGNAL(progress(int,int)), this, SLOT(calculateProgress(int,int)));
 
     m_importedEntries = importer->load(iodevice);

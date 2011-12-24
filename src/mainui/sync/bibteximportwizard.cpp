@@ -43,6 +43,7 @@
 #include <QtGui/QCheckBox>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QFormLayout>
 #include <QtCore/QThread>
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QPointer>
@@ -96,15 +97,19 @@ IntroPage::IntroPage(QWidget *parent)
 
     //file selection
     QVBoxLayout *mainLayout = new QVBoxLayout();
-    QHBoxLayout *fileLayout = new QHBoxLayout();
-    fileLayout->setSpacing(20);
-    QLabel *fileNameLabel = new QLabel(i18n("File"));
+    QFormLayout *fileLayout = new QFormLayout();
+    fileType = new KComboBox();
+    fileType->addItem(i18n("BibTeX"));
+    fileType->addItem(i18n("PDF"));
+    fileType->addItem(i18n("Ris"));
+    fileType->setCurrentIndex(0);
+    registerField("fileType", fileType);
     fileName = new KUrlRequester();
-    registerField("fileName", fileNameLabel);
+    registerField("fileName", fileName);
     connect(fileName, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
 
-    fileLayout->addWidget(fileNameLabel);
-    fileLayout->addWidget(fileName);
+    //fileLayout->addRow(i18n("File type:"), fileType);
+    fileLayout->addRow(i18n("File:"), fileName);
     mainLayout->addLayout(fileLayout);
 
     // options
@@ -229,6 +234,9 @@ void ParseFile::initializePage()
     delete importer;
     importer = new NBibImporterBibTex;
 
+    int fileType = field(QLatin1String("fileType")).toInt();
+    fileType = 0; //disable other fileimporters for now, don't seem to work
+    importer->setFileType( NBibImporterBibTex::FileType(fileType) );
     importer->setFindDuplicates(field(QLatin1String("duplicates")).toBool());
     bool importContactToAkonadi = field(QLatin1String("akonadiContact")).toBool();
 
