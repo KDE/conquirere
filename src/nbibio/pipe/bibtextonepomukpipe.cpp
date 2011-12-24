@@ -189,22 +189,22 @@ void BibTexToNepomukPipe::import(Entry *e)
     if(e->contains(QLatin1String("journal"))) {
         QUrl seriesURL;
         QUrl issueURL;
-        if(typeUrl == Nepomuk::Vocabulary::NBIB::Article() && e->contains(QLatin1String("type"))) {
-            QString type = PlainTextValue::text(e->value(QLatin1String("type")));
-            if(type == QLatin1String("magazine")) {
-                seriesURL = Nepomuk::Vocabulary::NBIB::Magazin();
-                issueURL = Nepomuk::Vocabulary::NBIB::MagazinIssue();
 
-            }
-            else if(type == QLatin1String("newspaper")) {
-                seriesURL = Nepomuk::Vocabulary::NBIB::Newspaper();
-                issueURL = Nepomuk::Vocabulary::NBIB::NewspaperIssue();
-            }
-            else {
-                seriesURL = Nepomuk::Vocabulary::NBIB::Journal();
-                issueURL = Nepomuk::Vocabulary::NBIB::JournalIssue();
-            }
+        QString type = PlainTextValue::text(e->value(QLatin1String("type")));
+        if(type == QLatin1String("magazine")) {
+            seriesURL = Nepomuk::Vocabulary::NBIB::Magazin();
+            issueURL = Nepomuk::Vocabulary::NBIB::MagazinIssue();
+
         }
+        else if(type == QLatin1String("newspaper")) {
+            seriesURL = Nepomuk::Vocabulary::NBIB::Newspaper();
+            issueURL = Nepomuk::Vocabulary::NBIB::NewspaperIssue();
+        }
+        else {
+            seriesURL = Nepomuk::Vocabulary::NBIB::Journal();
+            issueURL = Nepomuk::Vocabulary::NBIB::JournalIssue();
+        }
+
         addJournal(e->value(QLatin1String("journal")),
                    e->value(QLatin1String("volume")),
                    e->value(QLatin1String("number")),
@@ -688,12 +688,11 @@ void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &vol
     Nepomuk::Resource journalResource;
     Nepomuk::Resource journalIssue;
 
-    // fetcha data
-    Nepomuk::Query::ComparisonTerm jorunalName( Nepomuk::Vocabulary::NIE::title(), Nepomuk::Query::LiteralTerm( journalName ) );
-    jorunalName.setComparator(Nepomuk::Query::ComparisonTerm::Equal);
-    Nepomuk::Query::ResourceTypeTerm type( seriesUrl );
-
-    Nepomuk::Query::Query query( Nepomuk::Query::AndTerm( type, jorunalName ) );
+    // check if a series with the same name already exist
+    Nepomuk::Query::ComparisonTerm seriesName( Nepomuk::Vocabulary::NIE::title(), Nepomuk::Query::LiteralTerm( journalName ) );
+    seriesName.setComparator(Nepomuk::Query::ComparisonTerm::Equal);
+    Nepomuk::Query::ResourceTypeTerm type( Nepomuk::Vocabulary::NBIB::Series() );
+    Nepomuk::Query::Query query( Nepomuk::Query::AndTerm( type, seriesName ) );
 
     QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
 
@@ -705,6 +704,7 @@ void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &vol
         journalResource = queryResult.first().resource();
     }
     else {
+        qDebug() << "no existing journal for" << journalName << "with type" << seriesUrl;
         journalResource = Nepomuk::Resource(QUrl(), seriesUrl);
         journalResource.addType(Nepomuk::Vocabulary::NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
         journalResource.addType(Nepomuk::Vocabulary::NIE::InformationElement());
@@ -728,6 +728,9 @@ void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &vol
     //if we can't find an existing journal issue, create a new one
     if(!journalIssue.isValid()) {
         journalIssue = Nepomuk::Resource(QUrl(), issueUrl);
+        journalIssue.addType(Nepomuk::Vocabulary::NBIB::Collection());
+        journalIssue.addType(Nepomuk::Vocabulary::NBIB::Publication());
+        journalIssue.addType(Nepomuk::Vocabulary::NIE::InformationElement());
         journalIssue.setProperty(Nepomuk::Vocabulary::NBIB::number(), number);
         journalIssue.setProperty(Nepomuk::Vocabulary::NBIB::volume(), volume);
         // duplicate title join journal and journalissue, helps to easily identify those two
@@ -1443,7 +1446,7 @@ void BibTexToNepomukPipe::addSeries(const QString &content, Nepomuk::Resource pu
         seriesType = Nepomuk::Vocabulary::NBIB::Series();
     }
 
-    //find existing journal or create a new series of them
+    //find existing series or create a new series of them
     Nepomuk::Resource seriesResource;
     QString utfContent = m_macroLookup.value(QString(content.toUtf8()), QString(content.toUtf8()));
 
@@ -1463,6 +1466,7 @@ void BibTexToNepomukPipe::addSeries(const QString &content, Nepomuk::Resource pu
         seriesResource = queryResult.first().resource();
     }
     else {
+        qDebug() << "did not find existing series for name" << utfContent;
         seriesResource = Nepomuk::Resource(QUrl(), seriesType);
         seriesResource.addType(Nepomuk::Vocabulary::NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
         seriesResource.addType(Nepomuk::Vocabulary::NIE::InformationElement());
