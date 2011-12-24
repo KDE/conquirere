@@ -56,9 +56,10 @@ public slots:
     void importBibTex();
     void importZotero();
 
-    void exportBibTex();
     void exportZotero();
+    void exportBibTex();
     void exportPdf();
+    void exportOtherFile();
 
     void syncZotero();
 

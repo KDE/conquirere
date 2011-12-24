@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Jörg Ehrichs <joerg.ehichs@gmx.de>
+ * Copyright 2011 Jörg Ehrichs <joerg.ehrichs@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,31 +15,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NBIBEXPORTERBIBTEX_H
-#define NBIBEXPORTERBIBTEX_H
-
+#ifndef NBIBEXPORTERFILE_H
+#define NBIBEXPORTERFILE_H
 #include "nbibexporter.h"
 
 /**
-  * @brief Exports a list of publication or reference resources to a bibtex file
+  * @brief Exports a list of publication or reference resources to a file
   *
   * Makes use of the NepomukToBibTexPipe to transform all Nepomuk data into KBibTeX format and
-  * uses KBibTeX::FileExporterBibTeX to export it to a bibtex file.
+  * uses KBibTeX::FileExporter* to export it to a file.
+  *
+  * The files supported are listed in the @p FileType enum
+  *
   */
-class NBibExporterBibTex : public NBibExporter
+class NBibExporterFile : public NBibExporter
 {
-    Q_OBJECT
 public:
-    explicit NBibExporterBibTex();
-    virtual ~NBibExporterBibTex();
+    enum FileType {
+        EXPORT_BIBTEX,
+        EXPORT_BLG,
+        EXPORT_HTML,
+        EXPORT_PDF,
+        EXPORT_PS,
+        EXPORT_RIS,
+        EXPORT_RTF,
+        EXPORT_XML,
+        EXPORT_XSLT
+    };
 
+    explicit NBibExporterFile();
+
+    void setFileType(FileType type);
     /**
-      * Exports a list of publication or reference resources to a bibtex file
+      * Exports a list of publication or reference resources to a file
       *
-      * calls the FileExporterBibTeX from KBibTeX to do its task after all resoureces are piped to a KBibTex File
+      * calls the FileExporter* from KBibTeX to do its task after all resources are piped to a KBibTex File
       *
       * @see NepomukToBibTexPipe
       * @see FileExporterBibTeX
+      * @see FileExporterPDF
+      * @see FileExporterRIS
+      * @see FileExporterBibTeX2HTML
+      * @see FileExporterPS
       *
       * @p iodevice the device the exporter writes into
       * @p referenceList list of all Nepomuk::Resources used for the export
@@ -48,6 +65,9 @@ public:
       * @pre referenceList must be a list of NBIB::Publication or NBIB::Resource
       */
     bool save(QIODevice *iodevice, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog = NULL);
+
+private:
+    FileType m_fileType;
 };
 
-#endif // NBIBEXPORTERBIBTEX_H
+#endif // NBIBEXPORTERFILE_H

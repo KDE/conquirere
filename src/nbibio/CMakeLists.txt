@@ -1,7 +1,7 @@
 
 set(nbibio_LIB_SRCS
     nbibexporter.cpp
-    nbibexporterbibtex.cpp
+    nbibexporterfile.cpp
 
     nbibimporter.cpp
     nbibimporterbibtex.cpp

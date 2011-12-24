@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>399</width>
-    <height>263</height>
+    <width>334</width>
+    <height>286</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,6 +21,66 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>File type:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="KComboBox" name="selectedFileType">
+          <item>
+           <property name="text">
+            <string>BibTeX</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>blg</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>HTML</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>PDF</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>ps</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>ris</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>rtf</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>xml</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>xslt</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
        <widget class="QLabel" name="label">
         <property name="text">
          <string>Select the file:</string>
@@ -31,13 +91,6 @@
        <widget class="KUrlRequester" name="folder">
         <property name="mode">
          <set>KFile::File|KFile::LocalOnly</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="strictExport">
-        <property name="text">
-         <string>Strict export</string>
         </property>
        </widget>
       </item>
@@ -62,6 +115,9 @@
       </item>
       <item>
        <widget class="QRadioButton" name="collection_Project">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Project</string>
         </property>
@@ -93,6 +149,11 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>KComboBox</class>
+   <extends>QComboBox</extends>
+   <header>kcombobox.h</header>
+  </customwidget>
   <customwidget>
    <class>KUrlRequester</class>
    <extends>QFrame</extends>

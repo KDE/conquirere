@@ -18,8 +18,6 @@
 #include "bibtexexportdialog.h"
 #include "ui_bibtexexportdialog.h"
 
-#include "../../nbibio/nbibexporterbibtex.h"
-
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Query/Term>
@@ -38,7 +36,7 @@
 
 #include <QtCore/QDebug>
 
-bool concurrentExport(NBibExporterBibTex *exporter, const QString &fileName, Nepomuk::Query::Query query)
+QStringList concurrentExport(NBibExporter *exporter, const QString &fileName, Nepomuk::Query::Query query)
 {
     QList<Nepomuk::Resource> resources;
 
@@ -48,19 +46,28 @@ bool concurrentExport(NBibExporterBibTex *exporter, const QString &fileName, Nep
         resources.append(r.resource());
     }
 
-    bool result = exporter->toFile(fileName, resources);
+    QStringList errorLog;
+    exporter->toFile(fileName, resources, &errorLog);
 
-    return result;
+    return errorLog;
 }
 
 BibTexExportDialog::BibTexExportDialog(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::BibTexExportDialog)
+    , m_selectedFileType(NBibExporterFile::EXPORT_BIBTEX)
     , m_exporter(0)
     , m_progress(0)
     , m_futureWatcher(0)
 {
     ui->setupUi(this);
+}
+
+void BibTexExportDialog::setInitialFileType(NBibExporterFile::FileType selectedFileType)
+{
+    m_selectedFileType = selectedFileType;
+
+    ui->selectedFileType->setCurrentIndex(m_selectedFileType);
 }
 
 BibTexExportDialog::~BibTexExportDialog()
@@ -86,7 +93,9 @@ void BibTexExportDialog::accept()
     m_progress->show();
     m_progress->setFocus();
 
-    m_exporter = new NBibExporterBibTex();
+    m_selectedFileType = NBibExporterFile::FileType(ui->selectedFileType->currentIndex());
+    m_exporter = new NBibExporterFile;
+    m_exporter->setFileType(m_selectedFileType);
 
     connect(m_exporter, SIGNAL(progress(int)), m_progress, SLOT(setValue(int)));
     connect(m_progress, SIGNAL(canceled()), m_exporter, SLOT(cancel()));
@@ -100,9 +109,9 @@ void BibTexExportDialog::accept()
 
     Nepomuk::Query::Query query( andTerm );
 
-    QFuture<bool> future = QtConcurrent::run(concurrentExport, m_exporter, filename, query);
+    QFuture<QStringList> future = QtConcurrent::run(concurrentExport, m_exporter, filename, query);
 
-    m_futureWatcher = new QFutureWatcher<bool>();
+    m_futureWatcher = new QFutureWatcher<QStringList>();
     m_futureWatcher->setFuture(future);
     connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(exportFinished()));
 }

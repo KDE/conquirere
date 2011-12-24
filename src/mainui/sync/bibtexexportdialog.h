@@ -21,11 +21,12 @@
 #include <QtGui/QDialog>
 #include <QtCore/QFutureWatcher>
 
+#include "../../nbibio/nbibexporterfile.h"
+
 namespace Ui {
     class BibTexExportDialog;
 }
 
-class NBibExporterBibTex;
 class QProgressDialog;
 
 class BibTexExportDialog : public QDialog
@@ -34,7 +35,9 @@ class BibTexExportDialog : public QDialog
 
 public:
     explicit BibTexExportDialog(QWidget *parent = 0);
-    ~BibTexExportDialog();
+    virtual ~BibTexExportDialog();
+
+    void setInitialFileType(NBibExporterFile::FileType selectedFileType);
 
 private slots:
     void accept();
@@ -43,9 +46,10 @@ private slots:
 private:
     Ui::BibTexExportDialog *ui;
 
-    NBibExporterBibTex *m_exporter;
+    NBibExporterFile::FileType m_selectedFileType;
+    NBibExporterFile *m_exporter;
     QProgressDialog *m_progress;
-    QFutureWatcher<bool> *m_futureWatcher;
+    QFutureWatcher<QStringList> *m_futureWatcher;
 };
 
 #endif // BIBTEXEXPORTDIALOG_H

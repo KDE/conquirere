@@ -64,6 +64,7 @@
 #include <Nepomuk/Query/ResourceTerm>
 #include <Nepomuk/Query/ResourceTypeTerm>
 #include <Nepomuk/Query/ComparisonTerm>
+#include <Nepomuk/Query/AndTerm>
 #include <Nepomuk/Query/OrTerm>
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Result>
@@ -76,6 +77,7 @@
 
 
 #include "../nbibio/pipe/nepomuktobibtexpipe.h"
+#include "../nbibio/nbibexporterfile.h"
 #include <kbibtex/fileexporterbibtex.h>
 #include <kbibtex/fileimporterbibtex.h>
 #include "../onlinestorage/syncstorageui.h"
@@ -204,6 +206,7 @@ void MainWindow::importZotero()
 void MainWindow::exportBibTex()
 {
     BibTexExportDialog bed;
+    bed.setInitialFileType(NBibExporterFile::EXPORT_BIBTEX);
 
     bed.exec();
 }
@@ -217,7 +220,18 @@ void MainWindow::exportZotero()
 
 void MainWindow::exportPdf()
 {
-    qDebug() << "export to pdf";
+    BibTexExportDialog bed;
+    bed.setInitialFileType(NBibExporterFile::EXPORT_PDF);
+
+    bed.exec();
+}
+
+void MainWindow::exportOtherFile()
+{
+    BibTexExportDialog bed;
+    bed.setInitialFileType(NBibExporterFile::EXPORT_HTML);
+
+    bed.exec();
 }
 
 void MainWindow::syncZotero()
@@ -375,6 +389,12 @@ void MainWindow::setupActions()
     exportPdfAction->setIcon(KIcon(QLatin1String("application-pdf")));
     actionCollection()->addAction(QLatin1String("db_export_pdf"), exportPdfAction);
     connect(exportPdfAction, SIGNAL(triggered(bool)),this, SLOT(exportPdf()));
+
+    KAction* exportFileAction = new KAction(this);
+    exportFileAction->setText(i18n("other File"));
+    exportFileAction->setIcon(KIcon(QLatin1String("application-rtf")));
+    actionCollection()->addAction(QLatin1String("db_export_file"), exportFileAction);
+    connect(exportFileAction, SIGNAL(triggered(bool)),this, SLOT(exportOtherFile()));
 
     // sync actions
     KAction* syncZoteroAction = new KAction(this);
