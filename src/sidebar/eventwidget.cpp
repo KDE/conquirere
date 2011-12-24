@@ -86,7 +86,7 @@ void EventWidget::setLibrary(Library *p)
 
 void EventWidget::newButtonClicked()
 {
-    m_event = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::PIMO::Note());
+    m_event = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::PIMO::Event());
 
     m_event.setProperty(Nepomuk::Vocabulary::NIE::title(), i18n("New event title"));
 

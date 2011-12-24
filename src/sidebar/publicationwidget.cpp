@@ -23,8 +23,11 @@
 #include "propertywidgets/fileobjectedit.h"
 
 #include "referencewidget.h"
+#include "eventwidget.h"
+#include "serieswidget.h"
 #include "contactdialog.h"
 #include "addchapterdialog.h"
+#include "listpublicationsdialog.h"
 #include "../core/library.h"
 
 #include "nbib.h"
@@ -32,6 +35,7 @@
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/NUAO>
+#include <Nepomuk/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
 #include <KDE/KComboBox>
 #include <KDE/KDialog>
@@ -124,9 +128,16 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
 
         // add another hierarchy if the newEntryUrl is not a direct subclass of NBIB::Publication()
         switch(entryType) {
+        case BibType_Dictionary:
+            newtype.append(Nepomuk::Vocabulary::NBIB::Book());
+            break;
         case BibType_MagazinIssue:
         case BibType_NewspaperIssue:
         case BibType_JournalIssue:
+        case BibType_Proceedings:
+        case BibType_Encyclopedia:
+        case BibType_CodeOfLaw:
+        case BibType_CourtReporter:
             newtype.append(Nepomuk::Vocabulary::NBIB::Collection());
             break;
         case BibType_Bachelorthesis:
@@ -140,9 +151,13 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
             newtype.append(Nepomuk::Vocabulary::NBIB::Electronic());
             break;
         case BibType_Bill:
+        case BibType_Statute:
+            newtype.append(Nepomuk::Vocabulary::NBIB::Legislation());
+            newtype.append(Nepomuk::Vocabulary::NBIB::LegalDocument());
+            break;
         case BibType_Decision:
         case BibType_Brief:
-        case BibType_Statute:
+            newtype.append(Nepomuk::Vocabulary::NBIB::LegalCaseDocument());
             newtype.append(Nepomuk::Vocabulary::NBIB::LegalDocument());
             break;
         }
@@ -174,6 +189,13 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
                     Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::Series());
                     seriesResource.setTypes(x.types());
                 }
+            }
+        }
+        else if(m_publication.hasType(Nepomuk::Vocabulary::NBIB::Book())) {
+            Nepomuk::Resource seriesResource = m_publication.property((Nepomuk::Vocabulary::NBIB::inSeries())).toResource();
+            if(seriesResource.isValid()) {
+                Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::BookSeries());
+                seriesResource.setTypes(x.types());
             }
         }
     }
@@ -384,10 +406,21 @@ void PublicationWidget::setupWidget()
     ui->editKeywords->setPropertyUrl( Soprano::Vocabulary::NAO::hasTag() );
 
     // Extra section
+    ui->editEvent->setPropertyUrl( Nepomuk::Vocabulary::NBIB::event() );
+    ui->editEvent->setUseDetailDialog(true);
+    connect(ui->editEvent, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showDetailDialog(Nepomuk::Resource&,QUrl)));
+    ui->editSeries->setUseDetailDialog(true);
+    connect(ui->editSeries, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showDetailDialog(Nepomuk::Resource&,QUrl)));
     ui->editEdition->setPropertyUrl( Nepomuk::Vocabulary::NBIB::edition() );
     ui->editCollection->setPropertyUrl( Nepomuk::Vocabulary::NBIB::collection() );
+    ui->editCollection->setUseDetailDialog(true);
+    connect(ui->editCollection, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showDetailDialog(Nepomuk::Resource&,QUrl)));
     ui->editCode->setPropertyUrl( Nepomuk::Vocabulary::NBIB::codeOfLaw() );
+    ui->editCode->setUseDetailDialog(true);
+    connect(ui->editCode, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showDetailDialog(Nepomuk::Resource&,QUrl)));
     ui->editCourtReporter->setPropertyUrl( Nepomuk::Vocabulary::NBIB::courtReporter() );
+    ui->editCourtReporter->setUseDetailDialog(true);
+    connect(ui->editCourtReporter, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showDetailDialog(Nepomuk::Resource&,QUrl)));
     ui->editVolume->setPropertyUrl( Nepomuk::Vocabulary::NBIB::volume() );
     ui->editNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::number() );
     ui->editApplicationNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::applicationNumber() );
@@ -464,6 +497,96 @@ void PublicationWidget::editContactDialog(Nepomuk::Resource & resource, const QU
     cd.exec();
 
     ui->editAuthors->setResource(resource);
+}
+
+void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl)
+{
+    Nepomuk::Resource changedResource = resource.property(propertyUrl).toResource();
+
+    // first if the resource is valid, we just want to edit it
+    if(changedResource.isValid()) {
+        KDialog addIssueWidget;
+        if(changedResource.hasType(Nepomuk::Vocabulary::PIMO::Event())) {
+            EventWidget *pw = new EventWidget();
+            pw->setResource(changedResource);
+            addIssueWidget.setMainWidget(pw);
+        }
+        else if(changedResource.hasType(Nepomuk::Vocabulary::NBIB::Series())) {
+            SeriesWidget *pw = new SeriesWidget();
+            pw->setResource(changedResource);
+            addIssueWidget.setMainWidget(pw);
+        }
+        else {
+            PublicationWidget *pw = new PublicationWidget();
+            pw->setResource(changedResource);
+            addIssueWidget.setMainWidget(pw);
+        }
+        addIssueWidget.setInitialSize(QSize(400,300));
+        addIssueWidget.exec();
+
+        setResource(m_publication); // this updates the changes in the current widget again
+        return;
+    }
+
+    //2nd if no valid resource is availabe the user want
+    // a) create a new one
+    // b) select from a list of existing resources
+
+    //get the range of the property (so what we are allowed to enter)
+    //Nepomuk::Resource nr(propertyUrl);
+    //Nepomuk::Resource range = nr.property(QUrl(QLatin1String("http://www.w3.org/2000/01/rdf-schema#range"))).toResource();
+    // not working sadly :/
+
+
+
+    ListPublicationsDialog lpd;
+    qDebug() << "check property url" <<propertyUrl;
+    if(propertyUrl == Nepomuk::Vocabulary::NBIB::inSeries()) {
+        lpd.setListMode(Resource_Series, Max_BibTypes);
+    }
+    else if(propertyUrl == Nepomuk::Vocabulary::NBIB::codeOfLaw()) {
+        lpd.setListMode(Resource_Publication, BibType_CodeOfLaw);
+    }
+    else if(propertyUrl == Nepomuk::Vocabulary::NBIB::courtReporter()) {
+        lpd.setListMode(Resource_Publication, BibType_CourtReporter);
+    }
+    else if(propertyUrl == Nepomuk::Vocabulary::NBIB::collection()) {
+        lpd.setListMode(Resource_Publication, BibType_Collection);
+    }
+    else if(propertyUrl == Nepomuk::Vocabulary::NBIB::event()) {
+        lpd.setListMode(Resource_Event, Max_BibTypes);
+    }
+    else {
+        lpd.setListMode(Resource_Reference, Max_BibTypes);
+    }
+    lpd.setSystemLibrary(library());
+
+    int ret = lpd.exec();
+
+    if(ret == QDialog::Accepted) {
+        Nepomuk::Resource selectedPart = lpd.selectedPublication();
+
+        resource.setProperty(propertyUrl, selectedPart );
+        // here I need to take into account, that backlinks must be handled somehow
+
+        if(propertyUrl == Nepomuk::Vocabulary::NBIB::inSeries()) {
+            selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), resource );
+        }
+        else if(propertyUrl == Nepomuk::Vocabulary::NBIB::codeOfLaw()) {
+            selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::legislation(), resource );
+        }
+        else if(propertyUrl == Nepomuk::Vocabulary::NBIB::courtReporter()) {
+            selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::legalCase(), resource );
+        }
+        else if(propertyUrl == Nepomuk::Vocabulary::NBIB::collection()) {
+            selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::article(), resource );
+        }
+        else if(propertyUrl == Nepomuk::Vocabulary::NBIB::event()) {
+            selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::eventPublication(), resource );
+        }
+
+        setResource(m_publication); // this updates the changes in the current widget again
+    }
 }
 
 void PublicationWidget::selectLayout(BibEntryType entryType)

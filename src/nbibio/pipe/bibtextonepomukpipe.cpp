@@ -559,6 +559,13 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
             key == QLatin1String("bibsource")) {
         addUrl(PlainTextValue::text(value), publication);
     }
+    else if(key == QLatin1String("address")) {
+        QString addressValue = PlainTextValue::text(value);
+        if(addressValue.contains(QLatin1String("http:"))) {
+            addUrl(addressValue, publication);
+        }
+        //ignore else case, as the address as a postal address is handled above when a publisher is available
+    }
     else if(key == QLatin1String("volume")) {
         addVolume(PlainTextValue::text(value), publication);
     }

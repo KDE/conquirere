@@ -208,6 +208,12 @@ static BibEntryType BibEntryTypeFromUrl(const Nepomuk::Resource & resource)
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
         return BibType_Proceedings;
     }
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::MastersThesis())) {
+        return BibType_Mastersthesis;
+    }
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::PhdThesis())) {
+        return BibType_Phdthesis;
+    }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::BachelorThesis())) {
         return BibType_Bachelorthesis;
     }
@@ -222,12 +228,6 @@ static BibEntryType BibEntryTypeFromUrl(const Nepomuk::Resource & resource)
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Manual())) {
         return BibType_Manual;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::MastersThesis())) {
-        return BibType_Mastersthesis;
-    }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::PhdThesis())) {
-        return BibType_Phdthesis;
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Techreport())) {
         return BibType_Techreport;

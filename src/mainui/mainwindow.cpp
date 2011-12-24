@@ -405,12 +405,14 @@ void MainWindow::setupActions()
 
     // other database actions
     KAction* dbCheckAction = new KAction(this);
+    dbCheckAction->setEnabled(false);
     dbCheckAction->setText(i18n("Check Database"));
     dbCheckAction->setIcon(KIcon(QLatin1String("document-preview-archive")));
     actionCollection()->addAction(QLatin1String("db_check"), dbCheckAction);
     connect(dbCheckAction, SIGNAL(triggered(bool)),this, SLOT(dbCheck()));
 
     KAction* dbBackupAction = new KAction(this);
+    dbBackupAction->setEnabled(false);
     dbBackupAction->setText(i18n("Backup Database"));
     dbBackupAction->setIcon(KIcon(QLatin1String("svn-update")));
     actionCollection()->addAction(QLatin1String("db_backup"), dbBackupAction);

@@ -41,10 +41,18 @@ bool PublicationFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &
     QString type = sourceModel()->data(typeIndex).toString();
     BibEntryType typeEnum = (BibEntryType)BibEntryTypeTranslation.indexOf(type);
 
-    if(m_curFilter != Max_BibTypes) {
-        return regexpCheck && (typeEnum == m_curFilter);
+    if(m_curFilter == Max_BibTypes) {
+        return regexpCheck;
+    }
+    // alsow show subtypes
+    if(m_curFilter == BibType_Collection) {
+        return regexpCheck && (typeEnum == BibType_Collection ||
+                               typeEnum == BibType_Proceedings ||
+                               typeEnum == BibType_JournalIssue ||
+                               typeEnum == BibType_MagazinIssue ||
+                               typeEnum == BibType_NewspaperIssue);
     }
 
-    return regexpCheck;
+    return regexpCheck && (typeEnum == m_curFilter);
 }
 

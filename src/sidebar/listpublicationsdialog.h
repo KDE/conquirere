@@ -18,6 +18,8 @@
 #ifndef LISTPUBLICATIONSDIALOG_H
 #define LISTPUBLICATIONSDIALOG_H
 
+#include "../globals.h"
+
 #include <Nepomuk/Resource>
 
 #include <QtGui/QDialog>
@@ -29,10 +31,12 @@ namespace Ui {
 class Library;
 
 /**
-  * @brief shows a simple table with all publications
+  * @brief shows a simple table with all bibliographic relevant entries
+  *
+  * What entry is used is specified by @c setListMode
   *
   * The table can be filtered by some keywords or restrict to a list of publications
-  * from one of the openeed libraries
+  * from one of the opened libraries.
   */
 class ListPublicationsDialog : public QDialog
 {
@@ -41,6 +45,8 @@ class ListPublicationsDialog : public QDialog
 public:
     explicit ListPublicationsDialog(QWidget *parent = 0);
     virtual ~ListPublicationsDialog();
+
+    void setListMode(ResourceSelection selection, BibEntryType filter);
 
     /**
       * sets the Library with all systemwide publication data
@@ -76,6 +82,8 @@ private:
 
     Library *m_systemLibrary;
     QList<Library *> m_openLibList;
+    ResourceSelection m_selection;
+    BibEntryType m_filter;
 };
 
 #endif // LISTPUBLICATIONSDIALOG_H

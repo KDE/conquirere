@@ -80,6 +80,7 @@ private slots:
 
     void changeRating(int newRating);
     void editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl);
+    void showDetailDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl);
 
 private:
     void setupWidget();

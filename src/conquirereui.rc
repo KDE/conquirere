@@ -25,6 +25,7 @@
 	<Action name="db_export_bibtex" />
 	<Action name="db_export_zotero" />
 	<Action name="db_export_pdf" />
+	<Action name="db_export_file" />
       </Menu>
       <Menu name="db_sync"><text>Syncronize</text>
 	<Action name="db_sync_zotero" />

@@ -50,18 +50,9 @@ protected:
       */
     virtual void updateResource( const QString & text );
 
-private slots:
-    /**
-      * opens a dialog to switch the type of collection/issue used
-      *
-      * Thus one can change from a standard nbib:collection to nbib:journalIssue or nbib:newspaperIssue
-      * the Series will be changed automatically with it
-      */
-    void detailEditRequested();
-
 private:
     QUrl m_collectionType;  /**< saves which subclass of collection is used */
-    QUrl m_seriesType; /**< saves which subclass of series is used */
+    QUrl m_seriesType;      /**< saves which subclass of series is used */
 
 };
 

@@ -21,6 +21,7 @@
 #include "core/library.h"
 #include "../core/models/nepomukmodel.h"
 #include "../core/models/publicationfiltermodel.h"
+#include "../core/models/seriesfiltermodel.h"
 #include "../core/delegates/ratingdelegate.h"
 
 #include <KDE/KConfig>
@@ -35,9 +36,11 @@
 #include <QtGui/QSortFilterProxyModel>
 #include <QtGui/QKeyEvent>
 
-ListPublicationsDialog::ListPublicationsDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::ListPublicationsDialog)
+ListPublicationsDialog::ListPublicationsDialog(QWidget *parent)
+    : QDialog(parent)
+    , ui(new Ui::ListPublicationsDialog)
+    , m_selection(Resource_Publication)
+    , m_filter(Max_BibTypes)
 {
     ui->setupUi(this);
 
@@ -59,7 +62,21 @@ ListPublicationsDialog::ListPublicationsDialog(QWidget *parent) :
 
 ListPublicationsDialog::~ListPublicationsDialog()
 {
+    //reste filter for the mainview again
+    PublicationFilterModel * pfm = qobject_cast<PublicationFilterModel *>(m_systemLibrary->viewModel(m_selection));
+    if(pfm) {
+        pfm->setResourceFilter(Max_BibTypes);
+        pfm->setFilterKeyColumn(0);
+        pfm->setFilterRegExp(QLatin1String(""));
+    }
+
     delete ui;
+}
+
+void ListPublicationsDialog::setListMode(ResourceSelection selection, BibEntryType filter)
+{
+    m_selection = selection;
+    m_filter = filter;
 }
 
 void ListPublicationsDialog::setSystemLibrary(Library *p)
@@ -172,12 +189,25 @@ void ListPublicationsDialog::changeHeaderSectionVisibility()
 
 void ListPublicationsDialog::showLibraryModel(Library *p)
 {
-    ui->tableView->setModel(p->viewModel(Resource_Publication));
+    qDebug() << "ListPublicationsDialog::showLibraryModel" << m_selection;
+    ui->tableView->setModel(p->viewModel(m_selection));
+
+    PublicationFilterModel * pfm = qobject_cast<PublicationFilterModel *>(p->viewModel(m_selection));
+    if(pfm) {
+        pfm->setResourceFilter(m_filter);
+    }
+    //do not filter series at all
+//    else {
+//        SeriesFilterModel * pfm = qobject_cast<SeriesFilterModel *>(p->viewModel(m_selection));
+//        if(pfm) {
+//            pfm->setResourceFilter(SeriesType(m_filter));
+//        }
+//    }
 
     //load settings for visible/hidden columns
     KConfig config;
     QString group = QLatin1String("TableView_LinkDocument");
-    group.append((int)Resource_Publication);
+    group.append((int)m_selection);
     KConfigGroup tableViewGroup( &config, group );
 
     // go through all header elements and apply last known visibility status
@@ -196,11 +226,13 @@ void ListPublicationsDialog::showLibraryModel(Library *p)
         }
     }
 
-    hv->setResizeMode(QHeaderView::Interactive);
-    ui->tableView->horizontalHeader()->resizeSection(1,25);
-    ui->tableView->horizontalHeader()->resizeSection(2,25);
-    hv->setResizeMode(6, QHeaderView::Stretch);
-    ui->tableView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+//    hv->setResizeMode(QHeaderView::Interactive);
+//    ui->tableView->horizontalHeader()->resizeSection(1,25);
+//    ui->tableView->horizontalHeader()->resizeSection(2,25);
+//    hv->setResizeMode(6, QHeaderView::Stretch);
+//    ui->tableView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+    hv->setResizeMode(QHeaderView::ResizeToContents);
 
     ui->tableView->selectRow(0);
 }
