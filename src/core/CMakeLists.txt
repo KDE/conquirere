@@ -1,6 +1,7 @@
 
 set(core_LIB_SRCS
     library.cpp
+    dirwatcher.cpp
     tagcloud.cpp
 
     delegates/ratingdelegate.cpp

@@ -18,7 +18,7 @@
 #include "newprojectwizard.h"
 #include "ui_newprojectwizard.h"
 
-#include "../../core/library.h"
+#include "core/library.h"
 
 #include <KDE/KLineEdit>
 #include <KDE/KUrlRequester>
@@ -63,15 +63,15 @@ void NewProjectWizard::done(int result)
 {
     if(result == QDialog::Accepted) {
         customLibrary = new Library(Library_Project);
-        customLibrary->setName(gp->projectTitle->text());
-        customLibrary->setDescription(gp->projectDescription->toPlainText());
 
-//        if(sp->syncWithFolder->isChecked()) {
-//            customLibrary->setPath(sp->syncFolder->text());
-//        }
+        QString path;
+        if(sp->syncWithFolder->isChecked()) {
+            path = sp->syncFolder->text() + QLatin1String("/") + gp->projectTitle->text();
+        }
 
-        customLibrary->createLibrary();
-
+        customLibrary->createLibrary(gp->projectTitle->text(),
+                                     gp->projectDescription->toPlainText(),
+                                     path);
     }
 
     QWizard::done(result);
@@ -132,7 +132,7 @@ SyncPage::SyncPage(QWidget *parent)
     syncWithFolder->setCheckable(true);
     syncWithFolder->setChecked(false);
     syncWithFolder->setTitle(i18n("Use folder on disk"));
-    syncWithFolder->setToolTip(i18n("Connects all document in this folder automatically to the project"));
+    syncWithFolder->setToolTip(i18n("Connects all documents in this folder automatically to the project and saves the pfoject settings there"));
     registerField("syncWithFolder", syncWithFolder);
 
     QVBoxLayout *groupBoxLayout = new QVBoxLayout(syncWithFolder);
@@ -144,9 +144,13 @@ SyncPage::SyncPage(QWidget *parent)
     syncFolder = new KUrlRequester(syncWithFolder);
     syncFolder->setMode(KFile::Directory);
     syncFolder->setUrl(KGlobalSettings::documentPath());
+    connect(syncFolder, SIGNAL(textChanged(QString)), this, SLOT(updateFolderTextLabel(QString)));
     registerField("folderToSync*", syncFolder);
     horizontalLayout->addWidget(syncFolder);
     groupBoxLayout->addLayout(horizontalLayout);
+
+    syncFolderText = new QLabel(syncWithFolder);
+    groupBoxLayout->addWidget(syncFolderText);
 
     syncFolderBibtex = new QCheckBox(syncWithFolder);
     syncFolderBibtex->setText(i18n("Synchronize BibTeX file"));
@@ -204,5 +208,16 @@ bool SyncPage::isComplete() const
     }
     else {
         return true;
+    }
+}
+
+void SyncPage::updateFolderTextLabel(const QString &folder)
+{
+    if(folder.isEmpty()) {
+        syncFolderText->clear();
+    }
+    else {
+        QString folderAndName= folder + QLatin1String("/") + field("projectName").toString();
+        syncFolderText->setText(folderAndName);
     }
 }

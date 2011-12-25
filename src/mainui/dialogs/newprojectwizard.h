@@ -30,6 +30,7 @@ class KTextEdit;
 class QGroupBox;
 class KUrlRequester;
 class QCheckBox;
+class QLabel;
 class KComboBox;
 class GeneralPage;
 class SyncPage;
@@ -84,10 +85,12 @@ public:
 
 private slots:
     bool isComplete() const;
+    void updateFolderTextLabel(const QString &folder);
 
 public:
     QGroupBox *syncWithFolder;
     KUrlRequester *syncFolder;
+    QLabel *syncFolderText;
     QCheckBox *syncFolderBibtex;
     QGroupBox *syncWithOnlineStorage;
     KComboBox *syncOnlineServce;

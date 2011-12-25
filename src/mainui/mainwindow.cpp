@@ -171,13 +171,19 @@ void MainWindow::deleteLibrary()
                                         m_curLibrary->name());
 
     if(ret == KMessageBox::Yes) {
-        m_curLibrary->removeFromSystem();
+        m_curLibrary->deleteLibrary();
         closeLibrary();
     }
 }
 
 void MainWindow::closeLibrary()
 {
+    if(m_curLibrary->libraryType() == Library_System) {
+        m_curLibrary = openLibraries().first();
+        if(!m_curLibrary)
+            return;
+    }
+
     m_libraryWidget->closeLibrary(m_curLibrary);
     QWidget *w = m_libraryList.take(m_curLibrary);
     w->hide();

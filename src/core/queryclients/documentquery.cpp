@@ -45,6 +45,7 @@ DocumentQuery::DocumentQuery(QObject *parent) :
 
 void DocumentQuery::startFetchData()
 {
+    Nepomuk::Query::OrTerm mainOrTerm;
     Nepomuk::Query::AndTerm andTerm;
 
     andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::PaginatedTextDocument() ) );
@@ -56,10 +57,21 @@ void DocumentQuery::startFetchData()
         orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(),
                                                            Nepomuk::Query::ResourceTerm(m_library->pimoLibrary()) ) );
         andTerm.addSubTerm(orTerm);
+
+
+        // now we also add all rescources with nfo:FileDataObject and isRelated() for the project too
+        Nepomuk::Query::AndTerm subAndTerm;
+        subAndTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::FileDataObject() ) );
+        subAndTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(),
+                                                               Nepomuk::Query::ResourceTerm(m_library->pimoLibrary()) ) );
+
+        mainOrTerm.addSubTerm(subAndTerm);
     }
 
+    mainOrTerm.addSubTerm(andTerm);
+
     // build the query
-    Nepomuk::Query::Query query( andTerm );
+    Nepomuk::Query::Query query( mainOrTerm );
     m_queryClient->query(query);
 }
 

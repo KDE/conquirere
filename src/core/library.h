@@ -31,6 +31,7 @@ class LibraryWidget;
 class QSortFilterProxyModel;
 class TagCloud;
 class NepomukModel;
+class DirWatcher;
 
 /**
   * @brief A Library is a collection of files and Nepomuk::Resource data of a specific topic
@@ -97,9 +98,38 @@ public:
       */
     QString name() const;
 
+    /**
+      * Sets the description of the project library
+      *
+      * @pre Only for non System librarys
+      * @p description The description of the project
+      */
     void setDescription(const QString & description);
 
+    /**
+      * Returns the description of the project library name
+      */
     QString description() const;
+
+    /**
+      * Sets the path of the project library
+      *
+      * When the library has a path assigned a specific folder structure will be created
+      * In this folder structure all documents will be added automatically to the library
+      * Also downloaded files will be stored here if not selected otherwise.
+      *
+      * A DirListener keeps track of file changes
+      *
+      * @pre Only for non System librarys
+      * @p path The path of the project
+      */
+    void setLibraryDir(const QString & path);
+
+    /**
+      * Retuns the dir for this project library
+      */
+    QString libraryDir() const;
+    QString libraryDocumentDir() const;
 
     /**
       * Creates a new project library
@@ -109,7 +139,7 @@ public:
       * Has to be called when a new project is created and after the name
       * and path of the project has been selected
       */
-    void createLibrary();
+    void createLibrary(const QString & name, const QString & description, const QString & path);
 
     /**
       * Loads an existing project .ini file
@@ -124,6 +154,8 @@ public:
       *
       * Removes the pimo:Project Resource and the document folder
       * structure.
+      *
+      * @todo implement library deletion
       */
     void deleteLibrary();
 
@@ -132,6 +164,11 @@ public:
       * to this project.
       */
     Nepomuk::Resource pimoLibrary() const;
+
+    /**
+      * Returns the Nepomuk::Tag used to relate other Resources
+      * to this project.
+      */
     Nepomuk::Resource pimoTag() const;
 
     /**
@@ -147,7 +184,6 @@ public:
       * @p selection one of the ResourceSelection types
       *
       * @return The abstract table model used to connect to a tableview
-      *
       */
     QSortFilterProxyModel* viewModel(ResourceSelection selection);
 
@@ -157,8 +193,6 @@ public:
     QMap<ResourceSelection, QSortFilterProxyModel*> viewModels();
 
     TagCloud *tagCloud();
-
-    void removeFromSystem();
 
 signals:
     /**
@@ -178,9 +212,11 @@ private:
     LibraryType m_libraryType;
     QString m_name;
     QString m_description;
+    QString m_libraryDir;
+    DirWatcher *m_dirWatcher;
 
     Nepomuk::Resource m_pimoLibrary;
-    Nepomuk::Tag m_libraryTag; /**< @todo add tag to resource models to be able to list Nepomuk::Resource not only based on the isRelated to fact */
+    Nepomuk::Tag m_libraryTag;
 
     QMap<ResourceSelection, QSortFilterProxyModel*> m_resources;
     TagCloud *m_tagCloud;
