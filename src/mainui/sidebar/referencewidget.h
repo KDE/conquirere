@@ -55,7 +55,7 @@ signals:
     void resourceChanged(Nepomuk::Resource & resource);
 
 private slots:
-    void showPublicationList();
+    void showPublicationList(Nepomuk::Resource & resource, const QUrl & propertyUrl);
     void showChapterList();
 
     /**

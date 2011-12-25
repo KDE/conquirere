@@ -189,7 +189,6 @@ void ListPublicationsDialog::changeHeaderSectionVisibility()
 
 void ListPublicationsDialog::showLibraryModel(Library *p)
 {
-    qDebug() << "ListPublicationsDialog::showLibraryModel" << m_selection;
     ui->tableView->setModel(p->viewModel(m_selection));
 
     PublicationFilterModel * pfm = qobject_cast<PublicationFilterModel *>(p->viewModel(m_selection));

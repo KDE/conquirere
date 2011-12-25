@@ -21,6 +21,7 @@
 #include "core/library.h"
 #include "propertywidgets/stringedit.h"
 #include "propertywidgets/contactedit.h"
+#include "publicationwidget.h"
 #include "listpublicationsdialog.h"
 #include "listpartswidget.h"
 
@@ -66,7 +67,7 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 
     connect(ui->publicationEdit, SIGNAL(textChanged(QString)), this, SLOT(enableReferenceDetails()));
-    connect(ui->publicationEdit, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showPublicationList()));
+    connect(ui->publicationEdit, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showPublicationList(Nepomuk::Resource&,QUrl)));
     connect(ui->chapterEdit, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showChapterList()));
 }
 
@@ -120,9 +121,31 @@ void ReferenceWidget::showCreateReference(bool createRef)
     }
 }
 
-void ReferenceWidget::showPublicationList()
+void ReferenceWidget::showPublicationList(Nepomuk::Resource & resource, const QUrl & propertyUrl)
 {
+    Nepomuk::Resource changedResource = resource.property(propertyUrl).toResource();
+
+    // first if the resource is valid, we just want to edit it
+    if(changedResource.isValid()) {
+        KDialog addIssueWidget;
+
+            PublicationWidget *pw = new PublicationWidget();
+            pw->setResource(changedResource);
+            addIssueWidget.setMainWidget(pw);
+
+        addIssueWidget.setInitialSize(QSize(400,300));
+        addIssueWidget.exec();
+
+        setResource(m_reference); // this updates the changes in the current widget again
+        return;
+    }
+
+    //2nd if no valid resource is availabe the user want
+    // a) create a new one ignored, user should enter the title into the field first and press edit then
+    // b) select from a list of existing resources
+
     ListPublicationsDialog lpd;
+    lpd.setListMode(Resource_Publication, Max_BibTypes);
     lpd.setSystemLibrary(library());
 
     int ret = lpd.exec();
@@ -130,8 +153,10 @@ void ReferenceWidget::showPublicationList()
     if(ret == QDialog::Accepted) {
         Nepomuk::Resource selectedPart = lpd.selectedPublication();
 
-        m_reference.setProperty(Nepomuk::Vocabulary::NBIB::publication(), selectedPart );
-        ui->publicationEdit->setResource(m_reference);
+        resource.setProperty(Nepomuk::Vocabulary::NBIB::publication(), selectedPart );
+        selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::reference(), resource );
+
+        setResource(m_reference); // this updates the changes in the current widget again
     }
 }
 

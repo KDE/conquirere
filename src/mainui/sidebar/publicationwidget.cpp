@@ -529,7 +529,7 @@ void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUr
     }
 
     //2nd if no valid resource is availabe the user want
-    // a) create a new one
+    // a) create a new one ignored, user should enter the title into the field first and press edit then
     // b) select from a list of existing resources
 
     //get the range of the property (so what we are allowed to enter)
@@ -537,10 +537,7 @@ void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUr
     //Nepomuk::Resource range = nr.property(QUrl(QLatin1String("http://www.w3.org/2000/01/rdf-schema#range"))).toResource();
     // not working sadly :/
 
-
-
     ListPublicationsDialog lpd;
-    qDebug() << "check property url" <<propertyUrl;
     if(propertyUrl == Nepomuk::Vocabulary::NBIB::inSeries()) {
         lpd.setListMode(Resource_Series, Max_BibTypes);
     }
