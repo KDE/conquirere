@@ -106,7 +106,7 @@ void ContactDialog::editItem()
     if(akonadiItemID.isEmpty()) {
         bool ok;
         QString text = KInputDialog::getText(i18n("Edit Nepomuk contact"),
-                                             i18n("Name:"),i->text(), &ok, this);
+                                             i18nc("The name of the person", "Name:"),i->text(), &ok, this);
 
         if (ok && !text.isEmpty()) {
             Nepomuk::Resource contact(i->data(Qt::UserRole + 1).toString());

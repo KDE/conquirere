@@ -307,7 +307,7 @@ void WebSearchWidget::switchToSearch()
         disconnect(ui->searchButton, SIGNAL(clicked()), it.value(), SLOT(cancel()));
 
     connect(ui->searchButton, SIGNAL(clicked()), this, SLOT(startSearch()));
-    ui->searchButton->setText(i18n("Search"));
+    ui->searchButton->setText(i18nc("Button that starts the search","Search"));
     ui->searchButton->setIcon(KIcon(QLatin1String("media-playback-start")));
     ui->queryTab->setEnabled(true);
     ui->enginesTab->setEnabled(true);

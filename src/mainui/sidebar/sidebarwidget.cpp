@@ -354,7 +354,7 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
     case Resource_Document:
         newWidget = new DocumentWidget(this);
         newWidget->setMainWindow(m_parent);
-        ui->titleLabel->setText(i18n("Document"));
+        ui->titleLabel->setText(i18nc("Header for the document details","Document"));
         ui->addPublication->setVisible(true);
         ui->removePublication->setVisible(true);
         connect(ui->addPublication, SIGNAL(clicked()), newWidget, SLOT(setPublication()));
@@ -364,15 +364,15 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         break;
     case Resource_Mail:
         newWidget = new PublicationWidget();
-        ui->titleLabel->setText(i18n("Mail"));
+        ui->titleLabel->setText(i18nc("Header for the mail details","Mail"));
         break;
     case Resource_Media:
         newWidget = new PublicationWidget();
-        ui->titleLabel->setText(i18n("Media"));
+        ui->titleLabel->setText(i18nc("Header for the media details","Media"));
         break;
     case Resource_Reference:
         newWidget = new ReferenceWidget();
-        ui->titleLabel->setText(i18n("Reference"));
+        ui->titleLabel->setText(i18nc("Header for the reference details","Reference"));
         ui->newButton->setToolTip(i18n("New reference"));
         ui->deleteButton->setToolTip(i18n("Delete reference"));
         ui->findPdf->setVisible(true);
@@ -380,23 +380,23 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         break;
     case Resource_Website:
         newWidget = new PublicationWidget();
-        ui->titleLabel->setText(i18n("Website"));
+        ui->titleLabel->setText(i18nc("Header for the website details","Website"));
         break;
     case Resource_Note:
         newWidget = new NoteWidget();
-        ui->titleLabel->setText(i18n("Note"));
+        ui->titleLabel->setText(i18nc("Header for the note details","Note"));
         ui->newButton->setToolTip(i18n("New note"));
         ui->deleteButton->setToolTip(i18n("Delete note"));
         break;
     case Resource_Event:
         newWidget = new EventWidget();
-        ui->titleLabel->setText(i18n("Event"));
+        ui->titleLabel->setText(i18nc("Header for the event details","Event"));
         ui->newButton->setToolTip(i18n("New event"));
         ui->deleteButton->setToolTip(i18n("Delete event"));
         break;
     case Resource_Publication:
         newWidget = new PublicationWidget(this);
-        ui->titleLabel->setText(i18n("Publication"));
+        ui->titleLabel->setText(i18nc("Header for the publications details","Publication"));
         ui->addReference->setVisible(true);
         ui->removeReference->setVisible(true);
         connect(ui->addReference, SIGNAL(clicked()), newWidget, SLOT(addReference()));
@@ -408,7 +408,7 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         break;
     case Resource_Series:
         newWidget = new SeriesWidget();
-        ui->titleLabel->setText(i18n("Series"));
+        ui->titleLabel->setText(i18nc("Header for the series details","Series"));
         ui->newButton->setToolTip(i18n("New series"));
         ui->deleteButton->setToolTip(i18n("Delete series"));
         break;

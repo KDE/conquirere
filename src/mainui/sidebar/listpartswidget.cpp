@@ -423,7 +423,7 @@ void ListPartsWidget::deleteSeries(Nepomuk::Resource  publication)
 {
     //check if the resource has articles connected to it
     QList<Nepomuk::Resource> articleList = publication.property(Nepomuk::Vocabulary::NBIB::article()).toResourceList();
-    foreach(Nepomuk::Resource r, articleList) {
+    foreach(Nepomuk::Resource r, articleList) { // krazy:exclude=foreach
         r.removeProperty(Nepomuk::Vocabulary::NBIB::collection(), publication);
     }
 

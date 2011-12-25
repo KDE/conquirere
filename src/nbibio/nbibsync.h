@@ -62,7 +62,7 @@ signals:
     void progress(int value);
     void progressStatus(const QString &status);
     /**
-      * emited if items from the server are deletet
+      * emitted if items from the server are deletet
       * emits a signal so we can show a dialog box not possible here as we run this class in a different thread than the gui thread
       */
     void askForDeletion(QList<SyncDetails>);

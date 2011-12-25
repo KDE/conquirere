@@ -184,7 +184,7 @@ void SyncZoteroDialog::popMergeDialog(QList<SyncDetails> items)
 {
     qDebug() << "show blocking merge dialog for " << items.size() << "items";
 
-    KMessageBox::sorry( this, i18n("TODO:: User selected entry merging, default to use server verion for now."), i18n("Sorry") );
+    KMessageBox::sorry( this, QLatin1String("TODO:: User selected entry merging, default to use server verion for now."), QLatin1String("Sorry") );
 
     QString url;
     int urlIndex = ui->libTypeSelection->currentIndex();

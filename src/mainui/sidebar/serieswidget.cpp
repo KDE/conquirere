@@ -114,7 +114,7 @@ void SeriesWidget::newSeriesTypeSelected(int index)
 
         QList<Nepomuk::Resource> collectionResource = m_series.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
 
-        foreach(Nepomuk::Resource r, collectionResource) {
+        foreach(Nepomuk::Resource r, collectionResource) { // krazy:exclude=foreach
             switch(entryType) {
             case SeriesType_Series:
                 // don't change anything
@@ -166,7 +166,7 @@ void SeriesWidget::deleteButtonClicked()
 {
     QList<Nepomuk::Resource> list = m_series.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
 
-    foreach(Nepomuk::Resource r, list) {
+    foreach(Nepomuk::Resource r, list) { // krazy:exclude=foreach
         r.removeProperty(Nepomuk::Vocabulary::NBIB::inSeries(), m_series);
     }
 

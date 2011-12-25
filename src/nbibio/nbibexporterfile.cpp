@@ -32,6 +32,7 @@
 #include <kbibtex/fileexporterbibtex.h>
 
 NBibExporterFile::NBibExporterFile()
+    : m_fileType(EXPORT_BIBTEX)
 {
 }
 

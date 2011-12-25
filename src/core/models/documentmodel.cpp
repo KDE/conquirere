@@ -71,17 +71,17 @@ QVariant DocumentModel::headerData(int section, Qt::Orientation orientation, int
         case DocumentQuery::Column_Publication:
             return QVariant();
         case DocumentQuery::Column_Author:
-            return  i18n("Author");
+            return i18nc("Header for the author","Author");
         case DocumentQuery::Column_Title:
-            return i18n("Title");
+            return i18nc("Header for the title","Title");
         case DocumentQuery::Column_Date:
-            return i18n("Date");
+            return i18nc("Header for the publication date","Date");
         case DocumentQuery::Column_FileName:
-            return  i18n("Filename");
+            return i18nc("Header for the filename","Filename");
         case DocumentQuery::Column_Folder:
-            return  i18n("Folder");
+            return i18nc("Header for the folder","Folder");
         case DocumentQuery::Column_StarRate:
-            return i18n("Rating");
+            return i18nc("Header for the rating","Rating");
         default:
             return QVariant();
         }

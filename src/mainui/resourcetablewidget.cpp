@@ -289,7 +289,7 @@ void ResourceTableWidget::removeSelectedFromSystem()
     //get all connected references
     QList<Nepomuk::Resource> refList = nr.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
 
-    foreach(Nepomuk::Resource r, refList) {
+    foreach(Nepomuk::Resource r, refList) { // krazy:exclude=foreach
         r.remove();
     }
     // remove resource

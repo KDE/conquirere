@@ -54,13 +54,13 @@ QVariant SeriesModel::headerData(int section, Qt::Orientation orientation, int r
     if (role == Qt::DisplayRole) {
         switch (section) {
         case SeriesQuery::Column_Title:
-            return i18n("Title");
+            return i18nc("Header for the series title","Title");
         case SeriesQuery::Column_ResourceType:
-            return i18n("Type");
+            return i18nc("Header for the series type","Type");
         case SeriesQuery::Column_StarRate:
-            return i18n("Rating");
+            return i18nc("Header for the series rating","Rating");
         case SeriesQuery::Column_Content:
-            return i18n("Content");
+            return i18nc("Header for the series content (list of all publications in the series)","Content");
         default:
             return QVariant();
         }
@@ -69,13 +69,13 @@ QVariant SeriesModel::headerData(int section, Qt::Orientation orientation, int r
     if (role == Qt::ToolTipRole) {
         switch (section) {
         case SeriesQuery::Column_Title:
-            return i18n("Title");
+            return i18nc("Tooltip for the series title","Title");
         case SeriesQuery::Column_ResourceType:
-            return i18n("Type");
+            return i18nc("Tooltip for the series type","Type");
         case SeriesQuery::Column_StarRate:
-            return i18n("Rating");
+            return i18nc("Tooltip for the series rating","Rating");
         case SeriesQuery::Column_Content:
-            return i18n("Content");
+            return i18nc("Tooltip for the series content (list of all publications in the series)","Content");
         default:
             return QVariant();
         }

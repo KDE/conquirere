@@ -1016,7 +1016,7 @@ void NepomukToBibTexPipe::setSyncDetails(Entry *e, Nepomuk::Resource publication
     QList<Nepomuk::Resource> sycList = publication.property(Nepomuk::Vocabulary::SYNC::serverSyncData()).toResourceList();
 
     // only add the sync details the the right storage
-    foreach(Nepomuk::Resource r, sycList) {
+    foreach(const Nepomuk::Resource &r, sycList) {
         if(r.property(Nepomuk::Vocabulary::SYNC::provider()).toString() != QString("zotero"))//TODO make this possible for others too
             continue;
         if(r.property(Nepomuk::Vocabulary::SYNC::userId()).toString() != m_syncUserId)//TODO make this possible for others too

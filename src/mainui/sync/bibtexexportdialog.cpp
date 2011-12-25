@@ -29,7 +29,7 @@
 #include <Nepomuk/Query/Result>
 #include <Nepomuk/Query/QueryParser>
 
-#include <QtGui/QProgressDialog>
+#include <KDE/KProgressDialog>
 
 #include <QtCore/QThread>
 #include <QtCore/QtConcurrentRun>
@@ -88,7 +88,8 @@ void BibTexExportDialog::accept()
 
     QString filename = ui->folder->text();
 
-    m_progress = new QProgressDialog(i18n("Export BibTeX"), QLatin1String("Abort import"), 0, 100);
+    m_progress = new KProgressDialog(this, i18n("Export BibTeX"), QLatin1String("Abort import"));
+    m_progress->progressBar()->setRange(0,100);
     m_progress->setWindowModality(Qt::WindowModal);
     m_progress->show();
     m_progress->setFocus();
@@ -97,7 +98,7 @@ void BibTexExportDialog::accept()
     m_exporter = new NBibExporterFile;
     m_exporter->setFileType(m_selectedFileType);
 
-    connect(m_exporter, SIGNAL(progress(int)), m_progress, SLOT(setValue(int)));
+    connect(m_exporter, SIGNAL(progress(int)), m_progress->progressBar(), SLOT(setValue(int)));
     connect(m_progress, SIGNAL(canceled()), m_exporter, SLOT(cancel()));
 
     // create query to fetch all used resources for the export

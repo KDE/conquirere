@@ -1662,7 +1662,7 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Ne
     if(m_mergeMode) {
         QList<Nepomuk::Resource> syncList = publication.property(Nepomuk::Vocabulary::SYNC::serverSyncData()).toResourceList();
 
-        foreach(Nepomuk::Resource r, syncList) {
+        foreach(const Nepomuk::Resource &r, syncList) {
             if(r.property(Nepomuk::Vocabulary::SYNC::provider()).toString() != QString("zotero"))
                 continue;
             if(r.property(Nepomuk::Vocabulary::SYNC::userId()).toString() != m_syncUserId)

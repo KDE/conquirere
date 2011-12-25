@@ -54,15 +54,15 @@ QVariant BookmarkModel::headerData(int section, Qt::Orientation orientation, int
     if (role == Qt::DisplayRole) {
         switch (section) {
         case BookmarkQuery::Column_Tags:
-            return i18n("Tags");
+            return i18nc("Header for the tags","Tags");
         case BookmarkQuery::Column_Title:
-            return i18n("Title");
+            return i18nc("Header for the title","Title");
         case BookmarkQuery::Column_Date:
-            return i18n("Last Modified");
+            return i18nc("Header for the last modified section","Last Modified");
         case BookmarkQuery::Column_Link:
-            return i18n("Link");
+            return i18nc("Header for the www url","Link");
         case BookmarkQuery::Column_StarRate:
-            return i18n("Rating");
+            return i18nc("Header for the rating","Rating");
         default:
             return QVariant();
         }
@@ -71,15 +71,15 @@ QVariant BookmarkModel::headerData(int section, Qt::Orientation orientation, int
     if (role == Qt::ToolTipRole) {
         switch (section) {
         case BookmarkQuery::Column_Tags:
-            return i18n("Tags");
+            return i18nc("Tooltip for the tags","Tags");
         case BookmarkQuery::Column_Title:
-            return i18n("Title");
+            return i18nc("Tooltip for the title","Title");
         case BookmarkQuery::Column_Date:
-            return i18n("Last Modified");
+            return i18nc("Tooltip for the last modified section","Last Modified");
         case BookmarkQuery::Column_Link:
-            return i18n("Link");
+            return i18nc("Tooltip for the www url","Link");
         case BookmarkQuery::Column_StarRate:
-            return i18n("Rating");
+            return i18nc("Tooltip for the rating","Rating");
         default:
             return QVariant();
         }

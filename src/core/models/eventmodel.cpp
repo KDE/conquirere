@@ -54,13 +54,13 @@ QVariant EventModel::headerData(int section, Qt::Orientation orientation, int ro
     if (role == Qt::DisplayRole) {
         switch (section) {
         case EventQuery::Column_Title:
-            return i18n("Title");
+            return i18nc("Header for the title","Title");
         case EventQuery::Column_Date:
-            return i18n("Date");
+            return i18nc("Header for the event date","Date");
         case EventQuery::Column_Publication:
-            return i18n("Publication");
+            return i18nc("Header for the publications of this event","Publication");
         case EventQuery::Column_StarRate:
-            return i18n("Rating");
+            return i18nc("Header for the rating","Rating");
         default:
             return QVariant();
         }

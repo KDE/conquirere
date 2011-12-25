@@ -54,15 +54,15 @@ QVariant MailModel::headerData(int section, Qt::Orientation orientation, int rol
     if (role == Qt::DisplayRole) {
         switch (section) {
         case MailQuery::Column_Tags:
-            return i18n("Tags");
+            return i18nc("Header for the tags","Tags");
         case MailQuery::Column_Title:
-            return i18n("Title");
+            return i18nc("Header for the title","Title");
         case MailQuery::Column_Date:
-            return i18n("Received");
+            return i18nc("Header for the mail received from section","Received");
         case MailQuery::Column_From:
-            return i18n("From");
+            return i18nc("Header for the mail from section","From");
         case MailQuery::Column_StarRate:
-            return i18n("Rating");
+            return i18nc("Header for the rating","Rating");
         default:
             return QVariant();
         }
@@ -71,15 +71,15 @@ QVariant MailModel::headerData(int section, Qt::Orientation orientation, int rol
     if (role == Qt::ToolTipRole) {
         switch (section) {
         case MailQuery::Column_Tags:
-            return i18n("Tags");
+            return i18nc("Tooltip for the tags","Tags");
         case MailQuery::Column_Title:
-            return i18n("Title");
+            return i18nc("Tooltip for the title","Title");
         case MailQuery::Column_Date:
-            return i18n("Received");
+            return i18nc("Tooltip for the mail received from section","Received");
         case MailQuery::Column_From:
-            return i18n("From");
+            return i18nc("Tooltip for the mail from section","From");
         case MailQuery::Column_StarRate:
-            return i18n("Rating");
+            return i18nc("Tooltip for the rating","Rating");
         default:
             return QVariant();
         }

@@ -630,7 +630,7 @@ QVariantList WriteToZotero::createCreatorsJson(Entry *e, const QString &type)
     // these have to be mapped to something that fits into the zotero version
     if(adoptBibtexTypes()) {
         QStringList bibTexCreatorList;
-        if(!handledEditor)
+        if(!handledAuthor)
             bibTexCreatorList << QLatin1String("author");
         if(!handledEditor)
             bibTexCreatorList << QLatin1String("editor");

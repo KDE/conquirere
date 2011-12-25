@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Syncronize with Zotero</string>
+   <string>Synchronize with Zotero</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

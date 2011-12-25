@@ -27,7 +27,7 @@
 	<Action name="db_export_pdf" />
 	<Action name="db_export_file" />
       </Menu>
-      <Menu name="db_sync"><text>Syncronize</text>
+      <Menu name="db_sync"><text>Synchronize</text>
 	<Action name="db_sync_zotero" />
       </Menu>
       <Separator/>

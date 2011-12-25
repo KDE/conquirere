@@ -295,7 +295,7 @@ void SyncZoteroNepomuk::readUploadSync(File zoteroData)
                 i.next();
 
                 //ignore zotero keys
-                if(i.key().startsWith("zotero"))
+                if(i.key().startsWith( QLatin1String("zotero") ))
                     continue;
 
                 //get local value for currentkey
@@ -356,7 +356,7 @@ void SyncZoteroNepomuk::startSync()
 
 void SyncZoteroNepomuk::deleteLocalFiles(bool deleteThem)
 {
-    foreach(SyncDetails sd, m_tmpUserDeleteRequest) {
+    foreach(SyncDetails sd, m_tmpUserDeleteRequest) { // krazy:exclude=foreach
         if(deleteThem) {
             Nepomuk::Resource publication = sd.syncResource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
             qDebug() << "delete publication" << publication.resourceUri();
@@ -484,7 +484,7 @@ void SyncZoteroNepomuk::findDeletedEntries(const File &zoteroData, QList<SyncDet
     Nepomuk::Query::Query query( andTerm );
     QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
 
-    foreach(Nepomuk::Query::Result nqr, queryResult) {
+    foreach(const Nepomuk::Query::Result &nqr, queryResult) {
         Nepomuk::Resource syncRes = nqr.resource();
         QString id = syncRes.property(Nepomuk::Vocabulary::SYNC::id()).toString();
         if(!idLookup.contains(id)) {

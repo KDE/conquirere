@@ -31,6 +31,7 @@ NBibImporterBibTex::NBibImporterBibTex()
     : NBibImporter()
     , m_importedEntries(0)
     , m_findDuplicates(false)
+    , m_selectedFileType(EXPORT_BIBTEX)
 {
 }
 

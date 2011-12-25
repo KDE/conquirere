@@ -34,7 +34,7 @@ class QModelIndex;
   * In order to list and sort large sets of nepomuk data in a table model it is necessary to create a string cache for
   * the displayed data. This Model and the necessary subcalsses realize these via the @c CachedRowEntry
   *
-  * The data is internally fetched with the coresponding @c QueryClient that retrieves the nepomuk data and updates the cache.
+  * The data is internally fetched with the corresponding @c QueryClient that retrieves the nepomuk data and updates the cache.
   * The @c QueryClient is realized as QThread to allow nonblocking polution of the TableModel.
   *
   * To alter the content of the table change the necessary header data in the @c headerData() function of the subclasses or

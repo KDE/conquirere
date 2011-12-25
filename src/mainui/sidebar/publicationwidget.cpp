@@ -28,7 +28,7 @@
 #include "contactdialog.h"
 #include "addchapterdialog.h"
 #include "listpublicationsdialog.h"
-#include "../core/library.h"
+#include "core/library.h"
 
 #include "nbib.h"
 #include <Nepomuk/Variant>
@@ -47,6 +47,7 @@
 #include <QtGui/QSpacerItem>
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
+#include <QtCore/QPointer>
 
 #include <QtCore/QDebug>
 
@@ -505,24 +506,25 @@ void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUr
 
     // first if the resource is valid, we just want to edit it
     if(changedResource.isValid()) {
-        KDialog addIssueWidget;
+        QPointer<KDialog> addIssueWidget = new KDialog(this);
         if(changedResource.hasType(Nepomuk::Vocabulary::PIMO::Event())) {
             EventWidget *pw = new EventWidget();
             pw->setResource(changedResource);
-            addIssueWidget.setMainWidget(pw);
+            addIssueWidget->setMainWidget(pw);
         }
         else if(changedResource.hasType(Nepomuk::Vocabulary::NBIB::Series())) {
             SeriesWidget *pw = new SeriesWidget();
             pw->setResource(changedResource);
-            addIssueWidget.setMainWidget(pw);
+            addIssueWidget->setMainWidget(pw);
         }
         else {
             PublicationWidget *pw = new PublicationWidget();
             pw->setResource(changedResource);
-            addIssueWidget.setMainWidget(pw);
+            addIssueWidget->setMainWidget(pw);
         }
-        addIssueWidget.setInitialSize(QSize(400,300));
-        addIssueWidget.exec();
+        addIssueWidget->setInitialSize(QSize(500,300));
+        addIssueWidget->exec();
+        delete addIssueWidget;
 
         setResource(m_publication); // this updates the changes in the current widget again
         return;
@@ -537,31 +539,31 @@ void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUr
     //Nepomuk::Resource range = nr.property(QUrl(QLatin1String("http://www.w3.org/2000/01/rdf-schema#range"))).toResource();
     // not working sadly :/
 
-    ListPublicationsDialog lpd;
+    QPointer<ListPublicationsDialog> lpd = new ListPublicationsDialog(this);
     if(propertyUrl == Nepomuk::Vocabulary::NBIB::inSeries()) {
-        lpd.setListMode(Resource_Series, Max_BibTypes);
+        lpd->setListMode(Resource_Series, Max_BibTypes);
     }
     else if(propertyUrl == Nepomuk::Vocabulary::NBIB::codeOfLaw()) {
-        lpd.setListMode(Resource_Publication, BibType_CodeOfLaw);
+        lpd->setListMode(Resource_Publication, BibType_CodeOfLaw);
     }
     else if(propertyUrl == Nepomuk::Vocabulary::NBIB::courtReporter()) {
-        lpd.setListMode(Resource_Publication, BibType_CourtReporter);
+        lpd->setListMode(Resource_Publication, BibType_CourtReporter);
     }
     else if(propertyUrl == Nepomuk::Vocabulary::NBIB::collection()) {
-        lpd.setListMode(Resource_Publication, BibType_Collection);
+        lpd->setListMode(Resource_Publication, BibType_Collection);
     }
     else if(propertyUrl == Nepomuk::Vocabulary::NBIB::event()) {
-        lpd.setListMode(Resource_Event, Max_BibTypes);
+        lpd->setListMode(Resource_Event, Max_BibTypes);
     }
     else {
-        lpd.setListMode(Resource_Reference, Max_BibTypes);
+        lpd->setListMode(Resource_Reference, Max_BibTypes);
     }
-    lpd.setSystemLibrary(library());
+    lpd->setSystemLibrary(library());
 
-    int ret = lpd.exec();
+    int ret = lpd->exec();
 
     if(ret == QDialog::Accepted) {
-        Nepomuk::Resource selectedPart = lpd.selectedPublication();
+        Nepomuk::Resource selectedPart = lpd->selectedPublication();
 
         resource.setProperty(propertyUrl, selectedPart );
         // here I need to take into account, that backlinks must be handled somehow
@@ -584,6 +586,8 @@ void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUr
 
         setResource(m_publication); // this updates the changes in the current widget again
     }
+
+    delete lpd;
 }
 
 void PublicationWidget::selectLayout(BibEntryType entryType)
@@ -635,7 +639,7 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
         layoutManual();
         break;
     case BibType_Standard:
-        layoutMisc(); //TODO what is neccessary for a standard? ISO etc
+        layoutMisc(); //TODO what is necessary for a standard? ISO etc
         break;
     case BibType_Patent:
         layoutPatent();
