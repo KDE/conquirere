@@ -18,7 +18,7 @@
 #include "librarywidget.h"
 #include "ui_librarywidget.h"
 
-#include "core/library.h"
+#include "../../core/library.h"
 #include "qlibrarytreewidgetitem.h"
 #include "projecttreedelegate.h"
 #include "../../core/models/nepomukmodel.h"

@@ -19,8 +19,8 @@
 #include "ui_synczoterodialog.h"
 
 #include "onlinestorage/zotero/readfromzotero.h"
-#include "../../nbibio/synczoteronepomuk.h"
-#include "../../nbibio/pipe/bibtextonepomukpipe.h"
+#include "nbibio/synczoteronepomuk.h"
+#include "nbibio/pipe/bibtextonepomukpipe.h"
 
 #include <kbibtex/file.h>
 #include <kbibtex/entry.h>

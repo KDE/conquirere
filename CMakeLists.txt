@@ -23,13 +23,17 @@ add_definitions(-DQT_USE_FAST_CONCATENATION -DQT_USE_FAST_OPERATOR_PLUS)
 
 include_directories (${CMAKE_SOURCE_DIR}
                      ${CMAKE_BINARY_DIR}
+                     ${CMAKE_BINARY_DIR}/nbib
                      ${KDE4_INCLUDES}
                      ${KDEPIMLIBS_INCLUDE_DIRS}
                      ${NEPOMUK_INCLUDE_DIR}
                      ${NEPOMUKEXTRAS_INCLUDE_DIR}
                      ${INCLUDE_INSTALL_DIR}/kbibtex
+
+                     ${CMAKE_SOURCE_DIR}/src
 )
 
+add_subdirectory( nbib )
 add_subdirectory( dms-copy )
 add_subdirectory( src )
 add_subdirectory( html )

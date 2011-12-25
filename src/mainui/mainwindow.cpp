@@ -23,7 +23,7 @@
 #include "welcomewidget.h"
 #include "resourcetablewidget.h"
 
-#include "../sidebar/sidebarwidget.h"
+#include "sidebar/sidebarwidget.h"
 #include "dialogs/newprojectwizard.h"
 #include "dialogs/loadproject.h"
 #include "docklets/librarywidget.h"

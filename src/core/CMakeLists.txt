@@ -31,11 +31,12 @@ set(core_LIB_SRCS
     queryclients/eventquery.cpp
 )
 
-nepomuk_add_ontology_classes(core_LIB_SRCS ONTOLOGIES ${CMAKE_SOURCE_DIR}/nbib/nbib.trig)
-soprano_add_ontology(core_LIB_SRCS ${CMAKE_SOURCE_DIR}/nbib/nbib.trig "NBIB" "Nepomuk::Vocabulary" "trig")
-
 kde4_add_library( core STATIC ${core_LIB_SRCS} )
- 
+
+target_link_libraries(core
+        nepomukdatamanagement-copy
+)
+
 install( TARGETS core  ${INSTALL_TARGETS_DEFAULT_ARGS} )
 
 
