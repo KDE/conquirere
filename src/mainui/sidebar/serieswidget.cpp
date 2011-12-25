@@ -84,7 +84,71 @@ void SeriesWidget::setResource(Nepomuk::Resource & resource)
 
 void SeriesWidget::newSeriesTypeSelected(int index)
 {
-    qDebug() << "TODO SeriesWidget::newSeriesTypeSelected";
+    // change the seriestype of the resource
+    SeriesType entryType = (SeriesType)index;
+
+    // update resource
+    QUrl newEntryUrl = SeriesTypeURL.at(entryType);
+    if(!m_series.hasType(newEntryUrl)) {
+        // create the full hierarchy
+        //DEBUG this seems wrong, but is currently the only way to preserve type hierarchy
+        QList<QUrl>newtype;
+        newtype.append(Nepomuk::Vocabulary::NIE::InformationElement());
+        newtype.append(newEntryUrl);
+
+        // add another hierarchy if the newEntryUrl is not a direct subclass of NBIB::Series()
+        switch(entryType) {
+        case SeriesType_BookSeries:
+        case SeriesType_Journal:
+        case SeriesType_Magazin:
+        case SeriesType_Newspaper:
+            newtype.append(Nepomuk::Vocabulary::NBIB::Series());
+            break;
+        }
+
+        if(m_series.isValid()) {
+            m_series.setTypes(newtype);
+        }
+        // when we change the series type, we must change the type of any related collection
+        // in the case a collection is a JournalIssue / series the Journal etc.
+
+        QList<Nepomuk::Resource> collectionResource = m_series.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
+
+        foreach(Nepomuk::Resource r, collectionResource) {
+            switch(entryType) {
+            case SeriesType_Series:
+                // don't change anything
+                break;
+            case SeriesType_BookSeries:
+            {
+                // this changes the resource from a collection to a Book
+                // (might run into somw bad stuff when articles are attached to it)
+                //TODO check if we need to take special attention here
+                Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::Book());
+                r.setTypes(x.types());
+                break;
+            }
+            case SeriesType_Journal:
+            {
+                Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::JournalIssue());
+                r.setTypes(x.types());
+                break;
+            }
+            case SeriesType_Magazin:
+            {
+                Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::MagazinIssue());
+                r.setTypes(x.types());
+                break;
+            }
+            case SeriesType_Newspaper:
+            {
+                Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::NewspaperIssue());
+                r.setTypes(x.types());
+                break;
+            }
+            }
+        }
+    }
 }
 
 void SeriesWidget::newButtonClicked()

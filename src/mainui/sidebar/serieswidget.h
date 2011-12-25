@@ -19,7 +19,7 @@
 #define SERIESWIDGET_H
 
 #include "sidebarcomponent.h"
-#include "../globals.h"
+#include "globals.h"
 
 #include <Nepomuk/Resource>
 
