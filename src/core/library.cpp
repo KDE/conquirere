@@ -51,6 +51,7 @@
 #include <KDE/KConfig>
 #include <KDE/KConfigGroup>
 #include <KDE/KIO/CopyJob>
+#include <KDE/KIO/DeleteJob>
 
 #include <QtCore/QUuid>
 #include <QtCore/QDir>
@@ -140,6 +141,11 @@ void Library::setLibraryDir(const QString & path)
         cj->exec();
         delete cj;
 
+        //update nepomuk data for the settingsfile to the pimo:.project
+        Nepomuk::File settingsFile = Nepomuk::File(KUrl(newIniFile));
+        settingsFile.setProperty(Nepomuk::Vocabulary::PIMO::occurrence(), m_pimoLibrary);
+        m_pimoLibrary.setProperty(Nepomuk::Vocabulary::PIMO::groundingOccurrence(), settingsFile );
+
         // do not remove old folder
     }
     // create new fodler structer or move existing one
@@ -164,6 +170,11 @@ void Library::setLibraryDir(const QString & path)
             KIO::CopyJob *cj = KIO::move(oldIniFile, newIniFile);
             cj->exec();
             delete cj;
+
+            //update nepomuk data for the settingsfile to the pimo:.project
+            Nepomuk::File settingsFile = Nepomuk::File(KUrl(newIniFile));
+            settingsFile.setProperty(Nepomuk::Vocabulary::PIMO::occurrence(), m_pimoLibrary);
+            m_pimoLibrary.setProperty(Nepomuk::Vocabulary::PIMO::groundingOccurrence(), settingsFile );
         }
         // there was a previous folder, so we move it to the new destination
         else {
@@ -177,6 +188,11 @@ void Library::setLibraryDir(const QString & path)
             KConfigGroup libGroup( &libconfig, "Conquirere" );
             libGroup.writeEntry(QLatin1String("libraryDir"), path);
             libconfig.sync();
+
+            //update nepomuk data for the settingsfile to the pimo:.project
+            Nepomuk::File settingsFile = Nepomuk::File(KUrl(newIniFile));
+            settingsFile.setProperty(Nepomuk::Vocabulary::PIMO::occurrence(), m_pimoLibrary);
+            m_pimoLibrary.setProperty(Nepomuk::Vocabulary::PIMO::groundingOccurrence(), settingsFile );
         }
     }
 
@@ -311,7 +327,7 @@ void Library::createLibrary(const QString & name, const QString & description, c
     libconfig.sync();
 
     // connect the nepomuk data for the settingsfile to the pimo:.project
-    Nepomuk::Resource settingsFile = Nepomuk::File(KUrl(iniFile));
+    Nepomuk::File settingsFile = Nepomuk::File(KUrl(iniFile));
     settingsFile.setProperty(Nepomuk::Vocabulary::PIMO::occurrence(), pimoLibrary);
     pimoLibrary.setProperty(Nepomuk::Vocabulary::PIMO::groundingOccurrence(), settingsFile );
 
@@ -395,8 +411,21 @@ void Library::loadLibrary(const Nepomuk::Resource & pimoProject)
 
 void Library::deleteLibrary()
 {
+    // remove the library from the conquiere pimo:thing
+    KSharedConfigPtr config = KSharedConfig::openConfig("conquirererc");
+    KConfigGroup generalGroup = config->group("General");
+    QString NepomukCollection = generalGroup.readEntry( "NepomukCollection", QString() );
+    Nepomuk::Resource conquiereCollections = Nepomuk::Resource(NepomukCollection);
+    conquiereCollections.removeProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_pimoLibrary);
+
+    Nepomuk::File settingsFile = m_pimoLibrary.property( Nepomuk::Vocabulary::PIMO::groundingOccurrence()).toResource();
+
     m_pimoLibrary.remove();
     m_libraryTag.remove();
+
+    KIO::DeleteJob *dj = KIO::del(settingsFile.url());
+    dj->exec();
+    delete dj;
 }
 
 Nepomuk::Resource Library::pimoLibrary() const
