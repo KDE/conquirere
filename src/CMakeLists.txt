@@ -1,7 +1,6 @@
 
-
-add_subdirectory( core )
 add_subdirectory( nbibio )
+add_subdirectory( core )
 add_subdirectory( propertywidgets )
 add_subdirectory( onlinestorage )
 add_subdirectory( mainui )

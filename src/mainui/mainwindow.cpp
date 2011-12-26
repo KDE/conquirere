@@ -33,6 +33,7 @@
 #include "sync/bibtexexportdialog.h"
 #include "sync/bibteximportwizard.h"
 #include "sync/synczoterodialog.h"
+#include "sync/syncbutton.h"
 
 #include <KDE/KApplication>
 #include <KDE/KAction>
@@ -409,6 +410,12 @@ void MainWindow::setupActions()
     actionCollection()->addAction(QLatin1String("db_sync_zotero"), syncZoteroAction);
     connect(syncZoteroAction, SIGNAL(triggered(bool)),this, SLOT(syncZotero()));
 
+    KAction* triggerBackgroundSyncAction = new KAction(this);
+    triggerBackgroundSyncAction->setText(i18n("Synchronize Collection"));
+    triggerBackgroundSyncAction->setIcon(KIcon(QLatin1String("view-refresh")));
+    actionCollection()->addAction(QLatin1String("db_background_sync"), triggerBackgroundSyncAction);
+    connect(triggerBackgroundSyncAction, SIGNAL(triggered(bool)),m_syncButton, SLOT(startSync()));
+
     // other database actions
     KAction* dbCheckAction = new KAction(this);
     dbCheckAction->setEnabled(false);
@@ -423,7 +430,6 @@ void MainWindow::setupActions()
     dbBackupAction->setIcon(KIcon(QLatin1String("svn-update")));
     actionCollection()->addAction(QLatin1String("db_backup"), dbBackupAction);
     connect(dbBackupAction, SIGNAL(triggered(bool)),this, SLOT(dbBackup()));
-
 
 
     // ##############################################
@@ -506,6 +512,9 @@ void MainWindow::setupMainWindow()
     switchView(Resource_Library, Max_BibTypes, m_systemLibrary);
 
     loadConfig();
+
+    m_syncButton = new SyncButton();
+    m_syncButton->setMainWindow(this);
 }
 
 void MainWindow::loadConfig()

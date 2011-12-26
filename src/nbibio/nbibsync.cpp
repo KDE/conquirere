@@ -28,9 +28,24 @@ NBibSync::NBibSync(QObject *parent)
     qRegisterMetaType<QList<SyncDetails> >("QList<SyncDetails>");
 }
 
+void NBibSync::setId(const QString &providerId)
+{
+    m_providerId = providerId;
+}
+
+QString NBibSync::providerId() const
+{
+    return m_providerId;
+}
+
 void NBibSync::setUserName(const QString &name)
 {
     m_name = name;
+}
+
+QString NBibSync::userName() const
+{
+    return m_name;
 }
 
 void NBibSync::setPassword(const QString &pwd)
@@ -43,20 +58,41 @@ void NBibSync::setUrl(const QString &url)
     m_url = url;
 }
 
+QString NBibSync::url() const
+{
+    return m_url;
+}
+
 void NBibSync::setCollection(const QString &collection)
 {
     m_collection = collection;
 }
 
-void NBibSync::askBeforeDeletion(bool ask)
+QString NBibSync::collection() const
+{
+    return m_collection;
+}
+
+void NBibSync::setAskBeforeDeletion(bool ask)
 {
     m_askBeforeDeletion = ask;
 }
 
-void NBibSync::mergeStrategy( MergeStrategy strategy)
+bool NBibSync::askBeforeDeletion() const
+{
+    return m_askBeforeDeletion;
+}
+
+void NBibSync::setMergeStrategy( NBibSync::MergeStrategy strategy)
 {
     m_mergeStrategy = strategy;
 }
+
+NBibSync::MergeStrategy NBibSync::mergeStrategy() const
+{
+    return m_mergeStrategy;
+}
+
 void NBibSync::setAkonadiAddressbook(Akonadi::Collection & addressbook)
 {
     m_addressbook = addressbook;

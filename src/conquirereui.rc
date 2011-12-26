@@ -13,6 +13,8 @@
       <Action name="delete_project" />
       <Action name="close_project" />
       <Separator/>
+      <Action name="db_background_sync" />
+      <Separator/>
       <Merge/>
     </Menu>
     <Menu name="database">
@@ -53,11 +55,10 @@
       <Action name="load_project" />
       <Action name="delete_project" />
       <Action name="close_project" />
-      <Action name="export_bibtex" />
-      <Action name="import_bibtex" />
+      <Separator/>
+      <Action name="db_background_sync" />
+      <Separator/>
       <Action name="debug_delete" />
-      <Action name="zotero_collection" />
-      <Action name="zotero_items" />
   </ToolBar>
   
   <ToolBar name="mainToolBar" >

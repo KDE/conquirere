@@ -24,6 +24,7 @@
 #include <Nepomuk/Resource>
 #include <Akonadi/Collection>
 
+class StorageInfo;
 class Entry;
 
 struct SyncDetails {
@@ -43,14 +44,24 @@ public:
         UseServer,
         UseLocal
     };
+
     explicit NBibSync(QObject *parent = 0);
 
+    virtual StorageInfo *providerInfo() const = 0;
+
+    void setId(const QString &providerId);
+    QString providerId() const;
     void setUserName(const QString &name);
+    QString userName() const;
     void setPassword(const QString &pwd);
     void setUrl(const QString &url);
+    QString url() const;
     void setCollection(const QString &collection);
-    void askBeforeDeletion(bool ask);
-    void mergeStrategy( MergeStrategy strategy);
+    QString collection() const;
+    void setAskBeforeDeletion(bool ask);
+    bool askBeforeDeletion() const;
+    void setMergeStrategy( NBibSync::MergeStrategy strategy);
+    NBibSync::MergeStrategy mergeStrategy() const;
     /**
       * Sets the Akonadi addressbook where all contacts (authors, editors etc) are imported to beside the Nepomuk storage.
       *
@@ -62,11 +73,18 @@ signals:
     void progress(int value);
     void progressStatus(const QString &status);
     /**
-      * emitted if items from the server are deletet
+      * emitted if items from the server are deleted
       * emits a signal so we can show a dialog box not possible here as we run this class in a different thread than the gui thread
+      *
+      * call deleteLocalFiles() when the user made his choice to proceed sync
       */
     void askForDeletion(QList<SyncDetails>);
 
+    /**
+      * emitted when the user needs to decide how to merge certain items
+      *
+      * call mergeFinished() when the user finished merging (merging should be done directly in nepomuk)
+      */
     void userMerge(QList<SyncDetails>);
 
 public slots:
@@ -84,6 +102,7 @@ protected slots:
     void calculateProgress(int value);
 
 protected:
+    QString m_providerId;
     QString m_name;
     QString m_pwd;
     QString m_url;

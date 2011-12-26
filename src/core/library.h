@@ -32,6 +32,8 @@ class QSortFilterProxyModel;
 class TagCloud;
 class NepomukModel;
 class DirWatcher;
+class NBibSync;
+class BackgroundSync;
 
 /**
   * @brief A Library is a collection of files and Nepomuk::Resource data of a specific topic
@@ -131,6 +133,10 @@ public:
     QString libraryDir() const;
     QString libraryDocumentDir() const;
 
+    void addSyncProvider(NBibSync* provider);
+    void removeSyncProvider(NBibSync* provider);
+    BackgroundSync *backgroundSync() const;
+
     /**
       * Creates a new project library
       *
@@ -214,6 +220,7 @@ private:
     QString m_description;
     QString m_libraryDir;
     DirWatcher *m_dirWatcher;
+    BackgroundSync *m_backgroundSync;
 
     Nepomuk::Resource m_pimoLibrary;
     Nepomuk::Tag m_libraryTag;

@@ -18,6 +18,11 @@
 #include "library.h"
 #include "tagcloud.h"
 #include "dirwatcher.h"
+#include "backgroundsync.h"
+
+#include "onlinestorage/storageinfo.h"
+#include "nbibio/nbibsync.h"
+#include "nbibio/synczoteronepomuk.h"
 
 #include "models/nepomukmodel.h"
 #include "models/referencemodel.h"
@@ -47,6 +52,7 @@
 #include <KDE/KConfigGroup>
 #include <KDE/KIO/CopyJob>
 
+#include <QtCore/QUuid>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfoList>
 
@@ -59,6 +65,7 @@ Library::Library(LibraryType type)
     : QObject(0)
     , m_libraryType(type)
     , m_dirWatcher(0)
+    , m_backgroundSync(0)
     , m_tagCloud(0)
 {
     m_tagCloud = new TagCloud;
@@ -194,6 +201,63 @@ QString Library::libraryDocumentDir() const
     return documentDir;
 }
 
+void Library::addSyncProvider(NBibSync* provider)
+{
+    QString providerID = provider->providerId();
+    if(providerID.isEmpty()) {
+        providerID = QUuid::createUuid().toString();
+    }
+
+    m_backgroundSync->addSyncProvider(provider);
+
+    // save sync details in the inifile
+    QString inipath;
+    if(!m_libraryDir.isEmpty()) {
+        inipath = m_libraryDir;
+    }
+    else {
+        inipath = KStandardDirs::locateLocal("appdata", QLatin1String("projects"));
+    }
+
+    QString iniFile = inipath + QLatin1String("/") + m_name + QLatin1String(".ini");
+    KConfig libconfig( iniFile, KConfig::SimpleConfig );
+    KConfigGroup libGroup( &libconfig, "SyncProvider" );
+    KConfigGroup providerGroup( &libGroup, providerID );
+    providerGroup.writeEntry(QLatin1String("provider"), provider->providerInfo()->providerId());
+    providerGroup.writeEntry(QLatin1String("name"), provider->userName());
+    providerGroup.writeEntry(QLatin1String("url"), provider->url());
+    providerGroup.writeEntry(QLatin1String("collection"), provider->collection());
+    providerGroup.writeEntry(QLatin1String("askBeforeDeletion"), provider->askBeforeDeletion());
+    providerGroup.writeEntry(QLatin1String("mergeStrategy"), (int)provider->mergeStrategy());
+    providerGroup.sync();
+    libGroup.sync();
+}
+
+void Library::removeSyncProvider(NBibSync* provider)
+{
+    QString inipath;
+    if(!m_libraryDir.isEmpty()) {
+        inipath = m_libraryDir;
+    }
+    else {
+        inipath = KStandardDirs::locateLocal("appdata", QLatin1String("projects"));
+    }
+
+    QString iniFile = inipath + QLatin1String("/") + m_name + QLatin1String(".ini");
+    KConfig libconfig( iniFile, KConfig::SimpleConfig );
+    KConfigGroup libGroup( &libconfig, "SyncProvider" );
+    KConfigGroup providerGroup( &libGroup, provider->providerId() );
+    providerGroup.deleteGroup();
+    libGroup.sync();
+
+    m_backgroundSync->removeSyncProvider(provider);
+}
+
+BackgroundSync *Library::backgroundSync() const
+{
+    return m_backgroundSync;
+}
+
 void Library::createLibrary(const QString & name, const QString & description, const QString & path)
 {
     // when a new library is created it is realized as pimo:Project
@@ -276,6 +340,39 @@ void Library::loadLibrary(const QString & projectFile)
 
     m_libraryTag = Nepomuk::Tag( m_name );
     m_libraryTag.setLabel(m_name);
+
+    m_backgroundSync = new BackgroundSync;
+    // read in all sync details
+    KConfigGroup syncGroup( &libconfig, "SyncProvider" );
+    QStringList providerList = syncGroup.groupList();
+    foreach(const QString &providerUUid, providerList) {
+        NBibSync* providerSyncDetails;
+        KConfigGroup providerGroup( &syncGroup, providerUUid );
+        QString providerType = providerGroup.readEntry(QLatin1String("provider"), QString());
+        if(providerType == QLatin1String("zotero")) {
+            providerSyncDetails = new SyncZoteroNepomuk;
+        }
+        else {
+            continue;
+        }
+        QString name = providerGroup.readEntry(QLatin1String("name"), QString());
+        providerSyncDetails->setUserName(name);
+        QString collection = providerGroup.readEntry(QLatin1String("collection"), QString());
+        providerSyncDetails->setCollection(collection);
+        QString url = providerGroup.readEntry(QLatin1String("url"), QString());
+        providerSyncDetails->setUrl(url);
+        QString pwd = providerGroup.readEntry(QLatin1String("pwd"), QString());
+        providerSyncDetails->setPassword(pwd);
+        QString mergeStrategy = providerGroup.readEntry(QLatin1String("mergeStrategy"), QString());
+        providerSyncDetails->setMergeStrategy( NBibSync::MergeStrategy (mergeStrategy.toInt()) );
+        QString askBeforeDeletion = providerGroup.readEntry(QLatin1String("askBeforeDeletion"), QString());
+        if(askBeforeDeletion == false)
+            providerSyncDetails->setAskBeforeDeletion(false);
+        else
+            providerSyncDetails->setAskBeforeDeletion(true);
+
+        m_backgroundSync->addSyncProvider(providerSyncDetails);
+    }
 
     m_dirWatcher = new DirWatcher();
     m_dirWatcher->setLibrary(this);

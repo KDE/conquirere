@@ -31,6 +31,7 @@ class LibraryWidget;
 class SidebarWidget;
 class DocumentPreview;
 class WebSearchWidget;
+class SyncButton;
 
 class MainWindow : public KParts::MainWindow
 {
@@ -86,6 +87,7 @@ private:
     SidebarWidget *m_sidebarWidget;
     DocumentPreview *m_documentPreview;
     WebSearchWidget *m_webSearchWidget;
+    SyncButton *m_syncButton;
 
     QMap<Library *, QWidget *> m_libraryList; /**< holds the welcome widget for each opened library */
     Library *m_systemLibrary;

@@ -27,9 +27,9 @@
 #include "eventwidget.h"
 #include "mergeresourceswidget.h"
 
-#include "../mainui/mainwindow.h"
-#include "../core/library.h"
-#include "../nbibio/pipe/nepomuktobibtexpipe.h"
+#include "mainui/mainwindow.h"
+#include "core/library.h"
+#include "nbibio/pipe/nepomuktobibtexpipe.h"
 
 #include <kbibtex/findpdfui.h>
 

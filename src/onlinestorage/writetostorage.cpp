@@ -31,12 +31,13 @@ WriteToStorage::WriteToStorage(QObject *parent)
 
 WriteToStorage::~WriteToStorage()
 {
-    QMapIterator<QNetworkReply *, Entry *> i(m_replies);
-    while (i.hasNext()) {
-        i.next();
-        i.key()->close();
-        //i.key()->deleteLater();
-    }
+    qDebug() << "WriteToStorage::~WriteToStorage()";
+//    QMapIterator<QNetworkReply *, Entry *> i(m_replies);
+//    while (i.hasNext()) {
+//       // i.next();
+//        //i.key()->close();
+//        //i.key()->deleteLater();
+//    }
 }
 
 void WriteToStorage::setUserName(const QString & name)

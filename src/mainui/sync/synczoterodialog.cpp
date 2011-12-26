@@ -123,10 +123,10 @@ void SyncZoteroDialog::clicked(QAbstractButton* button)
         int curIndex = ui->collectionSelection->currentIndex();
         QString collectionID = ui->collectionSelection->itemData(curIndex).toString();
         m_szn->setCollection(collectionID);
-        m_szn->askBeforeDeletion(ui->askDeletion->isChecked());
+        m_szn->setAskBeforeDeletion(ui->askDeletion->isChecked());
 
         int curMergeIndex = ui->mergeMode->currentIndex();
-        m_szn->mergeStrategy( (SyncZoteroNepomuk::MergeStrategy)curMergeIndex );
+        m_szn->setMergeStrategy( (SyncZoteroNepomuk::MergeStrategy)curMergeIndex );
 
         if(ui->addContactsToAkonadi->isChecked()) {
             int curAddressBook = ui->contactCollection->currentIndex();

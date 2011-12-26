@@ -18,6 +18,9 @@
 #include "newprojectwizard.h"
 #include "ui_newprojectwizard.h"
 
+#include "nbibio/nbibsync.h"
+#include "nbibio/synczoteronepomuk.h"
+
 #include "core/library.h"
 
 #include <KDE/KLineEdit>
@@ -72,6 +75,23 @@ void NewProjectWizard::done(int result)
         customLibrary->createLibrary(gp->projectTitle->text(),
                                      gp->projectDescription->toPlainText(),
                                      path);
+        //add sync provider
+        NBibSync *syncProvider = new SyncZoteroNepomuk;
+        syncProvider->setUserName(QLatin1String("795913"));
+        syncProvider->setUrl(QLatin1String("users"));
+        syncProvider->setCollection(QLatin1String("testCollection"));
+        syncProvider->setAskBeforeDeletion(false);
+        syncProvider->setMergeStrategy(NBibSync::UseLocal);
+
+        customLibrary->addSyncProvider(syncProvider);
+        NBibSync *syncProvider2 = new SyncZoteroNepomuk;
+        syncProvider2->setUserName(QLatin1String("9999999"));
+        syncProvider2->setUrl(QLatin1String("groups"));
+        syncProvider2->setCollection(QLatin1String(""));
+        syncProvider2->setAskBeforeDeletion(true);
+        syncProvider2->setMergeStrategy(NBibSync::UseLocal);
+
+        customLibrary->addSyncProvider(syncProvider2);
     }
 
     QWizard::done(result);

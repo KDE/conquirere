@@ -19,6 +19,7 @@
 
 #include "pipe/bibtextonepomukpipe.h"
 #include "pipe/nepomuktobibtexpipe.h"
+#include "../onlinestorage/zotero/zoteroinfo.h"
 #include "../onlinestorage/zotero/readfromzotero.h"
 #include "../onlinestorage/zotero/writetozotero.h"
 
@@ -56,6 +57,7 @@ SyncZoteroNepomuk::SyncZoteroNepomuk(QObject *parent)
     , m_ntnp(0)
     , m_syncMode(false)
 {
+    m_storageInfo = new ZoteroInfo;
 }
 
 SyncZoteroNepomuk::~SyncZoteroNepomuk()
@@ -64,6 +66,11 @@ SyncZoteroNepomuk::~SyncZoteroNepomuk()
     delete m_wtz;
     delete m_btnp;
     delete m_ntnp;
+}
+
+StorageInfo *SyncZoteroNepomuk::providerInfo() const
+{
+    return m_storageInfo;
 }
 
 void SyncZoteroNepomuk::startDownload()
@@ -249,9 +256,9 @@ void SyncZoteroNepomuk::readUploadSync(File zoteroData)
         m_curStep++;
         emit calculateProgress(100);
         //we finished everything, so cleanup
-        delete m_wtz;
+        //delete m_wtz;
         m_wtz = 0;
-        delete m_ntnp;
+        //delete m_ntnp;
         m_ntnp = 0;
 
         m_syncMode = false;
@@ -336,9 +343,9 @@ void SyncZoteroNepomuk::readUploadSync(File zoteroData)
     }
 
     //we finished everything, so cleanup
-    delete m_wtz;
+    //delete m_wtz;
     m_wtz = 0;
-    delete m_ntnp;
+    //delete m_ntnp;
     m_ntnp = 0;
 
     m_syncMode = false;

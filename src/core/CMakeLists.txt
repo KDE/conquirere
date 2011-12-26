@@ -3,6 +3,7 @@ set(core_LIB_SRCS
     library.cpp
     dirwatcher.cpp
     tagcloud.cpp
+    backgroundsync.cpp
 
     delegates/ratingdelegate.cpp
     delegates/starrating.cpp
