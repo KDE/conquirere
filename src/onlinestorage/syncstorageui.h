@@ -49,19 +49,13 @@ public:
     void setBibTeXFile(File *fileToSync);
 
 private slots:
-    void switchProvider();
     void startSync();
     void syncStatus(bool inProgress);
     void cancelSync();
     void cancelClose();
-    void fetchCollection();
-    void fillCollectionList(QList<CollectionInfo> collectionList);
 
 private:
     Ui::SyncStorageUi *ui;
-
-    QList<StorageInfo*> m_availableProvider;
-    KWallet::Wallet* m_wallet;
 
     File *m_fileToSync;
     bool m_syncInProgress;

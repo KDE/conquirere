@@ -40,4 +40,16 @@ enum RequestType {
     Collections
 };
 
+enum SyncMode {
+    Download_Only,
+    Upload_Only,
+    Full_Sync
+};
+
+enum MergeStrategy {
+    Manual,
+    UseServer,
+    UseLocal
+};
+
 #endif // STORAGEGLOBALS_H

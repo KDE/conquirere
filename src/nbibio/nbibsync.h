@@ -21,6 +21,8 @@
 #include <QObject>
 #include <QtCore/QMetaType>
 
+#include "onlinestorage/storageglobals.h"
+
 #include <Nepomuk/Resource>
 #include <Akonadi/Collection>
 
@@ -39,12 +41,6 @@ class NBibSync : public QObject
 {
     Q_OBJECT
 public:
-    enum MergeStrategy {
-        Manual,
-        UseServer,
-        UseLocal
-    };
-
     explicit NBibSync(QObject *parent = 0);
 
     virtual StorageInfo *providerInfo() const = 0;
@@ -60,8 +56,8 @@ public:
     QString collection() const;
     void setAskBeforeDeletion(bool ask);
     bool askBeforeDeletion() const;
-    void setMergeStrategy( NBibSync::MergeStrategy strategy);
-    NBibSync::MergeStrategy mergeStrategy() const;
+    void setMergeStrategy( MergeStrategy strategy);
+    MergeStrategy mergeStrategy() const;
     /**
       * Sets the Akonadi addressbook where all contacts (authors, editors etc) are imported to beside the Nepomuk storage.
       *

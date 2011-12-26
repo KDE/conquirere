@@ -126,7 +126,7 @@ void SyncZoteroDialog::clicked(QAbstractButton* button)
         m_szn->setAskBeforeDeletion(ui->askDeletion->isChecked());
 
         int curMergeIndex = ui->mergeMode->currentIndex();
-        m_szn->setMergeStrategy( (SyncZoteroNepomuk::MergeStrategy)curMergeIndex );
+        m_szn->setMergeStrategy( (MergeStrategy)curMergeIndex );
 
         if(ui->addContactsToAkonadi->isChecked()) {
             int curAddressBook = ui->contactCollection->currentIndex();

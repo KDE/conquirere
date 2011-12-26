@@ -19,19 +19,13 @@
 #define NEWPROJECTWIZARD_H
 
 #include <QWizard>
+#include "onlinestorage/providersettings.h"
 
 namespace Ui {
     class NewProjectWizard;
 }
 
 class Library;
-class KLineEdit;
-class KTextEdit;
-class QGroupBox;
-class KUrlRequester;
-class QCheckBox;
-class QLabel;
-class KComboBox;
 class GeneralPage;
 class SyncPage;
 
@@ -55,6 +49,10 @@ private:
     SyncPage *sp;
 };
 
+
+class KLineEdit;
+class KTextEdit;
+
 /**
   * General Page
   */
@@ -73,6 +71,12 @@ public:
     KTextEdit *projectDescription;
 };
 
+class QGroupBox;
+class KUrlRequester;
+class QLabel;
+class QListWidget;
+class QPushButton;
+
 /**
   * Sync Page
   */
@@ -86,14 +90,20 @@ public:
 private slots:
     bool isComplete() const;
     void updateFolderTextLabel(const QString &folder);
+    void editProvider();
+    void addProvider();
+    void removeProvider();
 
 public:
-    QGroupBox *syncWithFolder;
-    KUrlRequester *syncFolder;
-    QLabel *syncFolderText;
-    QCheckBox *syncFolderBibtex;
-    QGroupBox *syncWithOnlineStorage;
-    KComboBox *syncOnlineServce;
+    QGroupBox *m_syncWithFolder;
+    KUrlRequester *m_syncFolder;
+    QLabel *m_syncFolderText;
+    QGroupBox *m_syncWithOnlineStorage;
+    QListWidget *m_syncList;
+    QPushButton *m_addProvider;
+    QPushButton *m_editProvider;
+    QPushButton *m_removeProvider;
+    QList<ProviderSettings::ProviderSettingsDetails> m_psdList;
 };
 
 #endif // NEWPROJECTWIZARD_H

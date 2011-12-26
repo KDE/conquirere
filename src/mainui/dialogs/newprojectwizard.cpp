@@ -23,19 +23,24 @@
 
 #include "core/library.h"
 
+#include "onlinestorage/storageinfo.h"
+
 #include <KDE/KLineEdit>
 #include <KDE/KUrlRequester>
 #include <KDE/KGlobalSettings>
 #include <KDE/KTextEdit>
 #include <KDE/KComboBox>
+#include <KDE/KDialog>
 
 #include <QtGui/QLabel>
 #include <QtGui/QCheckBox>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QGroupBox>
 #include <QtGui/QFormLayout>
+#include <QtGui/QListWidget>
+#include <QtCore/QList>
 
-#include <QDebug>
+#include <QtCore/QDebug>
 
 NewProjectWizard::NewProjectWizard(QWidget *parent)
     : QWizard(parent),
@@ -68,30 +73,31 @@ void NewProjectWizard::done(int result)
         customLibrary = new Library(Library_Project);
 
         QString path;
-        if(sp->syncWithFolder->isChecked()) {
-            path = sp->syncFolder->text() + QLatin1String("/") + gp->projectTitle->text();
+        if(sp->m_syncWithFolder->isChecked()) {
+            path = sp->m_syncFolder->text() + QLatin1String("/") + gp->projectTitle->text();
         }
 
         customLibrary->createLibrary(gp->projectTitle->text(),
                                      gp->projectDescription->toPlainText(),
                                      path);
-        //add sync provider
-        NBibSync *syncProvider = new SyncZoteroNepomuk;
-        syncProvider->setUserName(QLatin1String("795913"));
-        syncProvider->setUrl(QLatin1String("users"));
-        syncProvider->setCollection(QLatin1String("testCollection"));
-        syncProvider->setAskBeforeDeletion(false);
-        syncProvider->setMergeStrategy(NBibSync::UseLocal);
 
-        customLibrary->addSyncProvider(syncProvider);
-        NBibSync *syncProvider2 = new SyncZoteroNepomuk;
-        syncProvider2->setUserName(QLatin1String("9999999"));
-        syncProvider2->setUrl(QLatin1String("groups"));
-        syncProvider2->setCollection(QLatin1String(""));
-        syncProvider2->setAskBeforeDeletion(true);
-        syncProvider2->setMergeStrategy(NBibSync::UseLocal);
+        foreach(const ProviderSettings::ProviderSettingsDetails& psd, sp->m_psdList) {
+            NBibSync *syncProvider;
+            if(psd.providerInfo->providerId() == QLatin1String("zotero"))
+                syncProvider= new SyncZoteroNepomuk;
+            else {
+                qFatal("unknown providerId() for sync settings");
+                break;
+            }
 
-        customLibrary->addSyncProvider(syncProvider2);
+            syncProvider->setUserName(psd.userName);
+            syncProvider->setUrl(psd.url);
+            syncProvider->setCollection(psd.collection);
+            syncProvider->setAskBeforeDeletion(psd.askBeforeDeletion);
+            syncProvider->setMergeStrategy((MergeStrategy)psd.mergeMode);
+
+            customLibrary->addSyncProvider(syncProvider);
+        }
     }
 
     QWizard::done(result);
@@ -148,66 +154,58 @@ SyncPage::SyncPage(QWidget *parent)
 
     //#########################################
     // sync with folder
-    syncWithFolder = new QGroupBox(this);
-    syncWithFolder->setCheckable(true);
-    syncWithFolder->setChecked(false);
-    syncWithFolder->setTitle(i18n("Use folder on disk"));
-    syncWithFolder->setToolTip(i18n("Connects all documents in this folder automatically to the project and saves the pfoject settings there"));
-    registerField("syncWithFolder", syncWithFolder);
+    m_syncWithFolder = new QGroupBox(this);
+    m_syncWithFolder->setCheckable(true);
+    m_syncWithFolder->setChecked(false);
+    m_syncWithFolder->setTitle(i18n("Use folder on disk"));
+    m_syncWithFolder->setToolTip(i18n("Connects all documents in this folder automatically to the project and saves the pfoject settings there"));
+    registerField("syncWithFolder", m_syncWithFolder);
 
-    QVBoxLayout *groupBoxLayout = new QVBoxLayout(syncWithFolder);
+    QVBoxLayout *groupBoxLayout = new QVBoxLayout(m_syncWithFolder);
 
     QHBoxLayout *horizontalLayout = new QHBoxLayout();
-    QLabel *label1 = new QLabel(syncWithFolder);
+    QLabel *label1 = new QLabel(m_syncWithFolder);
     label1->setText(i18n("Folder:"));
     horizontalLayout->addWidget(label1);
-    syncFolder = new KUrlRequester(syncWithFolder);
-    syncFolder->setMode(KFile::Directory);
-    syncFolder->setUrl(KGlobalSettings::documentPath());
-    connect(syncFolder, SIGNAL(textChanged(QString)), this, SLOT(updateFolderTextLabel(QString)));
-    registerField("folderToSync*", syncFolder);
-    horizontalLayout->addWidget(syncFolder);
+    m_syncFolder = new KUrlRequester(m_syncWithFolder);
+    m_syncFolder->setMode(KFile::Directory);
+    m_syncFolder->setUrl(KGlobalSettings::documentPath());
+    connect(m_syncFolder, SIGNAL(textChanged(QString)), this, SLOT(updateFolderTextLabel(QString)));
+    registerField("folderToSync*", m_syncFolder);
+    horizontalLayout->addWidget(m_syncFolder);
     groupBoxLayout->addLayout(horizontalLayout);
 
-    syncFolderText = new QLabel(syncWithFolder);
-    groupBoxLayout->addWidget(syncFolderText);
+    m_syncFolderText = new QLabel(m_syncWithFolder);
+    groupBoxLayout->addWidget(m_syncFolderText);
 
-    syncFolderBibtex = new QCheckBox(syncWithFolder);
-    syncFolderBibtex->setText(i18n("Synchronize BibTeX file"));
-    registerField("autoFolderBibTeXSync", syncFolderBibtex);
-    groupBoxLayout->addWidget(syncFolderBibtex);
-
-    mainLayout->addWidget(syncWithFolder);
+    mainLayout->addWidget(m_syncWithFolder);
 
     //#########################################
     // sync with online storage
-    syncWithOnlineStorage = new QGroupBox(this);
-    syncWithOnlineStorage->setCheckable(true);
-    syncWithOnlineStorage->setChecked(false);
-    registerField("syncWithOnlineStorage", syncWithOnlineStorage);
-    syncWithOnlineStorage->setTitle(i18n("Sync with online storage"));
-    syncWithOnlineStorage->setToolTip(i18n("Syncs the documents and publications to an online storage"));
+    m_syncWithOnlineStorage = new QGroupBox(this);
+    m_syncWithOnlineStorage->setTitle(i18n("Syncronize Settings"));
+    m_syncWithOnlineStorage->setToolTip(i18n("Syncs the documents and publications automatically in the background"));
 
-    QFormLayout *formLayout = new QFormLayout(syncWithOnlineStorage);
+    QVBoxLayout *formLayout = new QVBoxLayout(m_syncWithOnlineStorage);
+    m_syncList = new QListWidget;
+    formLayout->addWidget(m_syncList);
 
-    QLabel *label2 = new QLabel(syncWithOnlineStorage);
-    label2->setText(i18n("Service:"));
-    formLayout->setWidget(0, QFormLayout::LabelRole, label2);
+    QHBoxLayout *editLayout = new QHBoxLayout(m_syncWithOnlineStorage);
 
-    syncOnlineServce = new KComboBox(syncWithOnlineStorage);
-    syncOnlineServce->insertItems(0, QStringList()
-                                  << i18n("Zotero")
-                                  << i18n("ownCloud")
-                                  << i18n("ftp")
-                                  );
-    registerField("syncOnlineServce", syncOnlineServce);
-    formLayout->setWidget(0, QFormLayout::FieldRole, syncOnlineServce);
+    m_editProvider = new QPushButton(KIcon("document-edit"), i18n("edit"));
+    connect(m_editProvider, SIGNAL(clicked()), this, SLOT(editProvider()));
+    m_addProvider = new QPushButton(KIcon("list-add"), i18n("add"));
+    connect(m_addProvider, SIGNAL(clicked()), this, SLOT(addProvider()));
+    m_removeProvider = new QPushButton(KIcon("list-remove"), i18n("remove"));
+    connect(m_removeProvider, SIGNAL(clicked()), this, SLOT(removeProvider()));
 
-    QLabel *label3 = new QLabel(syncWithOnlineStorage);
-    label3->setText("todo...");
-    formLayout->setWidget(1, QFormLayout::FieldRole, label3);
+    editLayout->addWidget(m_editProvider);
+    editLayout->addStretch(0);
+    editLayout->addWidget(m_addProvider);
+    editLayout->addWidget(m_removeProvider);
+    formLayout->addLayout(editLayout);
 
-    mainLayout->addWidget(syncWithOnlineStorage);
+    mainLayout->addWidget(m_syncWithOnlineStorage);
 
     setTitle(i18n("Research Settings"));
     setSubTitle(i18n("How to synchronize the data"));
@@ -218,8 +216,8 @@ SyncPage::SyncPage(QWidget *parent)
 
 bool SyncPage::isComplete() const
 {
-    if(syncWithFolder->isChecked()) {
-        if(syncFolder->text().isEmpty()) {
+    if(m_syncWithFolder->isChecked()) {
+        if(m_syncFolder->text().isEmpty()) {
             return false;
         }
         else {
@@ -234,10 +232,62 @@ bool SyncPage::isComplete() const
 void SyncPage::updateFolderTextLabel(const QString &folder)
 {
     if(folder.isEmpty()) {
-        syncFolderText->clear();
+        m_syncFolderText->clear();
     }
     else {
         QString folderAndName= folder + QLatin1String("/") + field("projectName").toString();
-        syncFolderText->setText(folderAndName);
+        m_syncFolderText->setText(folderAndName);
     }
+}
+
+void SyncPage::editProvider()
+{
+    int selectedProvider = m_syncList->currentIndex().row();
+    ProviderSettings::ProviderSettingsDetails oldPsd = m_psdList.at(selectedProvider);
+
+    KDialog dlg;
+    ProviderSettings ps;
+    ps.setProviderSettingsDetails(oldPsd);
+    dlg.setMainWidget(&ps);
+
+    int ret = dlg.exec();
+
+    if(ret == KDialog::Accepted) {
+        ProviderSettings::ProviderSettingsDetails newPsd = ps.providerSettingsDetails();
+        m_psdList.replace(selectedProvider, newPsd);
+        QListWidgetItem *qlwi = m_syncList->item(selectedProvider);
+        if(qlwi) {
+            QString itemName = newPsd.providerInfo->providerName();
+            qlwi->setText(itemName);
+        }
+        ps.savePasswordInKWallet();
+    }
+}
+
+void SyncPage::addProvider()
+{
+    KDialog dlg;
+
+    ProviderSettings ps;
+    dlg.setMainWidget(&ps);
+
+    int ret = dlg.exec();
+
+    if(ret == KDialog::Accepted) {
+        ProviderSettings::ProviderSettingsDetails newPsd = ps.providerSettingsDetails();
+        m_psdList.append(newPsd);
+        QListWidgetItem *qlwi = new QListWidgetItem(newPsd.providerInfo->providerIcon(), newPsd.providerInfo->providerName());
+        m_syncList->addItem(qlwi);
+        ps.savePasswordInKWallet();
+    }
+}
+
+void SyncPage::removeProvider()
+{
+    int selectedProvider = m_syncList->currentIndex().row();
+
+    QListWidgetItem *qlwi = m_syncList->item(selectedProvider);
+    m_syncList->removeItemWidget(qlwi);
+    delete qlwi;
+    m_psdList.removeAt(selectedProvider);
 }

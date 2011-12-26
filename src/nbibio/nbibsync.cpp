@@ -83,12 +83,12 @@ bool NBibSync::askBeforeDeletion() const
     return m_askBeforeDeletion;
 }
 
-void NBibSync::setMergeStrategy( NBibSync::MergeStrategy strategy)
+void NBibSync::setMergeStrategy( MergeStrategy strategy)
 {
     m_mergeStrategy = strategy;
 }
 
-NBibSync::MergeStrategy NBibSync::mergeStrategy() const
+MergeStrategy NBibSync::mergeStrategy() const
 {
     return m_mergeStrategy;
 }

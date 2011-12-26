@@ -21,6 +21,7 @@
 #include "storageinfo.h"
 #include "syncstorage.h"
 #include "readfromstorage.h"
+#include "providersettings.h"
 
 #include "zotero/zoteroinfo.h"
 
@@ -39,41 +40,12 @@ SyncStorageUi::SyncStorageUi(QWidget *parent)
 {
     ui->setupUi(this);
 
-    m_wallet = KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(),winId(), KWallet::Wallet::Synchronous);
-    if(!m_wallet->hasFolder(QLatin1String("kbibtex"))) {
-        m_wallet->createFolder(QLatin1String("kbibtex"));
-    }
-    m_wallet->setFolder(QLatin1String("kbibtex"));
-
-    // add all available plugins for the synchronization
-    StorageInfo *zotero = new ZoteroInfo;
-    m_availableProvider.append(zotero);
-    ui->providerSelection->addItem(zotero->providerIcon(),zotero->providerName());
-    ui->providerSelection->setCurrentIndex(0);
-    switchProvider();
-
-    connect(ui->cancelCloseButton, SIGNAL(clicked()), this, SLOT(cancelClose()));
-    connect(ui->startSync, SIGNAL(clicked()), this, SLOT(startSync()));
-
-    ui->fetchCollection->setIcon(KIcon(QLatin1String("svn-update")));
-    ui->addCollection->setIcon(KIcon(QLatin1String("list-add")));
-    ui->addCollection->hide();
-    ui->removeCollection->setIcon(KIcon(QLatin1String("list-remove")));
-    ui->removeCollection->hide();
-    connect(ui->fetchCollection, SIGNAL(clicked()), this, SLOT(fetchCollection()));
-
     syncStatus(false);
 }
 
 SyncStorageUi::~SyncStorageUi()
 {
     delete ui;
-
-    foreach(StorageInfo* si, m_availableProvider) {
-        //delete si;
-    }
-
-    delete m_wallet;
 }
 
 void SyncStorageUi::setBibTeXFile(File *fileToSync)
@@ -81,7 +53,6 @@ void SyncStorageUi::setBibTeXFile(File *fileToSync)
     m_fileToSync = fileToSync;
 
     // fill out the formular with previous sync info
-
     QString providerId;
     QString userName;
     QString url;
@@ -100,85 +71,32 @@ void SyncStorageUi::setBibTeXFile(File *fileToSync)
     }
 
     // now if we have a provider find it in our list and change the kcombobox
-    // as we have only zotero right now I'll leave it out ;)
+    StorageInfo *si = ui->providerSettings->storageInfoByString(providerId);
+    if(!si)
+        return;
 
-    if(!providerId.isEmpty()) {
-        ui->providerUserName->setText(userName);
+    ProviderSettings::ProviderSettingsDetails psd;
+    psd.providerInfo = si;
+    psd.userName;
+    psd.url;
 
-        QString pwdKey;
-        pwdKey.append(providerId);
-        pwdKey.append(QLatin1String(":"));
-        pwdKey.append(userName);
-        pwdKey.append(QLatin1String(":"));
-        pwdKey.append(url);
-        if(m_wallet->hasEntry(pwdKey)) {
-            QString pwd;
-            m_wallet->readPassword(pwdKey, pwd);
-            ui->providerPwd->setText(pwd);
-        }
-        else {
-            ui->providerPwd->setText(QString());
-        }
-
-        ui->providerUrl->setText(url);
-    }
-}
-
-void SyncStorageUi::switchProvider()
-{
-    int curIndex = ui->providerSelection->currentIndex();
-
-    connect(m_availableProvider.at(curIndex)->syncHandle(), SIGNAL(syncInProgress(bool)), this, SLOT(syncStatus(bool)));
-    connect(m_availableProvider.at(curIndex)->syncHandle(), SIGNAL(progress(int)), ui->progressBar, SLOT(setValue(int)));
-    connect(m_availableProvider.at(curIndex)->readHandle(), SIGNAL(collectionsInfo(QList<CollectionInfo>)), this, SLOT(fillCollectionList(QList<CollectionInfo>)));
-}
-
-void SyncStorageUi::fetchCollection()
-{
-    int curIndex = ui->providerSelection->currentIndex();
-
-    ReadFromStorage *rfs = m_availableProvider.at(curIndex)->readHandle();
-
-    rfs->setUserName(ui->providerUserName->text());
-    rfs->setPassword(ui->providerPwd->text());
-
-    rfs->fetchCollections();
-}
-
-void SyncStorageUi::fillCollectionList(QList<CollectionInfo> collectionList)
-{
-    ui->listCollection->addItem(i18n("no collection"), QString());
-    foreach(const CollectionInfo &ci, collectionList) {
-        ui->listCollection->addItem(ci.name, ci.id);
-    }
+    ui->providerSettings->setProviderSettingsDetails(psd);
 }
 
 void SyncStorageUi::startSync()
 {
-    int curIndex = ui->providerSelection->currentIndex();
-    SyncStorage *syncStorage = m_availableProvider.at(curIndex)->syncHandle();
+    ProviderSettings::ProviderSettingsDetails psd = ui->providerSettings->providerSettingsDetails();
 
-    syncStorage->setUserName(ui->providerUserName->text());
+    SyncStorage *syncStorage = psd.providerInfo->syncHandle();
+    syncStorage->setUserName(psd.userName);
+    syncStorage->setPassword(psd.pwd);
+    //syncStorage->setAdoptBibtexTypes(psd.);
+    syncStorage->setAskBeforeDeletion(psd.askBeforeDeletion);
+    if(psd.syncMode == 0)
+        syncStorage->setDownloadOnly(true);
 
-    // check if password is in the KWallet storage, if not ask if the user wants to save it
-    QString pwdKey;
-    pwdKey.append(m_availableProvider.at(curIndex)->providerId());
-    pwdKey.append(QLatin1String(":"));
-    pwdKey.append(ui->providerUserName->text());
-    pwdKey.append(QLatin1String(":"));
-    pwdKey.append(ui->providerUrl->text());
-    m_wallet->writePassword(pwdKey, ui->providerPwd->text());
-
-    syncStorage->setPassword(ui->providerPwd->text());
-
-    syncStorage->setAdoptBibtexTypes(ui->cbAdaptToBibTeX->isChecked());
-    syncStorage->setAskBeforeDeletion(ui->cbAskDeletion->isChecked());
-    syncStorage->setDownloadOnly(ui->cbDownloadOnly->isChecked());
-    syncStorage->setUrl(ui->providerUrl->text());
-
-    curIndex = ui->listCollection->currentIndex();
-    QString collectionID = ui->listCollection->itemData(curIndex).toString();
-    syncStorage->syncWithStorage(m_fileToSync, collectionID);
+    syncStorage->setUrl(psd.url);
+    syncStorage->syncWithStorage(m_fileToSync, psd.collection);
 }
 
 void SyncStorageUi::syncStatus(bool inProgress)
@@ -198,8 +116,8 @@ void SyncStorageUi::syncStatus(bool inProgress)
 
         // write sync information into bibtex file
         if(m_fileToSync) {
-            int curIndex = ui->providerSelection->currentIndex();
-            QString providerId = m_availableProvider.at(curIndex)->providerId();
+            ProviderSettings::ProviderSettingsDetails psd = ui->providerSettings->providerSettingsDetails();
+            QString providerId = psd.providerInfo->providerId();
 
             bool foundProvider = false;
             bool foundUsername = false;
@@ -217,14 +135,14 @@ void SyncStorageUi::syncStatus(bool inProgress)
                 else if(c && c->text().startsWith(QLatin1String("x-syncusername="))){
                     foundUsername = true;
                     QString sp = QLatin1String("x-syncusername=");
-                    sp.append(ui->providerUserName->text());
+                    sp.append(psd.userName);
                     c->setText(sp);
                     c->setUseCommand(true);
                 }
                 else if(c && c->text().startsWith(QLatin1String("x-syncurl="))){
                     foundUrl = true;
                     QString sp = QLatin1String("x-syncurl=");
-                    sp.append(ui->providerUrl->text());
+                    sp.append(psd.url);
                     c->setText(sp);
                     c->setUseCommand(true);
                 }
@@ -237,13 +155,13 @@ void SyncStorageUi::syncStatus(bool inProgress)
             }
             if(!foundUsername) {
                 QString sp = QLatin1String("x-syncusername=");
-                sp.append(ui->providerUserName->text());
+                sp.append(psd.userName);
                 Comment *c =new Comment(sp, true);
                 m_fileToSync->prepend(c);
             }
             if(!foundUrl) {
                 QString sp = QLatin1String("x-syncurl=%1");
-                sp.append(ui->providerUrl->text());
+                sp.append(psd.url);
                 Comment *c =new Comment(sp, true);
                 m_fileToSync->prepend(c);
             }

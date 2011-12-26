@@ -5,6 +5,7 @@ set(onlinestorage_LIB_SRCS
     readfromstorage.cpp
     writetostorage.cpp
     syncstorage.cpp
+    providersettings.cpp
     syncstorageui.cpp
     zotero/readfromzotero.cpp
     zotero/writetozotero.cpp
@@ -13,6 +14,7 @@ set(onlinestorage_LIB_SRCS
 
 kde4_add_ui_files( onlinestorage_LIB_SRCS
     syncstorageui.ui
+    providersettings.ui
 )
 
 kde4_add_library( onlinestorage STATIC ${onlinestorage_LIB_SRCS} )

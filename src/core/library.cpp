@@ -184,8 +184,11 @@ void Library::setLibraryDir(const QString & path)
     m_libraryDir = path;
 
     delete m_dirWatcher;
-    m_dirWatcher = new DirWatcher();
-    m_dirWatcher->setLibrary(this);
+    m_dirWatcher = 0;
+    if(!m_libraryDir.isEmpty()) {
+        m_dirWatcher = new DirWatcher();
+        m_dirWatcher->setLibrary(this);
+    }
 }
 
 QString Library::libraryDir() const
@@ -342,6 +345,7 @@ void Library::loadLibrary(const QString & projectFile)
     m_libraryTag.setLabel(m_name);
 
     m_backgroundSync = new BackgroundSync;
+
     // read in all sync details
     KConfigGroup syncGroup( &libconfig, "SyncProvider" );
     QStringList providerList = syncGroup.groupList();
@@ -364,7 +368,7 @@ void Library::loadLibrary(const QString & projectFile)
         QString pwd = providerGroup.readEntry(QLatin1String("pwd"), QString());
         providerSyncDetails->setPassword(pwd);
         QString mergeStrategy = providerGroup.readEntry(QLatin1String("mergeStrategy"), QString());
-        providerSyncDetails->setMergeStrategy( NBibSync::MergeStrategy (mergeStrategy.toInt()) );
+        providerSyncDetails->setMergeStrategy( MergeStrategy (mergeStrategy.toInt()) );
         QString askBeforeDeletion = providerGroup.readEntry(QLatin1String("askBeforeDeletion"), QString());
         if(askBeforeDeletion == false)
             providerSyncDetails->setAskBeforeDeletion(false);
@@ -374,8 +378,11 @@ void Library::loadLibrary(const QString & projectFile)
         m_backgroundSync->addSyncProvider(providerSyncDetails);
     }
 
-    m_dirWatcher = new DirWatcher();
-    m_dirWatcher->setLibrary(this);
+    if(!m_libraryDir.isEmpty()) {
+        m_dirWatcher = new DirWatcher();
+        m_dirWatcher->setLibrary(this);
+    }
+
     setupModels();
 }
 
