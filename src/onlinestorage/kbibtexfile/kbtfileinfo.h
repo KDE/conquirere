@@ -32,7 +32,7 @@ public:
 
     QString providerId() { return QLatin1String("kbibtexfile"); }
     QString providerName() { return QLatin1String("KBibTeXFile"); }
-    KIcon providerIcon() { return KIcon(QLatin1String("storage-zotero")); }
+    KIcon providerIcon() { return KIcon(QLatin1String("storage-kbibtex")); }
 
     WriteToStorage *writeHandle() { return wts; }
     ReadFromStorage *readHandle() { return rfs; }

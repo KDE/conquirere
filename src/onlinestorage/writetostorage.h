@@ -48,12 +48,6 @@ public:
 
     void setProviderSettings(const ProviderSyncDetails &psd);
 
-    /**
-      * url should either be "users" or "groups"
-      */
-    void setUrl(const QString & url);
-    QString url() const;
-
     void setAdoptBibtexTypes(bool adopt);
     bool adoptBibtexTypes() const;
 
@@ -117,7 +111,7 @@ protected:
     RequestType requestType() const;
 
     /**
-      * removes the reply from the m_replies map and called deleteLater() on them
+      * removes the reply from the m_replies map and call deleteLater() on them
       */
     void serverReplyFinished(QNetworkReply *reply);
 
@@ -150,10 +144,6 @@ protected:
     ProviderSyncDetails m_psd;
 
 private:
-    QString m_name;
-    QString m_password;
-    QString m_url;
-
     bool m_adoptBibtexTypes;
     RequestType m_requestType;
 

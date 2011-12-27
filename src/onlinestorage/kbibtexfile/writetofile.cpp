@@ -16,20 +16,25 @@
  */
 
 #include "writetofile.h"
-#include "readfromfile.h"
 
 #include <kbibtex/entry.h>
-#include <kbibtex/fileimporterbibtex.h>
+#include <kbibtex/fileexporter.h>
+#include <kbibtex/fileexporterbibtex.h>
+#include <kbibtex/fileexporterbibtex2html.h>
+#include <kbibtex/fileexporterblg.h>
+#include <kbibtex/fileexporterpdf.h>
+#include <kbibtex/fileexporterps.h>
+#include <kbibtex/fileexporterris.h>
+#include <kbibtex/fileexporterrtf.h>
+#include <kbibtex/fileexporterxml.h>
+#include <kbibtex/fileexporterxslt.h>
 
-#include <qjson/serializer.h>
-#include <QtNetwork/QNetworkReply>
-#include <QtCore/QXmlStreamReader>
-
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QDebug>
 
 WriteToFile::WriteToFile(QObject *parent)
     : WriteToStorage(parent)
-    , m_allRequestsSend(false)
 {
 }
 
@@ -40,27 +45,90 @@ WriteToFile::~WriteToFile()
 
 void WriteToFile::pushItems(File items, const QString &collection)
 {
+    Q_UNUSED(collection);
 
+    exportFile(items);
 }
 
 void WriteToFile::pushNewItems(File items, const QString &collection)
 {
+    Q_UNUSED(collection);
 
+    exportFile(items);
 }
 
 void WriteToFile::updateItem(Entry *item)
 {
+    qDebug() << "WriteToFile::updateItem npot implemented right now";
+    // should read in current file and replace the entry with the citekey from "item"
+    // and save it again
+}
+
+void WriteToFile::exportFile(File items)
+{
+    QFile bibFile(m_psd.url);
+    if (!bibFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "can't open file " << m_psd.url;
+        return;
+    }
+
+    // select the right importer based on the file extension
+    QFileInfo fi(m_psd.url);
+    QString extension = fi.completeSuffix();
+
+    QStringList errorLog;
+
+    if(extension == QLatin1String(".bib")) {
+        FileExporterBibTeX feb;
+        feb.save(&bibFile, &items, &errorLog);
+    }
+    else if(extension == QLatin1String(".pdf")) {
+        FileExporterPDF fepdf;
+        fepdf.save(&bibFile, &items, &errorLog);
+    }
+    else if(extension == QLatin1String(".html")) {
+        FileExporterBibTeX2HTML feb2html;
+        feb2html.save(&bibFile, &items, &errorLog);
+    }
+    else if(extension == QLatin1String(".blg")) {
+        FileExporterBLG feblg;
+        feblg.save(&bibFile, &items, &errorLog);
+    }
+    else if(extension == QLatin1String(".ps")) {
+        FileExporterPS feps;
+        feps.save(&bibFile, &items, &errorLog);
+    }
+    else if(extension == QLatin1String(".ris")) {
+        FileExporterRIS feris;
+        feris.save(&bibFile, &items, &errorLog);
+    }
+    else if(extension == QLatin1String(".rtf")) {
+        FileExporterRTF fertf;
+        fertf.save(&bibFile, &items, &errorLog);
+    }
+    else if(extension == QLatin1String(".xml")) {
+        FileExporterXML fexml;
+        fexml.save(&bibFile, &items, &errorLog);
+    }
+    else if(extension == QLatin1String(".xslt")) {
+        FileExporterXSLT fexslt;
+        fexslt.save(&bibFile, &items, &errorLog);
+    }
 
 }
 
 void WriteToFile::addItemsToCollection(QList<QString> ids, const QString &collection )
 {
-
+    Q_UNUSED(ids);
+    Q_UNUSED(collection);
+    // collections in files are not supported
 }
 
 void WriteToFile::removeItemsFromCollection(QList<QString> ids, const QString &collection )
 {
-
+    Q_UNUSED(ids);
+    Q_UNUSED(collection);
+    // collections in files are not supported
 }
 
 void WriteToFile::deleteItems(File items)
@@ -70,20 +138,23 @@ void WriteToFile::deleteItems(File items)
 
 void WriteToFile::createCollection(const CollectionInfo &ci)
 {
-
+    Q_UNUSED(ci);
+    // collections in files are not supported
 }
 
 void WriteToFile::editCollection(const CollectionInfo &ci)
 {
-
+    Q_UNUSED(ci);
+    // collections in files are not supported
 }
 
 void WriteToFile::deleteCollection(const CollectionInfo &ci)
 {
-
+    Q_UNUSED(ci);
+    // collections in files are not supported
 }
 
 void WriteToFile::requestFinished()
 {
-
+    //not used in this case
 }

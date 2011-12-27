@@ -48,11 +48,7 @@ protected slots:
     void requestFinished();
 
 private:
-    bool m_allRequestsSend;
-    File m_entriesAfterSync;
-    qreal m_progressPerFile;
-    qreal m_progress;
-    QString m_addToCollection;
+    void exportFile(File items);
 };
 
 #endif // WRITETOFILE_H
