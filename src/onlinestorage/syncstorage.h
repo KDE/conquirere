@@ -45,8 +45,6 @@ public:
 
     void setAdoptBibtexTypes(bool adopt);
     bool adoptBibtexTypes() const;
-    void setAskBeforeDeletion(bool ask);
-    bool askBeforeDeletion() const;
 
 signals:
     void syncInProgress(bool active);
@@ -60,7 +58,7 @@ public slots:
       * emit @c syncInProgress(true) on start and @c syncInProgress(false) when it is finished
       * @p bibfile pointer to the bibtex entries which will be synced with the storage
       */
-    virtual void syncWithStorage(File *bibfile, const QString &collection) = 0;
+    virtual void syncWithStorage(File *bibfile, const QString &collection = QString()) = 0;
 
 protected:
     ProviderSyncDetails m_psd;

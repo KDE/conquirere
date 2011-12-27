@@ -38,7 +38,7 @@ public:
     /**
       * @todo merge results from server with local if server side changed
       */
-    void syncWithStorage(File *bibfile, const QString &collection);
+    void syncWithStorage(File *bibfile, const QString &collection = QString());
 
 private slots:
     /**

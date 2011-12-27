@@ -53,6 +53,7 @@ void SyncZotero::syncWithStorage(File *bibfile, const QString &collection)
     emit progress(0);
 
     m_systemFiles = bibfile;
+    qDebug() << "SyncZotero::syncWithStorage || entries" << m_systemFiles->size();
 
     //lets start by retrieving all items from the server and merge them with the current files
     m_rfz = new ReadFromZotero;
@@ -191,6 +192,7 @@ void SyncZotero::readSync(File serverFiles)
         // from this point on, we have all data from the server merged with the local items
         // now its time to send all data to the server, update changed items and create new ones
         m_wtz = new WriteToZotero;
+        m_wtz->setProviderSettings(m_psd);
         m_wtz->setAdoptBibtexTypes(adoptBibtexTypes());
         m_wtz->pushItems(*m_systemFiles, m_addToCollection);
 

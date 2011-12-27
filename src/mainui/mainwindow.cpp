@@ -17,8 +17,8 @@
 
 #include "mainwindow.h"
 
-#include "../core/library.h"
-#include "../core/models/nepomukmodel.h"
+#include "core/library.h"
+#include "core/models/nepomukmodel.h"
 
 #include "welcomewidget.h"
 #include "resourcetablewidget.h"
@@ -73,15 +73,16 @@
 
 //DEBUG online storage sync
 
-#include "../onlinestorage/zotero/readfromzotero.h"
-#include "../onlinestorage/zotero/writetozotero.h"
+#include "onlinestorage/zotero/readfromzotero.h"
+#include "onlinestorage/zotero/writetozotero.h"
+#include "onlinestorage/zotero/synczotero.h"
 
 
-#include "../nbibio/pipe/nepomuktobibtexpipe.h"
-#include "../nbibio/nbibexporterfile.h"
+#include "nbibio/pipe/nepomuktobibtexpipe.h"
+#include "nbibio/nbibexporterfile.h"
 #include <kbibtex/fileexporterbibtex.h>
 #include <kbibtex/fileimporterbibtex.h>
-#include "../onlinestorage/syncstorageui.h"
+#include "onlinestorage/syncstorageui.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : KParts::MainWindow()
@@ -246,6 +247,50 @@ void MainWindow::syncZotero()
     SyncZoteroDialog szd;
 
     szd.exec();
+
+    // test cases
+    // load bibfile from hard drive
+//    QFile loadFile(QString("/home/joerg/kbibtex_zotero.bib"));
+//    if (!loadFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+//        qDebug() << "could not open file";
+//        return;
+//    }
+
+//    FileImporterBibTeX fibt;
+//    m_bibFile = fibt.load(&loadFile);
+
+//    qDebug() << "imported bibfile" << m_bibFile->size();
+
+//    // sync with zotero
+//    SyncZotero *sz = new SyncZotero();
+//    connect(sz, SIGNAL(syncInProgress(bool)), this, SLOT(syncZoteroRDY(bool)));
+
+//    ProviderSyncDetails psd;
+//    psd.userName = QString("795913");
+//    psd.pwd = QString("TBydrlOdZo05mmzMhO8PlWCv");
+//    psd.url = QString("users");
+//    psd.askBeforeDeletion = false;
+//    psd.collection = QString("");
+//    psd.syncMode = Full_Sync;
+//    psd.mergeMode = Manual;
+
+//    sz->setProviderSettings(psd);
+//    sz->syncWithStorage(m_bibFile);
+}
+
+void MainWindow::syncZoteroRDY(bool inprogress)
+{
+    if(!inprogress) {
+        // save back to disk
+        QFile saveFile(QString("/home/joerg/kbibtex_zotero.bib"));
+        if (!saveFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            qDebug() << "could not open file";
+            return;
+        }
+
+        FileExporterBibTeX febt;
+        febt.save(&saveFile, m_bibFile);
+    }
 }
 
 void MainWindow::dbCheck()
