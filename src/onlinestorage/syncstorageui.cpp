@@ -89,7 +89,7 @@ void SyncStorageUi::startSync()
 
     SyncStorage *syncStorage = psd.providerInfo->syncHandle();
     syncStorage->setProviderSettings(psd);
-    //syncStorage->setAdoptBibtexTypes(psd.);
+    syncStorage->setAdoptBibtexTypes(true);
     syncStorage->syncWithStorage(m_fileToSync, psd.collection);
 }
 

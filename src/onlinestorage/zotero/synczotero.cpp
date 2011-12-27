@@ -69,11 +69,13 @@ void SyncZotero::readSync(File serverFiles)
     qDebug() << "SyncZotero::itemsFromServer || entries" << m_systemFiles->size() << " + new" << serverFiles.size();
 
     // now go through all retrieved serverFiles and see if we have to merge something
-    // if we find another entry with the same zoterokey and the same zoteroetag skip this entry
-    // if the zoteroetag is different, the file changed on the server and must be merged
-    // if no entry with the zoterokey exist, add the new entry
+
+    // - if we find another entry with the same zoterokey and the same zoteroetag skip this entry
+    // - if the zoteroetag is different, the file changed on the server and must be merged
+    // - if no entry with the zoterokey exist, add the new entry
 
     QStringList updatedKeys;
+
     // go through all retrieved entries
     foreach(Element* element, serverFiles) {
         Entry *entry = dynamic_cast<Entry *>(element);
@@ -166,7 +168,7 @@ void SyncZotero::readSync(File serverFiles)
     // this item will have the same zoterokey as another one but a different etag and some other keys will differ too
     // these must be merged here somehow.
 
-    int sensitivity = 100; // taken from KBibTeX
+    int sensitivity = 1000; // taken from KBibTeX
     FindDuplicates fd(0, sensitivity);
     QList<EntryClique*> cliques;
     fd.findDuplicateEntries(m_systemFiles, cliques);
@@ -174,6 +176,12 @@ void SyncZotero::readSync(File serverFiles)
     qDebug() << "duplicates" << cliques.size() << "of entries" << m_systemFiles->size() << "ask user what he wants to do with it";
 
     if(cliques.size() > 0) {
+
+        // TODO mergeDuplicateEntriesAuto
+        // to implement automatic merging with use Server version, use Localversion
+        // or the newest entry
+
+
         KDialog dlg;
         MergeWidget mw(m_systemFiles, cliques, &dlg);
         dlg.setMainWidget(&mw);
@@ -208,19 +216,61 @@ void SyncZotero::writeSync(File serverFiles)
     // whats left are the newly created items
     // these are identical to some other entry but they have no "citekey" and the zoterotags added
 
+
     qDebug() << "new entries we need to add a zoterokey to" << serverFiles.size();
 
-    m_systemFiles->append(serverFiles);
 
-    int sensitivity = 4000; // taken from KBibTeX
-    FindDuplicates fd(0, sensitivity);
-    QList<EntryClique*> cliques;
-    fd.findDuplicateEntries(m_systemFiles, cliques);
+    // now find the right entry again
+    // all keys from zotero must be found in the local file
+    // expect the zoteroSyncKeys
 
-    qDebug() << "duplicates" << cliques.size() << "of entries" << m_systemFiles->size();
+    // kbibtexy FindDuplicates doesn't seem do detect 100% exact results even with low sensitivity function
 
-    MergeDuplicates md(0);
-    md.mergeDuplicateEntries(cliques, m_systemFiles);
+    foreach(Element* serverElement, serverFiles) {
+        Entry *serverEntry = dynamic_cast<Entry *>(serverElement);
+
+        // check the entry against each entry in the m_systemFiles
+        foreach(Element* systemElement, *m_systemFiles) {
+            Entry *systemEntry = dynamic_cast<Entry *>(systemElement);
+
+            bool foundEntry = true;
+            // now check each key of the serverEntry against each key from the systemEntry
+            QMapIterator<QString, Value> i(*serverEntry);
+            while (i.hasNext()) {
+                i.next();
+
+                // ignore zotero sync detail keys
+                if( i.key() == QLatin1String("zoteroKey") ||
+                    i.key() == QLatin1String("zoteroEtag") ||
+                    i.key() == QLatin1String("zoteroUpdated")||
+                    i.key() == QLatin1String("zoteroChildren")) {
+                    continue;
+                }
+
+                qDebug() << "check" << i.key();
+
+                // otherwise check if the value is in the systemEntry
+                Value systemValue = systemEntry->value(i.key());
+                if(PlainTextValue::text(i.value()) != PlainTextValue::text(systemValue)) {
+                    qDebug() << "serverEntry != systemEntry for " << i.key() << PlainTextValue::text(i.value()) << PlainTextValue::text(systemValue);
+                    foundEntry = false;
+                    break;
+                }
+            }
+
+            if(foundEntry) {
+                qDebug() << "found exact duplicate, check next";
+                // ok we manage to compare all keys of serverElement with a systemEntry and found the 100% duplicate
+                // add the zotero sync detail to it and check the next serverEntry
+                systemEntry->insert( QLatin1String("zoterokey"), serverEntry->value(QLatin1String("zoterokey")) );
+                systemEntry->insert( QLatin1String("zoteroetag"), serverEntry->value(QLatin1String("zoteroetag")) );
+                systemEntry->insert( QLatin1String("zoteroupdated"), serverEntry->value(QLatin1String("zoteroupdated")) );
+                systemEntry->insert( QLatin1String("zoterochildren"), serverEntry->value(QLatin1String("zoterochildren")) );
+                break;
+            }
+
+        }
+    }
 
     qDebug() << "entries after merge" << m_systemFiles->size();
 
