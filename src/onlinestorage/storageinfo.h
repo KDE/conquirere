@@ -35,6 +35,10 @@ public:
     virtual QString providerName() = 0;
     virtual KIcon providerIcon() = 0;
 
+    virtual bool supportCollections() = 0;
+    virtual QString helpText() = 0;
+    virtual QString defaultUrl() = 0;
+
     virtual WriteToStorage *writeHandle() = 0;
     virtual ReadFromStorage *readHandle() = 0;
     virtual SyncStorage *syncHandle() = 0;

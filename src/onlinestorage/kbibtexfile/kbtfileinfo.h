@@ -34,6 +34,16 @@ public:
     QString providerName() { return QLatin1String("KBibTeXFile"); }
     KIcon providerIcon() { return KIcon(QLatin1String("storage-kbibtex")); }
 
+    bool supportCollections() { return false; }
+    QString helpText()  { return i18n("Provider to sync your data as file\n\n"
+                                      "Name : the name for identification if necessary\n"
+                                      "Password : the password for identification if necessary\n"
+                                      "url : full path and file name to sync with\n"
+                                      "This provider supports different filetypes use the right file extension to export it into this type\n"
+                                      "Supported filetypes: .bib, .ris, .pdf, .html, .blg, .ps, .xml, .xslt"); }
+
+    virtual QString defaultUrl() { return QLatin1String(""); }
+
     WriteToStorage *writeHandle() { return wts; }
     ReadFromStorage *readHandle() { return rfs; }
     SyncStorage *syncHandle() { return ss; }

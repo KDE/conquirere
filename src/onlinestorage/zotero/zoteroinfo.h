@@ -24,6 +24,8 @@
 #include "readfromzotero.h"
 #include "synczotero.h"
 
+#include <KDE/KLocalizedString>
+
 class ZoteroInfo : public StorageInfo
 {
 public:
@@ -33,6 +35,15 @@ public:
     QString providerId() { return QLatin1String("zotero"); }
     QString providerName() { return QLatin1String("Zotero"); }
     KIcon providerIcon() { return KIcon(QLatin1String("storage-zotero")); }
+
+    bool supportCollections() { return true; }
+    QString helpText()  { return i18n("Provider to sync your data with http://www.Zotero.org\n\n"
+                                      "Name : your userID number\n"
+                                      "Password : your created API key\n"
+                                      "url : either 'users' or 'group'\n"
+                                      "collection : the collection to sync with\n"); }
+
+    virtual QString defaultUrl() { return QLatin1String("users"); }
 
     WriteToStorage *writeHandle() { return wts; }
     ReadFromStorage *readHandle() { return rfs; }

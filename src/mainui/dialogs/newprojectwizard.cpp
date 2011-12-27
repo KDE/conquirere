@@ -246,7 +246,7 @@ void SyncPage::editProvider()
     ProviderSyncDetails oldPsd = m_psdList.at(selectedProvider);
 
     KDialog dlg;
-    ProviderSettings ps;
+    ProviderSettings ps(&dlg, true);
     ps.setProviderSettingsDetails(oldPsd);
     dlg.setMainWidget(&ps);
 
@@ -268,7 +268,7 @@ void SyncPage::addProvider()
 {
     KDialog dlg;
 
-    ProviderSettings ps;
+    ProviderSettings ps(&dlg, true);
     dlg.setMainWidget(&ps);
 
     int ret = dlg.exec();

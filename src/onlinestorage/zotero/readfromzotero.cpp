@@ -146,6 +146,9 @@ void ReadFromZotero::fetchCollection(const QString &collection )
 
 void ReadFromZotero::requestFinished()
 {
+    m_cachedCollectionResult.clear();
+    m_bibFile.clear();
+
     QXmlStreamReader xmlReader;
     xmlReader.setDevice(reply());
 

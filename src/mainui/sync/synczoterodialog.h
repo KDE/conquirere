@@ -20,8 +20,8 @@
 
 #include <QDialog>
 
-#include "../../onlinestorage/storageglobals.h"
-#include "../../nbibio/synczoteronepomuk.h"
+#include "onlinestorage/storageglobals.h"
+#include "nbibio/synczoteronepomuk.h"
 
 #include <Akonadi/Collection>
 #include <KWallet/Wallet>

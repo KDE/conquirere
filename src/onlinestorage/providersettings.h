@@ -21,6 +21,8 @@
 #include <QWidget>
 
 #include "storageglobals.h"
+
+#include <Akonadi/Collection>
 #include <KWallet/Wallet>
 
 namespace Ui {
@@ -35,7 +37,7 @@ class ProviderSettings : public QWidget
     Q_OBJECT
 
 public:
-    explicit ProviderSettings(QWidget *parent = 0);
+    explicit ProviderSettings(QWidget *parent = 0, bool showAkonadiStuff = false);
     virtual ~ProviderSettings();
 
     void setProviderSettingsDetails(const ProviderSyncDetails &psd);
@@ -44,10 +46,12 @@ public:
 
     void savePasswordInKWallet();
 
-public slots:
+private slots:
+    void collectionsReceived( const Akonadi::Collection::List& );
     void findPasswordInKWallet();
 
     void switchProvider(int curIndex);
+    void showHelp();
     void fetchCollection();
     void fillCollectionList(QList<CollectionInfo> collectionList);
 

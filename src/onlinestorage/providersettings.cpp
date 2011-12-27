@@ -16,7 +16,7 @@
  */
 
 #include "providersettings.h"
-#include "ui_providersettings.h"
+#include "../../build//src/onlinestorage/ui_providersettings.h"
 
 #include "storageinfo.h"
 #include "syncstorage.h"
@@ -25,7 +25,11 @@
 #include "zotero/zoteroinfo.h"
 #include "kbibtexfile/kbtfileinfo.h"
 
-ProviderSettings::ProviderSettings(QWidget *parent)
+#include <KDE/KMessageBox>
+#include <Akonadi/CollectionFetchJob>
+#include <Akonadi/CollectionFetchScope>
+
+ProviderSettings::ProviderSettings(QWidget *parent, bool showAkonadiStuff)
     : QWidget(parent)
     , ui(new Ui::ProviderSettings)
 {
@@ -57,13 +61,35 @@ ProviderSettings::ProviderSettings(QWidget *parent)
     ui->removeCollection->setIcon(KIcon(QLatin1String("list-remove")));
     ui->removeCollection->hide();
     connect(ui->fetchCollection, SIGNAL(clicked()), this, SLOT(fetchCollection()));
+
+    ui->helpButton->setIcon(KIcon("help-contents"));
+    connect(ui->helpButton, SIGNAL(clicked()), this, SLOT(showHelp()));
+
+    if(showAkonadiStuff) {
+        ui->addContactsToAkonadi->setVisible(true);
+        ui->addEventsToAkonadi->setVisible(true);
+        ui->contactCollection->setVisible(true);
+        ui->eventCollection->setVisible(true);
+
+        // fetching all collections containing contacts recursively, starting at the root collection
+        Akonadi::CollectionFetchJob *job = new Akonadi::CollectionFetchJob( Akonadi::Collection::root(), Akonadi::CollectionFetchJob::Recursive, this );
+        job->fetchScope().setContentMimeTypes( QStringList() << "application/x-vnd.kde.contactgroup" );
+        connect( job, SIGNAL(collectionsReceived(Akonadi::Collection::List)),
+                 this, SLOT(collectionsReceived(Akonadi::Collection::List)) );
+    }
+    else {
+        ui->addContactsToAkonadi->setVisible(false);
+        ui->addEventsToAkonadi->setVisible(false);
+        ui->contactCollection->setVisible(false);
+        ui->eventCollection->setVisible(false);
+    }
 }
 
 ProviderSettings::~ProviderSettings()
 {
     delete ui;
     delete m_wallet;
-    //qDeleteAll(m_availableProvider);
+    //qDeleteAll(m_availableProvider); // do not delete here, pointer to providerInfo still needed in some cases
 }
 
 void ProviderSettings::setProviderSettingsDetails(const ProviderSyncDetails &psd)
@@ -104,8 +130,11 @@ ProviderSyncDetails ProviderSettings::providerSettingsDetails() const
     psd.askBeforeDeletion = ui->askDeletion->isChecked();
     psd.importAttachments = ui->importAttachments->isChecked();
     psd.exportAttachments = ui->exportAttachments->isChecked();
-    psd.akonadiContactsUUid;
-    psd.akonadiEventsUUid;
+
+    int curAddressBook = ui->contactCollection->currentIndex();
+    psd.akonadiContactsUUid = ui->contactCollection->itemData(curAddressBook).toULongLong();
+    int curEventCollection = ui->eventCollection->currentIndex();
+    psd.akonadiEventsUUid = ui->eventCollection->itemData(curEventCollection).toULongLong();
 
     return psd;
 }
@@ -159,7 +188,33 @@ void ProviderSettings::switchProvider(int curIndex)
     foreach(StorageInfo* si, m_availableProvider)
         disconnect(si->readHandle(), SIGNAL(collectionsInfo(QList<CollectionInfo>)), this, SLOT(fillCollectionList(QList<CollectionInfo>)));
 
-    connect(m_availableProvider.at(curIndex)->readHandle(), SIGNAL(collectionsInfo(QList<CollectionInfo>)), this, SLOT(fillCollectionList(QList<CollectionInfo>)));
+    ui->listCollection->clear();
+
+    ui->providerUrl->setText(m_availableProvider.at(curIndex)->defaultUrl());
+
+    if(m_availableProvider.at(curIndex)->supportCollections()) {
+        ui->collectionLabel->setEnabled(true);
+        ui->addCollection->setEnabled(true);
+        ui->removeCollection->setEnabled(true);
+        ui->fetchCollection->setEnabled(true);
+        ui->listCollection->setEnabled(true);
+        connect(m_availableProvider.at(curIndex)->readHandle(), SIGNAL(collectionsInfo(QList<CollectionInfo>)), this, SLOT(fillCollectionList(QList<CollectionInfo>)));
+    }
+    else {
+        ui->collectionLabel->setEnabled(false);
+        ui->addCollection->setEnabled(false);
+        ui->removeCollection->setEnabled(false);
+        ui->fetchCollection->setEnabled(false);
+        ui->listCollection->setEnabled(false);
+    }
+}
+
+void ProviderSettings::showHelp()
+{
+    int curIndex = ui->providerSelection->currentIndex();
+
+    KMessageBox::information(this, m_availableProvider.at(curIndex)->helpText(),
+                             i18n("Provider Help"));
 }
 
 void ProviderSettings::fetchCollection()
@@ -171,6 +226,7 @@ void ProviderSettings::fetchCollection()
     ProviderSyncDetails psd;
     psd.userName = ui->providerUserName->text();
     psd.pwd = ui->providerPwd->text();
+    psd.url = ui->providerUrl->text();
 
     rfs->setProviderSettings(psd);
 
@@ -179,8 +235,17 @@ void ProviderSettings::fetchCollection()
 
 void ProviderSettings::fillCollectionList(QList<CollectionInfo> collectionList)
 {
+    ui->listCollection->clear();
+
     ui->listCollection->addItem(i18n("no collection"), QString());
     foreach(const CollectionInfo &ci, collectionList) {
         ui->listCollection->addItem(ci.name, ci.id);
+    }
+}
+
+void ProviderSettings::collectionsReceived( const Akonadi::Collection::List& list)
+{
+    foreach(const Akonadi::Collection & c, list) {
+        ui->contactCollection->addItem(c.name(), c.id());
     }
 }
