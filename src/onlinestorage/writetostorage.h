@@ -48,11 +48,6 @@ public:
 
     void setProviderSettings(const ProviderSyncDetails &psd);
 
-    void setUserName(const QString & name);
-    QString userName() const;
-    void setPassword(const QString & pwd);
-    QString pasword() const;
-
     /**
       * url should either be "users" or "groups"
       */
@@ -151,8 +146,10 @@ protected slots:
       */
     virtual void requestFinished() = 0;
 
-private:
+protected:
     ProviderSyncDetails m_psd;
+
+private:
     QString m_name;
     QString m_password;
     QString m_url;

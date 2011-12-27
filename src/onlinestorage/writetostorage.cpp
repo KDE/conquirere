@@ -45,36 +45,6 @@ void WriteToStorage::setProviderSettings(const ProviderSyncDetails &psd)
     m_psd = psd;
 }
 
-void WriteToStorage::setUserName(const QString & name)
-{
-    m_name = name;
-}
-
-QString WriteToStorage::userName() const
-{
-    return m_name;
-}
-
-void WriteToStorage::setPassword(const QString & pwd)
-{
-    m_password = pwd;
-}
-
-QString WriteToStorage::pasword() const
-{
-    return m_password;
-}
-
-void WriteToStorage::setUrl(const QString & url)
-{
-    m_url = url;
-}
-
-QString WriteToStorage::url() const
-{
-    return m_url;
-}
-
 void WriteToStorage::setAdoptBibtexTypes(bool adopt)
 {
     m_adoptBibtexTypes = adopt;

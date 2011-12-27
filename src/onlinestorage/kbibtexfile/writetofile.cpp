@@ -31,7 +31,6 @@ WriteToFile::WriteToFile(QObject *parent)
     : WriteToStorage(parent)
     , m_allRequestsSend(false)
 {
-    setUrl(QLatin1String("users"));
 }
 
 WriteToFile::~WriteToFile()

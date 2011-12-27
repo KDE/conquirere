@@ -31,7 +31,6 @@ WriteToZotero::WriteToZotero(QObject *parent)
     : WriteToStorage(parent)
     , m_allRequestsSend(false)
 {
-    setUrl(QLatin1String("users"));
 }
 
 WriteToZotero::~WriteToZotero()
@@ -88,10 +87,10 @@ void WriteToZotero::pushNewItems(File items, const QString &collection)
     //Content-Type: application/json
     //X-Zotero-Write-Token: 19a4f01ad623aa7214f82347e3711f56
 
-    QString pushString = QLatin1String("https://api.zotero.org/") + url() + QLatin1String("/") + userName() + QLatin1String("/items");
+    QString pushString = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items");
 
-    if(!pasword().isEmpty()) {
-        pushString.append(QLatin1String("?key=") + pasword());
+    if(!m_psd.pwd.isEmpty()) {
+        pushString.append(QLatin1String("?key=") + m_psd.pwd);
     }
     QUrl pushUrl(pushString);
 
@@ -110,10 +109,10 @@ void WriteToZotero::updateItem(Entry *item)
     QString zoteroKey = PlainTextValue::text(item->value(QLatin1String("zoteroKey")));
     QString etag = PlainTextValue::text(item->value(QLatin1String("zoteroEtag")));
 
-    QString pushString = QLatin1String("https://api.zotero.org/") + url() + QLatin1String("/") + userName() + QLatin1String("/items/") + zoteroKey;
+    QString pushString = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items/") + zoteroKey;
 
-    if(!pasword().isEmpty()) {
-        pushString.append(QLatin1String("?key=") + pasword());
+    if(!m_psd.pwd.isEmpty()) {
+        pushString.append(QLatin1String("?key=") + m_psd.pwd);
     }
 
     QUrl pushUrl(pushString);
@@ -132,10 +131,10 @@ void WriteToZotero::addItemsToCollection(QList<QString> ids, const QString &coll
     //POST /users/1/collections/QRST9876/items
     //ABCD2345 BCDE3456 CDEF4567 DEFG5678
 
-    QString pushString = QLatin1String("https://api.zotero.org/") + url() + QLatin1String("/") + userName() + QLatin1String("/collections/") + collection + QLatin1String("/items");
+    QString pushString = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/collections/") + collection + QLatin1String("/items");
 
-    if(!pasword().isEmpty()) {
-        pushString.append(QLatin1String("?key=") + pasword());
+    if(!m_psd.pwd.isEmpty()) {
+        pushString.append(QLatin1String("?key=") + m_psd.pwd);
     }
     QUrl pushUrl(pushString);
 
@@ -157,10 +156,10 @@ void WriteToZotero::removeItemsFromCollection(QList<QString> ids, const QString 
     //DELETE /users/1/collections/QRST9876/items/ABCD2345
 
     foreach(const QString &id, ids) {
-        QString pushString = QLatin1String("https://api.zotero.org/") + url() + QLatin1String("/") + userName() + QLatin1String("/collections/") + collection + QLatin1String("/items/") + id;
+        QString pushString = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/collections/") + collection + QLatin1String("/items/") + id;
 
-        if(!pasword().isEmpty()) {
-            pushString.append(QLatin1String("?key=") + pasword());
+        if(!m_psd.pwd.isEmpty()) {
+            pushString.append(QLatin1String("?key=") + m_psd.pwd);
         }
         QUrl pushUrl(pushString);
 
@@ -182,10 +181,10 @@ void WriteToZotero::deleteItems(File items)
             continue;
         }
         QString zoteroKey = PlainTextValue::text(entry->value(QLatin1String("zoteroKey")));
-        QString pushString = QLatin1String("https://api.zotero.org/") + url() + QLatin1String("/") + userName() + QLatin1String("/items/") + zoteroKey;
+        QString pushString = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items/") + zoteroKey;
 
-        if(!pasword().isEmpty()) {
-            pushString.append(QLatin1String("?key=") + pasword());
+        if(!m_psd.pwd.isEmpty()) {
+            pushString.append(QLatin1String("?key=") + m_psd.pwd);
         }
         QUrl pushUrl(pushString);
 
@@ -203,10 +202,10 @@ void WriteToZotero::createCollection(const CollectionInfo &ci)
     //POST /users/1/collections
     //X-Zotero-Write-Token: 19a4f01ad623aa7214f82347e3711f56
 
-    QString pushString = QLatin1String("https://api.zotero.org/") + url() + QLatin1String("/") + userName() + QLatin1String("/collections");
+    QString pushString = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/collections");
 
-    if(!pasword().isEmpty()) {
-        pushString.append(QLatin1String("?key=") + pasword());
+    if(!m_psd.pwd.isEmpty()) {
+        pushString.append(QLatin1String("?key=") + m_psd.pwd);
     }
     QUrl pushUrl(pushString);
 
@@ -222,10 +221,10 @@ void WriteToZotero::editCollection(const CollectionInfo &ci)
     //PUT /users/1/collections/RSTU8765
     //If-Match: "f0ebb2240a57f4115b3ce841d5218fa2"
 
-    QString pushString = QLatin1String("https://api.zotero.org/") + url() + QLatin1String("/") + userName() + QLatin1String("/collections/") + ci.id;
+    QString pushString = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/collections/") + ci.id;
 
-    if(!pasword().isEmpty()) {
-        pushString.append(QLatin1String("?key=") + pasword());
+    if(!m_psd.pwd.isEmpty()) {
+        pushString.append(QLatin1String("?key=") + m_psd.pwd);
     }
 
     QUrl pushUrl(pushString);
@@ -242,10 +241,10 @@ void WriteToZotero::deleteCollection(const CollectionInfo &ci)
     //DELETE /users/1/collections/RSTU8765
     //If-Match: "f0ebb2240a57f4115b3ce841d5218fa2"
 
-    QString pushString = QLatin1String("https://api.zotero.org/") + url() + QLatin1String("/") + userName() + QLatin1String("/collections/") + ci.id;
+    QString pushString = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/collections/") + ci.id;
 
-    if(!pasword().isEmpty()) {
-        pushString.append(QLatin1String("?key=") + pasword());
+    if(!m_psd.pwd.isEmpty()) {
+        pushString.append(QLatin1String("?key=") + m_psd.pwd);
     }
     QUrl pushUrl(pushString);
 

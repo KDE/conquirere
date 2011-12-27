@@ -244,9 +244,11 @@ void SyncZoteroNepomuk::startUpload()
     // step 3 upload to zotero
     emit progressStatus(i18n("upload to Zotero"));
     m_curStep++;
-    m_wtz->setUserName(m_name);
-    m_wtz->setPassword(m_pwd);
-    m_wtz->setUrl(m_url);
+    ProviderSyncDetails psd;
+    psd.userName = m_name;
+    psd.pwd = m_pwd;
+    psd.url = m_url;
+    m_wtz->setProviderSettings(psd);
     m_wtz->setAdoptBibtexTypes(true);
 
     connect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(readUploadSync(File)));
