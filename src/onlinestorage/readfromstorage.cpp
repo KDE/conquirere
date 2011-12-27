@@ -23,7 +23,6 @@
 
 ReadFromStorage::ReadFromStorage(QObject *parent)
     : QObject(parent)
-    , m_adoptBibtexTypes(true)
     , m_requestType(Items)
     , m_reply(0)
 {
@@ -37,34 +36,9 @@ ReadFromStorage::~ReadFromStorage()
     //delete m_reply;
 }
 
-void ReadFromStorage::setUserName(const QString & name)
+void ReadFromStorage::setProviderSettings(const ProviderSyncDetails &psd)
 {
-    m_name = name;
-}
-
-QString ReadFromStorage::userName() const
-{
-    return m_name;
-}
-
-void ReadFromStorage::setPassword(const QString & pwd)
-{
-    m_password = pwd;
-}
-
-QString ReadFromStorage::pasword() const
-{
-    return m_password;
-}
-
-void ReadFromStorage::setUrl(const QString & url)
-{
-    m_url = url;
-}
-
-QString ReadFromStorage::url() const
-{
-    return m_url;
+    m_psd = psd;
 }
 
 void ReadFromStorage::setAdoptBibtexTypes(bool adopt)

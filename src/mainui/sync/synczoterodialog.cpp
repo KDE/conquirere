@@ -19,6 +19,7 @@
 #include "ui_synczoterodialog.h"
 
 #include "onlinestorage/zotero/readfromzotero.h"
+#include "onlinestorage/providersettings.h"
 #include "nbibio/synczoteronepomuk.h"
 #include "nbibio/pipe/bibtextonepomukpipe.h"
 
@@ -87,8 +88,10 @@ void SyncZoteroDialog::collectionsReceived( const Akonadi::Collection::List& lis
 
 void SyncZoteroDialog::fetchCollection()
 {
-    m_rfz->setUserName(ui->userID->text());
-    m_rfz->setPassword(ui->apiKey->text());
+    ProviderSyncDetails psd;
+    psd.userName = ui->userID->text();
+    psd.pwd = ui->apiKey->text();
+    m_rfz->setProviderSettings(psd);
 
     m_rfz->fetchCollections();
 }

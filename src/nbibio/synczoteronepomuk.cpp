@@ -19,9 +19,10 @@
 
 #include "pipe/bibtextonepomukpipe.h"
 #include "pipe/nepomuktobibtexpipe.h"
-#include "../onlinestorage/zotero/zoteroinfo.h"
-#include "../onlinestorage/zotero/readfromzotero.h"
-#include "../onlinestorage/zotero/writetozotero.h"
+#include "onlinestorage/zotero/zoteroinfo.h"
+#include "onlinestorage/zotero/readfromzotero.h"
+#include "onlinestorage/zotero/writetozotero.h"
+#include "onlinestorage/providersettings.h"
 
 #include <kbibtex/element.h>
 #include <kbibtex/entry.h>
@@ -93,9 +94,11 @@ void SyncZoteroNepomuk::startDownload()
     emit calculateProgress(0);
 
     //lets start by retrieving all items from the server and merge them with the current files
-    m_rfz->setUserName(m_name);
-    m_rfz->setPassword(m_pwd);
-    m_rfz->setUrl(m_url);
+    ProviderSyncDetails psd;
+    psd.userName = m_name;
+    psd.pwd = m_pwd;
+    psd.url = m_url;
+    m_rfz->setProviderSettings(psd);
     m_rfz->setAdoptBibtexTypes(true);
 
     connect(m_rfz, SIGNAL(itemsInfo(File)), this, SLOT(readDownloadSync(File)));

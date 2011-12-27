@@ -75,27 +75,21 @@ void SyncStorageUi::setBibTeXFile(File *fileToSync)
     if(!si)
         return;
 
-    ProviderSettings::ProviderSettingsDetails psd;
+    ProviderSyncDetails psd;
     psd.providerInfo = si;
-    psd.userName;
-    psd.url;
+    psd.userName = userName;
+    psd.url = url;
 
     ui->providerSettings->setProviderSettingsDetails(psd);
 }
 
 void SyncStorageUi::startSync()
 {
-    ProviderSettings::ProviderSettingsDetails psd = ui->providerSettings->providerSettingsDetails();
+    ProviderSyncDetails psd = ui->providerSettings->providerSettingsDetails();
 
     SyncStorage *syncStorage = psd.providerInfo->syncHandle();
-    syncStorage->setUserName(psd.userName);
-    syncStorage->setPassword(psd.pwd);
+    syncStorage->setProviderSettings(psd);
     //syncStorage->setAdoptBibtexTypes(psd.);
-    syncStorage->setAskBeforeDeletion(psd.askBeforeDeletion);
-    if(psd.syncMode == 0)
-        syncStorage->setDownloadOnly(true);
-
-    syncStorage->setUrl(psd.url);
     syncStorage->syncWithStorage(m_fileToSync, psd.collection);
 }
 
@@ -116,7 +110,7 @@ void SyncStorageUi::syncStatus(bool inProgress)
 
         // write sync information into bibtex file
         if(m_fileToSync) {
-            ProviderSettings::ProviderSettingsDetails psd = ui->providerSettings->providerSettingsDetails();
+            ProviderSyncDetails psd = ui->providerSettings->providerSettingsDetails();
             QString providerId = psd.providerInfo->providerId();
 
             bool foundProvider = false;

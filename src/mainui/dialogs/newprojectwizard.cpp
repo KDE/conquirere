@@ -81,7 +81,7 @@ void NewProjectWizard::done(int result)
                                      gp->projectDescription->toPlainText(),
                                      path);
 
-        foreach(const ProviderSettings::ProviderSettingsDetails& psd, sp->m_psdList) {
+        foreach(const ProviderSyncDetails& psd, sp->m_psdList) {
             NBibSync *syncProvider;
             if(psd.providerInfo->providerId() == QLatin1String("zotero"))
                 syncProvider= new SyncZoteroNepomuk;
@@ -243,7 +243,7 @@ void SyncPage::updateFolderTextLabel(const QString &folder)
 void SyncPage::editProvider()
 {
     int selectedProvider = m_syncList->currentIndex().row();
-    ProviderSettings::ProviderSettingsDetails oldPsd = m_psdList.at(selectedProvider);
+    ProviderSyncDetails oldPsd = m_psdList.at(selectedProvider);
 
     KDialog dlg;
     ProviderSettings ps;
@@ -253,7 +253,7 @@ void SyncPage::editProvider()
     int ret = dlg.exec();
 
     if(ret == KDialog::Accepted) {
-        ProviderSettings::ProviderSettingsDetails newPsd = ps.providerSettingsDetails();
+        ProviderSyncDetails newPsd = ps.providerSettingsDetails();
         m_psdList.replace(selectedProvider, newPsd);
         QListWidgetItem *qlwi = m_syncList->item(selectedProvider);
         if(qlwi) {
@@ -274,7 +274,7 @@ void SyncPage::addProvider()
     int ret = dlg.exec();
 
     if(ret == KDialog::Accepted) {
-        ProviderSettings::ProviderSettingsDetails newPsd = ps.providerSettingsDetails();
+        ProviderSyncDetails newPsd = ps.providerSettingsDetails();
         m_psdList.append(newPsd);
         QListWidgetItem *qlwi = new QListWidgetItem(newPsd.providerInfo->providerIcon(), newPsd.providerInfo->providerName());
         m_syncList->addItem(qlwi);

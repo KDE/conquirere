@@ -40,6 +40,11 @@ WriteToStorage::~WriteToStorage()
 //    }
 }
 
+void WriteToStorage::setProviderSettings(const ProviderSyncDetails &psd)
+{
+    m_psd = psd;
+}
+
 void WriteToStorage::setUserName(const QString & name)
 {
     m_name = name;

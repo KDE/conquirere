@@ -1,5 +1,6 @@
 
 add_subdirectory( zotero )
+add_subdirectory( kbibtexfile )
 
 set(onlinestorage_LIB_SRCS
     readfromstorage.cpp
@@ -7,9 +8,14 @@ set(onlinestorage_LIB_SRCS
     syncstorage.cpp
     providersettings.cpp
     syncstorageui.cpp
+
     zotero/readfromzotero.cpp
     zotero/writetozotero.cpp
     zotero/synczotero.cpp
+
+    kbibtexfile/readfromfile.cpp
+    kbibtexfile/writetofile.cpp
+    kbibtexfile/syncfile.cpp
 )
 
 kde4_add_ui_files( onlinestorage_LIB_SRCS

@@ -19,6 +19,8 @@
 #define WRITETOSTORAGE_H
 
 #include "storageglobals.h"
+#include "providersettings.h"
+
 #include <kbibtex/file.h>
 
 #include <QtCore/QObject>
@@ -43,6 +45,8 @@ class WriteToStorage : public QObject
 public:
     explicit WriteToStorage(QObject *parent = 0);
     virtual ~WriteToStorage();
+
+    void setProviderSettings(const ProviderSyncDetails &psd);
 
     void setUserName(const QString & name);
     QString userName() const;
@@ -148,6 +152,7 @@ protected slots:
     virtual void requestFinished() = 0;
 
 private:
+    ProviderSyncDetails m_psd;
     QString m_name;
     QString m_password;
     QString m_url;

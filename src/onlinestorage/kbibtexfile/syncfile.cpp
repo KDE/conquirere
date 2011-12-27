@@ -15,30 +15,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "syncstorage.h"
+#include "syncfile.h"
 
-SyncStorage::SyncStorage(QObject *parent)
-    : QObject(parent)
-    , m_adoptBibtexTypes(true)
+#include "readfromfile.h"
+#include "writetofile.h"
+
+#include <QDebug>
+
+SyncFile::SyncFile(QObject *parent)
+    : SyncStorage(parent)
+    , m_systemFiles(0)
+    , m_rfz(0)
+    , m_wtz(0)
 {
 }
 
-SyncStorage::~SyncStorage()
+SyncFile::~SyncFile()
+{
+    delete m_rfz;
+    delete m_wtz;
+}
+
+void SyncFile::syncWithStorage(File *bibfile, const QString &collection)
+{
+}
+
+void SyncFile::readSync(File serverFiles)
+{
+}
+
+void SyncFile::writeSync(File serverFiles)
 {
 
 }
 
-void SyncStorage::setProviderSettings(const ProviderSyncDetails &psd)
+void SyncFile::writeProgress(int writeProgress)
 {
-    m_psd = psd;
-}
+    qreal curProgress = ((qreal)writeProgress * 0.5) + 50;
 
-void SyncStorage::setAdoptBibtexTypes(bool adopt)
-{
-    m_adoptBibtexTypes = adopt;
-}
-
-bool SyncStorage::adoptBibtexTypes() const
-{
-    return m_adoptBibtexTypes;
+    emit progress(curProgress);
 }

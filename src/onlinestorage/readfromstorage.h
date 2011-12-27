@@ -19,6 +19,8 @@
 #define READFROMSTORAGE_H
 
 #include "storageglobals.h"
+#include "providersettings.h"
+
 #include <kbibtex/file.h>
 
 #include <QtCore/QObject>
@@ -42,15 +44,7 @@ public:
     explicit ReadFromStorage(QObject *parent = 0);
     virtual ~ReadFromStorage();
 
-    void setUserName(const QString & name);
-    QString userName() const;
-    void setPassword(const QString & pwd);
-    QString pasword() const;
-    /**
-      * url should either be "users" or "groups"
-      */
-    void setUrl(const QString & url);
-    QString url() const;
+    void setProviderSettings(const ProviderSyncDetails &psd);
 
     void setAdoptBibtexTypes(bool adopt);
     bool adoptBibtexTypes() const;
@@ -122,11 +116,10 @@ protected slots:
       */
     virtual void requestFinished() = 0;
 
-private:
-    QString m_name;
-    QString m_password;
-    QString m_url;
+protected:
+    ProviderSyncDetails m_psd;
 
+private:
     bool m_adoptBibtexTypes;
     RequestType m_requestType;
 

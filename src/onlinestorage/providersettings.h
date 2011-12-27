@@ -35,27 +35,11 @@ class ProviderSettings : public QWidget
     Q_OBJECT
 
 public:
-    struct ProviderSettingsDetails {
-        StorageInfo *providerInfo;
-        QString userName;
-        QString pwd;
-        QString url;
-        QString collection;
-        int fileType;
-        int syncMode;
-        int mergeMode;
-        bool askBeforeDeletion;
-        bool importAttachments;
-        bool exportAttachments;
-        QString akonadiContactsUUid;
-        QString akonadiEventsUUid;
-    };
-
     explicit ProviderSettings(QWidget *parent = 0);
-    ~ProviderSettings();
+    virtual ~ProviderSettings();
 
-    void setProviderSettingsDetails(const ProviderSettings::ProviderSettingsDetails &psd);
-    ProviderSettings::ProviderSettingsDetails providerSettingsDetails() const;
+    void setProviderSettingsDetails(const ProviderSyncDetails &psd);
+    ProviderSyncDetails providerSettingsDetails() const;
     StorageInfo *storageInfoByString(const QString &providerId);
 
     void savePasswordInKWallet();

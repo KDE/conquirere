@@ -28,8 +28,6 @@
 ReadFromZotero::ReadFromZotero(QObject *parent)
     : ReadFromStorage(parent)
 {
-    setUrl(QLatin1String("users"));
-
     // build the mappinglist
     m_zoteroToBibTeX["callNumber"] = QLatin1String("lccn");
     m_zoteroToBibTeX["rights"] = QLatin1String("copyright");
@@ -94,14 +92,14 @@ void ReadFromZotero::fetchItems(const QString &collection)
 {
     QString apiCommand;
     if(collection.isEmpty()) {
-        apiCommand = QLatin1String("https://api.zotero.org/") + url() + QLatin1String("/") + userName() + QLatin1String("/items/top?format=atom&content=json");
+        apiCommand = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items/top?format=atom&content=json");
     }
     else {
-        apiCommand = QLatin1String("https://api.zotero.org/") + url() + QLatin1String("/") + userName() + QLatin1String("/collections/") + collection + QLatin1String("/items?format=atom&content=json");
+        apiCommand = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/collections/") + collection + QLatin1String("/items?format=atom&content=json");
     }
 
-    if(!pasword().isEmpty()) {
-        apiCommand.append( QLatin1String("&key=") + pasword());
+    if(!m_psd.pwd.isEmpty()) {
+        apiCommand.append( QLatin1String("&key=") + m_psd.pwd);
     }
 
     setRequestType(Items);
@@ -110,9 +108,9 @@ void ReadFromZotero::fetchItems(const QString &collection)
 
 void ReadFromZotero::fetchItem(const QString &id, const QString &collection )
 {
-    QString apiCommand = QLatin1String("https://api.zotero.org/") + url() + QLatin1String("/") + userName() + QLatin1String("/items/top?format=atom&content=json&limit=10");
-    if(!pasword().isEmpty()) {
-        apiCommand.append( QLatin1String("&key=") + pasword());
+    QString apiCommand = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items/top?format=atom&content=json&limit=10");
+    if(!m_psd.pwd.isEmpty()) {
+        apiCommand.append( QLatin1String("&key=") + m_psd.pwd);
     }
 
     setRequestType(Items);
@@ -126,9 +124,9 @@ void ReadFromZotero::fetchCollections(const QString &parent )
         subCollection = QLatin1String("/") + parent + QLatin1String("/collections");
     }
 
-    QString apiCommand = QLatin1String("https://api.zotero.org/") + url() + QLatin1String("/") + userName() + QLatin1String("/collections") + subCollection + QLatin1String("?format=atom");
-    if(!pasword().isEmpty()) {
-        apiCommand.append( QLatin1String("&key=") + pasword());
+    QString apiCommand = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/collections") + subCollection + QLatin1String("?format=atom");
+    if(!m_psd.pwd.isEmpty()) {
+        apiCommand.append( QLatin1String("&key=") + m_psd.pwd);
     }
 
     setRequestType(Collections);
@@ -137,9 +135,9 @@ void ReadFromZotero::fetchCollections(const QString &parent )
 
 void ReadFromZotero::fetchCollection(const QString &collection )
 {
-    QString apiCommand = QLatin1String("https://api.zotero.org/") + url() + QLatin1String("/") + userName() + QLatin1String("/collections/") + collection + QLatin1String("?format=atom");
-    if(!pasword().isEmpty()) {
-        apiCommand.append( QLatin1String("&key=") + pasword());
+    QString apiCommand = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/collections/") + collection + QLatin1String("?format=atom");
+    if(!m_psd.pwd.isEmpty()) {
+        apiCommand.append( QLatin1String("&key=") + m_psd.pwd);
     }
 
     setRequestType(Collections);

@@ -56,9 +56,7 @@ void SyncZotero::syncWithStorage(File *bibfile, const QString &collection)
 
     //lets start by retrieving all items from the server and merge them with the current files
     m_rfz = new ReadFromZotero;
-    m_rfz->setUserName(userName());
-    m_rfz->setPassword(pasword());
-    m_rfz->setAdoptBibtexTypes(adoptBibtexTypes());
+    m_rfz->setProviderSettings(m_psd);
 
     connect(m_rfz, SIGNAL(itemsInfo(File)), this, SLOT(readSync(File)));
     m_rfz->fetchItems(m_addToCollection);
@@ -127,7 +125,7 @@ void SyncZotero::readSync(File serverFiles)
         }
     }
 
-    if(askBeforeDeletion() && !toBeDeleted.isEmpty()) {
+    if(m_psd.askBeforeDeletion && !toBeDeleted.isEmpty()) {
         int ret = KMessageBox::warningYesNo(0,i18n("%1 items are deleted on the server.\n\nDo you want to delete them locally too?.\nOtherwise they will be uploaded again.", toBeDeleted.size()));
 
         if(ret == KMessageBox::Yes) {
@@ -185,7 +183,7 @@ void SyncZotero::readSync(File serverFiles)
         md.mergeDuplicateEntries(cliques, m_systemFiles);
     }
 
-    if(downloadOnly()) {
+    if(m_psd.syncMode == Download_Only) {
         emit progress(100);
         emit syncInProgress(false);
     }
@@ -193,8 +191,6 @@ void SyncZotero::readSync(File serverFiles)
         // from this point on, we have all data from the server merged with the local items
         // now its time to send all data to the server, update changed items and create new ones
         m_wtz = new WriteToZotero;
-        m_wtz->setUserName(userName());
-        m_wtz->setPassword(pasword());
         m_wtz->setAdoptBibtexTypes(adoptBibtexTypes());
         m_wtz->pushItems(*m_systemFiles, m_addToCollection);
 

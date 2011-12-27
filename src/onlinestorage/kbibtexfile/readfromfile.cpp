@@ -15,30 +15,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "syncstorage.h"
+#include "readfromfile.h"
 
-SyncStorage::SyncStorage(QObject *parent)
-    : QObject(parent)
-    , m_adoptBibtexTypes(true)
+#include <kbibtex/entry.h>
+
+#include <QDebug>
+
+ReadFromFile::ReadFromFile(QObject *parent)
+    : ReadFromStorage(parent)
 {
 }
 
-SyncStorage::~SyncStorage()
+void ReadFromFile::fetchItems(const QString &collection)
 {
-
 }
 
-void SyncStorage::setProviderSettings(const ProviderSyncDetails &psd)
+void ReadFromFile::fetchItem(const QString &id, const QString &collection )
 {
-    m_psd = psd;
 }
 
-void SyncStorage::setAdoptBibtexTypes(bool adopt)
+void ReadFromFile::fetchCollections(const QString &parent )
 {
-    m_adoptBibtexTypes = adopt;
 }
 
-bool SyncStorage::adoptBibtexTypes() const
+void ReadFromFile::fetchCollection(const QString &collection )
 {
-    return m_adoptBibtexTypes;
+}
+
+void ReadFromFile::requestFinished()
+{
+
 }

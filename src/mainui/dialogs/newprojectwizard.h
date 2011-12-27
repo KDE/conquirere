@@ -103,7 +103,7 @@ public:
     QPushButton *m_addProvider;
     QPushButton *m_editProvider;
     QPushButton *m_removeProvider;
-    QList<ProviderSettings::ProviderSettingsDetails> m_psdList;
+    QList<ProviderSyncDetails> m_psdList;
 };
 
 #endif // NEWPROJECTWIZARD_H

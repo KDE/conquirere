@@ -52,4 +52,20 @@ enum MergeStrategy {
     UseLocal
 };
 
+class StorageInfo;
+
+struct ProviderSyncDetails {
+    StorageInfo *providerInfo;
+    QString userName;
+    QString pwd;
+    QString url;
+    QString collection;
+    SyncMode syncMode;
+    MergeStrategy mergeMode;
+    bool askBeforeDeletion;
+    bool importAttachments;
+    bool exportAttachments;
+    QString akonadiContactsUUid;
+    QString akonadiEventsUUid;
+};
 #endif // STORAGEGLOBALS_H

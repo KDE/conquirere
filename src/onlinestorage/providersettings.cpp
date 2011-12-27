@@ -23,6 +23,7 @@
 #include "readfromstorage.h"
 
 #include "zotero/zoteroinfo.h"
+#include "kbibtexfile/kbtfileinfo.h"
 
 ProviderSettings::ProviderSettings(QWidget *parent)
     : QWidget(parent)
@@ -40,6 +41,11 @@ ProviderSettings::ProviderSettings(QWidget *parent)
     StorageInfo *zotero = new ZoteroInfo;
     m_availableProvider.append(zotero);
     ui->providerSelection->addItem(zotero->providerIcon(),zotero->providerName());
+
+    StorageInfo *kbibtexfile = new KBTFileInfo();
+    m_availableProvider.append(kbibtexfile);
+    ui->providerSelection->addItem(kbibtexfile->providerIcon(),kbibtexfile->providerName());
+
     ui->providerSelection->setCurrentIndex(0);
     switchProvider(0);
 
@@ -60,7 +66,7 @@ ProviderSettings::~ProviderSettings()
     //qDeleteAll(m_availableProvider);
 }
 
-void ProviderSettings::setProviderSettingsDetails(const ProviderSettings::ProviderSettingsDetails &psd)
+void ProviderSettings::setProviderSettingsDetails(const ProviderSyncDetails &psd)
 {
     ui->providerUserName->setText(psd.userName);
     ui->providerUrl->setText(psd.url);
@@ -82,20 +88,19 @@ void ProviderSettings::setProviderSettingsDetails(const ProviderSettings::Provid
     }
 }
 
-ProviderSettings::ProviderSettingsDetails ProviderSettings::providerSettingsDetails() const
+ProviderSyncDetails ProviderSettings::providerSettingsDetails() const
 {
-    ProviderSettingsDetails psd;
+    ProviderSyncDetails psd;
 
     int curProviderIndex = ui->providerSelection->currentIndex();
     psd.providerInfo = m_availableProvider.at(curProviderIndex);
     psd.userName = ui->providerUserName->text();
     psd.pwd = ui->providerPwd->text();
     psd.url = ui->providerUrl->text();
-    psd.fileType = ui->fileTypeSelection->currentIndex();
     int curCollectionIndex = ui->listCollection->currentIndex();
     psd.collection = ui->listCollection->itemData(curCollectionIndex).toString();
-    psd.syncMode = ui->syncMode->currentIndex();
-    psd.mergeMode = ui->mergeMode->currentIndex();
+    psd.syncMode = SyncMode(ui->syncMode->currentIndex());
+    psd.mergeMode = MergeStrategy (ui->mergeMode->currentIndex());
     psd.askBeforeDeletion = ui->askDeletion->isChecked();
     psd.importAttachments = ui->importAttachments->isChecked();
     psd.exportAttachments = ui->exportAttachments->isChecked();
@@ -163,8 +168,11 @@ void ProviderSettings::fetchCollection()
 
     ReadFromStorage *rfs = m_availableProvider.at(curIndex)->readHandle();
 
-    rfs->setUserName(ui->providerUserName->text());
-    rfs->setPassword(ui->providerPwd->text());
+    ProviderSyncDetails psd;
+    psd.userName = ui->providerUserName->text();
+    psd.pwd = ui->providerPwd->text();
+
+    rfs->setProviderSettings(psd);
 
     rfs->fetchCollections();
 }

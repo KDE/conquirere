@@ -19,6 +19,7 @@
 #define SYNCSTORAGE_H
 
 #include <QObject>
+#include "providersettings.h"
 
 #include <kbibtex/file.h>
 
@@ -40,21 +41,12 @@ public:
     explicit SyncStorage(QObject *parent = 0);
     virtual ~SyncStorage();
 
-    void setUserName(const QString & name);
-    QString userName() const;
-    void setPassword(const QString & pwd);
-    QString pasword() const;
-    void setUrl(const QString & url);
-    QString url() const;
+    void setProviderSettings(const ProviderSyncDetails &psd);
 
     void setAdoptBibtexTypes(bool adopt);
     bool adoptBibtexTypes() const;
     void setAskBeforeDeletion(bool ask);
     bool askBeforeDeletion() const;
-    void setDownloadOnly(bool downloadOnly);
-    bool downloadOnly() const;
-    void setUploadOnly(bool uploadOnly);
-    bool uploadOnly() const;
 
 signals:
     void syncInProgress(bool active);
@@ -70,15 +62,11 @@ public slots:
       */
     virtual void syncWithStorage(File *bibfile, const QString &collection) = 0;
 
-private:
-    QString m_name;
-    QString m_password;
-    QString m_url;
+protected:
+    ProviderSyncDetails m_psd;
 
+private:
     bool m_adoptBibtexTypes;
-    bool m_askBeforeDeletion;
-    bool m_downloadOnly;
-    bool m_uploadOnly;
 };
 
 #endif // SYNCSTORAGE_H
