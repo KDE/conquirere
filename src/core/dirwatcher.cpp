@@ -25,6 +25,7 @@
 
 DirWatcher::DirWatcher(QObject *parent)
     : QObject(parent)
+    , m_library(0)
     , m_kdl(0)
 {
 }

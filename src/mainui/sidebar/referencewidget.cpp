@@ -57,8 +57,6 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     ui->pagesEdit->setPropertyUrl( Nepomuk::Vocabulary::NBIB::pages() );
     ui->pagesEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
 
-    showCreateReference(true);
-
     //connect signal/slots
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->chapterEdit, SLOT(setResource(Nepomuk::Resource&)));
     connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->citeKeyEdit, SLOT(setResource(Nepomuk::Resource&)));
@@ -73,10 +71,9 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
 
 void ReferenceWidget::setResource(Nepomuk::Resource & resource)
 {
-    // what we get is a nbib::BibReference
-    if (resource.hasType(Nepomuk::Vocabulary::NBIB::Reference()) ) {
+    if(resource.isValid()) {
+        setEnabled(true);
         m_reference = resource;
-        showCreateReference(false);
         enableReferenceDetails();
 
         emit resourceChanged(m_reference);
@@ -85,10 +82,8 @@ void ReferenceWidget::setResource(Nepomuk::Resource & resource)
         ui->editRating->setRating(pub.rating());
     }
     else {
-        showCreateReference(true);
-        qDebug() << "nonvalid resource for the referencewidget";
+        setEnabled(false);
     }
-
 }
 
 void ReferenceWidget::setLibrary(Library *p)
@@ -106,19 +101,9 @@ void ReferenceWidget::setLibrary(Library *p)
 
 void ReferenceWidget::subResourceUpdated()
 {
+    Nepomuk::Resource publication = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
     emit resourceUpdated(m_reference);
-}
-
-void ReferenceWidget::showCreateReference(bool createRef)
-{
-    if(createRef) {
-        ui->frameWidget->setEnabled(false);
-    }
-    else {
-        ui->frameWidget->setEnabled(true);
-
-        enableReferenceDetails();
-    }
+    emit resourceUpdated(publication);
 }
 
 void ReferenceWidget::showPublicationList(Nepomuk::Resource & resource, const QUrl & propertyUrl)
@@ -129,14 +114,20 @@ void ReferenceWidget::showPublicationList(Nepomuk::Resource & resource, const QU
     if(changedResource.isValid()) {
         KDialog addIssueWidget;
 
-            PublicationWidget *pw = new PublicationWidget();
-            pw->setResource(changedResource);
-            addIssueWidget.setMainWidget(pw);
+        PublicationWidget *pw = new PublicationWidget();
+        pw->setResource(changedResource);
+        addIssueWidget.setMainWidget(pw);
 
         addIssueWidget.setInitialSize(QSize(400,300));
         addIssueWidget.exec();
 
         setResource(m_reference); // this updates the changes in the current widget again
+
+        //update the cache
+        Nepomuk::Resource publication = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+        emit resourceUpdated(m_reference);
+        emit resourceUpdated(publication);
+
         return;
     }
 
@@ -157,6 +148,11 @@ void ReferenceWidget::showPublicationList(Nepomuk::Resource & resource, const QU
         selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::reference(), resource );
 
         setResource(m_reference); // this updates the changes in the current widget again
+
+        //update the cache
+        Nepomuk::Resource publication = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+        emit resourceUpdated(m_reference);
+        emit resourceUpdated(publication);
     }
 }
 
@@ -175,14 +171,19 @@ void ReferenceWidget::showChapterList()
     if(ret == KDialog::Accepted) {
         Nepomuk::Resource selectedPart = lpw.selectedPart();
         m_reference.setProperty(Nepomuk::Vocabulary::NBIB::referencedPart(), selectedPart);
-        //ui->chapterEdit->setResource(m_reference);
 
         QString pageStart = selectedPart.property(Nepomuk::Vocabulary::NBIB::pageStart() ).toString();
         QString pageEnd = selectedPart.property(Nepomuk::Vocabulary::NBIB::pageEnd() ).toString();
-        QString pages = pageStart + QLatin1String("-") + pageEnd;
+        QString pages;
+        if(!pageEnd.isEmpty())
+            pages = pageStart + QLatin1String("-") + pageEnd;
+        else
+            pages = pageStart;
+
         m_reference.setProperty(Nepomuk::Vocabulary::NBIB::pages(), pages);
 
         setResource(m_reference);
+        emit resourceUpdated(m_reference);
     }
 }
 
@@ -212,6 +213,7 @@ void ReferenceWidget::newButtonClicked()
         //relate the ref to the project
         newReference.setProperty(Nepomuk::Vocabulary::PIMO::isRelated() , library()->pimoLibrary());
     }
+
     newReference.setProperty(Nepomuk::Vocabulary::NBIB::citeKey(), i18n("new reference"));
 
     setResource(newReference);
@@ -219,12 +221,19 @@ void ReferenceWidget::newButtonClicked()
 
 void ReferenceWidget::deleteButtonClicked()
 {
+    Nepomuk::Resource publication = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+
     m_reference.remove();
-    showCreateReference(true);
+
+    setResource(m_reference);
+    emit resourceUpdated(publication);
 }
 
 void ReferenceWidget::changeRating(int newRating)
 {
-    Nepomuk::Resource pub = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-    pub.setRating(newRating);
+    Nepomuk::Resource publication = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+    publication.setRating(newRating);
+
+    emit resourceUpdated(m_reference);
+    emit resourceUpdated(publication);
 }

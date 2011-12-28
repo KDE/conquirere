@@ -19,7 +19,6 @@
 #define SERIESWIDGET_H
 
 #include "sidebarcomponent.h"
-#include "globals.h"
 
 #include <Nepomuk/Resource>
 
@@ -30,6 +29,10 @@ namespace Ui {
 /**
   * @brief Widget to manipulate the @c nbib:Series which contain many other @c nbib:Publication
   *
+  * Here new @c nbib:Series can be created and connected to other publication via @c nbib:inSeries and @c nbib:seriesOf
+  *
+  * For each series only the @c nie:title, nbib:issn, the rating will be altered directly in this widget.
+  * The lublication list is handled by the @c ListPartsWidget
   */
 class SeriesWidget : public SidebarComponent
 {
@@ -45,6 +48,8 @@ public:
 public slots:
     /**
       * called when something is selected in the project view
+      *
+      * @pre @p resource musst be of type @c nbib:Series
       */
     void setResource(Nepomuk::Resource & resource);
 
@@ -55,10 +60,28 @@ signals:
     void resourceChanged(Nepomuk::Resource & resource);
 
 private slots:
+    /**
+      * Change the @c type of the resource to the selected new type
+      *
+      * Also adjust all publication to the proper selection.
+      * For example if the Series was a @c Journal and the publication a @c JournalIssue collection with several @c Article
+      * and we change the series to be a @c Newspapger also the connected collection will be changed to a @c NewspaperIssue
+      */
     void newSeriesTypeSelected(int index);
+
+    /**
+      * Creates a new @c nbib:Series resource with a default @c nie:title
+      */
     void newButtonClicked();
+
+    /**
+      * Deletes the series and removes it from all connected publications
+      */
     void deleteButtonClicked();
 
+    /**
+      * Updates the rating of the Series to @p newRating
+      */
     void changeRating(int newRating);
 
 private:

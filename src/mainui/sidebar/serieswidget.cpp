@@ -17,19 +17,15 @@
 
 #include "serieswidget.h"
 #include "ui_serieswidget.h"
-#include "../core/library.h"
 
-#include "propertywidgets/stringedit.h"
-#include "publicationwidget.h"
+#include "globals.h"
+#include "core/library.h"
+
 #include "listpartswidget.h"
 
 #include "nbib.h"
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/NIE>
-
-#include <KDE/KDialog>
-
-#include <QtCore/QDebug>
 
 SeriesWidget::SeriesWidget(QWidget *parent)
     : SidebarComponent(parent)
@@ -38,6 +34,7 @@ SeriesWidget::SeriesWidget(QWidget *parent)
     ui->setupUi(this);
 
     setupWidget();
+    setEnabled(false);
 }
 
 SeriesWidget::~SeriesWidget()
@@ -62,14 +59,10 @@ void SeriesWidget::setResource(Nepomuk::Resource & resource)
 
     //check if the resource is a valid series
     if(!m_series.isValid()) {
-        ui->editIssn->setEnabled(false);
-        ui->editTitle->setEnabled(false);
-        ui->editType->setEnabled(false);
+        setEnabled(false);
     }
     else {
-        ui->editIssn->setEnabled(true);
-        ui->editTitle->setEnabled(true);
-        ui->editType->setEnabled(true);
+        setEnabled(true);
     }
 
     emit resourceChanged(m_series);
@@ -149,23 +142,25 @@ void SeriesWidget::newSeriesTypeSelected(int index)
             }
         }
     }
+
+    emit resourceUpdated(m_series);
 }
 
 void SeriesWidget::newButtonClicked()
 {
     //create a new resource
-    Nepomuk::Resource nb = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Publication());
-    QList<QUrl> types;
-    types.append(Nepomuk::Vocabulary::NBIB::Publication());
-    nb.setTypes(types);
+    Nepomuk::Resource newSeriesResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Series());
 
-    setResource(nb);
+    newSeriesResource.setProperty(Nepomuk::Vocabulary::NIE::title(), i18n("New Series"));
+
+    setResource(newSeriesResource);
 }
 
 void SeriesWidget::deleteButtonClicked()
 {
     QList<Nepomuk::Resource> list = m_series.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
 
+    // remove backlinks for all connected publications
     foreach(Nepomuk::Resource r, list) { // krazy:exclude=foreach
         r.removeProperty(Nepomuk::Vocabulary::NBIB::inSeries(), m_series);
     }

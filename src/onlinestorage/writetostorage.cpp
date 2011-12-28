@@ -22,6 +22,7 @@
 
 WriteToStorage::WriteToStorage(QObject *parent)
     : QObject(parent)
+    , m_psd(ProviderSyncDetails())
     , m_adoptBibtexTypes(true)
     , m_requestType(Items)
 {

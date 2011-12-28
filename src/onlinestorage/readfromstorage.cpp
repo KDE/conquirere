@@ -23,9 +23,13 @@
 
 ReadFromStorage::ReadFromStorage(QObject *parent)
     : QObject(parent)
+    , m_psd(ProviderSyncDetails())
+    , m_adoptBibtexTypes(true)
     , m_requestType(Items)
     , m_reply(0)
 {
+    m_psd.providerInfo = 0;
+
     qRegisterMetaType<CollectionInfo>("CollectionInfo");
     qRegisterMetaType<QList<CollectionInfo> >("QList<CollectionInfo>");
 }

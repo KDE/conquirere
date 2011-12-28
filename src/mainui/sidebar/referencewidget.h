@@ -38,8 +38,12 @@ public:
     void setLibrary(Library *p);
 
 public slots:
+    /**
+      * Sets the recource that will be altered here
+      *
+      * @pre @p resource must be of type @c nbib:Reference
+      */
     void setResource(Nepomuk::Resource & resource);
-    void showCreateReference(bool showIt);
 
     /**
       * Sends changes in the connected property widgets to the connected table model to update the cache

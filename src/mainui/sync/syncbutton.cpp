@@ -23,6 +23,7 @@
 
 SyncButton::SyncButton(QWidget *parent)
     : QWidget(parent)
+    , m_parent(0)
 {
 }
 

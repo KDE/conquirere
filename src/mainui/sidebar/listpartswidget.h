@@ -26,11 +26,11 @@ namespace Ui {
 }
 
 /**
-  * @brief This widget offers a simple wya to edit/add/remove parts of a resource
+  * @brief This widget offers a simple way to edit/add/remove/create parts of a resource
   *
   * This widget is used to manipulate @c nbib:chapter of books and articles, the @c nbib:article from collections
   * such as proceedings or journal issues and the @c nbib:inSeriesOf to connect a series with its content
-  * like a journal series with its single issues or a book sereis with all books
+  * like a journal series with its single issues or a book sereis with all books.
   */
 class ListPartsWidget : public QWidget
 {
@@ -40,7 +40,7 @@ public:
     /**
       * Reflects what kind of reource is being manipulated
       *
-      * Will be set in setResource() and defines what function will be called for the edit, add, remove action
+      * Will be set in setResource() and defines what function will be called for the edit, add, remove create action
       */
     enum PartType {
         Chapter,
@@ -68,6 +68,8 @@ signals:
     /**
       * This signal gets thrown when the resource was changed and must be updated in the table model cache
       * redirects the signal from all propertywidgets
+      *
+      * Must be connected to the resourceUpdated signal from the widget it is contained in
       *
       * @todo This should be replaced by the Nepomuk::ResourceWatcher later
       */

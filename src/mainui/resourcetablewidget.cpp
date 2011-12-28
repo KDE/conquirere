@@ -168,6 +168,7 @@ void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType f
 
 //    hv->setResizeMode(QHeaderView::Interactive);
     hv->setResizeMode(QHeaderView::ResizeToContents);
+    m_documentView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     connect(m_documentView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(selectedResource(QItemSelection,QItemSelection)));

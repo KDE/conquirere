@@ -29,7 +29,7 @@ namespace Ui {
 /**
   * @brief Small dialog to add details to a new or existing chapter
   *
-  * Allows to add the @c nbib:number, @ nbib:title, @c nbib:author, @c nbib:pageStart and @c nbib:pageEnd
+  * Allows to add the @c nbib:number, @ nie:title, @c nbib:author, @c nbib:pageStart and @c nbib:pageEnd
   */
 class AddChapterDialog : public QDialog
 {
@@ -49,7 +49,7 @@ public:
     void setResource(Nepomuk::Resource resource);
 
     /**
-      * sets the publication where the new chapter should be aded to
+      * Sets the publication where the new chapter should be aded to
       *
       * @pre valid @c nbib:Publication resource
       */

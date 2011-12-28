@@ -82,7 +82,7 @@ void NewProjectWizard::done(int result)
                                      path);
 
         foreach(const ProviderSyncDetails& psd, sp->m_psdList) {
-            NBibSync *syncProvider;
+            NBibSync *syncProvider = 0;
             if(psd.providerInfo->providerId() == QLatin1String("zotero"))
                 syncProvider= new SyncZoteroNepomuk;
             else {
