@@ -218,10 +218,12 @@ Element *ReadFromZotero::readItemEntry(QXmlStreamReader &xmlReader)
         bool startelement = xmlReader.readNextStartElement();
 
         if(startelement && xmlReader.name() == QLatin1String("key")) {
-            PlainText *zKey = new PlainText(xmlReader.readElementText());
+            QString key = xmlReader.readElementText();
+            PlainText *zKey = new PlainText(key);
             Value zkValue;
             zkValue.append(QSharedPointer<ValueItem>(zKey));
             e->insert(QLatin1String("zoteroKey"), zkValue);
+            e->setId(key);
         }
         else if(startelement && xmlReader.name() == QLatin1String("numChildren")) {
             QString zoteroChildren = xmlReader.readElementText();

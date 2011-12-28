@@ -40,6 +40,9 @@ SyncStorageUi::SyncStorageUi(QWidget *parent)
 {
     ui->setupUi(this);
 
+    connect(ui->cancelCloseButton, SIGNAL(clicked()), this, SLOT(cancelClose()));
+    connect(ui->startSync, SIGNAL(clicked()), this, SLOT(startSync()));
+
     syncStatus(false);
 }
 
@@ -54,19 +57,26 @@ void SyncStorageUi::setBibTeXFile(File *fileToSync)
 
     // fill out the formular with previous sync info
     QString providerId;
-    QString userName;
-    QString url;
+
+    ProviderSyncDetails psd;
 
     foreach(Element *e, *m_fileToSync) {
         Comment *c = dynamic_cast<Comment *>(e);
         if(c && c->text().startsWith(QLatin1String("x-syncprovider="))){
-            providerId = c->text().remove(QLatin1String("x-syncprovider="));
-        }
-        if(c && c->text().startsWith(QLatin1String("x-syncusername="))){
-            userName = c->text().remove(QLatin1String("x-syncusername="));
-        }
-        if(c && c->text().startsWith(QLatin1String("x-syncurl="))){
-            url = c->text().remove(QLatin1String("x-syncurl="));
+            QString providerSettings = c->text().remove(QLatin1String("x-syncprovider="));
+            QStringList psdList = providerSettings.split(QLatin1String("|"));
+            if(!psdList.isEmpty()) {
+                providerId = psdList.takeFirst();
+            }
+            if(!psdList.isEmpty()) {
+                psd.userName = psdList.takeFirst();
+            }
+            if(!psdList.isEmpty()) {
+                psd.url = psdList.takeFirst();
+            }
+            if(!psdList.isEmpty()) {
+                psd.collection = psdList.takeFirst();
+            }
         }
     }
 
@@ -75,10 +85,7 @@ void SyncStorageUi::setBibTeXFile(File *fileToSync)
     if(!si)
         return;
 
-    ProviderSyncDetails psd;
     psd.providerInfo = si;
-    psd.userName = userName;
-    psd.url = url;
 
     ui->providerSettings->setProviderSettingsDetails(psd);
 }
@@ -88,6 +95,11 @@ void SyncStorageUi::startSync()
     ProviderSyncDetails psd = ui->providerSettings->providerSettingsDetails();
 
     SyncStorage *syncStorage = psd.providerInfo->syncHandle();
+
+    connect(syncStorage, SIGNAL(syncInProgress(bool)), this, SLOT(syncStatus(bool)));
+    connect(syncStorage, SIGNAL(progress(int)), ui->progressBar, SLOT(setValue(int)));
+
+
     syncStorage->setProviderSettings(psd);
     syncStorage->setAdoptBibtexTypes(true);
     syncStorage->syncWithStorage(m_fileToSync, psd.collection);
@@ -114,8 +126,6 @@ void SyncStorageUi::syncStatus(bool inProgress)
             QString providerId = psd.providerInfo->providerId();
 
             bool foundProvider = false;
-            bool foundUsername = false;
-            bool foundUrl = false;
             // find the right comment
             foreach(Element *e, *m_fileToSync) {
                 Comment *c = dynamic_cast<Comment *>(e);
@@ -123,20 +133,12 @@ void SyncStorageUi::syncStatus(bool inProgress)
                     foundProvider = true;
                     QString sp = QLatin1String("x-syncprovider=");
                     sp.append(providerId);
-                    c->setText(sp);
-                    c->setUseCommand(true);
-                }
-                else if(c && c->text().startsWith(QLatin1String("x-syncusername="))){
-                    foundUsername = true;
-                    QString sp = QLatin1String("x-syncusername=");
+                    sp.append(QLatin1String("|"));
                     sp.append(psd.userName);
-                    c->setText(sp);
-                    c->setUseCommand(true);
-                }
-                else if(c && c->text().startsWith(QLatin1String("x-syncurl="))){
-                    foundUrl = true;
-                    QString sp = QLatin1String("x-syncurl=");
+                    sp.append(QLatin1String("|"));
                     sp.append(psd.url);
+                    sp.append(QLatin1String("|"));
+                    sp.append(psd.collection);
                     c->setText(sp);
                     c->setUseCommand(true);
                 }
@@ -144,18 +146,12 @@ void SyncStorageUi::syncStatus(bool inProgress)
             if(!foundProvider) {
                 QString sp = QLatin1String("x-syncprovider=");
                 sp.append(providerId);
-                Comment *c =new Comment(sp, true);
-                m_fileToSync->prepend(c);
-            }
-            if(!foundUsername) {
-                QString sp = QLatin1String("x-syncusername=");
+                sp.append(QLatin1String("|"));
                 sp.append(psd.userName);
-                Comment *c =new Comment(sp, true);
-                m_fileToSync->prepend(c);
-            }
-            if(!foundUrl) {
-                QString sp = QLatin1String("x-syncurl=%1");
+                sp.append(QLatin1String("|"));
                 sp.append(psd.url);
+                sp.append(QLatin1String("|"));
+                sp.append(psd.collection);
                 Comment *c =new Comment(sp, true);
                 m_fileToSync->prepend(c);
             }
@@ -166,6 +162,12 @@ void SyncStorageUi::syncStatus(bool inProgress)
 void SyncStorageUi::cancelSync()
 {
     // TODO cancel the actual sync progress
+    ProviderSyncDetails psd = ui->providerSettings->providerSettingsDetails();
+
+    SyncStorage *syncStorage = psd.providerInfo->syncHandle();
+
+    disconnect(syncStorage, SIGNAL(syncInProgress(bool)), this, SLOT(syncStatus(bool)));
+    disconnect(syncStorage, SIGNAL(progress(int)), ui->progressBar, SLOT(setValue(int)));
 
     syncStatus(false);
 }

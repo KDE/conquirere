@@ -106,6 +106,7 @@ void SyncZotero::readSync(File serverFiles)
             }
         }
 
+        // ne element with the zotero key exist, this is a new element we want to add
         if(addEntry) {
             m_systemFiles->append(element);
         }
@@ -135,6 +136,7 @@ void SyncZotero::readSync(File serverFiles)
             foreach(Element* e, toBeDeleted) {
                 m_systemFiles->removeAll(e);
                 delete e;
+                e = 0;
             }
         }
         else {
@@ -153,6 +155,7 @@ void SyncZotero::readSync(File serverFiles)
         foreach(Element* e, toBeDeleted) {
             m_systemFiles->removeAll(e);
             delete e;
+            e = 0;
         }
     }
 
@@ -182,11 +185,11 @@ void SyncZotero::readSync(File serverFiles)
         // or the newest entry
 
 
-        KDialog dlg;
-        MergeWidget mw(m_systemFiles, cliques, &dlg);
-        dlg.setMainWidget(&mw);
+//        KDialog dlg;
+//        MergeWidget mw(m_systemFiles, cliques, &dlg);
+//        dlg.setMainWidget(&mw);
 
-        dlg.exec();
+//        dlg.exec();
 
         MergeDuplicates md(0);
         md.mergeDuplicateEntries(cliques, m_systemFiles);
@@ -224,7 +227,7 @@ void SyncZotero::writeSync(File serverFiles)
     // all keys from zotero must be found in the local file
     // expect the zoteroSyncKeys
 
-    // kbibtexy FindDuplicates doesn't seem do detect 100% exact results even with low sensitivity function
+    // kbibtex FindDuplicates doesn't seem do detect 100% exact results even with low sensitivity function
 
     foreach(Element* serverElement, serverFiles) {
         Entry *serverEntry = dynamic_cast<Entry *>(serverElement);
@@ -232,6 +235,11 @@ void SyncZotero::writeSync(File serverFiles)
         // check the entry against each entry in the m_systemFiles
         foreach(Element* systemElement, *m_systemFiles) {
             Entry *systemEntry = dynamic_cast<Entry *>(systemElement);
+            if(!systemEntry)
+                continue;
+
+            if(systemEntry->contains(QLatin1String("zoteroKey")))
+                continue;
 
             bool foundEntry = true;
             // now check each key of the serverEntry against each key from the systemEntry
@@ -247,19 +255,15 @@ void SyncZotero::writeSync(File serverFiles)
                     continue;
                 }
 
-                qDebug() << "check" << i.key();
-
                 // otherwise check if the value is in the systemEntry
                 Value systemValue = systemEntry->value(i.key());
                 if(PlainTextValue::text(i.value()) != PlainTextValue::text(systemValue)) {
-                    qDebug() << "serverEntry != systemEntry for " << i.key() << PlainTextValue::text(i.value()) << PlainTextValue::text(systemValue);
                     foundEntry = false;
                     break;
                 }
             }
 
             if(foundEntry) {
-                qDebug() << "found exact duplicate, check next";
                 // ok we manage to compare all keys of serverElement with a systemEntry and found the 100% duplicate
                 // add the zotero sync detail to it and check the next serverEntry
                 systemEntry->insert( QLatin1String("zoterokey"), serverEntry->value(QLatin1String("zoterokey")) );
