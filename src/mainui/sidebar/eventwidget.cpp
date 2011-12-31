@@ -18,7 +18,7 @@
 #include "eventwidget.h"
 #include "ui_eventwidget.h"
 
-#include "../core/library.h"
+#include "core/library.h"
 
 #include <Nepomuk/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
@@ -81,6 +81,8 @@ void EventWidget::setLibrary(Library *p)
     //TODO remove and use ResourceWatcher later on
     connect(ui->editTags, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
     connect(ui->editName, SIGNAL(textChanged(QString)), this, SLOT(subResourceUpdated()));
+    connect(ui->editAttendee, SIGNAL(textChanged(QString)), this, SLOT(subResourceUpdated()));
+    connect(ui->editPlace, SIGNAL(textChanged(QString)), this, SLOT(subResourceUpdated()));
     connect(this, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
 }
 
@@ -95,6 +97,14 @@ void EventWidget::newButtonClicked()
 
 void EventWidget::deleteButtonClicked()
 {
+    QList<Nepomuk::Resource> pubList = m_event.property(Nepomuk::Vocabulary::NBIB::eventPublication()).toResourceList();
+
+    foreach(Nepomuk::Resource r, pubList) {
+        r.removeProperty(Nepomuk::Vocabulary::NBIB::event(), m_event);
+
+        emit resourceUpdated(r);
+    }
+
     m_event.remove();
     setResource(m_event);
 }

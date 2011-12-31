@@ -18,7 +18,7 @@
 #include "notewidget.h"
 #include "ui_notewidget.h"
 
-#include "../core/library.h"
+#include "core/library.h"
 
 #include <Nepomuk/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>

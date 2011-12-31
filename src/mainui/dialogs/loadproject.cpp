@@ -18,7 +18,7 @@
 #include "loadproject.h"
 #include "ui_loadproject.h"
 
-#include "../../core/library.h"
+#include "core/library.h"
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Variant>
@@ -71,7 +71,13 @@ void LoadProject::showCollection(int currentRow)
         Nepomuk::Resource collection = Nepomuk::Resource(item->data(Qt::UserRole).toString());
 
         ui->labelName->setText(collection.property(Nepomuk::Vocabulary::NIE::title()).toString());
-        ui->labelDescription->setText(collection.property(Soprano::Vocabulary::NAO::description()).toString());
+
+        QString description = collection.property(Soprano::Vocabulary::NAO::description()).toString();
+        if(description.isEmpty()) {
+            description = i18n("no description available");
+        }
+
+        ui->labelDescription->setText(description);
     }
 }
 

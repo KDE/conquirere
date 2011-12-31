@@ -15,9 +15,9 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="mergeInfoLabel">
      <property name="text">
-      <string>You have selected 3 different resources.</string>
+      <string/>
      </property>
     </widget>
    </item>

@@ -40,6 +40,7 @@ MergeResourcesWidget::~MergeResourcesWidget()
 
 void MergeResourcesWidget::setResources(QList<Nepomuk::Resource> resourcelist)
 {
+    ui->mergeInfoLabel->setText(i18n("You have selected %1 different resources.", resourcelist.size())); //TODO plural translation
     m_resourceList = resourcelist;
 }
 

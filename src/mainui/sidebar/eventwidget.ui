@@ -50,7 +50,11 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="KDateTimeWidget" name="editStartTime"/>
+         <widget class="KDateTimeWidget" name="editStartTime">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
         <item row="3" column="0">
          <widget class="QLabel" name="label_4">
@@ -60,7 +64,11 @@
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="KDateTimeWidget" name="editEndTime"/>
+         <widget class="KDateTimeWidget" name="editEndTime">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
         </item>
         <item row="4" column="0">
          <widget class="QLabel" name="label_6">
@@ -70,7 +78,7 @@
          </widget>
         </item>
         <item row="4" column="1">
-         <widget class="TagEdit" name="editAttendee"/>
+         <widget class="ContactEdit" name="editAttendee"/>
         </item>
         <item row="5" column="0">
          <widget class="QLabel" name="label_7">
@@ -127,14 +135,6 @@
    <header>kratingwidget.h</header>
   </customwidget>
   <customwidget>
-   <class>TagEdit</class>
-   <extends>QLineEdit</extends>
-   <header>propertywidgets/tagedit.h</header>
-   <slots>
-    <signal>widgetEnabled(bool)</signal>
-   </slots>
-  </customwidget>
-  <customwidget>
    <class>StringEdit</class>
    <extends>QLineEdit</extends>
    <header>propertywidgets/stringedit.h</header>
@@ -147,6 +147,19 @@
    <extends>QWidget</extends>
    <header>sidebar/listpartswidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TagEdit</class>
+   <extends>QLineEdit</extends>
+   <header>propertywidgets/tagedit.h</header>
+   <slots>
+    <signal>widgetEnabled(bool)</signal>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>ContactEdit</class>
+   <extends>QLineEdit</extends>
+   <header>propertywidgets/contactedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

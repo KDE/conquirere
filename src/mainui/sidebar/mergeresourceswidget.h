@@ -35,6 +35,9 @@ public:
     explicit MergeResourcesWidget(QWidget *parent = 0);
     virtual ~MergeResourcesWidget();
 
+    /**
+      * Set all selected respources
+      */
     void setResources(QList<Nepomuk::Resource> resourcelist);
 
 private slots:

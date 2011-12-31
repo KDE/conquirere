@@ -48,12 +48,14 @@ signals:
 
 private slots:
     /**
-      * creates a new @c pimo:Note
+      * creates a new @c pimo:Event
       */
     void newButtonClicked();
 
     /**
-      * deletes the current @c pimo:Note
+      * Deletes the current @c pimo:Event
+      *
+      * Also takes care of all publication backlinks that are set via nbib:event
       */
     void deleteButtonClicked();
 

@@ -19,7 +19,6 @@
 #define PUBLICATIONWIDGET_H
 
 #include "sidebarcomponent.h"
-#include "../globals.h"
 
 #include <Nepomuk/Resource>
 

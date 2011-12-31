@@ -18,6 +18,8 @@
 #include "publicationwidget.h"
 #include "ui_publicationwidget.h"
 
+#include "globals.h"
+
 #include "propertywidgets/stringedit.h"
 #include "propertywidgets/contactedit.h"
 #include "propertywidgets/fileobjectedit.h"

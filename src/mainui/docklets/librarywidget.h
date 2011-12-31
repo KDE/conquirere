@@ -18,7 +18,7 @@
 #ifndef LIBRARYWIDGET_H
 #define LIBRARYWIDGET_H
 
-#include "../../globals.h"
+#include "globals.h"
 
 #include <QtGui/QDockWidget>
 #include <QtCore/QList>
