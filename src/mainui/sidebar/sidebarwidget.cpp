@@ -90,7 +90,6 @@ SidebarWidget::SidebarWidget(QWidget *parent)
     ui->addReference->setVisible(false);
     ui->removeReference->setVisible(false);
 
-
     ui->findPdf->setIcon(KIcon(QLatin1String("application-pdf")));
     ui->findPdf->setEnabled(false);
     ui->findPdf->setVisible(false);
@@ -130,7 +129,6 @@ void SidebarWidget::setResource(Nepomuk::Resource & resource)
         }
     }
 }
-
 
 void SidebarWidget::setMultipleResources(QList<Nepomuk::Resource> resourcelist)
 {
@@ -433,9 +431,11 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
     }
 
     // remove old widget
+    disconnect(m_currentWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     m_stackedLayout->removeWidget(m_currentWidget);
     delete m_currentWidget;
     m_currentWidget = newWidget;
+    connect(m_currentWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 }
 
 void SidebarWidget::clear()

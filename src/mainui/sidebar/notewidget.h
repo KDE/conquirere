@@ -37,16 +37,12 @@ public:
     explicit NoteWidget(QWidget *parent = 0);
     ~NoteWidget();
 
-    void setLibrary(Library *p);
-
 public slots:
-    virtual void setResource(Nepomuk::Resource & resource);
+    void setResource(Nepomuk::Resource & resource);
 
 signals:
     /**
-      * Sends changes in the connected property widgets to the connected table model to update the cache
-      *
-      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      * notify connected editwidgets to update their info
       */
     void resourceChanged(Nepomuk::Resource resource);
 

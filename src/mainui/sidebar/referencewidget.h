@@ -19,6 +19,7 @@
 #define REFERENCEWIDGET_H
 
 #include "sidebarcomponent.h"
+
 #include <Nepomuk/Resource>
 
 namespace Ui {
@@ -35,8 +36,6 @@ class ReferenceWidget : public SidebarComponent
 public:
     explicit ReferenceWidget(QWidget *parent = 0);
 
-    void setLibrary(Library *p);
-
 public slots:
     /**
       * Sets the recource that will be altered here
@@ -48,6 +47,7 @@ public slots:
     /**
       * Sends changes in the connected property widgets to the connected table model to update the cache
       *
+      * Send updates for the reference and the publication object
       * @todo This should be replaced by the Nepomuk::ResourceWatcher later
       */
     void subResourceUpdated();
@@ -63,7 +63,7 @@ private slots:
     void showChapterList();
 
     /**
-      * enables/disables the widgets is a valid publication is set or not
+      * enables/disables the widgets if a valid publication is set or not
       */
     void enableReferenceDetails();
     void newButtonClicked();

@@ -51,7 +51,9 @@ public slots:
     void subResourceUpdated(Nepomuk::Resource resource);
 
 signals:
-    /* notify connected editwidgets to update their info */
+    /**
+      * notify connected editwidgets to update their info
+      */
     void resourceChanged(Nepomuk::Resource & resource);
 
     void hasReference(bool reference);

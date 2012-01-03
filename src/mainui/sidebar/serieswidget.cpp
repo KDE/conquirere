@@ -42,17 +42,6 @@ SeriesWidget::~SeriesWidget()
     delete ui;
 }
 
-void SeriesWidget::setLibrary(Library *p)
-{
-    SidebarComponent::setLibrary(p);
-
-    //TODO remove and use ResourceWatcher later on
-    connect(ui->editIssn, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
-    connect(ui->editTitle, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
-
-    connect(this, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
-}
-
 void SeriesWidget::setResource(Nepomuk::Resource & resource)
 {
     m_series = resource;
@@ -73,6 +62,9 @@ void SeriesWidget::setResource(Nepomuk::Resource & resource)
     ui->editType->setCurrentIndex(index);
 
     ui->listPartWidget->setResource(m_series);
+
+    // set rating
+    ui->editRating->setRating(m_series.rating());
 }
 
 void SeriesWidget::newSeriesTypeSelected(int index)
@@ -82,7 +74,7 @@ void SeriesWidget::newSeriesTypeSelected(int index)
 
     // update resource
     QUrl newEntryUrl = SeriesTypeURL.at(entryType);
-    if(!m_series.hasType(newEntryUrl)) {
+     if(!m_series.hasType(newEntryUrl)) {
         // create the full hierarchy
         //DEBUG this seems wrong, but is currently the only way to preserve type hierarchy
         QList<QUrl>newtype;
@@ -141,9 +133,9 @@ void SeriesWidget::newSeriesTypeSelected(int index)
             }
             }
         }
-    }
 
-    emit resourceUpdated(m_series);
+        emit resourceCacheNeedsUpdate(m_series);
+    }
 }
 
 void SeriesWidget::newButtonClicked()
@@ -172,9 +164,10 @@ void SeriesWidget::deleteButtonClicked()
 
 void SeriesWidget::changeRating(int newRating)
 {
-    m_series.setRating(newRating);
-
-    emit resourceUpdated(m_series);
+    if(newRating != m_series.rating()) {
+        m_series.setRating(newRating);
+        emit resourceCacheNeedsUpdate(m_series);
+    }
 }
 
 void SeriesWidget::setupWidget()
@@ -194,5 +187,8 @@ void SeriesWidget::setupWidget()
 
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 
-    connect(ui->listPartWidget, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SIGNAL(resourceUpdated(Nepomuk::Resource)));
+    // TODO this part should be removed when the resourceWatcher is working correctly
+    connect(ui->listPartWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editIssn, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editTitle, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 }

@@ -189,7 +189,7 @@ void ListPartsWidget::editPart()
     }
 
     i->setText(showNewString);
-    emit resourceUpdated(m_resource);
+    emit resourceCacheNeedsUpdate(m_resource);
 }
 
 void ListPartsWidget::addPart()
@@ -244,7 +244,7 @@ void ListPartsWidget::removePart()
     }
     ui->listWidget->setCurrentRow(0);
 
-    emit resourceUpdated(m_resource);
+    emit resourceCacheNeedsUpdate(m_resource);
 
     if(ui->listWidget->count() == 0) {
         ui->editPart->setEnabled(false);
@@ -315,7 +315,7 @@ void ListPartsWidget::addChapter()
         i->setData(Qt::UserRole, chapter.resourceUri());
         ui->listWidget->addItem(i);
         ui->listWidget->setCurrentItem(i);
-        emit resourceUpdated(m_resource);
+        emit resourceCacheNeedsUpdate(m_resource);
     }
     else {
         chapter.remove();
@@ -389,7 +389,7 @@ void ListPartsWidget::addSeries()
         i->setText(showString);
         i->setData(Qt::UserRole, tempIssue.resourceUri());
         ui->listWidget->addItem(i);
-        emit resourceUpdated(m_resource);
+        emit resourceCacheNeedsUpdate(m_resource);
     }
     else {
         // remove temp issue again
@@ -453,7 +453,7 @@ void ListPartsWidget::addCollection()
         i->setText(showString);
         i->setData(Qt::UserRole, tempArticle.resourceUri());
         ui->listWidget->addItem(i);
-        emit resourceUpdated(m_resource);
+        emit resourceCacheNeedsUpdate(m_resource);
     }
     else {
         // remove temp issue again

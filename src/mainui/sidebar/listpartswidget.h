@@ -73,7 +73,7 @@ signals:
       *
       * @todo This should be replaced by the Nepomuk::ResourceWatcher later
       */
-    void resourceUpdated(Nepomuk::Resource resource);
+    void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
 
 private slots:
     /**

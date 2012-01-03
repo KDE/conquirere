@@ -148,6 +148,9 @@ void MainWindow::openLibrary(Library *l)
         m->startFetchData();
     }
 
+    //TODO remove this when the resourceWatcher is working lkater on
+    connect(m_sidebarWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), l, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+
     switchView(Resource_Library, Max_BibTypes, l);
 }
 
@@ -190,6 +193,8 @@ void MainWindow::closeLibrary()
     QWidget *w = m_libraryList.take(m_curLibrary);
     w->hide();
     w->deleteLater();
+
+    disconnect(m_sidebarWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), m_curLibrary, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
     delete m_curLibrary;
 

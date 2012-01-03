@@ -18,7 +18,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "../globals.h"
+#include "globals.h"
 
 #include <KParts/MainWindow>
 
@@ -67,7 +67,6 @@ public slots:
 
     void dbCheck();
     void dbBackup();
-
 
     // other helping slots
     void connectKPartGui(KParts::Part * part);

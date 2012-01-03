@@ -366,7 +366,7 @@ void PropertyEdit::editingFinished()
         updateResource(inputString);
         setLabelText(m_lineEdit->text());
 
-        emit resourceUpdated(resource());
+        emit resourceCacheNeedsUpdate(resource());
     }
 
     m_lineEdit->hide();

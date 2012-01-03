@@ -81,7 +81,7 @@ void NepomukModel::setLibrary(Library *library)
     m_library = library;
     m_queryClient->setLibrary(m_library);
 
-    connect(m_library, SIGNAL(resourceUpdated(Nepomuk::Resource)), m_queryClient, SLOT(resourceChanged(Nepomuk::Resource)));
+    connect(m_library, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), m_queryClient, SLOT(resourceChanged(Nepomuk::Resource)));
     m_queryClient->start();
 }
 

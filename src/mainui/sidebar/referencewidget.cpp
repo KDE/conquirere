@@ -67,6 +67,12 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     connect(ui->publicationEdit, SIGNAL(textChanged(QString)), this, SLOT(enableReferenceDetails()));
     connect(ui->publicationEdit, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showPublicationList(Nepomuk::Resource&,QUrl)));
     connect(ui->chapterEdit, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showChapterList()));
+
+    //TODO remove and use ResourceWatcher later on
+    connect(ui->chapterEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->citeKeyEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->pagesEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->publicationEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
 }
 
 void ReferenceWidget::setResource(Nepomuk::Resource & resource)
@@ -86,24 +92,12 @@ void ReferenceWidget::setResource(Nepomuk::Resource & resource)
     }
 }
 
-void ReferenceWidget::setLibrary(Library *p)
-{
-    SidebarComponent::setLibrary(p);
-
-    //TODO remove and use ResourceWatcher later on
-    connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(subResourceUpdated()));
-    connect(ui->chapterEdit, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->citeKeyEdit, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->pagesEdit, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->publicationEdit, SIGNAL(resourceUpdated(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
-    connect(this, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
-}
-
 void ReferenceWidget::subResourceUpdated()
 {
     Nepomuk::Resource publication = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-    emit resourceUpdated(m_reference);
-    emit resourceUpdated(publication);
+
+    emit resourceCacheNeedsUpdate(m_reference);
+    emit resourceCacheNeedsUpdate(publication);
 }
 
 void ReferenceWidget::showPublicationList(Nepomuk::Resource & resource, const QUrl & propertyUrl)
@@ -124,9 +118,7 @@ void ReferenceWidget::showPublicationList(Nepomuk::Resource & resource, const QU
         setResource(m_reference); // this updates the changes in the current widget again
 
         //update the cache
-        Nepomuk::Resource publication = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-        emit resourceUpdated(m_reference);
-        emit resourceUpdated(publication);
+        subResourceUpdated();
 
         return;
     }
@@ -150,9 +142,7 @@ void ReferenceWidget::showPublicationList(Nepomuk::Resource & resource, const QU
         setResource(m_reference); // this updates the changes in the current widget again
 
         //update the cache
-        Nepomuk::Resource publication = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-        emit resourceUpdated(m_reference);
-        emit resourceUpdated(publication);
+        subResourceUpdated();
     }
 }
 
@@ -183,7 +173,7 @@ void ReferenceWidget::showChapterList()
         m_reference.setProperty(Nepomuk::Vocabulary::NBIB::pages(), pages);
 
         setResource(m_reference);
-        emit resourceUpdated(m_reference);
+        emit resourceCacheNeedsUpdate(m_reference);
     }
 }
 
@@ -226,14 +216,15 @@ void ReferenceWidget::deleteButtonClicked()
     m_reference.remove();
 
     setResource(m_reference);
-    emit resourceUpdated(publication);
+    emit resourceCacheNeedsUpdate(publication);
 }
 
 void ReferenceWidget::changeRating(int newRating)
 {
     Nepomuk::Resource publication = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-    publication.setRating(newRating);
 
-    emit resourceUpdated(m_reference);
-    emit resourceUpdated(publication);
+    if(newRating != publication.rating()) {
+        publication.setRating(newRating);
+        subResourceUpdated();
+    }
 }

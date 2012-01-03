@@ -79,11 +79,11 @@ void EventWidget::setLibrary(Library *p)
     SidebarComponent::setLibrary(p);
 
     //TODO remove and use ResourceWatcher later on
-    connect(ui->editTags, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
+    connect(ui->editTags, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), p, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editName, SIGNAL(textChanged(QString)), this, SLOT(subResourceUpdated()));
     connect(ui->editAttendee, SIGNAL(textChanged(QString)), this, SLOT(subResourceUpdated()));
     connect(ui->editPlace, SIGNAL(textChanged(QString)), this, SLOT(subResourceUpdated()));
-    connect(this, SIGNAL(resourceUpdated(Nepomuk::Resource)), p, SIGNAL(resourceUpdated(Nepomuk::Resource)));
+    connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), p, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 }
 
 void EventWidget::newButtonClicked()
@@ -102,7 +102,7 @@ void EventWidget::deleteButtonClicked()
     foreach(Nepomuk::Resource r, pubList) {
         r.removeProperty(Nepomuk::Vocabulary::NBIB::event(), m_event);
 
-        emit resourceUpdated(r);
+        emit resourceCacheNeedsUpdate(r);
     }
 
     m_event.remove();
@@ -113,10 +113,10 @@ void EventWidget::changeRating(int newRating)
 {
     m_event.setRating(newRating);
 
-    emit resourceUpdated(m_event);
+    emit resourceCacheNeedsUpdate(m_event);
 }
 
 void EventWidget::subResourceUpdated()
 {
-    emit resourceUpdated(m_event);
+    emit resourceCacheNeedsUpdate(m_event);
 }

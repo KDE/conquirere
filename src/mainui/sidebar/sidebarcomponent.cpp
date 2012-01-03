@@ -17,7 +17,7 @@
 
 #include "sidebarcomponent.h"
 
-#include "../mainui/mainwindow.h"
+#include "mainui/mainwindow.h"
 
 SidebarComponent::SidebarComponent(QWidget *parent)
     : QWidget(parent)

@@ -18,7 +18,7 @@
 #ifndef SIDEBARWIDGET_H
 #define SIDEBARWIDGET_H
 
-#include "../globals.h"
+#include "globals.h"
 
 #include <Nepomuk/Resource>
 
@@ -117,6 +117,15 @@ public slots:
       * enable/disable the reference icons
       */
     void hasReference(bool reference);
+
+signals:
+    /**
+      * This signal gets thrown when the resource was changed and must be updated in the table model cache
+      * redirects the signal from all propertywidgets pf every SidbarComponent
+      *
+      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      */
+    void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
 
 private:
     Ui::DockWidget *ui;
