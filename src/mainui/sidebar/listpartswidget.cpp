@@ -268,6 +268,9 @@ void ListPartsWidget::deletePart()
     removePart();
 
     switch(m_partType) {
+    case Publication:
+        deletePublication(resourceToBeDeleted);
+        break;
     case Chapter:
         deleteChapter(resourceToBeDeleted);
         break;

@@ -143,7 +143,7 @@ void NepomukModel::saveCache()
             out << v.toString() << "|#|";
         }
         out << "\n";
-        out << cre.resource.uri() << "\n";
+        out << cre.resource.resourceUri().toString() << "\n";
     }
     file.close();
 }
@@ -196,7 +196,7 @@ void NepomukModel::addCacheData(const QList<CachedRowEntry> &entries)
         beginInsertRows(QModelIndex(), m_modelCacheData.size(), m_modelCacheData.size() + entries.size()-1);
         foreach(const CachedRowEntry &cre, entries) {
             m_modelCacheData.append(cre);
-            m_lookupCache.insert(cre.resource.uri(), m_modelCacheData.size()-1);
+            m_lookupCache.insert(cre.resource.resourceUri().toString(), m_modelCacheData.size()-1);
             emit resourceAdded(cre.resource);
         }
         endInsertRows();
@@ -243,7 +243,7 @@ void NepomukModel::updateCacheData(const QList<CachedRowEntry> &entries)
 {
     foreach(const CachedRowEntry &entry, entries) {
 
-        int pos = m_lookupCache.value(entry.resource.uri(), -1);
+        int pos = m_lookupCache.value(entry.resource.resourceUri().toString(), -1);
         if(pos < 0) {
             QList<CachedRowEntry> e;
             e << entry;

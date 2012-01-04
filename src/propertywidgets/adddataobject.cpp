@@ -126,7 +126,7 @@ void AddDataObject::addItem(const QString & text)
         dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), text);
     }
 
-    qDebug() << "add dataObject" << dataObject.uri() << dataObject.resourceUri();
+    qDebug() << "add dataObject" << dataObject.resourceUri();
     // connect new dataobject to resource
     m_resource.addProperty( Nepomuk::Vocabulary::NBIB::isPublicationOf(), dataObject);
     //and the backreference

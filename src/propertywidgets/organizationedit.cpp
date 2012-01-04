@@ -51,7 +51,7 @@ void OrganizationEdit::setupLabel()
 
     title = organization.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
 
-    addPropertryEntry(title, organization.uri());
+    addPropertryEntry(title, organization.resourceUri().toString());
 
     setLabelText(title);
 }
@@ -112,7 +112,7 @@ QStandardItemModel* OrganizationEdit::createCompletionModel( const QList< Nepomu
     foreach(const Nepomuk::Query::Result & r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NCO::fullname()).toString());
 
-        item->setData(r.resource().uri());
+        item->setData(r.resource().resourceUri().toString());
 
         parentItem->appendRow(item);
     }

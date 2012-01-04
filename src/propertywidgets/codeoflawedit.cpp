@@ -34,7 +34,7 @@ void CodeOfLawEdit::setupLabel()
 
     QString title = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
-    addPropertryEntry(title, publication.uri());
+    addPropertryEntry(title, publication.resourceUri().toString());
 
     setLabelText(title);
 }
@@ -90,7 +90,7 @@ QStandardItemModel* CodeOfLawEdit::createCompletionModel( const QList< Nepomuk::
     foreach(const Nepomuk::Query::Result & r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
 
-        item->setData(r.resource().uri());
+        item->setData(r.resource().resourceUri().toString());
 
         parentItem->appendRow(item);
     }

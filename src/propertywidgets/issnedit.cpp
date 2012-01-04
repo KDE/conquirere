@@ -45,7 +45,7 @@ void IssnEdit::setupLabel()
     //get the connected journal for the publication
     QString issn = series.property(Nepomuk::Vocabulary::NBIB::issn()).toString();
 
-    addPropertryEntry(issn, series.uri());
+    addPropertryEntry(issn, series.resourceUri().toString());
 
     setLabelText(issn);
 }
@@ -124,5 +124,7 @@ void IssnEdit::updateResource(const QString & text)
 
 QStandardItemModel* IssnEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
+    Q_UNUSED(entries);
+
     return new QStandardItemModel;
 }

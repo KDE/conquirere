@@ -168,9 +168,9 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
     Nepomuk::Resource nr(m_propertyUrl);
     Nepomuk::Resource range = nr.property(QUrl(QLatin1String("http://www.w3.org/2000/01/rdf-schema#range"))).toResource();
 
-    if(range.isValid() && !range.uri().isEmpty()) {
+    if(range.isValid() && !range.resourceUri().isEmpty()) {
         // get all resources of type range
-        Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( QUrl(range.uri()) ) );
+        Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( QUrl(range.resourceUri().toString()) ) );
         m_queryClient->query(query);
     }
     // if we can't use the range for the check
@@ -284,7 +284,7 @@ void PropertyEdit::updateCompleter()
         int pos = m_lineEdit->cursorPosition();
 
         int tempLength = 0;
-        int substringPos;
+        int substringPos = 0;
         // find the substring that is being manipulated
         foreach(const QString & s, entrylist) {
             tempLength += s.length();

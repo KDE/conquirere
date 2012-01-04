@@ -40,7 +40,7 @@ void TagEdit::setupLabel()
     foreach(const Nepomuk::Tag & t, tagList) {
         QString prefLabel = t.genericLabel();
         labelText.append(prefLabel);
-        addPropertryEntry(prefLabel, t.uri());
+        addPropertryEntry(prefLabel, t.resourceUri().toString());
 
         labelText.append(QLatin1String("; "));
     }
@@ -98,7 +98,7 @@ QStandardItemModel* TagEdit::createCompletionModel( const QList< Nepomuk::Query:
         // this helps to identify the selected entry even if the generic label has
         // the same result on two different items
         // also it is not necessary to ask nepomuk for the resource used later again
-        item->setData(r.resource().uri());
+        item->setData(r.resource().resourceUri().toString());
 
         parentItem->appendRow(item);
     }

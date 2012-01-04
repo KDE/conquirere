@@ -36,9 +36,9 @@
 
 WelcomeWidget::WelcomeWidget(Library *library, QWidget *parent)
     : QWidget(parent)
+    , ui(new Ui::WelcomeWidget)
     , m_library(library)
     , m_htmlPart(0)
-    , ui(new Ui::WelcomeWidget)
 {
     ui->setupUi(this);
     setupGui();

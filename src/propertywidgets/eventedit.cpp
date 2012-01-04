@@ -38,7 +38,7 @@ void EventEdit::setupLabel()
 
     title = event.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
-    addPropertryEntry(title, event.uri());
+    addPropertryEntry(title, event.resourceUri().toString());
 
     setLabelText(title);
 }
@@ -92,7 +92,7 @@ QStandardItemModel* EventEdit::createCompletionModel( const QList< Nepomuk::Quer
     foreach(const Nepomuk::Query::Result & r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
 
-        item->setData(r.resource().uri());
+        item->setData(r.resource().resourceUri().toString());
 
         parentItem->appendRow(item);
     }

@@ -322,7 +322,7 @@ void Library::createLibrary(const QString & name, const QString & description, c
     KConfigGroup libGroup( &libconfig, "Conquirere" );
     libGroup.writeEntry(QLatin1String("name"), name);
     libGroup.writeEntry(QLatin1String("description"), description);
-    libGroup.writeEntry(QLatin1String("pimoProject"), pimoLibrary.uri());
+    libGroup.writeEntry(QLatin1String("pimoProject"), pimoLibrary.resourceUri().toString());
     libGroup.writeEntry(QLatin1String("libraryDir"), path);
     libconfig.sync();
 
@@ -386,7 +386,7 @@ void Library::loadLibrary(const QString & projectFile)
         QString mergeStrategy = providerGroup.readEntry(QLatin1String("mergeStrategy"), QString());
         providerSyncDetails->setMergeStrategy( MergeStrategy (mergeStrategy.toInt()) );
         QString askBeforeDeletion = providerGroup.readEntry(QLatin1String("askBeforeDeletion"), QString());
-        if(askBeforeDeletion == false)
+        if(askBeforeDeletion == QLatin1String("false"))
             providerSyncDetails->setAskBeforeDeletion(false);
         else
             providerSyncDetails->setAskBeforeDeletion(true);

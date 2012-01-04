@@ -53,17 +53,17 @@ void FileObjectEdit::setupLabel()
     foreach(const Nepomuk::Resource & nr, dataObjectList) {
         QString url = nr.property(Nepomuk::Vocabulary::NIE::url()).toString();
 
-        if(m_mode == Local && nr.type() == Nepomuk::Vocabulary::NFO::FileDataObject().toString()) { //nr.hasType(Nepomuk::Vocabulary::NFO::FileDataObject())) {
+        if(m_mode == Local && nr.resourceType() == Nepomuk::Vocabulary::NFO::FileDataObject()) { //nr.hasType(Nepomuk::Vocabulary::NFO::FileDataObject())) {
             dataStringList.append(url);
             dataStringList.append(QLatin1String("; "));
             continue;
         }
-        else if(m_mode == Remote && nr.type() == Nepomuk::Vocabulary::NFO::RemoteDataObject().toString()) { //nr.hasType(Nepomuk::Vocabulary::NFO::RemoteDataObject())) {
+        else if(m_mode == Remote && nr.resourceType() == Nepomuk::Vocabulary::NFO::RemoteDataObject()) { //nr.hasType(Nepomuk::Vocabulary::NFO::RemoteDataObject())) {
             dataStringList.append(url);
             dataStringList.append(QLatin1String("; "));
             continue;
         }
-        else if(m_mode == Website && nr.type() == Nepomuk::Vocabulary::NFO::Website().toString()) { //nr.hasType(Nepomuk::Vocabulary::NFO::Website())) {
+        else if(m_mode == Website && nr.resourceType() == Nepomuk::Vocabulary::NFO::Website()) { //nr.hasType(Nepomuk::Vocabulary::NFO::Website())) {
             dataStringList.append(url);
             dataStringList.append(QLatin1String("; "));
             continue;
@@ -77,11 +77,15 @@ void FileObjectEdit::setupLabel()
 
 void FileObjectEdit::updateResource(const QString & text)
 {
+    Q_UNUSED(text);
+
     // is done externally via AddDataObject
 }
 
 QStandardItemModel* FileObjectEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
+    Q_UNUSED(entries);
+
     // for the local object it might make sense to add auto completion
     // but for the moment it will be omitted
 

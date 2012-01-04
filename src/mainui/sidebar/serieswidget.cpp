@@ -89,6 +89,9 @@ void SeriesWidget::newSeriesTypeSelected(int index)
         case SeriesType_Newspaper:
             newtype.append(Nepomuk::Vocabulary::NBIB::Series());
             break;
+        case SeriesType_Series:
+        case Max_SeriesTypes:
+            break;
         }
 
         if(m_series.isValid()) {
@@ -102,6 +105,7 @@ void SeriesWidget::newSeriesTypeSelected(int index)
         foreach(Nepomuk::Resource r, collectionResource) { // krazy:exclude=foreach
             switch(entryType) {
             case SeriesType_Series:
+            case Max_SeriesTypes:
                 // don't change anything
                 break;
             case SeriesType_BookSeries:

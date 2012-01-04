@@ -89,6 +89,8 @@ void DateEdit::updateResource(const QString & text)
 
 QStandardItemModel *DateEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
+    Q_UNUSED(entries);
+
     return 0;
 }
 

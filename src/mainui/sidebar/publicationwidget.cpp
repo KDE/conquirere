@@ -186,6 +186,9 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
         case BibType_Phdthesis:
             newtype.append(Nepomuk::Vocabulary::NBIB::Thesis());
             break;
+        case BibType_Techreport:
+            newtype.append(Nepomuk::Vocabulary::NBIB::Report());
+            break;
         case BibType_BlogPost:
         case BibType_ForumPost:
         case BibType_WebPage:
@@ -200,6 +203,23 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
         case BibType_Brief:
             newtype.append(Nepomuk::Vocabulary::NBIB::LegalCaseDocument());
             newtype.append(Nepomuk::Vocabulary::NBIB::LegalDocument());
+            break;
+            //ignore the following cases, as they are a direct subtype of nbib:publication and as such no need to add
+            // another hirachry entry is necessary
+        case BibType_Article:
+        case BibType_Book:
+        case BibType_Booklet:
+        case BibType_Collection:
+        case BibType_Thesis:
+        case BibType_Report:
+        case BibType_Electronic:
+        case BibType_Script:
+        case BibType_Misc:
+        case BibType_Standard:
+        case BibType_Patent:
+        case BibType_Legislation:
+        case BibType_LegalCaseDocument:
+        case Max_BibTypes:
             break;
         }
 
@@ -267,7 +287,7 @@ void PublicationWidget::deleteButtonClicked()
 
 void PublicationWidget::subResourceUpdated(Nepomuk::Resource resource)
 {
-    if(resource.uri() != m_publication.uri())
+    if(resource.resourceUri() != m_publication.resourceUri())
         emit resourceCacheNeedsUpdate(resource);
 
     emit resourceCacheNeedsUpdate(m_publication);
@@ -707,6 +727,8 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
     case BibType_Brief:
         layoutMisc();
         qWarning() << "BibType_Brief no layout available, what is necessary?";
+        break;
+    case Max_BibTypes:
         break;
     }
 }

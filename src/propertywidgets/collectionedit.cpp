@@ -52,10 +52,10 @@ void CollectionEdit::setupLabel()
             title = seriesResource.property(Nepomuk::Vocabulary::NIE::title()).toString();
         }
 
-        addPropertryEntry(title, collectionResource.uri());
+        addPropertryEntry(title, collectionResource.resourceUri().toString());
 
-        m_collectionType = collectionResource.type(); // saves which subclass of collection is used
-        m_seriesType = seriesResource.type(); // saves which subclass of series is used
+        m_collectionType = collectionResource.resourceType(); // saves which subclass of collection is used
+        m_seriesType = seriesResource.resourceType(); // saves which subclass of series is used
     }
 
     setLabelText(title);
@@ -134,7 +134,7 @@ QStandardItemModel* CollectionEdit::createCompletionModel( const QList< Nepomuk:
     foreach(const Nepomuk::Query::Result & r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
 
-        item->setData(r.resource().uri());
+        item->setData(r.resource().resourceUri().toString());
 
         parentItem->appendRow(item);
     }

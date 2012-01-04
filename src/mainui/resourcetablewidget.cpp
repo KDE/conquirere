@@ -357,7 +357,7 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
                     name = file.fileName();
                 }
                 else {
-                    if(r.type() == Nepomuk::Vocabulary::NFO::RemoteDataObject().toString()) {
+                    if(r.resourceType() == Nepomuk::Vocabulary::NFO::RemoteDataObject()) {
                         name = file.path();
                     }
                     else {

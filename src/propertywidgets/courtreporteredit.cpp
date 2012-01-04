@@ -36,7 +36,7 @@ void CourtReporterEdit::setupLabel()
     Nepomuk::Resource courtReporter = resource().property(propertyUrl()).toResource();
     title = courtReporter.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
-    addPropertryEntry(title, courtReporter.uri());
+    addPropertryEntry(title, courtReporter.resourceUri().toString());
 
     setLabelText(title);
 }
@@ -88,7 +88,7 @@ QStandardItemModel* CourtReporterEdit::createCompletionModel( const QList< Nepom
     foreach(const Nepomuk::Query::Result & r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
 
-        item->setData(r.resource().uri());
+        item->setData(r.resource().resourceUri().toString());
 
         parentItem->appendRow(item);
     }
