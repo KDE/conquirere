@@ -291,6 +291,7 @@ void SyncZoteroNepomuk::readUploadSync(File zoteroData)
         Entry *zoteroEntry = dynamic_cast<Entry *>(zoteroElement);
         if(!zoteroEntry) { continue; }
 
+        QStringList error;
         bool updateSuccessfull = false;
         //now try go through all entries we send
         foreach(Element* localElement, m_bibCache) {
@@ -307,13 +308,17 @@ void SyncZoteroNepomuk::readUploadSync(File zoteroData)
                 //ignore zotero keys
                 if(i.key().startsWith( QLatin1String("zotero") ))
                     continue;
+                if(i.key().startsWith( QLatin1String("type") ))
+                    continue;
 
                 //get local value for currentkey
                 Value localValue = localEntry->value(i.key());
 
                 //now check if both entries are the same
-                // if not, stop the while loop and check the next entrie
+                // if not, stop the while loop and check the next entry
                 if(PlainTextValue::text(localValue) != PlainTextValue::text(i.value())) {
+                    error << "entries not the same #### Key::" +  i.key() + "\n";
+                    error << PlainTextValue::text(localValue) + "|--|" + PlainTextValue::text(i.value()) + "\n";
                     duplicateFound = false;
                     break;
                 }
@@ -331,9 +336,11 @@ void SyncZoteroNepomuk::readUploadSync(File zoteroData)
         }
 
         if(!updateSuccessfull) {
-            qWarning() << "could not add zotero sync details to the right items, duplicate not found!";
+            qWarning() << "could not add zotero sync details to the right items, duplicate not found!" << zoteroEntry->id();
+            qDebug() << error;
         }
         else {
+            error.clear();
             entriesFound++;
         }
 
@@ -342,7 +349,7 @@ void SyncZoteroNepomuk::readUploadSync(File zoteroData)
     }
 
     if(entriesFound != zoteroData.size()) {
-        qWarning() << "could not update all new items wit hits zotero value. missing" << zoteroData.size() << "entriesFound";
+        qWarning() << "could not update all new items wit hits zotero value. missing" << zoteroData.size() - entriesFound << " from" << zoteroData.size();
     }
 
     //we finished everything, so cleanup
@@ -353,6 +360,7 @@ void SyncZoteroNepomuk::readUploadSync(File zoteroData)
     m_ntnp = 0;
 
     m_syncMode = false;
+    emit calculateProgress(100);
 
     qDebug() << "finished SyncZoteroNepomuk::readUploadSync" << m_curStep;
 }
@@ -551,9 +559,15 @@ void SyncZoteroNepomuk::writeSyncDetailsToNepomuk(Entry *localData, Entry *zoter
     QString etag = PlainTextValue::text(zoteroData->value(QLatin1String("zoteroEtag")));
     QString updated = PlainTextValue::text(zoteroData->value(QLatin1String("zoteroUpdated")));
 
-    QString url = m_psd.url + QLatin1String("/") + m_psd.collection;
+    if(m_psd.collection.isEmpty()) {
+        syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), m_psd.url);
+    }
+    else {
+        QString url = m_psd.url + QLatin1String("/") + m_psd.collection;
+        syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), url);
+    }
+
     syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::provider(), QString("zotero"));
-    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), url);
     syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::userId(), m_psd.userName);
     syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::id(), id);
     syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::etag(), etag);

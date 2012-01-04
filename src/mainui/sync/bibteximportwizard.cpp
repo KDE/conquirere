@@ -18,9 +18,9 @@
 #include "bibteximportwizard.h"
 #include "ui_bibteximportwizard.h"
 
-#include "../../core/library.h"
-#include "../../core/tagcloud.h"
-#include "../../nbibio/nbibimporterbibtex.h"
+#include "core/library.h"
+#include "core/tagcloud.h"
+#include "nbibio/nbibimporterbibtex.h"
 
 #include <kbibtex/fileimporterbibtex.h>
 #include <kbibtex/file.h>
@@ -291,20 +291,7 @@ void ParseFile::cleanupPage()
 
 void ParseFile::showMergeDialog()
 {
-    KService::Ptr service = KService::serviceByDesktopPath("kbibtexpart.desktop");
-    if (!service) {
-        return;
-    }
-    KParts::Part *part = service->createInstance<KParts::ReadOnlyPart>(0);
-
-    part->replaceXMLFile(KStandardDirs::locate("data", "kbibtex/findduplicatesui.rc"), KStandardDirs::locateLocal("data", "kbibtex/findduplicatesui.rc"), true);
-
-    if (!part) {
-        qDebug() << "part not found";
-        return;
-    }
-
-    QPointer<KDialog> dlg = new KDialog(part->widget());
+    QPointer<KDialog> dlg = new KDialog();
     File * importedFile = importer->bibFile();
     QList<EntryClique*> cliques = importer->duplicates();
 
@@ -313,16 +300,18 @@ void ParseFile::showMergeDialog()
 
         MergeWidget *mw = new MergeWidget(importedFile, cliques, dlg);
         dlg->setMainWidget(mw);
+        int ret = dlg->exec();
 
-        if (dlg->exec() == QDialog::Accepted) {
+        if (ret == QDialog::Accepted) {
             MergeDuplicates md(dlg);
             md.mergeDuplicateEntries(cliques, importedFile);
+            importer->findDuplicates();
+            duplicateNumber->setText(QString::number(importer->duplicates().size()));
         }
         delete mw;
     }
 
     delete dlg;
-    delete part;
 }
 
 /*

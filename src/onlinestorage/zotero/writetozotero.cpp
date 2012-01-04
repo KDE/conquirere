@@ -258,7 +258,6 @@ void WriteToZotero::requestFinished()
 {
     // we get a reply from the server
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-    qDebug() << "WriteToZotero::requestFinished()" <<  reply->error() << reply->errorString();
 
     if(reply->error() != QNetworkReply::NoError) {
         qDebug() << QLatin1String("error reply") <<  reply->error() << reply->errorString();

@@ -151,6 +151,7 @@ File *NBibImporterBibTex::bibFile()
 
 bool NBibImporterBibTex::findDuplicates()
 {
+    m_cliques.clear();
     int sensitivity = 4000; // taken from KBibTeX
 
     FindDuplicates fd(0, sensitivity);

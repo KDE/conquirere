@@ -63,7 +63,6 @@ public slots:
     void exportOtherFile();
 
     void syncZotero();
-    void syncZoteroRDY(bool inprogress);
 
     void dbCheck();
     void dbBackup();

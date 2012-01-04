@@ -249,59 +249,9 @@ void MainWindow::exportOtherFile()
 
 void MainWindow::syncZotero()
 {
-//    SyncZoteroDialog szd;
+    SyncZoteroDialog szd;
 
-//    szd.exec();
-
-    // test cases
-    // load bibfile from hard drive
-    QFile loadFile(QString("/home/joerg/kbibtex_zotero.bib"));
-    if (!loadFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "could not open file";
-        return;
-    }
-
-    FileImporterBibTeX fibt(false);
-    m_bibFile = fibt.load(&loadFile);
-
-    qDebug() << "imported bibfile" << m_bibFile->size();
-
-    SyncStorageUi ssui;
-    ssui.setBibTeXFile(m_bibFile);
-    ssui.exec();
-
-    syncZoteroRDY(false);
-
-    // sync with zotero
-//    SyncZotero *sz = new SyncZotero();
-//    connect(sz, SIGNAL(syncInProgress(bool)), this, SLOT(syncZoteroRDY(bool)));
-
-//    ProviderSyncDetails psd;
-//    psd.userName = QString("795913");
-//    psd.pwd = QString("TBydrlOdZo05mmzMhO8PlWCv");
-//    psd.url = QString("users");
-//    psd.askBeforeDeletion = false;
-//    psd.collection = QString("");
-//    psd.syncMode = Full_Sync;
-//    psd.mergeMode = Manual;
-
-//    sz->setProviderSettings(psd);
-//    sz->syncWithStorage(m_bibFile);
-}
-
-void MainWindow::syncZoteroRDY(bool inprogress)
-{
-    if(!inprogress) {
-        // save back to disk
-        QFile saveFile(QString("/home/joerg/kbibtex_zotero.bib"));
-        if (!saveFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            qDebug() << "could not open file";
-            return;
-        }
-
-        FileExporterBibTeX febt;
-        febt.save(&saveFile, m_bibFile);
-    }
+    szd.exec();
 }
 
 void MainWindow::dbCheck()
