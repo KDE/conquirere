@@ -1136,7 +1136,6 @@ QVariantMap WriteToZotero::createBookSectionJson(Entry *e)
 
     jsonMap.insert(QLatin1String("itemType"),QLatin1String("bookSection"));
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("bookSection")));
-    jsonMap.insert(QLatin1String("bookTitle"),PlainTextValue::text(e->value(QLatin1String("bookTitle"))));
     jsonMap.insert(QLatin1String("series"),PlainTextValue::text(e->value(QLatin1String("series"))));
     jsonMap.insert(QLatin1String("volume"),PlainTextValue::text(e->value(QLatin1String("volume"))));
     jsonMap.insert(QLatin1String("numberOfVolumes"),PlainTextValue::text(e->value(QLatin1String("numberOfVolumes"))));
@@ -1163,6 +1162,13 @@ QVariantMap WriteToZotero::createBookSectionJson(Entry *e)
         jsonMap.insert(QLatin1String("seriesNumber"),PlainTextValue::text(e->value(QLatin1String("number"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("title"), PlainTextValue::text(e->value(QLatin1String("chapter"))));
+
+        if(e->value(QLatin1String("booktitle")).isEmpty()) {
+            jsonMap.insert(QLatin1String("bookTitle"),PlainTextValue::text(e->value(QLatin1String("title"))));
+        }
+        else {
+            jsonMap.insert(QLatin1String("bookTitle"),PlainTextValue::text(e->value(QLatin1String("booktitle"))));
+        }
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -1171,6 +1177,7 @@ QVariantMap WriteToZotero::createBookSectionJson(Entry *e)
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("seriesNumber"),PlainTextValue::text(e->value(QLatin1String("seriesNumber"))));
         jsonMap.insert(QLatin1String("title"), PlainTextValue::text(e->value(QLatin1String("title"))));
+        jsonMap.insert(QLatin1String("bookTitle"),PlainTextValue::text(e->value(QLatin1String("bookTitle"))));
     }
 
     return jsonMap;
