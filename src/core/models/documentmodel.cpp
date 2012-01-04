@@ -119,11 +119,11 @@ int DocumentModel::defaultSectionSize(int i)
     case DocumentQuery::Column_Reviewed:
         return 25;
     case DocumentQuery::Column_Publication:
-        return 200;
+        return 25;
     case DocumentQuery::Column_Author:
         return 100;
     case DocumentQuery::Column_Title:
-        return 200;
+        return 300;
     case DocumentQuery::Column_Date:
         return 100;
     case DocumentQuery::Column_FileName:

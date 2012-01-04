@@ -16,9 +16,9 @@
  */
 
 #include "documentquery.h"
-#include "../library.h"
+#include "library.h"
 
-#include "../../globals.h"
+#include "globals.h"
 
 #include <KDE/KIcon>
 
@@ -107,7 +107,7 @@ QVariantList DocumentQuery::createDisplayData(const Nepomuk::Resource & res) con
                 newEntry = QVariant();
             }
             else {
-                QString titleSting = res.property(Nepomuk::Vocabulary::NIE::title()).toString();
+                QString titleSting = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
                 newEntry = titleSting;
             }
             break;
