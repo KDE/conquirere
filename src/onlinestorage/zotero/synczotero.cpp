@@ -106,7 +106,7 @@ void SyncZotero::readSync(File serverFiles)
             }
         }
 
-        // ne element with the zotero key exist, this is a new element we want to add
+        // no element with the zotero key exist, this is a new element we want to add
         if(addEntry) {
             m_systemFiles->append(element);
         }
@@ -184,12 +184,11 @@ void SyncZotero::readSync(File serverFiles)
         // to implement automatic merging with use Server version, use Localversion
         // or the newest entry
 
+        KDialog dlg;
+        MergeWidget mw(m_systemFiles, cliques, &dlg);
+        dlg.setMainWidget(&mw);
 
-//        KDialog dlg;
-//        MergeWidget mw(m_systemFiles, cliques, &dlg);
-//        dlg.setMainWidget(&mw);
-
-//        dlg.exec();
+        dlg.exec();
 
         MergeDuplicates md(0);
         md.mergeDuplicateEntries(cliques, m_systemFiles);
