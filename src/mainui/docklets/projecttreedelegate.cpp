@@ -94,24 +94,3 @@ void ProjectTreeDelegate::paint(QPainter *painter, const QStyleOptionViewItem &o
 
 }
 
-QSize ProjectTreeDelegate::sizeHint(const QStyleOptionViewItem &option,
-                                    const QModelIndex &index) const
-{
-    return QStyledItemDelegate::sizeHint(option, index);
-}
-
-QWidget *ProjectTreeDelegate::createEditor(QWidget *parent,const QStyleOptionViewItem &option,const QModelIndex &index) const
-{
-    return QStyledItemDelegate::createEditor(parent, option, index);
-}
-
-void ProjectTreeDelegate::setEditorData(QWidget *editor,const QModelIndex &index) const
-{
-    QStyledItemDelegate::setEditorData(editor, index);
-}
-
-void ProjectTreeDelegate::setModelData(QWidget *editor, QAbstractTableModel *model,
-                                       const QModelIndex &index) const
-{
-    QStyledItemDelegate::setModelData(editor, model, index);
-}
