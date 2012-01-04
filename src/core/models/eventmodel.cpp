@@ -84,6 +84,21 @@ QVariant EventModel::headerData(int section, Qt::Orientation orientation, int ro
     return QVariant();
 }
 
+int EventModel::defaultSectionSize(int i)
+{
+    switch (i) {
+    case EventQuery::Column_Title:
+        return 300;
+    case EventQuery::Column_Date:
+        return 100;
+    case EventQuery::Column_Publication:
+        return 300;
+    case EventQuery::Column_StarRate:
+        return 75;
+    }
+    return 100;
+}
+
 QString EventModel::id()
 {
     return QLatin1String("events");

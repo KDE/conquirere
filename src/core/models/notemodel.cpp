@@ -84,6 +84,22 @@ QVariant NoteModel::headerData(int section, Qt::Orientation orientation, int rol
     return QVariant();
 }
 
+int NoteModel::defaultSectionSize(int i)
+{
+    switch (i) {
+    case NoteQuery::Column_Tags:
+        return 200;
+    case NoteQuery::Column_Title:
+        return 300;
+    case NoteQuery::Column_Date:
+        return 100;
+    case NoteQuery::Column_StarRate:
+        return 75;
+    }
+
+    return 100;
+}
+
 QString NoteModel::id()
 {
     return QLatin1String("notes");

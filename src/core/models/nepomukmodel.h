@@ -18,8 +18,8 @@
 #ifndef NEPOMUKMODEL_H
 #define NEPOMUKMODEL_H
 
-#include "../../globals.h"
-#include "../queryclients/queryclient.h"
+#include "globals.h"
+#include "core/queryclients/queryclient.h"
 
 #include <Nepomuk/Resource>
 
@@ -51,6 +51,8 @@ public:
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
+
+    virtual int defaultSectionSize(int i) = 0;
 
     void setLibrary(Library *library);
     Nepomuk::Resource documentResource(const QModelIndex &selection);

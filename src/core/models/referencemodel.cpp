@@ -121,6 +121,33 @@ QVariant ReferenceModel::headerData(int section, Qt::Orientation orientation, in
     return QVariant();
 }
 
+int ReferenceModel::defaultSectionSize(int i)
+{
+    switch (i) {
+    case ReferenceQuery::Column_Reviewed:
+        return 25;
+    case ReferenceQuery::Column_FileAvailable:
+        return 25;
+    case ReferenceQuery::Column_Author:
+        return 100;
+    case ReferenceQuery::Column_Title:
+        return 300;
+    case ReferenceQuery::Column_Date:
+        return 100;
+    case ReferenceQuery::Column_Publisher:
+        return 100;
+    case ReferenceQuery::Column_Editor:
+        return 100;
+    case ReferenceQuery::Column_CiteKey:
+        return 100;
+    case ReferenceQuery::Column_ResourceType:
+        return 100;
+    case ReferenceQuery::Column_StarRate:
+        return 75;
+    }
+    return 100;
+}
+
 QString ReferenceModel::id()
 {
     return QLatin1String("reference");

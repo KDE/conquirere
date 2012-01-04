@@ -18,7 +18,7 @@
 #ifndef RESOURCETABLEWIDGET_H
 #define RESOURCETABLEWIDGET_H
 
-#include "../globals.h"
+#include "globals.h"
 
 #include <Nepomuk/Resource>
 
@@ -75,7 +75,7 @@ private:
     MainWindow *m_parent;
     KLineEdit *m_searchBox;
     KComboBox *m_searchSelection;
-    QTableView    *m_documentView;
+    QTableView *m_documentView;
     Library *m_curLibrary;
     ResourceSelection m_selection;
 

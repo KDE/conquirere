@@ -121,6 +121,34 @@ QVariant PublicationModel::headerData(int section, Qt::Orientation orientation, 
     return QVariant();
 }
 
+int PublicationModel::defaultSectionSize(int i)
+{
+    switch (i) {
+    case PublicationQuery::Column_Reviewed:
+        return 25;
+    case PublicationQuery::Column_FileAvailable:
+        return 25;
+    case PublicationQuery::Column_Author:
+        return 100;
+    case PublicationQuery::Column_Title:
+        return 300;
+    case PublicationQuery::Column_Date:
+        return 100;
+    case PublicationQuery::Column_Publisher:
+        return 100;
+    case PublicationQuery::Column_Editor:
+        return 100;
+    case PublicationQuery::Column_CiteKey:
+        return 100;
+    case PublicationQuery::Column_ResourceType:
+        return 100;
+    case PublicationQuery::Column_StarRate:
+        return 75;
+    }
+
+    return 100;
+}
+
 QString PublicationModel::id()
 {
     return QLatin1String("publications");

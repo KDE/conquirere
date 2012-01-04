@@ -16,11 +16,11 @@
  */
 
 #include "resourcetablewidget.h"
-#include "../core/library.h"
-#include "../core/models/nepomukmodel.h"
-#include "../core/models/publicationfiltermodel.h"
-#include "../core/models/seriesfiltermodel.h"
-#include "../core/delegates/ratingdelegate.h"
+#include "core/library.h"
+#include "core/models/nepomukmodel.h"
+#include "core/models/publicationfiltermodel.h"
+#include "core/models/seriesfiltermodel.h"
+#include "core/delegates/ratingdelegate.h"
 #include "mainwindow.h"
 
 #include <Nepomuk/Resource>
@@ -129,45 +129,28 @@ void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType f
     if(lastSelection != -1)
         m_searchSelection->setCurrentIndex(lastSelection);
 
-//    hv->setResizeMode(QHeaderView::ResizeToContents);
+    // retrieve default section size for each section from the current model
+    for(int i=0; i < columnCount; i++) {
+        int sectionSize = 50;
+        NepomukModel *nm = qobject_cast<NepomukModel *>(newModel);
+        if(nm) {
+            sectionSize = nm->defaultSectionSize(i);
+        }
+        else {
+            QSortFilterProxyModel *qsf = qobject_cast<QSortFilterProxyModel *>(newModel);
+            if(qsf) {
+                NepomukModel *nm2 = qobject_cast<NepomukModel *>(qsf->sourceModel());
+                if(nm2) {
+                    sectionSize = nm2->defaultSectionSize(i);
+                }
+            }
+        }
 
-//    switch(m_selection) {
-//    case Resource_Library:
-//        break;
-//    case Resource_Document:
-//        m_documentView->horizontalHeader()->resizeSection(1,25);
-//        m_documentView->horizontalHeader()->resizeSection(2,25);
-//        hv->setResizeMode(5, QHeaderView::Stretch);
-//        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
-//        break;
-//    case Resource_Mail:
-//        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
-//        break;
-//    case Resource_Media:
-//        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
-//        break;
-//    case Resource_Series:
-//        hv->setResizeMode(1, QHeaderView::Stretch);
-//        break;
-//    case Resource_Publication:
-//    case Resource_Reference:
-//        m_documentView->horizontalHeader()->resizeSection(1,25);
-//        m_documentView->horizontalHeader()->resizeSection(2,25);
-//        hv->setResizeMode(6, QHeaderView::Stretch);
-//        m_documentView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-//        break;
-//    case Resource_Website:
-//        hv->setResizeMode(1, QHeaderView::Stretch);
-//        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
-//        break;
-//    case Resource_Note:
-//        hv->setResizeMode(1, QHeaderView::Stretch);
-//        m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
-//        break;
-//    }
+        hv->resizeSection(i,sectionSize);
+    }
 
-//    hv->setResizeMode(QHeaderView::Interactive);
-    hv->setResizeMode(QHeaderView::ResizeToContents);
+    hv->setResizeMode(QHeaderView::Interactive);
+
     m_documentView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     connect(m_documentView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),

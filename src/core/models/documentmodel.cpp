@@ -113,6 +113,30 @@ QVariant DocumentModel::headerData(int section, Qt::Orientation orientation, int
     return QVariant();
 }
 
+int DocumentModel::defaultSectionSize(int i)
+{
+    switch (i) {
+    case DocumentQuery::Column_Reviewed:
+        return 25;
+    case DocumentQuery::Column_Publication:
+        return 200;
+    case DocumentQuery::Column_Author:
+        return 100;
+    case DocumentQuery::Column_Title:
+        return 200;
+    case DocumentQuery::Column_Date:
+        return 100;
+    case DocumentQuery::Column_FileName:
+        return 200;
+    case DocumentQuery::Column_Folder:
+        return 200;
+    case DocumentQuery::Column_StarRate:
+        return 75;
+    }
+
+    return 100;
+}
+
 QString DocumentModel::id()
 {
     return QLatin1String("documents");

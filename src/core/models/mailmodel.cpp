@@ -88,6 +88,24 @@ QVariant MailModel::headerData(int section, Qt::Orientation orientation, int rol
     return QVariant();
 }
 
+int MailModel::defaultSectionSize(int i)
+{
+    switch (i) {
+    case MailQuery::Column_Tags:
+        return 100;
+    case MailQuery::Column_Title:
+        return 300;
+    case MailQuery::Column_Date:
+        return 50;
+    case MailQuery::Column_From:
+        return 50;
+    case MailQuery::Column_StarRate:
+        return 75;
+    }
+
+    return 100;
+}
+
 QString MailModel::id()
 {
     return QLatin1String("mails");

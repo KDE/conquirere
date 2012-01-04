@@ -84,6 +84,22 @@ QVariant SeriesModel::headerData(int section, Qt::Orientation orientation, int r
     return QVariant();
 }
 
+int SeriesModel::defaultSectionSize(int i)
+{
+    switch (i) {
+    case SeriesQuery::Column_Title:
+        return 300;
+    case SeriesQuery::Column_ResourceType:
+        return 100;
+    case SeriesQuery::Column_StarRate:
+        return 75;
+    case SeriesQuery::Column_Content:
+        return 300;
+    }
+
+    return 100;
+}
+
 QString SeriesModel::id()
 {
     return QLatin1String("series");

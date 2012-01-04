@@ -88,6 +88,24 @@ QVariant BookmarkModel::headerData(int section, Qt::Orientation orientation, int
     return QVariant();
 }
 
+int BookmarkModel::defaultSectionSize(int i)
+{
+    switch (i) {
+    case BookmarkQuery::Column_Tags:
+        return 200;
+    case BookmarkQuery::Column_Title:
+        return 300;
+    case BookmarkQuery::Column_Date:
+        return 100;
+    case BookmarkQuery::Column_Link:
+        return 100;
+    case BookmarkQuery::Column_StarRate:
+        return 75;
+    }
+
+    return 100;
+}
+
 QString BookmarkModel::id()
 {
     return QLatin1String("bookmarks");
