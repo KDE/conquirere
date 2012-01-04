@@ -85,8 +85,6 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
         ui->tabWidget->setEnabled(true);
     }
 
-    emit resourceChanged(m_publication);
-
     QList<Nepomuk::Resource> references = m_publication.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
 
     if(references.isEmpty()) {
@@ -110,6 +108,46 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
     selectLayout(entryType);
 
     ui->listPartsWidget->setResource(m_publication);
+
+   ui->editTitle->setResource(m_publication);
+   ui->editAuthors->setResource(m_publication);
+   ui->editEditor->setResource(m_publication);
+   ui->editAssignee->setResource(m_publication);
+   ui->editDate->setResource(m_publication);
+   ui->editFillingDate->setResource(m_publication);
+   ui->editPublisher->setResource(m_publication);
+   ui->editOrganization->setResource(m_publication);
+   ui->editFileObject->setResource(m_publication);
+   ui->editRemoteObject->setResource(m_publication);
+   ui->editWebObject->setResource(m_publication);
+   ui->editKeywords->setResource(m_publication);
+
+   ui->editEdition->setResource(m_publication);
+   ui->editEvent->setResource(m_publication);
+   ui->editCollection->setResource(m_publication);
+   ui->editSeries->setResource(m_publication);
+   ui->editCode->setResource(m_publication);
+   ui->editCourtReporter->setResource(m_publication);
+   ui->editVolume->setResource(m_publication);
+   ui->editNumber->setResource(m_publication);
+   ui->editApplicationNumber->setResource(m_publication);
+   ui->editPriorityNumbers->setResource(m_publication);
+   ui->editPublicLawNumber->setResource(m_publication);
+   ui->editReferences->setResource(m_publication);
+   ui->editLegalStatus->setResource(m_publication);
+   ui->editHowPublished->setResource(m_publication);
+   ui->editType->setResource(m_publication);
+   ui->editCopyright->setResource(m_publication);
+   ui->editLastAccessed->setResource(m_publication);
+   ui->editLanguage->setResource(m_publication);
+
+   ui->editEprint->setResource(m_publication);
+   ui->editISBN->setResource(m_publication);
+   ui->editISSN->setResource(m_publication);
+   ui->editLCCN->setResource(m_publication);
+   ui->editMRNumber->setResource(m_publication);
+   ui->editPubMed->setResource(m_publication);
+   ui->editDOI->setResource(m_publication);
 }
 
 void PublicationWidget::newBibEntryTypeSelected(int index)
@@ -227,45 +265,38 @@ void PublicationWidget::deleteButtonClicked()
     setResource(m_publication);
 }
 
-void PublicationWidget::setLibrary(Library *p)
-{
-    SidebarComponent::setLibrary(p);
-
-    //TODO remove and use ResourceWatcher later on
-    connect(ui->editAuthors, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editCopyright, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editDate, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editDOI, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editEdition, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editEditor, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editEprint, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editHowPublished, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editISBN, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editISSN, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editLCCN, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editMRNumber, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editNumber, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editPublisher, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editSeries, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editTitle, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editType, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editVolume, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editFileObject, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editRemoteObject, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editOrganization, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editLastAccessed, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editKeywords, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editCollection, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editPubMed, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editEvent, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-
-    connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), p, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-}
-
 void PublicationWidget::subResourceUpdated(Nepomuk::Resource resource)
 {
-    Q_UNUSED(resource);
+    if(resource.uri() != m_publication.uri())
+        emit resourceCacheNeedsUpdate(resource);
+
     emit resourceCacheNeedsUpdate(m_publication);
+
+    // also update the cache entry for any kind of connected resource
+    QList<Nepomuk::Resource> refs = m_publication.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
+    foreach(const Nepomuk::Resource &r, refs) {
+        emit resourceCacheNeedsUpdate(r);
+    }
+
+    Nepomuk::Resource event = m_publication.property(Nepomuk::Vocabulary::NBIB::event()).toResource();
+    if(event.isValid()) {
+        emit resourceCacheNeedsUpdate(event);
+    }
+
+    Nepomuk::Resource series = m_publication.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    if(series.isValid()) {
+        emit resourceCacheNeedsUpdate(series);
+    }
+
+    QList<Nepomuk::Resource> articles = m_publication.property(Nepomuk::Vocabulary::NBIB::article()).toResourceList();
+    foreach(const Nepomuk::Resource &a, articles) {
+        emit resourceCacheNeedsUpdate(a);
+    }
+
+    Nepomuk::Resource collection = m_publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+    if(collection.isValid()) {
+        emit resourceCacheNeedsUpdate(collection);
+    }
 }
 
 void PublicationWidget::addReference()
@@ -286,6 +317,7 @@ void PublicationWidget::addReference()
 
     if(ret == KDialog::Accepted) {
         m_publication.addProperty(Nepomuk::Vocabulary::NBIB::reference(), tempRef);
+        emit resourceCacheNeedsUpdate(m_publication);
     }
     else {
         // remove temp citation again
@@ -372,7 +404,7 @@ void PublicationWidget::changeRating(int newRating)
 {
     m_publication.setRating(newRating);
 
-    emit resourceCacheNeedsUpdate(m_publication);
+    subResourceUpdated(m_publication);
 }
 
 void PublicationWidget::setupWidget()
@@ -446,50 +478,49 @@ void PublicationWidget::setupWidget()
     ui->editPubMed->setPropertyUrl( Nepomuk::Vocabulary::NBIB::pubMed() );
     ui->editDOI->setPropertyUrl( Nepomuk::Vocabulary::NBIB::doi() );
 
-    //connect signal/slots
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editTitle, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editAuthors, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editEditor, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editAssignee, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editDate, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editFillingDate, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPublisher, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editOrganization, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editFileObject, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editRemoteObject, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editWebObject, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editKeywords, SLOT(setResource(Nepomuk::Resource&)));
-
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editEdition, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editEvent, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editCollection, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editSeries, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editCode, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editCourtReporter, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editVolume, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editNumber, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editApplicationNumber, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPriorityNumbers, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPublicLawNumber, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editReferences, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLegalStatus, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editHowPublished, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editType, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editCopyright, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLastAccessed, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLanguage, SLOT(setResource(Nepomuk::Resource&)));
-
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editEprint, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editISBN, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editISSN, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editLCCN, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editMRNumber, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editPubMed, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editDOI, SLOT(setResource(Nepomuk::Resource&)));
-
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 
-    connect(ui->listPartsWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    //TODO remove and use ResourceWatcher later on
+    connect(ui->editTitle, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
+    connect(ui->editAuthors, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
+    connect(ui->editEditor, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
+    connect(ui->editAssignee, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editDate, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
+    connect(ui->editFillingDate, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editPublisher, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editFileObject, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editRemoteObject, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editWebObject, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editKeywords, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+
+    connect(ui->editEvent, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
+    connect(ui->editSeries, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
+    connect(ui->editEdition, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editCollection, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
+    connect(ui->editCode, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editCourtReporter, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editVolume, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editNumber, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editApplicationNumber, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editPriorityNumbers, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editPublicLawNumber, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editReferences, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editLegalStatus, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editHowPublished, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editType, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editCopyright, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editLastAccessed, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editLanguage, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+
+    connect(ui->editEprint, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editISBN, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editISSN, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editLCCN, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editMRNumber, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editPubMed, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editDOI, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+
+    connect(ui->listPartsWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
 }
 
 void PublicationWidget::editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl)
@@ -529,6 +560,8 @@ void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUr
         delete addIssueWidget;
 
         setResource(m_publication); // this updates the changes in the current widget again
+
+        subResourceUpdated(m_publication);
         return;
     }
 
@@ -587,6 +620,7 @@ void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUr
         }
 
         setResource(m_publication); // this updates the changes in the current widget again
+        subResourceUpdated(m_publication);
     }
 
     delete lpd;

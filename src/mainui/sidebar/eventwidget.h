@@ -33,18 +33,8 @@ public:
     explicit EventWidget(QWidget *parent = 0);
     ~EventWidget();
 
-    void setLibrary(Library *p);
-
 public slots:
     virtual void setResource(Nepomuk::Resource & resource);
-
-signals:
-    /**
-      * Sends changes in the connected property widgets to the connected table model to update the cache
-      *
-      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
-      */
-    void resourceChanged(Nepomuk::Resource resource);
 
 private slots:
     /**
@@ -63,6 +53,8 @@ private slots:
 
     /**
       * Sends changes in the connected property widgets to the connected table model to update the cache
+      *
+      * Updates not only the eventname cache entry but also the entries for the publication connected here
       *
       * @todo This should be replaced by the Nepomuk::ResourceWatcher later
       */

@@ -40,12 +40,6 @@ public:
 public slots:
     void setResource(Nepomuk::Resource & resource);
 
-signals:
-    /**
-      * notify connected editwidgets to update their info
-      */
-    void resourceChanged(Nepomuk::Resource resource);
-
 private slots:
     /**
       * creates a new @c pimo:Note
@@ -60,13 +54,6 @@ private slots:
     void saveNote();
     void discardNote();
     void changeRating(int newRating);
-
-    /**
-      * Sends changes in the connected property widgets to the connected table model to update the cache
-      *
-      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
-      */
-    void subResourceUpdated();
 
 private:
     Nepomuk::Resource m_note;

@@ -42,7 +42,7 @@ NoteWidget::NoteWidget(QWidget *parent)
 
     //TODO remove and use ResourceWatcher later on
     connect(ui->editTags, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-    connect(ui->editTitle, SIGNAL(textChanged(QString)), this, SLOT(subResourceUpdated()));
+    connect(ui->editTitle, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 }
 
 NoteWidget::~NoteWidget()
@@ -60,8 +60,6 @@ void NoteWidget::setResource(Nepomuk::Resource & resource)
     else {
         ui->frameWidget->setEnabled(true);
     }
-
-    emit resourceChanged(m_note);
 
     // discard simply shows the original content before saving any changes
     discardNote();
@@ -150,9 +148,4 @@ void NoteWidget::changeRating(int newRating)
 
         emit resourceCacheNeedsUpdate(m_note);
     }
-}
-
-void NoteWidget::subResourceUpdated()
-{
-    emit resourceCacheNeedsUpdate(m_note);
 }

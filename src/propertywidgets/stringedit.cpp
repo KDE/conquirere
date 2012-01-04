@@ -52,8 +52,10 @@ void StringEdit::updateResource(const QString & text)
     // remove all existing string entries of this property
     resource().removeProperty( propertyUrl() );
 
-    if(text.isEmpty())
+    if(text.isEmpty()) {
+        emit resourceCacheNeedsUpdate(resource());
         return;
+    }
 
     QStringList entryList;
     if(hasMultipleCardinality()) {
@@ -66,6 +68,8 @@ void StringEdit::updateResource(const QString & text)
     foreach(const QString & s, entryList) {
         resource().addProperty(propertyUrl(), s.trimmed());
     }
+
+    emit resourceCacheNeedsUpdate(resource());
 }
 
 QStandardItemModel* StringEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )

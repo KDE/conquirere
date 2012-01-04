@@ -58,10 +58,6 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     ui->pagesEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
 
     //connect signal/slots
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->chapterEdit, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->citeKeyEdit, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->pagesEdit, SLOT(setResource(Nepomuk::Resource&)));
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->publicationEdit, SLOT(setResource(Nepomuk::Resource&)));
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 
     connect(ui->publicationEdit, SIGNAL(textChanged(QString)), this, SLOT(enableReferenceDetails()));
@@ -82,14 +78,17 @@ void ReferenceWidget::setResource(Nepomuk::Resource & resource)
         m_reference = resource;
         enableReferenceDetails();
 
-        emit resourceChanged(m_reference);
-
         Nepomuk::Resource pub = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
         ui->editRating->setRating(pub.rating());
     }
     else {
         setEnabled(false);
     }
+
+    ui->chapterEdit->setResource(m_reference);
+    ui->citeKeyEdit->setResource(m_reference);
+    ui->pagesEdit->setResource(m_reference);
+    ui->publicationEdit->setResource(m_reference);
 }
 
 void ReferenceWidget::subResourceUpdated()

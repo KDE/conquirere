@@ -217,6 +217,7 @@ void ListPartsWidget::addPart()
         ui->editPart->setEnabled(true);
         ui->removePart->setEnabled(true);
     }
+    emit resourceCacheNeedsUpdate(m_resource);
 }
 
 void ListPartsWidget::removePart()

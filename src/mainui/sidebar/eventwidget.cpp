@@ -37,15 +37,23 @@ EventWidget::EventWidget(QWidget *parent)
 
     ui->editTags->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
     ui->editTags->setPropertyUrl( Soprano::Vocabulary::NAO::hasTag() );
+
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 
     ui->editAttendee->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
     ui->editAttendee->setPropertyUrl( Nepomuk::Vocabulary::PIMO::attendee() );
+
     ui->editName->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
     ui->editName->setPropertyUrl( Nepomuk::Vocabulary::NIE::title() );
 
     ui->editPlace->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
     ui->editPlace->setPropertyUrl( Nepomuk::Vocabulary::NCO::addressLocation() );
+
+    connect(ui->editTags, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editName, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->editAttendee, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->editPlace, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->listPartsWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
 }
 
 EventWidget::~EventWidget()
@@ -70,20 +78,6 @@ void EventWidget::setResource(Nepomuk::Resource & resource)
     ui->editName->setResource(m_event);
     ui->editPlace->setResource(m_event);
     ui->listPartsWidget->setResource(m_event);
-
-    emit resourceChanged(m_event);
-}
-
-void EventWidget::setLibrary(Library *p)
-{
-    SidebarComponent::setLibrary(p);
-
-    //TODO remove and use ResourceWatcher later on
-    connect(ui->editTags, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), p, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-    connect(ui->editName, SIGNAL(textChanged(QString)), this, SLOT(subResourceUpdated()));
-    connect(ui->editAttendee, SIGNAL(textChanged(QString)), this, SLOT(subResourceUpdated()));
-    connect(ui->editPlace, SIGNAL(textChanged(QString)), this, SLOT(subResourceUpdated()));
-    connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), p, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 }
 
 void EventWidget::newButtonClicked()
@@ -111,12 +105,22 @@ void EventWidget::deleteButtonClicked()
 
 void EventWidget::changeRating(int newRating)
 {
-    m_event.setRating(newRating);
+    if(newRating != m_event.rating()) {
+        m_event.setRating(newRating);
 
-    emit resourceCacheNeedsUpdate(m_event);
+        emit resourceCacheNeedsUpdate(m_event);
+    }
 }
 
 void EventWidget::subResourceUpdated()
 {
+    // emit event cache changes
     emit resourceCacheNeedsUpdate(m_event);
+
+    // also emit changes to the publications cache entries
+    QList<Nepomuk::Resource> pubList = m_event.property(Nepomuk::Vocabulary::NBIB::eventPublication()).toResourceList();
+
+    foreach(Nepomuk::Resource r, pubList) {
+        emit resourceCacheNeedsUpdate(r);
+    }
 }

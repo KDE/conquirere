@@ -50,12 +50,6 @@ public slots:
       */
     void setResource(Nepomuk::Resource & resource);
 
-signals:
-    /**
-      * notify connected editwidgets to update their info
-      */
-    void resourceChanged(Nepomuk::Resource & resource);
-
 private slots:
     /**
       * Change the @c type of the resource to the selected new type

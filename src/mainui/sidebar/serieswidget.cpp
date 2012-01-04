@@ -54,13 +54,13 @@ void SeriesWidget::setResource(Nepomuk::Resource & resource)
         setEnabled(true);
     }
 
-    emit resourceChanged(m_series);
-
     SeriesType seriesType = SeriesTypeFromUrl(m_series);
 
     int index = ui->editType->findData(seriesType);
     ui->editType->setCurrentIndex(index);
 
+    ui->editTitle->setResource(m_series);
+    ui->editIssn->setResource(m_series);
     ui->listPartWidget->setResource(m_series);
 
     // set rating
@@ -181,9 +181,7 @@ void SeriesWidget::setupWidget()
     connect(ui->editType, SIGNAL(currentIndexChanged(int)), this, SLOT(newSeriesTypeSelected(int)));
 
     ui->editIssn->setPropertyUrl( Nepomuk::Vocabulary::NBIB::issn() );
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editIssn, SLOT(setResource(Nepomuk::Resource&)));
     ui->editTitle->setPropertyUrl( Nepomuk::Vocabulary::NIE::title() );
-    connect(this, SIGNAL(resourceChanged(Nepomuk::Resource&)), ui->editTitle, SLOT(setResource(Nepomuk::Resource&)));
 
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 

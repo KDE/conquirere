@@ -52,12 +52,6 @@ public slots:
       */
     void subResourceUpdated();
 
-signals:
-    /**
-      * notify connected editwidgets to update their info
-      */
-    void resourceChanged(Nepomuk::Resource & resource);
-
 private slots:
     void showPublicationList(Nepomuk::Resource & resource, const QUrl & propertyUrl);
     void showChapterList();

@@ -35,27 +35,21 @@ public:
     explicit PublicationWidget(QWidget *parent = 0);
     virtual ~PublicationWidget();
 
-    /** @todo remove and use ResourceWatcher later on */
-    void setLibrary(Library *p);
-
 public slots:
-    /* called when something is selected in the project view */
+    /**
+      * called when something is selected in the project view
+      */
     void setResource(Nepomuk::Resource & resource);
 
     /**
       * This slot gets called from the propertywidgets, replace the subresource with the main nepomuk resource
-      * and calls resourceUpdated()
+      * and calls resourceCacheNeedsUpdate()
       *
       * @todo This should be replaced by the Nepomuk::ResourceWatcher later
       */
     void subResourceUpdated(Nepomuk::Resource resource);
 
 signals:
-    /**
-      * notify connected editwidgets to update their info
-      */
-    void resourceChanged(Nepomuk::Resource & resource);
-
     void hasReference(bool reference);
 
 private slots:

@@ -17,8 +17,8 @@
 
 #include "documentwidget.h"
 #include "ui_documentwidget.h"
-#include "../mainui/mainwindow.h"
 
+#include "mainui/mainwindow.h"
 #include "listpublicationsdialog.h"
 
 #include "nbib.h"
