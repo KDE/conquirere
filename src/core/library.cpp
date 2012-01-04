@@ -21,6 +21,10 @@
 #include "backgroundsync.h"
 
 #include "onlinestorage/storageinfo.h"
+#include "onlinestorage/storageglobals.h"
+#include "onlinestorage/zotero/zoteroinfo.h"
+#include "onlinestorage/kbibtexfile/kbtfileinfo.h"
+
 #include "nbibio/nbibsync.h"
 #include "nbibio/synczoteronepomuk.h"
 
@@ -222,9 +226,10 @@ QString Library::libraryDocumentDir() const
 
 void Library::addSyncProvider(NBibSync* provider)
 {
-    QString providerID = provider->providerId();
+    QString providerID = provider->uniqueProviderID();
     if(providerID.isEmpty()) {
         providerID = QUuid::createUuid().toString();
+        provider->setUniqueProviderID(providerID);
     }
 
     m_backgroundSync->addSyncProvider(provider);
@@ -238,16 +243,24 @@ void Library::addSyncProvider(NBibSync* provider)
         inipath = KStandardDirs::locateLocal("appdata", QLatin1String("projects"));
     }
 
+    ProviderSyncDetails psd = provider->providerSyncDetails();
+
     QString iniFile = inipath + QLatin1String("/") + m_name + QLatin1String(".ini");
     KConfig libconfig( iniFile, KConfig::SimpleConfig );
     KConfigGroup libGroup( &libconfig, "SyncProvider" );
     KConfigGroup providerGroup( &libGroup, providerID );
-    providerGroup.writeEntry(QLatin1String("provider"), provider->providerInfo()->providerId());
-    providerGroup.writeEntry(QLatin1String("name"), provider->userName());
-    providerGroup.writeEntry(QLatin1String("url"), provider->url());
-    providerGroup.writeEntry(QLatin1String("collection"), provider->collection());
-    providerGroup.writeEntry(QLatin1String("askBeforeDeletion"), provider->askBeforeDeletion());
-    providerGroup.writeEntry(QLatin1String("mergeStrategy"), (int)provider->mergeStrategy());
+    providerGroup.writeEntry(QLatin1String("provider"), psd.providerInfo->providerId());
+    providerGroup.writeEntry(QLatin1String("name"), psd.userName);
+    providerGroup.writeEntry(QLatin1String("url"), psd.url);
+    providerGroup.writeEntry(QLatin1String("collection"), psd.collection);
+    providerGroup.writeEntry(QLatin1String("askBeforeDeletion"), psd.askBeforeDeletion);
+    providerGroup.writeEntry(QLatin1String("mergeStrategy"), (int)psd.mergeMode);
+    providerGroup.writeEntry(QLatin1String("syncMode"), (int)psd.syncMode);
+    providerGroup.writeEntry(QLatin1String("importAttachments"), psd.importAttachments);
+    providerGroup.writeEntry(QLatin1String("exportAttachments"), psd.exportAttachments);
+    providerGroup.writeEntry(QLatin1String("akonadiContactsUUid"), psd.akonadiContactsUUid);
+    providerGroup.writeEntry(QLatin1String("akonadiEventsUUid"), psd.akonadiEventsUUid);
+
     providerGroup.sync();
     libGroup.sync();
 }
@@ -265,7 +278,7 @@ void Library::removeSyncProvider(NBibSync* provider)
     QString iniFile = inipath + QLatin1String("/") + m_name + QLatin1String(".ini");
     KConfig libconfig( iniFile, KConfig::SimpleConfig );
     KConfigGroup libGroup( &libconfig, "SyncProvider" );
-    KConfigGroup providerGroup( &libGroup, provider->providerId() );
+    KConfigGroup providerGroup( &libGroup, provider->uniqueProviderID() );
     providerGroup.deleteGroup();
     libGroup.sync();
 
@@ -366,32 +379,63 @@ void Library::loadLibrary(const QString & projectFile)
     KConfigGroup syncGroup( &libconfig, "SyncProvider" );
     QStringList providerList = syncGroup.groupList();
     foreach(const QString &providerUUid, providerList) {
-        NBibSync* providerSyncDetails;
+        NBibSync* syncProvider;
         KConfigGroup providerGroup( &syncGroup, providerUUid );
+
+        ProviderSyncDetails psd;
+
         QString providerType = providerGroup.readEntry(QLatin1String("provider"), QString());
         if(providerType == QLatin1String("zotero")) {
-            providerSyncDetails = new SyncZoteroNepomuk;
+            psd.providerInfo = new ZoteroInfo;
+            syncProvider = new SyncZoteroNepomuk;
+        }
+        else if(providerType == QLatin1String("kbibtexfile")) {
+            psd.providerInfo = new KBTFileInfo;
+            //syncProvider = new SyncZoteroNepomuk;
         }
         else {
+            qWarning() << "Library::loadLibrary unknown sync provider found >>" << providerType;
             continue;
         }
-        QString name = providerGroup.readEntry(QLatin1String("name"), QString());
-        providerSyncDetails->setUserName(name);
-        QString collection = providerGroup.readEntry(QLatin1String("collection"), QString());
-        providerSyncDetails->setCollection(collection);
-        QString url = providerGroup.readEntry(QLatin1String("url"), QString());
-        providerSyncDetails->setUrl(url);
-        QString pwd = providerGroup.readEntry(QLatin1String("pwd"), QString());
-        providerSyncDetails->setPassword(pwd);
+
+        psd.userName = providerGroup.readEntry(QLatin1String("name"), QString());
+        psd.pwd = providerGroup.readEntry(QLatin1String("pwd"), QString());
+        psd.url = providerGroup.readEntry(QLatin1String("url"), QString());
+        psd.collection = providerGroup.readEntry(QLatin1String("collection"), QString());
+
+        QString syncMode = providerGroup.readEntry(QLatin1String("syncMode"), QString());
+        psd.syncMode = SyncMode ( syncMode.toInt() );
+
         QString mergeStrategy = providerGroup.readEntry(QLatin1String("mergeStrategy"), QString());
-        providerSyncDetails->setMergeStrategy( MergeStrategy (mergeStrategy.toInt()) );
+        psd.mergeMode = MergeStrategy ( mergeStrategy.toInt() );
+
         QString askBeforeDeletion = providerGroup.readEntry(QLatin1String("askBeforeDeletion"), QString());
         if(askBeforeDeletion == QLatin1String("false"))
-            providerSyncDetails->setAskBeforeDeletion(false);
+            psd.askBeforeDeletion = false;
         else
-            providerSyncDetails->setAskBeforeDeletion(true);
+            psd.askBeforeDeletion = true;
 
-        m_backgroundSync->addSyncProvider(providerSyncDetails);
+        QString importAttachments = providerGroup.readEntry(QLatin1String("importAttachments"), QString());
+        if(importAttachments == QLatin1String("false"))
+            psd.importAttachments = false;
+        else
+            psd.importAttachments = true;
+
+        QString exportAttachments = providerGroup.readEntry(QLatin1String("exportAttachments"), QString());
+        if(exportAttachments == QLatin1String("false"))
+            psd.exportAttachments = false;
+        else
+            psd.exportAttachments = true;
+
+        QString akonadiContactsUUid = providerGroup.readEntry(QLatin1String("akonadiContactsUUid"), QString());
+        psd.akonadiContactsUUid = akonadiContactsUUid.toInt();
+
+        QString akonadiEventsUUid = providerGroup.readEntry(QLatin1String("akonadiEventsUUid"), QString());
+        psd.akonadiEventsUUid = akonadiEventsUUid.toInt();
+
+        syncProvider->setProviderDetails(psd);
+
+        m_backgroundSync->addSyncProvider(syncProvider);
     }
 
     if(!m_libraryDir.isEmpty()) {

@@ -19,83 +19,32 @@
 
 NBibSync::NBibSync(QObject *parent)
     : QObject(parent)
-    , m_askBeforeDeletion(false)
-    , m_mergeStrategy(Manual)
     , m_syncSteps(0)
     , m_curStep(0)
 {
     qRegisterMetaType<SyncDetails>("SyncDetails");
     qRegisterMetaType<QList<SyncDetails> >("QList<SyncDetails>");
+    qRegisterMetaType<SyncDetails>("File");
 }
 
-void NBibSync::setId(const QString &providerId)
+void NBibSync::setUniqueProviderID(const QString &id)
 {
-    m_providerId = providerId;
+    m_uniqueId = id;
 }
 
-QString NBibSync::providerId() const
+QString NBibSync::uniqueProviderID() const
 {
-    return m_providerId;
+    return m_uniqueId;
 }
 
-void NBibSync::setUserName(const QString &name)
+void NBibSync::setProviderDetails(ProviderSyncDetails psd)
 {
-    m_name = name;
+    m_psd = psd;
 }
 
-QString NBibSync::userName() const
+ProviderSyncDetails NBibSync::providerSyncDetails() const
 {
-    return m_name;
-}
-
-void NBibSync::setPassword(const QString &pwd)
-{
-    m_pwd = pwd;
-}
-
-void NBibSync::setUrl(const QString &url)
-{
-    m_url = url;
-}
-
-QString NBibSync::url() const
-{
-    return m_url;
-}
-
-void NBibSync::setCollection(const QString &collection)
-{
-    m_collection = collection;
-}
-
-QString NBibSync::collection() const
-{
-    return m_collection;
-}
-
-void NBibSync::setAskBeforeDeletion(bool ask)
-{
-    m_askBeforeDeletion = ask;
-}
-
-bool NBibSync::askBeforeDeletion() const
-{
-    return m_askBeforeDeletion;
-}
-
-void NBibSync::setMergeStrategy( MergeStrategy strategy)
-{
-    m_mergeStrategy = strategy;
-}
-
-MergeStrategy NBibSync::mergeStrategy() const
-{
-    return m_mergeStrategy;
-}
-
-void NBibSync::setAkonadiAddressbook(Akonadi::Collection & addressbook)
-{
-    m_addressbook = addressbook;
+    return m_psd;
 }
 
 void NBibSync::calculateProgress(int value)

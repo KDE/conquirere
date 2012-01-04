@@ -18,7 +18,9 @@
 #include "synczoterodialog.h"
 #include "ui_synczoterodialog.h"
 
-#include "onlinestorage/zotero/readfromzotero.h"
+#include "onlinestorage/providersettings.h"
+#include "onlinestorage/storageinfo.h"
+
 #include "onlinestorage/providersettings.h"
 #include "nbibio/synczoteronepomuk.h"
 #include "nbibio/pipe/bibtextonepomukpipe.h"
@@ -28,8 +30,6 @@
 #include <kbibtex/findduplicates.h>
 #include <kbibtex/findduplicatesui.h>
 
-#include <Akonadi/CollectionFetchJob>
-#include <Akonadi/CollectionFetchScope>
 #include <KDE/KProgressDialog>
 
 #include <QtCore/QThread>
@@ -39,136 +39,86 @@
 #include <QtCore/QDebug>
 
 SyncZoteroDialog::SyncZoteroDialog(QWidget *parent)
-    : QDialog(parent)
-    , ui(new Ui::SyncZoteroDialog)
-    , m_szn(0)
+    : KDialog(parent)
+    , m_mainDialog(0)
+    , m_ps(0)
+    , m_syncNepomuk(0)
     , m_pdlg(0)
     , m_MergeDialog(new KDialog)
     , m_mw(0)
 {
-    ui->setupUi(this);
-
-    connect(ui->syncMode, SIGNAL(currentIndexChanged(int)), this, SLOT(checkSyncMode(int)));
-
-    // fetching all collections containing emails recursively, starting at the root collection
-    Akonadi::CollectionFetchJob *job = new Akonadi::CollectionFetchJob( Akonadi::Collection::root(), Akonadi::CollectionFetchJob::Recursive, this );
-    job->fetchScope().setContentMimeTypes( QStringList() << "application/x-vnd.kde.contactgroup" );
-    connect( job, SIGNAL(collectionsReceived(Akonadi::Collection::List)),
-             this, SLOT(collectionsReceived(Akonadi::Collection::List)) );
-
-    m_wallet = KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(),winId(), KWallet::Wallet::Synchronous);
-    if(!m_wallet->hasFolder(QLatin1String("kbibtex"))) {
-        m_wallet->createFolder(QLatin1String("kbibtex"));
-    }
-    m_wallet->setFolder(QLatin1String("kbibtex"));
-    connect(ui->userID, SIGNAL(textEdited(QString)), this, SLOT(checkWalletForPwd()));
-
-    m_rfz = new ReadFromZotero;
-    connect(m_rfz, SIGNAL(collectionsInfo(QList<CollectionInfo>)), this, SLOT(processCollectionResults(QList<CollectionInfo>)));
-    ui->fetchCollection->setIcon(KIcon(QLatin1String("svn-update")));
-    connect(ui->fetchCollection, SIGNAL(clicked()), this, SLOT(fetchCollection()));
+    m_ps = new ProviderSettings(this, true);
+    setMainWidget(m_ps);
 }
 
 SyncZoteroDialog::~SyncZoteroDialog()
 {
-    delete ui;
-    delete m_szn;
-    delete m_rfz;
-    delete m_wallet;
+    delete m_syncNepomuk;
+    delete m_ps;
+    delete m_mainDialog;
     delete m_MergeDialog;
     delete m_mw;
 }
 
-void SyncZoteroDialog::collectionsReceived( const Akonadi::Collection::List& list)
+void SyncZoteroDialog::setupWidget(ProviderSyncDetails psd)
 {
-    foreach(const Akonadi::Collection & c, list) {
-        ui->contactCollection->addItem(c.name(), c.id());
-    }
+    m_ps->setProviderSettingsDetails(psd);
 }
 
-void SyncZoteroDialog::fetchCollection()
+void SyncZoteroDialog::slotButtonClicked(int button)
 {
-    ProviderSyncDetails psd;
-    psd.userName = ui->userID->text();
-    psd.pwd = ui->apiKey->text();
-    m_rfz->setProviderSettings(psd);
-
-    m_rfz->fetchCollections();
-}
-
-void SyncZoteroDialog::clicked(QAbstractButton* button)
-{
-    if(ui->buttonBox->buttonRole(button) == QDialogButtonBox::ApplyRole)
-    {
-        delete m_szn;
-        m_szn = new SyncZoteroNepomuk;
-        m_szn->setUserName(ui->userID->text());
-        m_szn->setPassword(ui->apiKey->text());
-        int urlIndex = ui->libTypeSelection->currentIndex();
-        QString url;
-        if(urlIndex == 1) {
-            url = QLatin1String("groups");
-        }
-        else {
-            url = QLatin1String("users");
-        }
-        m_szn->setUrl(url);
-
-        // TODO ask if we really should save this pwd
-        QString pwdKey;
-        pwdKey.append(QLatin1String("zotero"));
-        pwdKey.append(QLatin1String(":"));
-        pwdKey.append(ui->userID->text());
-        pwdKey.append(QLatin1String(":"));
-        pwdKey.append(url);
-        m_wallet->writePassword(pwdKey, ui->apiKey->text());
-
-        int curIndex = ui->collectionSelection->currentIndex();
-        QString collectionID = ui->collectionSelection->itemData(curIndex).toString();
-        m_szn->setCollection(collectionID);
-        m_szn->setAskBeforeDeletion(ui->askDeletion->isChecked());
-
-        int curMergeIndex = ui->mergeMode->currentIndex();
-        m_szn->setMergeStrategy( (MergeStrategy)curMergeIndex );
-
-        if(ui->addContactsToAkonadi->isChecked()) {
-            int curAddressBook = ui->contactCollection->currentIndex();
-            Akonadi::Collection c(ui->contactCollection->itemData(curAddressBook).toInt());
-            m_szn->setAkonadiAddressbook(c);
-        }
-
-        delete m_pdlg;
-        m_pdlg = new KProgressDialog;
-        m_pdlg->setFocus();
-        delete m_mw;
-        m_mw = 0;
-
-        connect(m_szn, SIGNAL(progress(int)), m_pdlg->progressBar(), SLOT(setValue(int)));
-        connect(m_szn, SIGNAL(progressStatus(QString)), this, SLOT(setProgressStatus(QString)));
-
-        connect(m_szn, SIGNAL(askForDeletion(QList<SyncDetails>)), this, SLOT(popDeletionQuestion(QList<SyncDetails>)));
-        connect(this, SIGNAL(deleteLocalFiles(bool)), m_szn, SLOT(deleteLocalFiles(bool)));
-        connect(m_szn, SIGNAL(userMerge(QList<SyncDetails>)), this, SLOT(popMergeDialog(QList<SyncDetails>)));
-        connect(this, SIGNAL(mergeFinished()), m_szn, SLOT(mergeFinished()));
-
-        QThread *newThread = new QThread;
-        m_szn->moveToThread(newThread);
-
-        //what mode should we use?
-        int mode = ui->syncMode->currentIndex();
-        if(mode == 0) {
-            connect(newThread, SIGNAL(started()),m_szn, SLOT(startDownload()) );
-        }
-        else if(mode == 1) {
-            connect(newThread, SIGNAL(started()),m_szn, SLOT(startUpload()) );
-        }
-        else {
-            connect(newThread, SIGNAL(started()),m_szn, SLOT(startSync()) );
-        }
-        newThread->start();
-
-        m_pdlg->exec();
+    if(button != KDialog::Ok) {
+         KDialog::slotButtonClicked(button);
+         return;
     }
+
+    ProviderSyncDetails psd = m_ps->providerSettingsDetails();
+
+    delete m_syncNepomuk;
+    if(psd.providerInfo->providerId() == QLatin1String("zotero")) {
+        m_syncNepomuk = new SyncZoteroNepomuk;
+    }
+    else if(psd.providerInfo->providerId() == QLatin1String("kbibtexfile")) {
+        qWarning() << "kbibtexfile sync is not implemented yet";
+        return;
+    }
+
+    m_syncNepomuk->setProviderDetails(psd);
+    m_ps->savePasswordInKWallet();
+
+    delete m_pdlg;
+    m_pdlg = new KProgressDialog;
+    m_pdlg->setFocus();
+    delete m_mw;
+    m_mw = 0;
+
+    connect(m_syncNepomuk, SIGNAL(progress(int)), m_pdlg->progressBar(), SLOT(setValue(int)));
+    connect(m_syncNepomuk, SIGNAL(progressStatus(QString)), this, SLOT(setProgressStatus(QString)));
+
+    connect(m_syncNepomuk, SIGNAL(askForDeletion(QList<SyncDetails>)), this, SLOT(popDeletionQuestion(QList<SyncDetails>)));
+    connect(this, SIGNAL(deleteLocalFiles(bool)), m_syncNepomuk, SLOT(deleteLocalFiles(bool)));
+    connect(m_syncNepomuk, SIGNAL(userMerge(QList<SyncDetails>)), this, SLOT(popMergeDialog(QList<SyncDetails>)));
+    connect(this, SIGNAL(mergeFinished()), m_syncNepomuk, SLOT(mergeFinished()));
+
+    QThread *newThread = new QThread;
+    m_syncNepomuk->moveToThread(newThread);
+
+    //what mode should we use?
+    switch(psd.syncMode) {
+    case Download_Only:
+        connect(newThread, SIGNAL(started()),m_syncNepomuk, SLOT(startDownload()) );
+        break;
+    case Upload_Only:
+        connect(newThread, SIGNAL(started()),m_syncNepomuk, SLOT(startUpload()) );
+        break;
+    case Full_Sync:
+        connect(newThread, SIGNAL(started()),m_syncNepomuk, SLOT(startSync()) );
+        break;
+    }
+
+    newThread->start();
+
+    m_pdlg->exec();
 }
 
 void SyncZoteroDialog::popDeletionQuestion(QList<SyncDetails> items)
@@ -189,18 +139,11 @@ void SyncZoteroDialog::popMergeDialog(QList<SyncDetails> items)
 
     KMessageBox::sorry( this, QLatin1String("TODO:: User selected entry merging, default to use server verion for now."), QLatin1String("Sorry") );
 
-    QString url;
-    int urlIndex = ui->libTypeSelection->currentIndex();
-    if(urlIndex == 1) {
-        url = QLatin1String("groups");
-    }
-    else {
-        url = QLatin1String("users");
-    }
+    ProviderSyncDetails psd = m_ps->providerSettingsDetails();
 
     foreach(const SyncDetails &sd, items) {
         BibTexToNepomukPipe mergePipe;
-        mergePipe.setSyncDetails(url, ui->userID->text());
+        mergePipe.setSyncDetails(psd.url, psd.userName);
         mergePipe.merge(sd.syncResource, sd.externalResource, false);
     }
 
@@ -210,61 +153,4 @@ void SyncZoteroDialog::popMergeDialog(QList<SyncDetails> items)
 void SyncZoteroDialog::setProgressStatus(const QString &status)
 {
     m_pdlg->setLabelText(status);
-}
-
-void SyncZoteroDialog::processCollectionResults(QList<CollectionInfo> collectionList)
-{
-    ui->collectionSelection->addItem(i18n("no collection"), QString());
-    foreach(const CollectionInfo &ci, collectionList) {
-        ui->collectionSelection->addItem(ci.name, ci.id);
-    }
-}
-
-void SyncZoteroDialog::checkWalletForPwd()
-{
-    QString url;
-    int urlIndex = ui->libTypeSelection->currentIndex();
-    if(urlIndex == 1) {
-        url = QLatin1String("groups");
-    }
-    else {
-        url = QLatin1String("users");
-    }
-
-    QString pwdKey;
-    pwdKey.append(QLatin1String("zotero"));
-    pwdKey.append(QLatin1String(":"));
-    pwdKey.append(ui->userID->text());
-    pwdKey.append(QLatin1String(":"));
-    pwdKey.append(url);
-
-    if(m_wallet->hasEntry(pwdKey)) {
-        QString pwd;
-        m_wallet->readPassword(pwdKey, pwd);
-        ui->apiKey->setText(pwd);
-    }
-}
-
-void SyncZoteroDialog::checkSyncMode(int mode)
-{
-    if(mode == 1) { // export mode
-        ui->addContactsToAkonadi->setEnabled(false);
-        ui->contactCollection->setEnabled(false);
-        ui->addEventsToAkonadi->setEnabled(false);
-        ui->eventCollection->setEnabled(false);
-        //ui->importAttachments->setEnabled(false);
-        //ui->exportAttachments->setEnabled(true);
-        ui->mergeMode->setEnabled(false);
-        ui->askDeletion->setEnabled(false);
-    }
-    else {
-        ui->addContactsToAkonadi->setEnabled(true);
-        ui->contactCollection->setEnabled(true);
-        ui->addEventsToAkonadi->setEnabled(true);
-        ui->eventCollection->setEnabled(true);
-        //ui->importAttachments->setEnabled(true);
-        //ui->exportAttachments->setEnabled(false);
-        ui->mergeMode->setEnabled(true);
-        ui->askDeletion->setEnabled(true);
-    }
 }

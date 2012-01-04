@@ -421,6 +421,19 @@ void BibTexToNepomukPipe::merge(Nepomuk::Resource syncResource, Entry *external,
     qreal perFileProgress = (100.0/(qreal)maxValue);
     qreal curProcess = 0.0;
 
+    // update zotero sync details
+    if(diffEntry->contains(QLatin1String("zoterokey"))) {
+        addZoteroSyncDetails(publication,
+                             reference,
+                             PlainTextValue::text(diffEntry->value(QLatin1String("zoterokey"))),
+                             PlainTextValue::text(diffEntry->value(QLatin1String("zoteroetag"))),
+                             PlainTextValue::text(diffEntry->value(QLatin1String("zoteroupdated"))));
+
+        diffEntry->remove(QLatin1String("zoterokey"));
+        diffEntry->remove(QLatin1String("zoteroetag"));
+        diffEntry->remove(QLatin1String("zoteroupdated"));
+    }
+
     //go through the list of all remaining entries
     QMapIterator<QString, Value> i(*diffEntry);
     while (i.hasNext()) {
@@ -1662,6 +1675,8 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Ne
     if(m_mergeMode) {
         QList<Nepomuk::Resource> syncList = publication.property(Nepomuk::Vocabulary::SYNC::serverSyncData()).toResourceList();
 
+        qDebug() << "check " << syncList.size() << "sync informations";
+
         foreach(const Nepomuk::Resource &r, syncList) {
             if(r.property(Nepomuk::Vocabulary::SYNC::provider()).toString() != QString("zotero"))
                 continue;
@@ -1676,8 +1691,13 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Ne
     }
 
     if(!syncDetails.isValid()) {
+        qDebug() << "BibTexToNepomukPipe::addZoteroSyncDetails >> syncDetails is not valid!";
         syncDetails = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::SYNC::ServerSyncData());
     }
+
+    qDebug() << publication.property(Nepomuk::Vocabulary::NIE::title());
+    qDebug() << "syncDetails.setProperty OLD:" << syncDetails.property(Nepomuk::Vocabulary::SYNC::id()) << "NEW" << id;
+    qDebug() << "syncDetails.setProperty OLD:" << syncDetails.property(Nepomuk::Vocabulary::SYNC::url()) << "NEW" << m_syncUrl;
 
     syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::provider(), QString("zotero"));
     syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), m_syncUrl);

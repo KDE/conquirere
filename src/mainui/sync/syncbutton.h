@@ -24,7 +24,7 @@ class MainWindow;
 
 /**
   * @todo create a animated button from it for the toolbar so it can run run silently in the background
-  *       indicate that the user must interact and let him click on the button for it then
+  *       indicate that the user must interact and let him click on the button then
   */
 class SyncButton : public QWidget
 {

@@ -83,18 +83,18 @@ void NewProjectWizard::done(int result)
 
         foreach(const ProviderSyncDetails& psd, sp->m_psdList) {
             NBibSync *syncProvider = 0;
-            if(psd.providerInfo->providerId() == QLatin1String("zotero"))
+            if(psd.providerInfo->providerId() == QLatin1String("zotero")) {
                 syncProvider= new SyncZoteroNepomuk;
+            }
+            //else if(psd.providerInfo->providerId() == QLatin1String("kbibtexfile")) {
+            //    syncProvider= new SyncZoteroNepomuk;
+            //}
             else {
-                qFatal("unknown providerId() for sync settings");
-                break;
+                qWarning() << "unknown providerId() for sync settings";
+                continue;
             }
 
-            syncProvider->setUserName(psd.userName);
-            syncProvider->setUrl(psd.url);
-            syncProvider->setCollection(psd.collection);
-            syncProvider->setAskBeforeDeletion(psd.askBeforeDeletion);
-            syncProvider->setMergeStrategy((MergeStrategy)psd.mergeMode);
+            syncProvider->setProviderDetails(psd);
 
             customLibrary->addSyncProvider(syncProvider);
         }

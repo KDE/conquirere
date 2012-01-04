@@ -35,7 +35,6 @@ WriteToZotero::WriteToZotero(QObject *parent)
 
 WriteToZotero::~WriteToZotero()
 {
-
 }
 
 void WriteToZotero::pushItems(File items, const QString &collection)

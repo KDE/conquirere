@@ -18,45 +18,30 @@
 #ifndef SYNCZOTERODIALOG_H
 #define SYNCZOTERODIALOG_H
 
-#include <QDialog>
+#include <KDialog>
 
 #include "onlinestorage/storageglobals.h"
-#include "nbibio/synczoteronepomuk.h"
-
-#include <Akonadi/Collection>
-#include <KWallet/Wallet>
-
-namespace Ui {
-    class SyncZoteroDialog;
-}
+#include "nbibio/nbibsync.h"
 
 class QAbstractButton;
-class SyncZoteroNepomuk;
-class ReadFromZotero;
 class KProgressDialog;
-class File;
-class KDialog;
+class ProviderSettings;
+class NBibSync;
 class MergeWidget;
 
-class SyncZoteroDialog : public QDialog
+class SyncZoteroDialog : public KDialog
 {
     Q_OBJECT
 
 public:
     explicit SyncZoteroDialog(QWidget *parent = 0);
-    ~SyncZoteroDialog();
+    virtual ~SyncZoteroDialog();
+
+    void setupWidget(ProviderSyncDetails psd);
 
 private slots:
-    void collectionsReceived( const Akonadi::Collection::List& );
-
-    void fetchCollection();
-    void processCollectionResults(QList<CollectionInfo> collectionList);
-
-    void clicked(QAbstractButton* button);
+    void slotButtonClicked(int button);
     void setProgressStatus(const QString &status);
-
-    void checkWalletForPwd();
-    void checkSyncMode(int mode);
 
     void popDeletionQuestion(QList<SyncDetails> items);
     void popMergeDialog(QList<SyncDetails> items);
@@ -67,11 +52,9 @@ signals:
     void mergeFinished();
 
 private:
-    Ui::SyncZoteroDialog *ui;
-    KWallet::Wallet* m_wallet;
-
-    SyncZoteroNepomuk *m_szn;
-    ReadFromZotero *m_rfz;
+    KDialog *m_mainDialog;
+    ProviderSettings *m_ps;
+    NBibSync *m_syncNepomuk;
 
     KProgressDialog *m_pdlg;
     KDialog *m_MergeDialog;

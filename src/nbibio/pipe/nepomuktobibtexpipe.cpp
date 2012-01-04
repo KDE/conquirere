@@ -1015,14 +1015,22 @@ void NepomukToBibTexPipe::setSyncDetails(Entry *e, Nepomuk::Resource publication
 {
     QList<Nepomuk::Resource> sycList = publication.property(Nepomuk::Vocabulary::SYNC::serverSyncData()).toResourceList();
 
+    qDebug() << "NepomukToBibTexPipe::setSyncDetails for" << publication.property(Nepomuk::Vocabulary::NIE::title()) << "found syncsettings ::" << sycList.size();
+
     // only add the sync details the the right storage
     foreach(const Nepomuk::Resource &r, sycList) {
-        if(r.property(Nepomuk::Vocabulary::SYNC::provider()).toString() != QString("zotero"))//TODO make this possible for others too
+        if(r.property(Nepomuk::Vocabulary::SYNC::provider()).toString() != QString("zotero")) { //TODO make this possible for others too
+            qDebug() << "r.property(Nepomuk::Vocabulary::SYNC::provider()).toString() != QString(zotero)";
             continue;
-        if(r.property(Nepomuk::Vocabulary::SYNC::userId()).toString() != m_syncUserId)//TODO make this possible for others too
+        }
+        if(r.property(Nepomuk::Vocabulary::SYNC::userId()).toString() != m_syncUserId) {//TODO make this possible for others too
+            qDebug() << "r.property(Nepomuk::Vocabulary::SYNC::userId()).toString() != m_syncUserId";
             continue;
-        if(r.property(Nepomuk::Vocabulary::SYNC::url()).toString() != m_syncUrl)//TODO make this possible for others too
+        }
+        if(r.property(Nepomuk::Vocabulary::SYNC::url()).toString() != m_syncUrl) {//TODO make this possible for others too
+            qDebug() << "r.property(Nepomuk::Vocabulary::SYNC::url()).toString() != m_syncUrl";
             continue;
+        }
 
         //now we have the right object, write down sync details
         QString etag = r.property(Nepomuk::Vocabulary::SYNC::etag()).toString();

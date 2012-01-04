@@ -45,7 +45,6 @@ kde4_add_ui_files( mainui_LIB_SRCS
 
                    sync/bibtexexportdialog.ui
                    sync/bibteximportwizard.ui
-                   sync/synczoterodialog.ui
 
                    sidebar/referencewidget.ui
                    sidebar/listpublicationsdialog.ui

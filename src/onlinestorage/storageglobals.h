@@ -68,4 +68,5 @@ struct ProviderSyncDetails {
     qint64 akonadiContactsUUid;
     qint64 akonadiEventsUUid;
 };
+
 #endif // STORAGEGLOBALS_H

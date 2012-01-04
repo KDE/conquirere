@@ -32,13 +32,12 @@ WriteToStorage::WriteToStorage(QObject *parent)
 
 WriteToStorage::~WriteToStorage()
 {
-    qDebug() << "WriteToStorage::~WriteToStorage()";
-//    QMapIterator<QNetworkReply *, Entry *> i(m_replies);
-//    while (i.hasNext()) {
-//       // i.next();
-//        //i.key()->close();
-//        //i.key()->deleteLater();
-//    }
+    QMapIterator<QNetworkReply *, Entry *> i(m_replies);
+    while (i.hasNext()) {
+        i.next();
+        i.key()->close();
+        i.key()->deleteLater();
+    }
 }
 
 void WriteToStorage::setProviderSettings(const ProviderSyncDetails &psd)

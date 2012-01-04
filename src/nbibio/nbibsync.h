@@ -43,27 +43,11 @@ class NBibSync : public QObject
 public:
     explicit NBibSync(QObject *parent = 0);
 
-    virtual StorageInfo *providerInfo() const = 0;
+    void setUniqueProviderID(const QString &id);
+    QString uniqueProviderID() const;
 
-    void setId(const QString &providerId);
-    QString providerId() const;
-    void setUserName(const QString &name);
-    QString userName() const;
-    void setPassword(const QString &pwd);
-    void setUrl(const QString &url);
-    QString url() const;
-    void setCollection(const QString &collection);
-    QString collection() const;
-    void setAskBeforeDeletion(bool ask);
-    bool askBeforeDeletion() const;
-    void setMergeStrategy( MergeStrategy strategy);
-    MergeStrategy mergeStrategy() const;
-    /**
-      * Sets the Akonadi addressbook where all contacts (authors, editors etc) are imported to beside the Nepomuk storage.
-      *
-      * @p addressbook a valid Akonadi::Collection representing a addressbook
-      */
-    void setAkonadiAddressbook(Akonadi::Collection & addressbook);
+    void setProviderDetails(ProviderSyncDetails psd);
+    ProviderSyncDetails providerSyncDetails() const;
 
 signals:
     void progress(int value);
@@ -98,14 +82,9 @@ protected slots:
     void calculateProgress(int value);
 
 protected:
-    QString m_providerId;
-    QString m_name;
-    QString m_pwd;
-    QString m_url;
-    QString m_collection;
-    bool m_askBeforeDeletion;
-    MergeStrategy m_mergeStrategy;
-    Akonadi::Collection m_addressbook;
+    QString m_uniqueId;
+    ProviderSyncDetails m_psd;
+
     int m_syncSteps;
     int m_curStep;
 };

@@ -16,7 +16,7 @@
  */
 
 #include "providersettings.h"
-#include "../../build//src/onlinestorage/ui_providersettings.h"
+#include "ui_providersettings.h"
 
 #include "storageinfo.h"
 #include "syncstorage.h"

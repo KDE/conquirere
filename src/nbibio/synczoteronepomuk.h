@@ -22,7 +22,6 @@
 
 #include <kbibtex/file.h>
 
-class StorageInfo;
 class ReadFromZotero;
 class WriteToZotero;
 class BibTexToNepomukPipe;
@@ -37,8 +36,6 @@ class SyncZoteroNepomuk : public NBibSync
 public:
     explicit SyncZoteroNepomuk(QObject *parent = 0);
     virtual ~SyncZoteroNepomuk();
-
-    StorageInfo *providerInfo() const;
 
 public slots:
     void startUpload();
@@ -66,7 +63,6 @@ private:
     void writeSyncDetailsToNepomuk(Entry *localData, Entry *zoteroData);
 
 private:
-    StorageInfo *m_storageInfo;
     ReadFromZotero *m_rfz;
     WriteToZotero *m_wtz;
     BibTexToNepomukPipe *m_btnp;
