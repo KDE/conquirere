@@ -144,20 +144,12 @@ void DocumentPreview::clear()
 
 void DocumentPreview::showUrl(int index)
 {
-    if(isHidden()) {
+    if(index < 0 || isHidden())
         return;
-    }
 
     QString url = ui->urlSelector->itemText(index);
     QString mimetype = ui->urlSelector->itemData(index).toString();
 
-    if(m_part)
-        m_part->closeUrl();
-
-    emit activateKPart(0);
-
-    delete m_part;
-    m_part = 0;
     delete m_labelNone;
     m_labelNone = 0;
     delete m_labelInvalid;
@@ -168,25 +160,52 @@ void DocumentPreview::showUrl(int index)
         m_labelNone->setAlignment(Qt::AlignCenter);
         ui->kpartWidget->layout()->addWidget(m_labelNone);
 
+        if(m_part) {
+            m_part->closeUrl();
+        }
+
+        emit activateKPart(0);
+
+        delete m_part;
+        m_part = 0;
+
         return;
     }
 
     KUrl urlInfo(url);
-    KService::Ptr serivcePtr;
-    serivcePtr = KMimeTypeTrader::self()->preferredService(mimetype, QLatin1String("KParts/ReadOnlyPart"));
 
-    if (!serivcePtr.isNull()) {
-        m_part = serivcePtr->createInstance<KParts::ReadOnlyPart>(0);
+    KService::Ptr serivcePtr = KMimeTypeTrader::self()->preferredService(mimetype, QLatin1String("KParts/ReadOnlyPart"));
+    QString partsName = serivcePtr->library();
+
+    if(m_lastPartsName == partsName) {
+        if(m_part) {
+            m_part->openUrl(url);
+        }
+        return;
     }
+
+    m_lastPartsName = partsName;
+    delete m_part;
+    m_part = 0;
+
+    if (serivcePtr.isNull()) {
+        return;
+    }
+
+    m_part = serivcePtr->createInstance<KParts::ReadOnlyPart>(0);
+
     if (m_part) {
         m_part->setProgressInfoEnabled(true);
         ui->kpartWidget->layout()->addWidget(m_part->widget());
-        m_part->openUrl(url);
         emit activateKPart(m_part);
+
+        m_part->openUrl(url);
+
     } else {
         m_labelInvalid = new QLabel(i18n("Cannot create preview for\n%1\n\nNo part available.", urlInfo.fileName()), ui->kpartWidget);
         m_labelInvalid->setAlignment(Qt::AlignCenter);
         ui->kpartWidget->layout()->addWidget(m_labelInvalid);
+        emit activateKPart(0);
     }
 }
 
@@ -195,23 +214,21 @@ void DocumentPreview::openExternally() {
     QDesktopServices::openUrl(url);
 }
 
-void DocumentPreview::changeEvent ( QEvent * event )
+void DocumentPreview::hideEvent ( QHideEvent * event )
 {
-    if(event->type() == QEvent::Close) {
-        emit activateKPart(0);
+    emit activateKPart(0);
 
-        delete m_part;
-        m_part = 0;
-        delete m_labelNone;
-        m_labelNone = 0;
-        delete m_labelInvalid;
-        m_labelInvalid = 0;
-    }
-    else if(event->type() == QEvent::Show) {
-        showUrl(0);
-    }
+    delete m_part;
+    m_part = 0;
+    delete m_labelNone;
+    m_labelNone = 0;
+    delete m_labelInvalid;
+    m_labelInvalid = 0;
+}
 
-    QDockWidget::changeEvent(event);
+void DocumentPreview::showEvent ( QShowEvent * event )
+{
+    showUrl(0);
 }
 
 void DocumentPreview::toggled(bool status)

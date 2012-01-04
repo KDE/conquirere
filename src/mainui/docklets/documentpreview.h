@@ -52,12 +52,14 @@ signals:
     void activateKPart(KParts::Part *part);
 
 protected:
-    void changeEvent ( QEvent * event );
+    void hideEvent ( QHideEvent * event );
+    void showEvent ( QShowEvent * event );
 
 private:
     Ui::DocumentPreview *ui;
     Nepomuk::Resource m_resource;
     KParts::ReadOnlyPart* m_part;
+    QString m_lastPartsName;
     QLabel *m_labelInvalid;
     QLabel *m_labelNone;
 };

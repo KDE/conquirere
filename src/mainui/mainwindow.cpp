@@ -40,6 +40,7 @@
 #include <KDE/KLocale>
 #include <KDE/KActionCollection>
 #include <KDE/KStandardAction>
+#include <KDE/KStandardDirs>
 #include <KDE/KFileDialog>
 #include <KDE/KMessageBox>
 #include <KDE/KIO/NetAccess>
@@ -94,7 +95,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    //createGUI(0); // disconnects KPart gui elements again
+    createGUI(0); // disconnects KPart gui elements again
 
     delete m_libraryWidget;
     delete m_mainView;
@@ -281,7 +282,8 @@ void MainWindow::connectKPartGui(KParts::Part * part)
     // this cause the screen to flicker as it rebuilds the GUI
     // better yet add all kparts (okular, gwenview, khtml) on program start
     // together with all gui elements
-    //createGUI(part);
+
+    createGUI(part);
 }
 
 void MainWindow::switchView(ResourceSelection selection, BibEntryType filter, Library *p)
@@ -475,7 +477,7 @@ void MainWindow::setupActions()
 
     KStandardAction::quit(kapp, SLOT(quit()),actionCollection());
 
-    setupGUI();
+    setupGUI(Default, KStandardDirs::locate("appdata",QLatin1String("conquirereui.rc")));
 }
 
 void MainWindow::setupMainWindow()
