@@ -190,6 +190,13 @@ void NepomukModel::loadCache()
     addCacheData(cachedEntries);
 }
 
+void NepomukModel::updateCacheData()
+{
+    foreach(const CachedRowEntry &entry, m_modelCacheData) {
+        m_queryClient->resourceChanged(entry.resource);
+    }
+}
+
 void NepomukModel::addCacheData(const QList<CachedRowEntry> &entries)
 {
     if(entries.size() > 0) {

@@ -92,6 +92,11 @@ public slots:
       */
     void loadCache();
 
+    /**
+      * Updates all cached list data
+      */
+    void updateCacheData();
+
 private slots:
     void addCacheData(const QList<CachedRowEntry> &entries);
     void removeCacheData(QList<QUrl> urls);

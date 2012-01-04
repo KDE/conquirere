@@ -496,6 +496,14 @@ void Library::addResource(Nepomuk::Resource & res)
     }
 }
 
+void Library::updateCacheData()
+{
+    foreach(QSortFilterProxyModel *atm, m_resources) {
+        NepomukModel *nm = qobject_cast<NepomukModel *>(atm->sourceModel());
+        nm->updateCacheData();
+    }
+}
+
 QSortFilterProxyModel* Library::viewModel(ResourceSelection selection)
 {
     return m_resources.value(selection);

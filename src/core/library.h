@@ -185,6 +185,11 @@ public:
     void addResource(Nepomuk::Resource & res);
 
     /**
+      * Updates all cached list data
+      */
+    void updateCacheData();
+
+    /**
       * Returns the model for a specific library Resource.
       *
       * @p selection one of the ResourceSelection types

@@ -42,7 +42,6 @@ NoteWidget::NoteWidget(QWidget *parent)
 
     //TODO remove and use ResourceWatcher later on
     connect(ui->editTags, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-    connect(ui->editTitle, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 }
 
 NoteWidget::~NoteWidget()

@@ -67,6 +67,8 @@ public slots:
     void dbCheck();
     void dbBackup();
 
+    void updateListCache();
+
     // other helping slots
     void connectKPartGui(KParts::Part * part);
     void switchView(ResourceSelection selection, BibEntryType filter, Library *p);

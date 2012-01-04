@@ -214,6 +214,7 @@ void MainWindow::importZotero()
     SyncZoteroDialog szd;
 
     szd.exec();
+    updateListCache();
 }
 
 void MainWindow::exportBibTex()
@@ -252,6 +253,7 @@ void MainWindow::syncZotero()
     SyncZoteroDialog szd;
 
     szd.exec();
+    updateListCache();
 }
 
 void MainWindow::dbCheck()
@@ -262,6 +264,16 @@ void MainWindow::dbCheck()
 void MainWindow::dbBackup()
 {
     qDebug() << "MainWindow::dbBackup()";
+}
+
+void MainWindow::updateListCache()
+{
+    QMapIterator<Library *, QWidget *> i(m_libraryList);
+
+    while (i.hasNext()) {
+        i.next();
+        i.key()->updateCacheData();
+    }
 }
 
 void MainWindow::connectKPartGui(KParts::Part * part)
@@ -436,6 +448,14 @@ void MainWindow::setupActions()
     dbBackupAction->setIcon(KIcon(QLatin1String("svn-update")));
     actionCollection()->addAction(QLatin1String("db_backup"), dbBackupAction);
     connect(dbBackupAction, SIGNAL(triggered(bool)),this, SLOT(dbBackup()));
+
+    //View menu
+
+    KAction* updateListCache = new KAction(this);
+    updateListCache->setText(i18n("Update List Cache"));
+    updateListCache->setIcon(KIcon(QLatin1String("view-refresh")));
+    actionCollection()->addAction(QLatin1String("update_list_cache"), updateListCache);
+    connect(updateListCache, SIGNAL(triggered(bool)),this, SLOT(updateListCache()));
 
 
     // ##############################################

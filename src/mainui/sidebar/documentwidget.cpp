@@ -103,6 +103,8 @@ void DocumentWidget::setPublication()
         m_document.setProperty(Nepomuk::Vocabulary::NBIB::publishedAs(), publication);
         publication.addProperty(Nepomuk::Vocabulary::NBIB::isPublicationOf(), m_document);
         setResource(m_document);
+        emit resourceCacheNeedsUpdate(m_document);
+        emit resourceCacheNeedsUpdate(publication);
     }
 }
 
@@ -115,5 +117,7 @@ void DocumentWidget::removePublication()
 
     //update
     setResource(m_document);
+    emit resourceCacheNeedsUpdate(m_document);
+    emit resourceCacheNeedsUpdate(publication);
 }
 

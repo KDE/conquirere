@@ -63,6 +63,11 @@ public slots:
     virtual void startFetchData() = 0;
     void stopFetchData();
 
+    /**
+      * @todo remove when starting to use ResourceWatcher later on
+      */
+    virtual void resourceChanged (const Nepomuk::Resource &resource) = 0;
+
 signals:
     void newCacheEntries(const QList<CachedRowEntry> &entries) const;
     void updateCacheEntries(const QList<CachedRowEntry> &entries) const;
@@ -74,11 +79,6 @@ private slots:
     void addToCache( const QList< Nepomuk::Query::Result > &entries ) const;
     void resultCount(int number) const;
     void resourceChanged (const Nepomuk::Resource &resource, const Nepomuk::Types::Property &property, const QVariant &value);
-
-    /**
-      * @todo remove when starting to use ResourceWatcher later on
-      */
-    virtual void resourceChanged (const Nepomuk::Resource &resource) = 0;
 
     void finishedStartup();
 
