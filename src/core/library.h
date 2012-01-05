@@ -18,7 +18,7 @@
 #ifndef LIBRARY_H
 #define LIBRARY_H
 
-#include "../globals.h"
+#include "globals.h"
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Tag>

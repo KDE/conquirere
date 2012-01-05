@@ -63,8 +63,8 @@
 
 #include <QtCore/QDebug>
 
-const QString DOCPATH = i18nc("Name of the documents folder to store user library documents","documents");  /**< @todo make this configurable */
-const QString NOTEPATH = i18nc("Name of the notes folder to store user library documents","notes");     /**< @todo make this configurable */
+const QString DOCPATH = I18N_NOOP2("Name of the documents folder to store user library documents","documents");  /**< @todo make this configurable */
+const QString NOTEPATH = I18N_NOOP2("Name of the notes folder to store user library documents","notes");     /**< @todo make this configurable */
 
 Library::Library(LibraryType type)
     : QObject(0)
