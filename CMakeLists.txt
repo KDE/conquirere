@@ -33,6 +33,29 @@ include_directories (${CMAKE_SOURCE_DIR}
                      ${CMAKE_SOURCE_DIR}/src
 )
 
+# create versions string
+FILE(WRITE ${CMAKE_BINARY_DIR}/version.h.in
+    "\#define VERSION \"@VERSION@\"\n"
+)
+
+FILE(WRITE ${CMAKE_BINARY_DIR}/version.cmake
+    "execute_process(COMMAND git describe --abbrev=4 HEAD
+                   COMMAND sed -e "s/-/./g"
+                   OUTPUT_VARIABLE VERSION
+                   OUTPUT_STRIP_TRAILING_WHITESPACE)
+    # remove leading "v"
+    string(REGEX REPLACE "^v(.*)" "\\1" VERSION ${VERSION})
+
+    CONFIGURE_FILE(\${SRC} \${DST} @ONLY)
+")
+
+ADD_CUSTOM_TARGET(
+    version
+    ${CMAKE_COMMAND} -D SRC=${CMAKE_BINARY_DIR}/version.h.in
+                     -D DST=${CMAKE_BINARY_DIR}/version.h
+                     -P ${CMAKE_BINARY_DIR}/version.cmake
+)
+
 add_subdirectory( nbib )
 add_subdirectory( dms-copy )
 add_subdirectory( src )

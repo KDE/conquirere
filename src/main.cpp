@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "version.h"
 #include "mainui/mainwindow.h"
 
 #include <KDE/KApplication>
@@ -24,16 +25,19 @@
 
 #include <Nepomuk/ResourceManager>
 
-
 int main(int argc, char *argv[])
 {
     Nepomuk::ResourceManager::instance()->init();
 
     KAboutData aboutData( "conquirere", 0,
-                          ki18n("Conquirere"), "0.1",
+                          ki18n("Conquirere"), VERSION,
                           ki18n("Research Helper Tool"),
                           KAboutData::License_GPL,
-                          ki18n("Copyright (c) 2011 Jörg Ehrichs") );
+                          ki18n("Copyright (c) 2011-2012 Jörg Ehrichs"), KLocalizedString(),
+                          "https://projects.kde.org/projects/playground/edu/conquirere" );
+
+    aboutData.addAuthor(ki18n("Jörg Ehrichs"), ki18n("Maintainer"), "joerg.ehrichs@gmx.de");
+
     KCmdLineArgs::init( argc, argv, &aboutData );
 
     KApplication app;

@@ -16,7 +16,6 @@
  */
 
 #include "synczoterodialog.h"
-#include "ui_synczoterodialog.h"
 
 #include "onlinestorage/providersettings.h"
 #include "onlinestorage/storageinfo.h"
