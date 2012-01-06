@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Jörg Ehrichs <joerg.ehrichs@gmx.de>
+ * Copyright 2012 Jörg Ehrichs <joerg.ehrichs@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,7 +16,7 @@
  */
 
 #include "searchwidget.h"
-#include "../../build/src/mainui/ui_searchwidget.h"
+#include "ui_searchwidget.h"
 
 #include <kbibtex/onlinesearchabstract.h>
 #include <kbibtex/onlinesearchgeneral.h>
@@ -37,7 +37,9 @@
 #include <Nepomuk/Vocabulary/NFO>
 #include <Nepomuk/Vocabulary/NMO>
 #include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/PIMO>
+#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Resource>
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/ResourceTypeTerm>
@@ -47,6 +49,8 @@
 #include <Nepomuk/Query/OrTerm>
 #include <Nepomuk/Query/QueryServiceClient>
 
+#include <KDE/KConfigGroup>
+#include <KDE/KConfig>
 #include <KDE/KAction>
 #include <KDE/KUrl>
 
@@ -60,33 +64,49 @@ const int HomepageRole = Qt::UserRole + 5;
 const int WidgetRole = Qt::UserRole + 6;
 const int NameRole = Qt::UserRole + 7;
 
-SearchWidget::SearchWidget(QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::SearchWidget)
+enum SearchSource {
+    Search_Everywhere,
+    Search_Nepomuk,
+    Search_Web
+};
+
+SearchWidget::SearchWidget(QWidget *parent)
+    : QDockWidget(parent)
+    , ui(new Ui::SearchWidget)
+    , m_actionOpenHomepage(0)
+    , m_queryClient(0)
+    , m_searchResultModel(0)
 {
-    qRegisterMetaType<SearchResultEntry>("SearchResultEntry");
-
     ui->setupUi(this);
-
-    //share this selection with KBibTeX for the moment
-    m_config = KSharedConfig::openConfig(QLatin1String("kbibtexrc"));
-    m_configGroupName = QLatin1String("Search Engines Docklet");
-
     setupUi();
+
+    m_searchResultModel = new SearchResultModel();
+    connect(this, SIGNAL(newSearchStarted()), m_searchResultModel, SLOT(clearData()));
+    connect(this, SIGNAL(searchResult(SearchResultEntry)), m_searchResultModel, SLOT(addSearchResult(SearchResultEntry)));
 
     m_queryClient = new Nepomuk::Query::QueryServiceClient();
     connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(foundNepomukEntry(QList<Nepomuk::Query::Result>)));
     connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(nepomukQueryFinished()));
-    connect(m_queryClient, SIGNAL(resultCount(int)), this, SLOT(nepomukResultCount(int)));
+
+    loadSettings();
 }
 
 SearchWidget::~SearchWidget()
 {
+    saveSettings();
+
     delete ui;
     m_queryClient->close();
     delete m_queryClient;
+    delete m_actionOpenHomepage;
 
     qDeleteAll(m_itemToOnlineSearch);
+    delete m_searchResultModel;
+}
+
+SearchResultModel* SearchWidget::searchResultModel()
+{
+    return m_searchResultModel;
 }
 
 void SearchWidget::openHomepage()
@@ -112,34 +132,40 @@ void SearchWidget::itemCheckChanged(QListWidgetItem* item)
         }
     }
 
-    // no not allow to start a search without any checked search engine
-    if(ui->rbSearchWebOnly->isChecked()) {
+    // do not allow to start a search without any checked search engine
+    SearchSource source = SearchSource(ui->selectSource->currentIndex());
+    if(source == Search_Web) {
         ui->buttonSearch->setEnabled(numCheckedEngines > 0);
     }
 
     if (item != NULL) {
-        KConfigGroup configGroup(m_config, m_configGroupName);
+        KConfig config;
+        KConfigGroup searchSettingsGroup( &config, QLatin1String("SearchSettings") );
         QString name = item->data(NameRole).toString();
-        configGroup.writeEntry(name, item->checkState() == Qt::Checked);
-        m_config->sync();
+        searchSettingsGroup.writeEntry(name, item->checkState() == Qt::Checked);
+        searchSettingsGroup.config()->sync();
     }
 }
 
 void SearchWidget::startSearch()
 {
+    switchToCancel();
     ui->progressBar->setValue(0);
     int numResults = ui->editNumberOfResults->value();
     if(numResults < 1) numResults = 9999;
 
+    SearchSource source = SearchSource(ui->selectSource->currentIndex());
+
     // start the nepomuk search
-    if(ui->rbSearchBoth->isChecked() ||
-       ui->rbSearchNepomukOnly->isChecked()) {
+    if(source == Search_Everywhere ||
+       source == Search_Nepomuk) {
         m_nepomukSearchInProgress = true;
 
         Nepomuk::Query::AndTerm andTerm;
 
         QString content = ui->editContent->text();
         QString title =  ui->editTitle->text();
+        QString author =  ui->editAuthor->text();
 
         if(!content.isEmpty()) {
             Nepomuk::Query::OrTerm orTerm;
@@ -154,7 +180,21 @@ void SearchWidget::startSearch()
 
         if(!title.isEmpty())
              andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::NIE::title(),
-                                                            Nepomuk::Query::LiteralTerm(content) ));
+                                                                 Nepomuk::Query::LiteralTerm(content) ));
+
+        if(!author.isEmpty()) {
+            Nepomuk::Query::OrTerm orTerm;
+
+            Nepomuk::Query::ComparisonTerm naoSearch( Soprano::Vocabulary::NAO::creator(), Nepomuk::Query::LiteralTerm(author) );
+            naoSearch.setComparator(Nepomuk::Query::ComparisonTerm::Contains);
+            orTerm.addSubTerm(naoSearch);
+
+            Nepomuk::Query::ComparisonTerm ncoSearch( Nepomuk::Vocabulary::NCO::creator(), Nepomuk::Query::LiteralTerm(author) );
+            ncoSearch.setComparator(Nepomuk::Query::ComparisonTerm::Contains);
+            orTerm.addSubTerm(ncoSearch);
+
+            andTerm.addSubTerm( orTerm );
+        }
 
         Nepomuk::Query::OrTerm orTerm;
         if(ui->cbDocument->isChecked())
@@ -166,7 +206,7 @@ void SearchWidget::startSearch()
         if(ui->cbImage->isChecked())
             orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Image() ) );
         if(ui->cbEmail->isChecked())
-            orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NMO::Message() ) );
+            orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NMO::Email() ) );
         if(ui->cbNote->isChecked())
             orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::PIMO::Note() ) );
         if(ui->cbPublication->isChecked()) {
@@ -181,24 +221,23 @@ void SearchWidget::startSearch()
         // build the query
         Nepomuk::Query::Query query( andTerm );
 
-        //query.setLimit(numResults);
+        query.setLimit(numResults);
 
         m_queryClient->query(query);
     }
 
     // start the websearch
-    if(ui->rbSearchBoth->isChecked() ||
-       ui->rbSearchWebOnly->isChecked()) {
+    if(source == Search_Everywhere ||
+       source == Search_Web) {
 
         m_runningWebSearches.clear();
         m_websearchProgressMap.clear();
 
         /// start search using the general-purpose form's values
-
-        QMap<QString, QString> queryTerms;// = m_generalQueryTermsForm->getQueryTerms();
+        QMap<QString, QString> queryTerms;
         queryTerms.insert("title", ui->editTitle->text());
         queryTerms.insert("free", ui->editContent->text());
-        //queryTerms.insert("author", ui->editAuthor->text());
+        queryTerms.insert("author", ui->editAuthor->text());
 
         for (QMap<QListWidgetItem*, OnlineSearchAbstract*>::ConstIterator it = m_itemToOnlineSearch.constBegin(); it != m_itemToOnlineSearch.constEnd(); ++it) {
             if (it.key()->checkState() == Qt::Checked) {
@@ -207,12 +246,13 @@ void SearchWidget::startSearch()
             }
         }
     }
+
+    emit newSearchStarted();
 }
 
 void SearchWidget::foundOnlineEntry(Entry *newEntry)
 {
     OnlineSearchAbstract *engine = qobject_cast<OnlineSearchAbstract *>(sender());
-    qDebug() << "SearchWidget::foundOnlineEntry from " << engine->name();
 
     SearchResultEntry sre;
     sre.webEngine = engine;
@@ -223,28 +263,53 @@ void SearchWidget::foundOnlineEntry(Entry *newEntry)
 
 void SearchWidget::foundNepomukEntry(QList<Nepomuk::Query::Result> newEntry)
 {
-    qDebug() << "SearchWidget::foundNepomukEntry";
+    foreach(const Nepomuk::Query::Result &r, newEntry) {
+        SearchResultEntry sre;
+        sre.nepomukResult = r;
+        sre.webResult = 0;
+        sre.webEngine = 0;
 
-    if(!newEntry.first().excerpt().isEmpty()) {
-       qDebug() <<  newEntry.first().excerpt();
+        emit searchResult(sre);
     }
-
-    SearchResultEntry sre;
-    sre.nepomukResult = newEntry.first();
-
-    emit searchResult(sre);
-}
-
-void SearchWidget::nepomukResultCount(int results)
-{
-    qDebug() << "SearchWidget::nepomukResultCount()" << results;
 }
 
 void SearchWidget::nepomukQueryFinished()
 {
     m_nepomukSearchInProgress = false;
-    qDebug() << "SearchWidget::nepomukQueryFinished()";
     updateProgress(1,1);
+
+    SearchSource source = SearchSource(ui->selectSource->currentIndex());
+    if(source == Search_Nepomuk) {
+        switchToSearch();
+    }
+    if(source == Search_Everywhere && m_runningWebSearches.isEmpty()) {
+        switchToSearch();
+    }
+}
+
+void SearchWidget::websearchStopped(int resultCode)
+{
+    OnlineSearchAbstract *engine = static_cast<OnlineSearchAbstract *>(sender());
+    if (m_runningWebSearches.remove(engine)) {
+        /// last search engine stopped
+        if (m_runningWebSearches.isEmpty()) {
+            SearchSource source = SearchSource(ui->selectSource->currentIndex());
+            if(source == Search_Everywhere && !m_nepomukSearchInProgress) {
+                switchToSearch();
+            }
+            if(source == Search_Web) {
+                switchToSearch();
+            }
+
+            ui->progressBar->setValue(100);
+        }
+//        else {
+//            QStringList remainingEngines;
+//            foreach(OnlineSearchAbstract *running, m_runningSearches) {
+//                remainingEngines.append(running->label());
+//            }
+//        }
+    }
 }
 
 void SearchWidget::updateProgress(int cur, int total)
@@ -261,6 +326,52 @@ void SearchWidget::updateProgress(int cur, int total)
         progress += 100/(m_websearchProgressMap.size()+1);
 
     ui->progressBar->setValue(count >= 1 ? progress / count : 0);
+}
+
+void SearchWidget::saveSettings()
+{
+    KConfig config;
+    KConfigGroup searchSettingsGroup( &config, QLatin1String("SearchSettings") );
+    searchSettingsGroup.writeEntry( QLatin1String("numOfResults"), ui->editNumberOfResults->value() );
+    searchSettingsGroup.writeEntry( QLatin1String("searchMode"), ui->selectSource->currentIndex() );
+    searchSettingsGroup.writeEntry( QLatin1String("findAudio"), ui->cbAudio->isChecked() );
+    searchSettingsGroup.writeEntry( QLatin1String("findDocument"), ui->cbDocument->isChecked() );
+    searchSettingsGroup.writeEntry( QLatin1String("findEmail"), ui->cbEmail->isChecked() );
+    searchSettingsGroup.writeEntry( QLatin1String("findImage"), ui->cbImage->isChecked() );
+    searchSettingsGroup.writeEntry( QLatin1String("findNote"), ui->cbNote->isChecked() );
+    searchSettingsGroup.writeEntry( QLatin1String("findPublication"), ui->cbPublication->isChecked() );
+    searchSettingsGroup.writeEntry( QLatin1String("findVideo"), ui->cbVideo->isChecked() );
+    searchSettingsGroup.writeEntry( QLatin1String("findWebpage"), ui->cbWebpage->isChecked() );
+    searchSettingsGroup.config()->sync();
+}
+
+void SearchWidget::loadSettings()
+{
+    KConfig config;
+    KConfigGroup searchSettingsGroup( &config, QLatin1String("SearchSettings") );
+
+    int numOfResults = searchSettingsGroup.readEntry( QLatin1String("numOfResults"), 50 );
+    ui->editNumberOfResults->setValue(numOfResults);
+
+    int searchMode = searchSettingsGroup.readEntry( QLatin1String("searchMode"), 0 );
+    ui->selectSource->setCurrentIndex(searchMode);
+
+    bool audioChecked = searchSettingsGroup.readEntry( QLatin1String("findAudio"), true );
+    ui->cbAudio->setChecked(audioChecked);
+    bool audioDocument = searchSettingsGroup.readEntry( QLatin1String("findDocument"), true );
+    ui->cbDocument->setChecked(audioDocument);
+    bool audioEmail = searchSettingsGroup.readEntry( QLatin1String("findEmail"), true );
+    ui->cbEmail->setChecked(audioEmail);
+    bool audioImage = searchSettingsGroup.readEntry( QLatin1String("findImage"), true );
+    ui->cbImage->setChecked(audioImage);
+    bool audioNote = searchSettingsGroup.readEntry( QLatin1String("findNote"), true );
+    ui->cbNote->setChecked(audioNote);
+    bool audioPublication = searchSettingsGroup.readEntry( QLatin1String("findPublication"), true );
+    ui->cbPublication->setChecked(audioPublication);
+    bool audioVideo = searchSettingsGroup.readEntry( QLatin1String("findVideo"), true );
+    ui->cbVideo->setChecked(audioVideo);
+    bool audioWebpage = searchSettingsGroup.readEntry( QLatin1String("findWebpage"), true );
+    ui->cbWebpage->setChecked(audioWebpage);
 }
 
 void SearchWidget::setupUi()
@@ -285,26 +396,47 @@ void SearchWidget::setupUi()
     ui->listWebEngines->addAction(m_actionOpenHomepage);
     ui->listWebEngines->setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    connect(ui->buttonSearch, SIGNAL(clicked()), this, SLOT(startSearch()));
+    switchToSearch();
 }
 
 void SearchWidget::addEngine(OnlineSearchAbstract *engine)
 {
-    KConfigGroup configGroup(m_config, m_configGroupName);
+    KConfig config;
+    KConfigGroup searchSettingsGroup( &config, QLatin1String("SearchSettings") );
 
     QListWidgetItem *item = new QListWidgetItem(engine->label(), ui->listWebEngines);
-    item->setCheckState(configGroup.readEntry(engine->name(), false) ? Qt::Checked : Qt::Unchecked);
+    item->setCheckState(searchSettingsGroup.readEntry(engine->name(), false) ? Qt::Checked : Qt::Unchecked);
     item->setIcon(engine->icon());
     item->setData(HomepageRole, engine->homepage());
     item->setData(NameRole, engine->name());
 
-//    OnlineSearchQueryFormAbstract *widget = engine->customWidget(m_queryTermsStack);
-//    item->setData(WidgetRole, QVariant::fromValue<OnlineSearchQueryFormAbstract*>(widget));
-//    if (widget != NULL)
-//        m_queryTermsStack->addWidget(widget);
-
     m_itemToOnlineSearch.insert(item, engine);
     connect(engine, SIGNAL(foundEntry(Entry*)), this, SLOT(foundOnlineEntry(Entry*)));
-//    connect(engine, SIGNAL(stoppedSearch(int)), this, SLOT(stoppedSearch(int)));
+    connect(engine, SIGNAL(stoppedSearch(int)), this, SLOT(websearchStopped(int)));
     connect(engine, SIGNAL(progress(int,int)), this, SLOT(updateProgress(int,int)));
+}
+
+void SearchWidget::switchToSearch()
+{
+    for (QMap<QListWidgetItem*, OnlineSearchAbstract*>::ConstIterator it = m_itemToOnlineSearch.constBegin(); it != m_itemToOnlineSearch.constEnd(); ++it)
+        disconnect(ui->buttonSearch, SIGNAL(clicked()), it.value(), SLOT(cancel()));
+
+    connect(ui->buttonSearch, SIGNAL(clicked()), this, SLOT(startSearch()));
+    ui->buttonSearch->setText(i18nc("Button that starts the search","Search"));
+    ui->buttonSearch->setIcon(KIcon(QLatin1String("media-playback-start")));
+    ui->optionsTab->setEnabled(true);
+    ui->enginesTab->setEnabled(true);
+}
+
+void SearchWidget::switchToCancel()
+{
+    disconnect(ui->buttonSearch, SIGNAL(clicked()), this, SLOT(startSearch()));
+
+    for (QMap<QListWidgetItem*, OnlineSearchAbstract*>::ConstIterator it = m_itemToOnlineSearch.constBegin(); it != m_itemToOnlineSearch.constEnd(); ++it)
+        connect(ui->buttonSearch, SIGNAL(clicked()), it.value(), SLOT(cancel()));
+
+    ui->buttonSearch->setText(i18n("Cancel"));
+    ui->buttonSearch->setIcon(KIcon(QLatin1String("media-playback-stop")));
+    ui->optionsTab->setEnabled(false);
+    ui->enginesTab->setEnabled(false);
 }

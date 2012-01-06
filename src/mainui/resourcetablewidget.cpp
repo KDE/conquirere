@@ -16,18 +16,19 @@
  */
 
 #include "resourcetablewidget.h"
+
+#include "mainwindow.h"
+#include "tableviewmenu.h"
+
 #include "core/library.h"
 #include "core/models/nepomukmodel.h"
 #include "core/models/publicationfiltermodel.h"
 #include "core/models/seriesfiltermodel.h"
+#include "core/models/searchresultmodel.h"
 #include "core/delegates/ratingdelegate.h"
-#include "mainwindow.h"
+#include "core/delegates/htmldelegate.h"
 
 #include <Nepomuk/Resource>
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/NFO>
-#include <Nepomuk/Vocabulary/PIMO>
-#include <Nepomuk/Variant>
 
 #include <KDE/KWidgetItemDelegate>
 #include <KDE/KRatingWidget>
@@ -43,15 +44,15 @@
 #include <QtGui/QTableView>
 #include <QtGui/QHeaderView>
 #include <QtGui/QMenu>
-#include <QtGui/QAction>
-#include <QtGui/QDesktopServices>
 #include <QtGui/QSortFilterProxyModel>
+#include <QtGui/QItemDelegate>
 
 #include <QtCore/QDebug>
 
 ResourceTableWidget::ResourceTableWidget(QWidget *parent)
     : QWidget(parent)
     , m_documentView(0)
+    , m_searchResultModel(0)
 {
     setupWidget();
 }
@@ -61,15 +62,18 @@ ResourceTableWidget::~ResourceTableWidget()
     delete m_searchBox;
     delete m_searchSelection;
     delete m_documentView;
-
-    delete m_removeFromSystem;
-    delete m_removeFromProject;
-    delete m_exportToBibTeX;
 }
 
 void ResourceTableWidget::setMainWindow(MainWindow *mw)
 {
         m_parent = mw;
+}
+
+void ResourceTableWidget::setSearchResultModel(SearchResultModel* srm)
+{
+    delete m_searchResultModel;
+    m_searchResultModel = new QSortFilterProxyModel();
+    m_searchResultModel->setSourceModel(srm);
 }
 
 void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType filter, Library *p)
@@ -99,6 +103,8 @@ void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType f
                 this, SLOT(selectedResource(QItemSelection,QItemSelection)));
     }
 
+    m_documentView->setWordWrap(false);
+    m_documentView->setItemDelegateForColumn(3, NULL);
     m_documentView->setModel(p->viewModel(selection));
 
     //load settings for visible/hidden columns
@@ -107,21 +113,48 @@ void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType f
     group.append((int)m_selection);
     KConfigGroup tableViewGroup( &config, group );
 
-    // go through all header elements and apply last known visibility status
+    // go through all header elements and apply last known visibility / size status
     // also add each header name to the search combobox for selection
     QString curSearchSelection =  m_searchSelection->currentText();
     m_searchSelection->clear();
     m_searchSelection->addItem(i18n("all entries"), -1); //additem NAME, TABLEHEADERINDEX
     QHeaderView *hv = m_documentView->horizontalHeader();
     int columnCount = m_documentView->model()->columnCount();
+
+    NepomukModel *nm = qobject_cast<NepomukModel *>(newModel);
+    if(!nm) {
+        QSortFilterProxyModel *qsf = qobject_cast<QSortFilterProxyModel *>(newModel);
+        if(qsf) {
+            nm = qobject_cast<NepomukModel *>(qsf->sourceModel());
+        }
+    }
+
     for(int i=0; i < columnCount; i++) {
-        bool hidden = tableViewGroup.readEntry( QString::number(i), false );
+        // hidden status
+        QString keyHidden = QLatin1String("hidden_") + QString::number(i);
+        bool hidden = tableViewGroup.readEntry( keyHidden, false );
+
         hv->setSectionHidden(i, hidden);
 
         QString headerName = m_documentView->model()->headerData(i,Qt::Horizontal).toString();
         if(!headerName.isEmpty()) {
             m_searchSelection->addItem(headerName, i);
         }
+
+        // size status
+        int sectionSize = 50;
+        QString keySize = QLatin1String("size_") + QString::number(i);
+        int size = tableViewGroup.readEntry( keySize, -1 );
+        if(size > 4) {
+            sectionSize = size;
+        }
+        else {
+            if(nm) {
+                sectionSize = nm->defaultSectionSize(i);
+            }
+        }
+
+        hv->resizeSection(i,sectionSize);
     }
 
     //try to be clever and set the same searchElement as before, if it exist
@@ -129,20 +162,67 @@ void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType f
     if(lastSelection != -1)
         m_searchSelection->setCurrentIndex(lastSelection);
 
-    // retrieve default section size for each section from the current model
+    hv->setResizeMode(QHeaderView::Interactive);
+
+    m_documentView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+    connect(m_documentView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(selectedResource(QItemSelection,QItemSelection)));
+
+    m_documentView->selectRow(0);
+}
+
+void ResourceTableWidget::showSearchResult()
+{
+    QAbstractItemModel *oldModel = m_documentView->model();
+    QAbstractItemModel *newModel = m_searchResultModel;
+    if(oldModel == newModel)
+        return;
+
+    if(m_documentView->selectionModel()) {
+        disconnect(m_documentView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+                this, SLOT(selectedResource(QItemSelection,QItemSelection)));
+    }
+
+    m_documentView->setWordWrap(true);
+    m_documentView->setItemDelegateForColumn(3, m_htmlDelegate);
+    m_documentView->setModel(m_searchResultModel);
+
+    //load settings for visible/hidden columns
+    KConfig config;
+    QString group = QLatin1String("SearchResultView");
+    KConfigGroup tableViewGroup( &config, group );
+
+    // go through all header elements and apply last known visibility / size status
+    // also add each header name to the search combobox for selection
+    m_searchSelection->clear();
+    m_searchSelection->addItem(i18n("all entries"), -1); //additem NAME, TABLEHEADERINDEX
+    QHeaderView *hv = m_documentView->horizontalHeader();
+    int columnCount = m_documentView->model()->columnCount();
+
+    SearchResultModel *srm = qobject_cast<SearchResultModel *>(m_searchResultModel->sourceModel());
+
     for(int i=0; i < columnCount; i++) {
+        // hidden status
+        QString keyHidden = QLatin1String("hidden_") + QString::number(i);
+        bool hidden = tableViewGroup.readEntry( keyHidden, false );
+        hv->setSectionHidden(i, hidden);
+
+        QString headerName = m_documentView->model()->headerData(i,Qt::Horizontal).toString();
+        if(!headerName.isEmpty()) {
+            m_searchSelection->addItem(headerName, i);
+        }
+
+        // size status
         int sectionSize = 50;
-        NepomukModel *nm = qobject_cast<NepomukModel *>(newModel);
-        if(nm) {
-            sectionSize = nm->defaultSectionSize(i);
+        QString keySize = QLatin1String("size_") + QString::number(i);
+        int size = tableViewGroup.readEntry( keySize, -1 );
+        if(size > 4) {
+            sectionSize = size;
         }
         else {
-            QSortFilterProxyModel *qsf = qobject_cast<QSortFilterProxyModel *>(newModel);
-            if(qsf) {
-                NepomukModel *nm2 = qobject_cast<NepomukModel *>(qsf->sourceModel());
-                if(nm2) {
-                    sectionSize = nm2->defaultSectionSize(i);
-                }
+            if(srm) {
+                sectionSize = srm->defaultSectionSize(i);
             }
         }
 
@@ -151,7 +231,7 @@ void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType f
 
     hv->setResizeMode(QHeaderView::Interactive);
 
-    m_documentView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
 
     connect(m_documentView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(selectedResource(QItemSelection,QItemSelection)));
@@ -173,14 +253,27 @@ void ResourceTableWidget::selectedResource( const QItemSelection & selected, con
     else if(selectedIndex.size() > 1) {
         QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
         NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
+        if(!rm) {
+            SearchResultModel *srm = qobject_cast<SearchResultModel *>(sfpm->sourceModel());
+            if(srm) {
+                QList<Nepomuk::Resource> resourceList;
+                foreach(const QModelIndex & mi, selectedIndex) {
+                    Nepomuk::Resource nr = srm->nepomukResourceAt(sfpm->mapToSource(mi));
+                    resourceList.append(nr);
+                }
 
-        QList<Nepomuk::Resource> resourceList;
-        foreach(const QModelIndex & mi, selectedIndex) {
-            Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(mi));
-            resourceList.append(nr);
+                emit selectedMultipleResources(resourceList);
+            }
         }
+        else {
+            QList<Nepomuk::Resource> resourceList;
+            foreach(const QModelIndex & mi, selectedIndex) {
+                Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(mi));
+                resourceList.append(nr);
+            }
 
-        emit selectedMultipleResources(resourceList);
+            emit selectedMultipleResources(resourceList);
+        }
     }
     else {
         QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
@@ -189,6 +282,17 @@ void ResourceTableWidget::selectedResource( const QItemSelection & selected, con
         if(rm) {
             Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(selectedIndex.first()));
             emit selectedResource(nr);
+        }
+        else {
+            SearchResultModel *srm = qobject_cast<SearchResultModel *>(sfpm->sourceModel());
+            if(srm) {
+                Nepomuk::Resource nr = srm->nepomukResourceAt(sfpm->mapToSource(selectedIndex.first()));
+                emit selectedResource(nr);
+            }
+            else {
+                Nepomuk::Resource empty;
+                emit selectedResource(empty);
+            }
         }
     }
 }
@@ -205,244 +309,42 @@ void ResourceTableWidget::applyFilter()
     sfpm->setFilterRegExp(searchKey);
 }
 
-void ResourceTableWidget::addSelectedToProject()
-{
-    QItemSelectionModel *sm = m_documentView->selectionModel();
-    QModelIndexList indexes = sm->selectedRows();
-
-    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
-    NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
-
-    // the resource for this entry
-    Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(indexes.first()));
-
-    // get the pimoProject we use to connect the data to
-    Nepomuk::Resource pimoProject;
-    QAction *a = static_cast<QAction *>(sender());
-    if(a) {
-        pimoProject = Nepomuk::Resource(a->data().toString());
-    }
-
-    if(pimoProject.isValid()) {
-        nr.addProperty(Nepomuk::Vocabulary::PIMO::isRelated(), pimoProject);
-        pimoProject.addProperty(Nepomuk::Vocabulary::PIMO::isRelated(), nr);
-
-        // small special case, if the resource was a reference add also the publication to the project
-        if(nr.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
-            Nepomuk::Resource pub = nr.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-            pub.addProperty(Nepomuk::Vocabulary::PIMO::isRelated(), pimoProject);
-            pimoProject.addProperty(Nepomuk::Vocabulary::PIMO::isRelated(), pub);
-        }
-    }
-    else {
-        qDebug() << "ResourceTableWidget::addSelectedToProject() | could not find pimo project the data should be connected to";
-    }
-}
-
-void ResourceTableWidget::removeSelectedFromProject()
-{
-    if(m_curLibrary->libraryType() == Library_System) {
-        qWarning() << "try to remove data from the nepomuk system library @ PublicationModel::removeSelectedFromProject";
-        return;
-    }
-
-    QItemSelectionModel *sm = m_documentView->selectionModel();
-    QModelIndexList indexes = sm->selectedRows();
-
-    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
-    NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
-
-    Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(indexes.first()));
-
-    // remove project relation
-    nr.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), m_curLibrary->pimoLibrary());
-    m_curLibrary->pimoLibrary().removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), nr);
-}
-
-void ResourceTableWidget::removeSelectedFromSystem()
-{
-    QItemSelectionModel *sm = m_documentView->selectionModel();
-    QModelIndexList indexes = sm->selectedRows();
-
-    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
-    NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
-
-    // the resource for this entry
-    Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(indexes.first()));
-
-    //get all connected references
-    QList<Nepomuk::Resource> refList = nr.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
-
-    foreach(Nepomuk::Resource r, refList) { // krazy:exclude=foreach
-        r.remove();
-    }
-    // remove resource
-    nr.remove();
-}
-
-void ResourceTableWidget::openSelected()
-{
-    QAction *a = static_cast<QAction *>(sender());
-
-    if(a) {
-        QDesktopServices::openUrl(a->data().toUrl());
-    }
-}
-
-void ResourceTableWidget::exportSelectedToBibTeX()
-{
-    QItemSelectionModel *sm = m_documentView->selectionModel();
-    QModelIndexList indexes = sm->selectedRows();
-
-    qDebug() << "TODO :: ResourceTableWidget::exportSelectedToBibTeX()";
-}
-
 void ResourceTableWidget::tableContextMenu(const QPoint & pos)
 {
-    QMenu menu(this);
-    QList<QAction *> actionCollection; //we throw all temp actions into it and delete them again after execution
-
-    // ###########################################################
-    // # add  file open menu
-    QMenu openExternal(this);
-    openExternal.setTitle(i18n("open external"));
-    openExternal.setIcon(KIcon(QLatin1String("document-open")));
-    menu.addMenu(&openExternal);
-
     QItemSelectionModel *sm = m_documentView->selectionModel();
-    QModelIndexList indexes = sm->selectedRows();
-    if(indexes.isEmpty())
+    QModelIndexList selectedIndex = sm->selectedRows();
+    if(selectedIndex.isEmpty())
         return;
 
+    Nepomuk::Resource nepomukRescource;
+    Entry* bibTeXResource = 0;
+
     QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
-    NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
-
-    Nepomuk::Resource nr = rm->documentResource(indexes.first());
-
-    if(m_selection == Resource_Publication || m_selection == Resource_Reference) {
-        if(m_selection == Resource_Reference) {
-            nr = nr.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-        }
-
-        QList<Nepomuk::Resource> fileList = nr.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResourceList();
-
-        bool hasDataObjects = false;
-        bool hasDOI = false;
-        // this adds a  DataObject links
-        if(!fileList.isEmpty()) {
-            hasDataObjects = true;
-            foreach(const Nepomuk::Resource &r, fileList) {
-                KUrl file = r.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
-                QString name;
-                KIcon icon(KMimeType::iconNameForUrl(file));
-
-                if(file.isLocalFile()) {
-                    name = file.fileName();
-                }
-                else {
-                    if(r.resourceType() == Nepomuk::Vocabulary::NFO::RemoteDataObject()) {
-                        name = file.path();
-                    }
-                    else {
-                        name = file.host();
-                    }
-                }
-                QAction *a = new QAction(icon, name, this);
-                a->setData(QUrl(file));
-                connect(a, SIGNAL(triggered(bool)),this, SLOT(openSelected()));
-                openExternal.addAction(a);
-                actionCollection.append(a);
-            }
-        }
-
-        // this adds the doi link
-        // add the DOI if available as preview
-        QString doi = nr.property(Nepomuk::Vocabulary::NBIB::doi()).toString();
-
-        if(!doi.isEmpty()) {
-            hasDOI = true;
-            if(!doi.startsWith(QLatin1String("http"))) {
-                doi = QLatin1String("http://dx.doi.org/") + doi;
-            }
-            KIcon icon = KIcon("text-html");
-
-            QAction *a = new QAction(icon, doi, this);
-            a->setData(QUrl(doi));
-            connect(a, SIGNAL(triggered(bool)),this, SLOT(openSelected()));
-            openExternal.addAction(a);
-            actionCollection.append(a);
-        }
-
-        if(!hasDOI && !hasDataObjects) {
-            openExternal.setEnabled(false);
-        }
+    NepomukModel *nm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
+    if(nm) {
+        nepomukRescource = nm->documentResource(selectedIndex.first());
     }
     else {
-        KUrl file = nr.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
-        QString name;
-        KIcon icon(KMimeType::iconNameForUrl(file));
-        if(file.isLocalFile()) {
-            name = file.fileName();
+        SearchResultModel *srm = qobject_cast<SearchResultModel *>(sfpm->sourceModel());
+        if(srm) {
+            nepomukRescource = srm->nepomukResourceAt(sfpm->mapToSource(selectedIndex.first()));
+            bibTeXResource = srm->bibTeXResourceAt(sfpm->mapToSource(selectedIndex.first()));
         }
         else {
-            name = file.host();
-        }
-
-        QAction *a = new QAction(icon, name, this);
-        a->setData(QUrl(file));
-        actionCollection.append(a);
-        connect(a, SIGNAL(triggered(bool)),this, SLOT(openSelected()));
-        openExternal.addAction(a);
-    }
-
-    menu.addSeparator();
-
-    // ###########################################################
-    // # add to project menu
-    QMenu addToProject(this);
-    addToProject.setTitle(i18n("add to project"));
-    addToProject.setIcon(KIcon(QLatin1String("list-add")));
-    menu.addMenu(&addToProject);
-
-    QList<Library*> openLibList = m_parent->openLibraries();
-
-    if(openLibList.size() > 0) {
-        foreach(Library *l, openLibList) {
-            QAction *a = new QAction(KIcon(QLatin1String("conquirere")), l->name(), this);
-            a->setData(l->pimoLibrary().resourceUri());
-            actionCollection.append(a);
-            connect(a, SIGNAL(triggered(bool)),this, SLOT(addSelectedToProject()));
-            addToProject.addAction(a);
+            qDebug() << "ResourceTableWidget::tableContextMenu no model found";
+            return;
         }
     }
-    else {
-        addToProject.setEnabled(false);
-    }
 
-    if(m_curLibrary->libraryType() == Library_Project) {
-        menu.addAction(m_removeFromProject);
-    }
+    TableViewMenu tvm;
+    tvm.setMainWindow(m_parent);
 
-    menu.addAction(m_removeFromSystem);
-
-    if(m_curLibrary->libraryType() == Library_System) {
-        m_removeFromProject->setEnabled(false);
+    if(nepomukRescource.isValid()) {
+        tvm.showNepomukEntryMenu(nepomukRescource);
     }
-    else {
-        m_removeFromProject->setEnabled(true);
+    else if(bibTeXResource) {
+        tvm.showBibTeXEntryMenu(bibTeXResource);
     }
-
-    if(m_selection == Resource_Publication ||
-       m_selection == Resource_Reference ) {
-        m_removeFromSystem->setEnabled(true);
-    }
-    else {
-        m_removeFromSystem->setEnabled(false);
-    }
-
-    menu.exec(QCursor::pos());
-
-    qDeleteAll(actionCollection);
 }
 
 void ResourceTableWidget::headerContextMenu(const QPoint &pos)
@@ -477,12 +379,44 @@ void ResourceTableWidget::changeHeaderSectionVisibility()
     hv->setSectionHidden(a->data().toInt(),
                          !hv->isSectionHidden(a->data().toInt()));
 
+    QString group;
+    if(m_documentView->model() == m_searchResultModel) {
+        group = QLatin1String("SearchResultView");
+    }
+    else {
+        group = QLatin1String("TableView");
+        group.append((int)m_selection);
+    }
+
     // save selection in the application settings
     KConfig config;
-    QString group = QLatin1String("TableView");
-    group.append((int)m_selection);
     KConfigGroup tableViewGroup( &config, group );
-    tableViewGroup.writeEntry( a->data().toString(), hv->isSectionHidden(a->data().toInt()) );
+    QString keyHidden = QLatin1String("hidden_") + a->data().toString();
+    tableViewGroup.writeEntry( keyHidden, hv->isSectionHidden(a->data().toInt()) );
+    tableViewGroup.config()->sync();
+}
+
+void ResourceTableWidget::sectionResized( int logicalIndex, int oldSize, int newSize )
+{
+    if(newSize < 5)
+        return;
+
+    QHeaderView *hv = m_documentView->horizontalHeader();
+
+    QString group;
+    if(m_documentView->model() == m_searchResultModel) {
+        group = QLatin1String("SearchResultView");
+    }
+    else {
+        group = QLatin1String("TableView");
+        group.append((int)m_selection);
+    }
+
+    // save selection in the application settings
+    KConfig config;
+    KConfigGroup tableViewGroup( &config, group );
+    QString keySize = QLatin1String("size_") + QString::number(logicalIndex);
+    tableViewGroup.writeEntry( keySize, hv->sectionSize(logicalIndex) );
     tableViewGroup.config()->sync();
 }
 
@@ -505,6 +439,7 @@ void ResourceTableWidget::setupWidget()
     mainLayout->addLayout(searchLayout);
 
     // view that holds the table models for selection
+    m_htmlDelegate = new HtmlDelegate();
     m_documentView = new QTableView;
     m_documentView->setSortingEnabled(true);
     m_documentView->setItemDelegateForColumn(0, new RatingDelegate());
@@ -518,25 +453,15 @@ void ResourceTableWidget::setupWidget()
     connect(m_documentView, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(tableContextMenu(QPoint)));
 
-    QHeaderView *hv = m_documentView->horizontalHeader();
-    hv->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(hv, SIGNAL(customContextMenuRequested(QPoint)),
+    QHeaderView *hvHorizontal = m_documentView->horizontalHeader();
+    hvHorizontal->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(hvHorizontal, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(headerContextMenu(QPoint)));
+    connect(hvHorizontal, SIGNAL(sectionResized(int,int,int)),
+            this, SLOT(sectionResized(int,int,int)));
+
+    QHeaderView *hvVertical = m_documentView->verticalHeader();
+    hvVertical->setResizeMode(QHeaderView::ResizeToContents);
 
     mainLayout->addWidget(m_documentView);
-
-    m_removeFromProject = new KAction(this);
-    m_removeFromProject->setText(i18n("Remove from project"));
-    m_removeFromProject->setIcon(KIcon(QLatin1String("list-remove")));
-    connect(m_removeFromProject, SIGNAL(triggered()), this, SLOT(removeSelectedFromProject()));
-
-    m_removeFromSystem = new KAction(this);
-    m_removeFromSystem->setText(i18n("Remove from system"));
-    m_removeFromSystem->setIcon(KIcon(QLatin1String("edit-delete-shred")));
-    connect(m_removeFromSystem, SIGNAL(triggered()), this, SLOT(removeSelectedFromSystem()));
-
-    m_exportToBibTeX = new KAction(this);
-    m_exportToBibTeX->setText(i18n("Export to BibTex"));
-    m_exportToBibTeX->setIcon(KIcon(QLatin1String("document-export")));
-    connect(m_exportToBibTeX, SIGNAL(triggered()), this, SLOT(exportSelectedToBibTeX()));
 }

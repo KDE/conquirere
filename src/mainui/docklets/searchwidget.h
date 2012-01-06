@@ -18,16 +18,14 @@
 #ifndef SEARCHWIDGET_H
 #define SEARCHWIDGET_H
 
-#include <KDE/KConfigGroup>
-#include <KDE/KConfig>
-#include <KDE/KSharedConfigPtr>
+#include "core/models/searchresultmodel.h"
 
 #include <Nepomuk/Query/Result>
 
 #include <QtGui/QDockWidget>
 #include <QtCore/QMap>
 #include <QtCore/QSet>
-#include <QtCore/QMetaType>
+
 
 namespace Ui {
     class SearchWidget;
@@ -45,14 +43,6 @@ class OnlineSearchAbstract;
 class KAction;
 class QListWidgetItem;
 
-struct SearchResultEntry {
-    Nepomuk::Query::Result nepomukResult;
-    OnlineSearchAbstract *webEngine;
-    Entry *webResult;
-};
-
-Q_DECLARE_METATYPE(SearchResultEntry)
-
 class SearchWidget : public QDockWidget
 {
     Q_OBJECT
@@ -60,6 +50,8 @@ class SearchWidget : public QDockWidget
 public:
     explicit SearchWidget(QWidget *parent = 0);
     ~SearchWidget();
+
+    SearchResultModel* searchResultModel();
 
 signals:
     void newSearchStarted();
@@ -74,24 +66,30 @@ private slots:
     void foundOnlineEntry(Entry *newEntry);
     void foundNepomukEntry(QList<Nepomuk::Query::Result> newEntry);
 
-    void nepomukResultCount(int results);
     void nepomukQueryFinished();
-    void updateProgress(int, int);
+    void websearchStopped(int resultCode);
+    void updateProgress(int cur, int total);
+
+    void saveSettings();
+    void loadSettings();
 
 private:
     void setupUi();
     void addEngine(OnlineSearchAbstract *engine);
+    void switchToSearch();
+    void switchToCancel();
 
     Ui::SearchWidget *ui;
     KAction *m_actionOpenHomepage;
-    KSharedConfigPtr m_config;
-    QString m_configGroupName;
 
     Nepomuk::Query::QueryServiceClient *m_queryClient;
+    bool m_nepomukSearchInProgress;
+
     QMap<QListWidgetItem*, OnlineSearchAbstract*> m_itemToOnlineSearch;
     QSet<OnlineSearchAbstract*> m_runningWebSearches;
     QMap<OnlineSearchAbstract*, int> m_websearchProgressMap;
-    bool m_nepomukSearchInProgress;
+
+    SearchResultModel *m_searchResultModel;
 };
 
 #endif // SEARCHWIDGET_H

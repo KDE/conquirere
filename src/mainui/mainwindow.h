@@ -30,7 +30,6 @@ class ResourceTableWidget;
 class LibraryWidget;
 class SidebarWidget;
 class DocumentPreview;
-class WebSearchWidget;
 class SearchWidget;
 class SyncButton;
 
@@ -73,6 +72,7 @@ public slots:
     // other helping slots
     void connectKPartGui(KParts::Part * part);
     void switchView(ResourceSelection selection, BibEntryType filter, Library *p);
+    void showSearchResults();
 
     void DEBUGDELETEALLDATA();
 
@@ -88,7 +88,6 @@ private:
     LibraryWidget *m_libraryWidget;
     SidebarWidget *m_sidebarWidget;
     DocumentPreview *m_documentPreview;
-    WebSearchWidget *m_webSearchWidget;
     SearchWidget *m_searchWidget;
     SyncButton *m_syncButton;
 

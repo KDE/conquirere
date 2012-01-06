@@ -28,7 +28,6 @@
 #include "dialogs/loadproject.h"
 #include "docklets/librarywidget.h"
 #include "docklets/documentpreview.h"
-#include "docklets/websearchwidget.h"
 #include "docklets/searchwidget.h"
 
 #include "sync/bibtexexportdialog.h"
@@ -102,7 +101,6 @@ MainWindow::~MainWindow()
     delete m_mainView;
     delete m_sidebarWidget;
     delete m_documentPreview;
-    delete m_webSearchWidget;
     delete m_searchWidget;
 
     qDeleteAll(m_libraryList);
@@ -334,6 +332,24 @@ void MainWindow::switchView(ResourceSelection selection, BibEntryType filter, Li
     }
 }
 
+void MainWindow::showSearchResults()
+{
+    m_mainView->show();
+
+    //hide all welcome widgets
+    foreach (QWidget *w, m_libraryList)
+         w->hide();
+
+    m_mainView->showSearchResult();
+
+    QAction *a = actionCollection()->action(QLatin1String("delete_project"));
+    if(a)
+        a->setEnabled(false);
+    QAction *b = actionCollection()->action(QLatin1String("close_project"));
+    if(b)
+        b->setEnabled(false);
+}
+
 void MainWindow::DEBUGDELETEALLDATA()
 {
     // fetcha data
@@ -475,7 +491,7 @@ void MainWindow::setupActions()
     actionCollection()->addAction(QLatin1String("toggle_library"), m_libraryWidget->toggleViewAction());
     actionCollection()->addAction(QLatin1String("toggle_sidebar"), m_sidebarWidget->toggleViewAction());
     actionCollection()->addAction(QLatin1String("toggle_docpreview"), m_documentPreview->toggleViewAction());
-    actionCollection()->addAction(QLatin1String("toggle_websearch"), m_webSearchWidget->toggleViewAction());
+    actionCollection()->addAction(QLatin1String("toggle_search"), m_searchWidget->toggleViewAction());
 
     KStandardAction::quit(kapp, SLOT(quit()),actionCollection());
 
@@ -503,6 +519,7 @@ void MainWindow::setupMainWindow()
     // the left project bar
     m_libraryWidget = new LibraryWidget;
     addDockWidget(Qt::LeftDockWidgetArea, m_libraryWidget);
+    connect(m_libraryWidget, SIGNAL(showSearchResults()), this, SLOT(showSearchResults()));
 
     //add panel for the document info
     m_sidebarWidget = new SidebarWidget;
@@ -513,11 +530,10 @@ void MainWindow::setupMainWindow()
     m_documentPreview = new DocumentPreview(this);
     m_centerWindow->addDockWidget(Qt::BottomDockWidgetArea, m_documentPreview);
 
-    m_webSearchWidget = new WebSearchWidget(this);
-    addDockWidget(Qt::LeftDockWidgetArea, m_webSearchWidget);
-
     m_searchWidget = new SearchWidget(this);
     addDockWidget(Qt::LeftDockWidgetArea, m_searchWidget);
+    m_mainView->setSearchResultModel(m_searchWidget->searchResultModel());
+    connect(m_searchWidget, SIGNAL(newSearchStarted()), this, SLOT(showSearchResults()));
 
     connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,BibEntryType,Library*)),
             m_sidebarWidget, SLOT(newSelection(ResourceSelection,BibEntryType,Library*)));

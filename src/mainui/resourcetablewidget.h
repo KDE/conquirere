@@ -26,10 +26,13 @@
 #include <QtGui/QItemSelection>
 
 class MainWindow;
+class QSortFilterProxyModel;
+class SearchResultModel;
 class Library;
 class QTableView;
 class PublicationModel;
 class SidebarWidget;
+class HtmlDelegate;
 class KAction;
 class KLineEdit;
 class KComboBox;
@@ -48,6 +51,7 @@ public:
     virtual ~ResourceTableWidget();
 
     void setMainWindow(MainWindow *mw);
+    void setSearchResultModel(SearchResultModel* srm);
 
 signals:
     void selectedResource(Nepomuk::Resource & nr);
@@ -55,19 +59,16 @@ signals:
 
 public slots:
     void switchView(ResourceSelection selection, BibEntryType filter, Library *p);
+    void showSearchResult();
     void selectedResource( const QItemSelection & selected, const QItemSelection & deselected );
 
     void applyFilter();
-    void addSelectedToProject();
-    void removeSelectedFromProject();
-    void removeSelectedFromSystem();
-    void openSelected();
-    void exportSelectedToBibTeX();
 
 private slots:
     void tableContextMenu(const QPoint & pos);
     void headerContextMenu(const QPoint &pos);
     void changeHeaderSectionVisibility();
+    void sectionResized( int logicalIndex, int oldSize, int newSize );
 
 private:
     void setupWidget();
@@ -78,10 +79,9 @@ private:
     QTableView *m_documentView;
     Library *m_curLibrary;
     ResourceSelection m_selection;
+    QSortFilterProxyModel* m_searchResultModel;
 
-    KAction* m_removeFromSystem;
-    KAction* m_removeFromProject;
-    KAction* m_exportToBibTeX;
+    HtmlDelegate *m_htmlDelegate;
 };
 
 #endif // RESOURCETABLEWIDGET_H

@@ -1,6 +1,7 @@
 
 set(mainui_LIB_SRCS
     resourcetablewidget.cpp
+    tableviewmenu.cpp
     mainwindow.cpp
     welcomewidget.cpp
 
@@ -10,7 +11,6 @@ set(mainui_LIB_SRCS
     docklets/librarywidget.cpp
     docklets/projecttreedelegate.cpp
     docklets/documentpreview.cpp
-    docklets/websearchwidget.cpp
     docklets/qlibrarytreewidgetitem.cpp
     docklets/searchwidget.cpp
 
@@ -42,7 +42,6 @@ kde4_add_ui_files( mainui_LIB_SRCS
 
                    docklets/librarywidget.ui
                    docklets/documentpreview.ui
-                   docklets/websearchwidget.ui
                    docklets/searchwidget.ui
 
                    sync/bibtexexportdialog.ui

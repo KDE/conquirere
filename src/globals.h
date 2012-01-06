@@ -28,10 +28,10 @@
 #include "nbib.h"
 
 enum ProjectTreeRole {
-    Role_Library = Qt::UserRole,
-    Role_ResourceType,
-    Role_ResourceFilter,
-    Role_Project
+    Role_Library = Qt::UserRole,    /**< keeps the LibraryType */
+    Role_ResourceType,              /**< keeps one of the ResourceSelection entries */
+    Role_ResourceFilter,            /**< keeps one of the BibEntryType entries */
+    Role_Project                    /**< keeps the name of the conected project */
 };
 
 enum LibraryType {
@@ -40,6 +40,7 @@ enum LibraryType {
 };
 
 enum ResourceSelection {
+    Resource_SearchResults,
     Resource_Library,
     Resource_Document,
     Resource_Mail,

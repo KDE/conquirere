@@ -44,7 +44,7 @@ void BibTexToClipboardPipe::pipeExport(File & bibEntries)
     switch(m_exportType) {
     case Export_CITEKEY: {
         foreach(const Element *e, bibEntries) {
-            const Entry *bibEntry = static_cast<const Entry *>(e);
+            const Entry *bibEntry = dynamic_cast<const Entry *>(e);
             if(bibEntry) {
                 text.append(bibEntry->id());
                 text.append(QLatin1String(", "));

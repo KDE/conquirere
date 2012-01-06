@@ -43,11 +43,13 @@ public:
 
 signals:
     void newSelection(ResourceSelection selection, BibEntryType filter, Library *p);
+    void showSearchResults();
 
 private slots:
     void selectionchanged();
 
 private:
+    void setupUi();
     void setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p);
     void connectModelSignals(QLibraryTreeWidgetItem *root, Library *p, ResourceSelection resourceType);
 
