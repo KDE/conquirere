@@ -12,6 +12,7 @@ set(mainui_LIB_SRCS
     docklets/documentpreview.cpp
     docklets/websearchwidget.cpp
     docklets/qlibrarytreewidgetitem.cpp
+    docklets/searchwidget.cpp
 
     sync/bibtexexportdialog.cpp
     sync/bibteximportwizard.cpp
@@ -42,6 +43,7 @@ kde4_add_ui_files( mainui_LIB_SRCS
                    docklets/librarywidget.ui
                    docklets/documentpreview.ui
                    docklets/websearchwidget.ui
+                   docklets/searchwidget.ui
 
                    sync/bibtexexportdialog.ui
                    sync/bibteximportwizard.ui

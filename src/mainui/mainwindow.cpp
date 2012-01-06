@@ -29,6 +29,7 @@
 #include "docklets/librarywidget.h"
 #include "docklets/documentpreview.h"
 #include "docklets/websearchwidget.h"
+#include "docklets/searchwidget.h"
 
 #include "sync/bibtexexportdialog.h"
 #include "sync/bibteximportwizard.h"
@@ -102,6 +103,7 @@ MainWindow::~MainWindow()
     delete m_sidebarWidget;
     delete m_documentPreview;
     delete m_webSearchWidget;
+    delete m_searchWidget;
 
     qDeleteAll(m_libraryList);
 }
@@ -513,6 +515,9 @@ void MainWindow::setupMainWindow()
 
     m_webSearchWidget = new WebSearchWidget(this);
     addDockWidget(Qt::LeftDockWidgetArea, m_webSearchWidget);
+
+    m_searchWidget = new SearchWidget(this);
+    addDockWidget(Qt::LeftDockWidgetArea, m_searchWidget);
 
     connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,BibEntryType,Library*)),
             m_sidebarWidget, SLOT(newSelection(ResourceSelection,BibEntryType,Library*)));

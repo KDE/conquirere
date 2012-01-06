@@ -22,17 +22,23 @@
 #include <KDE/KDirLister>
 
 #include <Nepomuk/File>
+#include <Nepomuk/Variant>
+#include <Nepomuk/Vocabulary/PIMO>
+
+#include <QDBusInterface>
 
 DirWatcher::DirWatcher(QObject *parent)
     : QObject(parent)
     , m_library(0)
     , m_kdl(0)
 {
+    m_nepomukDBus = new QDBusInterface( "org.kde.nepomuk.services.nepomukfileindexer", "/nepomukfileindexer" );
 }
 
 DirWatcher::~DirWatcher()
 {
     delete m_kdl;
+    delete m_nepomukDBus;
 }
 
 void DirWatcher::setLibrary(Library *lib)
@@ -58,7 +64,14 @@ void DirWatcher::itemsAdded (const KUrl &directoryUrl, const KFileItemList &item
             qDebug() << file << "is not a valid nepomuk resource";
         }
 
-        m_library->addResource(addedFile);
+        QList<Nepomuk::Resource> relatesTo = addedFile.property( Nepomuk::Vocabulary::PIMO::isRelated()).toResourceList();
+
+        if(!relatesTo.contains(m_library->pimoLibrary())) {
+            QString filePath = file.url().url().remove(QLatin1String("file://"));
+            m_nepomukDBus->call("org.kde.nepomuk.FileIndexer.indexFile", filePath);
+
+            m_library->addResource(addedFile);
+        }
     }
 }
 

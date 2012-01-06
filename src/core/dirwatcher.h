@@ -25,6 +25,7 @@
 
 class Library;
 class KDirLister;
+class QDBusInterface;
 
 class DirWatcher : public QObject
 {
@@ -42,6 +43,7 @@ private slots:
 private:
     Library *m_library;
     KDirLister *m_kdl;
+    QDBusInterface *m_nepomukDBus;
 };
 
 #endif // DIRWATCHER_H
