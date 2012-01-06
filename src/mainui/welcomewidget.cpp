@@ -118,6 +118,11 @@ void WelcomeWidget::updateStatistics()
             jsFunction.append(rowCount);
             jsFunction.append(QLatin1String("')"));
             break;
+        case Resource_Series:
+        case Resource_Event:
+        case Resource_SearchResults:
+        case Resource_Library:
+            break;
         }
         m_htmlPart->executeScript(m_htmlPart->htmlDocument(), jsFunction );
     }

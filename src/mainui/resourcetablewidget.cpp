@@ -311,6 +311,7 @@ void ResourceTableWidget::applyFilter()
 
 void ResourceTableWidget::tableContextMenu(const QPoint & pos)
 {
+    Q_UNUSED(pos);
     QItemSelectionModel *sm = m_documentView->selectionModel();
     QModelIndexList selectedIndex = sm->selectedRows();
     if(selectedIndex.isEmpty())
@@ -398,6 +399,7 @@ void ResourceTableWidget::changeHeaderSectionVisibility()
 
 void ResourceTableWidget::sectionResized( int logicalIndex, int oldSize, int newSize )
 {
+    Q_UNUSED(oldSize);
     if(newSize < 5)
         return;
 

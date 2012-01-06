@@ -219,6 +219,9 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
         case BibType_Patent:
         case BibType_Legislation:
         case BibType_LegalCaseDocument:
+        case BibType_Presentation:
+        case BibType_Unpublished:
+        case BibType_Manual:
         case Max_BibTypes:
             break;
         }

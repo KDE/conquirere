@@ -53,6 +53,7 @@
 SyncZoteroNepomuk::SyncZoteroNepomuk(QObject *parent)
     : NBibSync(parent)
     , m_rfz(0)
+    , m_wtz(0)
     , m_btnp(0)
     , m_ntnp(0)
     , m_syncMode(false)
@@ -317,8 +318,8 @@ void SyncZoteroNepomuk::readUploadSync(File zoteroData)
                 //now check if both entries are the same
                 // if not, stop the while loop and check the next entry
                 if(PlainTextValue::text(localValue) != PlainTextValue::text(i.value())) {
-                    error << "entries not the same #### Key::" +  i.key() + "\n";
-                    error << PlainTextValue::text(localValue) + "|--|" + PlainTextValue::text(i.value()) + "\n";
+                    error << "entries not the same #### Key::" +  i.key() + '\n';
+                    error << PlainTextValue::text(localValue) + "|--|" + PlainTextValue::text(i.value()) + '\n';
                     duplicateFound = false;
                     break;
                 }

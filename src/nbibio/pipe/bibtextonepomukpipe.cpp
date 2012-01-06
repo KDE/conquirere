@@ -1675,7 +1675,7 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Ne
     if(m_mergeMode) {
         QList<Nepomuk::Resource> syncList = publication.property(Nepomuk::Vocabulary::SYNC::serverSyncData()).toResourceList();
 
-        qDebug() << "check " << syncList.size() << "sync informations";
+        qDebug() << "check " << syncList.size() << "sync information";
 
         foreach(const Nepomuk::Resource &r, syncList) {
             if(r.property(Nepomuk::Vocabulary::SYNC::provider()).toString() != QString("zotero"))

@@ -379,7 +379,7 @@ void Library::loadLibrary(const QString & projectFile)
     KConfigGroup syncGroup( &libconfig, "SyncProvider" );
     QStringList providerList = syncGroup.groupList();
     foreach(const QString &providerUUid, providerList) {
-        NBibSync* syncProvider;
+        NBibSync* syncProvider = 0;
         KConfigGroup providerGroup( &syncGroup, providerUUid );
 
         ProviderSyncDetails psd;

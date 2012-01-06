@@ -45,7 +45,7 @@ void ReadFromFile::fetchItems(const QString &collection)
         return;
     }
 
-    FileImporter *importer;
+    FileImporter *importer = 0;
 
     // select the right importer based on the file extension
     QFileInfo fi(m_psd.url);

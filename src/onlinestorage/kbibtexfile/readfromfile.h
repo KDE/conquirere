@@ -25,7 +25,7 @@
 /**
   * @brief Wrapper around kbibtex normal file import, adds no additional functionality but allows to reuse sync plugin structure
   *
-  * Solely created to allow automatic syncronizing of the bibtex entries to any kind of file
+  * Solely created to allow automatic synchronizing of the bibtex entries to any kind of file
   * reusing all settings/structures that are used to sync to an online storage as well
   *
   * Possible use case is the sync of an local bibfile to a remote file of any kind. Could be  a .bib fiel too

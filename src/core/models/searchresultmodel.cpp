@@ -115,7 +115,7 @@ QVariant SearchResultModel::headerData(int section, Qt::Orientation orientation,
             return i18n("Details");
             break;
         case Column_Name:
-            return i18n("Name");
+            return i18nc("Name of the document/publication etc","Name");
             break;
         case Column_Date:
             return i18n("Date");
@@ -283,9 +283,9 @@ QVariantList SearchResultModel::createDisplayData(const Nepomuk::Query::Result &
             QString titleSting = res.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
             QString detailText;
-            detailText.append(QLatin1String("<font size=\100%\"><b>"));
+            detailText.append(QLatin1String("<font size=\"100%\"><b>"));
             detailText.append(titleSting);
-            detailText.append(QLatin1String("</b></font><br/><font size=\85%\">"));
+            detailText.append(QLatin1String("</b></font><br/><font size=\"85%\">"));
             detailText.append(nepomukResult.excerpt());
             detailText.append(QLatin1String("</font>"));
 
@@ -413,7 +413,7 @@ QVariantList SearchResultModel::createDisplayData(Entry *entry, OnlineSearchAbst
             QString text = ts.readAll();
             buffer.close();
 
-            text.prepend(QLatin1String("<font size=\90%\">"));
+            text.prepend(QLatin1String("<font size=\"90%\">"));
             text.append(QLatin1String("</font>"));
             text.remove(QLatin1String("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
             text.remove(QLatin1String("\n"));
@@ -489,28 +489,28 @@ QString SearchResultModel::translateEntryType(const Nepomuk::Resource & resource
         return BibEntryTypeTranslation.at(type);
     }
     if(resource.hasType(Nepomuk::Vocabulary::NFO::Document())) {
-        return i18n("Document");
+        return i18nc("General document type","Document");
     }
     if(resource.hasType(Nepomuk::Vocabulary::NFO::Audio())) {
-        return i18n("Audio");
+        return i18nc("Audio resource type","Audio");
     }
     if(resource.hasType(Nepomuk::Vocabulary::NFO::Video())) {
-        return i18n("Video");
+        return i18nc("Video resource type","Video");
     }
     if(resource.hasType(Nepomuk::Vocabulary::NFO::Image())) {
-        return i18n("Image");
+        return i18nc("Image resource type","Image");
     }
     if(resource.hasType(Nepomuk::Vocabulary::NMO::Message())) {
-        return i18n("EMail");
+        return i18nc("Email resource type","EMail");
     }
     if(resource.hasType(Nepomuk::Vocabulary::PIMO::Note())) {
-        return i18n("Note");
+        return i18nc("Note resource type","Note");
     }
     if(resource.hasType(Nepomuk::Vocabulary::NFO::Website())) {
         return i18n("Website");
     }
 
-    return i18n("other");
+    return i18nc("other unknown resource type","other");
 }
 
 KIcon SearchResultModel::iconizeEntryType(const Nepomuk::Resource & resource) const

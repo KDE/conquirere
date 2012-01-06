@@ -410,6 +410,8 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         ui->newButton->setToolTip(i18n("New series"));
         ui->deleteButton->setToolTip(i18n("Delete series"));
         break;
+    case Resource_SearchResults:
+        break;
     }
 
     if(newWidget) {

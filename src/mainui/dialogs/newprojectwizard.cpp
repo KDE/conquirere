@@ -183,7 +183,7 @@ SyncPage::SyncPage(QWidget *parent)
     //#########################################
     // sync with online storage
     m_syncWithOnlineStorage = new QGroupBox(this);
-    m_syncWithOnlineStorage->setTitle(i18n("Syncronize Settings"));
+    m_syncWithOnlineStorage->setTitle(i18n("Synchronize Settings"));
     m_syncWithOnlineStorage->setToolTip(i18n("Syncs the documents and publications automatically in the background"));
 
     QVBoxLayout *formLayout = new QVBoxLayout(m_syncWithOnlineStorage);

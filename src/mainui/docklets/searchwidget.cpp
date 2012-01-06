@@ -47,7 +47,6 @@
 #include <Nepomuk/Query/ComparisonTerm>
 #include <Nepomuk/Query/AndTerm>
 #include <Nepomuk/Query/OrTerm>
-#include <Nepomuk/Query/QueryServiceClient>
 
 #include <KDE/KConfigGroup>
 #include <KDE/KConfig>
@@ -289,6 +288,8 @@ void SearchWidget::nepomukQueryFinished()
 
 void SearchWidget::websearchStopped(int resultCode)
 {
+    Q_UNUSED(resultCode);
+
     OnlineSearchAbstract *engine = static_cast<OnlineSearchAbstract *>(sender());
     if (m_runningWebSearches.remove(engine)) {
         /// last search engine stopped

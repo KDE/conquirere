@@ -42,8 +42,10 @@
 
 #include <QtCore/QDebug>
 
-TableViewMenu::TableViewMenu(QObject *parent) :
-    QObject(parent)
+TableViewMenu::TableViewMenu(QObject *parent)
+    :QObject(parent)
+    , m_parent(0)
+    , m_bibtexEntry(0)
 {
 }
 

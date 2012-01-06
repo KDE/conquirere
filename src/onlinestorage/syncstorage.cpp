@@ -21,6 +21,9 @@ SyncStorage::SyncStorage(QObject *parent)
     : QObject(parent)
     , m_adoptBibtexTypes(true)
 {
+    ProviderSyncDetails psd;
+    psd.providerInfo = 0;
+    m_psd = psd;
 }
 
 SyncStorage::~SyncStorage()

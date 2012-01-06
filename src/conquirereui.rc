@@ -42,7 +42,7 @@
 	<Action name="toggle_library" />
 	<Action name="toggle_sidebar" />
 	<Action name="toggle_docpreview" />
-	<Action name="toggle_websearch" />
+	<Action name="toggle_search" />
       </Menu>
       <Merge/>
     </Menu>

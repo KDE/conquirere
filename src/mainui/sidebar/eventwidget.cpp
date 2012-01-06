@@ -120,7 +120,7 @@ void EventWidget::subResourceUpdated()
     // also emit changes to the publications cache entries
     QList<Nepomuk::Resource> pubList = m_event.property(Nepomuk::Vocabulary::NBIB::eventPublication()).toResourceList();
 
-    foreach(Nepomuk::Resource r, pubList) {
+    foreach(const Nepomuk::Resource &r, pubList) {
         emit resourceCacheNeedsUpdate(r);
     }
 }
