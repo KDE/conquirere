@@ -88,7 +88,7 @@ QVariant MailModel::headerData(int section, Qt::Orientation orientation, int rol
     return QVariant();
 }
 
-int MailModel::defaultSectionSize(int i)
+int MailModel::defaultSectionSize(int i) const
 {
     switch (i) {
     case MailQuery::Column_Tags:
@@ -104,6 +104,14 @@ int MailModel::defaultSectionSize(int i)
     }
 
     return 100;
+}
+
+QList<int> MailModel::fixedWithSections() const
+{
+    QList<int> fixedWith;
+    fixedWith << MailQuery::Column_StarRate;
+
+    return fixedWith;
 }
 
 QString MailModel::id()

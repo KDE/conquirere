@@ -52,7 +52,8 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
 
-    virtual int defaultSectionSize(int i) = 0;
+    virtual int defaultSectionSize(int i) const = 0;
+    virtual QList<int> fixedWithSections() const;
 
     void setLibrary(Library *library);
     Nepomuk::Resource documentResource(const QModelIndex &selection);

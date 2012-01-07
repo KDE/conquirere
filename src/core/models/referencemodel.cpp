@@ -121,7 +121,7 @@ QVariant ReferenceModel::headerData(int section, Qt::Orientation orientation, in
     return QVariant();
 }
 
-int ReferenceModel::defaultSectionSize(int i)
+int ReferenceModel::defaultSectionSize(int i) const
 {
     switch (i) {
     case ReferenceQuery::Column_Reviewed:
@@ -146,6 +146,14 @@ int ReferenceModel::defaultSectionSize(int i)
         return 75;
     }
     return 100;
+}
+
+QList<int> ReferenceModel::fixedWithSections() const
+{
+    QList<int> fixedWith;
+    fixedWith << ReferenceQuery::Column_Reviewed << ReferenceQuery::Column_StarRate << ReferenceQuery::Column_FileAvailable;
+
+    return fixedWith;
 }
 
 QString ReferenceModel::id()

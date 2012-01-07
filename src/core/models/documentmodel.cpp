@@ -113,7 +113,7 @@ QVariant DocumentModel::headerData(int section, Qt::Orientation orientation, int
     return QVariant();
 }
 
-int DocumentModel::defaultSectionSize(int i)
+int DocumentModel::defaultSectionSize(int i) const
 {
     switch (i) {
     case DocumentQuery::Column_Reviewed:
@@ -135,6 +135,14 @@ int DocumentModel::defaultSectionSize(int i)
     }
 
     return 100;
+}
+
+QList<int> DocumentModel::fixedWithSections() const
+{
+    QList<int> fixedWith;
+    fixedWith << DocumentQuery::Column_Reviewed << DocumentQuery::Column_StarRate << DocumentQuery::Column_Publication;
+
+    return fixedWith;
 }
 
 QString DocumentModel::id()

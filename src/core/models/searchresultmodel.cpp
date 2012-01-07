@@ -168,7 +168,7 @@ Nepomuk::Resource SearchResultModel::nepomukResourceAt(const QModelIndex &select
     return ret;
 }
 
-int SearchResultModel::defaultSectionSize(int i)
+int SearchResultModel::defaultSectionSize(int i) const
 {
     switch (i) {
     case Column_EngineIcon:
@@ -188,6 +188,14 @@ int SearchResultModel::defaultSectionSize(int i)
     }
 
     return 100;
+}
+
+QList<int> SearchResultModel::fixedWithSections() const
+{
+    QList<int> fixedWith;
+    fixedWith << Column_EngineIcon << Column_EntryType << Column_StarRate;
+
+    return fixedWith;
 }
 
 Entry *SearchResultModel::bibTeXResourceAt(const QModelIndex &selection)

@@ -84,7 +84,7 @@ QVariant EventModel::headerData(int section, Qt::Orientation orientation, int ro
     return QVariant();
 }
 
-int EventModel::defaultSectionSize(int i)
+int EventModel::defaultSectionSize(int i) const
 {
     switch (i) {
     case EventQuery::Column_Title:
@@ -97,6 +97,14 @@ int EventModel::defaultSectionSize(int i)
         return 75;
     }
     return 100;
+}
+
+QList<int> EventModel::fixedWithSections() const
+{
+    QList<int> fixedWith;
+    fixedWith << EventQuery::Column_StarRate;
+
+    return fixedWith;
 }
 
 QString EventModel::id()

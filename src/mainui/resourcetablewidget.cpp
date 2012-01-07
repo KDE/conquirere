@@ -170,6 +170,10 @@ void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType f
             this, SLOT(selectedResource(QItemSelection,QItemSelection)));
 
     m_documentView->selectRow(0);
+
+    QList<int> fixedWithList = nm->fixedWithSections();
+    foreach(int section, fixedWithList)
+        hv->setResizeMode(section, QHeaderView::Fixed);
 }
 
 void ResourceTableWidget::showSearchResult()
@@ -237,6 +241,10 @@ void ResourceTableWidget::showSearchResult()
             this, SLOT(selectedResource(QItemSelection,QItemSelection)));
 
     m_documentView->selectRow(0);
+
+    QList<int> fixedWithList = srm->fixedWithSections();
+    foreach(int section, fixedWithList)
+        hv->setResizeMode(section, QHeaderView::Fixed);
 }
 
 void ResourceTableWidget::selectedResource( const QItemSelection & selected, const QItemSelection & deselected )

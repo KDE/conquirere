@@ -121,7 +121,7 @@ QVariant PublicationModel::headerData(int section, Qt::Orientation orientation, 
     return QVariant();
 }
 
-int PublicationModel::defaultSectionSize(int i)
+int PublicationModel::defaultSectionSize(int i) const
 {
     switch (i) {
     case PublicationQuery::Column_Reviewed:
@@ -147,6 +147,14 @@ int PublicationModel::defaultSectionSize(int i)
     }
 
     return 100;
+}
+
+QList<int> PublicationModel::fixedWithSections() const
+{
+    QList<int> fixedWith;
+    fixedWith << PublicationQuery::Column_StarRate << PublicationQuery::Column_Reviewed << PublicationQuery::Column_FileAvailable;
+
+    return fixedWith;
 }
 
 QString PublicationModel::id()

@@ -76,6 +76,12 @@ QVariant NepomukModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
+QList<int> NepomukModel::fixedWithSections() const
+{
+    QList<int> emptylist;
+    return emptylist;
+}
+
 void NepomukModel::setLibrary(Library *library)
 {
     m_library = library;

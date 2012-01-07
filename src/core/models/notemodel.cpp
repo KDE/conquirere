@@ -84,7 +84,7 @@ QVariant NoteModel::headerData(int section, Qt::Orientation orientation, int rol
     return QVariant();
 }
 
-int NoteModel::defaultSectionSize(int i)
+int NoteModel::defaultSectionSize(int i) const
 {
     switch (i) {
     case NoteQuery::Column_Tags:
@@ -98,6 +98,14 @@ int NoteModel::defaultSectionSize(int i)
     }
 
     return 100;
+}
+
+QList<int> NoteModel::fixedWithSections() const
+{
+    QList<int> fixedWith;
+    fixedWith << NoteQuery::Column_StarRate;
+
+    return fixedWith;
 }
 
 QString NoteModel::id()

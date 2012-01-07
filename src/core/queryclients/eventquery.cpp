@@ -29,6 +29,7 @@
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk/Vocabulary/NCAL>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 
@@ -41,7 +42,10 @@ void EventQuery::startFetchData()
 {
     Nepomuk::Query::AndTerm andTerm;
 
-    andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::PIMO::Event() ) );
+    Nepomuk::Query::OrTerm orTerm;
+    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::PIMO::Event() ) );
+    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NCAL::Event() ) );
+    andTerm.addSubTerm(orTerm);
 
     if(m_library->libraryType() == Library_Project) {
         Nepomuk::Query::OrTerm orTerm;

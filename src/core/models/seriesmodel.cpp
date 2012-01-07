@@ -84,7 +84,7 @@ QVariant SeriesModel::headerData(int section, Qt::Orientation orientation, int r
     return QVariant();
 }
 
-int SeriesModel::defaultSectionSize(int i)
+int SeriesModel::defaultSectionSize(int i) const
 {
     switch (i) {
     case SeriesQuery::Column_Title:
@@ -98,6 +98,14 @@ int SeriesModel::defaultSectionSize(int i)
     }
 
     return 100;
+}
+
+QList<int> SeriesModel::fixedWithSections() const
+{
+    QList<int> fixedWith;
+    fixedWith << SeriesQuery::Column_StarRate;
+
+    return fixedWith;
 }
 
 QString SeriesModel::id()

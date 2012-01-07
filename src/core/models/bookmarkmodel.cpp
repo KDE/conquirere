@@ -88,7 +88,7 @@ QVariant BookmarkModel::headerData(int section, Qt::Orientation orientation, int
     return QVariant();
 }
 
-int BookmarkModel::defaultSectionSize(int i)
+int BookmarkModel::defaultSectionSize(int i) const
 {
     switch (i) {
     case BookmarkQuery::Column_Tags:
@@ -104,6 +104,14 @@ int BookmarkModel::defaultSectionSize(int i)
     }
 
     return 100;
+}
+
+QList<int> BookmarkModel::fixedWithSections() const
+{
+    QList<int> fixedWith;
+    fixedWith << BookmarkQuery::Column_StarRate;
+
+    return fixedWith;
 }
 
 QString BookmarkModel::id()
