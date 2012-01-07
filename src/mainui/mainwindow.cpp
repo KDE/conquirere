@@ -170,6 +170,16 @@ QList<Library *> MainWindow::openLibraries()
      return openLibraryList;
 }
 
+Library *MainWindow::systemLibrary()
+{
+    return m_systemLibrary;
+}
+
+LibraryWidget *MainWindow::libraryWidget()
+{
+    return m_libraryWidget;
+}
+
 void MainWindow::deleteLibrary()
 {
     int ret = KMessageBox::warningYesNo(this,
@@ -341,6 +351,7 @@ void MainWindow::showSearchResults()
          w->hide();
 
     m_mainView->showSearchResult();
+    m_sidebarWidget->showSearchResults();
 
     QAction *a = actionCollection()->action(QLatin1String("delete_project"));
     if(a)

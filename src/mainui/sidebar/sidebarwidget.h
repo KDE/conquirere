@@ -66,6 +66,19 @@ public slots:
     void newSelection(ResourceSelection selection, BibEntryType filter, Library *library);
 
     /**
+      * Special case to show the data from
+      *
+      * When the search mode is activated (search results table is shown)
+      * we need to find the right @c ResourceSelection type on our own for each resource and
+      * change the sidbarwidged accordingly
+      *
+      * @see findResourceSelection
+      */
+    void showSearchResults();
+
+    void findResourceSelection(Nepomuk::Resource & resource);
+
+    /**
       * Called when a Nepomuk::Resource was selected in the MainWidget
       *
       * Updates the current widget
@@ -121,7 +134,7 @@ public slots:
 signals:
     /**
       * This signal gets thrown when the resource was changed and must be updated in the table model cache
-      * redirects the signal from all propertywidgets pf every SidbarComponent
+      * redirects the signal from all propertywidgets of every SidbarComponent
       *
       * @todo This should be replaced by the Nepomuk::ResourceWatcher later
       */
@@ -130,6 +143,7 @@ signals:
 private:
     Ui::DockWidget *ui;
     MainWindow *m_parent;
+    bool m_searchResultVisible;
     QStackedLayout *m_stackedLayout;
     QWidget *m_blankPage;
     MergeResourcesWidget *m_mergeWidget;

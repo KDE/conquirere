@@ -29,6 +29,7 @@
 
 #include "mainui/mainwindow.h"
 #include "core/library.h"
+#include "../resourcetablewidget.h"
 #include "nbibio/pipe/nepomuktobibtexpipe.h"
 
 #include <kbibtex/findpdfui.h>
@@ -38,6 +39,7 @@
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Vocabulary/NFO>
 #include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk/Vocabulary/NMO>
 
 #include <KDE/KGlobalSettings>
 
@@ -50,6 +52,7 @@
 SidebarWidget::SidebarWidget(QWidget *parent)
     : QDockWidget(parent)
     , ui(new Ui::DockWidget)
+    , m_searchResultVisible(false)
     , m_currentWidget(0)
     , m_curSelection(Resource_Library)
 {
@@ -107,6 +110,9 @@ SidebarWidget::~SidebarWidget()
 
 void SidebarWidget::setResource(Nepomuk::Resource & resource)
 {
+    if(m_searchResultVisible)
+        findResourceSelection(resource);
+
     m_curResource = resource;
 
     if(m_currentWidget) {
@@ -330,6 +336,14 @@ void SidebarWidget::hasReference(bool reference)
 
 void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filter, Library *library)
 {
+    Q_UNUSED(filter);
+
+    //TODO hacky solution disables searchview when sender is not the tablewidget
+    ResourceTableWidget *rtw = qobject_cast<ResourceTableWidget *>(sender());
+    if(!rtw) {
+        m_searchResultVisible = false;
+    }
+
     if(m_curSelection == selection)
         return;
 
@@ -365,8 +379,15 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         ui->titleLabel->setText(i18nc("Header for the mail details","Mail"));
         break;
     case Resource_Media:
-        newWidget = new PublicationWidget();
+        newWidget = new DocumentWidget(this);
+        newWidget->setMainWindow(m_parent);
         ui->titleLabel->setText(i18nc("Header for the media details","Media"));
+        ui->addPublication->setVisible(true);
+        ui->removePublication->setVisible(true);
+        connect(ui->addPublication, SIGNAL(clicked()), newWidget, SLOT(setPublication()));
+        connect(ui->removePublication, SIGNAL(clicked()), newWidget, SLOT(removePublication()));
+        ui->newButton->setToolTip(i18n("New media details"));
+        ui->deleteButton->setToolTip(i18n("Delete media"));
         break;
     case Resource_Reference:
         newWidget = new ReferenceWidget();
@@ -411,6 +432,7 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         ui->deleteButton->setToolTip(i18n("Delete series"));
         break;
     case Resource_SearchResults:
+        ui->titleLabel->setText(QLatin1String(""));
         break;
     }
 
@@ -438,6 +460,48 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
     delete m_currentWidget;
     m_currentWidget = newWidget;
     connect(m_currentWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+}
+
+void SidebarWidget::showSearchResults()
+{
+    qDebug() << "SidebarWidget::showSearchResults()";
+    m_searchResultVisible = true;
+}
+
+void SidebarWidget::findResourceSelection(Nepomuk::Resource & resource)
+{
+    ResourceSelection selection;
+    BibEntryType filter = Max_BibTypes;
+
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Publication())) {
+       selection = Resource_Publication;
+    }
+    else if(resource.hasType(Nepomuk::Vocabulary::NBIB::Series())) {
+        selection = Resource_Series;
+    }
+    else if(resource.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
+        selection = Resource_Reference;
+    }
+    else if(resource.hasType(Nepomuk::Vocabulary::PIMO::Note())) {
+        selection = Resource_Note;
+    }
+    else if(resource.hasType(Nepomuk::Vocabulary::NMO::Email())) {
+        selection = Resource_Mail;
+    }
+    else if(resource.hasType(Nepomuk::Vocabulary::NFO::Website())) {
+        selection = Resource_Website;
+    }
+    else if(resource.hasType(Nepomuk::Vocabulary::NFO::Bookmark())) {
+        selection = Resource_Website;
+    }
+    else if(resource.hasType(Nepomuk::Vocabulary::PIMO::Event())) {
+        selection = Resource_Event;
+    }
+    else {
+        selection = Resource_Document;
+    }
+
+    newSelection(selection, filter, m_parent->systemLibrary());
 }
 
 void SidebarWidget::clear()

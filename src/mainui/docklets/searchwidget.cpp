@@ -212,8 +212,10 @@ void SearchWidget::startSearch()
             orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Publication() ) );
             orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Series() ) );
         }
-        if(ui->cbWebpage->isChecked())
+        if(ui->cbWebpage->isChecked()) {
             orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Website() ) );
+            orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Bookmark() ) );
+        }
 
         andTerm.addSubTerm(orTerm);
 

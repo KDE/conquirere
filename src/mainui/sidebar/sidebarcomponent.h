@@ -39,6 +39,9 @@ public:
     virtual ~SidebarComponent() {}
 
     virtual void setLibrary(Library *p);
+    /**
+      * @bug used sometimes as system and as other lib this must be changed
+      */
     Library *library() const;
 
     /**

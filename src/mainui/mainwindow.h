@@ -42,6 +42,8 @@ public:
     ~MainWindow();
 
     QList<Library *> openLibraries();
+    Library *systemLibrary();
+    LibraryWidget *libraryWidget();
 
 public slots:
     // Slots for the menu KAction events
