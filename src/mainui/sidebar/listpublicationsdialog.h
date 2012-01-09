@@ -18,7 +18,7 @@
 #ifndef LISTPUBLICATIONSDIALOG_H
 #define LISTPUBLICATIONSDIALOG_H
 
-#include "../globals.h"
+#include "globals.h"
 
 #include <Nepomuk/Resource>
 
@@ -29,6 +29,7 @@ namespace Ui {
 }
 
 class Library;
+class HtmlDelegate;
 
 /**
   * @brief shows a simple table with all bibliographic relevant entries
@@ -75,6 +76,7 @@ private slots:
     void changeLibrary();
     void headerContextMenu(const QPoint &pos);
     void changeHeaderSectionVisibility();
+    void sectionResized( int logicalIndex, int oldSize, int newSize );
 
 private:
     void showLibraryModel(Library *p);
@@ -84,6 +86,7 @@ private:
     QList<Library *> m_openLibList;
     ResourceSelection m_selection;
     BibEntryType m_filter;
+    HtmlDelegate *m_htmlDelegate;
 };
 
 #endif // LISTPUBLICATIONSDIALOG_H

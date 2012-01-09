@@ -19,10 +19,11 @@
 #include "ui_listpublicationsdialog.h"
 
 #include "core/library.h"
-#include "../core/models/nepomukmodel.h"
-#include "../core/models/publicationfiltermodel.h"
-#include "../core/models/seriesfiltermodel.h"
-#include "../core/delegates/ratingdelegate.h"
+#include "core/models/nepomukmodel.h"
+#include "core/models/publicationfiltermodel.h"
+#include "core/models/seriesfiltermodel.h"
+#include "core/delegates/ratingdelegate.h"
+#include "core/delegates/htmldelegate.h"
 
 #include <KDE/KConfig>
 #include <KDE/KConfigGroup>
@@ -45,6 +46,7 @@ ListPublicationsDialog::ListPublicationsDialog(QWidget *parent)
     ui->setupUi(this);
 
     // view that holds the table models for selection
+    m_htmlDelegate = new HtmlDelegate();
     ui->tableView->setSortingEnabled(true);
     ui->tableView->setItemDelegateForColumn(0, new RatingDelegate());
     ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -54,15 +56,20 @@ ListPublicationsDialog::ListPublicationsDialog(QWidget *parent)
     ui->tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    QHeaderView *hv = ui->tableView->horizontalHeader();
-    hv->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(hv, SIGNAL(customContextMenuRequested(QPoint)),
+    QHeaderView *hvHorizontal = ui->tableView->horizontalHeader();
+    hvHorizontal->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(hvHorizontal, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(headerContextMenu(QPoint)));
+    connect(hvHorizontal, SIGNAL(sectionResized(int,int,int)),
+            this, SLOT(sectionResized(int,int,int)));
+
+    QHeaderView *hvVertical = ui->tableView->verticalHeader();
+    hvVertical->setResizeMode(QHeaderView::ResizeToContents);
 }
 
 ListPublicationsDialog::~ListPublicationsDialog()
 {
-    //reste filter for the mainview again
+    //rest filter for the mainview again
     PublicationFilterModel * pfm = qobject_cast<PublicationFilterModel *>(m_systemLibrary->viewModel(m_selection));
     if(pfm) {
         pfm->setResourceFilter(Max_BibTypes);
@@ -180,58 +187,110 @@ void ListPublicationsDialog::changeHeaderSectionVisibility()
 
     // save selection in the application settings
     KConfig config;
-    QString group = QLatin1String("TableView_LinkDocument");
-    group.append((int)Resource_Publication);
+    QString group = QLatin1String("TableView");
+    group.append((int)m_selection);
     KConfigGroup tableViewGroup( &config, group );
     tableViewGroup.writeEntry( a->data().toString(), hv->isSectionHidden(a->data().toInt()) );
     tableViewGroup.config()->sync();
 }
 
+void ListPublicationsDialog::sectionResized( int logicalIndex, int oldSize, int newSize )
+{
+    Q_UNUSED(oldSize);
+    if(newSize < 5)
+        return;
+
+    QHeaderView *hv = ui->tableView->horizontalHeader();
+
+    QString group;
+    group = QLatin1String("TableView");
+    group.append((int)m_selection);
+
+    // save selection in the application settings
+    KConfig config;
+    KConfigGroup tableViewGroup( &config, group );
+    QString keySize = QLatin1String("size_") + QString::number(logicalIndex);
+    tableViewGroup.writeEntry( keySize, hv->sectionSize(logicalIndex) );
+    tableViewGroup.config()->sync();
+}
+
 void ListPublicationsDialog::showLibraryModel(Library *p)
 {
-    ui->tableView->setModel(p->viewModel(m_selection));
 
     PublicationFilterModel * pfm = qobject_cast<PublicationFilterModel *>(p->viewModel(m_selection));
     if(pfm) {
         pfm->setResourceFilter(m_filter);
     }
-    //do not filter series at all
-//    else {
-//        SeriesFilterModel * pfm = qobject_cast<SeriesFilterModel *>(p->viewModel(m_selection));
-//        if(pfm) {
-//            pfm->setResourceFilter(SeriesType(m_filter));
-//        }
-//    }
+
+    switch(m_selection) {
+    case Resource_Event:
+    case Resource_Series:
+        ui->tableView->setItemDelegateForColumn(3, m_htmlDelegate);
+        break;
+    default:
+        ui->tableView->setItemDelegateForColumn(3, NULL);
+    }
+
+    ui->tableView->setWordWrap(true);
+    ui->tableView->setModel(p->viewModel(m_selection));
 
     //load settings for visible/hidden columns
     KConfig config;
-    QString group = QLatin1String("TableView_LinkDocument");
+    QString group = QLatin1String("TableView");
     group.append((int)m_selection);
     KConfigGroup tableViewGroup( &config, group );
 
-    // go through all header elements and apply last known visibility status
+
+    // go through all header elements and apply last known visibility / size status
     // also add each header name to the search combobox for selection
     ui->filterComboBox->clear();
     ui->filterComboBox->addItem(i18n("all entries"), -1); //additem NAME, TABLEHEADERINDEX
     QHeaderView *hv = ui->tableView->horizontalHeader();
     int columnCount = ui->tableView->model()->columnCount();
+
+    NepomukModel *nm = qobject_cast<NepomukModel *>(p->viewModel(m_selection));
+    if(!nm) {
+        QSortFilterProxyModel *qsf = qobject_cast<QSortFilterProxyModel *>(p->viewModel(m_selection));
+        if(qsf) {
+            nm = qobject_cast<NepomukModel *>(qsf->sourceModel());
+        }
+    }
+
     for(int i=0; i < columnCount; i++) {
-        bool hidden = tableViewGroup.readEntry( QString::number(i), false );
+        // hidden status
+        QString keyHidden = QLatin1String("hidden_") + QString::number(i);
+        bool hidden = tableViewGroup.readEntry( keyHidden, false );
+
         hv->setSectionHidden(i, hidden);
 
         QString headerName = ui->tableView->model()->headerData(i,Qt::Horizontal).toString();
         if(!headerName.isEmpty()) {
             ui->filterComboBox->addItem(headerName, i);
         }
+
+        // size status
+        int sectionSize = 50;
+        QString keySize = QLatin1String("size_") + QString::number(i);
+        int size = tableViewGroup.readEntry( keySize, -1 );
+        if(size > 4) {
+            sectionSize = size;
+        }
+        else {
+            if(nm) {
+                sectionSize = nm->defaultSectionSize(i);
+            }
+        }
+
+        hv->resizeSection(i,sectionSize);
     }
 
-//    hv->setResizeMode(QHeaderView::Interactive);
-//    ui->tableView->horizontalHeader()->resizeSection(1,25);
-//    ui->tableView->horizontalHeader()->resizeSection(2,25);
-//    hv->setResizeMode(6, QHeaderView::Stretch);
-//    ui->tableView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    hv->setResizeMode(QHeaderView::Interactive);
 
-    hv->setResizeMode(QHeaderView::ResizeToContents);
+    ui->tableView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     ui->tableView->selectRow(0);
+
+    QList<int> fixedWithList = nm->fixedWithSections();
+    foreach(int section, fixedWithList)
+        hv->setResizeMode(section, QHeaderView::Fixed);
 }

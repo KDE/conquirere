@@ -28,8 +28,8 @@ public:
         Column_StarRate,
         Column_Akonadi,
         Column_Title,
-        Column_Date,
         Column_Publication,
+        Column_Date,
 
         Max_columns
     };

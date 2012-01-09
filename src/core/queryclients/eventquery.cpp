@@ -103,13 +103,20 @@ QVariantList EventQuery::createDisplayData(const Nepomuk::Resource & res) const
         switch(i) {
         case Column_Publication: {
             QList<Nepomuk::Resource> publicationList = thing.property(Nepomuk::Vocabulary::NBIB::eventPublication()).toResourceList();
+
             QString pubString;
-            foreach(const Nepomuk::Resource & r, publicationList) {
-                pubString.append( r.property(Nepomuk::Vocabulary::NIE::title()).toString() );
-                pubString.append( QLatin1String("; "));
+            if(!publicationList.isEmpty()) {
+                //create content for the HTMLDelegate looks a lot better when several publication are beeing displayed
+                pubString = QLatin1String("<font size=\"85%\">");
+                foreach(const Nepomuk::Resource & r, publicationList) {
+                    pubString.append("&#8226; ");
+                    pubString.append( r.property(Nepomuk::Vocabulary::NIE::title()).toString() );
+                    pubString.append("<br/>");
+                }
+                pubString.chop(5);
+                pubString.append(QLatin1String("</font>"));
             }
 
-            pubString.chop(2);
             newEntry = pubString;
             break;
         }
