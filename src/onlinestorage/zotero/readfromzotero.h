@@ -53,8 +53,9 @@ public:
     explicit ReadFromZotero(QObject *parent = 0);
 
     CollectionInfo readCollectionEntry(QXmlStreamReader &xmlReader);
-    Element *readItemEntry(QXmlStreamReader &xmlReader);
+    Entry * readItemEntry(QXmlStreamReader &xmlReader);
     void readJsonContent(Entry *e, const QString &content);
+    File getFile();
 
 public slots:
     void fetchItems(const QString &collection = QString());

@@ -81,7 +81,7 @@ public slots:
 
     virtual void pushItems(File items, const QString &collection = QString()) = 0;
     virtual void pushNewItems(File items, const QString &collection = QString()) = 0;
-    virtual void updateItem(Entry *item) = 0;
+    virtual void updateItem(QSharedPointer<Element> item) = 0;
     virtual void addItemsToCollection(QList<QString> ids, const QString &collection) = 0;
     virtual void removeItemsFromCollection(QList<QString> ids, const QString &collection) = 0;
     virtual void deleteItems(File items) = 0;
@@ -96,7 +96,7 @@ protected:
       *
       * @p url the url to get the data from
       */
-    void startRequest(const QNetworkRequest &request, const QByteArray & payload, QNetworkAccessManager::Operation mode, Entry *item = 0);
+    void startRequest(const QNetworkRequest &request, const QByteArray & payload, QNetworkAccessManager::Operation mode, QSharedPointer<Entry> item = QSharedPointer<Entry>());
 
     /**
       * sets the current request type
@@ -120,7 +120,7 @@ protected:
       *
       * Useful when updating items one by one, as we cann directly and easily update the entry with the response
       */
-    Entry * serverReplyEntry(QNetworkReply *reply);
+    QSharedPointer<Entry> serverReplyEntry(QNetworkReply *reply);
 
     /**
       * Tells how many open reply we still have
@@ -148,7 +148,7 @@ private:
     RequestType m_requestType;
 
     QNetworkAccessManager m_qnam;
-    QMap<QNetworkReply *, Entry *> m_replies;
+    QMap<QNetworkReply *, QSharedPointer<Entry> > m_replies;
 };
 
 #endif // WRITETOSTORAGE_H

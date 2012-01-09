@@ -32,7 +32,7 @@ WriteToStorage::WriteToStorage(QObject *parent)
 
 WriteToStorage::~WriteToStorage()
 {
-    QMapIterator<QNetworkReply *, Entry *> i(m_replies);
+    QMapIterator<QNetworkReply *, QSharedPointer<Entry> > i(m_replies);
     while (i.hasNext()) {
         i.next();
         i.key()->close();
@@ -72,7 +72,7 @@ void WriteToStorage::serverReplyFinished(QNetworkReply *reply)
     //reply->deleteLater();
 }
 
-Entry * WriteToStorage::serverReplyEntry(QNetworkReply *reply)
+QSharedPointer<Entry> WriteToStorage::serverReplyEntry(QNetworkReply *reply)
 {
     return m_replies.value(reply);
 }
@@ -82,7 +82,7 @@ int WriteToStorage::openReplies() const
     return m_replies.size();
 }
 
-void WriteToStorage::startRequest(const QNetworkRequest &request, const QByteArray & payload, QNetworkAccessManager::Operation mode, Entry *item)
+void WriteToStorage::startRequest(const QNetworkRequest &request, const QByteArray & payload, QNetworkAccessManager::Operation mode, QSharedPointer<Entry> item)
 {
     QNetworkReply *reply;
     switch(mode) {
@@ -107,7 +107,7 @@ void WriteToStorage::startRequest(const QNetworkRequest &request, const QByteArr
 
 void WriteToStorage::cancelUpload()
 {
-    QMapIterator<QNetworkReply *, Entry *> i(m_replies);
+    QMapIterator<QNetworkReply *, QSharedPointer<Entry> > i(m_replies);
     while (i.hasNext()) {
         i.next();
         i.key()->abort();

@@ -23,6 +23,9 @@
 #include <kbibtex/fileimporterpdf.h>
 #include <kbibtex/fileimporterris.h>
 
+#include <KIO/NetAccess>
+#include <KDE/KMessageBox>
+
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QDebug>
@@ -37,42 +40,47 @@ void ReadFromFile::fetchItems(const QString &collection)
     Q_UNUSED(collection);
 
     // open file from url
-    // TODO use kio to allow network transparency?
+    QString tmpFile;
+    if( KIO::NetAccess::download(m_psd.url, tmpFile, 0)) {
 
-    QFile bibFile(m_psd.url);
-    if (!bibFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "can't open file" << m_psd.url;
-        return;
-    }
+        QFile bibFile(tmpFile);
+        if (!bibFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            qDebug() << "can't open file" << m_psd.url;
+            return;
+        }
 
-    FileImporter *importer = 0;
+        FileImporter *importer = 0;
 
-    // select the right importer based on the file extension
-    QFileInfo fi(m_psd.url);
-    QString extension = fi.completeSuffix();
+        // select the right importer based on the file extension
+        QFileInfo fi(m_psd.url);
+        QString extension = fi.completeSuffix();
 
-    if(extension == QLatin1String(".bib")) {
-        importer = new FileImporterBibTeX;
-    }
-    else if(extension == QLatin1String(".pdf")) {
-        importer = new FileImporterPDF;
-    }
-    else if(extension == QLatin1String(".ris")) {
-        importer = new FileImporterRIS;
-    }
-    else if(extension == QLatin1String(".pdf")) {
+        if(extension == QLatin1String("bib")) {
+            importer = new FileImporterBibTeX;
+        }
+        else if(extension == QLatin1String("pdf")) {
+            importer = new FileImporterPDF;
+        }
+        else if(extension == QLatin1String("ris")) {
+            importer = new FileImporterRIS;
+        }
+        else {
+            qWarning() << "unknown file extension" << extension << "can't read file";
+            return;
+        }
 
+        connect(importer, SIGNAL(progress(int,int)), this, SLOT(calculateProgress(int,int)));
+
+        File *importedBibFile = importer->load(&bibFile);
+
+        emit itemsInfo(*importedBibFile);
+
+        KIO::NetAccess::removeTempFile(tmpFile);
     }
     else {
-        qWarning() << "unknown file extension" << extension << "can't read file";
-        return;
+        qDebug() << KIO::NetAccess::lastErrorString();
+        //KMessageBox::error(this, KIO::NetAccess::lastErrorString());
     }
-
-    connect(importer, SIGNAL(progress(int,int)), this, SLOT(calculateProgress(int,int)));
-
-    File *importedBibFile = importer->load(&bibFile);
-
-    emit itemsInfo(*importedBibFile);
 }
 
 void ReadFromFile::fetchItem(const QString &id, const QString &collection )

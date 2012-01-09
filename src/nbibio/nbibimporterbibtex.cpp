@@ -37,19 +37,7 @@ NBibImporterBibTex::NBibImporterBibTex()
 
 NBibImporterBibTex::~NBibImporterBibTex()
 {
-    while (!m_importedEntries->isEmpty()) {
-        Element *ec = m_importedEntries->first();
-        m_importedEntries->removeFirst();
-        delete ec;
-    }
-
     delete m_importedEntries;
-
-    while (!m_cliques.isEmpty()) {
-        EntryClique *ec = m_cliques.first();
-        m_cliques.removeFirst();
-        delete ec;
-    }
 }
 
 void NBibImporterBibTex::setAkonadiAddressbook(Akonadi::Collection & addressbook)

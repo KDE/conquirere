@@ -63,7 +63,7 @@ private slots:
     void itemCheckChanged(QListWidgetItem* item);
 
     void startSearch();
-    void foundOnlineEntry(Entry *newEntry);
+    void foundOnlineEntry(QSharedPointer<Entry> newEntry);
     void foundNepomukEntry(QList<Nepomuk::Query::Result> newEntry);
 
     void nepomukQueryFinished();

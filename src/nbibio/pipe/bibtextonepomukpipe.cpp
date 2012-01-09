@@ -101,16 +101,16 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
     qreal perFileProgress = (100.0/(qreal)maxValue);
 
     //we start by filling the lookuptable for all macros
-    foreach(Element *e, bibEntries ) {
-        Macro *macro = dynamic_cast<Macro *>(e);
+    foreach(QSharedPointer<Element> e, bibEntries ) {
+        Macro *macro = dynamic_cast<Macro *>(e.data());
         if(macro) {
             m_macroLookup.insert(macro->key(), PlainTextValue::text(macro->value()));
         }
     }
 
     int i = 0;
-    foreach(Element *e, bibEntries ) {
-        Entry *entry = dynamic_cast<Entry *>(e);
+    foreach(QSharedPointer<Element> e, bibEntries ) {
+        Entry *entry = dynamic_cast<Entry *>(e.data());
 
         if(entry) {
             if(entry->contains(Entry::ftCrossRef)) {
@@ -345,7 +345,7 @@ Entry *BibTexToNepomukPipe::getDiff(Nepomuk::Resource local, Entry *externalEntr
 
     File localBibFile = ntbp.bibtexFile();
 
-    Entry *localEntry = static_cast<Entry *>(localBibFile.first());
+    Entry *localEntry = static_cast<Entry *>(localBibFile.first().data());
     if(!localEntry)
         return 0;
 

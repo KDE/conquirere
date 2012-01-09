@@ -164,7 +164,7 @@ void ReadFromZotero::requestFinished()
         if(xmlReader.name() == QLatin1String("entry")) {
             switch(requestType()) {
             case Items:
-                m_bibFile.append( readItemEntry(xmlReader) );
+                m_bibFile.append( QSharedPointer<Element>(readItemEntry(xmlReader)) );
                 break;
             case Collections:
                 m_cachedCollectionResult.append( readCollectionEntry(xmlReader) );
@@ -210,7 +210,7 @@ CollectionInfo ReadFromZotero::readCollectionEntry(QXmlStreamReader &xmlReader)
     return ci;
 }
 
-Element *ReadFromZotero::readItemEntry(QXmlStreamReader &xmlReader)
+Entry * ReadFromZotero::readItemEntry(QXmlStreamReader &xmlReader)
 {
     Entry *e = new Entry;
     bool finishEntry = false;
@@ -267,6 +267,11 @@ void ReadFromZotero::readJsonContent(Entry *e, const QString &content)
     else {
         readJsonContentOriginal(e, content);
     }
+}
+
+File ReadFromZotero::getFile()
+{
+    return m_bibFile;
 }
 
 void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)

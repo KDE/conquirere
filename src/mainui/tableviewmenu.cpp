@@ -221,7 +221,7 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
     qDeleteAll(actionCollection);
 }
 
-void TableViewMenu::showBibTeXEntryMenu(Entry *entry)
+void TableViewMenu::showBibTeXEntryMenu(QSharedPointer<Entry> entry)
 {
     m_bibtexEntry = entry;
 

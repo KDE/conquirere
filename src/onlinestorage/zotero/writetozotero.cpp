@@ -48,19 +48,19 @@ void WriteToZotero::pushItems(File items, const QString &collection)
     File newItems;
     File updatingItems;
 
-    foreach(Element* element, items) {
-        Entry *entry = dynamic_cast<Entry *>(element);
+    foreach(QSharedPointer<Element> element, items) {
+        Entry *entry = dynamic_cast<Entry *>(element.data());
         if(!entry) {
             continue;
         }
         QString zoteroKey = PlainTextValue::text(entry->value(QLatin1String("zoteroKey")));
 
         if(zoteroKey.isEmpty()) {
-            newItems.append(entry);
+            newItems.append(element);
         }
         else {
-            updatingItems.append(entry);
-            updateItem(entry);
+            updatingItems.append(element);
+            updateItem(element);
         }
 
         m_progress = m_progress + m_progressPerFile;
@@ -100,13 +100,14 @@ void WriteToZotero::pushNewItems(File items, const QString &collection)
     startRequest(request, writeJsonContent(items), QNetworkAccessManager::PostOperation);
 }
 
-void WriteToZotero::updateItem(Entry *item)
+void WriteToZotero::updateItem(QSharedPointer<Element> item)
 {
+    Entry *entry = dynamic_cast<Entry *>(item.data());
     //PUT /users/1/items/ABCD2345
     //If-Match: "8e984e9b2a8fb560b0085b40f6c2c2b7"
 
-    QString zoteroKey = PlainTextValue::text(item->value(QLatin1String("zoteroKey")));
-    QString etag = PlainTextValue::text(item->value(QLatin1String("zoteroEtag")));
+    QString zoteroKey = PlainTextValue::text(entry->value(QLatin1String("zoteroKey")));
+    QString etag = PlainTextValue::text(entry->value(QLatin1String("zoteroEtag")));
 
     QString pushString = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items/") + zoteroKey;
 
@@ -122,7 +123,8 @@ void WriteToZotero::updateItem(Entry *item)
 
     File itemFile;
     itemFile.append(item);
-    startRequest(request, writeJsonContent(itemFile, true), QNetworkAccessManager::PutOperation, item);
+    QSharedPointer<Entry> entryPointer(entry);
+    startRequest(request, writeJsonContent(itemFile, true), QNetworkAccessManager::PutOperation, entryPointer);
 }
 
 void WriteToZotero::addItemsToCollection(QList<QString> ids, const QString &collection )
@@ -174,8 +176,8 @@ void WriteToZotero::deleteItems(File items)
     //DELETE /users/1/items/ABCD2345
     //If-Match: "8e984e9b2a8fb560b0085b40f6c2c2b7"
 
-    foreach(Element*element, items) {
-        Entry *entry = dynamic_cast<Entry *>(element);
+    foreach(QSharedPointer<Element> element, items) {
+        Entry *entry = dynamic_cast<Entry *>(element.data());
         if(!entry) {
             continue;
         }
@@ -266,7 +268,7 @@ void WriteToZotero::requestFinished()
         return;
     }
 
-    Entry * updateEntry = serverReplyEntry(reply);
+    QSharedPointer<Entry> updateEntry = serverReplyEntry(reply);
     serverReplyFinished(reply);
 
     // if the entry is 0 we pushed new items to the server
@@ -284,7 +286,8 @@ void WriteToZotero::requestFinished()
         }
         if(xmlReader.name() == QLatin1String("entry")) {
             ReadFromZotero rfz;
-            Entry *newElement = dynamic_cast<Entry *>(rfz.readItemEntry(xmlReader));
+            QSharedPointer<Element> newElement(rfz.readItemEntry(xmlReader));
+            Entry *newElementEntry = dynamic_cast<Entry *>(newElement.data());
 
             m_progress = m_progress + m_progressPerFile;
 
@@ -294,9 +297,9 @@ void WriteToZotero::requestFinished()
             // updatethe tag and updated date
             if(updateEntry) {
                     updateEntry->remove(QLatin1String("zoteroupdated"));
-                    updateEntry->insert(QLatin1String("zoteroupdated"), newElement->value(QLatin1String("zoteroupdated")));
+                    updateEntry->insert(QLatin1String("zoteroupdated"), newElementEntry->value(QLatin1String("zoteroupdated")));
                     updateEntry->remove(QLatin1String("zoteroetag"));
-                    updateEntry->insert(QLatin1String("zoteroetag"), newElement->value(QLatin1String("zoteroetag")));
+                    updateEntry->insert(QLatin1String("zoteroetag"), newElementEntry->value(QLatin1String("zoteroetag")));
 
                     break;
             }
@@ -306,7 +309,8 @@ void WriteToZotero::requestFinished()
                 newFilesAdded++;
 
                 if(!m_addToCollection.isEmpty()) {
-                    ids << PlainTextValue::text(newElement->value(QLatin1String("zoterokey")));
+                    Entry *newElementEntry = dynamic_cast<Entry *>(newElement.data());
+                    ids << PlainTextValue::text(newElementEntry->value(QLatin1String("zoterokey")));
                 }
             }
         }
@@ -332,8 +336,8 @@ QByteArray WriteToZotero::writeJsonContent(File items, bool onlyUpdate)
     QVariantMap jsonMap;
     QVariantList itemList;
 
-    foreach(Element*element, items) {
-        Entry *entry = dynamic_cast<Entry *>(element);
+    foreach(QSharedPointer<Element> element, items) {
+        Entry *entry = dynamic_cast<Entry *>(element.data());
         if(!entry) {
             continue;
         }

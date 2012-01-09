@@ -77,8 +77,8 @@ void SyncZotero::readSync(File serverFiles)
     QStringList updatedKeys;
 
     // go through all retrieved entries
-    foreach(Element* element, serverFiles) {
-        Entry *entry = dynamic_cast<Entry *>(element);
+    foreach(QSharedPointer<Element> element, serverFiles) {
+        Entry *entry = dynamic_cast<Entry *>(element.data());
         if(!entry) { continue; }
 
         QString zoteroKey = PlainTextValue::text(entry->value(QLatin1String("zoterokey")));
@@ -87,8 +87,8 @@ void SyncZotero::readSync(File serverFiles)
 
         bool addEntry = true;
         // check if the zoterokey exist
-        foreach(Element* checkElement, *m_systemFiles) {
-            Entry *checkEntry = dynamic_cast<Entry *>(checkElement);
+        foreach(QSharedPointer<Element> checkElement, *m_systemFiles) {
+            Entry *checkEntry = dynamic_cast<Entry *>(checkElement.data());
             if(!checkEntry) { continue; }
 
             QString checkZoteroKey = PlainTextValue::text(checkEntry->value(QLatin1String("zoterokey")));
@@ -116,9 +116,9 @@ void SyncZotero::readSync(File serverFiles)
 
     // now we delete all entries that have a zoterokey which we did not retrieve from the server
     // this means we deleted the entry on the server
-    QList<Element*> toBeDeleted;
-    foreach(Element* element, *m_systemFiles) {
-        Entry *entry = dynamic_cast<Entry *>(element);
+    QList<QSharedPointer<Element> > toBeDeleted;
+    foreach(QSharedPointer<Element> element, *m_systemFiles) {
+        Entry *entry = dynamic_cast<Entry *>(element.data());
         if(!entry) { continue; }
 
         QString checkZoteroKey = PlainTextValue::text(entry->value(QLatin1String("zoterokey")));
@@ -133,16 +133,15 @@ void SyncZotero::readSync(File serverFiles)
         int ret = KMessageBox::warningYesNo(0,i18n("%1 items are deleted on the server.\n\nDo you want to delete them locally too?.\nOtherwise they will be uploaded again.", toBeDeleted.size()));
 
         if(ret == KMessageBox::Yes) {
-            foreach(Element* e, toBeDeleted) {
+            foreach(QSharedPointer<Element> e, toBeDeleted) {
                 m_systemFiles->removeAll(e);
-                delete e;
-                e = 0;
+                e.clear();
             }
         }
         else {
             // remove zoteroinfo so they will be uploaded again
-            foreach(Element* element, toBeDeleted) {
-                Entry *entry = dynamic_cast<Entry *>(element);
+            foreach(QSharedPointer<Element> element, toBeDeleted) {
+                Entry *entry = dynamic_cast<Entry *>(element.data());
                 entry->remove(QLatin1String("zoterokey"));
                 entry->remove(QLatin1String("zoteroetag"));
                 entry->remove(QLatin1String("zoteroupdated"));
@@ -152,10 +151,9 @@ void SyncZotero::readSync(File serverFiles)
         }
     }
     else {
-        foreach(Element* e, toBeDeleted) {
+        foreach(QSharedPointer<Element> e, toBeDeleted) {
             m_systemFiles->removeAll(e);
-            delete e;
-            e = 0;
+            e.clear();
         }
     }
 
@@ -228,12 +226,12 @@ void SyncZotero::writeSync(File serverFiles)
 
     // kbibtex FindDuplicates doesn't seem do detect 100% exact results even with low sensitivity function
 
-    foreach(Element* serverElement, serverFiles) {
-        Entry *serverEntry = dynamic_cast<Entry *>(serverElement);
+    foreach(QSharedPointer<Element> serverElement, serverFiles) {
+        Entry *serverEntry = dynamic_cast<Entry *>(serverElement.data());
 
         // check the entry against each entry in the m_systemFiles
-        foreach(Element* systemElement, *m_systemFiles) {
-            Entry *systemEntry = dynamic_cast<Entry *>(systemElement);
+        foreach(QSharedPointer<Element> systemElement, *m_systemFiles) {
+            Entry *systemEntry = dynamic_cast<Entry *>(systemElement.data());
             if(!systemEntry)
                 continue;
 

@@ -326,7 +326,7 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
         return;
 
     Nepomuk::Resource nepomukRescource;
-    Entry* bibTeXResource = 0;
+    QSharedPointer<Entry> bibTeXResource;
 
     QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
     NepomukModel *nm = qobject_cast<NepomukModel *>(sfpm->sourceModel());

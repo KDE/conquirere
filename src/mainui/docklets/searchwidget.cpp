@@ -251,7 +251,7 @@ void SearchWidget::startSearch()
     emit newSearchStarted();
 }
 
-void SearchWidget::foundOnlineEntry(Entry *newEntry)
+void SearchWidget::foundOnlineEntry(QSharedPointer<Entry> newEntry)
 {
     OnlineSearchAbstract *engine = qobject_cast<OnlineSearchAbstract *>(sender());
 
@@ -267,7 +267,7 @@ void SearchWidget::foundNepomukEntry(QList<Nepomuk::Query::Result> newEntry)
     foreach(const Nepomuk::Query::Result &r, newEntry) {
         SearchResultEntry sre;
         sre.nepomukResult = r;
-        sre.webResult = 0;
+        //sre.webResult = 0;
         sre.webEngine = 0;
 
         emit searchResult(sre);
@@ -404,6 +404,7 @@ void SearchWidget::setupUi()
 
 void SearchWidget::addEngine(OnlineSearchAbstract *engine)
 {
+
     KConfig config;
     KConfigGroup searchSettingsGroup( &config, QLatin1String("SearchSettings") );
 
@@ -414,9 +415,10 @@ void SearchWidget::addEngine(OnlineSearchAbstract *engine)
     item->setData(NameRole, engine->name());
 
     m_itemToOnlineSearch.insert(item, engine);
-    connect(engine, SIGNAL(foundEntry(Entry*)), this, SLOT(foundOnlineEntry(Entry*)));
+    connect(engine, SIGNAL(foundEntry(QSharedPointer<Entry>)), this, SLOT(foundOnlineEntry(QSharedPointer<Entry>)));
     connect(engine, SIGNAL(stoppedSearch(int)), this, SLOT(websearchStopped(int)));
     connect(engine, SIGNAL(progress(int,int)), this, SLOT(updateProgress(int,int)));
+
 }
 
 void SearchWidget::switchToSearch()

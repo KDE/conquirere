@@ -57,7 +57,7 @@ void WriteToFile::pushNewItems(File items, const QString &collection)
     exportFile(items);
 }
 
-void WriteToFile::updateItem(Entry *item)
+void WriteToFile::updateItem(QSharedPointer<Element> item)
 {
     qDebug() << "WriteToFile::updateItem npot implemented right now";
     // should read in current file and replace the entry with the citekey from "item"

@@ -60,8 +60,8 @@ void SyncStorageUi::setBibTeXFile(File *fileToSync)
 
     ProviderSyncDetails psd;
 
-    foreach(Element *e, *m_fileToSync) {
-        Comment *c = dynamic_cast<Comment *>(e);
+    foreach(QSharedPointer<Element> e, *m_fileToSync) {
+        Comment *c = dynamic_cast<Comment *>(e.data());
         if(c && c->text().startsWith(QLatin1String("x-syncprovider="))){
             QString providerSettings = c->text().remove(QLatin1String("x-syncprovider="));
             QStringList psdList = providerSettings.split(QLatin1String("|"));
@@ -127,8 +127,8 @@ void SyncStorageUi::syncStatus(bool inProgress)
 
             bool foundProvider = false;
             // find the right comment
-            foreach(Element *e, *m_fileToSync) {
-                Comment *c = dynamic_cast<Comment *>(e);
+            foreach(QSharedPointer<Element> e, *m_fileToSync) {
+                Comment *c = dynamic_cast<Comment *>(e.data());
                 if(c && c->text().startsWith(QLatin1String("x-syncprovider="))){
                     foundProvider = true;
                     QString sp = QLatin1String("x-syncprovider=");
@@ -152,7 +152,7 @@ void SyncStorageUi::syncStatus(bool inProgress)
                 sp.append(psd.url);
                 sp.append(QLatin1String("|"));
                 sp.append(psd.collection);
-                Comment *c =new Comment(sp, true);
+                QSharedPointer<Comment> c (new Comment(sp, true));
                 m_fileToSync->prepend(c);
             }
         }

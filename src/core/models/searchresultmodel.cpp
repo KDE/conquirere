@@ -198,9 +198,9 @@ QList<int> SearchResultModel::fixedWithSections() const
     return fixedWith;
 }
 
-Entry *SearchResultModel::bibTeXResourceAt(const QModelIndex &selection)
+QSharedPointer<Entry> SearchResultModel::bibTeXResourceAt(const QModelIndex &selection)
 {
-    Entry *entry = 0;
+    QSharedPointer<Entry> entry;
 
     if(!m_modelCacheData.isEmpty() && selection.row() >= 0) {
         SRCachedRowEntry entryCache = m_modelCacheData.at(selection.row());
@@ -232,7 +232,7 @@ void SearchResultModel::addSearchResult(SearchResultEntry newEntry)
         srcre.decorationColums = createDecorationData(newEntry.nepomukResult);
         srcre.toolTipColums = createToolTipData(newEntry.nepomukResult);
         srcre.resource = newEntry.nepomukResult.resource();
-        srcre.entry = 0;
+        //srcre.entry = 0;
     }
 
     beginInsertRows(QModelIndex(), m_modelCacheData.size(), m_modelCacheData.size());
@@ -367,7 +367,7 @@ QVariantList SearchResultModel::createToolTipData(const Nepomuk::Query::Result &
     return decorationList;
 }
 
-QVariantList SearchResultModel::createDisplayData(Entry *entry, OnlineSearchAbstract *engine) const
+QVariantList SearchResultModel::createDisplayData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const
 {
     QVariantList displayList;
     displayList.reserve(Max_columns-1);
@@ -439,7 +439,7 @@ QVariantList SearchResultModel::createDisplayData(Entry *entry, OnlineSearchAbst
     return displayList;
 }
 
-QVariantList SearchResultModel::createDecorationData(Entry *entry, OnlineSearchAbstract *engine) const
+QVariantList SearchResultModel::createDecorationData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const
 {
     QVariantList decorationList;
     decorationList.reserve(Max_columns-1);
@@ -467,7 +467,7 @@ QVariantList SearchResultModel::createDecorationData(Entry *entry, OnlineSearchA
     return decorationList;
 }
 
-QVariantList SearchResultModel::createToolTipData(Entry *entry, OnlineSearchAbstract *engine) const
+QVariantList SearchResultModel::createToolTipData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const
 {
     QVariantList decorationList;
     decorationList.reserve(Max_columns-1);

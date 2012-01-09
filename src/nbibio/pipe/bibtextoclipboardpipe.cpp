@@ -43,8 +43,8 @@ void BibTexToClipboardPipe::pipeExport(File & bibEntries)
     QString text;
     switch(m_exportType) {
     case Export_CITEKEY: {
-        foreach(const Element *e, bibEntries) {
-            const Entry *bibEntry = dynamic_cast<const Entry *>(e);
+        foreach(const QSharedPointer<Element> &e, bibEntries) {
+            const Entry *bibEntry = dynamic_cast<const Entry *>(e.data());
             if(bibEntry) {
                 text.append(bibEntry->id());
                 text.append(QLatin1String(", "));
@@ -56,7 +56,7 @@ void BibTexToClipboardPipe::pipeExport(File & bibEntries)
     }
     case Export_SOURCE: {
         FileExporterBibTeX exporter;
-        exporter.setEncoding(QLatin1String("latex"));
+        //exporter.setEncoding(QLatin1String("latex"));
         QBuffer buffer;
         buffer.open(QBuffer::WriteOnly);
         exporter.save(&buffer, &bibEntries);

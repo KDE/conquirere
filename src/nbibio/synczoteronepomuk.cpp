@@ -93,6 +93,7 @@ void SyncZoteroNepomuk::startDownload()
 
 void SyncZoteroNepomuk::readDownloadSync(File zoteroData)
 {
+    //m_bibCache = m_rfz->getFile();
     //#########################################################################################
     QFile exportFile(QString("/home/joerg/zotero_download.bib"));
     if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -275,8 +276,8 @@ void SyncZoteroNepomuk::readUploadSync(File zoteroData)
     qreal curProgress = 0.0;
 
     //step one get all entries which are new to the storage
-    foreach(Element* element, m_bibCache) {
-        Entry *entry = dynamic_cast<Entry *>(element);
+    foreach(QSharedPointer<Element> element, m_bibCache) {
+        Entry *entry = dynamic_cast<Entry *>(element.data());
         if(!entry) { continue; }
 
         if(!entry->contains(QLatin1String("zoteroKey"))) {
@@ -288,15 +289,15 @@ void SyncZoteroNepomuk::readUploadSync(File zoteroData)
     // now find the real duplicates between the zoteroData entries and the m_bibCache entries
     // foreach entry in zoteroData there is exact 1 entrie in m_bibCache
     int entriesFound = 0;
-    foreach(Element* zoteroElement, zoteroData) {
-        Entry *zoteroEntry = dynamic_cast<Entry *>(zoteroElement);
+    foreach(QSharedPointer<Element> zoteroElement, zoteroData) {
+        Entry *zoteroEntry = dynamic_cast<Entry *>(zoteroElement.data());
         if(!zoteroEntry) { continue; }
 
         QStringList error;
         bool updateSuccessfull = false;
         //now try go through all entries we send
-        foreach(Element* localElement, m_bibCache) {
-            Entry *localEntry = dynamic_cast<Entry *>(localElement);
+        foreach(QSharedPointer<Element> localElement, m_bibCache) {
+            Entry *localEntry = dynamic_cast<Entry *>(localElement.data());
             if(!localEntry) { continue; }
 
             bool duplicateFound = true;
@@ -418,8 +419,8 @@ void SyncZoteroNepomuk::findDuplicates(const File &zoteroData, File &newEntries,
     qreal percentPerFile = 100.0/(qreal)newEntries.size();
     qreal curProgress = 0.0;
 
-    foreach(Element* element, zoteroData) {
-        Entry *entry = dynamic_cast<Entry *>(element);
+    foreach(QSharedPointer<Element> element, zoteroData) {
+        Entry *entry = dynamic_cast<Entry *>(element.data());
         if(!entry) { continue; }
 
         // define what we are looking for in the nepomuk storage
@@ -506,8 +507,8 @@ void SyncZoteroNepomuk::findDeletedEntries(const File &zoteroData, QList<SyncDet
 
     QStringList idLookup;
 
-    foreach(Element* zoteroElement, zoteroData) {
-        Entry *zoteroEntry = dynamic_cast<Entry *>(zoteroElement);
+    foreach(QSharedPointer<Element> zoteroElement, zoteroData) {
+        Entry *zoteroEntry = dynamic_cast<Entry *>(zoteroElement.data());
         if(!zoteroEntry) { continue; }
 
         QString itemID = PlainTextValue::text(zoteroEntry->value( QLatin1String("zoterokey")) );

@@ -85,7 +85,8 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
         }
 
         //collect nepomuk content
-        Entry *e = new Entry;
+        QSharedPointer<Entry>entry(new Entry);
+        Entry *e = entry.data();
         e->setType(entryType);
         e->setId(citeKey);
         collectContent(e, reference, publication);
@@ -100,7 +101,9 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
                 e->insert(QLatin1String("nepomuk-reference-uri"), v2);
             }
         }
-        m_bibtexFile.append(e);
+
+
+        m_bibtexFile.append(entry);
     }
 }
 

@@ -21,6 +21,7 @@
 #include "onlinestorage/storageinfo.h"
 
 #include "nbibio/synczoteronepomuk.h"
+#include "nbibio/synckbibtexfile.h"
 #include "nbibio/pipe/bibtextonepomukpipe.h"
 
 #include <kbibtex/file.h>
@@ -77,8 +78,7 @@ void SyncZoteroDialog::slotButtonClicked(int button)
         m_syncNepomuk = new SyncZoteroNepomuk;
     }
     else if(psd.providerInfo->providerId() == QLatin1String("kbibtexfile")) {
-        qWarning() << "kbibtexfile sync is not implemented yet";
-        return;
+        m_syncNepomuk = new SyncKBibTeXFile;
     }
 
     m_syncNepomuk->setProviderDetails(psd);

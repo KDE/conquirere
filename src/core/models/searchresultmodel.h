@@ -35,7 +35,7 @@ class OnlineSearchAbstract;
 struct SearchResultEntry {
     Nepomuk::Query::Result nepomukResult;
     OnlineSearchAbstract *webEngine;
-    Entry *webResult;
+    QSharedPointer<Entry> webResult;
 };
 
 Q_DECLARE_METATYPE(SearchResultEntry)
@@ -60,7 +60,7 @@ public:
         QVariantList decorationColums;
         QVariantList toolTipColums;
         Nepomuk::Resource resource;
-        Entry *entry;
+        QSharedPointer<Entry> entry;
     };
 
     explicit SearchResultModel(QObject *parent = 0);
@@ -76,7 +76,7 @@ public:
     QList<int> fixedWithSections() const;
 
     Nepomuk::Resource nepomukResourceAt(const QModelIndex &selection);
-    Entry *bibTeXResourceAt(const QModelIndex &selection);
+    QSharedPointer<Entry> bibTeXResourceAt(const QModelIndex &selection);
 
 public slots:
     void clearData();
@@ -86,9 +86,9 @@ private:
     QVariantList createDisplayData(const Nepomuk::Query::Result & nepomukResult) const;
     QVariantList createDecorationData(const Nepomuk::Query::Result & nepomukResult) const;
     QVariantList createToolTipData(const Nepomuk::Query::Result & nepomukResult) const;
-    QVariantList createDisplayData(Entry *entry, OnlineSearchAbstract *engine) const;
-    QVariantList createDecorationData(Entry *entry, OnlineSearchAbstract *engine) const;
-    QVariantList createToolTipData(Entry *entry, OnlineSearchAbstract *engine) const;
+    QVariantList createDisplayData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const;
+    QVariantList createDecorationData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const;
+    QVariantList createToolTipData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const;
 
     QString translateEntryType(const Nepomuk::Resource & resource) const;
     KIcon iconizeEntryType(const Nepomuk::Resource & resource) const;

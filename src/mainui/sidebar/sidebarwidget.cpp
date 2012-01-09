@@ -242,7 +242,7 @@ void SidebarWidget::findPdf()
     bibtexPipe.pipeExport(exportList);
     File bibFile = bibtexPipe.bibtexFile();
 
-    Entry *e = dynamic_cast<Entry *>(bibFile.first());
+    Entry *e = dynamic_cast<Entry *>(bibFile.first().data());
 
     // cache previous file/url values
     QString localFile = PlainTextValue::text(e->value(Entry::ftLocalFile));

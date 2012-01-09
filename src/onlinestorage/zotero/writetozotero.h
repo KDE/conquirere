@@ -49,7 +49,7 @@ public:
 public slots:
     void pushItems(File items, const QString &collection = QString());
     void pushNewItems(File items, const QString &collection = QString());
-    void updateItem(Entry *item);
+    void updateItem(QSharedPointer<Element> item);
     void addItemsToCollection(QList<QString> ids, const QString &collection );
     void removeItemsFromCollection(QList<QString> ids, const QString &collection );
     void deleteItems(File items);

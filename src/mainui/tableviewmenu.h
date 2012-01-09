@@ -22,6 +22,8 @@
 
 #include <Nepomuk/Resource>
 
+#include <QtCore/QSharedPointer>
+
 class Entry;
 class MainWindow;
 
@@ -32,7 +34,7 @@ public:
     explicit TableViewMenu(QObject *parent = 0);
 
     void showNepomukEntryMenu(Nepomuk::Resource resource);
-    void showBibTeXEntryMenu(Entry *entry);
+    void showBibTeXEntryMenu(QSharedPointer<Entry> entry);
     void setMainWindow(MainWindow *mw);
 
 public slots:
@@ -48,7 +50,7 @@ public slots:
 private:
     MainWindow *m_parent;
     Nepomuk::Resource m_nepomukResource;
-    Entry *m_bibtexEntry;
+    QSharedPointer<Entry> m_bibtexEntry;
 };
 
 #endif // TABLEVIEWMENU_H
