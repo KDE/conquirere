@@ -66,6 +66,7 @@ bool NBibExporterFile::save(QIODevice *iodevice, const QList<Nepomuk::Resource> 
     {
         FileExporterBibTeX feb;
         feb.save(iodevice, &f, errorLog);
+        break;
     }
     case EXPORT_PDF:
     {
