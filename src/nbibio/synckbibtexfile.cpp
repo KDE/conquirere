@@ -46,8 +46,16 @@ SyncKBibTeXFile::SyncKBibTeXFile(QObject *parent)
     , m_wtf(0)
     , m_btnp(0)
     , m_ntnp(0)
+    , m_syncMode(false)
 {
 }
+
+SyncKBibTeXFile::~SyncKBibTeXFile()
+{
+    delete m_btnp;
+    delete m_ntnp;
+}
+
 
 void SyncKBibTeXFile::startDownload()
 {
@@ -209,19 +217,18 @@ void SyncKBibTeXFile::startUpload()
 
 void SyncKBibTeXFile::readUploadSync(File zoteroData)
 {
-    if(zoteroData.isEmpty()) {
-        m_curStep++;
-        emit calculateProgress(100);
-        //we finished everything, so cleanup
-        m_wtf->deleteLater();
-        m_wtf = 0;
+    qDebug() << "SyncKBibTeXFile::readUploadSync(File zoteroData)";
+    m_curStep++;
+    emit calculateProgress(100);
+    //we finished everything, so cleanup
+    m_wtf->deleteLater();
+    m_wtf = 0;
 
-        //delete m_ntnp;
-        m_ntnp = 0;
+    //delete m_ntnp;
+    m_ntnp = 0;
 
-        m_syncMode = false;
-        return;
-    }
+    m_syncMode = false;
+    return;
 }
 
 void SyncKBibTeXFile::startSync()

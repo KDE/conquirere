@@ -96,6 +96,7 @@ void ProviderSettings::setProviderSettingsDetails(const ProviderSyncDetails &psd
 {
     ui->providerUserName->setText(psd.userName);
     ui->providerUrl->setText(psd.url);
+    ui->providerUrlRequester->setText(psd.url);
 
     QString pwdKey;
     pwdKey.append(psd.providerInfo->providerId());
@@ -122,7 +123,14 @@ ProviderSyncDetails ProviderSettings::providerSettingsDetails() const
     psd.providerInfo = m_availableProvider.at(curProviderIndex);
     psd.userName = ui->providerUserName->text();
     psd.pwd = ui->providerPwd->text();
-    psd.url = ui->providerUrl->text();
+
+    if(m_availableProvider.at(curProviderIndex)->useUrlSelector()) {
+        psd.url = ui->providerUrlRequester->text();
+    }
+    else {
+        psd.url = ui->providerUrl->text();
+    }
+
     int curCollectionIndex = ui->listCollection->currentIndex();
     psd.collection = ui->listCollection->itemData(curCollectionIndex).toString();
     psd.syncMode = SyncMode(ui->syncMode->currentIndex());
@@ -158,7 +166,12 @@ void ProviderSettings::savePasswordInKWallet()
     pwdKey.append(QLatin1String(":"));
     pwdKey.append(ui->providerUserName->text());
     pwdKey.append(QLatin1String(":"));
-    pwdKey.append(ui->providerUrl->text());
+    if(m_availableProvider.at(curIndex)->useUrlSelector()) {
+        pwdKey.append(ui->providerUrlRequester->text());
+    }
+    else {
+        pwdKey.append(ui->providerUrl->text());
+    }
     m_wallet->writePassword(pwdKey, ui->providerPwd->text());
 }
 
@@ -171,7 +184,12 @@ void ProviderSettings::findPasswordInKWallet()
     pwdKey.append(QLatin1String(":"));
     pwdKey.append(ui->providerUserName->text());
     pwdKey.append(QLatin1String(":"));
-    pwdKey.append(ui->providerUrl->text());
+    if(m_availableProvider.at(curIndex)->useUrlSelector()) {
+        pwdKey.append(ui->providerUrlRequester->text());
+    }
+    else {
+        pwdKey.append(ui->providerUrl->text());
+    }
 
     if(m_wallet->hasEntry(pwdKey)) {
         QString pwd;
@@ -190,7 +208,14 @@ void ProviderSettings::switchProvider(int curIndex)
 
     ui->listCollection->clear();
 
-    ui->providerUrl->setText(m_availableProvider.at(curIndex)->defaultUrl());
+    if(m_availableProvider.at(curIndex)->useUrlSelector()) {
+        ui->providerUrl->setVisible(false);
+        ui->providerUrlRequester->setVisible(true);
+    }
+    else {
+        ui->providerUrl->setVisible(true);
+        ui->providerUrlRequester->setVisible(false);
+    }
 
     if(m_availableProvider.at(curIndex)->supportCollections()) {
         ui->collectionLabel->setEnabled(true);
@@ -226,7 +251,12 @@ void ProviderSettings::fetchCollection()
     ProviderSyncDetails psd;
     psd.userName = ui->providerUserName->text();
     psd.pwd = ui->providerPwd->text();
-    psd.url = ui->providerUrl->text();
+    if(m_availableProvider.at(curIndex)->useUrlSelector()) {
+        psd.url = ui->providerUrlRequester->text();
+    }
+    else {
+        psd.url = ui->providerUrl->text();
+    }
 
     rfs->setProviderSettings(psd);
 

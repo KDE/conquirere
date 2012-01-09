@@ -53,5 +53,6 @@ void NBibSync::calculateProgress(int value)
 
     curProgress += (qreal)(100.0/m_syncSteps) * m_curStep;
 
+    qDebug() << "NBibSync::calculateProgress(int value)" << value << curProgress;
     emit progress(curProgress);
 }

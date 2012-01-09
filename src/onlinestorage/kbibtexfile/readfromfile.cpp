@@ -51,16 +51,16 @@ void ReadFromFile::fetchItems(const QString &collection)
     QFileInfo fi(m_psd.url);
     QString extension = fi.completeSuffix();
 
-    if(extension == QLatin1String(".bib")) {
+    if(extension == QLatin1String("bib")) {
         importer = new FileImporterBibTeX;
     }
-    else if(extension == QLatin1String(".pdf")) {
+    else if(extension == QLatin1String("pdf")) {
         importer = new FileImporterPDF;
     }
-    else if(extension == QLatin1String(".ris")) {
+    else if(extension == QLatin1String("ris")) {
         importer = new FileImporterRIS;
     }
-    else if(extension == QLatin1String(".pdf")) {
+    else if(extension == QLatin1String("pdf")) {
 
     }
     else {

@@ -8,6 +8,7 @@ set(nbibio_LIB_SRCS
 
     nbibsync.cpp
     synczoteronepomuk.cpp
+    synckbibtexfile.cpp
 
     pipe/bibtexpipe.cpp
     pipe/bibtextoclipboardpipe.cpp
