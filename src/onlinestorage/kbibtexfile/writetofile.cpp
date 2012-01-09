@@ -68,7 +68,6 @@ void WriteToFile::exportFile(File items)
 {
     emit progress(0);
 
-    qDebug() << "WriteToFile::exportFile(File items)";
     QFile bibFile(m_psd.url);
     if (!bibFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         qDebug() << "can't open file " << m_psd.url;

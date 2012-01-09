@@ -48,6 +48,9 @@ protected slots:
     void requestFinished();
 
 private:
+    /**
+      * @bug use Kio to export file to network space
+      */
     void exportFile(File items);
 };
 
