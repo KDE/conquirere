@@ -89,6 +89,8 @@ int EventModel::defaultSectionSize(int i) const
     switch (i) {
     case EventQuery::Column_Title:
         return 300;
+    case EventQuery::Column_Akonadi:
+        return 25;
     case EventQuery::Column_Date:
         return 100;
     case EventQuery::Column_Publication:
@@ -102,7 +104,7 @@ int EventModel::defaultSectionSize(int i) const
 QList<int> EventModel::fixedWithSections() const
 {
     QList<int> fixedWith;
-    fixedWith << EventQuery::Column_StarRate;
+    fixedWith << EventQuery::Column_StarRate << EventQuery::Column_Akonadi;
 
     return fixedWith;
 }

@@ -162,6 +162,7 @@ private:
 
     QMap<QString, Nepomuk::Resource> m_allContacts;
     QMap<QString, Nepomuk::Resource> m_allProceedings;
+    QMap<QString, Nepomuk::Resource> m_allPimoEvents;
     QMap<QString, QString> m_macroLookup;
     Akonadi::Collection m_addressbook;
 

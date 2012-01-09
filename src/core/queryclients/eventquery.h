@@ -26,6 +26,7 @@ class EventQuery : public QueryClient
 public:
     enum ColumnList {
         Column_StarRate,
+        Column_Akonadi,
         Column_Title,
         Column_Date,
         Column_Publication,

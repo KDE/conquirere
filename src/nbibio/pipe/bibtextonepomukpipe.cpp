@@ -88,6 +88,15 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
         QString title = nqr.resource().property(Nepomuk::Vocabulary::NIE::title()).toString();
         m_allProceedings.insert(QString(title.toUtf8()), nqr.resource());
     }
+
+    Nepomuk::Query::ResourceTypeTerm typeE( Nepomuk::Vocabulary::PIMO::Event() );
+    Nepomuk::Query::Query queryE( typeE );
+    QList<Nepomuk::Query::Result> queryResultE = Nepomuk::Query::QueryServiceClient::syncQuery(queryE);
+    foreach(const Nepomuk::Query::Result & nqr, queryResultE) {
+        QString title = nqr.resource().property(Nepomuk::Vocabulary::NIE::title()).toString();
+        m_allPimoEvents.insert(QString(title.toUtf8()), nqr.resource());
+    }
+
     int maxValue = bibEntries.size();
     qreal perFileProgress = (100.0/(qreal)maxValue);
 
@@ -1448,10 +1457,19 @@ void BibTexToNepomukPipe::addPubMed(const QString &content, Nepomuk::Resource pu
 
 void BibTexToNepomukPipe::addEvent(const QString &content, Nepomuk::Resource publication)
 {
-    Nepomuk::Resource eventResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::PIMO::Event());
+    //find existing pimo::Event with the same name
+    Nepomuk::Resource eventResource;
+    Nepomuk::Resource pimoEventResource = m_allPimoEvents.value(QString(content.toUtf8()), Nepomuk::Resource());
+    if(pimoEventResource.isValid()) {
+        eventResource = pimoEventResource;
+    }
+    else {
+        eventResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::PIMO::Event());
+        eventResource.setProperty(Nepomuk::Vocabulary::NIE::title(), QString(content.toUtf8()));
+        m_allPimoEvents.insert( QString(content.toUtf8()), eventResource);
+    }
 
-    eventResource.setProperty(Nepomuk::Vocabulary::NIE::title(), content);
-    eventResource.setProperty(Nepomuk::Vocabulary::NBIB::eventPublication(), publication);
+    eventResource.addProperty(Nepomuk::Vocabulary::NBIB::eventPublication(), publication);
     publication.setProperty(Nepomuk::Vocabulary::NBIB::event(), eventResource);
 }
 

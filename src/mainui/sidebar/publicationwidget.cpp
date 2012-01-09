@@ -33,6 +33,7 @@
 #include "core/library.h"
 
 #include "nbib.h"
+#include <Nepomuk/Thing>
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NCO>
@@ -623,23 +624,28 @@ void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUr
     if(ret == QDialog::Accepted) {
         Nepomuk::Resource selectedPart = lpd->selectedPublication();
 
-        resource.setProperty(propertyUrl, selectedPart );
         // here I need to take into account, that backlinks must be handled somehow
 
         if(propertyUrl == Nepomuk::Vocabulary::NBIB::inSeries()) {
+            resource.setProperty(propertyUrl, selectedPart );
             selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), resource );
         }
         else if(propertyUrl == Nepomuk::Vocabulary::NBIB::codeOfLaw()) {
+            resource.setProperty(propertyUrl, selectedPart );
             selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::legislation(), resource );
         }
         else if(propertyUrl == Nepomuk::Vocabulary::NBIB::courtReporter()) {
+            resource.setProperty(propertyUrl, selectedPart );
             selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::legalCase(), resource );
         }
         else if(propertyUrl == Nepomuk::Vocabulary::NBIB::collection()) {
+            resource.setProperty(propertyUrl, selectedPart );
             selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::article(), resource );
         }
         else if(propertyUrl == Nepomuk::Vocabulary::NBIB::event()) {
-            selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::eventPublication(), resource );
+            Nepomuk::Thing eventThing = selectedPart.pimoThing();
+            resource.setProperty(propertyUrl, eventThing );
+            eventThing.addProperty(Nepomuk::Vocabulary::NBIB::eventPublication(), resource );
         }
 
         setResource(m_publication); // this updates the changes in the current widget again

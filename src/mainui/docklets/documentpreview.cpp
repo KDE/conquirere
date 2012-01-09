@@ -155,7 +155,7 @@ void DocumentPreview::showUrl(int index)
     delete m_labelInvalid;
     m_labelInvalid = 0;
 
-    if(url.isEmpty()) {
+    if(url.isEmpty() || url.startsWith(QLatin1String("akonadi"))) {
         m_labelNone = new QLabel(i18n("Cannot create preview\n\nNo url available."), ui->kpartWidget);
         m_labelNone->setAlignment(Qt::AlignCenter);
         ui->kpartWidget->layout()->addWidget(m_labelNone);

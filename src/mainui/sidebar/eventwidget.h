@@ -20,11 +20,26 @@
 
 #include "sidebarcomponent.h"
 #include <Nepomuk/Resource>
+#include <Nepomuk/Thing>
 
 namespace Ui {
     class EventWidget;
 }
 
+/**
+  * @brief Manipulates the @c pimo:Event and ncal:Event resource
+  *
+  * All conquierere related changes (publications, rating, tags) are saved in the pimo:Event
+  * resource. The place, date and attendees are saved in the pimoEvent if the event is not available
+  * as akonadi resource.
+  *
+  * If the ncal:Event exist as groundingOccurence of the pimo:Event the changes to attendee, date, place, title
+  * and summary are made directly via Akonadi.
+  *
+  * @todo implement setting of the changes voa Akonadi
+  * @todo add pushToAkonadi function
+  * @todo implement Akonadi event edit dialog in the ui file
+  */
 class EventWidget : public SidebarComponent
 {
     Q_OBJECT
@@ -62,7 +77,8 @@ private slots:
 
 private:
     Ui::EventWidget *ui;
-    Nepomuk::Resource m_event;
+    Nepomuk::Thing m_eventThing;
+    Nepomuk::Resource m_eventResource;
 };
 
 #endif // EVENTWIDGET_H
