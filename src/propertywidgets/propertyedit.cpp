@@ -21,7 +21,10 @@
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Result>
 #include <Nepomuk/Query/ResourceTypeTerm>
+#include <Nepomuk/Query/OrTerm>
 #include <Nepomuk/Variant>
+#include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk/Vocabulary/NCAL>
 
 #include <KDE/KIcon>
 #include <KDE/KSqueezedTextLabel>
@@ -169,8 +172,18 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
     Nepomuk::Resource range = nr.property(QUrl(QLatin1String("http://www.w3.org/2000/01/rdf-schema#range"))).toResource();
 
     if(range.isValid() && !range.resourceUri().isEmpty()) {
+        Nepomuk::Query::OrTerm orTerm;
+
         // get all resources of type range
-        Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( QUrl(range.resourceUri().toString()) ) );
+        orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( QUrl(range.resourceUri().toString()) ) );
+
+        // in case the range leads to pimo:Event add also ncal:Event to the completion
+        // this is a workaround ...
+        if( QUrl(range.resourceUri()) == Nepomuk::Vocabulary::PIMO::Event()) {
+            orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NCAL::Event() ) );
+        }
+
+        Nepomuk::Query::Query query( orTerm );
         m_queryClient->query(query);
     }
     // if we can't use the range for the check
