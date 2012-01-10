@@ -21,6 +21,7 @@
 #include "globals.h"
 
 #include <Nepomuk/Resource>
+#include <Nepomuk/Thing>
 #include <Nepomuk/Tag>
 
 #include <QtCore/QObject>
@@ -153,7 +154,7 @@ public:
       * @p projectFile the .ini project file
       */
     void loadLibrary(const QString & projectFile);
-    void loadLibrary(const Nepomuk::Resource & pimoProject);
+    void loadLibrary(const Nepomuk::Thing & pimoProject);
 
     /**
       * Deletes the current project library
@@ -227,7 +228,7 @@ private:
     DirWatcher *m_dirWatcher;
     BackgroundSync *m_backgroundSync;
 
-    Nepomuk::Resource m_pimoLibrary;
+    Nepomuk::Thing m_pimoLibrary;
     Nepomuk::Tag m_libraryTag;
 
     QMap<ResourceSelection, QSortFilterProxyModel*> m_resources;
