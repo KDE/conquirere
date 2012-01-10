@@ -9,11 +9,16 @@ emails,contacs,bookmarks) tagged with the project tag is listed in a central way
 
 This allows to easily keep an overview of all data connected to the project topic.
 
-Furthermore this program allows to add additional metadata to each file.
+Furthermore this program allows to add additional metadata to each file. This way publication data like
+author, in which series or collection the publication is in and references to specific parts of the publications
+can be added to the data.
+
+This allows to create a big semantic publication data and connect it with documents on the disk or a on a webspace.
 
 * Already working:
 ** BibTex data to documents to generate .bib files automatically
 ** Fetch BibTex data automatically via libkbibtexio
+** Sync data with http://www.Zotero.org (partly)
 
 * Future ideas:
 ** List annotations for exmple specific parts of a pdf document tagged via Okular
@@ -25,12 +30,17 @@ Furthermore this program allows to add additional metadata to each file.
 # Dependencies:
 * Nepomuk
 ** with nbib.ontology ~ see end of README
+** with sync.ontology
 
 * KDE Pim libs
+* QJSON
 
-* KBibTex 0.4~beta2
+* KBibTex 0.4
 ** svn co svn://svn.gna.org/svn/kbibtex/trunk kbibtex
 
+recommend
+** atleast revision r1035 (while r1036 breaks the lib currently)
+** svn co -r 1035 svn://svn.gna.org/svn/kbibtex/trunk kbibtex
 
 #################################################################
 # install to the system

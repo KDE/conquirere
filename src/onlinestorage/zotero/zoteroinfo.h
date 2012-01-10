@@ -44,6 +44,7 @@ public:
                                       "collection : the collection to sync with\n"); }
 
     virtual QString defaultUrl() { return QLatin1String("users"); }
+    virtual bool useUrlSelector() { return false; }
 
     WriteToStorage *writeHandle() { return wts; }
     ReadFromStorage *readHandle() { return rfs; }

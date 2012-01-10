@@ -103,8 +103,16 @@ void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType f
                 this, SLOT(selectedResource(QItemSelection,QItemSelection)));
     }
 
-    m_documentView->setWordWrap(false);
-    m_documentView->setItemDelegateForColumn(3, NULL);
+    switch(m_selection) {
+    case Resource_Event:
+    case Resource_Series:
+        m_documentView->setItemDelegateForColumn(3, m_htmlDelegate);
+        break;
+    default:
+        m_documentView->setItemDelegateForColumn(3, NULL);
+    }
+
+    m_documentView->setWordWrap(true);
     m_documentView->setModel(p->viewModel(selection));
 
     //load settings for visible/hidden columns

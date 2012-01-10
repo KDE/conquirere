@@ -215,6 +215,8 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     connectModelSignals(twi6, p, Resource_Note);
     m_items.append(twi6);
 
+    /*
+    // Ignored for now, the nfo::Website is not working anyway or implemented someweher currently
     QLibraryTreeWidgetItem *twi3 = new QLibraryTreeWidgetItem();
     twi3->setText(0, i18n("Bookmarks"));
     twi3->setData(0,Role_ResourceType,Resource_Website);
@@ -223,6 +225,7 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     root->addChild(twi3);
     connectModelSignals(twi3, p, Resource_Website);
     m_items.append(twi3);
+    */
 
     if(root->data(0,Role_Library).toInt() == Library_Project) {
         QLibraryTreeWidgetItem *twi2 = new QLibraryTreeWidgetItem();

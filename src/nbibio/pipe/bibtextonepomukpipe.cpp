@@ -673,6 +673,7 @@ void BibTexToNepomukPipe::addPublisher(const Value &publisherValue, const Value 
             publisher.last = person->lastName().toUtf8();
             publisher.suffix = person->suffix().toUtf8();
             publisher.full = publisher.first + QLatin1String(" ") + publisher.last + QLatin1String(" ") + publisher.suffix;
+            publisher.full = publisher.full.trimmed();
         }
         else {
             publisher.full = PlainTextValue::text(*publisherItem).toUtf8();
@@ -823,6 +824,7 @@ void BibTexToNepomukPipe::addAuthor(const Value &contentValue, Nepomuk::Resource
             author.last = person->lastName().toUtf8();
             author.suffix = person->suffix().toUtf8();
             author.full = author.first + QLatin1String(" ") + author.last + QLatin1String(" ") + author.suffix;
+            author.full = author.full.trimmed();
         }
         else {
             author.full = PlainTextValue::text(*authorItem).toUtf8();
@@ -948,6 +950,7 @@ void BibTexToNepomukPipe::addBookAuthor(const Value &contentValue, Nepomuk::Reso
             author.last = person->lastName().toUtf8();
             author.suffix = person->suffix().toUtf8();
             author.full = author.first + QLatin1String(" ") + author.last + QLatin1String(" ") + author.suffix;
+            author.full = author.full.trimmed();
         }
         else {
             author.full = PlainTextValue::text(*authorItem).toUtf8();
@@ -1038,6 +1041,7 @@ void BibTexToNepomukPipe::addSeriesEditor(const Value &contentValue, Nepomuk::Re
             editor.last = person->lastName().toUtf8();
             editor.suffix = person->suffix().toUtf8();
             editor.full = editor.first + QLatin1String(" ") + editor.last + QLatin1String(" ") + editor.suffix;
+            editor.full = editor.full.trimmed();
         }
         else {
             editor.full = PlainTextValue::text(*authorItem).toUtf8();
@@ -1164,6 +1168,7 @@ void BibTexToNepomukPipe::addEditor(const Value &contentValue, Nepomuk::Resource
             editor.last = person->lastName().toUtf8();
             editor.suffix = person->suffix().toUtf8();
             editor.full = editor.first + QLatin1String(" ") + editor.last + QLatin1String(" ") + editor.suffix;
+            editor.full = editor.full.trimmed();
         }
         else {
             editor.full = PlainTextValue::text(*editorItem).toUtf8();

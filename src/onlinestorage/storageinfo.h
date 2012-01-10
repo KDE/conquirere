@@ -38,6 +38,7 @@ public:
     virtual bool supportCollections() = 0;
     virtual QString helpText() = 0;
     virtual QString defaultUrl() = 0;
+    virtual bool useUrlSelector() = 0;
 
     virtual WriteToStorage *writeHandle() = 0;
     virtual ReadFromStorage *readHandle() = 0;

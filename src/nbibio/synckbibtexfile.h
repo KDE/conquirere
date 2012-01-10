@@ -32,17 +32,13 @@ class SyncKBibTeXFile : public NBibSync
     Q_OBJECT
 public:
     explicit SyncKBibTeXFile(QObject *parent = 0);
-
-signals:
+    ~SyncKBibTeXFile();
 
 public slots:
     void startUpload();
     void startDownload();
     void startSync();
 
-    /**
-      * connects to the response of askForDeletion() and proceeds with the sync
-      */
     void deleteLocalFiles(bool deleteThem);
     void mergeFinished();
 

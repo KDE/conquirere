@@ -66,8 +66,10 @@ void WriteToFile::updateItem(QSharedPointer<Element> item)
 
 void WriteToFile::exportFile(File items)
 {
+    emit progress(0);
+
     QFile bibFile(m_psd.url);
-    if (!bibFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (!bibFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         qDebug() << "can't open file " << m_psd.url;
         return;
     }
@@ -78,43 +80,51 @@ void WriteToFile::exportFile(File items)
 
     QStringList errorLog;
 
-    if(extension == QLatin1String(".bib")) {
+    if(extension == QLatin1String("bib")) {
         FileExporterBibTeX feb;
         feb.save(&bibFile, &items, &errorLog);
     }
-    else if(extension == QLatin1String(".pdf")) {
+    else if(extension == QLatin1String("pdf")) {
         FileExporterPDF fepdf;
         fepdf.save(&bibFile, &items, &errorLog);
     }
-    else if(extension == QLatin1String(".html")) {
+    else if(extension == QLatin1String("html")) {
         FileExporterBibTeX2HTML feb2html;
         feb2html.save(&bibFile, &items, &errorLog);
     }
-    else if(extension == QLatin1String(".blg")) {
+    else if(extension == QLatin1String("blg")) {
         FileExporterBLG feblg;
         feblg.save(&bibFile, &items, &errorLog);
     }
-    else if(extension == QLatin1String(".ps")) {
+    else if(extension == QLatin1String("ps")) {
         FileExporterPS feps;
         feps.save(&bibFile, &items, &errorLog);
     }
-    else if(extension == QLatin1String(".ris")) {
+    else if(extension == QLatin1String("ris")) {
         FileExporterRIS feris;
         feris.save(&bibFile, &items, &errorLog);
     }
-    else if(extension == QLatin1String(".rtf")) {
+    else if(extension == QLatin1String("rtf")) {
         FileExporterRTF fertf;
         fertf.save(&bibFile, &items, &errorLog);
     }
-    else if(extension == QLatin1String(".xml")) {
+    else if(extension == QLatin1String("xml")) {
         FileExporterXML fexml;
         fexml.save(&bibFile, &items, &errorLog);
     }
-    else if(extension == QLatin1String(".xslt")) {
+    else if(extension == QLatin1String("xslt")) {
         FileExporterXSLT fexslt;
         fexslt.save(&bibFile, &items, &errorLog);
     }
+    else {
+        qWarning() << "WriteToFile::exportFile # unknown file extension " << extension;
+    }
 
+    emit progress(100);
+
+    File emptyFile;
+
+    emit itemsInfo(emptyFile);
 }
 
 void WriteToFile::addItemsToCollection(QList<QString> ids, const QString &collection )

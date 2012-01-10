@@ -17,6 +17,11 @@
 
 #include "queryclient.h"
 
+#include <Nepomuk/Vocabulary/NCAL>
+#include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk/Variant>
+#include <Nepomuk/Thing>
+
 QueryClient::QueryClient(QObject *parent)
     :QThread(parent)
     , m_queryClient(0)
@@ -73,6 +78,15 @@ void QueryClient::addToCache( const QList< Nepomuk::Query::Result > &entries ) c
 
     foreach(const Nepomuk::Query::Result &nqr, entries) {
         Nepomuk::Resource r = nqr.resource();
+
+        //TODO Event workaround as we search for pimo:Event and NCAl:Event we end up
+        // with duplicates. here we ignore all ncal:Events when a pimo:event exist for it
+        if(r.hasType(Nepomuk::Vocabulary::NCAL::Event())) {
+            Nepomuk::Thing t = r.pimoThing();
+            if(t.isValid())
+                continue;
+        }
+
         m_resourceWatcher->addResource(r);
         CachedRowEntry cre;
         cre.displayColums = createDisplayData(r);

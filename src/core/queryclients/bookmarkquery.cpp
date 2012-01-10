@@ -38,7 +38,7 @@ BookmarkQuery::BookmarkQuery(QObject *parent) :
 void BookmarkQuery::startFetchData()
 {
     Nepomuk::Query::AndTerm andTerm;
-    andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Bookmark() ) );
+    andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Website() ) );
 
     if(m_library->libraryType() == Library_Project) {
         Nepomuk::Query::OrTerm orTerm;
@@ -56,7 +56,7 @@ void BookmarkQuery::startFetchData()
 
 void BookmarkQuery::resourceChanged (const Nepomuk::Resource &resource)
 {
-    if(!resource.hasType(Nepomuk::Vocabulary::NFO::Bookmark()))
+    if(!resource.hasType(Nepomuk::Vocabulary::NFO::Website()))
         return;
 
     //qDebug() << "QueryClient::resourceChanged without ResourceWatcher";
@@ -106,7 +106,7 @@ QVariantList BookmarkQuery::createDisplayData(const Nepomuk::Resource & res) con
             break;
         }
         case Column_Link: {
-            Nepomuk::Resource linkResource = res.property(Nepomuk::Vocabulary::NFO::bookmarks()).toResource();
+            Nepomuk::Resource linkResource = res.property(Nepomuk::Vocabulary::NIE::url()).toResource();
             newEntry = linkResource.genericLabel();
             break;
         }

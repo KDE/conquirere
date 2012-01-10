@@ -43,6 +43,7 @@ public:
                                       "Supported filetypes: .bib, .ris, .pdf, .html, .blg, .ps, .xml, .xslt"); }
 
     virtual QString defaultUrl() { return QLatin1String(""); }
+    virtual bool useUrlSelector() { return true; }
 
     WriteToStorage *writeHandle() { return wts; }
     ReadFromStorage *readHandle() { return rfs; }

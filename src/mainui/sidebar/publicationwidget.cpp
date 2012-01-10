@@ -625,7 +625,6 @@ void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUr
         Nepomuk::Resource selectedPart = lpd->selectedPublication();
 
         // here I need to take into account, that backlinks must be handled somehow
-
         if(propertyUrl == Nepomuk::Vocabulary::NBIB::inSeries()) {
             resource.setProperty(propertyUrl, selectedPart );
             selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), resource );
@@ -644,12 +643,24 @@ void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUr
         }
         else if(propertyUrl == Nepomuk::Vocabulary::NBIB::event()) {
             Nepomuk::Thing eventThing = selectedPart.pimoThing();
+
+            // adapt pimo::thing, as it is highly likely that we had to create a new pimo::event
+            eventThing.addType(Nepomuk::Vocabulary::PIMO::Event());
+            QString eventTitle = selectedPart.property(Nepomuk::Vocabulary::NIE::title()).toString();
+            eventThing.setProperty(Nepomuk::Vocabulary::NIE::title(), eventTitle);
+
+            //TODO aknadifeeder needs to be changed to respect pimo:Event and adds its tags there rather thatn to its ncal:Event
+            QList<Nepomuk::Tag> ncalTags = selectedPart.tags();
+            foreach(const Nepomuk::Tag &t, ncalTags)
+                eventThing.addTag(t);
+
             resource.setProperty(propertyUrl, eventThing );
             eventThing.addProperty(Nepomuk::Vocabulary::NBIB::eventPublication(), resource );
         }
 
         setResource(m_publication); // this updates the changes in the current widget again
         subResourceUpdated(m_publication);
+        emit resourceCacheNeedsUpdate(selectedPart);
     }
 
     delete lpd;
