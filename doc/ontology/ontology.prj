@@ -1,0 +1,1898 @@
+format 74
+"ontology"
+  revision 22
+  modified_by 4 "joerg"
+
+
+  
+  // class settings
+  default_attribute_visibility private default_relation_visibility private default_operation_visibility public
+  //class diagram settings
+  draw_all_relations yes hide_attributes no hide_operations yes hide_getset_operations yes show_members_full_definition no show_members_visibility no show_members_stereotype no show_members_context no show_members_multiplicity no show_members_initialization no show_attribute_modifiers no member_max_width 127 show_parameter_dir yes show_parameter_name yes package_name_in_tab no class_drawing_mode natural drawing_language uml show_context_mode no auto_label_position yes show_relation_modifiers no show_relation_visibility no show_infonote no shadow yes show_stereotype_properties no
+  //use case diagram settings
+  package_name_in_tab no show_context no auto_label_position yes draw_all_relations yes class_drawing_mode actor shadow yes show_stereotype_properties no
+  //sequence diagram settings
+  show_full_operations_definition no write_horizontally yes class_drawing_mode natural drawing_language uml draw_all_relations yes shadow yes show_stereotype_properties no show_class_context_mode no show_msg_context_mode no
+  //collaboration diagram settings
+  show_full_operations_definition no show_hierarchical_rank no write_horizontally yes drawing_language uml package_name_in_tab no show_context no show_msg_context no draw_all_relations yes shadow yes show_stereotype_properties no
+  //object diagram settings
+   write_horizontally yes package_name_in_tab no show_context no auto_label_position yes draw_all_relations yes shadow yes show_stereotype_properties no
+  //component diagram settings
+  package_name_in_tab no show_context no auto_label_position yes draw_all_relations yes shadow yes
+  draw_component_as_icon no show_component_req_prov no show_component_rea no show_stereotype_properties no
+  //deployment diagram settings
+  package_name_in_tab no show_context no write_horizontally yes auto_label_position yes draw_all_relations yes shadow yes
+  draw_component_as_icon no show_component_req_prov no show_component_rea no show_stereotype_properties no
+  //state diagram settings
+  package_name_in_tab no show_context no auto_label_position yes write_trans_label_horizontally yes show_trans_definition no draw_all_relations yes shadow yes
+  show_activities yes region_horizontally yes drawing_language uml show_stereotype_properties no
+  //activity diagram settings
+  package_name_in_tab no show_context no show_opaque_action_definition no auto_label_position yes write_flow_label_horizontally no draw_all_relations yes shadow yes
+  show_infonote yes drawing_language uml show_stereotype_properties no
+  
+  class_color yellow duration_color transparent continuation_color gray note_color blue fragment_color transparent subject_color transparent usecase_color yellow package_color transparent component_color green artifact_color green deploymentnode_color gray state_color yellow stateaction_color transparent activity_color transparent activityregion_color transparent activitypartition_color transparent activityaction_color transparent parameterpin_color white 
+  font_size 9
+  diagram_format A4-Landscape
+
+  mark_for_import
+  
+  classview 128004 "ontology"
+    //class diagram settings
+    draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+    //collaboration diagram settings
+    show_full_operations_definition default show_hierarchical_rank default write_horizontally default drawing_language default package_name_in_tab default show_context default show_msg_context default draw_all_relations default shadow default show_stereotype_properties default
+    //object diagram settings
+     write_horizontally default package_name_in_tab default show_context default auto_label_position default draw_all_relations default shadow default show_stereotype_properties default
+    //sequence diagram settings
+    show_full_operations_definition default write_horizontally default class_drawing_mode default drawing_language default draw_all_relations default shadow default show_stereotype_properties default show_class_context_mode default show_msg_context_mode default
+    //state diagram settings
+    package_name_in_tab default show_context default auto_label_position default write_trans_label_horizontally default show_trans_definition default draw_all_relations default shadow default
+    show_activities default region_horizontally default drawing_language default show_stereotype_properties default
+    //class settings
+    //activity diagram settings
+    package_name_in_tab default show_context default show_opaque_action_definition default auto_label_position default write_flow_label_horizontally default draw_all_relations default shadow default
+    show_infonote default drawing_language default show_stereotype_properties default
+    classdiagram 134532 "Publication Overview"
+      draw_all_relations default hide_attributes no hide_operations yes hide_getset_operations yes show_members_full_definition default show_members_visibility no show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+      size D
+    end
+
+    classdiagram 134660 "NBIB Article/Book/Proceedings"
+      draw_all_relations default hide_attributes default hide_operations yes hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+      size A4-Landscape
+    end
+
+    classdiagram 141444 "NBIB Law"
+      draw_all_relations no hide_attributes no hide_operations yes hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+      size A4-Landscape
+    end
+
+    classdiagram 134788 "NBIB other"
+      draw_all_relations default hide_attributes default hide_operations yes hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+      size A4
+    end
+
+    classdiagram 147972 "Event usage"
+      draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+      size A4-Landscape
+    end
+
+    class 128004 "nbib:Publication"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      attribute 128388 "nie:title"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 128516 "nie:abstract"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 128772 "nbib:isbn"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 129028 "nbib:mrNumber"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 129156 "nbib:publicationMethod"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 129284 "nie:publicationDate"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 129412 "nfo:doi"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      classrelation 128516 // <generalisation>
+	relation 128516 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 128516 // <generalisation>
+	  b parent class_ref 129284 // nie:InformationElement
+      end
+
+      classrelation 130564 // nbib:publication
+	relation_ref 130308 // nbib:publication
+      end
+
+      classrelation 131204 // (nco:editor)
+	relation 130692 o--- name "nco:editor"
+	  stereotype "editor"
+	  a role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 131204 // (nco:editor)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 131332 // (nco:editor)
+      end
+
+      classrelation 131460 // (nco:creator)
+	relation 130820 o--- name "nco:creator"
+	  stereotype "author"
+	  a role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 131460 // (nco:creator)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 131588 // (nco:creator)
+      end
+
+      classrelation 131716 // (nco:publisher)
+	relation 130948 o--- name "nco:publisher"
+	  stereotype "publisher"
+	  a role_name "" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 131716 // (nco:publisher)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 131844 // (nco:publisher)
+      end
+
+      classrelation 133636 // nbib:publishedAs
+	relation_ref 131844 // nbib:publishedAs
+      end
+
+      classrelation 133764 // (nbib:isPublicationOf)
+	relation 131972 o--- name "nbib:isPublicationOf"
+	  a role_name "" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 133764 // (nbib:isPublicationOf)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 133892 // (nbib:isPublicationOf)
+      end
+
+      attribute 130308 "nbib:number"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 130436 "nbib:volume"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 144132 "nie:comment"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      classrelation 191876 // <aggregation>
+	relation_ref 187780 // <aggregation>
+      end
+
+      classrelation 192004 // nbib:inSeries (<aggregation>)
+	relation 187908 o---
+	  a role_name "nbib:inSeries" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 192004 // nbib:inSeries (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 192132 // <aggregation>
+      end
+
+      classrelation 194052 // nbib:documentStatus (<aggregation>)
+	relation 189572 o---
+	  a role_name "nbib:documentStatus" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 194052 // nbib:documentStatus (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 194180 // <aggregation>
+      end
+
+      attribute 157188 "nbib:pubMed"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 157316 "nbib:numberOfPages"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 157700 "nbib:translationOf"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      classrelation 208644 // <aggregation>
+	relation_ref 203652 // <aggregation>
+      end
+
+      classrelation 209028 // nbib:documentPart (<aggregation>)
+	relation 203908 o---
+	  a role_name "nbib:documentPart" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 209028 // nbib:documentPart (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 209156 // <aggregation>
+      end
+
+      classrelation 209796 // nie:links (<aggregation>)
+	relation 204292 o---
+	  a role_name "nie:links" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 209796 // nie:links (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 209924 // <aggregation>
+      end
+
+      classrelation 218372 // nbib:references (<aggregation>)
+	relation 212356 o---
+	  a role_name "nbib:references" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 218372 // nbib:references (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 218500 // <aggregation>
+      end
+
+      classrelation 225412 // <aggregation>
+	relation_ref 219012 // <aggregation>
+      end
+
+      classrelation 225540 // nbib:event (<aggregation>)
+	relation 219140 o---
+	  a role_name "nbib:event" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 225540 // nbib:event (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 225668 // <aggregation>
+      end
+    end
+
+    class 128132 "nco:Contact"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      attribute 129540 "nco:fullname"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 129668 "nco:hasPostalAddress"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      classrelation 131332 // (nco:editor)
+	relation_ref 130692 // nco:editor
+      end
+
+      classrelation 131588 // (nco:creator)
+	relation_ref 130820 // nco:creator
+      end
+
+      classrelation 131844 // (nco:publisher)
+	relation_ref 130948 // nco:publisher
+      end
+    end
+
+    class 128388 "nbib:PhdThesis"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 170372 // <generalisation>
+	relation 167044 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 170372 // <generalisation>
+	  b parent class_ref 163716 // nbib:Thesis
+      end
+    end
+
+    class 128516 "nbib:BachelorThesis"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 170628 // <generalisation>
+	relation 167300 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 170628 // <generalisation>
+	  b parent class_ref 163716 // nbib:Thesis
+      end
+    end
+
+    class 128644 "nbib:MasterThesis"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 170500 // <generalisation>
+	relation 167172 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 170500 // <generalisation>
+	  b parent class_ref 163716 // nbib:Thesis
+      end
+    end
+
+    class 128772 "nbib:Proceedings"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 177924 // <generalisation>
+	relation 174340 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 177924 // <generalisation>
+	  b parent class_ref 130308 // nbib:Collection
+      end
+    end
+
+    class 129028 "nbib:Article"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 129668 // <generalisation>
+	relation 129668 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 129668 // <generalisation>
+	  b parent class_ref 128004 // nbib:Publication
+      end
+
+      classrelation 192644 // <aggregation>
+	relation_ref 188292 // <aggregation>
+      end
+
+      classrelation 192772 // nbib:collection (<aggregation>)
+	relation 188420 o---
+	  a role_name "nbib:collection" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 192772 // nbib:collection (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 192900 // <aggregation>
+      end
+    end
+
+    class 129284 "nie:InformationElement"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 209924 // <aggregation>
+	relation_ref 204292 // <aggregation>
+      end
+    end
+
+    class 129540 "nbib:Series"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      attribute 128900 "nbib:issn"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      classrelation 177796 // <generalisation>
+	relation 174212 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 177796 // <generalisation>
+	  b parent class_ref 129284 // nie:InformationElement
+      end
+
+      classrelation 191748 // nbib:seriesOf (<aggregation>)
+	relation 187780 o---
+	  a role_name "nbib:seriesOf" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 191748 // nbib:seriesOf (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 191876 // <aggregation>
+      end
+
+      classrelation 192132 // <aggregation>
+	relation_ref 187908 // <aggregation>
+      end
+
+      attribute 164228 "nie:title"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+    end
+
+    class 129668 "nbib:Book"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      attribute 129796 "nbib:edition"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      classrelation 129028 // <generalisation>
+	relation 129028 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 129028 // <generalisation>
+	  b parent class_ref 128004 // nbib:Publication
+      end
+    end
+
+    class 129796 "nbib:Report"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 129284 // <generalisation>
+	relation 129284 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 129284 // <generalisation>
+	  b parent class_ref 128004 // nbib:Publication
+      end
+
+      attribute 130180 "nbib:type"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+    end
+
+    class 129924 "nbib:JournalIssue"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 129796 // <generalisation>
+	relation 129796 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 129796 // <generalisation>
+	  b parent class_ref 130308 // nbib:Collection
+      end
+    end
+
+    class 130052 "nbib:Reference"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      attribute 128004 "nbib:pages"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 128132 "nbib:citeKey"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      classrelation 128644 // <generalisation>
+	relation 128644 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 128644 // <generalisation>
+	  b parent class_ref 129284 // nie:InformationElement
+      end
+
+      classrelation 130436 // (nbib:publication)
+	relation 130308 o--- name "nbib:publication"
+	  a role_name "" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 130436 // (nbib:publication)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 130564 // nbib:publication
+      end
+
+      classrelation 208004 // nbib:referencedPart (<aggregation>)
+	relation 203268 o---
+	  a role_name "nbib:referencedPart" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 208004 // nbib:referencedPart (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 208132 // <aggregation>
+      end
+
+      classrelation 218500 // <aggregation>
+	relation_ref 212356 // <aggregation>
+      end
+    end
+
+    class 130180 "nbib:Electronic"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      attribute 130052 "nuao:lastUsage"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      classrelation 129924 // <generalisation>
+	relation 129924 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 129924 // <generalisation>
+	  b parent class_ref 128004 // nbib:Publication
+      end
+    end
+
+    class 130308 "nbib:Collection"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 130052 // <generalisation>
+	relation 130052 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 130052 // <generalisation>
+	  b parent class_ref 128004 // nbib:Publication
+      end
+
+      classrelation 192516 // nbib:article (<aggregation>)
+	relation 188292 o---
+	  a role_name "nbib:article" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 192516 // nbib:article (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 192644 // <aggregation>
+      end
+
+      classrelation 192900 // <aggregation>
+	relation_ref 188420 // <aggregation>
+      end
+    end
+
+    class 130436 "nfo:Document"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      attribute 129924 "nco:url"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      classrelation 133508 // (nbib:publishedAs)
+	relation 131844 o--- name "nbib:publishedAs"
+	  a role_name "" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 133508 // (nbib:publishedAs)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 133636 // nbib:publishedAs
+      end
+
+      classrelation 133892 // (nbib:isPublicationOf)
+	relation_ref 131972 // nbib:isPublicationOf
+      end
+    end
+
+    class 136964 "nbib:BookSeries"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 140548 // <generalisation>
+	relation 138628 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 140548 // <generalisation>
+	  b parent class_ref 129540 // nbib:Series
+      end
+    end
+
+    class 137092 "nbib:Journal"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 140676 // <generalisation>
+	relation 138756 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 140676 // <generalisation>
+	  b parent class_ref 129540 // nbib:Series
+      end
+    end
+
+    class 143620 "pimo:Event"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 225284 // nbib:eventPublication (<aggregation>)
+	relation 219012 o---
+	  a role_name "nbib:eventPublication" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 225284 // nbib:eventPublication (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 225412 // <aggregation>
+      end
+
+      classrelation 225668 // <aggregation>
+	relation_ref 219140 // <aggregation>
+      end
+
+      classrelation 252804 // pimo:groundingOccurence (<aggregation>)
+	relation 245764 o---
+	  a role_name "pimo:groundingOccurence" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 252804 // pimo:groundingOccurence (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 252932 // <aggregation>
+      end
+    end
+
+    class 150276 "nfo:RemoteDataObject"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 162948 // <realization>
+	relation 159620 -_-|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 162948 // <realization>
+	  b parent class_ref 130436 // nfo:Document
+      end
+    end
+
+    class 156804 "nfo:FileDataObject"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 162820 // <realization>
+	relation 159492 -_-|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 162820 // <realization>
+	  b parent class_ref 130436 // nfo:Document
+      end
+    end
+
+    class 156932 "nfo:WebDataObject"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 163076 // <realization>
+	relation 159748 -_-|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 163076 // <realization>
+	  b parent class_ref 130436 // nfo:Document
+      end
+    end
+
+    class 157060 "nbib:Presentation"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 163204 // <generalisation>
+	relation 159876 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 163204 // <generalisation>
+	  b parent class_ref 128004 // nbib:Publication
+      end
+    end
+
+    class 157188 "nbib:Script"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 163716 // <generalisation>
+	relation 160388 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 163716 // <generalisation>
+	  b parent class_ref 128004 // nbib:Publication
+      end
+    end
+
+    class 163716 "nbib:Thesis"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 170756 // <generalisation>
+	relation 167428 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 170756 // <generalisation>
+	  b parent class_ref 128004 // nbib:Publication
+      end
+    end
+
+    class 178308 "nbib:MagazinIssue"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 201348 // <generalisation>
+	relation 196612 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 201348 // <generalisation>
+	  b parent class_ref 130308 // nbib:Collection
+      end
+    end
+
+    class 170244 "nbib:Techreport"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 191620 // <generalisation>
+	relation 187652 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 191620 // <generalisation>
+	  b parent class_ref 129796 // nbib:Report
+      end
+    end
+
+    class 170372 "nbib:Standard"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 192260 // <generalisation>
+	relation 188036 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 192260 // <generalisation>
+	  b parent class_ref 128004 // nbib:Publication
+      end
+    end
+
+    class 170500 "nbib:NewspaperIssue"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 192388 // <generalisation>
+	relation 188164 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 192388 // <generalisation>
+	  b parent class_ref 130308 // nbib:Collection
+      end
+    end
+
+    class 170628 "nbib:Magazin"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 201220 // <generalisation>
+	relation 196484 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 201220 // <generalisation>
+	  b parent class_ref 129540 // nbib:Series
+      end
+    end
+
+    class 170756 "nbib:LegalDocument"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 193156 // <generalisation>
+	relation 188676 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 193156 // <generalisation>
+	  b parent class_ref 128004 // nbib:Publication
+      end
+
+      attribute 171012 "nbib:arguedDate"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+    end
+
+    class 170884 "nbib:Bill"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 211332 // <generalisation>
+	relation 205316 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 211332 // <generalisation>
+	  b parent class_ref 185220 // nbib:Legislation
+      end
+    end
+
+    class 171012 "nbib:Statute"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 211460 // <generalisation>
+	relation 205444 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 211460 // <generalisation>
+	  b parent class_ref 185220 // nbib:Legislation
+      end
+
+      attribute 185860 "nbib:publicLawNumber"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+    end
+
+    class 171140 "nbib:Decision"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 210308 // nbib:affirmedBy (<aggregation>)
+	relation 204548 o---
+	  a role_name "nbib:affirmedBy" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 210308 // nbib:affirmedBy (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 210436 // <aggregation>
+      end
+
+      classrelation 210436 // <aggregation>
+	relation_ref 204548 // <aggregation>
+      end
+
+      classrelation 211716 // <generalisation>
+	relation 205700 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 211716 // <generalisation>
+	  b parent class_ref 185348 // nbib:LegalCaseDocument
+      end
+    end
+
+    class 171268 "nbib:Brief"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 211844 // <generalisation>
+	relation 205828 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 211844 // <generalisation>
+	  b parent class_ref 185348 // nbib:LegalCaseDocument
+      end
+    end
+
+    class 171396 "nbib:CodeOfLaw"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 210948 // <generalisation>
+	relation 204932 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 210948 // <generalisation>
+	  b parent class_ref 130308 // nbib:Collection
+      end
+
+      classrelation 239620 // <aggregation>
+	relation_ref 232708 // <aggregation>
+      end
+
+      classrelation 246148 // nbib:legislation (<aggregation>)
+	relation 239236 o---
+	  a role_name "nbib:legislation" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 246148 // nbib:legislation (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 246276 // <aggregation>
+      end
+    end
+
+    class 171524 "nbib:CourtReporter"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 211076 // <generalisation>
+	relation 205060 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 211076 // <generalisation>
+	  b parent class_ref 130308 // nbib:Collection
+      end
+
+      classrelation 239108 // <aggregation>
+	relation_ref 232452 // <aggregation>
+      end
+
+      classrelation 239236 // nbib:legalCase (<aggregation>)
+	relation 232580 o---
+	  a role_name "nbib:legalCase" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 239236 // nbib:legalCase (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 239364 // <aggregation>
+      end
+    end
+
+    class 171652 "nbib:DocumentStatus"
+      visibility package stereotype "enum"
+      cpp_decl "${comment}enum ${name} {
+${items}
+};
+"
+      java_decl "${comment}${@}${visibility}${final}${abstract}enum ${name}${implements} {
+${items};
+${members}}
+"
+      php_decl "${comment}${visibility}final class ${name} {
+${items}}
+"
+      python_2_2 python_decl "class ${name}:
+${docstring}${members}
+"
+      idl_decl "${comment}enum ${name} {
+${items}};
+"
+      explicit_switch_type ""
+      
+      classrelation 194180 // <aggregation>
+	relation_ref 189572 // <aggregation>
+      end
+
+      attribute 171140 "accepted"
+	public type class_ref 171652 // nbib:DocumentStatus
+	cpp_decl "  ${name}${value},${comment}"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 171268 "draft"
+	public type class_ref 171652 // nbib:DocumentStatus
+	cpp_decl "  ${name}${value},${comment}"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 171396 "forthcoming"
+	public type class_ref 171652 // nbib:DocumentStatus
+	cpp_decl "  ${name}${value},${comment}"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 171524 "legal"
+	public type class_ref 171652 // nbib:DocumentStatus
+	cpp_decl "  ${name}${value},${comment}"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 171652 "nonPeerReviewed"
+	public type class_ref 171652 // nbib:DocumentStatus
+	cpp_decl "  ${name}${value},${comment}"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 171780 "peerReviewed"
+	public type class_ref 171652 // nbib:DocumentStatus
+	cpp_decl "  ${name}${value},${comment}"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 171908 "published"
+	private explicit_type ""
+	cpp_decl ""
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 172036 "rejected"
+	public type class_ref 171652 // nbib:DocumentStatus
+	cpp_decl "  ${name}${value},${comment}"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 172164 "unpublished"
+	public type class_ref 171652 // nbib:DocumentStatus
+	cpp_decl "  ${name}${value},${comment}"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+    end
+
+    class 171780 "nbib:Patent"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 194564 // <generalisation>
+	relation 189828 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 194564 // <generalisation>
+	  b parent class_ref 128004 // nbib:Publication
+      end
+
+      attribute 178948 "nbib:fillingDate"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 185476 "nbib:assignee"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 185604 "nbib:applicationNumber"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 185732 "nbib:priorityNumbers"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 185988 "nbib:patentReferences"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 186116 "nbib:legalStatus"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+    end
+
+    class 129412 "nbib:Chapter"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      attribute 130564 "nco:creator"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 150660 "nbib:chapterNumber"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      classrelation 208260 // <generalisation>
+	relation 203396 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 208260 // <generalisation>
+	  b parent class_ref 184836 // nbib:DocumentPart
+      end
+    end
+
+    class 184836 "nbib:DocumentPart"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      attribute 157572 "nbib:pageStart"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 157444 "nbib:pageEnd"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      classrelation 207876 // <generalisation>
+	relation 203140 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 207876 // <generalisation>
+	  b parent class_ref 129284 // nie:InformationElement
+      end
+
+      classrelation 208132 // <aggregation>
+	relation_ref 203268 // <aggregation>
+      end
+
+      attribute 170756 "nie:title"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      classrelation 208516 // nbib:documentPartOf (<aggregation>)
+	relation 203652 o---
+	  stereotype "nie:isLogicalPartOf"
+	  a role_name "nbib:documentPartOf" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 208516 // nbib:documentPartOf (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 208644 // <aggregation>
+      end
+
+      classrelation 209156 // <aggregation>
+	relation_ref 203908 // <aggregation>
+      end
+
+      attribute 170884 "nie:plainTextContent"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+    end
+
+    class 184964 "nbib:Quote"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 208388 // <generalisation>
+	relation 203524 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 208388 // <generalisation>
+	  b parent class_ref 184836 // nbib:DocumentPart
+      end
+    end
+
+    class 185092 "nbib:Newspaper"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 210820 // <generalisation>
+	relation 204804 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 210820 // <generalisation>
+	  b parent class_ref 129540 // nbib:Series
+      end
+    end
+
+    class 185220 "nbib:Legislation"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 211204 // <generalisation>
+	relation 205188 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 211204 // <generalisation>
+	  b parent class_ref 170756 // nbib:LegalDocument
+      end
+
+      attribute 178692 "nbib:code"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      classrelation 239492 // nbib:codeOfLaw (<aggregation>)
+	relation 232708 o---
+	  a role_name "nbib:codeOfLaw" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 239492 // nbib:codeOfLaw (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 239620 // <aggregation>
+      end
+
+      classrelation 246276 // <aggregation>
+	relation_ref 239236 // <aggregation>
+      end
+    end
+
+    class 185348 "nbib:LegalCaseDocument"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 211588 // <generalisation>
+	relation 205572 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 211588 // <generalisation>
+	  b parent class_ref 170756 // nbib:LegalDocument
+      end
+
+      classrelation 238980 // nbib:courtReporter (<aggregation>)
+	relation 232452 o---
+	  a role_name "nbib:courtReporter" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 238980 // nbib:courtReporter (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 239108 // <aggregation>
+      end
+
+      classrelation 239364 // <aggregation>
+	relation_ref 232580 // <aggregation>
+      end
+    end
+
+    class 191876 "nbib:Dictionary"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 232452 // <generalisation>
+	relation 225924 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 232452 // <generalisation>
+	  b parent class_ref 129668 // nbib:Book
+      end
+    end
+
+    class 192004 "nbib:Encyclopedia"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 232324 // <generalisation>
+	relation 225796 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 232324 // <generalisation>
+	  b parent class_ref 130308 // nbib:Collection
+      end
+    end
+
+    class 198532 "ncal:Event"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 252932 // <aggregation>
+	relation_ref 245764 // <aggregation>
+      end
+    end
+  end
+end
