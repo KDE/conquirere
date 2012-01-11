@@ -43,17 +43,9 @@ public:
     void loadSettings(const QString &projectFile);
     void loadSettings(const Nepomuk::Thing & pimoProject);
 
-    /**
-      * Returns the Nepomuk::Resource used to relate other Resources
-      * to this project.
-      */
     void setPimoThing( Nepomuk::Resource &thing );
     Nepomuk::Thing projectThing() const;
 
-    /**
-      * Returns the Nepomuk::Tag used to relate other Resources
-      * to this project.
-      */
     Nepomuk::Tag projectTag() const;
 
     void setName(const QString &name);

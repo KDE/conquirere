@@ -27,8 +27,10 @@
 
 #include <KDE/KStandardDirs>
 
-#include <QtCore/QVariant>
 #include <QtGui/QSortFilterProxyModel>
+#include <QtGui/QAction>
+#include <QtGui/QMenu>
+#include <QtCore/QVariant>
 
 #include <QtCore/QDebug>
 
@@ -40,6 +42,10 @@ LibraryWidget::LibraryWidget(QWidget *parent)
     ui->treeWidget->setItemDelegate(new ProjectTreeDelegate());
 
     connect(ui->treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(selectionchanged()));
+
+    ui->treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->treeWidget, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(listContextMenu(QPoint)));
 
     setupUi();
 }
@@ -55,9 +61,9 @@ void LibraryWidget::addLibrary(Library *p)
 {
     QLibraryTreeWidgetItem *root;
     root = new QLibraryTreeWidgetItem();
-    root->setData(0,Role_Library,p->libraryType());
+    root->setData(0,Role_LibraryType,p->libraryType());
     root->setData(0,Role_ResourceType,Resource_Library);
-    root->setData(0,Role_Project,p->settings()->name());
+    root->setData(0,Role_ProjectName,p->settings()->name());
     root->setIcon(0, KIcon(QLatin1String("document-multiple")));
     ui->treeWidget->addTopLevelItem(root);
     m_items.append(root);
@@ -68,6 +74,8 @@ void LibraryWidget::addLibrary(Library *p)
     setupLibraryTree(root, p);
 
     m_openLibraries.append(p);
+
+    connect(this, SIGNAL(doCloseLibrary(Library*)), p, SIGNAL(closeLibrary(Library*)));
 }
 
 void LibraryWidget::closeLibrary(Library *p)
@@ -77,12 +85,16 @@ void LibraryWidget::closeLibrary(Library *p)
     for(int i=1; i <= toplevelItems; i++) {
         QTreeWidgetItem *root = ui->treeWidget->topLevelItem(i);
 
-        QString openProject = (root->data(0,Role_Project).toString());
+        if(!root)
+            continue;
+
+        QString openProject = (root->data(0,Role_ProjectName).toString());
         if(openProject == p->settings()->name()) {
             ui->treeWidget->takeTopLevelItem(i);
             break;
         }
     }
+
     m_openLibraries.removeAll(p);
 }
 
@@ -96,10 +108,9 @@ void LibraryWidget::selectionchanged()
     else {
         BibEntryType filter = BibEntryType(ui->treeWidget->currentItem()->data(0,Role_ResourceFilter).toInt());
 
-        Library *selectedLibrary;
-        selectedLibrary = 0;
+        Library *selectedLibrary = 0;
         foreach(Library *p, m_openLibraries) {
-            if(p->settings()->name() == ui->treeWidget->currentItem()->data(0,Role_Project).toString()) {
+            if(p->settings()->name() == ui->treeWidget->currentItem()->data(0,Role_ProjectName).toString()) {
                 selectedLibrary = p;
                 break;
             }
@@ -107,6 +118,122 @@ void LibraryWidget::selectionchanged()
 
         emit newSelection(rs, filter, selectedLibrary);
     }
+}
+
+void LibraryWidget::listContextMenu(const QPoint & pos)
+{
+    QTreeWidgetItem *seletedItem = 0;
+    seletedItem = ui->treeWidget->itemAt(pos);
+
+    if(!seletedItem || !seletedItem->data(0, Role_LibraryType).isValid() ) {
+        return;
+    }
+
+    LibraryType type = (LibraryType)seletedItem->data(0,Role_LibraryType).toInt();
+
+    QMenu menu;
+    QList<QAction *> actionCollection; //we throw all temp actions into it and delete them again after execution
+
+    QAction *exportToFile = new QAction(KIcon(QLatin1String("document-export")), i18n("Export to File"), this);
+    exportToFile->setData( seletedItem->data(0,Role_ProjectName).toString());
+    actionCollection.append(exportToFile);
+    connect(exportToFile, SIGNAL(triggered(bool)),this, SLOT(exportToFile()));
+    menu.addAction(exportToFile);
+
+    QAction *importFromFile = new QAction(KIcon(QLatin1String("document-import")), i18n("Import from File"), this);
+    importFromFile->setData( seletedItem->data(0,Role_ProjectName).toString());
+    actionCollection.append(importFromFile);
+    connect(importFromFile, SIGNAL(triggered(bool)),this, SLOT(importFromFile()));
+    menu.addAction(importFromFile);
+
+    menu.addSeparator();
+
+    QAction *settings = new QAction(KIcon(QLatin1String("preferences-other")), i18n("Project Settings"), this);
+    settings->setData( seletedItem->data(0,Role_ProjectName).toString());
+    actionCollection.append(settings);
+    connect(settings, SIGNAL(triggered(bool)),this, SLOT(openSettings()));
+    menu.addAction(settings);
+
+    QAction *closeProject = new QAction(KIcon(QLatin1String("document-close")), i18n("Project Close"), this);
+    closeProject->setData( seletedItem->data(0,Role_ProjectName).toString());
+    actionCollection.append(closeProject);
+    connect(closeProject, SIGNAL(triggered(bool)),this, SLOT(closeProject()));
+    menu.addAction(closeProject);
+
+    menu.addSeparator();
+
+    QAction *deleteProject = new QAction(KIcon(QLatin1String("document-close")), i18n("Project Delete"), this);
+    deleteProject->setData( seletedItem->data(0,Role_ProjectName).toString());
+    actionCollection.append(deleteProject);
+    connect(deleteProject, SIGNAL(triggered(bool)),this, SLOT(deleteProject()));
+    menu.addAction(deleteProject);
+
+    if(type == Library_System) {
+        closeProject->setEnabled(false);
+        deleteProject->setEnabled(false);
+    }
+
+    menu.exec(QCursor::pos());
+
+    qDeleteAll(actionCollection);
+}
+
+void LibraryWidget::exportToFile()
+{
+
+}
+
+void LibraryWidget::importFromFile()
+{
+
+}
+
+void LibraryWidget::openSettings()
+{
+    Library *selectedLibrary = libForAction();
+
+    if(selectedLibrary) {
+        qDebug() << "open lib settings for" << selectedLibrary->settings()->name();
+    }
+}
+
+void LibraryWidget::closeProject()
+{
+    qDebug() << "LibraryWidget::closeProject()";
+    Library *selectedLibrary = libForAction();
+
+    if(selectedLibrary) {
+        emit doCloseLibrary(selectedLibrary);
+    }
+}
+
+void LibraryWidget::deleteProject()
+{
+    Library *selectedLibrary = libForAction();
+
+    if(selectedLibrary) {
+        //closeProject(selectedLibrary);
+        emit doCloseLibrary(selectedLibrary);
+    }
+}
+
+Library *LibraryWidget::libForAction()
+{
+    QAction *a = qobject_cast<QAction *>(sender());
+
+    if(!a)
+        return 0;
+
+    Library *selectedLibrary = 0;
+    QString projectName = a->data().toString();
+    foreach(Library *p, m_openLibraries) {
+        if(p->settings()->name() == projectName) {
+            selectedLibrary = p;
+            break;
+        }
+    }
+
+    return selectedLibrary;
 }
 
 void LibraryWidget::setupUi()
@@ -123,10 +250,12 @@ void LibraryWidget::setupUi()
 
 void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
 {
+    QString projectName = p->settings()->name();
     QLibraryTreeWidgetItem *twi1 = new QLibraryTreeWidgetItem();
     twi1->setText(0, i18n("Documents"));
-    twi1->setData(0,Role_Project,root->data(0,Role_Project));
+    twi1->setData(0,Role_ProjectName, projectName);
     twi1->setData(0,Role_ResourceType,Resource_Document);
+    twi1->setData(0,Role_LibraryType,p->libraryType());
     twi1->setIcon(0, KIcon(QLatin1String("document-multiple")));
     root->addChild(twi1);
     connectModelSignals(twi1, p, Resource_Document);
@@ -136,7 +265,8 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     twi5->setText(0, i18n("Series"));
     twi5->setData(0,Role_ResourceType,Resource_Series);
     twi5->setData(0,Role_ResourceFilter,Max_SeriesTypes);
-    twi5->setData(0,Role_Project,root->data(0,Role_Project));
+    twi5->setData(0,Role_LibraryType,p->libraryType());
+    twi5->setData(0,Role_ProjectName, projectName);
     twi5->setIcon(0, KIcon(SeriesTypeIcon.at(0)));
     root->addChild(twi5);
     connectModelSignals(twi5, p, Resource_Series);
@@ -147,7 +277,8 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
         refSub->setText(0, SeriesTypeTranslation.at(i));
         refSub->setData(0,Role_ResourceType,Resource_Series);
         refSub->setData(0,Role_ResourceFilter,SeriesType(i));
-        refSub->setData(0,Role_Project,root->data(0,Role_Project));
+        refSub->setData(0,Role_LibraryType,p->libraryType());
+        refSub->setData(0,Role_ProjectName, projectName);
         refSub->setIcon(0, KIcon(SeriesTypeIcon.at(i)));
         twi5->addChild(refSub);
         connectModelSignals(refSub, p, Resource_Series);
@@ -157,7 +288,8 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     QLibraryTreeWidgetItem *twi1a = new QLibraryTreeWidgetItem();
     twi1a->setText(0, i18n("Publications"));
     twi1a->setData(0,Role_ResourceType,Resource_Publication);
-    twi1a->setData(0,Role_Project,root->data(0,Role_Project));
+    twi1a->setData(0,Role_LibraryType,p->libraryType());
+    twi1a->setData(0,Role_ProjectName, projectName);
     twi1a->setData(0,Role_ResourceFilter,Max_BibTypes);
     twi1a->setIcon(0, KIcon(QLatin1String("document-open-remote")));
     root->addChild(twi1a);
@@ -169,7 +301,8 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
         pubSub->setText(0, BibEntryTypeTranslation.at(i));
         pubSub->setData(0,Role_ResourceType,Resource_Publication);
         pubSub->setData(0,Role_ResourceFilter,BibEntryType(i));
-        pubSub->setData(0,Role_Project,root->data(0,Role_Project));
+        pubSub->setData(0,Role_LibraryType,p->libraryType());
+        pubSub->setData(0,Role_ProjectName, projectName);
         pubSub->setIcon(0, KIcon(BibEntryTypeIcon.at(i)));
         twi1a->addChild(pubSub);
         connectModelSignals(pubSub, p, Resource_Publication);
@@ -180,7 +313,8 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     twi4->setText(0, i18n("References"));
     twi4->setData(0,Role_ResourceType,Resource_Reference);
     twi4->setData(0,Role_ResourceFilter,Max_BibTypes);
-    twi4->setData(0,Role_Project,root->data(0,Role_Project));
+    twi4->setData(0,Role_LibraryType,p->libraryType());
+    twi4->setData(0,Role_ProjectName, projectName);
     twi4->setIcon(0, KIcon(QLatin1String("user-identity")));
     root->addChild(twi4);
     connectModelSignals(twi4, p, Resource_Reference);
@@ -191,7 +325,8 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
         refSub->setText(0, BibEntryTypeTranslation.at(i));
         refSub->setData(0,Role_ResourceType,Resource_Reference);
         refSub->setData(0,Role_ResourceFilter,BibEntryType(i));
-        refSub->setData(0,Role_Project,root->data(0,Role_Project));
+        refSub->setData(0,Role_LibraryType,p->libraryType());
+        refSub->setData(0,Role_ProjectName, projectName);
         refSub->setIcon(0, KIcon(BibEntryTypeIcon.at(i)));
         twi4->addChild(refSub);
         connectModelSignals(refSub, p, Resource_Publication);
@@ -201,7 +336,8 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     QLibraryTreeWidgetItem *twi8 = new QLibraryTreeWidgetItem();
     twi8->setText(0, i18n("Events"));
     twi8->setData(0,Role_ResourceType,Resource_Event);
-    twi8->setData(0,Role_Project,root->data(0,Role_Project));
+    twi8->setData(0,Role_LibraryType,p->libraryType());
+    twi8->setData(0,Role_ProjectName, projectName);
     twi8->setIcon(0, KIcon(QLatin1String("view-pim-calendar")));
     root->addChild(twi8);
     connectModelSignals(twi8, p, Resource_Event);
@@ -210,7 +346,8 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     QLibraryTreeWidgetItem *twi6 = new QLibraryTreeWidgetItem();
     twi6->setText(0, i18n("Notes"));
     twi6->setData(0,Role_ResourceType,Resource_Note);
-    twi6->setData(0,Role_Project,root->data(0,Role_Project));
+    twi6->setData(0,Role_LibraryType,p->libraryType());
+    twi6->setData(0,Role_ProjectName, projectName);
     twi6->setIcon(0, KIcon(QLatin1String("knotes")));
     root->addChild(twi6);
     connectModelSignals(twi6, p, Resource_Note);
@@ -221,18 +358,20 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     QLibraryTreeWidgetItem *twi3 = new QLibraryTreeWidgetItem();
     twi3->setText(0, i18n("Bookmarks"));
     twi3->setData(0,Role_ResourceType,Resource_Website);
-    twi3->setData(0,Role_Project,root->data(0,Role_Project));
+    twi3->setData(0,Role_Library,p->libraryType());
+    twi3->setData(0,Role_ProjectName, projectName);
     twi3->setIcon(0, KIcon(QLatin1String("view-web-browser-dom-tree")));
     root->addChild(twi3);
     connectModelSignals(twi3, p, Resource_Website);
     m_items.append(twi3);
     */
 
-    if(root->data(0,Role_Library).toInt() == Library_Project) {
+    if(root->data(0,Role_LibraryType).toInt() == Library_Project) {
         QLibraryTreeWidgetItem *twi2 = new QLibraryTreeWidgetItem();
         twi2->setText(0, i18n("Mails"));
         twi2->setData(0,Role_ResourceType,Resource_Mail);
-        twi2->setData(0,Role_Project,root->data(0,Role_Project));
+        twi2->setData(0,Role_LibraryType,p->libraryType());
+        twi2->setData(0,Role_ProjectName, projectName);
         twi2->setIcon(0, KIcon(QLatin1String("mail-flag")));
         root->addChild(twi2);
         connectModelSignals(twi2, p, Resource_Mail);

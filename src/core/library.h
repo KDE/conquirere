@@ -65,10 +65,6 @@ public:
 
     /**
       * Creates a new Library
-      *
-      * @p type Either System or Project
-      *
-      * @todo check if I can support network libraries somehow (samba share)
       */
     explicit Library();
     virtual ~Library();
@@ -76,10 +72,9 @@ public:
     /**
       * Creates a new project library
       *
-      * This function creates the document structure, the Nepomuk::Resource.
+      * This function creates the document structure, the Nepomuk::Thing and Nepomuk::Tag.
       *
-      * Has to be called when a new project is created and after the name
-      * and path of the project has been selected
+      * Has to be called when a new project is created
       */
     static Nepomuk::Thing createLibrary(const QString & name, const QString & description, const QString & path);
 
@@ -87,6 +82,7 @@ public:
       * Loads an existing project .ini file
       *
       * @p projectFile the .ini project file
+      * @p type the type of the library
       */
     void loadLibrary(const QString & projectFile, LibraryType type = Library_Project);
     void loadSystemLibrary();
@@ -103,10 +99,8 @@ public:
     /**
       * Deletes the current project library
       *
-      * Removes the pimo:Project Resource and the document folder
-      * structure.
-      *
-      * @todo implement library deletion
+      * Removes the pimo:Project Resource and all connections to it.
+      * Also deletres the .ini file
       */
     void deleteLibrary();
 
@@ -147,6 +141,7 @@ signals:
       * @todo This should be replaced by the Nepomuk::ResourceWatcher later
       */
     void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
+    void closeLibrary(Library *l);
 
 private slots:
     void finishedInitialImport();
@@ -158,7 +153,6 @@ private:
       * For each ResourceSelection there exists one model
       * The model fetches all data from the Nepomuk storage and update itself
       * when a Nepomuk::Resource is created or removed
-      *
       */
     void setupModels();
     void connectModelToTagCloud(NepomukModel *model);
@@ -167,9 +161,9 @@ private:
     ProjectSettings *m_projectSettings;
 
     DirWatcher *m_dirWatcher;
+    TagCloud *m_tagCloud;
 
     QMap<ResourceSelection, QSortFilterProxyModel*> m_resources;
-    TagCloud *m_tagCloud;
     int m_initialImportFinished;
 
 };

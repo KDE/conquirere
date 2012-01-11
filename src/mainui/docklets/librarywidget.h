@@ -39,16 +39,25 @@ public:
     ~LibraryWidget();
 
     void addLibrary(Library *p);
-    void closeLibrary(Library *p);
 
 signals:
+    void doCloseLibrary(Library *p);
     void newSelection(ResourceSelection selection, BibEntryType filter, Library *p);
     void showSearchResults();
 
 private slots:
     void selectionchanged();
+    void listContextMenu(const QPoint & pos);
+
+    void exportToFile();
+    void importFromFile();
+    void openSettings();
+    void closeProject();
+    void closeLibrary(Library *p);
+    void deleteProject();
 
 private:
+    Library *libForAction();
     void setupUi();
     void setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p);
     void connectModelSignals(QLibraryTreeWidgetItem *root, Library *p, ResourceSelection resourceType);

@@ -155,6 +155,9 @@ void MainWindow::openLibrary(Library *l)
     connect(m_sidebarWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), l, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
     switchView(Resource_Library, Max_BibTypes, l);
+
+    connect(l, SIGNAL(closeLibrary(Library*)), this, SLOT(closeLibrary(Library*)));
+    connect(l, SIGNAL(closeLibrary(Library*)), m_libraryWidget, SLOT(closeLibrary(Library*)));
 }
 
 QList<Library *> MainWindow::openLibraries()
@@ -182,6 +185,11 @@ LibraryWidget *MainWindow::libraryWidget()
     return m_libraryWidget;
 }
 
+void MainWindow::deleteLibrarySelection()
+{
+
+}
+
 void MainWindow::deleteLibrary()
 {
     int ret = KMessageBox::warningYesNo(this,
@@ -189,27 +197,28 @@ void MainWindow::deleteLibrary()
                                         m_curLibrary->settings()->name());
 
     if(ret == KMessageBox::Yes) {
-        m_curLibrary->deleteLibrary();
-        closeLibrary();
+        //m_curLibrary->
+        //m_curLibrary->deleteLibrary();
     }
 }
 
-void MainWindow::closeLibrary()
+void MainWindow::closeLibrarySelection()
 {
-    if(m_curLibrary->libraryType() == Library_System) {
-        m_curLibrary = openLibraries().first();
-        if(!m_curLibrary)
-            return;
+
+}
+
+void MainWindow::closeLibrary(Library *l)
+{
+    if(!l || l->libraryType() == Library_System) {
+        return;
     }
 
-    m_libraryWidget->closeLibrary(m_curLibrary);
-    QWidget *w = m_libraryList.take(m_curLibrary);
-    w->hide();
-    w->deleteLater();
-
-    disconnect(m_sidebarWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), m_curLibrary, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-
-    delete m_curLibrary;
+    QWidget *w = m_libraryList.take(l);
+    if(w) {
+        w->hide();
+        w->deleteLater();
+        l->deleteLater();
+    }
 
     switchView(Resource_Library, Max_BibTypes, m_systemLibrary);
 }
@@ -407,14 +416,14 @@ void MainWindow::setupActions()
     removeProjectAction->setIcon(KIcon(QLatin1String("document-close")));
     removeProjectAction->setEnabled(false);
     actionCollection()->addAction(QLatin1String("delete_project"), removeProjectAction);
-    connect(removeProjectAction, SIGNAL(triggered(bool)),this, SLOT(deleteLibrary()));
+    connect(removeProjectAction, SIGNAL(triggered(bool)),this, SLOT(deleteLibrarySelection()));
 
     KAction* closeProjectAction = new KAction(this);
     closeProjectAction->setText(i18n("&Close Project"));
     closeProjectAction->setIcon(KIcon(QLatin1String("document-close")));
     closeProjectAction->setEnabled(false);
     actionCollection()->addAction(QLatin1String("close_project"), closeProjectAction);
-    connect(closeProjectAction, SIGNAL(triggered(bool)),this, SLOT(closeLibrary()));
+    connect(closeProjectAction, SIGNAL(triggered(bool)),this, SLOT(closeLibrarySelection()));
 
     // Database menu
     // import section
@@ -484,7 +493,6 @@ void MainWindow::setupActions()
     connect(dbBackupAction, SIGNAL(triggered(bool)),this, SLOT(dbBackup()));
 
     //View menu
-
     KAction* updateListCache = new KAction(this);
     updateListCache->setText(i18n("Update List Cache"));
     updateListCache->setIcon(KIcon(QLatin1String("view-refresh")));

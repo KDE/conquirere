@@ -80,6 +80,7 @@ Library::~Library()
     m_resources.clear();
     delete m_tagCloud;
     delete m_dirWatcher;
+    delete m_projectSettings;
 }
 
 Nepomuk::Thing Library::createLibrary(const QString & name, const QString & description, const QString & path)
@@ -152,6 +153,8 @@ void Library::loadLibrary(const QString & projectFile, LibraryType type)
 
     m_dirWatcher = new DirWatcher();
     m_dirWatcher->setLibrary(this);
+
+    connect(m_projectSettings, SIGNAL(projectDirChanged(QString)), m_dirWatcher, SLOT(changeListenDir(QString)));
 
     m_tagCloud = new TagCloud;
     m_initialImportFinished = 0;

@@ -329,6 +329,8 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
 {
     Q_UNUSED(pos);
     QItemSelectionModel *sm = m_documentView->selectionModel();
+    if(!sm)
+        return;
     QModelIndexList selectedIndex = sm->selectedRows();
     if(selectedIndex.isEmpty())
         return;
