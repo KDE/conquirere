@@ -35,6 +35,7 @@ class NepomukModel;
 class DirWatcher;
 class NBibSync;
 class BackgroundSync;
+class ProjectSettings;
 
 /**
   * @brief A Library is a collection of files and Nepomuk::Resource data of a specific topic
@@ -61,6 +62,7 @@ class Library : public QObject
 {
     Q_OBJECT
 public:
+
     /**
       * Creates a new Library
       *
@@ -68,75 +70,8 @@ public:
       *
       * @todo check if I can support network libraries somehow (samba share)
       */
-    explicit Library(LibraryType type);
+    explicit Library();
     virtual ~Library();
-
-    /**
-      * Creates all data models for the library
-      *
-      * For each ResourceSelection there exists one model
-      * The model fetches all data from the Nepomuk storage and update itself
-      * when a Nepomuk::Resource is created or removed
-      *
-      */
-    void setupModels();
-
-    /**
-      * The type of the Library
-      *
-      * @return Either System or Project
-      */
-    LibraryType libraryType() const;
-
-    /**
-      * Sets the name of the project library
-      *
-      * @pre Only for non System librarys
-      * @p name The name of the project
-      */
-    void setName(const QString & name);
-
-    /**
-      * Returns the name of the project or the system library name
-      */
-    QString name() const;
-
-    /**
-      * Sets the description of the project library
-      *
-      * @pre Only for non System librarys
-      * @p description The description of the project
-      */
-    void setDescription(const QString & description);
-
-    /**
-      * Returns the description of the project library name
-      */
-    QString description() const;
-
-    /**
-      * Sets the path of the project library
-      *
-      * When the library has a path assigned a specific folder structure will be created
-      * In this folder structure all documents will be added automatically to the library
-      * Also downloaded files will be stored here if not selected otherwise.
-      *
-      * A DirListener keeps track of file changes
-      *
-      * @pre Only for non System librarys
-      * @p path The path of the project
-      */
-    void setLibraryDir(const QString & path);
-
-    /**
-      * Retuns the dir for this project library
-      */
-    QString libraryDir() const;
-    QString libraryDocumentDir() const;
-
-    void addSyncProvider(NBibSync* provider);
-    void removeSyncProvider(NBibSync* provider);
-    BackgroundSync *backgroundSync() const;
 
     /**
       * Creates a new project library
@@ -146,15 +81,24 @@ public:
       * Has to be called when a new project is created and after the name
       * and path of the project has been selected
       */
-    void createLibrary(const QString & name, const QString & description, const QString & path);
+    static Nepomuk::Thing createLibrary(const QString & name, const QString & description, const QString & path);
 
     /**
       * Loads an existing project .ini file
       *
       * @p projectFile the .ini project file
       */
-    void loadLibrary(const QString & projectFile);
+    void loadLibrary(const QString & projectFile, LibraryType type = Library_Project);
+    void loadSystemLibrary();
     void loadLibrary(const Nepomuk::Thing & pimoProject);
+    ProjectSettings * settings();
+
+    /**
+      * The type of the Library
+      *
+      * @return Either System or Project
+      */
+    LibraryType libraryType() const;
 
     /**
       * Deletes the current project library
@@ -166,17 +110,7 @@ public:
       */
     void deleteLibrary();
 
-    /**
-      * Returns the Nepomuk::Resource used to relate other Resources
-      * to this project.
-      */
-    Nepomuk::Resource pimoLibrary() const;
-
-    /**
-      * Returns the Nepomuk::Tag used to relate other Resources
-      * to this project.
-      */
-    Nepomuk::Resource pimoTag() const;
+    TagCloud *tagCloud();
 
     /**
       * Relates a Nepomuk::Resource to this project
@@ -184,6 +118,7 @@ public:
       * @p res the used Nepomuk::Resource
       */
     void addResource(Nepomuk::Resource & res);
+    void removeResource(Nepomuk::Resource & res);
 
     /**
       * Updates all cached list data
@@ -204,8 +139,6 @@ public:
       */
     QMap<ResourceSelection, QSortFilterProxyModel*> viewModels();
 
-    TagCloud *tagCloud();
-
 signals:
     /**
       * This signal gets thrown when the resource was changed and must be updated in the table model cache
@@ -219,17 +152,21 @@ private slots:
     void finishedInitialImport();
 
 private:
+    /**
+      * Creates all data models for the library
+      *
+      * For each ResourceSelection there exists one model
+      * The model fetches all data from the Nepomuk storage and update itself
+      * when a Nepomuk::Resource is created or removed
+      *
+      */
+    void setupModels();
     void connectModelToTagCloud(NepomukModel *model);
 
     LibraryType m_libraryType;
-    QString m_name;
-    QString m_description;
-    QString m_libraryDir;
-    DirWatcher *m_dirWatcher;
-    BackgroundSync *m_backgroundSync;
+    ProjectSettings *m_projectSettings;
 
-    Nepomuk::Thing m_pimoLibrary;
-    Nepomuk::Tag m_libraryTag;
+    DirWatcher *m_dirWatcher;
 
     QMap<ResourceSelection, QSortFilterProxyModel*> m_resources;
     TagCloud *m_tagCloud;

@@ -18,6 +18,7 @@
 #include "mainwindow.h"
 
 #include "core/library.h"
+#include "core/projectsettings.h"
 #include "core/models/nepomukmodel.h"
 
 #include "welcomewidget.h"
@@ -56,6 +57,7 @@
 #include <QtGui/QSortFilterProxyModel>
 
 #include <QtCore/QDebug>
+#include <KDE/KDebug>
 
 
 //DEBUG ADD to delete all nepomuk data
@@ -184,7 +186,7 @@ void MainWindow::deleteLibrary()
 {
     int ret = KMessageBox::warningYesNo(this,
                                         QLatin1String("Do you really want to delete the project:<br><b>") +
-                                        m_curLibrary->name());
+                                        m_curLibrary->settings()->name());
 
     if(ret == KMessageBox::Yes) {
         m_curLibrary->deleteLibrary();
@@ -374,6 +376,7 @@ void MainWindow::DEBUGDELETEALLDATA()
     orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Journal() ) );
     orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::SYNC::ServerSyncData() ) );
     orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::PIMO::Event() ) );
+    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::PIMO::Project() ) );
 
     Nepomuk::Query::Query query( orTerm );
 
@@ -565,8 +568,8 @@ void MainWindow::setupMainWindow()
             this, SLOT(switchView(ResourceSelection,BibEntryType,Library*)));
 
     //create the system library
-    m_systemLibrary = new Library(Library_System);
-    m_systemLibrary->setupModels();
+    m_systemLibrary = new Library();
+    m_systemLibrary->loadSystemLibrary();
     openLibrary(m_systemLibrary);
 
     switchView(Resource_Library, Max_BibTypes, m_systemLibrary);

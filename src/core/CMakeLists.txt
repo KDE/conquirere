@@ -1,5 +1,6 @@
 
 set(core_LIB_SRCS
+    projectsettings.cpp
     library.cpp
     dirwatcher.cpp
     tagcloud.cpp

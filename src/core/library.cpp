@@ -16,17 +16,14 @@
  */
 
 #include "library.h"
+#include "projectsettings.h"
 #include "tagcloud.h"
 #include "dirwatcher.h"
-#include "backgroundsync.h"
 
 #include "onlinestorage/storageinfo.h"
 #include "onlinestorage/storageglobals.h"
 #include "onlinestorage/zotero/zoteroinfo.h"
 #include "onlinestorage/kbibtexfile/kbtfileinfo.h"
-
-#include "nbibio/nbibsync.h"
-#include "nbibio/synczoteronepomuk.h"
 
 #include "models/nepomukmodel.h"
 #include "models/referencemodel.h"
@@ -47,8 +44,6 @@
 #include <Nepomuk/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Vocabulary/PIMO>
-#include "../dms-copy/simpleresource.h"
-#include "../dms-copy/simpleresourcegraph.h"
 
 #include <KDE/KUrl>
 #include <KDE/KStandardDirs>
@@ -66,16 +61,13 @@
 const QString DOCPATH = I18N_NOOP2("Name of the documents folder to store user library documents","documents");  /**< @todo make this configurable */
 const QString NOTEPATH = I18N_NOOP2("Name of the notes folder to store user library documents","notes");     /**< @todo make this configurable */
 
-Library::Library(LibraryType type)
+Library::Library()
     : QObject(0)
-    , m_libraryType(type)
+    , m_libraryType(Library_Project)
+    , m_projectSettings(new ProjectSettings())
     , m_dirWatcher(0)
-    , m_backgroundSync(0)
     , m_tagCloud(0)
 {
-    m_tagCloud = new TagCloud;
-    m_initialImportFinished = 0;
-    m_tagCloud->pauseUpdates(true);
 }
 
 Library::~Library()
@@ -90,213 +82,24 @@ Library::~Library()
     delete m_dirWatcher;
 }
 
-LibraryType Library::libraryType() const
-{
-    return m_libraryType;
-}
-
-void Library::setName(const QString & name)
-{
-    if(m_libraryType == Library_System) {
-        qWarning() << "can't set the name for the system library";
-        return;
-    }
-
-    m_name = name;
-}
-
-QString Library::name() const
-{
-    if(m_libraryType == Library_System) {
-        return QLatin1String("System Library");
-    }
-    else {
-        return m_name;
-    }
-}
-
-void Library::setDescription(const QString & description)
-{
-    m_description = description;
-}
-
-QString Library::description() const
-{
-    return m_description;
-}
-
-void Library::setLibraryDir(const QString & path)
-{
-    if(m_libraryDir == path)
-        return;
-
-    QString newIniFile;
-    if(path.isEmpty()) {
-        // move the inifile to user config place and rename the librarypath on its way
-        QString oldIniFile = m_libraryDir + QLatin1String("/") + m_name + QLatin1String(".ini");
-        QString inipath = KStandardDirs::locateLocal("appdata", QLatin1String("projects"));
-        newIniFile = inipath + QLatin1String("/") + m_name + QLatin1String(".ini");
-
-        KConfig libconfig( oldIniFile, KConfig::SimpleConfig );
-        KConfigGroup libGroup( &libconfig, "Conquirere" );
-        libGroup.deleteEntry(QLatin1String("libraryDir"));
-        libconfig.sync();
-
-        KIO::CopyJob *cj = KIO::move(oldIniFile, newIniFile);
-        cj->exec();
-        delete cj;
-
-        // do not remove old folder
-    }
-    // create new folder structer or move existing one
-    else {
-        if(m_libraryDir.isEmpty()) {
-            QString inipath = KStandardDirs::locateLocal("appdata", QLatin1String("projects"));
-            QString oldIniFile = inipath + QLatin1String("/") + m_name + QLatin1String(".ini");
-            newIniFile = path + QLatin1String("/") + m_name + QLatin1String(".ini");
-
-            KConfig libconfig( oldIniFile, KConfig::SimpleConfig );
-            KConfigGroup libGroup( &libconfig, "Conquirere" );
-            libGroup.writeEntry(QLatin1String("libraryDir"), path);
-            libconfig.sync();
-
-            // now create folder and move init file to it
-            QDir project;
-            project.mkpath(path);
-            project.setPath(path);
-            project.mkdir(DOCPATH);
-            project.mkdir(NOTEPATH);
-
-            KIO::CopyJob *cj = KIO::move(oldIniFile, newIniFile);
-            cj->exec();
-            delete cj;
-        }
-        // there was a previous folder, so we move it to the new destination
-        else {
-            KIO::CopyJob *cj = KIO::move(m_libraryDir, path);
-            cj->exec();
-            delete cj;
-
-            // and update the path in the inifile
-            newIniFile = path + QLatin1String("/") + m_name + QLatin1String(".ini");
-            KConfig libconfig( newIniFile, KConfig::SimpleConfig );
-            KConfigGroup libGroup( &libconfig, "Conquirere" );
-            libGroup.writeEntry(QLatin1String("libraryDir"), path);
-        }
-    }
-
-    //update nepomuk data for the settingsfile to the pimo:.project
-    Nepomuk::File settingsFile = Nepomuk::File(KUrl(newIniFile));
-    QString settingsFileName = QLatin1String("file://") + newIniFile;
-    settingsFile.setProperty(Nepomuk::Vocabulary::NIE::url(), settingsFileName);
-    m_pimoLibrary.addGroundingOccurrence(settingsFile);
-
-    // aaaaand set the library variable to the new path
-    m_libraryDir = path;
-
-    delete m_dirWatcher;
-    m_dirWatcher = 0;
-    if(!m_libraryDir.isEmpty()) {
-        m_dirWatcher = new DirWatcher();
-        m_dirWatcher->setLibrary(this);
-    }
-}
-
-QString Library::libraryDir() const
-{
-    return m_libraryDir;
-}
-
-QString Library::libraryDocumentDir() const
-{
-    QString documentDir;
-    documentDir = m_libraryDir + QLatin1String("/") + DOCPATH;
-
-    return documentDir;
-}
-
-void Library::addSyncProvider(NBibSync* provider)
-{
-    QString providerID = provider->uniqueProviderID();
-    if(providerID.isEmpty()) {
-        providerID = QUuid::createUuid().toString();
-        provider->setUniqueProviderID(providerID);
-    }
-
-    m_backgroundSync->addSyncProvider(provider);
-
-    // save sync details in the inifile
-    QString inipath;
-    if(!m_libraryDir.isEmpty()) {
-        inipath = m_libraryDir;
-    }
-    else {
-        inipath = KStandardDirs::locateLocal("appdata", QLatin1String("projects"));
-    }
-
-    ProviderSyncDetails psd = provider->providerSyncDetails();
-
-    QString iniFile = inipath + QLatin1String("/") + m_name + QLatin1String(".ini");
-    KConfig libconfig( iniFile, KConfig::SimpleConfig );
-    KConfigGroup libGroup( &libconfig, "SyncProvider" );
-    KConfigGroup providerGroup( &libGroup, providerID );
-    providerGroup.writeEntry(QLatin1String("provider"), psd.providerInfo->providerId());
-    providerGroup.writeEntry(QLatin1String("name"), psd.userName);
-    providerGroup.writeEntry(QLatin1String("url"), psd.url);
-    providerGroup.writeEntry(QLatin1String("collection"), psd.collection);
-    providerGroup.writeEntry(QLatin1String("askBeforeDeletion"), psd.askBeforeDeletion);
-    providerGroup.writeEntry(QLatin1String("mergeStrategy"), (int)psd.mergeMode);
-    providerGroup.writeEntry(QLatin1String("syncMode"), (int)psd.syncMode);
-    providerGroup.writeEntry(QLatin1String("importAttachments"), psd.importAttachments);
-    providerGroup.writeEntry(QLatin1String("exportAttachments"), psd.exportAttachments);
-    providerGroup.writeEntry(QLatin1String("akonadiContactsUUid"), psd.akonadiContactsUUid);
-    providerGroup.writeEntry(QLatin1String("akonadiEventsUUid"), psd.akonadiEventsUUid);
-
-    providerGroup.sync();
-    libGroup.sync();
-}
-
-void Library::removeSyncProvider(NBibSync* provider)
-{
-    QString inipath;
-    if(!m_libraryDir.isEmpty()) {
-        inipath = m_libraryDir;
-    }
-    else {
-        inipath = KStandardDirs::locateLocal("appdata", QLatin1String("projects"));
-    }
-
-    QString iniFile = inipath + QLatin1String("/") + m_name + QLatin1String(".ini");
-    KConfig libconfig( iniFile, KConfig::SimpleConfig );
-    KConfigGroup libGroup( &libconfig, "SyncProvider" );
-    KConfigGroup providerGroup( &libGroup, provider->uniqueProviderID() );
-    providerGroup.deleteGroup();
-    libGroup.sync();
-
-    m_backgroundSync->removeSyncProvider(provider);
-}
-
-BackgroundSync *Library::backgroundSync() const
-{
-    return m_backgroundSync;
-}
-
-void Library::createLibrary(const QString & name, const QString & description, const QString & path)
+Nepomuk::Thing Library::createLibrary(const QString & name, const QString & description, const QString & path)
 {
     // when a new library is created it is realized as pimo:Project
     QString identifier = QLatin1String("Conquirere Library:") + name;
-    Nepomuk::Thing pimoLibrary = Nepomuk::Thing(identifier, Nepomuk::Vocabulary::PIMO::Project());
-    pimoLibrary.setProperty( Nepomuk::Vocabulary::NIE::title() , name);
-    pimoLibrary.setProperty( Soprano::Vocabulary::NAO::description() , description);
+    Nepomuk::Thing projectThing = Nepomuk::Thing(identifier, Nepomuk::Vocabulary::PIMO::Project());
+    projectThing.setProperty( Nepomuk::Vocabulary::NIE::title() , name);
+    projectThing.setProperty( Soprano::Vocabulary::NAO::description() , description);
+    projectThing.setProperty( Soprano::Vocabulary::NAO::identifier() , identifier);
 
     // relate each library to the conquiere pimo:thing
     // this allows us to find all existing projects
+    //TODO instead of reading resource uri from file use the NAO::identifier
     KSharedConfigPtr config = KSharedConfig::openConfig("conquirererc");
     KConfigGroup generalGroup = config->group("General");
     QString NepomukCollection = generalGroup.readEntry( "NepomukCollection", QString() );
 
     Nepomuk::Resource conquiereCollections = Nepomuk::Resource(NepomukCollection);
-    conquiereCollections.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , pimoLibrary);
+    conquiereCollections.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , projectThing);
 
     // create a tag with the project name
     // this way we can relate publications/documents etc via PIMO::isRelated or the tag
@@ -321,119 +124,55 @@ void Library::createLibrary(const QString & name, const QString & description, c
     // create the project .ini file
     QString iniFile = inipath + QLatin1String("/") + name + QLatin1String(".ini");
 
-    KConfig libconfig( iniFile, KConfig::SimpleConfig );
-    KConfigGroup libGroup( &libconfig, "Conquirere" );
-    libGroup.writeEntry(QLatin1String("name"), name);
-    libGroup.writeEntry(QLatin1String("description"), description);
-    libGroup.writeEntry(QLatin1String("pimoProject"), pimoLibrary.resourceUri().toString());
-    libGroup.writeEntry(QLatin1String("libraryDir"), path);
-    libconfig.sync();
+    ProjectSettings *projectSettings = new ProjectSettings;
+    projectSettings->setSettingsFile(iniFile);
+    projectSettings->setName(name);
+    projectSettings->setDescription(description);
+    projectSettings->setProjectDir(path);
+    projectSettings->setPimoThing(projectThing);
 
     // connect the nepomuk data for the settingsfile to the pimo:.project
     Nepomuk::File settingsFile = Nepomuk::File(KUrl(iniFile));
+
+    //DEBUG the next 2 steps are necessary beacuse nepomuk did not fetch the newly created ini file at this point
     QString settingsFileName = QLatin1String("file://") + iniFile;
     settingsFile.setProperty(Nepomuk::Vocabulary::NIE::url(), settingsFileName);
-    pimoLibrary.addGroundingOccurrence(settingsFile);
 
-    // now everything is created, test the settings by loading the .ini file and all parts with it again
-    loadLibrary(iniFile);
+    projectThing.addGroundingOccurrence(settingsFile);
+
+    return projectThing;
 }
 
-void Library::loadLibrary(const QString & projectFile)
+void Library::loadLibrary(const QString & projectFile, LibraryType type)
 {
-    KConfig libconfig( projectFile, KConfig::SimpleConfig );
-    KConfigGroup libGroup( &libconfig, "Conquirere" );
-    m_description = libGroup.readEntry(QLatin1String("description"), QString());
-    m_name = libGroup.readEntry(QLatin1String("name"), QString());
-    m_libraryDir = libGroup.readEntry(QLatin1String("libraryDir"), QString());
+    Q_ASSERT_X( !m_tagCloud, "loadLibrary", "tagCloud exist already ... means we loaded this library beforehand already");
 
-    m_pimoLibrary = Nepomuk::Thing(libGroup.readEntry(QLatin1String("pimoProject"), QString()));
+    m_libraryType = type;
+    m_projectSettings->loadSettings(projectFile);
 
-    // the nonvalid case can happen if we altered the database somehow
-    if(!m_pimoLibrary.isValid()) {
-        KSharedConfigPtr config = KSharedConfig::openConfig("conquirererc");
-        KConfigGroup generalGroup = config->group("General");
-        QString NepomukCollection = generalGroup.readEntry( "NepomukCollection", QString() );
+    m_dirWatcher = new DirWatcher();
+    m_dirWatcher->setLibrary(this);
 
-        Nepomuk::Resource conquiereCollections = Nepomuk::Resource(NepomukCollection);
-        conquiereCollections.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_pimoLibrary);
-    }
-
-    m_libraryType = Library_Project;
-
-    m_libraryTag = Nepomuk::Tag( m_name );
-    m_libraryTag.setLabel(m_name);
-
-    m_backgroundSync = new BackgroundSync;
-
-    // read in all sync details
-    KConfigGroup syncGroup( &libconfig, "SyncProvider" );
-    QStringList providerList = syncGroup.groupList();
-    foreach(const QString &providerUUid, providerList) {
-        NBibSync* syncProvider = 0;
-        KConfigGroup providerGroup( &syncGroup, providerUUid );
-
-        ProviderSyncDetails psd;
-
-        QString providerType = providerGroup.readEntry(QLatin1String("provider"), QString());
-        if(providerType == QLatin1String("zotero")) {
-            psd.providerInfo = new ZoteroInfo;
-            syncProvider = new SyncZoteroNepomuk;
-        }
-        else if(providerType == QLatin1String("kbibtexfile")) {
-            psd.providerInfo = new KBTFileInfo;
-        }
-        else {
-            qWarning() << "Library::loadLibrary unknown sync provider found >>" << providerType;
-            continue;
-        }
-
-        psd.userName = providerGroup.readEntry(QLatin1String("name"), QString());
-        psd.pwd = providerGroup.readEntry(QLatin1String("pwd"), QString());
-        psd.url = providerGroup.readEntry(QLatin1String("url"), QString());
-        psd.collection = providerGroup.readEntry(QLatin1String("collection"), QString());
-
-        QString syncMode = providerGroup.readEntry(QLatin1String("syncMode"), QString());
-        psd.syncMode = SyncMode ( syncMode.toInt() );
-
-        QString mergeStrategy = providerGroup.readEntry(QLatin1String("mergeStrategy"), QString());
-        psd.mergeMode = MergeStrategy ( mergeStrategy.toInt() );
-
-        QString askBeforeDeletion = providerGroup.readEntry(QLatin1String("askBeforeDeletion"), QString());
-        if(askBeforeDeletion == QLatin1String("false"))
-            psd.askBeforeDeletion = false;
-        else
-            psd.askBeforeDeletion = true;
-
-        QString importAttachments = providerGroup.readEntry(QLatin1String("importAttachments"), QString());
-        if(importAttachments == QLatin1String("false"))
-            psd.importAttachments = false;
-        else
-            psd.importAttachments = true;
-
-        QString exportAttachments = providerGroup.readEntry(QLatin1String("exportAttachments"), QString());
-        if(exportAttachments == QLatin1String("false"))
-            psd.exportAttachments = false;
-        else
-            psd.exportAttachments = true;
-
-        QString akonadiContactsUUid = providerGroup.readEntry(QLatin1String("akonadiContactsUUid"), QString());
-        psd.akonadiContactsUUid = akonadiContactsUUid.toInt();
-
-        QString akonadiEventsUUid = providerGroup.readEntry(QLatin1String("akonadiEventsUUid"), QString());
-        psd.akonadiEventsUUid = akonadiEventsUUid.toInt();
-
-        syncProvider->setProviderDetails(psd);
-
-        m_backgroundSync->addSyncProvider(syncProvider);
-    }
-
-    if(!m_libraryDir.isEmpty()) {
-        m_dirWatcher = new DirWatcher();
-        m_dirWatcher->setLibrary(this);
-    }
+    m_tagCloud = new TagCloud;
+    m_initialImportFinished = 0;
+    m_tagCloud->pauseUpdates(true);
 
     setupModels();
+}
+
+void Library::loadSystemLibrary()
+{
+    QString inipath = KStandardDirs::locateLocal("appdata", QLatin1String("system"));
+    QString iniFile = inipath + QLatin1String("/system_library.ini");
+
+    QFileInfo fi(iniFile);
+    if(!fi.exists()) {
+        kDebug() << "System ini file not found. Create a default one";
+        m_projectSettings->setSettingsFile(iniFile);
+        m_projectSettings->setName(i18nc("name of the system library","System Library"));
+    }
+
+    loadLibrary(iniFile, Library_System);
 }
 
 void Library::loadLibrary(const Nepomuk::Thing & pimoProject)
@@ -451,6 +190,16 @@ void Library::loadLibrary(const Nepomuk::Thing & pimoProject)
     loadLibrary(iniFile.url().pathOrUrl());
 }
 
+ProjectSettings * Library::settings()
+{
+    return m_projectSettings;
+}
+
+LibraryType Library::libraryType() const
+{
+    return m_libraryType;
+}
+
 void Library::deleteLibrary()
 {
     // remove the library from the conquiere pimo:thing
@@ -458,10 +207,11 @@ void Library::deleteLibrary()
     KConfigGroup generalGroup = config->group("General");
     QString NepomukCollection = generalGroup.readEntry( "NepomukCollection", QString() );
     Nepomuk::Resource conquiereCollections = Nepomuk::Resource(NepomukCollection);
-    conquiereCollections.removeProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_pimoLibrary);
+    conquiereCollections.removeProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectSettings->projectThing());
 
-    QList<Nepomuk::Resource> gos = m_pimoLibrary.groundingOccurrences();
+    QList<Nepomuk::Resource> gos = m_projectSettings->projectThing().groundingOccurrences();
 
+    // delete all groundOccurences, in our case this should be only the .ini files
     foreach(Nepomuk::Resource r, gos) {
         Nepomuk::File iniFile = r;
         KIO::DeleteJob *dj = KIO::del(iniFile.url(), KIO::HideProgressInfo);
@@ -470,18 +220,9 @@ void Library::deleteLibrary()
         r.remove();
     }
 
-    m_pimoLibrary.remove();
-    m_libraryTag.remove();
-}
-
-Nepomuk::Resource Library::pimoLibrary() const
-{
-    return m_pimoLibrary;
-}
-
-Nepomuk::Resource Library::pimoTag() const
-{
-    return m_libraryTag;
+    // remove nepomuk resources for it
+    m_projectSettings->projectThing().remove();
+    m_projectSettings->projectTag().remove();
 }
 
 void Library::addResource(Nepomuk::Resource & res)
@@ -493,9 +234,19 @@ void Library::addResource(Nepomuk::Resource & res)
 
     Nepomuk::Resource relatesTo = res.property( Nepomuk::Vocabulary::PIMO::isRelated()).toResource();
 
-    if ( relatesTo != m_pimoLibrary) {
-        res.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_pimoLibrary);
+    if ( relatesTo != m_projectSettings->projectThing()) {
+        res.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectSettings->projectThing());
     }
+}
+
+void Library::removeResource(Nepomuk::Resource & res)
+{
+    if(m_libraryType == Library_System) {
+        qWarning() << "can't remove resources from system library";
+        return;
+    }
+
+    res.removeProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectSettings->projectThing());
 }
 
 void Library::updateCacheData()

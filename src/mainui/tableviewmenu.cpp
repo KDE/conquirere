@@ -18,6 +18,7 @@
 #include "tableviewmenu.h"
 
 #include "core/library.h"
+#include "core/projectsettings.h"
 #include "mainwindow.h"
 
 #include "nbibio/pipe/bibtextoclipboardpipe.h"
@@ -172,8 +173,8 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
 
     if(openLibList.size() > 0) {
         foreach(Library *l, openLibList) {
-            QAction *a = new QAction(KIcon(QLatin1String("conquirere")), l->name(), this);
-            a->setData(l->pimoLibrary().resourceUri());
+            QAction *a = new QAction(KIcon(QLatin1String("conquirere")), l->settings()->name(), this);
+            a->setData(l->settings()->projectThing().resourceUri());
             actionCollection.append(a);
             connect(a, SIGNAL(triggered(bool)),this, SLOT(addSelectedToProject()));
             addToProject.addAction(a);

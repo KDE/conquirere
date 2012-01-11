@@ -29,6 +29,7 @@
 
 #include "mainui/mainwindow.h"
 #include "core/library.h"
+#include "core/projectsettings.h"
 #include "../resourcetablewidget.h"
 #include "nbibio/pipe/nepomuktobibtexpipe.h"
 
@@ -166,8 +167,8 @@ void SidebarWidget::addToProject()
     }
     else {
         foreach(Library *l, m_parent->openLibraries()) {
-            QAction *a = new QAction(l->name(), this);
-            a->setData(l->pimoLibrary().resourceUri());
+            QAction *a = new QAction(l->settings()->name(), this);
+            a->setData(l->settings()->projectThing().resourceUri());
             connect(a, SIGNAL(triggered(bool)),this, SLOT(addToSelectedProject()));
             addToProjects.addAction(a);
             actionCollection.append(a);

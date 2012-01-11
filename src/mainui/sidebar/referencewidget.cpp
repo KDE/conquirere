@@ -19,6 +19,7 @@
 #include "ui_referencewidget.h"
 
 #include "core/library.h"
+#include "core/projectsettings.h"
 #include "propertywidgets/stringedit.h"
 #include "propertywidgets/contactedit.h"
 #include "publicationwidget.h"
@@ -200,7 +201,7 @@ void ReferenceWidget::newButtonClicked()
 
     if(library()->libraryType() == Library_Project) {
         //relate the ref to the project
-        newReference.setProperty(Nepomuk::Vocabulary::PIMO::isRelated() , library()->pimoLibrary());
+        newReference.setProperty(Nepomuk::Vocabulary::PIMO::isRelated() , library()->settings()->projectThing());
     }
 
     newReference.setProperty(Nepomuk::Vocabulary::NBIB::citeKey(), i18n("new reference"));

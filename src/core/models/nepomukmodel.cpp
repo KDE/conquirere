@@ -17,7 +17,8 @@
 
 #include "nepomukmodel.h"
 
-#include "library.h"
+#include "../library.h"
+#include "../projectsettings.h"
 
 #include <KDE/KStandardDirs>
 
@@ -127,7 +128,7 @@ void NepomukModel::stopFetchData()
 
 void NepomukModel::saveCache()
 {
-    QString cacheName = QString("%1_%2").arg(m_library->name()).arg(id());
+    QString cacheName = QString("%1_%2").arg(m_library->settings()->name()).arg(id());
     QString cachePath = KStandardDirs::locateLocal("appdata", cacheName);
 
     qDebug() << "save modelcache" << cachePath;
@@ -156,7 +157,7 @@ void NepomukModel::saveCache()
 
 void NepomukModel::loadCache()
 {
-    QString cacheName = QString("%1_%2").arg(m_library->name()).arg(id());
+    QString cacheName = QString("%1_%2").arg(m_library->settings()->name()).arg(id());
     QString cachePath = KStandardDirs::locateLocal("appdata", cacheName);
 
     qDebug() << "load modelcache" << cachePath;

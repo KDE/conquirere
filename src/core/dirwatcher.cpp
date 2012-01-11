@@ -18,6 +18,7 @@
 #include "dirwatcher.h"
 
 #include "library.h"
+#include "projectsettings.h"
 
 #include <KDE/KDirLister>
 
@@ -28,9 +29,9 @@
 #include <QDBusInterface>
 
 DirWatcher::DirWatcher(QObject *parent)
-    : QObject(parent)
-    , m_library(0)
-    , m_kdl(0)
+: QObject(parent)
+, m_library(0)
+, m_kdl(0)
 {
     m_nepomukDBus = new QDBusInterface( "org.kde.nepomuk.services.nepomukfileindexer", "/nepomukfileindexer" );
 }
@@ -51,7 +52,15 @@ void DirWatcher::setLibrary(Library *lib)
     connect(m_kdl, SIGNAL(itemsAdded(KUrl,KFileItemList)), this, SLOT(itemsAdded(KUrl,KFileItemList)));
     connect(m_kdl, SIGNAL(itemsDeleted(KFileItemList)), this, SLOT(itemsDeleted(KFileItemList)));
 
-    m_kdl->openUrl(KUrl(m_library->libraryDocumentDir()));
+    changeListenDir(m_library->settings()->projectDir() );
+}
+
+void DirWatcher::changeListenDir(const QString &dir)
+{
+    // do not listen for system libraries, we do not conect anything, we have all
+    if(!dir.isEmpty()) {
+        m_kdl->openUrl( KUrl(dir) );
+    }
 }
 
 void DirWatcher::itemsAdded (const KUrl &directoryUrl, const KFileItemList &items)
@@ -59,14 +68,14 @@ void DirWatcher::itemsAdded (const KUrl &directoryUrl, const KFileItemList &item
     Q_UNUSED(directoryUrl);
 
     foreach(const KFileItem &file, items) {
+        if(file.isDir())
+            continue;
+
         Nepomuk::File addedFile(file.url());
-        if(!addedFile.isValid()) {
-            qDebug() << file << "is not a valid nepomuk resource";
-        }
 
         QList<Nepomuk::Resource> relatesTo = addedFile.property( Nepomuk::Vocabulary::PIMO::isRelated()).toResourceList();
 
-        if(!relatesTo.contains(m_library->pimoLibrary())) {
+        if(!relatesTo.contains(m_library->settings()->projectThing())) {
             QString filePath = file.url().url().remove(QLatin1String("file://"));
             m_nepomukDBus->call("org.kde.nepomuk.FileIndexer.indexFile", filePath);
 

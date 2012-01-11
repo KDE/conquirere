@@ -95,7 +95,7 @@ void LoadProject::showExternalCollection(const QString &newurl)
 
 void LoadProject::accept()
 {
-    m_loadLibrary = new Library(Library_Project);
+    m_loadLibrary = new Library();
     if(!ui->kurlrequester->url().isEmpty()) {
         m_loadLibrary->loadLibrary(ui->kurlrequester->url().path());
     }

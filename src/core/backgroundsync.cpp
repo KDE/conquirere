@@ -18,6 +18,9 @@
 #include "backgroundsync.h"
 
 #include "nbibio/nbibsync.h"
+#include "nbibio/synczoteronepomuk.h"
+#include "nbibio/synckbibtexfile.h"
+
 BackgroundSync::BackgroundSync(QObject *parent)
     : QObject(parent)
 {
@@ -26,6 +29,30 @@ BackgroundSync::BackgroundSync(QObject *parent)
 BackgroundSync::~BackgroundSync()
 {
     qDeleteAll(m_provider);
+}
+
+void BackgroundSync::createSyncProvider(QList<ProviderSyncDetails> psdList)
+{
+    /*
+    foreach(const ProviderSyncDetails &psd, psdList) {
+        NBibSync* syncProvider = 0;
+
+        if(psd.providerInfo->providerId() == QLatin1String("zotero")) {
+            syncProvider = new SyncZoteroNepomuk;
+        }
+        else if(psd.providerInfo->providerId() == QLatin1String("kbibtexfile")) {
+            syncProvider= new SyncKBibTeXFile;
+        }
+        else {
+            qWarning() << "Library::loadLibrary unknown sync provider found >>" << psd.providerInfo->providerId();
+            continue;
+        }
+
+        syncProvider->setProviderDetails(psd);
+
+        addSyncProvider(syncProvider);
+    }
+    */
 }
 
 void BackgroundSync::addSyncProvider(NBibSync* provider)

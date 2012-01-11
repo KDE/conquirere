@@ -19,6 +19,7 @@
 #include "ui_librarywidget.h"
 
 #include "core/library.h"
+#include "core/projectsettings.h"
 #include "core/models/nepomukmodel.h"
 
 #include "qlibrarytreewidgetitem.h"
@@ -56,12 +57,12 @@ void LibraryWidget::addLibrary(Library *p)
     root = new QLibraryTreeWidgetItem();
     root->setData(0,Role_Library,p->libraryType());
     root->setData(0,Role_ResourceType,Resource_Library);
-    root->setData(0,Role_Project,p->name());
+    root->setData(0,Role_Project,p->settings()->name());
     root->setIcon(0, KIcon(QLatin1String("document-multiple")));
     ui->treeWidget->addTopLevelItem(root);
     m_items.append(root);
 
-    root->setText(0, p->name());
+    root->setText(0, p->settings()->name());
     root->setExpanded(true);
 
     setupLibraryTree(root, p);
@@ -77,7 +78,7 @@ void LibraryWidget::closeLibrary(Library *p)
         QTreeWidgetItem *root = ui->treeWidget->topLevelItem(i);
 
         QString openProject = (root->data(0,Role_Project).toString());
-        if(openProject == p->name()) {
+        if(openProject == p->settings()->name()) {
             ui->treeWidget->takeTopLevelItem(i);
             break;
         }
@@ -98,7 +99,7 @@ void LibraryWidget::selectionchanged()
         Library *selectedLibrary;
         selectedLibrary = 0;
         foreach(Library *p, m_openLibraries) {
-            if(p->name() == ui->treeWidget->currentItem()->data(0,Role_Project).toString()) {
+            if(p->settings()->name() == ui->treeWidget->currentItem()->data(0,Role_Project).toString()) {
                 selectedLibrary = p;
                 break;
             }

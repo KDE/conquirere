@@ -40,6 +40,7 @@ public:
     explicit BackgroundSync(QObject *parent = 0);
     ~BackgroundSync();
 
+    void createSyncProvider(QList<ProviderSyncDetails> psdList);
     void addSyncProvider(NBibSync* provider);
     void removeSyncProvider(NBibSync* provider);
     QList<NBibSync*> syncProvider() const;

@@ -19,6 +19,7 @@
 #include "ui_welcomewidget.h"
 
 #include "../core/library.h"
+#include "../core/projectsettings.h"
 #include "../core/tagcloud.h"
 #include "../core/models/nepomukmodel.h"
 
@@ -181,8 +182,8 @@ void WelcomeWidget::generateHtml()
         libraryIntro = i18n("The system library contains all known documents, publications, notes and so on that are stored in the Nepomuk Storage");
     }
     else {
-        libraryName = m_library->name();
-        libraryIntro = m_library->description();
+        libraryName = m_library->settings()->name();
+        libraryIntro = m_library->settings()->description();
         libraryIntro.replace(QLatin1String("\n"),QLatin1String("<br>"));
     }
 

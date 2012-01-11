@@ -17,6 +17,7 @@
 
 #include "publicationquery.h"
 #include "../library.h"
+#include "../projectsettings.h"
 
 #include "../../globals.h"
 
@@ -49,9 +50,9 @@ void PublicationQuery::startFetchData()
     if(m_library->libraryType() == Library_Project) {
         Nepomuk::Query::OrTerm orTerm;
         orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
-                                                           Nepomuk::Query::ResourceTerm( m_library->pimoTag() )));
+                                                           Nepomuk::Query::ResourceTerm( m_library->settings()->projectTag() )));
         orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(),
-                                                            Nepomuk::Query::ResourceTerm(m_library->pimoLibrary()) ) );
+                                                           Nepomuk::Query::ResourceTerm(m_library->settings()->projectThing() )));
         andTerm.addSubTerm(orTerm);
     }
 

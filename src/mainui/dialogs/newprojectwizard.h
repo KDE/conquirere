@@ -18,7 +18,7 @@
 #ifndef NEWPROJECTWIZARD_H
 #define NEWPROJECTWIZARD_H
 
-#include <QWizard>
+#include <QtGui/QWizard>
 #include "onlinestorage/providersettings.h"
 
 namespace Ui {
@@ -86,6 +86,8 @@ class SyncPage : public QWizardPage
 
 public:
     SyncPage(QWidget *parent = 0);
+
+    void initializePage();
 
 private slots:
     bool isComplete() const;

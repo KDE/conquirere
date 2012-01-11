@@ -19,6 +19,7 @@
 #include "ui_listpublicationsdialog.h"
 
 #include "core/library.h"
+#include "core/projectsettings.h"
 #include "core/models/nepomukmodel.h"
 #include "core/models/publicationfiltermodel.h"
 #include "core/models/seriesfiltermodel.h"
@@ -91,14 +92,14 @@ void ListPublicationsDialog::setSystemLibrary(Library *p)
     m_systemLibrary = p;
     showLibraryModel(m_systemLibrary);
 
-    ui->libraryComboBox->addItem(m_systemLibrary->name());
+    ui->libraryComboBox->addItem(m_systemLibrary->settings()->name());
 }
 
 void ListPublicationsDialog::setOpenLibraries(QList<Library *> openLibList)
 {
     m_openLibList = openLibList;
     foreach(Library *l, openLibList) {
-        ui->libraryComboBox->addItem(l->name());
+        ui->libraryComboBox->addItem(l->settings()->name());
     }
 }
 

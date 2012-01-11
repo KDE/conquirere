@@ -175,7 +175,10 @@ void DocumentPreview::showUrl(int index)
     KUrl urlInfo(url);
 
     KService::Ptr serivcePtr = KMimeTypeTrader::self()->preferredService(mimetype, QLatin1String("KParts/ReadOnlyPart"));
-    QString partsName = serivcePtr->library();
+
+    QString partsName;
+    if(!serivcePtr.isNull())
+        partsName = serivcePtr->library();
 
     if(m_lastPartsName == partsName) {
         if(m_part) {

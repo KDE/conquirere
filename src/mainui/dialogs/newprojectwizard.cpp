@@ -22,6 +22,7 @@
 #include "nbibio/synczoteronepomuk.h"
 
 #include "core/library.h"
+#include "core/projectsettings.h"
 
 #include "onlinestorage/storageinfo.h"
 
@@ -62,7 +63,7 @@ NewProjectWizard::~NewProjectWizard()
     delete ui;
 }
 
-Library *NewProjectWizard::newLibrary()
+Library * NewProjectWizard::newLibrary()
 {
     return customLibrary;
 }
@@ -70,33 +71,20 @@ Library *NewProjectWizard::newLibrary()
 void NewProjectWizard::done(int result)
 {
     if(result == QDialog::Accepted) {
-        customLibrary = new Library(Library_Project);
 
         QString path;
         if(sp->m_syncWithFolder->isChecked()) {
             path = sp->m_syncFolder->text() + QLatin1String("/") + gp->projectTitle->text();
         }
 
-        customLibrary->createLibrary(gp->projectTitle->text(),
-                                     gp->projectDescription->toPlainText(),
-                                     path);
+        Nepomuk::Thing newLibraryThing = Library::createLibrary(gp->projectTitle->text(),
+                                                                gp->projectDescription->toPlainText(),
+                                                                path);
 
+        customLibrary = new Library;
+        customLibrary->loadLibrary(newLibraryThing);
         foreach(const ProviderSyncDetails& psd, sp->m_psdList) {
-            NBibSync *syncProvider = 0;
-            if(psd.providerInfo->providerId() == QLatin1String("zotero")) {
-                syncProvider= new SyncZoteroNepomuk;
-            }
-            //else if(psd.providerInfo->providerId() == QLatin1String("kbibtexfile")) {
-            //    syncProvider= new SyncZoteroNepomuk;
-            //}
-            else {
-                qWarning() << "unknown providerId() for sync settings";
-                continue;
-            }
-
-            syncProvider->setProviderDetails(psd);
-
-            customLibrary->addSyncProvider(syncProvider);
+            customLibrary->settings()->setProviderSyncDetails(psd, QString());
         }
     }
 
@@ -214,6 +202,11 @@ SyncPage::SyncPage(QWidget *parent)
     setLayout(mainLayout);
 }
 
+void SyncPage::initializePage()
+{
+    updateFolderTextLabel(KGlobalSettings::documentPath());
+}
+
 bool SyncPage::isComplete() const
 {
     if(m_syncWithFolder->isChecked()) {
@@ -236,6 +229,7 @@ void SyncPage::updateFolderTextLabel(const QString &folder)
     }
     else {
         QString folderAndName= folder + QLatin1String("/") + field("projectName").toString();
+        folderAndName.replace(QLatin1String("//"), QLatin1String("/"));
         m_syncFolderText->setText(folderAndName);
     }
 }

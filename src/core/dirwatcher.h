@@ -36,6 +36,9 @@ public:
 
     void setLibrary(Library *lib);
 
+public slots:
+    void changeListenDir(const QString &dir);
+
 private slots:
     void itemsAdded (const KUrl &directoryUrl, const KFileItemList &items);
     void itemsDeleted (const KFileItemList &items);
