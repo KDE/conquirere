@@ -35,12 +35,9 @@ This allows to create a big semantic publication data and connect it with docume
 * KDE Pim libs
 * QJSON
 
-* KBibTex 0.4
+* KBibTex 0.4 revision 1047 and higher
 ** svn co svn://svn.gna.org/svn/kbibtex/trunk kbibtex
 
-recommend
-** atleast revision r1035 (while r1036 breaks the lib currently)
-** svn co -r 1035 svn://svn.gna.org/svn/kbibtex/trunk kbibtex
 
 #################################################################
 # install to the system
