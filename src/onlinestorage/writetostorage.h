@@ -67,24 +67,24 @@ signals:
       *
       * @p collections information about the changed collections
       */
-    void collectionsInfo(QList<CollectionInfo> collections);
+    void collectionsInfo(const QList<CollectionInfo> &collections);
 
     /**
       * This signal will be emitted if the processed data is ready
       *
-      * @p items the bibtex file containing the changed made to the server
+      * @p items the bibtex file containing the changes made to the server
       */
-    void itemsInfo(File items);
+    void itemsInfo(const File &items);
 
 public slots:
     void cancelUpload();
 
-    virtual void pushItems(File items, const QString &collection = QString()) = 0;
-    virtual void pushNewItems(File items, const QString &collection = QString()) = 0;
+    virtual void pushItems(const File &items, const QString &collection = QString()) = 0;
+    virtual void pushNewItems(const File &items, const QString &collection = QString()) = 0;
     virtual void updateItem(QSharedPointer<Element> item) = 0;
-    virtual void addItemsToCollection(QList<QString> ids, const QString &collection) = 0;
-    virtual void removeItemsFromCollection(QList<QString> ids, const QString &collection) = 0;
-    virtual void deleteItems(File items) = 0;
+    virtual void addItemsToCollection(const QList<QString> &ids, const QString &collection) = 0;
+    virtual void removeItemsFromCollection(const QList<QString> &ids, const QString &collection) = 0;
+    virtual void deleteItems(const File &items) = 0;
 
     virtual void createCollection(const CollectionInfo &ci) = 0;
     virtual void editCollection(const CollectionInfo &ci) = 0;
@@ -136,7 +136,8 @@ protected slots:
       * If changes to the bibtex entry need to be made based on the result of the reply you can get the information via
       * QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
       *
-      * The m_replies QMap holds any made reply and the Entry it caused or 0
+      * To get the Entry related to that request a call to serverReplyEntry() is necessary
+      * it retiurns a pointer to the right entry or 0
       */
     virtual void requestFinished() = 0;
 

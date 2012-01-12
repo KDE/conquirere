@@ -70,7 +70,7 @@ QNetworkReply *ReadFromStorage::reply() const
     return m_reply;
 }
 
-void ReadFromStorage::startRequest(QUrl url)
+void ReadFromStorage::startRequest(const QUrl &url)
 {
     m_reply = m_qnam.get(QNetworkRequest(url));
     connect(m_reply, SIGNAL(finished()),this, SLOT(requestFinished()));

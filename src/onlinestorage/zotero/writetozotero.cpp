@@ -25,7 +25,7 @@
 #include <QtNetwork/QNetworkReply>
 #include <QtCore/QXmlStreamReader>
 
-#include <QDebug>
+#include <KDE/KDebug>
 
 WriteToZotero::WriteToZotero(QObject *parent)
     : WriteToStorage(parent)
@@ -37,7 +37,7 @@ WriteToZotero::~WriteToZotero()
 {
 }
 
-void WriteToZotero::pushItems(File items, const QString &collection)
+void WriteToZotero::pushItems(const File &items, const QString &collection)
 {
     m_allRequestsSend = false;
     m_addToCollection = collection;
@@ -67,19 +67,16 @@ void WriteToZotero::pushItems(File items, const QString &collection)
         emit progress(m_progress);
     }
 
-    qDebug() << QLatin1String("WriteToZotero::pushItems | new:") <<  newItems.size() << QLatin1String("update:") <<  updatingItems.size();
+    kDebug() << QLatin1String("send new items:") <<  newItems.size() << QLatin1String(" send updated items:") <<  updatingItems.size();
 
     if(!newItems.isEmpty()) {
         pushNewItems(newItems, m_addToCollection);
-    }
-    else {
-        //emit itemsInfo(m_entriesAfterSync);
     }
 
     m_allRequestsSend = true;
 }
 
-void WriteToZotero::pushNewItems(File items, const QString &collection)
+void WriteToZotero::pushNewItems(const File &items, const QString &collection)
 {
     m_addToCollection = collection;
     //POST /users/1/items
@@ -127,7 +124,7 @@ void WriteToZotero::updateItem(QSharedPointer<Element> item)
     startRequest(request, writeJsonContent(itemFile, true), QNetworkAccessManager::PutOperation, entryPointer);
 }
 
-void WriteToZotero::addItemsToCollection(QList<QString> ids, const QString &collection )
+void WriteToZotero::addItemsToCollection(const QList<QString> &ids, const QString &collection )
 {
     //POST /users/1/collections/QRST9876/items
     //ABCD2345 BCDE3456 CDEF4567 DEFG5678
@@ -152,7 +149,7 @@ void WriteToZotero::addItemsToCollection(QList<QString> ids, const QString &coll
     startRequest(request, payload.toLatin1(), QNetworkAccessManager::PostOperation);
 }
 
-void WriteToZotero::removeItemsFromCollection(QList<QString> ids, const QString &collection )
+void WriteToZotero::removeItemsFromCollection(const QList<QString> &ids, const QString &collection )
 {
     //DELETE /users/1/collections/QRST9876/items/ABCD2345
 
@@ -171,7 +168,7 @@ void WriteToZotero::removeItemsFromCollection(QList<QString> ids, const QString 
     }
 }
 
-void WriteToZotero::deleteItems(File items)
+void WriteToZotero::deleteItems(const File &items)
 {
     //DELETE /users/1/items/ABCD2345
     //If-Match: "8e984e9b2a8fb560b0085b40f6c2c2b7"
@@ -262,7 +259,7 @@ void WriteToZotero::requestFinished()
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
     if(reply->error() != QNetworkReply::NoError) {
-        qDebug() << QLatin1String("error reply") <<  reply->error() << reply->errorString();
+        kDebug() << QLatin1String("QNetworkReply::Error") <<  reply->error() << reply->errorString();
 
         serverReplyFinished(reply);
         return;
@@ -331,7 +328,7 @@ void WriteToZotero::requestFinished()
     }
 }
 
-QByteArray WriteToZotero::writeJsonContent(File items, bool onlyUpdate)
+QByteArray WriteToZotero::writeJsonContent(const File &items, bool onlyUpdate)
 {
     QVariantMap jsonMap;
     QVariantList itemList;
@@ -532,9 +529,10 @@ QByteArray WriteToZotero::writeJsonContent(File items, bool onlyUpdate)
             itemList.append( createWebpageJson(entry) );
         }
         else {
-            if(itemList.isEmpty()) { // this else is thrown whene adoptToBibtex is on
-                                     // if we filled the itemList in this case, we ignore the return here
-                qWarning() << "unknwon bibtex entry type" <<  entry->type() << "can't create zotero json from it";
+             // this else is thrown when adoptToBibtex is on
+            // if we filled the itemList in this case, we ignore the return here
+            if(itemList.isEmpty()) {
+                kDebug() << "unknwon bibtex entry type" <<  entry->type() << "can't create zotero json from it";
 
                 QByteArray tmp;
                 return tmp;
@@ -687,7 +685,7 @@ QStringList WriteToZotero::creatorTypeForZoteroMapping(const QString &type)
 {
     QStringList creatorTypes;
 
-    // taken from https://api.zotero.org/itemTypeCreatorTypes?itemType=webpage
+    // taken from https://api.zotero.org/itemTypeCreatorTypes?itemType=webpage etc
 
     if(type.toLower() == QLatin1String("artwork")) {
         creatorTypes << QLatin1String("artist") <<  QLatin1String("contributor");

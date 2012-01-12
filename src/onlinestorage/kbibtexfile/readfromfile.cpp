@@ -24,11 +24,10 @@
 #include <kbibtex/fileimporterris.h>
 
 #include <KIO/NetAccess>
-#include <KDE/KMessageBox>
+#include <KDE/KDebug>
 
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
-#include <QDebug>
 
 ReadFromFile::ReadFromFile(QObject *parent)
     : ReadFromStorage(parent)
@@ -45,7 +44,7 @@ void ReadFromFile::fetchItems(const QString &collection)
 
         QFile bibFile(tmpFile);
         if (!bibFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            qDebug() << "can't open file" << m_psd.url;
+            kDebug() << "can't open file" << m_psd.url;
             return;
         }
 
@@ -65,7 +64,7 @@ void ReadFromFile::fetchItems(const QString &collection)
             importer = new FileImporterRIS;
         }
         else {
-            qWarning() << "unknown file extension" << extension << "can't read file";
+            kDebug() << "unknown file extension" << extension << "can't read file";
             return;
         }
 
@@ -78,8 +77,7 @@ void ReadFromFile::fetchItems(const QString &collection)
         KIO::NetAccess::removeTempFile(tmpFile);
     }
     else {
-        qDebug() << KIO::NetAccess::lastErrorString();
-        //KMessageBox::error(this, KIO::NetAccess::lastErrorString());
+        kDebug() << KIO::NetAccess::lastErrorString();
     }
 }
 

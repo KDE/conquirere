@@ -44,15 +44,14 @@ public:
 
 private slots:
     /**
-      * Called by the ReadFromZotero
+      * Called by the ReadFromFile
       */
-    void readSync(File serverFiles);
+    void readSync(const File &serverFiles);
 
     /**
-      * @todo merge newly created zotero items with local ones, all fields are the same but server version adds
-      *       zoteroKey, zoteroetag, zoteroupdated fields and has no citekey
+      * Called by WriteToFile
       */
-    void writeSync(File serverFiles);
+    void writeSync(const File &serverFiles);
 
     /**
       * fit the 0-100 % progress from the write action into the 50-100 % for the overall progress

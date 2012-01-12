@@ -20,7 +20,7 @@
 #include <kbibtex/entry.h>
 
 #include <QtNetwork/QNetworkReply>
-#include <QXmlStreamReader>
+#include <QtCore/QXmlStreamReader>
 #include <qjson/parser.h>
 
 #include <QDebug>
@@ -77,15 +77,21 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     m_zoteroToBibTeX["issueDate"] = QLatin1String("date");
 
     //creator type adoption
+    // translates original zotero types to author/editor
+    // if you change anything here you must chage WriteToZotero::bibtexCreatorZoteroMapping
     m_zoteroToBibTeX["artist"] = QLatin1String("author");
     m_zoteroToBibTeX["performer"] = QLatin1String("author");
+    m_zoteroToBibTeX["sponsor"] = QLatin1String("author");
     m_zoteroToBibTeX["programmer"] = QLatin1String("author");
     m_zoteroToBibTeX["director"] = QLatin1String("author");
+    m_zoteroToBibTeX["interviewee"] = QLatin1String("author");
     m_zoteroToBibTeX["cartographer"] = QLatin1String("author");
     m_zoteroToBibTeX["inventor"] = QLatin1String("author");
+    m_zoteroToBibTeX["podcaster"] = QLatin1String("author");
     m_zoteroToBibTeX["presenter"] = QLatin1String("author");
-    m_zoteroToBibTeX["sponsor"] = QLatin1String("author");
 
+    m_zoteroToBibTeX["contributor"] = QLatin1String("editor");
+    m_zoteroToBibTeX["composer"] = QLatin1String("editor");
 }
 
 void ReadFromZotero::fetchItems(const QString &collection)
@@ -269,7 +275,7 @@ void ReadFromZotero::readJsonContent(Entry *e, const QString &content)
     }
 }
 
-File ReadFromZotero::getFile()
+const File & ReadFromZotero::getFile()
 {
     return m_bibFile;
 }
@@ -281,7 +287,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
 
     QVariantMap result = parser.parse (content.toLatin1(), &ok).toMap();
     if (!ok) {
-        qFatal("ReadFromZotero::readJsonContent :: An error occurred during json parsing");
+        qFatal("ReadFromZotero::readJsonContentBibTeX :: An error occurred during json parsing");
         return;
     }
 
@@ -350,7 +356,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
 
         //##########################################################################
         //# parse creators, change some fields to author/editor if possible
-        //# all otherfields are left alone and inserted with their normal name (like creator type translator)
+        //# all other fields are left alone and inserted with their normal name (like creator type translator)
 
         else if(i.key() == QLatin1String("creators")) {
             foreach (const QVariant &author, i.value().toList()) {
@@ -391,7 +397,7 @@ void ReadFromZotero::readJsonContentOriginal(Entry *e, const QString &content)
 
     QVariantMap result = parser.parse (content.toLatin1(), &ok).toMap();
     if (!ok) {
-        qFatal("ReadFromZotero::readJsonContent :: An error occurred during json parsing");
+        qFatal("ReadFromZotero::readJsonContentOriginal :: An error occurred during json parsing");
         return;
     }
 

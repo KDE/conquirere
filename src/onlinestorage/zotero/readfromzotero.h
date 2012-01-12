@@ -55,7 +55,7 @@ public:
     CollectionInfo readCollectionEntry(QXmlStreamReader &xmlReader);
     Entry * readItemEntry(QXmlStreamReader &xmlReader);
     void readJsonContent(Entry *e, const QString &content);
-    File getFile();
+    const File &getFile();
 
 public slots:
     void fetchItems(const QString &collection = QString());
@@ -67,7 +67,16 @@ protected slots:
     void requestFinished();
 
 private:
+    /**
+      * Modifies the Entry @p e to hold all zotero keys/values as returned form zotero
+      */
     void readJsonContentOriginal(Entry *e, const QString &content);
+
+    /**
+      * Modifies the Entry @p e to hold all zotero keys/values adopted to the bibtex standard
+      *
+      * @see m_zoteroToBibTeX;
+      */
     void readJsonContentBibTeX(Entry *e, const QString &content);
 
     QList<CollectionInfo> m_cachedCollectionResult;

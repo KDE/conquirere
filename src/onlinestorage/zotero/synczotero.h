@@ -26,6 +26,9 @@ class WriteToZotero;
 /**
   * @brief sync bibtex file with zotero storage
   *
+  * @see WriteToZotero
+  * @see ReadFromZotero
+  *
   * @author Jörg Ehrichs <joerg.ehrichs@gmx.de>
   */
 class SyncZotero : public SyncStorage
@@ -44,13 +47,13 @@ private slots:
     /**
       * Called by the ReadFromZotero
       */
-    void readSync(File serverFiles);
+    void readSync(const File &serverFiles);
 
     /**
       * @todo merge newly created zotero items with local ones, all fields are the same but server version adds
       *       zoteroKey, zoteroetag, zoteroupdated fields and has no citekey
       */
-    void writeSync(File serverFiles);
+    void writeSync(const File &serverFiles);
 
     /**
       * fit the 0-100 % progress from the write action into the 50-100 % for the overall progress

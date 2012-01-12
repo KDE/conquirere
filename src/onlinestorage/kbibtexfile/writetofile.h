@@ -23,6 +23,8 @@
 /**
   * @brief wrapper for the kbibtex FileExporters
   *
+  * Only usefull as part of the sync process.
+  *
   * @author Jörg Ehrichs <joerg.ehrichs@gmx.de>
   */
 class WriteToFile : public WriteToStorage
@@ -33,15 +35,38 @@ public:
     virtual ~WriteToFile();
 
 public slots:
-    void pushItems(File items, const QString &collection = QString());
-    void pushNewItems(File items, const QString &collection = QString());
-    void updateItem(QSharedPointer<Element> item);
-    void addItemsToCollection(QList<QString> ids, const QString &collection );
-    void removeItemsFromCollection(QList<QString> ids, const QString &collection );
-    void deleteItems(File items);
+    void pushItems(const File &items, const QString &collection = QString());
+    void pushNewItems(const File &items, const QString &collection = QString());
 
+    /**
+      * Not used currently, use @c pushItems() instead to update everything
+      */
+    void updateItem(QSharedPointer<Element> item);
+
+    /**
+      * collections in files are not supported
+      */
+    void addItemsToCollection(const QList<QString> &ids, const QString &collection );
+
+    /**
+      * collections in files are not supported
+      */
+    void removeItemsFromCollection(const QList<QString> &ids, const QString &collection );
+    void deleteItems(const File &items);
+
+    /**
+      * collections in files are not supported
+      */
     void createCollection(const CollectionInfo &ci);
+
+    /**
+      * collections in files are not supported
+      */
     void editCollection(const CollectionInfo &ci);
+
+    /**
+      * collections in files are not supported
+      */
     void deleteCollection(const CollectionInfo &ci);
 
 protected slots:
@@ -51,7 +76,9 @@ private:
     /**
       * @bug use Kio to export file to network space
       */
-    void exportFile(File items);
+    void exportFile(const File &items);
+
+    File emptyFile;
 };
 
 #endif // WRITETOFILE_H

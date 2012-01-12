@@ -65,7 +65,7 @@ signals:
       *
       * @p collections information about all available collections
       */
-    void collectionsInfo(QList<CollectionInfo> collections);
+    void collectionsInfo(const QList<CollectionInfo> &collections);
 
     /**
       * This signal will be emitted if the processed data is ready
@@ -73,7 +73,7 @@ signals:
       * @p items the bibtex files containing all available bibtex items
       *          the result should be merged with the current entries
       */
-    void itemsInfo(File items);
+    void itemsInfo(const File &items);
 
 public slots:
     void cancelDownload();
@@ -89,7 +89,7 @@ protected:
       *
       * @p url the url to get the data from
       */
-    void startRequest(QUrl url);
+    void startRequest(const QUrl &url);
 
     /**
       * sets the current request type

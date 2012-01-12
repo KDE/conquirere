@@ -20,8 +20,6 @@
 
 #include "../writetostorage.h"
 
-//class Person;
-
 /**
   * @brief sync bibtex items with the zotero online storage
   *
@@ -47,12 +45,12 @@ public:
     virtual ~WriteToZotero();
 
 public slots:
-    void pushItems(File items, const QString &collection = QString());
-    void pushNewItems(File items, const QString &collection = QString());
+    void pushItems(const File &items, const QString &collection = QString());
+    void pushNewItems(const File &items, const QString &collection = QString());
     void updateItem(QSharedPointer<Element> item);
-    void addItemsToCollection(QList<QString> ids, const QString &collection );
-    void removeItemsFromCollection(QList<QString> ids, const QString &collection );
-    void deleteItems(File items);
+    void addItemsToCollection(const QList<QString> &ids, const QString &collection );
+    void removeItemsFromCollection(const QList<QString> &ids, const QString &collection );
+    void deleteItems(const File &items);
 
     void createCollection(const CollectionInfo &ci);
     void editCollection(const CollectionInfo &ci);
@@ -68,14 +66,45 @@ private:
     qreal m_progress;
     QString m_addToCollection;
 
-    QByteArray writeJsonContent(File items, bool onlyUpdate = false);
+    QByteArray writeJsonContent(const File &items, bool onlyUpdate = false);
     QByteArray writeJsonContent(const CollectionInfo &collection);
 
+    /**
+      * Creates the right creator VariantList for the zotero upload
+      *
+      * Each bibtex field that holds a "person" value is transformed to the right
+      * entry for zotero. This works for the real perosn (author/editor) and other fields
+      * like translator and such
+      */
     QVariantList createCreatorsJson(Entry *e, const QString &type);
+
+    /**
+      * Creates the list of valid contributor entries from zotero
+      *
+      * This wa we know all the bibtex keys @c createCreatorsJson() has to look for
+      *
+      * @see https://api.zotero.org/itemTypeCreatorTypes?itemType=XXX where XX can be webpage, book, etc
+      */
     QStringList creatorTypeForZoteroMapping(const QString &type);
+
+    /**
+      * Handles what creator type from Zotero was renamed to fit into the author / editor scheme of KBibTeX
+      *
+      * Because not all creators for a zotero entry have author/editor but sometime inventor and such things
+      * we map them to author/editor to get a more "standard compliant" result.
+      *
+      * Here we map them back and tell which original zotero entry is the bibtexentry author (first entry)
+      * and bibtex entry editor (2nd entry)
+      */
     QStringList bibtexCreatorZoteroMapping(const QString &type);
+
+    /**
+      * Creates zotero "keywords" from the bibtex entry keyword and tag
+      */
     QVariantList createTagsJson(Entry *e);
 
+    // everything below is responsible for mapping the bibtex keys back to what zotero expects
+    // this takes care of the correct remapping if adoptToBibTeX is true
     QVariantMap createArtworkJson(Entry *e);
     QVariantMap createAudioRecordingJson(Entry *e);
     QVariantMap createBillJson(Entry *e);
@@ -123,9 +152,7 @@ private:
      * @return A Person object containing the name
      * @see Person
      */
-    //static Person *splitName(const QString& name);
     void splitPersonList(const QString& name, QStringList &resultList);
-    //static CommaContainment splitName(const QString& name, QStringList& segments);
 };
 
 #endif // WRITETOZOTERO_H

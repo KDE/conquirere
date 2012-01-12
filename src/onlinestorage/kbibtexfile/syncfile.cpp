@@ -40,11 +40,11 @@ void SyncFile::syncWithStorage(File *bibfile, const QString &collection)
 {
 }
 
-void SyncFile::readSync(File serverFiles)
+void SyncFile::readSync(const File &serverFiles)
 {
 }
 
-void SyncFile::writeSync(File serverFiles)
+void SyncFile::writeSync(const File &serverFiles)
 {
 
 }

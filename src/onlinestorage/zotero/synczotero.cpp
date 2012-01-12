@@ -28,8 +28,7 @@
 #include <KDE/KDialog>
 #include <KDE/KMessageBox>
 #include <KDE/KLocale>
-
-#include <QDebug>
+#include <KDE/KDebug>
 
 SyncZotero::SyncZotero(QObject *parent)
     : SyncStorage(parent)
@@ -53,7 +52,6 @@ void SyncZotero::syncWithStorage(File *bibfile, const QString &collection)
     emit progress(0);
 
     m_systemFiles = bibfile;
-    qDebug() << "SyncZotero::syncWithStorage || entries" << m_systemFiles->size();
 
     //lets start by retrieving all items from the server and merge them with the current files
     m_rfz = new ReadFromZotero;
@@ -63,10 +61,10 @@ void SyncZotero::syncWithStorage(File *bibfile, const QString &collection)
     m_rfz->fetchItems(m_addToCollection);
 }
 
-void SyncZotero::readSync(File serverFiles)
+void SyncZotero::readSync(const File &serverFiles)
 {
     emit progress(30);
-    qDebug() << "SyncZotero::itemsFromServer || entries" << m_systemFiles->size() << " + new" << serverFiles.size();
+    kDebug() << "Items retrieved from zotero Server" << serverFiles.size();
 
     // now go through all retrieved serverFiles and see if we have to merge something
 
@@ -98,7 +96,7 @@ void SyncZotero::readSync(File serverFiles)
                 // check if the entry changed on the server
                 QString checkZoteroEtag = PlainTextValue::text(checkEntry->value(QLatin1String("zoteroetag")));
                 if(zoteroEtag == checkZoteroEtag ) {
-                    // item did not change, ignore it
+                    // item did not change on the server, ignore it
                     addEntry = false;
                 }
 
@@ -107,6 +105,7 @@ void SyncZotero::readSync(File serverFiles)
         }
 
         // no element with the zotero key exist, this is a new element we want to add
+        // or element exist but changed on the server this case will be sorted out by findDuplicates later on
         if(addEntry) {
             m_systemFiles->append(element);
         }
@@ -125,7 +124,7 @@ void SyncZotero::readSync(File serverFiles)
 
         if(!checkZoteroKey.isEmpty() && !updatedKeys.contains(checkZoteroKey)) {
             toBeDeleted.append(element);
-            qDebug() << "item to be deleted " << checkZoteroKey;
+            kDebug() << "item to be deleted " << checkZoteroKey;
         }
     }
 
@@ -174,7 +173,7 @@ void SyncZotero::readSync(File serverFiles)
     QList<EntryClique*> cliques;
     fd.findDuplicateEntries(m_systemFiles, cliques);
 
-    qDebug() << "duplicates" << cliques.size() << "of entries" << m_systemFiles->size() << "ask user what he wants to do with it";
+    kDebug() << "duplicates" << cliques.size() << "of entries" << m_systemFiles->size() << "ask user what he wants to do with it";
 
     if(cliques.size() > 0) {
 
@@ -209,15 +208,14 @@ void SyncZotero::readSync(File serverFiles)
     }
 }
 
-void SyncZotero::writeSync(File serverFiles)
+void SyncZotero::writeSync(const File &serverFiles)
 {
     // this function is called after all items are send to the server
     // items that where simply updated are handled by the WroteToZotero function directly
     // whats left are the newly created items
     // these are identical to some other entry but they have no "citekey" and the zoterotags added
 
-
-    qDebug() << "new entries we need to add a zoterokey to" << serverFiles.size();
+    kDebug() << "new entries we need to add a zoterokey to" << serverFiles.size();
 
 
     // now find the right entry again
@@ -273,7 +271,7 @@ void SyncZotero::writeSync(File serverFiles)
         }
     }
 
-    qDebug() << "entries after merge" << m_systemFiles->size();
+    kDebug() << "entries after merge" << m_systemFiles->size();
 
     emit progress(100);
     emit syncInProgress(false);

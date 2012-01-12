@@ -29,9 +29,12 @@
 #include <kbibtex/fileexporterxml.h>
 #include <kbibtex/fileexporterxslt.h>
 
+#include <KIO/NetAccess>
+#include <KDE/KTemporaryFile>
+#include <KDE/KDebug>
+
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
-#include <QDebug>
 
 WriteToFile::WriteToFile(QObject *parent)
     : WriteToStorage(parent)
@@ -43,14 +46,14 @@ WriteToFile::~WriteToFile()
 
 }
 
-void WriteToFile::pushItems(File items, const QString &collection)
+void WriteToFile::pushItems(const File &items, const QString &collection)
 {
     Q_UNUSED(collection);
 
     exportFile(items);
 }
 
-void WriteToFile::pushNewItems(File items, const QString &collection)
+void WriteToFile::pushNewItems(const File &items, const QString &collection)
 {
     Q_UNUSED(collection);
 
@@ -59,18 +62,21 @@ void WriteToFile::pushNewItems(File items, const QString &collection)
 
 void WriteToFile::updateItem(QSharedPointer<Element> item)
 {
-    qDebug() << "WriteToFile::updateItem npot implemented right now";
+    Q_UNUSED(item);
+
     // should read in current file and replace the entry with the citekey from "item"
     // and save it again
+    // for now ignore and use pushItems instead to update everything
 }
 
-void WriteToFile::exportFile(File items)
+void WriteToFile::exportFile(const File &items)
 {
     emit progress(0);
 
-    QFile bibFile(m_psd.url);
-    if (!bibFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qDebug() << "can't open file " << m_psd.url;
+    // first write output to temporary file
+    KTemporaryFile tmpFile;
+    if (!tmpFile.open()) {
+        kDebug() << "can't open file " << m_psd.url;
         return;
     }
 
@@ -82,66 +88,72 @@ void WriteToFile::exportFile(File items)
 
     if(extension == QLatin1String("bib")) {
         FileExporterBibTeX feb;
-        feb.save(&bibFile, &items, &errorLog);
+        feb.save(&tmpFile, &items, &errorLog);
     }
     else if(extension == QLatin1String("pdf")) {
         FileExporterPDF fepdf;
-        fepdf.save(&bibFile, &items, &errorLog);
+        fepdf.save(&tmpFile, &items, &errorLog);
     }
     else if(extension == QLatin1String("html")) {
         FileExporterBibTeX2HTML feb2html;
-        feb2html.save(&bibFile, &items, &errorLog);
+        feb2html.save(&tmpFile, &items, &errorLog);
     }
     else if(extension == QLatin1String("blg")) {
         FileExporterBLG feblg;
-        feblg.save(&bibFile, &items, &errorLog);
+        feblg.save(&tmpFile, &items, &errorLog);
     }
     else if(extension == QLatin1String("ps")) {
         FileExporterPS feps;
-        feps.save(&bibFile, &items, &errorLog);
+        feps.save(&tmpFile, &items, &errorLog);
     }
     else if(extension == QLatin1String("ris")) {
         FileExporterRIS feris;
-        feris.save(&bibFile, &items, &errorLog);
+        feris.save(&tmpFile, &items, &errorLog);
     }
     else if(extension == QLatin1String("rtf")) {
         FileExporterRTF fertf;
-        fertf.save(&bibFile, &items, &errorLog);
+        fertf.save(&tmpFile, &items, &errorLog);
     }
     else if(extension == QLatin1String("xml")) {
         FileExporterXML fexml;
-        fexml.save(&bibFile, &items, &errorLog);
+        fexml.save(&tmpFile, &items, &errorLog);
     }
     else if(extension == QLatin1String("xslt")) {
         FileExporterXSLT fexslt;
-        fexslt.save(&bibFile, &items, &errorLog);
+        fexslt.save(&tmpFile, &items, &errorLog);
     }
     else {
         qWarning() << "WriteToFile::exportFile # unknown file extension " << extension;
     }
 
-    emit progress(100);
+    // get tmp file name
+    QString tmpFileUrl = KGlobal::dirs()->findResource("tmp",tmpFile.fileName());
 
-    File emptyFile;
+    // upload to wherever we need it
+    if( !KIO::NetAccess::upload(tmpFileUrl, m_psd.url, 0) ) {
+        kDebug() << "upload" << tmpFileUrl << "to" << m_psd.url << "failed";
+    }
+
+    emit progress(100);
 
     emit itemsInfo(emptyFile);
 }
 
-void WriteToFile::addItemsToCollection(QList<QString> ids, const QString &collection )
+void WriteToFile::addItemsToCollection(const QList<QString> &ids, const QString &collection )
 {
     Q_UNUSED(ids);
     Q_UNUSED(collection);
     // collections in files are not supported
 }
 
-void WriteToFile::removeItemsFromCollection(QList<QString> ids, const QString &collection )
+void WriteToFile::removeItemsFromCollection(const QList<QString> &ids, const QString &collection )
 {
     Q_UNUSED(ids);
     Q_UNUSED(collection);
     // collections in files are not supported
 }
 
-void WriteToFile::deleteItems(File items)
+void WriteToFile::deleteItems(const File &items)
 {
 
 }
