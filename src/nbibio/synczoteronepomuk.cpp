@@ -93,17 +93,6 @@ void SyncZoteroNepomuk::startDownload()
 
 void SyncZoteroNepomuk::readDownloadSync(File zoteroData)
 {
-    //m_bibCache = m_rfz->getFile();
-    //#########################################################################################
-    QFile exportFile(QString("/home/joerg/zotero_download.bib"));
-    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        return;
-    }
-
-    FileExporterBibTeX feb;
-    feb.save(&exportFile, &zoteroData);
-    //#########################################################################################
-
     emit progressStatus(i18n("sync zotero data with local Nepomuk storage"));
     m_curStep++;
 
@@ -235,16 +224,6 @@ void SyncZoteroNepomuk::startUpload()
     m_ntnp->pipeExport(exportList);
     m_bibCache.clear();
     m_bibCache = m_ntnp->bibtexFile();
-
-    //#########################################################################################
-    QFile exportFile(QString("/home/joerg/zotero_upload.bib"));
-    if (!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        return;
-    }
-
-    FileExporterBibTeX feb;
-    feb.save(&exportFile, &m_bibCache);
-    //#########################################################################################
 
     // step 3 upload to zotero
     emit progressStatus(i18n("upload to Zotero"));
