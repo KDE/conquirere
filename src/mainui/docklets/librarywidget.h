@@ -45,6 +45,9 @@ signals:
     void newSelection(ResourceSelection selection, BibEntryType filter, Library *p);
     void showSearchResults();
 
+public slots:
+    void closeLibrary(Library *p);
+
 private slots:
     void selectionchanged();
     void listContextMenu(const QPoint & pos);
@@ -53,7 +56,6 @@ private slots:
     void importFromFile();
     void openSettings();
     void closeProject();
-    void closeLibrary(Library *p);
     void deleteProject();
 
 private:

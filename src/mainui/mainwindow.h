@@ -53,7 +53,6 @@ public slots:
     void loadLibrary();
     void openLibrary(Library *l);
     void deleteLibrarySelection();
-    void deleteLibrary();
     void closeLibrarySelection();
     void closeLibrary(Library *l);
 

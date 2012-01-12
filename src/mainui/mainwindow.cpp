@@ -27,6 +27,7 @@
 #include "sidebar/sidebarwidget.h"
 #include "dialogs/newprojectwizard.h"
 #include "dialogs/loadproject.h"
+#include "dialogs/selectopenproject.h"
 #include "docklets/librarywidget.h"
 #include "docklets/documentpreview.h"
 #include "docklets/searchwidget.h"
@@ -187,24 +188,62 @@ LibraryWidget *MainWindow::libraryWidget()
 
 void MainWindow::deleteLibrarySelection()
 {
+    QList<Library *> libList = openLibraries();
+    Library *selectedLib = 0;
 
-}
+    if(libList.size() > 1) {
+        SelectOpenProject sop;
+        sop.setActionText(i18n("Which project should be deleted?"));
+        sop.setProjectList(libList);
 
-void MainWindow::deleteLibrary()
-{
-    int ret = KMessageBox::warningYesNo(this,
-                                        QLatin1String("Do you really want to delete the project:<br><b>") +
-                                        m_curLibrary->settings()->name());
+        int ret = sop.exec();
 
-    if(ret == KMessageBox::Yes) {
-        //m_curLibrary->
-        //m_curLibrary->deleteLibrary();
+        if(ret != QDialog::Accepted) {
+            return;
+        }
+
+        selectedLib = sop.getSelected();
     }
+    else {
+        selectedLib = libList.first();
+    }
+
+    int ret2 = KMessageBox::warningYesNo(this,
+                                         QLatin1String("Do you really want to delete the project:<br><b>") +
+                                         selectedLib->settings()->name());
+
+    if(ret2 == KMessageBox::Yes) {
+        m_libraryWidget->closeLibrary(selectedLib);
+        closeLibrary(selectedLib);
+        selectedLib->deleteLibrary();
+    }
+
 }
 
 void MainWindow::closeLibrarySelection()
 {
+    QList<Library *> libList = openLibraries();
+    Library *selectedLib = 0;
 
+    if(libList.size() > 1) {
+        SelectOpenProject sop;
+        sop.setActionText(i18n("Which project should be closed?"));
+        sop.setProjectList(libList);
+
+        int ret = sop.exec();
+
+        if(ret != QDialog::Accepted) {
+            return;
+        }
+
+        selectedLib = sop.getSelected();
+    }
+    else {
+        selectedLib = libList.first();
+    }
+
+    m_libraryWidget->closeLibrary(selectedLib);
+    closeLibrary(selectedLib);
 }
 
 void MainWindow::closeLibrary(Library *l)

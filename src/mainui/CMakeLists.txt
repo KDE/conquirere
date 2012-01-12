@@ -7,6 +7,7 @@ set(mainui_LIB_SRCS
 
     dialogs/newprojectwizard.cpp
     dialogs/loadproject.cpp
+    dialogs/selectopenproject.cpp
 
     docklets/librarywidget.cpp
     docklets/projecttreedelegate.cpp
@@ -39,6 +40,7 @@ kde4_add_ui_files( mainui_LIB_SRCS
 
                    dialogs/newprojectwizard.ui
                    dialogs/loadproject.ui
+                   dialogs/selectopenproject.ui
 
                    docklets/librarywidget.ui
                    docklets/documentpreview.ui
