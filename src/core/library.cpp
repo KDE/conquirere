@@ -51,6 +51,7 @@
 #include <KDE/KConfigGroup>
 #include <KDE/KIO/CopyJob>
 #include <KDE/KIO/DeleteJob>
+#include <KDE/KDebug>
 
 #include <QtCore/QUuid>
 #include <QtCore/QDir>

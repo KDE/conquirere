@@ -26,8 +26,6 @@
 #include "kbibtexfile/kbtfileinfo.h"
 
 #include <KDE/KMessageBox>
-#include <Akonadi/CollectionFetchJob>
-#include <Akonadi/CollectionFetchScope>
 
 ProviderSettings::ProviderSettings(QWidget *parent, bool showAkonadiStuff)
     : QWidget(parent)
@@ -70,12 +68,6 @@ ProviderSettings::ProviderSettings(QWidget *parent, bool showAkonadiStuff)
         ui->addEventsToAkonadi->setVisible(true);
         ui->contactCollection->setVisible(true);
         ui->eventCollection->setVisible(true);
-
-        // fetching all collections containing contacts recursively, starting at the root collection
-        Akonadi::CollectionFetchJob *job = new Akonadi::CollectionFetchJob( Akonadi::Collection::root(), Akonadi::CollectionFetchJob::Recursive, this );
-        job->fetchScope().setContentMimeTypes( QStringList() << "application/x-vnd.kde.contactgroup" );
-        connect( job, SIGNAL(collectionsReceived(Akonadi::Collection::List)),
-                 this, SLOT(collectionsReceived(Akonadi::Collection::List)) );
     }
     else {
         ui->addContactsToAkonadi->setVisible(false);
@@ -175,6 +167,20 @@ void ProviderSettings::savePasswordInKWallet()
     m_wallet->writePassword(pwdKey, ui->providerPwd->text());
 }
 
+void ProviderSettings::setAkonadiContactDetails(QList<ProviderSettings::AkonadiDetails> contactCollections)
+{
+    foreach(const AkonadiDetails & c, contactCollections) {
+        ui->contactCollection->addItem(c.collectionName, c.collectionID);
+    }
+}
+
+void ProviderSettings::setAkonadiEventDetails(QList<ProviderSettings::AkonadiDetails> contactCollections)
+{
+    foreach(const AkonadiDetails & c, contactCollections) {
+        ui->eventCollection->addItem(c.collectionName, c.collectionID);
+    }
+}
+
 void ProviderSettings::findPasswordInKWallet()
 {
     int curIndex = ui->providerSelection->currentIndex();
@@ -263,19 +269,12 @@ void ProviderSettings::fetchCollection()
     rfs->fetchCollections();
 }
 
-void ProviderSettings::fillCollectionList(QList<CollectionInfo> collectionList)
+void ProviderSettings::fillCollectionList(const QList<CollectionInfo> &collectionList)
 {
     ui->listCollection->clear();
 
     ui->listCollection->addItem(i18n("no collection"), QString());
     foreach(const CollectionInfo &ci, collectionList) {
         ui->listCollection->addItem(ci.name, ci.id);
-    }
-}
-
-void ProviderSettings::collectionsReceived( const Akonadi::Collection::List& list)
-{
-    foreach(const Akonadi::Collection & c, list) {
-        ui->contactCollection->addItem(c.name(), c.id());
     }
 }

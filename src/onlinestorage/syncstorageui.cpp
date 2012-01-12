@@ -20,17 +20,14 @@
 
 #include "storageinfo.h"
 #include "syncstorage.h"
-#include "readfromstorage.h"
 #include "providersettings.h"
-
-#include "zotero/zoteroinfo.h"
 
 #include <kbibtex/file.h>
 #include <kbibtex/comment.h>
 
 #include <KDE/KIcon>
 
-#include <QtDebug>
+#include <KDE/KDebug>
 
 SyncStorageUi::SyncStorageUi(QWidget *parent)
     : QDialog(parent)
@@ -98,7 +95,6 @@ void SyncStorageUi::startSync()
 
     connect(syncStorage, SIGNAL(syncInProgress(bool)), this, SLOT(syncStatus(bool)));
     connect(syncStorage, SIGNAL(progress(int)), ui->progressBar, SLOT(setValue(int)));
-
 
     syncStorage->setProviderSettings(psd);
     syncStorage->setAdoptBibtexTypes(true);

@@ -18,11 +18,11 @@
 #ifndef PROVIDERSETTINGS_H
 #define PROVIDERSETTINGS_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 #include "storageglobals.h"
 
-#include <Akonadi/Collection>
+#include <KDE/KIcon>
 #include <KWallet/Wallet>
 
 namespace Ui {
@@ -37,6 +37,17 @@ class ProviderSettings : public QWidget
     Q_OBJECT
 
 public:
+    struct AkonadiDetails {
+        QString collectionName;
+        qint64 collectionID;
+    };
+
+    /**
+      * Creates a new ProviderSettings widget to specify sync settings
+      *
+      * @p showAkonadiStuff used to display 2 additional boxes to specify if and where events/contacts
+      *                     should be added to akonadi. Not used for KBibTeX
+      */
     explicit ProviderSettings(QWidget *parent = 0, bool showAkonadiStuff = false);
     virtual ~ProviderSettings();
 
@@ -46,14 +57,21 @@ public:
 
     void savePasswordInKWallet();
 
+public slots:
+    // to remove akonadi dependency in this part of the lib, we just provide the necessray
+    // informations here, collection fetching is then done in conquirere then.
+    // as all we need is the possibility to save if we put data to akonadi and the collection id
+    // this makes no difference anyway
+    void setAkonadiContactDetails(QList<ProviderSettings::AkonadiDetails> contactCollections);
+    void setAkonadiEventDetails(QList<ProviderSettings::AkonadiDetails> contactCollections);
+
 private slots:
-    void collectionsReceived( const Akonadi::Collection::List& );
     void findPasswordInKWallet();
 
     void switchProvider(int curIndex);
     void showHelp();
     void fetchCollection();
-    void fillCollectionList(QList<CollectionInfo> collectionList);
+    void fillCollectionList(const QList<CollectionInfo> &collectionList);
 
 private:
     Ui::ProviderSettings *ui;

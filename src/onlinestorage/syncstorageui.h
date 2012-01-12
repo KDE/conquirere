@@ -22,7 +22,6 @@
 
 #include "storageglobals.h"
 #include <kbibtex/file.h>
-#include <KWallet/Wallet>
 
 namespace Ui {
     class SyncStorageUi;
@@ -44,13 +43,22 @@ public:
     ~SyncStorageUi();
 
     /**
+      * Sets the bibtex file to sync with
+      *
+      * Loads previous provider settings based on the @comment x-syncprovider
+      *
       * @pre load the bibtex file with comments
+      * @post synced data in @p fileToSync
       */
     void setBibTeXFile(File *fileToSync);
 
 private slots:
     void startSync();
     void syncStatus(bool inProgress);
+
+    /**
+      * @todo implement sync cancel
+      */
     void cancelSync();
     void cancelClose();
 

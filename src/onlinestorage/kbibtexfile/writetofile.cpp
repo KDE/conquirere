@@ -31,6 +31,7 @@
 
 #include <KIO/NetAccess>
 #include <KDE/KTemporaryFile>
+#include <KDE/KStandardDirs>
 #include <KDE/KDebug>
 
 #include <QtCore/QFile>

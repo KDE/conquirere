@@ -21,7 +21,7 @@
 #include <QtCore/QMetaType>
 
 /**
-  * @brief holds information about a collection
+  * @brief holds information about a collection retrieved from the online storage
   */
 struct CollectionInfo {
     QString name;
@@ -54,6 +54,9 @@ enum MergeStrategy {
 
 class StorageInfo;
 
+/**
+  * Holds information about the provider to sync with
+  */
 struct ProviderSyncDetails {
     StorageInfo *providerInfo;
     QString userName;

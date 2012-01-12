@@ -48,6 +48,9 @@ public:
 
     void setProviderSettings(const ProviderSyncDetails &psd);
 
+    /**
+      * Sets if upload/download data will be mapped as good as possible into standard BibTeX
+      */
     void setAdoptBibtexTypes(bool adopt);
     bool adoptBibtexTypes() const;
 

@@ -21,6 +21,8 @@
 #include <QtGui/QWizard>
 #include "onlinestorage/providersettings.h"
 
+#include <Akonadi/Collection>
+
 namespace Ui {
     class NewProjectWizard;
 }
@@ -89,12 +91,21 @@ public:
 
     void initializePage();
 
+signals:
+    void addContactCollection( const QList<ProviderSettings::AkonadiDetails> &contactCollections );
+    void addEventCollection( const QList<ProviderSettings::AkonadiDetails> &eventCollections );
+
 private slots:
     bool isComplete() const;
     void updateFolderTextLabel(const QString &folder);
     void editProvider();
     void addProvider();
     void removeProvider();
+    void akonadiContactCollectionFetched(const Akonadi::Collection::List &list);
+    void akonadiEventCollectionFetched(const Akonadi::Collection::List &list);
+
+private:
+    void fetchAkonadiCollection();
 
 public:
     QGroupBox *m_syncWithFolder;

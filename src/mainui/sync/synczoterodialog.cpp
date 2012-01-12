@@ -35,6 +35,9 @@
 #include <KDE/KMessageBox>
 #include <KDE/KDialog>
 
+#include <Akonadi/CollectionFetchJob>
+#include <Akonadi/CollectionFetchScope>
+
 #include <QtCore/QDebug>
 
 SyncZoteroDialog::SyncZoteroDialog(QWidget *parent)
@@ -48,6 +51,18 @@ SyncZoteroDialog::SyncZoteroDialog(QWidget *parent)
 {
     m_ps = new ProviderSettings(this, true);
     setMainWidget(m_ps);
+
+    // fetching all collections containing contacts recursively, starting at the root collection
+    Akonadi::CollectionFetchJob *job = new Akonadi::CollectionFetchJob( Akonadi::Collection::root(), Akonadi::CollectionFetchJob::Recursive, this );
+    job->fetchScope().setContentMimeTypes( QStringList() << "application/x-vnd.kde.contactgroup" );
+    connect( job, SIGNAL(collectionsReceived(Akonadi::Collection::List)),
+             this, SLOT(akonadiContactCollectionFetched(Akonadi::Collection::List)) );
+
+    Akonadi::CollectionFetchJob *job2 = new Akonadi::CollectionFetchJob( Akonadi::Collection::root(), Akonadi::CollectionFetchJob::Recursive, this );
+    job2->fetchScope().setContentMimeTypes( QStringList() << "x-vnd.akonadi.calendar.event" << "application/x-vnd.akonadi.calendar.todo" );
+    connect( job2, SIGNAL(collectionsReceived(Akonadi::Collection::List)),
+             this, SLOT(akonadiEventCollectionFetched(Akonadi::Collection::List)) );
+
 }
 
 SyncZoteroDialog::~SyncZoteroDialog()
@@ -147,6 +162,33 @@ void SyncZoteroDialog::popMergeDialog(QList<SyncDetails> items)
 
     emit mergeFinished();
 }
+
+void SyncZoteroDialog::akonadiContactCollectionFetched(const Akonadi::Collection::List &list)
+{
+    QList<ProviderSettings::AkonadiDetails> contactList;
+    foreach(const Akonadi::Collection & c, list) {
+        ProviderSettings::AkonadiDetails ad;
+        ad.collectionName = c.name();
+        ad.collectionID = c.id();
+        contactList.append(ad);
+    }
+
+    m_ps->setAkonadiContactDetails(contactList);
+}
+
+void SyncZoteroDialog::akonadiEventCollectionFetched(const Akonadi::Collection::List &list)
+{
+    QList<ProviderSettings::AkonadiDetails> evntList;
+    foreach(const Akonadi::Collection & c, list) {
+        ProviderSettings::AkonadiDetails ad;
+        ad.collectionName = c.name();
+        ad.collectionID = c.id();
+        evntList.append(ad);
+    }
+
+    m_ps->setAkonadiEventDetails(evntList);
+}
+
 
 void SyncZoteroDialog::setProgressStatus(const QString &status)
 {

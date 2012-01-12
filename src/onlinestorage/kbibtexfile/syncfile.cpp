@@ -20,7 +20,7 @@
 #include "readfromfile.h"
 #include "writetofile.h"
 
-#include <QDebug>
+#include <KDE/KDebug>
 
 SyncFile::SyncFile(QObject *parent)
     : SyncStorage(parent)

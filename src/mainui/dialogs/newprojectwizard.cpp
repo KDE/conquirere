@@ -33,6 +33,9 @@
 #include <KDE/KComboBox>
 #include <KDE/KDialog>
 
+#include <Akonadi/CollectionFetchJob>
+#include <Akonadi/CollectionFetchScope>
+
 #include <QtGui/QLabel>
 #include <QtGui/QCheckBox>
 #include <QtGui/QVBoxLayout>
@@ -244,6 +247,11 @@ void SyncPage::editProvider()
     ps.setProviderSettingsDetails(oldPsd);
     dlg.setMainWidget(&ps);
 
+    connect(this, SIGNAL(addContactCollection(QList<ProviderSettings::AkonadiDetails>)), &ps, SLOT(setAkonadiContactDetails(QList<AkonadiDetails>)));
+    connect(this, SIGNAL(addEventCollection(QList<ProviderSettings::AkonadiDetails>)), &ps, SLOT(setAkonadiEventDetails(QList<AkonadiDetails>)));
+
+    fetchAkonadiCollection();
+
     int ret = dlg.exec();
 
     if(ret == KDialog::Accepted) {
@@ -265,6 +273,11 @@ void SyncPage::addProvider()
     ProviderSettings ps(&dlg, true);
     dlg.setMainWidget(&ps);
 
+    connect(this, SIGNAL(addContactCollection(QList<ProviderSettings::AkonadiDetails>)), &ps, SLOT(setAkonadiContactDetails(QList<ProviderSettings::AkonadiDetails>)));
+    connect(this, SIGNAL(addEventCollection(QList<ProviderSettings::AkonadiDetails>)), &ps, SLOT(setAkonadiEventDetails(QList<ProviderSettings::AkonadiDetails>)));
+
+    fetchAkonadiCollection();
+
     int ret = dlg.exec();
 
     if(ret == KDialog::Accepted) {
@@ -284,4 +297,44 @@ void SyncPage::removeProvider()
     m_syncList->removeItemWidget(qlwi);
     delete qlwi;
     m_psdList.removeAt(selectedProvider);
+}
+
+void SyncPage::fetchAkonadiCollection()
+{
+    // fetching all collections containing contacts recursively, starting at the root collection
+    Akonadi::CollectionFetchJob *job = new Akonadi::CollectionFetchJob( Akonadi::Collection::root(), Akonadi::CollectionFetchJob::Recursive, this );
+    job->fetchScope().setContentMimeTypes( QStringList() << "application/x-vnd.kde.contactgroup" );
+    connect( job, SIGNAL(collectionsReceived(Akonadi::Collection::List)),
+             this, SLOT(akonadiContactCollectionFetched(Akonadi::Collection::List)) );
+
+    Akonadi::CollectionFetchJob *job2 = new Akonadi::CollectionFetchJob( Akonadi::Collection::root(), Akonadi::CollectionFetchJob::Recursive, this );
+    job2->fetchScope().setContentMimeTypes( QStringList() << "x-vnd.akonadi.calendar.event" << "application/x-vnd.akonadi.calendar.todo" );
+    connect( job2, SIGNAL(collectionsReceived(Akonadi::Collection::List)),
+             this, SLOT(akonadiEventCollectionFetched(Akonadi::Collection::List)) );
+}
+
+void SyncPage::akonadiContactCollectionFetched(const Akonadi::Collection::List &list)
+{
+    QList<ProviderSettings::AkonadiDetails> contactList;
+    foreach(const Akonadi::Collection & c, list) {
+        ProviderSettings::AkonadiDetails ad;
+        ad.collectionName = c.name();
+        ad.collectionID = c.id();
+        contactList.append(ad);
+    }
+
+    emit addContactCollection(contactList);
+}
+
+void SyncPage::akonadiEventCollectionFetched(const Akonadi::Collection::List &list)
+{
+    QList<ProviderSettings::AkonadiDetails> evntList;
+    foreach(const Akonadi::Collection & c, list) {
+        ProviderSettings::AkonadiDetails ad;
+        ad.collectionName = c.name();
+        ad.collectionID = c.id();
+        evntList.append(ad);
+    }
+
+    emit addEventCollection(evntList);
 }
