@@ -56,6 +56,7 @@ ADD_CUSTOM_TARGET(
                      -P ${CMAKE_BINARY_DIR}/version.cmake
 )
 
+add_subdirectory( tests )
 add_subdirectory( nbib )
 add_subdirectory( dms-copy )
 add_subdirectory( src )
