@@ -33,7 +33,7 @@
 #include <QtCore/QDebug>
 
 NepomukToBibTexPipe::NepomukToBibTexPipe()
-    :m_strict(false)
+    : m_strict(false)
     , m_addNepomukUris(false)
 {
 }
@@ -136,23 +136,29 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
         }
     }
     // handle general book/collections then
-    else if(publication.hasType(Nepomuk::Vocabulary::NBIB::Book()) || publication.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
+    else if(publication.hasType(Nepomuk::Vocabulary::NBIB::Book())) {
         QString pages = reference.property(Nepomuk::Vocabulary::NBIB::pages()).toString();
         Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
         Nepomuk::Resource chapterAuthor = chapter.property(Nepomuk::Vocabulary::NCO::creator()).toResource();
 
+        // so we have a @book if no chapter or or pages are specified
+        // and a @InBook if they are
+        // and @InCollection if the chapter has an author
         if(!pages.isEmpty() || chapter.isValid()) {
             if(chapterAuthor.isValid()) {
                 type = QLatin1String("Incollection"); //book ref with defined author in the chapter
             }
             else {
-                type = QLatin1String("Inbook"); //book ref with chapter/pages
+                type = QLatin1String("InBook"); //book ref with chapter/pages
             }
         }
         else {
             Nepomuk::Resource typeResource(publication.type());
             type = typeResource.genericLabel();
         }
+    }
+    else if(publication.hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
+        type = QLatin1String("Proceedings");
     }
     // handle special articles
     else if(publication.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
@@ -192,7 +198,7 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
     setChapter(e, reference);
 
     // if the chapter has an author attached to it , don't search author of the publication
-    // solves the incollection special case where the author of the chapter is not the one from the whole collection is ment
+    // solves the incollection special case where the author of the chapter is not the one from the whole book is ment
     if(!e->contains(QLatin1String("author"))){
         setAuthors(e, publication);
     }
@@ -251,18 +257,19 @@ void NepomukToBibTexPipe::setTitle(Entry *e, Nepomuk::Resource publication, Nepo
 {
     QString title;
     QString booktitle;
-    Nepomuk::Resource collection = publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
 
-    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
-        booktitle = collection.property(Nepomuk::Vocabulary::NIE::title()).toString();
-        title = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
+    // handle special case where "title=" is name of the chapter and "booktitle=" is the name of the book
+    if(e->type() == QLatin1String("Incollection")) {
+        Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
+        title = chapter.property(Nepomuk::Vocabulary::NIE::title()).toString();
+        booktitle = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
     }
-    else{
-        //ignore the case of a reference with a chapter (inbook/incollection)
-        Nepomuk::Resource documentPart = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
+    else {
+        title = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
-        if(!documentPart.hasType(Nepomuk::Vocabulary::NBIB::Chapter())) {
-            title = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
+        if(publication.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
+            Nepomuk::Resource collection = publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+            booktitle = collection.property(Nepomuk::Vocabulary::NIE::title()).toString();
         }
     }
 
@@ -281,39 +288,51 @@ void NepomukToBibTexPipe::setTitle(Entry *e, Nepomuk::Resource publication, Nepo
 
 void NepomukToBibTexPipe::setChapter(Entry *e, Nepomuk::Resource reference)
 {
-    QString chapterEntry = QLatin1String("chapter");
-    Nepomuk::Resource publication = reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-    if(publication.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
-        chapterEntry = QLatin1String("title");
+    QString chapterName;
+    Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
+    QString chapterNumber = chapter.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
+
+    // handle special case where "title=" is name of the chapter and "booktitle=" is the name of the book
+    // thus "chapter=" is just chapter number not connection of both
+    if(e->type() == QLatin1String("Incollection")) {
+        chapterName = chapterNumber;
+    }
+    else {
+        QString chapterTitle = chapter.property(Nepomuk::Vocabulary::NIE::title()).toString();
+        if(!chapterNumber.isEmpty() && !chapterTitle.isEmpty()) {
+            chapterName.prepend(QLatin1String(" : "));
+        }
+
+        chapterName.prepend(chapterNumber);
+        chapterName.append(chapterTitle);
     }
 
-    Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
-    QString chapterTitle = chapter.property(Nepomuk::Vocabulary::NIE::title()).toString();
-    QString chapterNumber = chapter.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
-    chapterTitle.prepend(chapterNumber);
-
-    Nepomuk::Resource author = chapter.property(Nepomuk::Vocabulary::NCO::creator()).toResource();
-    QString chapterAuthor = author.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
-
-    Nepomuk::Resource book = reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-    QString bookTitle = book.property(Nepomuk::Vocabulary::NIE::title()).toString();
-
-    if(!chapterTitle.isEmpty()) {
+    if(!chapterName.isEmpty()) {
         Value v;
-        v.append(QSharedPointer<ValueItem>(new PlainText(chapterTitle)));
-        e->insert(chapterEntry, v);
-        Value v2;
-        v2.append(QSharedPointer<ValueItem>(new PlainText(bookTitle)));
-        if(publication.hasType(Nepomuk::Vocabulary::NBIB::Bill())) {
-            e->insert(Entry::ftTitle, v2);
-        }
-        else {
-            e->insert(Entry::ftBookTitle, v2);
+        v.append(QSharedPointer<ValueItem>(new PlainText(chapterName)));
+        e->insert(Entry::ftChapter, v);
+    }
+
+    // now if the chapter has authors attached, add then as "author=" instead of the
+    // authors from the publication. This is the case for InCollection
+    // the publication authors will be added as "bookauthor=" later on
+
+    QList<Nepomuk::Resource> authors = chapter.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
+
+    Value v;
+    if(!authors.isEmpty()) {
+        foreach(const Nepomuk::Resource & a, authors) {
+            QString firstName = a.property(Nepomuk::Vocabulary::NCO::nameGiven()).toString();
+            QString lastName = a.property(Nepomuk::Vocabulary::NCO::nameFamily()).toString();
+            QString suffix = a.property(Nepomuk::Vocabulary::NCO::nameHonorificSuffix()).toString();
+            if(firstName.isEmpty())
+                firstName = a.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+
+            Person *p = new Person(firstName, lastName, suffix);
+            v.append(QSharedPointer<ValueItem>(p));
         }
 
-        if(!chapterAuthor.isEmpty()) {
-            Value v;
-            v.append(QSharedPointer<ValueItem>(new PlainText(chapterAuthor)));
+        if(!v.isEmpty()) {
             e->insert(Entry::ftAuthor, v);
         }
     }

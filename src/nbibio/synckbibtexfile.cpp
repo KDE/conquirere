@@ -205,7 +205,7 @@ void SyncKBibTeXFile::startUpload()
     m_ntnp->addNepomukUries(true);
     m_ntnp->pipeExport(exportList);
     m_bibCache.clear();
-    m_bibCache = m_ntnp->bibtexFile();
+    m_bibCache.append(m_ntnp->bibtexFile());
 
     // step 3 upload to zotero
     emit progressStatus(i18n("upload to File: %1", m_psd.url));

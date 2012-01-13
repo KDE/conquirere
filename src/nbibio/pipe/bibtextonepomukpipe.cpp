@@ -79,7 +79,6 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
         QString fullname = nqr.resource().property(Nepomuk::Vocabulary::NCO::fullname()).toString();
         m_allContacts.insert(fullname, nqr.resource());
     }
-    qDebug() << "fetched all" << queryResult.size() << "contacts";
 
     Nepomuk::Query::ResourceTypeTerm typeP( Nepomuk::Vocabulary::NBIB::Proceedings() );
     Nepomuk::Query::Query queryP( typeP );
@@ -144,6 +143,10 @@ void BibTexToNepomukPipe::setSyncDetails(const QString &url, const QString &user
 
 void BibTexToNepomukPipe::import(Entry *e)
 {
+    if(e->type() == QLatin1String("conference")) {
+        e->setType(QLatin1String("inproceedings"));
+    }
+
     //do not check duplicates, just add new resources to the system storage
     QUrl typeUrl = typeToUrl(e->type().toLower());
     Nepomuk::Resource publication = Nepomuk::Resource(QUrl(), typeUrl);
@@ -167,7 +170,6 @@ void BibTexToNepomukPipe::import(Entry *e)
         e->remove(QLatin1String("zoteroetag"));
         e->remove(QLatin1String("zoteroupdated"));
     }
-
 
     //before we go through the whole list one by one, we take care of some special cases
 
@@ -225,6 +227,7 @@ void BibTexToNepomukPipe::import(Entry *e)
     }
 
     // III. archivePrefix + eprint
+    //TODO implement archivePrefix stuff
 
     //now go through the list of all remaining entries
     QMapIterator<QString, Value> i(*e);
@@ -259,7 +262,7 @@ QUrl BibTexToNepomukPipe::typeToUrl(const QString & entryType)
         return Nepomuk::Vocabulary::NBIB::Collection();
     }
     else if(entryType == QLatin1String("incollection")) {
-        return Nepomuk::Vocabulary::NBIB::Collection();
+        return Nepomuk::Vocabulary::NBIB::Book();
     }
     else if(entryType == QLatin1String("electronic")) {
         return Nepomuk::Vocabulary::NBIB::Electronic();
@@ -327,9 +330,12 @@ QUrl BibTexToNepomukPipe::typeToUrl(const QString & entryType)
     else if(entryType == QLatin1String("webpage")) {
         return Nepomuk::Vocabulary::NBIB::WebPage();
     }
+    else if(entryType == QLatin1String("misc")) {
+        return Nepomuk::Vocabulary::NBIB::Publication();
+    }
     else {
         // same as @Misc
-        qDebug() << "BibTexToNepomukPipe::typeToUrl" << entryType;
+        qWarning() << "BibTexToNepomukPipe::typeToUrl unknown type" << entryType;
         return Nepomuk::Vocabulary::NBIB::Publication();
     }
 }
@@ -337,13 +343,13 @@ QUrl BibTexToNepomukPipe::typeToUrl(const QString & entryType)
 Entry *BibTexToNepomukPipe::getDiff(Nepomuk::Resource local, Entry *externalEntry, bool keepLocal)
 {
     //first we transform the nepomuk resource to a flat bibtex entry
-
     QList<Nepomuk::Resource> resources;
     resources.append(local);
     NepomukToBibTexPipe ntbp;
     ntbp.pipeExport(resources);
 
-    File localBibFile = ntbp.bibtexFile();
+    File localBibFile;
+    localBibFile.append(ntbp.bibtexFile());
 
     Entry *localEntry = static_cast<Entry *>(localBibFile.first().data());
     if(!localEntry)
@@ -416,7 +422,6 @@ void BibTexToNepomukPipe::merge(Nepomuk::Resource syncResource, Entry *external,
         QString fullname = nqr.resource().property(Nepomuk::Vocabulary::NCO::fullname()).toString();
         m_allContacts.insert(fullname, nqr.resource());
     }
-    qDebug() << "fetched all" << queryResult.size() << "contacts";
 
     Nepomuk::Query::ResourceTypeTerm typeP( Nepomuk::Vocabulary::NBIB::Proceedings() );
     Nepomuk::Query::Query queryP( typeP );
@@ -481,8 +486,7 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     else if(key == QLatin1String("copyright")) {
         addCopyrigth(PlainTextValue::text(value), publication);
     }
-    else if(key == QLatin1String("doi") ||
-            key == QLatin1String("ee")) {
+    else if(key == QLatin1String("doi")) {
         addDoi(PlainTextValue::text(value), publication);
     }
     else if(key == QLatin1String("edition")) {
@@ -578,7 +582,8 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     else if(key == QLatin1String("url") ||
             key == QLatin1String("localfile") ||
             key == QLatin1String("biburl") ||
-            key == QLatin1String("bibsource")) {
+            key == QLatin1String("bibsource") ||
+            key == QLatin1String("ee")) {
         addUrl(PlainTextValue::text(value), publication);
     }
     else if(key == QLatin1String("address")) {
@@ -792,10 +797,10 @@ void BibTexToNepomukPipe::addAnnote(const QString &content, Nepomuk::Resource pu
 
 void BibTexToNepomukPipe::addAuthor(const Value &contentValue, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType)
 {
-    //in case of @incollection or @inbook the author is used to identify who wrote the chapter not the complete book/collection
+    //in case of @incollection the author is used to identify who wrote the chapter not the complete book/collection
     Nepomuk::Resource authorResource;
 
-    if(originalEntryType == QLatin1String("inbook") || originalEntryType == QLatin1String("incollection") ) {
+    if(originalEntryType == QLatin1String("incollection") ) {
         Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
 
         if(!chapter.isValid()) {
@@ -898,7 +903,7 @@ void BibTexToNepomukPipe::addBooktitle(const QString &content, Nepomuk::Resource
     QString utfContent = m_macroLookup.value(QString(content.toUtf8()), QString(content.toUtf8()));
 
     //two specialities occur here
-    // I. "booktitle" means the title of a book where "title" than means the title of the chapter
+    // I. "booktitle" means the title of a book, where "title" than means the title of the article in the book where the author fits to
     // this is valid for any publication other than @InProceedings
     // II. "booktitle" marks the title of the @proceedings from an @InProceedings or @Conference
     //                 the same is true for encyclopediaarticles
@@ -910,7 +915,7 @@ void BibTexToNepomukPipe::addBooktitle(const QString &content, Nepomuk::Resource
         Nepomuk::Resource proceedingsResource = m_allProceedings.value(utfContent, Nepomuk::Resource());
 
         if(!proceedingsResource.isValid()) {
-            qWarning() << "found no existing proceedings with the name " << utfContent << "create new one";
+            qDebug() << "found no existing proceedings with the name " << utfContent << "create new one";
             if(originalEntryType == QLatin1String("inproceedings"))
                     proceedingsResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Proceedings());
             else if(originalEntryType == QLatin1String("encyclopediaarticle"))
@@ -1351,7 +1356,10 @@ void BibTexToNepomukPipe::addMonth(const QString &content, Nepomuk::Resource pub
     else if(contentMonth.contains(QLatin1String("dec"))) {
         month = QString::number(12);
     }
-
+    else {
+        // assume the month was already a number
+        month = contentMonth;
+    }
 
     if(year.size() != 4) {
         year.prepend(QLatin1String("00"));
@@ -1395,9 +1403,6 @@ void BibTexToNepomukPipe::addOrganization(const QString &content, Nepomuk::Resou
         organizationResource.setProperty(Nepomuk::Vocabulary::NCO::fullname(), utfContent);
 
         m_allContacts.insert(utfContent, organizationResource);
-    }
-    else {
-        qDebug() << "use existing Organization resource for " << utfContent;
     }
 
     if(publication.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
@@ -1524,11 +1529,9 @@ void BibTexToNepomukPipe::addTitle(const QString &content, Nepomuk::Resource pub
 {
     QString utfContent = m_macroLookup.value(QString(content.toUtf8()), QString(content.toUtf8()));
 
-    // in the case of @InCollection title means title of the chapter
+    // in the case of @InCollection title means title of the article in the book
     // while booktitle is the actual title of the book
-    if(originalEntryType == QLatin1String("incollection") ||
-       originalEntryType == QLatin1String("inbook") ||
-       originalEntryType == QLatin1String("dictionaryentry")) {
+    if(originalEntryType == QLatin1String("incollection")) {
 
         Nepomuk::Resource chapterResource = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
 
@@ -1541,6 +1544,20 @@ void BibTexToNepomukPipe::addTitle(const QString &content, Nepomuk::Resource pub
 
         chapterResource.setProperty( Nepomuk::Vocabulary::NIE::title(), utfContent);
     }
+    // for a dictionary entry the title is the name of the chapter
+    else if(originalEntryType == QLatin1String("dictionaryentry")) {
+
+     Nepomuk::Resource chapterResource = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
+
+     if(!chapterResource.isValid()) {
+         chapterResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Chapter());
+         reference.setProperty(Nepomuk::Vocabulary::NBIB::referencedPart(), chapterResource);
+         publication.addProperty(Nepomuk::Vocabulary::NBIB::documentPart(), chapterResource);
+         chapterResource.setProperty(Nepomuk::Vocabulary::NBIB::documentPartOf(), publication);
+     }
+
+     chapterResource.setProperty( Nepomuk::Vocabulary::NIE::title(), utfContent);
+ }
     else {
         publication.setProperty(Nepomuk::Vocabulary::NIE::title(), utfContent);
     }
@@ -1575,9 +1592,6 @@ void BibTexToNepomukPipe::addAssignee(const QString &content, Nepomuk::Resource 
         assigneeResource.setProperty(Nepomuk::Vocabulary::NCO::fullname(), utfContent);
 
         m_allContacts.insert(utfContent, assigneeResource);
-    }
-    else {
-        qDebug() << "use existing Contact resource for " << utfContent;
     }
 
     publication.setProperty(Nepomuk::Vocabulary::NBIB::assignee(), assigneeResource);

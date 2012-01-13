@@ -17,6 +17,7 @@
 
 #ifndef NBIBEXPORTERFILE_H
 #define NBIBEXPORTERFILE_H
+
 #include "nbibexporter.h"
 
 /**

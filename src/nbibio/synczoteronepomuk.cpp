@@ -91,7 +91,7 @@ void SyncZoteroNepomuk::startDownload()
     m_rfz->fetchItems(m_psd.collection);
 }
 
-void SyncZoteroNepomuk::readDownloadSync(File zoteroData)
+void SyncZoteroNepomuk::readDownloadSync(const File &zoteroData)
 {
     emit progressStatus(i18n("sync zotero data with local Nepomuk storage"));
     m_curStep++;
@@ -104,7 +104,7 @@ void SyncZoteroNepomuk::readDownloadSync(File zoteroData)
     }
 
     m_bibCache.clear();
-    m_bibCache = zoteroData;
+    m_bibCache.append(zoteroData);
     if(m_psd.askBeforeDeletion && !m_tmpUserDeleteRequest.isEmpty()) {
         emit askForDeletion(m_tmpUserDeleteRequest);
     }
@@ -113,7 +113,7 @@ void SyncZoteroNepomuk::readDownloadSync(File zoteroData)
     }
 }
 
-void SyncZoteroNepomuk::readDownloadSyncAfterDelete(File zoteroData)
+void SyncZoteroNepomuk::readDownloadSyncAfterDelete(const File &zoteroData)
 {
     File newEntries;
     findDuplicates(zoteroData, newEntries, m_tmpUserMergeRequest);
@@ -223,7 +223,7 @@ void SyncZoteroNepomuk::startUpload()
     m_ntnp->addNepomukUries(true);
     m_ntnp->pipeExport(exportList);
     m_bibCache.clear();
-    m_bibCache = m_ntnp->bibtexFile();
+    m_bibCache.append(m_ntnp->bibtexFile());
 
     // step 3 upload to zotero
     emit progressStatus(i18n("upload to Zotero"));
@@ -233,7 +233,7 @@ void SyncZoteroNepomuk::startUpload()
     m_wtz->pushItems(m_bibCache, m_psd.collection);
 }
 
-void SyncZoteroNepomuk::readUploadSync(File zoteroData)
+void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
 {
     if(zoteroData.isEmpty()) {
         m_curStep++;
@@ -255,7 +255,7 @@ void SyncZoteroNepomuk::readUploadSync(File zoteroData)
     qreal curProgress = 0.0;
 
     //step one get all entries which are new to the storage
-    foreach(QSharedPointer<Element> element, m_bibCache) {
+    foreach(const QSharedPointer<Element> &element, m_bibCache) {
         Entry *entry = dynamic_cast<Entry *>(element.data());
         if(!entry) { continue; }
 
@@ -268,14 +268,14 @@ void SyncZoteroNepomuk::readUploadSync(File zoteroData)
     // now find the real duplicates between the zoteroData entries and the m_bibCache entries
     // foreach entry in zoteroData there is exact 1 entrie in m_bibCache
     int entriesFound = 0;
-    foreach(QSharedPointer<Element> zoteroElement, zoteroData) {
+    foreach(const QSharedPointer<Element> &zoteroElement, zoteroData) {
         Entry *zoteroEntry = dynamic_cast<Entry *>(zoteroElement.data());
         if(!zoteroEntry) { continue; }
 
         QStringList error;
         bool updateSuccessfull = false;
         //now try go through all entries we send
-        foreach(QSharedPointer<Element> localElement, m_bibCache) {
+        foreach(const QSharedPointer<Element> &localElement, m_bibCache) {
             Entry *localEntry = dynamic_cast<Entry *>(localElement.data());
             if(!localEntry) { continue; }
 

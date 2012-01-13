@@ -51,7 +51,8 @@ bool NBibExporterFile::save(QIODevice *iodevice, const QList<Nepomuk::Resource> 
 
     NepomukToBibTexPipe ntbp;
     ntbp.pipeExport(referenceList);
-    File f = ntbp.bibtexFile();
+    File f;
+    f.append(ntbp.bibtexFile());
 
     emit progress( 50 );
 

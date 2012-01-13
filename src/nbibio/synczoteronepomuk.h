@@ -49,13 +49,13 @@ private slots:
     /**
       * process all data retrieved from the zotero server
       */
-    void readDownloadSync(File zoteroData);
-    void readDownloadSyncAfterDelete(File zoteroData);
+    void readDownloadSync(const File &zoteroData);
+    void readDownloadSyncAfterDelete(const File &zoteroData);
 
     /**
       * process syncdata retrived from zotero server when new items are send to the server
       */
-    void readUploadSync(File zoteroData);
+    void readUploadSync(const File &zoteroData);
 
 private:
     void findDuplicates(const File &zoteroData, File &newEntries, QList<SyncDetails> &userMergeRequest);

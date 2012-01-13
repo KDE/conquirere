@@ -61,7 +61,7 @@ public:
     void setSyncDetails(const QString &url, const QString &userid);
 
     /**
-      * Includes the nepomu kresource uri for the publication and reference to the bibtex output
+      * Includes the nepomuk resource uri for the publication and reference to the bibtex output
       */
     void addNepomukUries(bool addThem);
 
