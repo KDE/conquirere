@@ -29,6 +29,7 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     : ReadFromStorage(parent)
 {
     // build the mappinglist
+    // @see https://api.zotero.org/itemTypeFields?itemType=presentation&pprint=1
     m_zoteroToBibTeX["callNumber"] = QLatin1String("lccn");
     m_zoteroToBibTeX["rights"] = QLatin1String("copyright");
     m_zoteroToBibTeX["tags"] = QLatin1String("keywords");
@@ -75,6 +76,9 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     m_zoteroToBibTeX["dateDecided"] = QLatin1String("date");
     m_zoteroToBibTeX["firstPage"] = QLatin1String("pages");
     m_zoteroToBibTeX["issueDate"] = QLatin1String("date");
+    m_zoteroToBibTeX["extra"] = QLatin1String("note");
+    m_zoteroToBibTeX["meetingName"] = QLatin1String("event");
+    m_zoteroToBibTeX["conferenceName"] = QLatin1String("event");
 
     //creator type adoption
     // translates original zotero types to author/editor
@@ -114,6 +118,7 @@ void ReadFromZotero::fetchItems(const QString &collection)
 
 void ReadFromZotero::fetchItem(const QString &id, const QString &collection )
 {
+    Q_UNUSED(collection)
     QString apiCommand = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items/") + id + QLatin1String("?format=atom&content=json&limit=10");
     if(!m_psd.pwd.isEmpty()) {
         apiCommand.append( QLatin1String("&key=") + m_psd.pwd);
@@ -325,13 +330,19 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
             else if(text == QLatin1String("conferencepaper")) {
                 e->setType(QLatin1String("inproceedings"));
             }
+            else if(text == QLatin1String("document")) {
+                e->setType(QLatin1String("misc"));
+            }
+            else if(text == QLatin1String("manuscript")) {
+                e->setType(QLatin1String("script"));
+            }
             else if(text == QLatin1String("journalarticle")) {
                 e->setType(QLatin1String("article"));
 
                 PlainText *ptValue = new PlainText(QLatin1String("journal"));
                 Value valueList;
                 valueList.append(QSharedPointer<ValueItem>(ptValue));
-                e->insert(QLatin1String("type"), valueList);
+                e->insert(QLatin1String("articletype"), valueList);
             }
             else if(text == QLatin1String("magazinearticle")) {
                 e->setType(QLatin1String("article"));
@@ -339,7 +350,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
                 PlainText *ptValue = new PlainText(QLatin1String("magazine"));
                 Value valueList;
                 valueList.append(QSharedPointer<ValueItem>(ptValue));
-                e->insert(QLatin1String("type"), valueList);
+                e->insert(QLatin1String("articletype"), valueList);
             }
             else if(text == QLatin1String("newspaperarticle")) {
                 e->setType(QLatin1String("article"));
@@ -347,7 +358,15 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
                 PlainText *ptValue = new PlainText(QLatin1String("newspaper"));
                 Value valueList;
                 valueList.append(QSharedPointer<ValueItem>(ptValue));
-                e->insert(QLatin1String("type"), valueList);
+                e->insert(QLatin1String("articletype"), valueList);
+            }
+            else if(text == QLatin1String("encyclopediaarticle")) {
+                e->setType(QLatin1String("article"));
+
+                PlainText *ptValue = new PlainText(QLatin1String("encyclopedia"));
+                Value valueList;
+                valueList.append(QSharedPointer<ValueItem>(ptValue));
+                e->insert(QLatin1String("articletype"), valueList);
             }
             else {
                 e->setType(text);
@@ -378,6 +397,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
         }
         else {
             QString text = i.value().toString();
+
             if(text.isEmpty())
                 continue;
             PlainText *ptValue = new PlainText(text);
@@ -385,7 +405,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
             valueList.append(QSharedPointer<ValueItem>(ptValue));
             // here either the transformed key name from the lookup table is used
             // or if nothing is found the key from zotero is used
-            e->insert(m_zoteroToBibTeX.value(i.key(), i.key()), valueList);
+            e->insert(m_zoteroToBibTeX.value(i.key(), i.key()).toLower(), valueList);
         }
     }
 }

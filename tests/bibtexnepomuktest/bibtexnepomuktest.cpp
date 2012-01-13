@@ -90,6 +90,7 @@ void BibtexNepomukTest::importExportTest_data()
 
     QTest::newRow("generic standard bibtex") << QString("%1/generic_bibtex.bib").arg(testFileDir);
     QTest::newRow("generic extended bibtex") << QString("%1/generic_extended_bibtex.bib").arg(testFileDir);
+    QTest::newRow("generic zotero import") << QString("%1/generic_zotero.bib").arg(testFileDir);
 }
 
 void BibtexNepomukTest::init()
@@ -220,7 +221,7 @@ void BibtexNepomukTest::importExportTest()
                     Value importedValue = entryImport->value(i.key());
                     Value exportedValue = entryExport->value(i.key());
                     if(PlainTextValue::text(importedValue) != PlainTextValue::text(exportedValue)) {
-                        qWarning() << entryImport->id() << " || Imported key " << i.key() << "-> "<< PlainTextValue::text(importedValue) << " |#| not equal exported |#|" << PlainTextValue::text(exportedValue);
+                        qWarning() << entryImport->id() << " || Local key " << i.key() << "-> "<< PlainTextValue::text(importedValue) << " |#| not equal nepomuk exported |#|" << PlainTextValue::text(exportedValue);
                         compareTestFailed = true;
                     }
                 }

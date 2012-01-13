@@ -212,12 +212,33 @@ void BibTexToNepomukPipe::import(Entry *e)
         }
     }
 
-    // II. journal + number + volume + zotero articletype
+    // II. a) encyclopediaarticle
+    if(e->contains(QLatin1String("articletype"))) {
+        QUrl seriesURL;
+        QUrl issueURL;
+
+        QString type = PlainTextValue::text(e->value(QLatin1String("articletype")));
+        if(type == QLatin1String("encyclopedia")) {
+            seriesURL = Nepomuk::Vocabulary::NBIB::Series();
+            issueURL = Nepomuk::Vocabulary::NBIB::Encyclopedia();
+
+            addEncyclopedia(e->value(QLatin1String("booktitle")),
+            publication, issueURL);
+
+            e->remove(QLatin1String("journal"));
+            e->remove(QLatin1String("booktitle"));
+            e->remove(QLatin1String("number"));
+            e->remove(QLatin1String("volume"));
+            e->remove(QLatin1String("articletype"));
+        }
+
+    }
+
+    // II b). journal + number + volume + zotero articletype
     if(e->contains(QLatin1String("journal"))) {
         QUrl seriesURL;
         QUrl issueURL;
 
-        bool encyException = false;
         QString type = PlainTextValue::text(e->value(QLatin1String("articletype")));
         if(type == QLatin1String("magazine")) {
             seriesURL = Nepomuk::Vocabulary::NBIB::Magazin();
@@ -227,26 +248,15 @@ void BibTexToNepomukPipe::import(Entry *e)
             seriesURL = Nepomuk::Vocabulary::NBIB::Newspaper();
             issueURL = Nepomuk::Vocabulary::NBIB::NewspaperIssue();
         }
-        else if(type == QLatin1String("encyclopedia")) {
-            seriesURL = Nepomuk::Vocabulary::NBIB::Series();
-            issueURL = Nepomuk::Vocabulary::NBIB::Encyclopedia();
-            encyException = true;
-        }
         else {
             seriesURL = Nepomuk::Vocabulary::NBIB::Journal();
             issueURL = Nepomuk::Vocabulary::NBIB::JournalIssue();
         }
 
-        if(encyException) {
-            addEncyclopedia(e->value(QLatin1String("journal")),
-            publication, issueURL);
-        }
-        else {
-            addJournal(e->value(QLatin1String("journal")),
-            e->value(QLatin1String("volume")),
-            e->value(QLatin1String("number")),
-            publication, seriesURL, issueURL);
-        }
+        addJournal(e->value(QLatin1String("journal")),
+                   e->value(QLatin1String("volume")),
+                   e->value(QLatin1String("number")),
+                   publication, seriesURL, issueURL);
 
         e->remove(QLatin1String("journal"));
         e->remove(QLatin1String("number"));
@@ -499,6 +509,15 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     }
     else if(key == QLatin1String("annote")) {
         addAnnote(PlainTextValue::text(value), publication);
+    }
+    else if(key == QLatin1String("archive")) {
+        addArchive(PlainTextValue::text(value), publication);
+    }
+    else if(key == QLatin1String("archivelocation")) {
+        addArchiveLocation(PlainTextValue::text(value), publication);
+    }
+    else if(key == QLatin1String("librarycatalog")) {
+        addLibraryCatalog(PlainTextValue::text(value), publication);
     }
     else if(key == QLatin1String("author")) {
         addAuthor(value, publication, reference, originalEntryType);
@@ -971,9 +990,27 @@ void BibTexToNepomukPipe::addBooktitle(const QString &content, Nepomuk::Resource
         publication.setProperty(Nepomuk::Vocabulary::NBIB::collection(), proceedingsResource);
         proceedingsResource.addProperty(Nepomuk::Vocabulary::NBIB::article(), publication);
     }
+//    else if() {
+
+//    }
     else {
         publication.setProperty(Nepomuk::Vocabulary::NIE::title(), utfContent);
     }
+}
+
+void BibTexToNepomukPipe::addArchive(const QString &content, Nepomuk::Resource publication)
+{
+    publication.setProperty(Nepomuk::Vocabulary::NBIB::archive(), QString(content.toUtf8()));
+}
+
+void BibTexToNepomukPipe::addArchiveLocation(const QString &content, Nepomuk::Resource publication)
+{
+    publication.setProperty(Nepomuk::Vocabulary::NBIB::archiveLocation(), QString(content.toUtf8()));
+}
+
+void BibTexToNepomukPipe::addLibraryCatalog(const QString &content, Nepomuk::Resource publication)
+{
+    publication.setProperty(Nepomuk::Vocabulary::NBIB::libraryCatalog(), QString(content.toUtf8()));
 }
 
 void BibTexToNepomukPipe::addBookAuthor(const Value &contentValue, Nepomuk::Resource publication)

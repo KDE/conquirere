@@ -107,6 +107,9 @@ private:
       */
     void addAuthor(const Value &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
     void addBooktitle(const QString &content, Nepomuk::Resource publication, const QString & originalEntryType);
+    void addArchive(const QString &content, Nepomuk::Resource publication);
+    void addArchiveLocation(const QString &content, Nepomuk::Resource publication);
+    void addLibraryCatalog(const QString &content, Nepomuk::Resource publication);
     void addBookAuthor(const Value &contentValue, Nepomuk::Resource publication);
     void addSeriesEditor(const Value &contentValue, Nepomuk::Resource publication);
     void addChapter(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference);

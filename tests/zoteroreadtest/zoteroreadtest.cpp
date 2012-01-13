@@ -176,7 +176,7 @@ void BibtexNepomukTest::readZoteroTest()
 
                 // check if both have the same type
                 if(entryImport->type().toLower() != entryExport->type().toLower()) {
-                    qWarning() << entryImport->id() << " || Imported type-> "<< entryImport->type() << " |#| not equal exported |#|" << entryExport->type();
+                    qWarning() << entryImport->id() << " || Imported type-> "<< entryImport->type() << " |#| not equal local |#|" << entryExport->type();
                     compareTestFailed = true;
                 }
 
@@ -189,7 +189,7 @@ void BibtexNepomukTest::readZoteroTest()
                     Value importedValue = entryImport->value(i.key());
                     Value exportedValue = entryExport->value(i.key());
                     if(PlainTextValue::text(importedValue) != PlainTextValue::text(exportedValue)) {
-                        qWarning() << entryImport->id() << " || Imported key " << i.key() << "-> "<< PlainTextValue::text(importedValue) << " |#| not equal exported |#|" << PlainTextValue::text(exportedValue);
+                        qWarning() << entryImport->id() << " || Zotero key " << i.key() << "-> "<< PlainTextValue::text(importedValue) << " |#| not equal local |#|" << PlainTextValue::text(exportedValue);
                         compareTestFailed = true;
                     }
                 }

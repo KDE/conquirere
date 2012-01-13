@@ -526,6 +526,30 @@ nbib: {
           rdfs:subPropertyOf nao:identifier ;
           nrl:maxCardinality 1 .
 
+    nbib:archive
+          a       rdf:Property ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "The archive where the publication can be found, see also nbib::archivelocation" ;
+          rdfs:label "Archive" ;
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
+
+    nbib:archiveLocation
+          a       rdf:Property ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "The location where the publication can be found in the archive specified via nbib::archive" ;
+          rdfs:label "Archive Location" ;
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
+
+    nbib:libraryCatalog
+          a       rdf:Property ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "The library catalog information where the publication can be found" ;
+          rdfs:label "Library Catalog" ;
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
+
     nbib:article
           a       rdf:Property ;
           rdfs:domain nbib:Collection ;

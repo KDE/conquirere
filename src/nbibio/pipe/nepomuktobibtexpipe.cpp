@@ -159,6 +159,9 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
     else if(publication.hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
         type = QLatin1String("Proceedings");
     }
+    else if(publication.hasType(Nepomuk::Vocabulary::NBIB::LegalCaseDocument())) {
+        type = QLatin1String("Case");
+    }
     // handle special articles
     else if(publication.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
         Nepomuk::Resource collection = publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
@@ -246,6 +249,9 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
     setLegalStatus(e, publication);
     setFilingDate(e, publication);
     setAssignee(e, publication);
+    setArchive(e, publication);
+    setArchiveLocation(e, publication);
+    setLibraryCatalog(e, publication);
 
     // Zotero additions
     setArticleType(e, publication);
@@ -370,8 +376,21 @@ void NepomukToBibTexPipe::setBookAuthors(Entry *e, Nepomuk::Resource publication
             QString firstName = a.property(Nepomuk::Vocabulary::NCO::nameGiven()).toString();
             QString lastName = a.property(Nepomuk::Vocabulary::NCO::nameFamily()).toString();
             QString suffix = a.property(Nepomuk::Vocabulary::NCO::nameHonorificSuffix()).toString();
-            if(firstName.isEmpty())
-                firstName = a.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+            if(firstName.isEmpty() || lastName.isEmpty()) {
+                QString fullname = a.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+                if(fullname.contains(QLatin1String(","))) {
+                    QStringList nameSplitted = fullname.split(QLatin1String(","));
+                    lastName = nameSplitted.first();
+                    firstName = nameSplitted.last();
+                }
+                else {
+                    QStringList nameSplitted = fullname.split(QLatin1String(" "));
+                    lastName = nameSplitted.first();
+                    firstName = nameSplitted.last();
+                }
+            }
+            firstName = firstName.trimmed();
+            lastName = lastName.trimmed();
 
             Person *p = new Person(firstName, lastName, suffix);
             v.append(QSharedPointer<ValueItem>(p));
@@ -409,6 +428,11 @@ void NepomukToBibTexPipe::setEditors(Entry *e, Nepomuk::Resource publication)
 void NepomukToBibTexPipe::setSeriesEditors(Entry *e, Nepomuk::Resource publication)
 {
     Nepomuk::Resource series =  publication.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    if(!series.isValid()) {
+        Nepomuk::Resource collection =  publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+        series =  collection.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    }
+
     QList<Nepomuk::Resource> authors = series.property(Nepomuk::Vocabulary::NBIB::editor()).toResourceList();
 
     Value v;
@@ -417,8 +441,21 @@ void NepomukToBibTexPipe::setSeriesEditors(Entry *e, Nepomuk::Resource publicati
             QString firstName = a.property(Nepomuk::Vocabulary::NCO::nameGiven()).toString();
             QString lastName = a.property(Nepomuk::Vocabulary::NCO::nameFamily()).toString();
             QString suffix = a.property(Nepomuk::Vocabulary::NCO::nameHonorificSuffix()).toString();
-            if(firstName.isEmpty())
-                firstName = a.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+            if(firstName.isEmpty() || lastName.isEmpty()) {
+                QString fullname = a.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+                if(fullname.contains(QLatin1String(","))) {
+                    QStringList nameSplitted = fullname.split(QLatin1String(","));
+                    lastName = nameSplitted.first();
+                    firstName = nameSplitted.last();
+                }
+                else {
+                    QStringList nameSplitted = fullname.split(QLatin1String(" "));
+                    lastName = nameSplitted.first();
+                    firstName = nameSplitted.last();
+                }
+            }
+            firstName = firstName.trimmed();
+            lastName = lastName.trimmed();
 
             Person *p = new Person(firstName, lastName, suffix);
             v.append(QSharedPointer<ValueItem>(p));
@@ -508,18 +545,13 @@ void NepomukToBibTexPipe::setPublicationDate(Entry *e, Nepomuk::Resource publica
 void NepomukToBibTexPipe::setPublisher(Entry *e, Nepomuk::Resource publication)
 {
     QString publisherEntry = QLatin1String("publisher");
-    QList<Nepomuk::Resource> publisher;
+    QList<Nepomuk::Resource> publisher = publication.property(Nepomuk::Vocabulary::NCO::publisher()).toResourceList();
 
     if(publication.hasType(Nepomuk::Vocabulary::NBIB::Thesis())) {
         publisherEntry = QLatin1String("school");
-        publisher = publication.property(Nepomuk::Vocabulary::NCO::publisher()).toResourceList();
     }
     else if(publication.hasType(Nepomuk::Vocabulary::NBIB::Techreport())) {
         publisherEntry = QLatin1String("institution");
-        publisher = publication.property(Nepomuk::Vocabulary::NCO::publisher()).toResourceList();
-    }
-    else {
-        publisher = publication.property(Nepomuk::Vocabulary::NCO::publisher()).toResourceList();
     }
 
     QString names;
@@ -766,11 +798,18 @@ void NepomukToBibTexPipe::setISBN(Entry *e, Nepomuk::Resource publication)
 void NepomukToBibTexPipe::setISSN(Entry *e, Nepomuk::Resource publication)
 {
     Nepomuk::Resource series = publication.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
-    QString string = series.property(Nepomuk::Vocabulary::NBIB::issn()).toString();
+    QString issnString = series.property(Nepomuk::Vocabulary::NBIB::issn()).toString();
 
-    if(!string.isEmpty()) {
+    // handles article of a collection in a series which has the issn attached
+    if(issnString.isEmpty()) {
+        Nepomuk::Resource collection = publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+        Nepomuk::Resource series2 = collection.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+        issnString = series2.property(Nepomuk::Vocabulary::NBIB::issn()).toString();
+    }
+
+    if(!issnString.isEmpty()) {
         Value v;
-        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
+        v.append(QSharedPointer<ValueItem>(new PlainText(issnString)));
         e->insert(QLatin1String("issn"), v);
     }
 }
@@ -878,8 +917,10 @@ void NepomukToBibTexPipe::setEvent(Entry *e, Nepomuk::Resource publication)
 {
     Nepomuk::Resource event = publication.property(Nepomuk::Vocabulary::NBIB::event()).toResource();
 
-    if(!event.isValid())
-        return;
+    if(!event.isValid()) {
+        Nepomuk::Resource collection = publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+        event = collection.property(Nepomuk::Vocabulary::NBIB::event()).toResource();
+    }
 
     QString string = event.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
@@ -1003,6 +1044,39 @@ void NepomukToBibTexPipe::setAssignee(Entry *e, Nepomuk::Resource publication)
         Value v;
         v.append(QSharedPointer<ValueItem>(new PlainText(string)));
         e->insert(QLatin1String("assignee"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setArchive(Entry *e, Nepomuk::Resource publication)
+{
+    QString string = publication.property(Nepomuk::Vocabulary::NBIB::archive()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
+        e->insert(QLatin1String("archive"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setArchiveLocation(Entry *e, Nepomuk::Resource publication)
+{
+    QString string = publication.property(Nepomuk::Vocabulary::NBIB::archiveLocation()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
+        e->insert(QLatin1String("archiveLocation"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setLibraryCatalog(Entry *e, Nepomuk::Resource publication)
+{
+    QString string = publication.property(Nepomuk::Vocabulary::NBIB::libraryCatalog()).toString();
+
+    if(!string.isEmpty()) {
+        Value v;
+        v.append(QSharedPointer<ValueItem>(new PlainText(string)));
+        e->insert(QLatin1String("libraryCatalog"), v);
     }
 }
 

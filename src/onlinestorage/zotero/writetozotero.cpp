@@ -945,13 +945,12 @@ QVariantMap WriteToZotero::createArtworkJson(Entry *e)
     jsonMap.insert(QLatin1String("artworkSize"),PlainTextValue::text(e->value(QLatin1String("artworkSize"))));
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -959,11 +958,13 @@ QVariantMap WriteToZotero::createArtworkJson(Entry *e)
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstract"))));
         jsonMap.insert(QLatin1String("callNumber"),PlainTextValue::text(e->value(QLatin1String("lccn"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
         jsonMap.insert(QLatin1String("callNumber"),PlainTextValue::text(e->value(QLatin1String("callNumber"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -978,18 +979,17 @@ QVariantMap WriteToZotero::createAudioRecordingJson(Entry *e)
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("audioRecording")));
     jsonMap.insert(QLatin1String("audioRecordingFormat"),PlainTextValue::text(e->value(QLatin1String("audioRecordingFormat"))));
     jsonMap.insert(QLatin1String("volume"),PlainTextValue::text(e->value(QLatin1String("volume"))));
-    jsonMap.insert(QLatin1String("numberOfVolumes"),PlainTextValue::text(e->value(QLatin1String("numberOfVolumes"))));
+    //jsonMap.insert(QLatin1String("numberOfVolumes"),PlainTextValue::text(e->value(QLatin1String("numberOfVolumes"))));
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("runningTime"),PlainTextValue::text(e->value(QLatin1String("runningTime"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
     jsonMap.insert(QLatin1String("ISBN"),PlainTextValue::text(e->value(QLatin1String("isbn"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1000,6 +1000,7 @@ QVariantMap WriteToZotero::createAudioRecordingJson(Entry *e)
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("series"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("label"),PlainTextValue::text(e->value(QLatin1String("publisher"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -1008,6 +1009,7 @@ QVariantMap WriteToZotero::createAudioRecordingJson(Entry *e)
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("seriesTitle"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("label"),PlainTextValue::text(e->value(QLatin1String("label"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
 
@@ -1028,8 +1030,7 @@ QVariantMap WriteToZotero::createBillJson(Entry *e)
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1041,6 +1042,7 @@ QVariantMap WriteToZotero::createBillJson(Entry *e)
         jsonMap.insert(QLatin1String("codePages"),PlainTextValue::text(e->value(QLatin1String("pages"))));
         jsonMap.insert(QLatin1String("legislativeBody"),PlainTextValue::text(e->value(QLatin1String("organization"))));
         jsonMap.insert(QLatin1String("session"),PlainTextValue::text(e->value(QLatin1String("event"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -1050,6 +1052,7 @@ QVariantMap WriteToZotero::createBillJson(Entry *e)
         jsonMap.insert(QLatin1String("codePages"),PlainTextValue::text(e->value(QLatin1String("codePages"))));
         jsonMap.insert(QLatin1String("legislativeBody"),PlainTextValue::text(e->value(QLatin1String("legislativeBody"))));
         jsonMap.insert(QLatin1String("session"),PlainTextValue::text(e->value(QLatin1String("session"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1066,8 +1069,7 @@ QVariantMap WriteToZotero::createBlogPostJson(Entry *e)
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1076,12 +1078,14 @@ QVariantMap WriteToZotero::createBlogPostJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
         jsonMap.insert(QLatin1String("blogTitle"),PlainTextValue::text(e->value(QLatin1String("booktitle"))));
         jsonMap.insert(QLatin1String("websiteType"),PlainTextValue::text(e->value(QLatin1String("type"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
         jsonMap.insert(QLatin1String("blogTitle"),PlainTextValue::text(e->value(QLatin1String("blogTitle"))));
         jsonMap.insert(QLatin1String("websiteType"),PlainTextValue::text(e->value(QLatin1String("websiteType"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1096,7 +1100,7 @@ QVariantMap WriteToZotero::createBookJson(Entry *e)
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("book")));
     jsonMap.insert(QLatin1String("series"),PlainTextValue::text(e->value(QLatin1String("series"))));
     jsonMap.insert(QLatin1String("volume"),PlainTextValue::text(e->value(QLatin1String("volume"))));
-    jsonMap.insert(QLatin1String("numberOfVolumes"),PlainTextValue::text(e->value(QLatin1String("numberOfVolumes"))));
+    //jsonMap.insert(QLatin1String("numberOfVolumes"),PlainTextValue::text(e->value(QLatin1String("numberOfVolumes"))));
     jsonMap.insert(QLatin1String("edition"),PlainTextValue::text(e->value(QLatin1String("edition"))));
     jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
     jsonMap.insert(QLatin1String("publisher"),PlainTextValue::text(e->value(QLatin1String("publisher"))));
@@ -1104,13 +1108,12 @@ QVariantMap WriteToZotero::createBookJson(Entry *e)
     jsonMap.insert(QLatin1String("numPages"),PlainTextValue::text(e->value(QLatin1String("numPages"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
     jsonMap.insert(QLatin1String("ISBN"),PlainTextValue::text(e->value(QLatin1String("isbn"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shorttitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1120,6 +1123,7 @@ QVariantMap WriteToZotero::createBookJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
         jsonMap.insert(QLatin1String("seriesNumber"),PlainTextValue::text(e->value(QLatin1String("number"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -1127,6 +1131,7 @@ QVariantMap WriteToZotero::createBookJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("seriesNumber"),PlainTextValue::text(e->value(QLatin1String("seriesNumber"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1140,20 +1145,19 @@ QVariantMap WriteToZotero::createBookSectionJson(Entry *e)
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("bookSection")));
     jsonMap.insert(QLatin1String("series"),PlainTextValue::text(e->value(QLatin1String("series"))));
     jsonMap.insert(QLatin1String("volume"),PlainTextValue::text(e->value(QLatin1String("volume"))));
-    jsonMap.insert(QLatin1String("numberOfVolumes"),PlainTextValue::text(e->value(QLatin1String("numberOfVolumes"))));
+    //jsonMap.insert(QLatin1String("numberOfVolumes"),PlainTextValue::text(e->value(QLatin1String("numberOfVolumes"))));
     jsonMap.insert(QLatin1String("edition"),PlainTextValue::text(e->value(QLatin1String("edition"))));
     jsonMap.insert(QLatin1String("publisher"),PlainTextValue::text(e->value(QLatin1String("publisher"))));
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("pages"),PlainTextValue::text(e->value(QLatin1String("pages"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
     jsonMap.insert(QLatin1String("ISBN"),PlainTextValue::text(e->value(QLatin1String("isbn"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1164,6 +1168,7 @@ QVariantMap WriteToZotero::createBookSectionJson(Entry *e)
         jsonMap.insert(QLatin1String("seriesNumber"),PlainTextValue::text(e->value(QLatin1String("number"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("title"), PlainTextValue::text(e->value(QLatin1String("chapter"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
 
         if(e->value(QLatin1String("booktitle")).isEmpty()) {
             jsonMap.insert(QLatin1String("bookTitle"),PlainTextValue::text(e->value(QLatin1String("title"))));
@@ -1180,6 +1185,7 @@ QVariantMap WriteToZotero::createBookSectionJson(Entry *e)
         jsonMap.insert(QLatin1String("seriesNumber"),PlainTextValue::text(e->value(QLatin1String("seriesNumber"))));
         jsonMap.insert(QLatin1String("title"), PlainTextValue::text(e->value(QLatin1String("title"))));
         jsonMap.insert(QLatin1String("bookTitle"),PlainTextValue::text(e->value(QLatin1String("bookTitle"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1194,10 +1200,9 @@ QVariantMap WriteToZotero::createCaseJson(Entry *e)
     jsonMap.insert(QLatin1String("reporter"),PlainTextValue::text(e->value(QLatin1String("reporter"))));
     jsonMap.insert(QLatin1String("history"),PlainTextValue::text(e->value(QLatin1String("history"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("reporterVolume"),PlainTextValue::text(e->value(QLatin1String("reportervolume"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
@@ -1211,6 +1216,7 @@ QVariantMap WriteToZotero::createCaseJson(Entry *e)
         jsonMap.insert(QLatin1String("dateDecided"),PlainTextValue::text(e->value(QLatin1String("date"))));
         jsonMap.insert(QLatin1String("firstPage"),PlainTextValue::text(e->value(QLatin1String("pages"))));
         jsonMap.insert(QLatin1String("court"),PlainTextValue::text(e->value(QLatin1String("organization"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -1221,6 +1227,7 @@ QVariantMap WriteToZotero::createCaseJson(Entry *e)
         jsonMap.insert(QLatin1String("dateDecided"),PlainTextValue::text(e->value(QLatin1String("dateDecided"))));
         jsonMap.insert(QLatin1String("firstPage"),PlainTextValue::text(e->value(QLatin1String("firstPage"))));
         jsonMap.insert(QLatin1String("court"),PlainTextValue::text(e->value(QLatin1String("court"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1239,13 +1246,12 @@ QVariantMap WriteToZotero::createComputerProgramJson(Entry *e)
     jsonMap.insert(QLatin1String("company"),PlainTextValue::text(e->value(QLatin1String("company"))));
     jsonMap.insert(QLatin1String("programmingLanguage"),PlainTextValue::text(e->value(QLatin1String("programmingLanguage"))));
     jsonMap.insert(QLatin1String("ISBN"),PlainTextValue::text(e->value(QLatin1String("isbn"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1255,12 +1261,14 @@ QVariantMap WriteToZotero::createComputerProgramJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("series"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
         jsonMap.insert(QLatin1String("callNumber"),PlainTextValue::text(e->value(QLatin1String("callNumber"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("seriesTitle"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1274,7 +1282,6 @@ QVariantMap WriteToZotero::createConferencePaperJson(Entry *e)
     jsonMap.insert(QLatin1String("title"), PlainTextValue::text(e->value(QLatin1String("title"))));
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("conferencePaper")));
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
-    jsonMap.insert(QLatin1String("conferenceName"),PlainTextValue::text(e->value(QLatin1String("conferenceName"))));
     jsonMap.insert(QLatin1String("publisher"),PlainTextValue::text(e->value(QLatin1String("publisher"))));
     jsonMap.insert(QLatin1String("volume"),PlainTextValue::text(e->value(QLatin1String("volume"))));
     jsonMap.insert(QLatin1String("pages"),PlainTextValue::text(e->value(QLatin1String("pages"))));
@@ -1282,13 +1289,12 @@ QVariantMap WriteToZotero::createConferencePaperJson(Entry *e)
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
     jsonMap.insert(QLatin1String("DOI"),PlainTextValue::text(e->value(QLatin1String("doi"))));
     jsonMap.insert(QLatin1String("ISBN"),PlainTextValue::text(e->value(QLatin1String("isbn"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1298,6 +1304,8 @@ QVariantMap WriteToZotero::createConferencePaperJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("proceedingsTitle"),PlainTextValue::text(e->value(QLatin1String("booktitle"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
+        jsonMap.insert(QLatin1String("conferenceName"),PlainTextValue::text(e->value(QLatin1String("event"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -1305,6 +1313,8 @@ QVariantMap WriteToZotero::createConferencePaperJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("proceedingsTitle"),PlainTextValue::text(e->value(QLatin1String("proceedingsTitle"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
+        jsonMap.insert(QLatin1String("conferenceName"),PlainTextValue::text(e->value(QLatin1String("conferenceName"))));
     }
 
     return jsonMap;
@@ -1319,20 +1329,19 @@ QVariantMap WriteToZotero::createDictionaryEntryJson(Entry *e)
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("dictionaryEntry")));
     jsonMap.insert(QLatin1String("series"),PlainTextValue::text(e->value(QLatin1String("series"))));
     jsonMap.insert(QLatin1String("volume"),PlainTextValue::text(e->value(QLatin1String("volume"))));
-    jsonMap.insert(QLatin1String("numberOfVolumes"),PlainTextValue::text(e->value(QLatin1String("numberOfVolumes"))));
+    //jsonMap.insert(QLatin1String("numberOfVolumes"),PlainTextValue::text(e->value(QLatin1String("numberOfVolumes"))));
     jsonMap.insert(QLatin1String("edition"),PlainTextValue::text(e->value(QLatin1String("edition"))));
     jsonMap.insert(QLatin1String("publisher"),PlainTextValue::text(e->value(QLatin1String("publisher"))));
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("pages"),PlainTextValue::text(e->value(QLatin1String("pages"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
     jsonMap.insert(QLatin1String("ISBN"),PlainTextValue::text(e->value(QLatin1String("isbn"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1343,6 +1352,7 @@ QVariantMap WriteToZotero::createDictionaryEntryJson(Entry *e)
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("seriesNumber"),PlainTextValue::text(e->value(QLatin1String("number"))));
         jsonMap.insert(QLatin1String("dictionaryTitle"),PlainTextValue::text(e->value(QLatin1String("booktitle"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -1351,6 +1361,7 @@ QVariantMap WriteToZotero::createDictionaryEntryJson(Entry *e)
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("seriesNumber"),PlainTextValue::text(e->value(QLatin1String("seriesNumber"))));
         jsonMap.insert(QLatin1String("dictionaryTitle"),PlainTextValue::text(e->value(QLatin1String("dictionaryTitle"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1366,13 +1377,12 @@ QVariantMap WriteToZotero::createDocumentJson(Entry *e)
     jsonMap.insert(QLatin1String("publisher"),PlainTextValue::text(e->value(QLatin1String("publisher"))));
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1380,11 +1390,13 @@ QVariantMap WriteToZotero::createDocumentJson(Entry *e)
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstract"))));
         jsonMap.insert(QLatin1String("callNumber"),PlainTextValue::text(e->value(QLatin1String("lccn"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
         jsonMap.insert(QLatin1String("callNumber"),PlainTextValue::text(e->value(QLatin1String("callNumber"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1399,21 +1411,22 @@ QVariantMap WriteToZotero::createEmailJson(Entry *e)
 
     jsonMap.insert(QLatin1String("subject"),PlainTextValue::text(e->value(QLatin1String("subject"))));
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
     if(adoptBibtexTypes()) {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstract"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1428,20 +1441,19 @@ QVariantMap WriteToZotero::createEncyclopediaArticleJson(Entry *e)
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("encyclopediaArticle")));
     jsonMap.insert(QLatin1String("series"),PlainTextValue::text(e->value(QLatin1String("series"))));
     jsonMap.insert(QLatin1String("volume"),PlainTextValue::text(e->value(QLatin1String("volume"))));
-    jsonMap.insert(QLatin1String("numberOfVolumes"),PlainTextValue::text(e->value(QLatin1String("numberOfVolumes"))));
+    //jsonMap.insert(QLatin1String("numberOfVolumes"),PlainTextValue::text(e->value(QLatin1String("numberOfVolumes"))));
     jsonMap.insert(QLatin1String("edition"),PlainTextValue::text(e->value(QLatin1String("edition"))));
     jsonMap.insert(QLatin1String("publisher"),PlainTextValue::text(e->value(QLatin1String("publisher"))));
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("pages"),PlainTextValue::text(e->value(QLatin1String("pages"))));
     jsonMap.insert(QLatin1String("ISBN"),PlainTextValue::text(e->value(QLatin1String("isbn"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1452,6 +1464,7 @@ QVariantMap WriteToZotero::createEncyclopediaArticleJson(Entry *e)
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("seriesNumber"),PlainTextValue::text(e->value(QLatin1String("number"))));
         jsonMap.insert(QLatin1String("encyclopediaTitle"),PlainTextValue::text(e->value(QLatin1String("booktitle"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -1460,6 +1473,7 @@ QVariantMap WriteToZotero::createEncyclopediaArticleJson(Entry *e)
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("seriesNumber"),PlainTextValue::text(e->value(QLatin1String("seriesNumber"))));
         jsonMap.insert(QLatin1String("encyclopediaTitle"),PlainTextValue::text(e->value(QLatin1String("encyclopediaTitle"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1477,13 +1491,12 @@ QVariantMap WriteToZotero::createFilmJson(Entry *e)
     jsonMap.insert(QLatin1String("videoRecordingFormat"),PlainTextValue::text(e->value(QLatin1String("videoRecordingFormat"))));
     jsonMap.insert(QLatin1String("runningTime"),PlainTextValue::text(e->value(QLatin1String("runningTime"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1493,6 +1506,7 @@ QVariantMap WriteToZotero::createFilmJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("distributor"),PlainTextValue::text(e->value(QLatin1String("publisher"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -1500,6 +1514,7 @@ QVariantMap WriteToZotero::createFilmJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("distributor"),PlainTextValue::text(e->value(QLatin1String("distributor"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1514,10 +1529,9 @@ QVariantMap WriteToZotero::createForumPostJson(Entry *e)
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("forumPost")));
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1526,12 +1540,14 @@ QVariantMap WriteToZotero::createForumPostJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
         jsonMap.insert(QLatin1String("forumTitle"),PlainTextValue::text(e->value(QLatin1String("booktitle"))));
         jsonMap.insert(QLatin1String("postType"),PlainTextValue::text(e->value(QLatin1String("type"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
         jsonMap.insert(QLatin1String("forumTitle"),PlainTextValue::text(e->value(QLatin1String("forumTitle"))));
         jsonMap.insert(QLatin1String("postType"),PlainTextValue::text(e->value(QLatin1String("postType"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1546,17 +1562,16 @@ QVariantMap WriteToZotero::createHearingJson(Entry *e)
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("hearing")));
     jsonMap.insert(QLatin1String("committee"),PlainTextValue::text(e->value(QLatin1String("committee"))));
     jsonMap.insert(QLatin1String("publisher"),PlainTextValue::text(e->value(QLatin1String("publisher"))));
-    jsonMap.insert(QLatin1String("numberOfVolumes"),PlainTextValue::text(e->value(QLatin1String("numberOfVolumes"))));
+    //jsonMap.insert(QLatin1String("numberOfVolumes"),PlainTextValue::text(e->value(QLatin1String("numberOfVolumes"))));
     jsonMap.insert(QLatin1String("pages"),PlainTextValue::text(e->value(QLatin1String("pages"))));
     jsonMap.insert(QLatin1String("legislativeBody"),PlainTextValue::text(e->value(QLatin1String("legislativeBody"))));
     jsonMap.insert(QLatin1String("session"),PlainTextValue::text(e->value(QLatin1String("session"))));
     jsonMap.insert(QLatin1String("history"),PlainTextValue::text(e->value(QLatin1String("history"))));
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1565,12 +1580,14 @@ QVariantMap WriteToZotero::createHearingJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("documentNumber"),PlainTextValue::text(e->value(QLatin1String("number"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("documentNumber"),PlainTextValue::text(e->value(QLatin1String("documentNumber"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1585,20 +1602,21 @@ QVariantMap WriteToZotero::createInstantMessageJson(Entry *e)
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("instantMessage")));
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
     if(adoptBibtexTypes()) {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstract"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1614,13 +1632,12 @@ QVariantMap WriteToZotero::createInterviewJson(Entry *e)
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("interviewMedium"),PlainTextValue::text(e->value(QLatin1String("interviewMedium"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1628,11 +1645,13 @@ QVariantMap WriteToZotero::createInterviewJson(Entry *e)
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstract"))));
         jsonMap.insert(QLatin1String("callNumber"),PlainTextValue::text(e->value(QLatin1String("lccn"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
         jsonMap.insert(QLatin1String("callNumber"),PlainTextValue::text(e->value(QLatin1String("callNumber"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1654,13 +1673,12 @@ QVariantMap WriteToZotero::createJournalArticleJson(Entry *e)
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
     jsonMap.insert(QLatin1String("DOI"),PlainTextValue::text(e->value(QLatin1String("doi"))));
     jsonMap.insert(QLatin1String("ISSN"),PlainTextValue::text(e->value(QLatin1String("issn"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1671,6 +1689,7 @@ QVariantMap WriteToZotero::createJournalArticleJson(Entry *e)
         jsonMap.insert(QLatin1String("publicationTitle"),PlainTextValue::text(e->value(QLatin1String("journal"))));
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("series"))));
         jsonMap.insert(QLatin1String("issue"),PlainTextValue::text(e->value(QLatin1String("number"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -1679,6 +1698,7 @@ QVariantMap WriteToZotero::createJournalArticleJson(Entry *e)
         jsonMap.insert(QLatin1String("publicationTitle"),PlainTextValue::text(e->value(QLatin1String("publicationTitle"))));
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("seriesTitle"))));
         jsonMap.insert(QLatin1String("issue"),PlainTextValue::text(e->value(QLatin1String("issue"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1693,13 +1713,12 @@ QVariantMap WriteToZotero::createLetterJson(Entry *e)
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e,QLatin1String("letter")));
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1708,12 +1727,14 @@ QVariantMap WriteToZotero::createLetterJson(Entry *e)
         jsonMap.insert(QLatin1String("callNumber"),PlainTextValue::text(e->value(QLatin1String("lccn"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
         jsonMap.insert(QLatin1String("letterType"),PlainTextValue::text(e->value(QLatin1String("type"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
         jsonMap.insert(QLatin1String("callNumber"),PlainTextValue::text(e->value(QLatin1String("callNumber"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
         jsonMap.insert(QLatin1String("letterType"),PlainTextValue::text(e->value(QLatin1String("letterType"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1735,13 +1756,12 @@ QVariantMap WriteToZotero::createMagazineArticleJson(Entry *e)
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
     jsonMap.insert(QLatin1String("DOI"),PlainTextValue::text(e->value(QLatin1String("doi"))));
     jsonMap.insert(QLatin1String("ISSN"),PlainTextValue::text(e->value(QLatin1String("issn"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1752,6 +1772,7 @@ QVariantMap WriteToZotero::createMagazineArticleJson(Entry *e)
         jsonMap.insert(QLatin1String("publicationTitle"),PlainTextValue::text(e->value(QLatin1String("journal"))));
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("series"))));
         jsonMap.insert(QLatin1String("issue"),PlainTextValue::text(e->value(QLatin1String("number"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -1760,6 +1781,7 @@ QVariantMap WriteToZotero::createMagazineArticleJson(Entry *e)
         jsonMap.insert(QLatin1String("publicationTitle"),PlainTextValue::text(e->value(QLatin1String("publicationTitle"))));
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("seriesTitle"))));
         jsonMap.insert(QLatin1String("issue"),PlainTextValue::text(e->value(QLatin1String("issue"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1775,13 +1797,12 @@ QVariantMap WriteToZotero::createManuscriptJson(Entry *e)
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("numPages"),PlainTextValue::text(e->value(QLatin1String("numPages"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1791,6 +1812,7 @@ QVariantMap WriteToZotero::createManuscriptJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("manuscriptType"),PlainTextValue::text(e->value(QLatin1String("type"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -1798,6 +1820,7 @@ QVariantMap WriteToZotero::createManuscriptJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("manuscriptType"),PlainTextValue::text(e->value(QLatin1String("manuscriptType"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1816,13 +1839,12 @@ QVariantMap WriteToZotero::createMapJson(Entry *e)
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
     jsonMap.insert(QLatin1String("ISBN"),PlainTextValue::text(e->value(QLatin1String("isbn"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1833,6 +1855,7 @@ QVariantMap WriteToZotero::createMapJson(Entry *e)
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("series"))));
         jsonMap.insert(QLatin1String("mapType"),PlainTextValue::text(e->value(QLatin1String("type"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -1841,6 +1864,7 @@ QVariantMap WriteToZotero::createMapJson(Entry *e)
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("seriesTitle"))));
         jsonMap.insert(QLatin1String("mapType"),PlainTextValue::text(e->value(QLatin1String("mapType"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1862,13 +1886,12 @@ QVariantMap WriteToZotero::createNewspaperArticleJson(Entry *e)
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
     jsonMap.insert(QLatin1String("DOI"),PlainTextValue::text(e->value(QLatin1String("doi"))));
     jsonMap.insert(QLatin1String("ISSN"),PlainTextValue::text(e->value(QLatin1String("issn"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1879,6 +1902,7 @@ QVariantMap WriteToZotero::createNewspaperArticleJson(Entry *e)
         jsonMap.insert(QLatin1String("publicationTitle"),PlainTextValue::text(e->value(QLatin1String("journal"))));
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("series"))));
         jsonMap.insert(QLatin1String("issue"),PlainTextValue::text(e->value(QLatin1String("number"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -1887,6 +1911,7 @@ QVariantMap WriteToZotero::createNewspaperArticleJson(Entry *e)
         jsonMap.insert(QLatin1String("publicationTitle"),PlainTextValue::text(e->value(QLatin1String("publicationTitle"))));
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("seriesTitle"))));
         jsonMap.insert(QLatin1String("issue"),PlainTextValue::text(e->value(QLatin1String("issue"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1919,10 +1944,9 @@ QVariantMap WriteToZotero::createPatentJson(Entry *e)
     jsonMap.insert(QLatin1String("references"),PlainTextValue::text(e->value(QLatin1String("references"))));
     jsonMap.insert(QLatin1String("legalStatus"),PlainTextValue::text(e->value(QLatin1String("legalStatus"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1933,6 +1957,7 @@ QVariantMap WriteToZotero::createPatentJson(Entry *e)
         jsonMap.insert(QLatin1String("patentNumber"),PlainTextValue::text(e->value(QLatin1String("number"))));
         jsonMap.insert(QLatin1String("issueDate"),PlainTextValue::text(e->value(QLatin1String("date"))));
         jsonMap.insert(QLatin1String("issuingAuthority"),PlainTextValue::text(e->value(QLatin1String("organization"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -1941,6 +1966,7 @@ QVariantMap WriteToZotero::createPatentJson(Entry *e)
         jsonMap.insert(QLatin1String("patentNumber"),PlainTextValue::text(e->value(QLatin1String("patentNumber"))));
         jsonMap.insert(QLatin1String("issueDate"),PlainTextValue::text(e->value(QLatin1String("issueDate"))));
         jsonMap.insert(QLatin1String("issuingAuthority"),PlainTextValue::text(e->value(QLatin1String("issuingAuthority"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1958,8 +1984,7 @@ QVariantMap WriteToZotero::createPodcastJson(Entry *e)
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -1968,12 +1993,14 @@ QVariantMap WriteToZotero::createPodcastJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("series"))));
         jsonMap.insert(QLatin1String("episodeNumber"),PlainTextValue::text(e->value(QLatin1String("number"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("series"))));
         jsonMap.insert(QLatin1String("episodeNumber"),PlainTextValue::text(e->value(QLatin1String("episodeNumber"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -1990,7 +2017,6 @@ QVariantMap WriteToZotero::createPresentationJson(Entry *e)
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -2000,6 +2026,7 @@ QVariantMap WriteToZotero::createPresentationJson(Entry *e)
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("presentationType"),PlainTextValue::text(e->value(QLatin1String("type"))));
         jsonMap.insert(QLatin1String("meetingName"),PlainTextValue::text(e->value(QLatin1String("event"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -2007,6 +2034,7 @@ QVariantMap WriteToZotero::createPresentationJson(Entry *e)
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("presentationType"),PlainTextValue::text(e->value(QLatin1String("presentationType"))));
         jsonMap.insert(QLatin1String("meetingName"),PlainTextValue::text(e->value(QLatin1String("meetingName"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -2024,13 +2052,12 @@ QVariantMap WriteToZotero::createRadioBroadcastJson(Entry *e)
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("runningTime"),PlainTextValue::text(e->value(QLatin1String("runningTime"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -2041,6 +2068,7 @@ QVariantMap WriteToZotero::createRadioBroadcastJson(Entry *e)
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("programTitle"),PlainTextValue::text(e->value(QLatin1String("booktitle"))));
         jsonMap.insert(QLatin1String("episodeNumber"),PlainTextValue::text(e->value(QLatin1String("number"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -2049,6 +2077,7 @@ QVariantMap WriteToZotero::createRadioBroadcastJson(Entry *e)
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("programTitle"),PlainTextValue::text(e->value(QLatin1String("programTitle"))));
         jsonMap.insert(QLatin1String("episodeNumber"),PlainTextValue::text(e->value(QLatin1String("episodeNumber"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -2065,13 +2094,12 @@ QVariantMap WriteToZotero::createReportJson(Entry *e)
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("pages"),PlainTextValue::text(e->value(QLatin1String("pages"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -2083,6 +2111,7 @@ QVariantMap WriteToZotero::createReportJson(Entry *e)
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("series"))));
         jsonMap.insert(QLatin1String("reportType"),PlainTextValue::text(e->value(QLatin1String("type"))));
         jsonMap.insert(QLatin1String("reportNumber"),PlainTextValue::text(e->value(QLatin1String("number"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -2092,6 +2121,7 @@ QVariantMap WriteToZotero::createReportJson(Entry *e)
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("seriesTitle"))));
         jsonMap.insert(QLatin1String("reportType"),PlainTextValue::text(e->value(QLatin1String("reportType"))));
         jsonMap.insert(QLatin1String("reportNumber"),PlainTextValue::text(e->value(QLatin1String("reportNumber"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -2110,10 +2140,9 @@ QVariantMap WriteToZotero::createStatuteJson(Entry *e)
     jsonMap.insert(QLatin1String("session"),PlainTextValue::text(e->value(QLatin1String("session"))));
     jsonMap.insert(QLatin1String("history"),PlainTextValue::text(e->value(QLatin1String("history"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -2123,6 +2152,7 @@ QVariantMap WriteToZotero::createStatuteJson(Entry *e)
         jsonMap.insert(QLatin1String("publicLawNumber"),PlainTextValue::text(e->value(QLatin1String("number"))));
         jsonMap.insert(QLatin1String("nameOfAct"),QLatin1String("title"));
         jsonMap.insert(QLatin1String("section"),PlainTextValue::text(e->value(QLatin1String("chapter"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -2130,6 +2160,7 @@ QVariantMap WriteToZotero::createStatuteJson(Entry *e)
         jsonMap.insert(QLatin1String("publicLawNumber"),PlainTextValue::text(e->value(QLatin1String("publicLawNumber"))));
         jsonMap.insert(QLatin1String("nameOfAct"),QLatin1String("nameOfAct"));
         jsonMap.insert(QLatin1String("section"),PlainTextValue::text(e->value(QLatin1String("section"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -2147,13 +2178,12 @@ QVariantMap WriteToZotero::createTvBroadcastJson(Entry *e)
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("runningTime"),PlainTextValue::text(e->value(QLatin1String("runningTime"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -2164,6 +2194,7 @@ QVariantMap WriteToZotero::createTvBroadcastJson(Entry *e)
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("programTitle"),PlainTextValue::text(e->value(QLatin1String("booktitle"))));
         jsonMap.insert(QLatin1String("episodeNumber"),PlainTextValue::text(e->value(QLatin1String("number"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -2172,6 +2203,7 @@ QVariantMap WriteToZotero::createTvBroadcastJson(Entry *e)
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("programTitle"),PlainTextValue::text(e->value(QLatin1String("programTitle"))));
         jsonMap.insert(QLatin1String("episodeNumber"),PlainTextValue::text(e->value(QLatin1String("episodeNumber"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -2187,13 +2219,12 @@ QVariantMap WriteToZotero::createThesisJson(Entry *e)
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("numPages"),PlainTextValue::text(e->value(QLatin1String("numPages"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -2204,6 +2235,7 @@ QVariantMap WriteToZotero::createThesisJson(Entry *e)
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("university"),PlainTextValue::text(e->value(QLatin1String("school"))));
         jsonMap.insert(QLatin1String("thesisType"),PlainTextValue::text(e->value(QLatin1String("type"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -2212,6 +2244,7 @@ QVariantMap WriteToZotero::createThesisJson(Entry *e)
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("university"),PlainTextValue::text(e->value(QLatin1String("university"))));
         jsonMap.insert(QLatin1String("thesisType"),PlainTextValue::text(e->value(QLatin1String("thesisType"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -2226,19 +2259,18 @@ QVariantMap WriteToZotero::createVideoRecordingJson(Entry *e)
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("videoRecording")));
     jsonMap.insert(QLatin1String("videoRecordingFormat"),PlainTextValue::text(e->value(QLatin1String("videoRecordingFormat"))));
     jsonMap.insert(QLatin1String("volume"),PlainTextValue::text(e->value(QLatin1String("volume"))));
-    jsonMap.insert(QLatin1String("numberOfVolumes"),PlainTextValue::text(e->value(QLatin1String("numberOfVolumes"))));
+    //jsonMap.insert(QLatin1String("numberOfVolumes"),PlainTextValue::text(e->value(QLatin1String("numberOfVolumes"))));
     jsonMap.insert(QLatin1String("studio"),PlainTextValue::text(e->value(QLatin1String("studio"))));
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
     jsonMap.insert(QLatin1String("runningTime"),PlainTextValue::text(e->value(QLatin1String("runningTime"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
     jsonMap.insert(QLatin1String("ISBN"),PlainTextValue::text(e->value(QLatin1String("isbn"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("archive"),PlainTextValue::text(e->value(QLatin1String("archive"))));
     jsonMap.insert(QLatin1String("archiveLocation"),PlainTextValue::text(e->value(QLatin1String("archiveLocation"))));
     jsonMap.insert(QLatin1String("libraryCatalog"),PlainTextValue::text(e->value(QLatin1String("libraryCatalog"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -2248,6 +2280,7 @@ QVariantMap WriteToZotero::createVideoRecordingJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("location"))));
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("series"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -2255,6 +2288,7 @@ QVariantMap WriteToZotero::createVideoRecordingJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
         jsonMap.insert(QLatin1String("place"),PlainTextValue::text(e->value(QLatin1String("place"))));
         jsonMap.insert(QLatin1String("seriesTitle"),PlainTextValue::text(e->value(QLatin1String("seriesTitle"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
@@ -2268,11 +2302,10 @@ QVariantMap WriteToZotero::createWebpageJson(Entry *e)
     jsonMap.insert(QLatin1String("title"), PlainTextValue::text(e->value(QLatin1String("title"))));
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("webpage")));
     jsonMap.insert(QLatin1String("date"),PlainTextValue::text(e->value(QLatin1String("date"))));
-    jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
+    //jsonMap.insert(QLatin1String("shortTitle"),PlainTextValue::text(e->value(QLatin1String("shortTitle"))));
     jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
     jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
     jsonMap.insert(QLatin1String("language"),PlainTextValue::text(e->value(QLatin1String("language"))));
-    jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
     //jsonMap.insert(QLatin1String("notes","");
 
@@ -2282,6 +2315,7 @@ QVariantMap WriteToZotero::createWebpageJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("copyright"))));
         jsonMap.insert(QLatin1String("websiteTitle"),PlainTextValue::text(e->value(QLatin1String("booktitle"))));
         jsonMap.insert(QLatin1String("websiteType"),PlainTextValue::text(e->value(QLatin1String("type"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("note"))));
     }
     else {
         jsonMap.insert(QLatin1String("abstractNote"),PlainTextValue::text(e->value(QLatin1String("abstractNote"))));
@@ -2289,6 +2323,7 @@ QVariantMap WriteToZotero::createWebpageJson(Entry *e)
         jsonMap.insert(QLatin1String("rights"),PlainTextValue::text(e->value(QLatin1String("rights"))));
         jsonMap.insert(QLatin1String("websiteTitle"),PlainTextValue::text(e->value(QLatin1String("websiteTitle"))));
         jsonMap.insert(QLatin1String("websiteType"),PlainTextValue::text(e->value(QLatin1String("websiteType"))));
+        jsonMap.insert(QLatin1String("extra"),PlainTextValue::text(e->value(QLatin1String("extra"))));
     }
 
     return jsonMap;
