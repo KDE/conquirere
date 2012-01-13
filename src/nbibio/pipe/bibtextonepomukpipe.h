@@ -95,6 +95,9 @@ private:
     void addJournal(const Value &journal, const Value &volume, const Value &number, Nepomuk::Resource publication,
                     QUrl seriesUrl = Nepomuk::Vocabulary::NBIB::Journal(),
                     QUrl issueUrl = Nepomuk::Vocabulary::NBIB::JournalIssue());
+    void addEncyclopedia(const Value &journal, Nepomuk::Resource publication,
+                    QUrl seriesUrl = Nepomuk::Vocabulary::NBIB::Series(),
+                    QUrl issueUrl = Nepomuk::Vocabulary::NBIB::Encyclopedia());
     void addAbstract(const QString &content, Nepomuk::Resource publication);
     void addAnnote(const QString &content, Nepomuk::Resource publication);
 
@@ -162,6 +165,8 @@ private:
 
     QMap<QString, Nepomuk::Resource> m_allContacts;
     QMap<QString, Nepomuk::Resource> m_allProceedings;
+    QMap<QString, Nepomuk::Resource> m_allSeries;
+    QMap<QString, Nepomuk::Resource> m_allCollection;
     QMap<QString, Nepomuk::Resource> m_allPimoEvents;
     QMap<QString, QString> m_macroLookup;
     Akonadi::Collection m_addressbook;

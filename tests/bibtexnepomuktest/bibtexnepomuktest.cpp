@@ -45,61 +45,121 @@ class BibtexNepomukTest: public QObject
 {
     Q_OBJECT
 private slots:
-    void importToNepomuk();
-    void exportToFile();
-    void checkExportedFile();
+    void initTestCase();
     void cleanupTestCase();
+    void importExportTest_data();
+
+    void init();
+    void importExportTest();
+    void cleanup();
 
 private:
     QDateTime startDate;
     QDateTime endDate;
 
-    NBibImporterBibTex nbImBib;
-    NepomukToBibTexPipe ntnp;
+    NBibImporterBibTex *nbImBib;
+    NepomukToBibTexPipe *ntnp;
     File *importedFile;
     File exportedFile;
 };
 
 QTEST_MAIN(BibtexNepomukTest)
 
-void BibtexNepomukTest::importToNepomuk()
+void BibtexNepomukTest::initTestCase()
 {
-    QStringList errorReadFile;
-    QString testFile = TESTDATADIR + QLatin1String("data/generic.bib");
-    nbImBib.readBibFile(testFile, &errorReadFile);
-
-    if(!errorReadFile.isEmpty())
-        qWarning() << errorReadFile;
-
-    QVERIFY( errorReadFile.isEmpty() );
-
-    importedFile = nbImBib.bibFile();
-    QVERIFY( importedFile != 0 );
-
-    // up to this point we read all data correctly, put it to nepomuk now
-    QStringList errorImportData;
-    startDate = QDateTime::currentDateTime();
-    nbImBib.pipeToNepomuk(&errorImportData);
-    endDate = QDateTime::currentDateTime();
-
-    if(!errorReadFile.isEmpty())
-        qWarning() << errorReadFile;
-
-    QVERIFY( errorReadFile.isEmpty() );
+    nbImBib = 0;
+    ntnp = 0;
+    importedFile = 0;
 }
 
-void BibtexNepomukTest::exportToFile()
+void BibtexNepomukTest::cleanupTestCase()
 {
-    // Step 1 fetch all references we created
+    exportedFile.clear();
+    importedFile->clear();
+    delete nbImBib;
+    nbImBib = 0;
+    delete ntnp;
+    ntnp = 0;
+}
+
+void BibtexNepomukTest::importExportTest_data()
+{
+    QTest::addColumn<QString>("bibfile");
+
+    QString testFileDir = TESTDATADIR + QLatin1String("/data");
+
+    QTest::newRow("generic standard bibtex") << QString("%1/generic_bibtex.bib").arg(testFileDir);
+    QTest::newRow("generic extended bibtex") << QString("%1/generic_extended_bibtex.bib").arg(testFileDir);
+}
+
+void BibtexNepomukTest::init()
+{
+    // clear old data
+    delete nbImBib;
+    nbImBib = 0;
+    delete ntnp;
+    ntnp = 0;
+    exportedFile.clear();
+
+    // create new one
+    nbImBib = new NBibImporterBibTex;
+    ntnp = new NepomukToBibTexPipe;
+}
+
+void BibtexNepomukTest::importExportTest()
+{
+    //######################################################################################
+    //#
+    //# Step 1 read data from testfile
+    //#
+    //######################################################################################
+
+    QFETCH(QString, bibfile);
+    QStringList errorReadFile;
+
+    nbImBib->readBibFile(bibfile, &errorReadFile);
+
+    if(!errorReadFile.isEmpty()) {
+        qWarning() << errorReadFile;
+        QFAIL("Errors occured while reading the bibfile");
+    }
+
+    importedFile = nbImBib->bibFile();
+    QVERIFY( importedFile != 0 );
+
+    //######################################################################################
+    //#
+    //# Step 2 up to this point we read all data correctly, put it to nepomuk now
+    //#
+    //######################################################################################
+
+    QStringList errorImportData;
+    startDate = QDateTime::currentDateTime();
+    nbImBib->pipeToNepomuk(&errorImportData);
+    endDate = QDateTime::currentDateTime();
+
+    if(!errorReadFile.isEmpty()) {
+        qWarning() << errorReadFile;
+        QFAIL("Errors occured while importing the bibfile to Nepomuk");
+    }
+
+    QVERIFY( errorReadFile.isEmpty() );
+
+    //######################################################################################
+    //#
+    //# Step 3 fetch all newly created references
+    //#
+    //######################################################################################
+
     const Nepomuk::Query::LiteralTerm dateFrom( startDate );
     const Nepomuk::Query::LiteralTerm dateTo( endDate );
 
-    Nepomuk::Query::ComparisonTerm lastModifiedStart = Soprano::Vocabulary::NAO::created() > dateFrom;
-    Nepomuk::Query::ComparisonTerm lastModifiedEnd = Soprano::Vocabulary::NAO::created() < dateTo;
+    Nepomuk::Query::ComparisonTerm createdStartDate = Soprano::Vocabulary::NAO::created() > dateFrom;
+    Nepomuk::Query::ComparisonTerm createdEndDate = Soprano::Vocabulary::NAO::created() < dateTo;
     Nepomuk::Query::AndTerm andTerm;
 
-    andTerm.addSubTerm(lastModifiedStart);
-    andTerm.addSubTerm(lastModifiedEnd);
+    andTerm.addSubTerm(createdStartDate);
+    andTerm.addSubTerm(createdEndDate);
     andTerm.addSubTerm(Nepomuk::Query::ResourceTypeTerm(Nepomuk::Vocabulary::NBIB::Reference()));
 
     Nepomuk::Query::Query query( andTerm );
@@ -112,29 +172,35 @@ void BibtexNepomukTest::exportToFile()
         references.append(r.resource());
     }
 
-    // Step 2 export
-    ntnp.addNepomukUries(false);
-    ntnp.pipeExport(references);
+    //######################################################################################
+    //#
+    //# Step 4 export created data to bibfile again
+    //#
+    //######################################################################################
 
-    exportedFile = ntnp.bibtexFile();
+    ntnp->addNepomukUries(false);
+    ntnp->pipeExport(references);
+
+    exportedFile = ntnp->bibtexFile();
 
     QCOMPARE( importedFile->size(), exportedFile.size() );
-}
 
-void BibtexNepomukTest::checkExportedFile()
-{
+    //######################################################################################
+    //#
+    //# Step 5 check if imported data equals exported data
+    //#
+    //######################################################################################
+
     bool compareTestFailed = false;
 
     foreach(QSharedPointer<Element> elementImport, *importedFile) {
         Entry *entryImport = dynamic_cast<Entry *>(elementImport.data());
-        if(!entryImport)
-            continue;
+        if(!entryImport) continue;
 
         bool entryExist = false;
         foreach(QSharedPointer<Element> elementExport, exportedFile) {
             Entry *entryExport = dynamic_cast<Entry *>(elementExport.data());
-            if(!entryExport)
-                continue;
+            if(!entryExport) continue;
 
             if(entryImport->id() == entryExport->id()) {
                 entryExist = true;
@@ -173,7 +239,7 @@ void BibtexNepomukTest::checkExportedFile()
     }
 }
 
-void BibtexNepomukTest::cleanupTestCase()
+void BibtexNepomukTest::cleanup()
 {
     // create our range
     const Nepomuk::Query::LiteralTerm dateFrom( startDate );

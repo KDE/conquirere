@@ -40,7 +40,6 @@ NepomukToBibTexPipe::NepomukToBibTexPipe()
 
 NepomukToBibTexPipe::~NepomukToBibTexPipe()
 {
-
 }
 
 void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
@@ -167,10 +166,10 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
             type = QLatin1String("Inproceedings"); //article in some proceedings paper
         }
         else if(collection.hasType(Nepomuk::Vocabulary::NBIB::Encyclopedia())) {
-            type = QLatin1String("EncyclopediaArticle"); //article in some proceedings paper
+            type = QLatin1String("Article");//QLatin1String("EncyclopediaArticle"); //article in some encyclopedia
         }
         else {
-            type = QLatin1String("Article"); //normal article in a journal or magazine
+            type = QLatin1String("Article"); //normal article in a journal, magazine pr newspaper
         }
     }
     // all other cases
@@ -259,7 +258,7 @@ void NepomukToBibTexPipe::setTitle(Entry *e, Nepomuk::Resource publication, Nepo
     QString booktitle;
 
     // handle special case where "title=" is name of the chapter and "booktitle=" is the name of the book
-    if(e->type() == QLatin1String("Incollection")) {
+    if(e->type() == QLatin1String("Incollection") || e->type() == QLatin1String("DictionaryEntry")) {
         Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
         title = chapter.property(Nepomuk::Vocabulary::NIE::title()).toString();
         booktitle = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
@@ -705,7 +704,7 @@ void NepomukToBibTexPipe::setCopyright(Entry *e, Nepomuk::Resource publication)
     if(!string.isEmpty()) {
         Value v;
         v.append(QSharedPointer<ValueItem>(new PlainText(string)));
-        e->insert(QLatin1String("copyrigth"), v);
+        e->insert(QLatin1String("copyright"), v);
     }
 }
 
@@ -1098,6 +1097,9 @@ void NepomukToBibTexPipe::setArticleType(Entry *e, Nepomuk::Resource publication
         }
         else if(collection.hasType(Nepomuk::Vocabulary::NBIB::MagazinIssue())) {
             articleType = QLatin1String("magazine"); //normal article in a journal or magazine
+        }
+        else if(collection.hasType(Nepomuk::Vocabulary::NBIB::Encyclopedia())) {
+            articleType = QLatin1String("encyclopedia"); //normal article in an ancyclopedia
         }
 
         if(!articleType.isEmpty()) {
