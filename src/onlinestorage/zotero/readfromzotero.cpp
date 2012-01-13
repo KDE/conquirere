@@ -325,7 +325,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
             QString text = i.value().toString().toLower();
 
             if(text == QLatin1String("booksection")) {
-                e->setType(QLatin1String("inbook")); // as inbook/incollection is part of a book with its own name
+                e->setType(QLatin1String("incollection")); // as inbook/incollection is part of a book with its own name
             }
             else if(text == QLatin1String("conferencepaper")) {
                 e->setType(QLatin1String("inproceedings"));

@@ -265,9 +265,10 @@ void NepomukToBibTexPipe::setTitle(Entry *e, Nepomuk::Resource publication, Nepo
 
     // handle special case where "title=" is name of the chapter and "booktitle=" is the name of the book
     if(e->type() == QLatin1String("Incollection") || e->type() == QLatin1String("DictionaryEntry")) {
+        booktitle = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
+
         Nepomuk::Resource chapter = reference.property(Nepomuk::Vocabulary::NBIB::referencedPart()).toResource();
         title = chapter.property(Nepomuk::Vocabulary::NIE::title()).toString();
-        booktitle = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
     }
     else {
         title = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
@@ -803,7 +804,7 @@ void NepomukToBibTexPipe::setISSN(Entry *e, Nepomuk::Resource publication)
     // handles article of a collection in a series which has the issn attached
     if(issnString.isEmpty()) {
         Nepomuk::Resource collection = publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
-        Nepomuk::Resource series2 = collection.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+        Nepomuk::Resource series2 = collection.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
         issnString = series2.property(Nepomuk::Vocabulary::NBIB::issn()).toString();
     }
 

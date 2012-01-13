@@ -159,6 +159,7 @@ void BibTexToNepomukPipe::setSyncDetails(const QString &url, const QString &user
 
 void BibTexToNepomukPipe::import(Entry *e)
 {
+    // conference is just another form of inproceedings...
     if(e->type() == QLatin1String("conference")) {
         e->setType(QLatin1String("inproceedings"));
     }
@@ -783,6 +784,7 @@ void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &vol
         journalResource.addType(Nepomuk::Vocabulary::NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
         journalResource.addType(Nepomuk::Vocabulary::NIE::InformationElement());
         journalResource.setProperty(Nepomuk::Vocabulary::NIE::title(), journalName);
+        m_allSeries.insert(journalName, journalResource);
     }
 
     // now check if the journalIssue exists already
@@ -990,9 +992,6 @@ void BibTexToNepomukPipe::addBooktitle(const QString &content, Nepomuk::Resource
         publication.setProperty(Nepomuk::Vocabulary::NBIB::collection(), proceedingsResource);
         proceedingsResource.addProperty(Nepomuk::Vocabulary::NBIB::article(), publication);
     }
-//    else if() {
-
-//    }
     else {
         publication.setProperty(Nepomuk::Vocabulary::NIE::title(), utfContent);
     }
@@ -1577,26 +1576,16 @@ void BibTexToNepomukPipe::addSeries(const QString &content, Nepomuk::Resource pu
     QString utfContent = m_macroLookup.value(QString(content.toUtf8()), QString(content.toUtf8()));
 
     // check if a series with the same name already exist
-    Nepomuk::Query::ComparisonTerm seriesName( Nepomuk::Vocabulary::NIE::title(), Nepomuk::Query::LiteralTerm( utfContent ) );
-    seriesName.setComparator(Nepomuk::Query::ComparisonTerm::Equal);
-    Nepomuk::Query::ResourceTypeTerm type( Nepomuk::Vocabulary::NBIB::Series() );
-    Nepomuk::Query::Query query( Nepomuk::Query::AndTerm( type, seriesName ) );
 
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
+    seriesResource = m_allSeries.value(utfContent, Nepomuk::Resource());
 
-    if(!queryResult.isEmpty()) {
-        if(queryResult.size() > 1) {
-            qWarning() << "found more than 1 series with the name " << utfContent;
-        }
-
-        seriesResource = queryResult.first().resource();
-    }
-    else {
+    if(!seriesResource.isValid()) {
         qDebug() << "did not find existing series for name" << utfContent;
         seriesResource = Nepomuk::Resource(QUrl(), seriesType);
         seriesResource.addType(Nepomuk::Vocabulary::NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
         seriesResource.addType(Nepomuk::Vocabulary::NIE::InformationElement());
         seriesResource.setProperty(Nepomuk::Vocabulary::NIE::title(), utfContent);
+        m_allSeries.insert(utfContent, seriesResource);
     }
 
     seriesResource.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), publication);
