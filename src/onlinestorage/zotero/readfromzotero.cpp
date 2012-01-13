@@ -114,7 +114,7 @@ void ReadFromZotero::fetchItems(const QString &collection)
 
 void ReadFromZotero::fetchItem(const QString &id, const QString &collection )
 {
-    QString apiCommand = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items/top?format=atom&content=json&limit=10");
+    QString apiCommand = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items/") + id + QLatin1String("?format=atom&content=json&limit=10");
     if(!m_psd.pwd.isEmpty()) {
         apiCommand.append( QLatin1String("&key=") + m_psd.pwd);
     }
