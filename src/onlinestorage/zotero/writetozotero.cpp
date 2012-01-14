@@ -2400,6 +2400,5 @@ void WriteToZotero::splitName(const QString& name, QString &first, QString &last
     }
     else {
         last = name.trimmed();
-        first = QString();
     }
 }

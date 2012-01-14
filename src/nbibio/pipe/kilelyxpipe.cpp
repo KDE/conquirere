@@ -101,8 +101,6 @@ void KileLyxPipe::sendReferences(const QString &refs)
     /// LyX pipe name has to determined always fresh in case LyX or Kile exited
     const QString pipeName = findLyXKilePipe();
 
-    kDebug() << pipeName << refs;
-
     if (pipeName.isEmpty()) {
         m_errorLog->append(i18n("No \"LyX/Kile server pipe\" was detected."));
         m_errorLog->append(defaultHintOnLyXProblems);

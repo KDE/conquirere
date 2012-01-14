@@ -59,7 +59,7 @@ public:
 
 public slots:
     // to remove akonadi dependency in this part of the lib, we just provide the necessray
-    // informations here, collection fetching is then done in conquirere then.
+    // information here, collection fetching is then done in conquirere then.
     // as all we need is the possibility to save if we put data to akonadi and the collection id
     // this makes no difference anyway
     void setAkonadiContactDetails(QList<ProviderSettings::AkonadiDetails> contactCollections);

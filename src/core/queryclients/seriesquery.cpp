@@ -106,7 +106,7 @@ QVariantList SeriesQuery::createDisplayData(const Nepomuk::Resource & res) const
         case Column_Content: {
             QList<Nepomuk::Resource> isSeriesOf = res.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
 
-            //create content for the HTMLDelegate looks a lot better when several entries are beeing displayed
+            //create content for the HTMLDelegate looks a lot better when several entries are being displayed
             QString seriesContent = QLatin1String("<font size=\"85%\">");
             foreach(const Nepomuk::Resource &r, isSeriesOf) {
                 seriesContent.append("&#8226; ");

@@ -122,7 +122,7 @@ void BibtexNepomukTest::importExportTest()
 
     if(!errorReadFile.isEmpty()) {
         qWarning() << errorReadFile;
-        QFAIL("Errors occured while reading the bibfile");
+        QFAIL("Errors occurred while reading the bibfile");
     }
 
     importedFile = nbImBib->bibFile();
@@ -141,7 +141,7 @@ void BibtexNepomukTest::importExportTest()
 
     if(!errorReadFile.isEmpty()) {
         qWarning() << errorReadFile;
-        QFAIL("Errors occured while importing the bibfile to Nepomuk");
+        QFAIL("Errors occurred while importing the bibfile to Nepomuk");
     }
 
     QVERIFY( errorReadFile.isEmpty() );

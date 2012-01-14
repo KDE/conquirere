@@ -23,7 +23,7 @@
 /**
   * @brief wrapper for the kbibtex FileExporters
   *
-  * Only usefull as part of the sync process.
+  * Only useful as part of the sync process.
   *
   * @author Jörg Ehrichs <joerg.ehrichs@gmx.de>
   */

@@ -105,7 +105,7 @@ void EventWidget::deleteButtonClicked()
 {
     QList<Nepomuk::Resource> pubList = m_eventThing.property(Nepomuk::Vocabulary::NBIB::eventPublication()).toResourceList();
 
-    foreach(Nepomuk::Resource r, pubList) {
+    foreach(const Nepomuk::Resource &r, pubList) {
         r.removeProperty(Nepomuk::Vocabulary::NBIB::event(), m_eventThing);
 
         emit resourceCacheNeedsUpdate(r);

@@ -107,7 +107,7 @@ QVariantList EventQuery::createDisplayData(const Nepomuk::Resource & res) const
 
             QString pubString;
             if(!publicationList.isEmpty()) {
-                //create content for the HTMLDelegate looks a lot better when several publication are beeing displayed
+                //create content for the HTMLDelegate looks a lot better when several publication are being displayed
                 pubString = QLatin1String("<font size=\"85%\">");
                 foreach(const Nepomuk::Resource & r, publicationList) {
                     pubString.append("&#8226; ");

@@ -64,7 +64,7 @@ void ZoteroWriteTest::initTestCase()
 
     if(!errorReadFile.isEmpty()) {
         qWarning() << errorReadFile;
-        QFAIL("Errors occured while reading the bibfile");
+        QFAIL("Errors occurred while reading the bibfile");
     }
 
     localFile = nbImBib->bibFile();

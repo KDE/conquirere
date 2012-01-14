@@ -31,6 +31,7 @@
 
 ReadFromFile::ReadFromFile(QObject *parent)
     : ReadFromStorage(parent)
+    , m_importedFile(0)
 {
 }
 

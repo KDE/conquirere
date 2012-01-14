@@ -68,6 +68,7 @@ Library::Library()
     , m_projectSettings(new ProjectSettings())
     , m_dirWatcher(0)
     , m_tagCloud(0)
+    , m_initialImportFinished(false)
 {
 }
 
@@ -215,7 +216,7 @@ void Library::deleteLibrary()
 
     QList<Nepomuk::Resource> gos = m_projectSettings->projectThing().groundingOccurrences();
 
-    // delete all groundOccurences, in our case this should be only the .ini files
+    // delete all groundingOccurences, in our case this should be only the .ini files
     foreach(Nepomuk::Resource r, gos) {
         Nepomuk::File iniFile = r;
         KIO::DeleteJob *dj = KIO::del(iniFile.url(), KIO::HideProgressInfo);
