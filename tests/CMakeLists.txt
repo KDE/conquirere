@@ -4,3 +4,5 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/testdatadir.h.in ${CMAKE_CURRENT_BINA
 # Add Tests
 add_subdirectory( bibtexnepomuktest )
 add_subdirectory( zoteroreadtest )
+add_subdirectory( zoterowritetest )
+

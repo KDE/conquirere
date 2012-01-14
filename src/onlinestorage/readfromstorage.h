@@ -48,6 +48,7 @@ public:
 
     void setAdoptBibtexTypes(bool adopt);
     bool adoptBibtexTypes() const;
+    virtual File *getFile() = 0;
 
 signals:
     /**

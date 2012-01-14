@@ -17,6 +17,8 @@
 
 #include "writetostorage.h"
 
+#include <KDE/KDebug>
+
 #include <QtNetwork/QNetworkReply>
 #include <QDebug>
 

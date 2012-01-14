@@ -55,7 +55,7 @@ public:
     CollectionInfo readCollectionEntry(QXmlStreamReader &xmlReader);
     Entry * readItemEntry(QXmlStreamReader &xmlReader);
     void readJsonContent(Entry *e, const QString &content);
-    const File &getFile();
+    File *getFile();
 
 public slots:
     void fetchItems(const QString &collection = QString());
@@ -80,7 +80,7 @@ private:
     void readJsonContentBibTeX(Entry *e, const QString &content);
 
     QList<CollectionInfo> m_cachedCollectionResult;
-    File m_bibFile;
+    File *m_bibFile;
     QMap<QString, QString> m_zoteroToBibTeX;
 };
 

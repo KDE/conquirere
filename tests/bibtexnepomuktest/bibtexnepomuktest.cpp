@@ -60,7 +60,7 @@ private:
     NBibImporterBibTex *nbImBib;
     NepomukToBibTexPipe *ntnp;
     File *importedFile;
-    File exportedFile;
+    File *exportedFile;
 };
 
 QTEST_MAIN(BibtexNepomukTest)
@@ -70,11 +70,12 @@ void BibtexNepomukTest::initTestCase()
     nbImBib = 0;
     ntnp = 0;
     importedFile = 0;
+    exportedFile = 0;
 }
 
 void BibtexNepomukTest::cleanupTestCase()
 {
-    exportedFile.clear();
+    exportedFile->clear();
     importedFile->clear();
     delete nbImBib;
     nbImBib = 0;
@@ -100,7 +101,6 @@ void BibtexNepomukTest::init()
     nbImBib = 0;
     delete ntnp;
     ntnp = 0;
-    exportedFile.clear();
 
     // create new one
     nbImBib = new NBibImporterBibTex;
@@ -184,7 +184,7 @@ void BibtexNepomukTest::importExportTest()
 
     exportedFile = ntnp->bibtexFile();
 
-    QCOMPARE( importedFile->size(), exportedFile.size() );
+    QCOMPARE( importedFile->size(), exportedFile->size() );
 
     //######################################################################################
     //#
@@ -199,7 +199,7 @@ void BibtexNepomukTest::importExportTest()
         if(!entryImport) continue;
 
         bool entryExist = false;
-        foreach(QSharedPointer<Element> elementExport, exportedFile) {
+        foreach(QSharedPointer<Element> elementExport, *exportedFile) {
             Entry *entryExport = dynamic_cast<Entry *>(elementExport.data());
             if(!entryExport) continue;
 

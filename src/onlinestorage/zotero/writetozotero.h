@@ -44,6 +44,8 @@ public:
     explicit WriteToZotero(QObject *parent = 0);
     virtual ~WriteToZotero();
 
+    File *getFile();
+
 public slots:
     void pushItems(const File &items, const QString &collection = QString());
     void pushNewItems(const File &items, const QString &collection = QString());
@@ -61,7 +63,7 @@ protected slots:
 
 private:
     bool m_allRequestsSend;
-    File m_entriesAfterSync;
+    File *m_entriesAfterSync;
     qreal m_progressPerFile;
     qreal m_progress;
     QString m_addToCollection;
@@ -81,7 +83,7 @@ private:
     /**
       * Creates the list of valid contributor entries from zotero
       *
-      * This wa we know all the bibtex keys @c createCreatorsJson() has to look for
+      * This way we know all the bibtex keys @c createCreatorsJson() has to look for
       *
       * @see https://api.zotero.org/itemTypeCreatorTypes?itemType=XXX where XX can be webpage, book, etc
       */
@@ -144,15 +146,14 @@ private:
     // copied from kbibtex/fileimporterbibtex
     // necessary to detect/parse propper persons from entries like translator= etc.
     // kbibtex supports this only for author/editor fields
-    enum CommaContainment { ccNoComma = 0, ccContainsComma = 1 };/**
-     * Split a person's name into its parts and construct a Person object from them.
-     * This is a functions specialized on the properties of (La)TeX code considering
-     * e.g. curly brackets.
-     * @param name The persons name
-     * @return A Person object containing the name
-     * @see Person
-     */
+    /**
+      * splits a lis tof names into single names (normally names have XXX and XXX)
+      */
     void splitPersonList(const QString& name, QStringList &resultList);
+    /**
+      * simplified version of the nonfunctional splitname from kbibtex
+      */
+    void splitName(const QString& name, QString &first, QString &last );
 };
 
 #endif // WRITETOZOTERO_H

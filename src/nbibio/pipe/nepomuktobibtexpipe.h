@@ -50,7 +50,7 @@ public:
     /**
       * @return the transformed KBibTeX File with all BibTeX entries
       */
-    File bibtexFile() const;
+    File *bibtexFile() const;
 
     /**
       * If @p strict is true the nepomuk resource types will be transformed into standard bibtex types
@@ -129,8 +129,7 @@ private:
     // Zotero addition
     void setArticleType(Entry *e, Nepomuk::Resource publication);
 
-
-    File m_bibtexFile;
+    File *m_bibtexFile;
     bool m_strict;
     bool m_addNepomukUris;
     QString m_syncUrl;

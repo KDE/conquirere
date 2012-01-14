@@ -39,6 +39,8 @@ class ReadFromFile : public ReadFromStorage
 public:
     explicit ReadFromFile(QObject *parent = 0);
 
+    File *getFile();
+
 public slots:
     /**
       * Opens a file via KIO::NetAccess from any space
@@ -66,6 +68,9 @@ public slots:
 
 protected slots:
     void requestFinished();
+
+private:
+    File *m_importedFile;
 };
 
 #endif // READFROMFILE_H

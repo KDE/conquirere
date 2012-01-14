@@ -391,10 +391,9 @@ Entry *BibTexToNepomukPipe::getDiff(Nepomuk::Resource local, Entry *externalEntr
     NepomukToBibTexPipe ntbp;
     ntbp.pipeExport(resources);
 
-    File localBibFile;
-    localBibFile.append(ntbp.bibtexFile());
+    File *localBibFile = ntbp.bibtexFile();
 
-    Entry *localEntry = static_cast<Entry *>(localBibFile.first().data());
+    Entry *localEntry = static_cast<Entry *>(localBibFile->first().data());
     if(!localEntry)
         return 0;
 

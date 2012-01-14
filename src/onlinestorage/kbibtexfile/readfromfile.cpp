@@ -34,6 +34,11 @@ ReadFromFile::ReadFromFile(QObject *parent)
 {
 }
 
+File *ReadFromFile::getFile()
+{
+    return m_importedFile;
+}
+
 void ReadFromFile::fetchItems(const QString &collection)
 {
     Q_UNUSED(collection);
@@ -70,9 +75,9 @@ void ReadFromFile::fetchItems(const QString &collection)
 
         connect(importer, SIGNAL(progress(int,int)), this, SLOT(calculateProgress(int,int)));
 
-        File *importedBibFile = importer->load(&bibFile);
+        m_importedFile = importer->load(&bibFile);
 
-        emit itemsInfo(*importedBibFile);
+        emit itemsInfo(*m_importedFile);
 
         KIO::NetAccess::removeTempFile(tmpFile);
     }

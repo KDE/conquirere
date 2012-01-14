@@ -34,6 +34,8 @@ public:
     explicit WriteToFile(QObject *parent = 0);
     virtual ~WriteToFile();
 
+    File *getFile();
+
 public slots:
     void pushItems(const File &items, const QString &collection = QString());
     void pushNewItems(const File &items, const QString &collection = QString());
@@ -78,7 +80,7 @@ private:
       */
     void exportFile(const File &items);
 
-    File emptyFile;
+    File *m_emptyFile;
 };
 
 #endif // WRITETOFILE_H

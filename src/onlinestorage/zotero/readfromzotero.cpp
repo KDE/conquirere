@@ -27,6 +27,7 @@
 
 ReadFromZotero::ReadFromZotero(QObject *parent)
     : ReadFromStorage(parent)
+    , m_bibFile(new File)
 {
     // build the mappinglist
     // @see https://api.zotero.org/itemTypeFields?itemType=presentation&pprint=1
@@ -71,7 +72,7 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     m_zoteroToBibTeX["codePages"] = QLatin1String("pages");
     m_zoteroToBibTeX["court"] = QLatin1String("organization");
     m_zoteroToBibTeX["issuingAuthority"] = QLatin1String("organization");
-    m_zoteroToBibTeX["legislativebody"] = QLatin1String("institution");
+    m_zoteroToBibTeX["legislativeBody"] = QLatin1String("institution");
     m_zoteroToBibTeX["session"] = QLatin1String("event");
     m_zoteroToBibTeX["dateDecided"] = QLatin1String("date");
     m_zoteroToBibTeX["firstPage"] = QLatin1String("pages");
@@ -79,6 +80,7 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     m_zoteroToBibTeX["extra"] = QLatin1String("note");
     m_zoteroToBibTeX["meetingName"] = QLatin1String("event");
     m_zoteroToBibTeX["conferenceName"] = QLatin1String("event");
+    m_zoteroToBibTeX["mapType"] = QLatin1String("type");
 
     //creator type adoption
     // translates original zotero types to author/editor
@@ -94,7 +96,6 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     m_zoteroToBibTeX["podcaster"] = QLatin1String("author");
     m_zoteroToBibTeX["presenter"] = QLatin1String("author");
 
-    m_zoteroToBibTeX["contributor"] = QLatin1String("editor");
     m_zoteroToBibTeX["composer"] = QLatin1String("editor");
 }
 
@@ -158,7 +159,7 @@ void ReadFromZotero::fetchCollection(const QString &collection )
 void ReadFromZotero::requestFinished()
 {
     m_cachedCollectionResult.clear();
-    m_bibFile.clear();
+    m_bibFile->clear();
 
     QXmlStreamReader xmlReader;
     xmlReader.setDevice(reply());
@@ -175,7 +176,7 @@ void ReadFromZotero::requestFinished()
         if(xmlReader.name() == QLatin1String("entry")) {
             switch(requestType()) {
             case Items:
-                m_bibFile.append( QSharedPointer<Element>(readItemEntry(xmlReader)) );
+                m_bibFile->append( QSharedPointer<Element>(readItemEntry(xmlReader)) );
                 break;
             case Collections:
                 m_cachedCollectionResult.append( readCollectionEntry(xmlReader) );
@@ -186,7 +187,7 @@ void ReadFromZotero::requestFinished()
 
     switch(requestType()) {
     case Items:
-        emit itemsInfo(m_bibFile);
+        emit itemsInfo(*m_bibFile);
         break;
     case Collections:
         emit collectionsInfo(m_cachedCollectionResult);
@@ -280,7 +281,7 @@ void ReadFromZotero::readJsonContent(Entry *e, const QString &content)
     }
 }
 
-const File & ReadFromZotero::getFile()
+File *ReadFromZotero::getFile()
 {
     return m_bibFile;
 }

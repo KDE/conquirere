@@ -33,7 +33,8 @@
 #include <QtCore/QDebug>
 
 NepomukToBibTexPipe::NepomukToBibTexPipe()
-    : m_strict(false)
+    : m_bibtexFile(0)
+    , m_strict(false)
     , m_addNepomukUris(false)
 {
 }
@@ -44,6 +45,9 @@ NepomukToBibTexPipe::~NepomukToBibTexPipe()
 
 void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
 {
+    delete m_bibtexFile;
+    m_bibtexFile = new File;
+
     int citeKeyNumer = 1;
     QString citeRef = QLatin1String("BibTexExport");
 
@@ -102,11 +106,11 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
         }
 
 
-        m_bibtexFile.append(entry);
+        m_bibtexFile->append(entry);
     }
 }
 
-File NepomukToBibTexPipe::bibtexFile() const
+File *NepomukToBibTexPipe::bibtexFile() const
 {
     return m_bibtexFile;
 }

@@ -241,7 +241,7 @@ void SidebarWidget::findPdf()
     QList<Nepomuk::Resource> exportList;
     exportList.append(m_curResource);
     bibtexPipe.pipeExport(exportList);
-    File bibFile = bibtexPipe.bibtexFile();
+    File bibFile = *bibtexPipe.bibtexFile();
 
     Entry *e = dynamic_cast<Entry *>(bibFile.first().data());
 

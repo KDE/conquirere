@@ -405,7 +405,7 @@ void TableViewMenu::exportBibTexReference()
         resourcelist.append(m_nepomukResource);
         ntbp.pipeExport(resourcelist);
 
-        f = ntbp.bibtexFile();
+        f = *ntbp.bibtexFile();
     }
 
     BibTexToClipboardPipe btcp;
@@ -426,7 +426,7 @@ void TableViewMenu::exportCiteKey()
         resourcelist.append(m_nepomukResource);
         ntbp.pipeExport(resourcelist);
 
-        f = ntbp.bibtexFile();
+        f = *ntbp.bibtexFile();
     }
 
     BibTexToClipboardPipe btcp;

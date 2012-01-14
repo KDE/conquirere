@@ -18,7 +18,7 @@
 #include "../testdatadir.h"
 
 #include "onlinestorage/zotero/zoteroinfo.h"
-#include "onlinestorage/zotero/readfromzotero.h"
+#include "onlinestorage/zotero/writetozotero.h"
 #include "nbibio/nbibimporterbibtex.h"
 
 #include <kbibtex/file.h>
@@ -26,39 +26,35 @@
 #include <kbibtex/entry.h>
 #include <kbibtex/fileexporterbibtex.h>
 
-#include <QMetaType>
-#include <QMetaTypeId>
 #include <QtTest>
 #include <QtDebug>
-#include <QDateTime>
 
-class ZoteroReadTest: public QObject
+class ZoteroWriteTest: public QObject
 {
     Q_OBJECT
 private slots:
     void initTestCase();
     void cleanupTestCase();
-    void readZoteroTest_data();
+    void writeZoteroTest_data();
 
     void init();
-    void readZoteroTest();
+    void writeZoteroTest();
     void cleanup();
 
 private:
     NBibImporterBibTex *nbImBib;
     QString unitTestCollection;
-    ReadFromZotero *rfz;
+    WriteToZotero *wtz;
     File *localFile;
 };
 
-QTEST_MAIN(ZoteroReadTest)
+QTEST_MAIN(ZoteroWriteTest)
 
-void ZoteroReadTest::initTestCase()
+void ZoteroWriteTest::initTestCase()
 {
-    rfz = 0;
+    wtz = 0;
     localFile = 0;
-    unitTestCollection = QString("HS6N25ER");
-
+    unitTestCollection = QString("SX3G5959");
 
     QString testFile = TESTDATADIR + QLatin1String("/data/generic_zotero.bib");
     QStringList errorReadFile;
@@ -75,12 +71,14 @@ void ZoteroReadTest::initTestCase()
     QVERIFY( localFile != 0 );
 }
 
-void ZoteroReadTest::cleanupTestCase()
+void ZoteroWriteTest::cleanupTestCase()
 {
-    delete rfz;
+    delete wtz;
+    //delete localFile;
+    delete nbImBib;
 }
 
-void ZoteroReadTest::readZoteroTest_data()
+void ZoteroWriteTest::writeZoteroTest_data()
 {
     QTest::addColumn<QString>("zoteroKey");
 
@@ -112,52 +110,73 @@ void ZoteroReadTest::readZoteroTest_data()
     QTest::newRow("Zotero Book Section") << "TN44DMTR";
 }
 
-void ZoteroReadTest::init()
+void ZoteroWriteTest::init()
 {
     // create new one
-    delete rfz;
-    rfz = new ReadFromZotero;
-    rfz->setAdoptBibtexTypes(true);
+    delete wtz;
+    wtz = new WriteToZotero;
+    wtz->setAdoptBibtexTypes(true);
 
     ProviderSyncDetails psd;
     psd.providerInfo = new ZoteroInfo();
     psd.userName = QString("795913");
-    psd.pwd = QString("lzhbQu69OUJZ7g0ouvLEjn6N");
+    psd.pwd = QString("vM0lJUwMJsfXdC7KfdwFWptH");
     psd.url = QString("users");
-    psd.collection = QString("HS6N25ER");
-    psd.syncMode = Download_Only;
+    psd.collection = QString("SX3G5959");
+    psd.syncMode = Upload_Only;
     psd.mergeMode = UseServer;
     psd.askBeforeDeletion = false;
     psd.importAttachments = false;
     psd.exportAttachments = false;
 
-    rfz->setProviderSettings(psd);
+    wtz->setProviderSettings(psd);
 }
 
-void ZoteroReadTest::readZoteroTest()
+void ZoteroWriteTest::writeZoteroTest()
 {
     //######################################################################################
     //#
-    //# Step 1 fetch data from zotero for 1 item as specified in QFetch
+    //# Step 1 get only 1 tem from the imported file as specified in QFetch
     //#
     //######################################################################################
 
     QFETCH(QString, zoteroKey);
-    rfz->fetchItem(zoteroKey, unitTestCollection );
+    File *uploadFile = new File;
+    Entry *entryToCheckAgainst = 0;
+
+    foreach(QSharedPointer<Element> e, *localFile) {
+        Entry *localEntry = dynamic_cast<Entry *>(e.data());
+
+        if(localEntry->id() == zoteroKey) {
+            entryToCheckAgainst = localEntry;
+            uploadFile->append(e);
+            break;
+        }
+    }
+
+    QCOMPARE( uploadFile->size(), 1 );
+
+    //######################################################################################
+    //#
+    //# Step 2 push data to zotero for 1 item as specified in QFetch
+    //#
+    //######################################################################################
+
+    wtz->pushItems(*uploadFile, unitTestCollection);
 
     qRegisterMetaType<File>("File");
-    QSignalSpy spy(rfz, SIGNAL(itemsInfo(File)));
+    QSignalSpy spy(wtz, SIGNAL(itemsInfo(File)));
     while (spy.count() == 0) {
         QTest::qWait(200);
     }
 
-    File *result = rfz->getFile();
+    File *result = wtz->getFile();
 
     QCOMPARE( result->size(), 1 );
 
     //######################################################################################
     //#
-    //# Step 2 check against local file
+    //# Step 3 check the result from the server against the data from the local entry
     //#
     //######################################################################################
     bool compareTestFailed = false;
@@ -166,53 +185,37 @@ void ZoteroReadTest::readZoteroTest()
         Entry *entryImport = dynamic_cast<Entry *>(elementImport.data());
         if(!entryImport) continue;
 
-        bool entryExist = false;
-        foreach(QSharedPointer<Element> elementExport, *localFile) {
-            Entry *entryExport = dynamic_cast<Entry *>(elementExport.data());
-            if(!entryExport) continue;
-
-            if(entryImport->id() == entryExport->id()) {
-                entryExist = true;
-
-                // check if both have the same type
-                if(entryImport->type().toLower() != entryExport->type().toLower()) {
-                    qWarning() << entryImport->id() << " || Imported type-> "<< entryImport->type() << " |#| not equal local |#|" << entryExport->type();
-                    compareTestFailed = true;
-                }
-
-                // now check each and every key/value if they are the same
-                // run over any import entry keys and check if the exported has the same with the same value
-                QMapIterator<QString, Value> i(*entryExport);
-                while (i.hasNext()) {
-                    i.next();
-
-                    Value importedValue = entryImport->value(i.key());
-                    Value exportedValue = entryExport->value(i.key());
-                    if(PlainTextValue::text(importedValue) != PlainTextValue::text(exportedValue)) {
-                        qWarning() << entryImport->id() << " || Zotero key " << i.key() << "-> "<< PlainTextValue::text(importedValue) << " |#| not equal local |#|" << PlainTextValue::text(exportedValue);
-                        compareTestFailed = true;
-                    }
-                }
-            }
-
+        // check if both have the same type
+        if(entryImport->type().toLower() != entryToCheckAgainst->type().toLower()) {
+            qWarning() << entryImport->id() << " || Imported type-> "<< entryImport->type() << " |#| not equal local |#|" << entryToCheckAgainst->type();
+            compareTestFailed = true;
         }
 
-        if(!entryExist) {
-            qWarning() << entryImport->id() << "not found in local file";
-            compareTestFailed = true;
+        // now check each and every key/value if they are the same
+        // run over any import entry keys and check if the exported has the same with the same value
+        QMapIterator<QString, Value> i(*entryToCheckAgainst);
+        while (i.hasNext()) {
+            i.next();
+
+            Value importedValue = entryImport->value(i.key());
+            Value exportedValue = entryToCheckAgainst->value(i.key());
+            if(PlainTextValue::text(importedValue) != PlainTextValue::text(exportedValue)) {
+                qWarning() << entryImport->id() << " || Zotero key " << i.key() << "-> "<< PlainTextValue::text(importedValue) << " |#| not equal local |#|" << PlainTextValue::text(exportedValue);
+                compareTestFailed = true;
+            }
         }
     }
 
-    delete result;
+    //delete result;
 
     if(compareTestFailed) {
-        QFAIL("Exported data from nepomuk is not equal the local data from the file");
+        QFAIL("Exported data from nepomuk is not equal the imported data from the file");
     }
 }
 
-void ZoteroReadTest::cleanup()
+void ZoteroWriteTest::cleanup()
 {
 
 }
 
-#include "zoteroreadtest.moc"
+#include "zoterowritetest.moc"

@@ -39,12 +39,18 @@
 
 WriteToFile::WriteToFile(QObject *parent)
     : WriteToStorage(parent)
+    , m_emptyFile(0)
 {
 }
 
 WriteToFile::~WriteToFile()
 {
 
+}
+
+File *WriteToFile::getFile()
+{
+    return m_emptyFile;
 }
 
 void WriteToFile::pushItems(const File &items, const QString &collection)
@@ -137,7 +143,7 @@ void WriteToFile::exportFile(const File &items)
 
     emit progress(100);
 
-    emit itemsInfo(emptyFile);
+    emit itemsInfo(*m_emptyFile);
 }
 
 void WriteToFile::addItemsToCollection(const QList<QString> &ids, const QString &collection )
