@@ -24,6 +24,7 @@
 #include "nbibio/pipe/bibtextoclipboardpipe.h"
 #include "nbibio/pipe/bibtextonepomukpipe.h"
 #include "nbibio/pipe/nepomuktobibtexpipe.h"
+#include "nbibio/pipe/kilelyxpipe.h"
 
 #include <kbibtex/entry.h>
 #include <kbibtex/value.h>
@@ -159,6 +160,11 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
     connect(exportCiteKey, SIGNAL(triggered(bool)),this, SLOT(exportCiteKey()));
     openExport.addAction(exportCiteKey);
     actionCollection.append(exportCiteKey);
+
+    QAction *sendToKileLyX = new QAction(KIcon(QLatin1String("document-export")), i18n("Send to Kile/LyX"), this);
+    connect(sendToKileLyX, SIGNAL(triggered(bool)),this, SLOT(sendToKileLyX()));
+    menu.addAction(sendToKileLyX);
+    actionCollection.append(sendToKileLyX);
 
     menu.addSeparator();
 
@@ -432,4 +438,20 @@ void TableViewMenu::exportCiteKey()
     BibTexToClipboardPipe btcp;
     btcp.setExportType(BibTexToClipboardPipe::Export_CITEKEY);
     btcp.pipeExport(f);
+}
+
+void TableViewMenu::sendToKileLyX()
+{
+    File f;
+    KileLyxPipe klp;
+
+    if(m_bibtexEntry) {
+        f.append(m_bibtexEntry);
+        klp.pipeExport(f);
+    }
+    else {
+        QList<Nepomuk::Resource> resourcelist;
+        resourcelist.append(m_nepomukResource);
+        klp.pipeExport(resourcelist);
+    }
 }

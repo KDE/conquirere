@@ -16,6 +16,8 @@ set(nbibio_LIB_SRCS
 
     pipe/nepomukpipe.cpp
     pipe/nepomuktobibtexpipe.cpp
+
+    pipe/kilelyxpipe.cpp
 )
 
 kde4_add_library( nbibio STATIC ${nbibio_LIB_SRCS} )

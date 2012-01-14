@@ -46,6 +46,7 @@ public slots:
     void importSearchResult();
     void exportBibTexReference();
     void exportCiteKey();
+    void sendToKileLyX();
 
 private:
     MainWindow *m_parent;
