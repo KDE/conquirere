@@ -121,8 +121,12 @@ void WelcomeWidget::updateStatistics()
             jsFunction.append(rowCount);
             jsFunction.append(QLatin1String("')"));
             break;
-        case Resource_Series:
         case Resource_Event:
+            jsFunction = QLatin1String("makeTxt('countevents','");
+            jsFunction.append(rowCount);
+            jsFunction.append(QLatin1String("')"));
+            break;
+        case Resource_Series:
         case Resource_SearchResults:
         case Resource_Library:
             break;

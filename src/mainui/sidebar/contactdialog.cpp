@@ -21,6 +21,7 @@
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/NCO>
 #include <Soprano/Vocabulary/NAO>
+#include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/ComparisonTerm>
 #include <Nepomuk/Query/LiteralTerm>
@@ -81,7 +82,7 @@ void ContactDialog::fillWidget()
     foreach(const Nepomuk::Resource & r, resList) {
         QListWidgetItem *i = new QListWidgetItem;
         i->setText(r.genericLabel());
-        i->setData(Qt::UserRole, r.property("http://akonadi-project.org/ontologies/aneo#akonadiItemId").toString());
+        i->setData(Qt::UserRole, r.property(Nepomuk::Vocabulary::NIE::url()).toString());
         i->setData(Qt::UserRole + 1, r.resourceUri());
 
         QString symbol = r.property(Soprano::Vocabulary::NAO::hasSymbol()).toString();
@@ -115,7 +116,8 @@ void ContactDialog::editItem()
         }
     }
     else {
-        const Akonadi::Item contact = Akonadi::Item(i->data(Qt::UserRole).toInt());
+        QString strippedId = akonadiItemID.remove(QLatin1String("akonadi:?item="));
+        const Akonadi::Item contact = Akonadi::Item(strippedId.toInt());
 
         Akonadi::ContactEditorDialog *dlg = new Akonadi::ContactEditorDialog( Akonadi::ContactEditorDialog::EditMode, this );
         dlg->setContact( contact );
@@ -153,7 +155,7 @@ void ContactDialog::addNepomukContact()
 
 void ContactDialog::contactStored( const Akonadi::Item& item)
 {
-    Nepomuk::Query::ComparisonTerm akonadiItemId( QUrl("http://akonadi-project.org/ontologies/aneo#akonadiItemId"), Nepomuk::Query::LiteralTerm( item.id() ) );
+    Nepomuk::Query::ComparisonTerm akonadiItemId( Nepomuk::Vocabulary::NIE::url(), Nepomuk::Query::LiteralTerm( item.url().toEncoded() ) );
 
     Nepomuk::Query::Query query( akonadiItemId );
     QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
@@ -165,8 +167,7 @@ void ContactDialog::contactStored( const Akonadi::Item& item)
 
     QString akonadiResUrl = QLatin1String("akonadi:?item=");
     akonadiResUrl.append(QString::number(item.id()));
-    newContact = Nepomuk::Resource(QUrl(akonadiResUrl), Nepomuk::Vocabulary::NCO::PersonContact());
-    newContact.setProperty("http://akonadi-project.org/ontologies/aneo#akonadiItemId", item.id());
+    newContact = Nepomuk::Resource(item.url(), Nepomuk::Vocabulary::NCO::PersonContact());
 
     if (item.hasPayload<KABC::Addressee>())
     {
@@ -186,7 +187,8 @@ void ContactDialog::contactStored( const Akonadi::Item& item)
     // and add it to the listwidget
     QListWidgetItem *i = new QListWidgetItem;
     i->setText(newContact.genericLabel());
-    i->setData(Qt::UserRole, item.id());
+    i->setData(Qt::UserRole, item.url());
+    i->setData(Qt::UserRole +1, newContact.uri());
     i->setIcon(KIcon("view-pim-contacts"));
     ui->klistwidget->addItem(i);
 }
@@ -253,9 +255,11 @@ void ContactDialog::pushContactToAkonadi()
             qDebug() << "Error:" << job->errorString();
         }
 
-        contactRes.setProperty("http://akonadi-project.org/ontologies/aneo#akonadiItemId",job->item().id() );
+        contactRes.setProperty(Nepomuk::Vocabulary::NIE::url(), QUrl(job->item().url()));
+        //contactRes.addType( QUrl("http://akonadi-project.org/ontologies/aneo#AkonadiDataObject"));
+        //contactRes.setProperty("http://akonadi-project.org/ontologies/aneo#akonadiItemId",job->item().id() );
 
-        i->setData(Qt::UserRole, job->item().id());
+        i->setData(Qt::UserRole, job->item().url().toEncoded());
         i->setIcon(KIcon("view-pim-contacts"));
     }
 
