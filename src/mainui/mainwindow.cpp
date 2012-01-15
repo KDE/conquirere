@@ -107,9 +107,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    createGUI(0); // disconnects KPart gui elements again
-    delete m_documentPreview;
-
     delete m_libraryWidget;
     delete m_mainView;
     delete m_sidebarWidget;
@@ -453,6 +450,15 @@ void MainWindow::DEBUGDELETEALLDATA()
     }
 }
 
+bool MainWindow::queryExit()
+{
+    // this here is necessary ... otherwise we crash on close because of the hiding event ...
+    createGUI(0);
+    delete m_documentPreview;
+    m_documentPreview = 0;
+    return true;
+}
+
 void MainWindow::setupActions()
 {
     //File action menu
@@ -607,7 +613,7 @@ void MainWindow::setupMainWindow()
     addDockWidget(Qt::RightDockWidgetArea, m_sidebarWidget);
 
     //add panel for the document preview
-    m_documentPreview = new DocumentPreview(this);
+    m_documentPreview = new DocumentPreview();
     m_centerWindow->addDockWidget(Qt::BottomDockWidgetArea, m_documentPreview);
 
     // the search widget

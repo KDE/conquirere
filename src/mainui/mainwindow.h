@@ -80,6 +80,7 @@ public slots:
     void DEBUGDELETEALLDATA();
 
 private:
+    bool queryExit();
     void setupActions();
     void setupMainWindow();
 

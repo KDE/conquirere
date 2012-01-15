@@ -101,6 +101,7 @@ private slots:
       * akonadi item in there
       *
       * @todo fix resource duplication when a new akonadi item is created
+      * @bug aknoadi_nepomuk_feeder refuse to add its data to nepomuk if a resource with a nie:url = akonadi:?items=12345 exists already ... should merge it normally
       */
     void pushContactToAkonadi();
 
