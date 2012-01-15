@@ -106,7 +106,13 @@ MainWindow::~MainWindow()
     delete m_sidebarWidget;
     delete m_searchWidget;
 
-    qDeleteAll(m_libraryList);
+//    qDeleteAll(m_libraryList); not working ...
+    QMapIterator<Library *, QWidget *> i(m_libraryList);
+     while (i.hasNext()) {
+         i.next();
+         delete i.key();
+         delete i.value();
+     }
 }
 
 void MainWindow::createLibrary()

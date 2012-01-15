@@ -292,7 +292,7 @@ void Library::finishedInitialImport()
 
 void Library::setupModels()
 {
-    DocumentModel *documentModel = new DocumentModel;
+    DocumentModel *documentModel = new DocumentModel(this);
     documentModel->setLibrary(this);
     QSortFilterProxyModel *documentFilter = new QSortFilterProxyModel;
     documentFilter->setSourceModel(documentModel);
