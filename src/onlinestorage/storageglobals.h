@@ -58,6 +58,7 @@ class StorageInfo;
   * Holds information about the provider to sync with
   */
 struct ProviderSyncDetails {
+    QString uuid;
     StorageInfo *providerInfo;
     QString userName;
     QString pwd;

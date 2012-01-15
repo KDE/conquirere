@@ -65,11 +65,11 @@ const QString NOTEPATH = I18N_NOOP2("Name of the notes folder to store user libr
 Library::Library()
     : QObject(0)
     , m_libraryType(Library_Project)
-    , m_projectSettings(new ProjectSettings())
     , m_dirWatcher(0)
     , m_tagCloud(0)
     , m_initialImportFinished(false)
 {
+    m_projectSettings = new ProjectSettings(this);
 }
 
 Library::~Library()
@@ -111,23 +111,27 @@ Nepomuk::Thing Library::createLibrary(const QString & name, const QString & desc
 
     // check if a library path is set
     // we create the path if not available then
-    QString inipath;
     if(!path.isEmpty()) {
         QDir project;
         project.mkpath(path);
         project.setPath(path);
         project.mkdir(DOCPATH);
         project.mkdir(NOTEPATH);
-        inipath = path;
-    }
-    else {
-        inipath = KStandardDirs::locateLocal("appdata", QLatin1String("projects"));
     }
 
     // create the project .ini file
-    QString iniFile = inipath + QLatin1String("/") + name + QLatin1String(".ini");
+    QString inipath = KStandardDirs::locateLocal("appdata", QLatin1String("projects"));
+    QString iniFile;
 
-    ProjectSettings *projectSettings = new ProjectSettings;
+    // ensure the inifile name is not already available (unlikely with uuid, but not impossible
+    QFileInfo fi;
+    do {
+        iniFile = inipath + QLatin1String("/") + QUuid::createUuid().toString() + QLatin1String(".ini");
+        fi.setFile(iniFile);
+    }
+    while(fi.exists());
+
+    ProjectSettings *projectSettings = new ProjectSettings(0);
     projectSettings->setSettingsFile(iniFile);
     projectSettings->setName(name);
     projectSettings->setDescription(description);

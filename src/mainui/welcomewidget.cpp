@@ -43,6 +43,8 @@ WelcomeWidget::WelcomeWidget(Library *library, QWidget *parent)
 {
     ui->setupUi(this);
     setupGui();
+
+    connect(m_library->settings(), SIGNAL(projectDetailsChanged(Library*)), this, SLOT(generateHtml()));
 }
 
 WelcomeWidget::~WelcomeWidget()

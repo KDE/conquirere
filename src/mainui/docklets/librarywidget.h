@@ -51,6 +51,7 @@ public slots:
 private slots:
     void selectionchanged();
     void listContextMenu(const QPoint & pos);
+    void renameLibrary(Library *p);
 
     void exportToFile();
     void importFromFile();

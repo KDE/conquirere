@@ -27,6 +27,8 @@
 
 #include "onlinestorage/storageglobals.h"
 
+class Library;
+
 class ProjectSettings : public QObject
 {
     Q_OBJECT
@@ -37,7 +39,7 @@ public:
         NOTES
     };
 
-    explicit ProjectSettings(QObject *parent = 0);
+    explicit ProjectSettings(Library *lib);
 
     void setSettingsFile(const QString &projectFile);
     void loadSettings(const QString &projectFile);
@@ -48,7 +50,7 @@ public:
 
     Nepomuk::Tag projectTag() const;
 
-    void setName(const QString &name);
+    void setName(const QString &newName);
     QString name() const;
 
     void setDescription(const QString &description);
@@ -56,20 +58,22 @@ public:
 
     void setProjectDir(const QString &path);
     QString projectDir(LibrarySpecialDir lsd = BASE) const;
+    void deleteProjectDir();
 
-    void setProviderSyncDetails(const ProviderSyncDetails &psd, const QString &uuid);
+    QString setProviderSyncDetails(const ProviderSyncDetails &psd, const QString &uuid);
     void removeProviderSyncDetails(const QString &uuid);
     ProviderSyncDetails providerSyncDetails(const QString &uuid) const;
     QList<ProviderSyncDetails> allProviderSyncDetails() const;
 
 signals:
-    void projectDetailsChaned();
+    void projectDetailsChanged(Library *lib);
     void projectDirChanged(const QString &newPath);
     void newProviderAdded(const QString &uuid);
     void providerChanged(const QString &uuid);
     void providerRemoved(const QString &uuid);
 
 private:
+    Library *m_library;
     KSharedConfigPtr m_projectConfig;
 
     Nepomuk::Thing m_pimoThing;

@@ -15,6 +15,10 @@ set(mainui_LIB_SRCS
     docklets/qlibrarytreewidgetitem.cpp
     docklets/searchwidget.cpp
 
+    settings/projectsettingsdialog.cpp
+    settings/projectgeneralsettings.cpp
+    settings/projectsyncsettings.cpp
+
     sync/bibtexexportdialog.cpp
     sync/bibteximportwizard.cpp
     sync/synczoterodialog.cpp
@@ -45,6 +49,9 @@ kde4_add_ui_files( mainui_LIB_SRCS
                    docklets/librarywidget.ui
                    docklets/documentpreview.ui
                    docklets/searchwidget.ui
+
+                   settings/projectgeneralsettings.ui
+                   settings/projectsyncsettings.ui
 
                    sync/bibtexexportdialog.ui
                    sync/bibteximportwizard.ui

@@ -31,7 +31,8 @@ enum ProjectTreeRole {
     Role_LibraryType = Qt::UserRole,    /**< keeps the LibraryType */
     Role_ResourceType,                  /**< keeps one of the ResourceSelection entries */
     Role_ResourceFilter,                /**< keeps one of the BibEntryType entries */
-    Role_ProjectName                    /**< keeps the name of the conected project */
+    Role_ProjectName,                   /**< keeps the name of the conected project */
+    Role_ProjectThing                   /**< keeps the pimo::thing uri conected project so we can identify it*/
 };
 
 enum LibraryType {

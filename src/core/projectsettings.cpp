@@ -23,10 +23,12 @@
 #include <Nepomuk/Variant>
 #include <Nepomuk/File>
 #include <Nepomuk/Vocabulary/NIE>
+#include <Soprano/Vocabulary/NAO>
+#include <Nepomuk/Tag>
 
 #include <KDE/KUrl>
 #include <KDE/KConfigGroup>
-#include <KDE/KIO/CopyJob>
+#include <KDE/KIO/DeleteJob>
 #include <KDE/KStandardDirs>
 
 #include <KDE/KDebug>
@@ -37,8 +39,9 @@
 const QString DOCPATH = I18N_NOOP2("Name of the documents folder to store user library documents","documents");  /**< @todo make this configurable */
 const QString NOTEPATH = I18N_NOOP2("Name of the notes folder to store user library documents","notes");     /**< @todo make this configurable */
 
-ProjectSettings::ProjectSettings(QObject *parent)
-: QObject(parent)
+ProjectSettings::ProjectSettings(Library *lib)
+    : QObject(0)
+    , m_library(lib)
 {
 }
 
@@ -99,13 +102,29 @@ Nepomuk::Tag ProjectSettings::projectTag() const
     return m_projectTag;
 }
 
-void ProjectSettings::setName(const QString &name)
+void ProjectSettings::setName(const QString &newName)
 {
+    QString oldName = name();
+
     KConfigGroup generalGroup( m_projectConfig, "Conquirere" );
-    generalGroup.writeEntry("name", name);
+    generalGroup.writeEntry("name", newName);
     generalGroup.sync();
 
-    emit projectDetailsChaned();
+    // update the used tag for the project
+    Nepomuk::Tag libraryTag = Nepomuk::Tag( oldName );
+    libraryTag.setLabel(newName);
+    QStringList identifiers;
+    identifiers << newName;
+    libraryTag.setIdentifiers(identifiers);
+
+    // update the project thing
+    if(projectThing().isValid()) {
+        projectThing().setProperty( Nepomuk::Vocabulary::NIE::title() , newName);
+        QString identifier = QLatin1String("Conquirere Library:") + newName;
+        projectThing().setProperty( Soprano::Vocabulary::NAO::identifier() , identifier);
+    }
+
+    emit projectDetailsChanged(m_library);
 }
 
 QString ProjectSettings::name() const
@@ -120,7 +139,12 @@ void ProjectSettings::setDescription(const QString &description)
     generalGroup.writeEntry("description", description);
     generalGroup.sync();
 
-    emit projectDetailsChaned();
+    // update the project thing
+    if(projectThing().isValid()) {
+        projectThing().setProperty( Soprano::Vocabulary::NAO::description() , description);
+    }
+
+    emit projectDetailsChanged(m_library);
 }
 
 QString ProjectSettings::description() const
@@ -134,46 +158,19 @@ void ProjectSettings::setProjectDir(const QString &path)
     if(path == projectDir())
         return;
 
-    QString systemPath = KStandardDirs::locateLocal("appdata", QLatin1String("projects"));
-
-    QString newIniFile;
-    QString oldIniFile = projectDir();
-    if(oldIniFile.isEmpty())
-        oldIniFile = systemPath;
-
-    if(path.isEmpty()) {
-        // move inifile to system space
-        newIniFile = systemPath;
-    }
-    else {
-        // move inifile to user selected space
-        newIniFile = path;
-
-        // create the folder
-        QDir project;
-        project.mkpath(path);
-        project.mkdir(DOCPATH);
-        project.mkdir(NOTEPATH);
-    }
-
-    oldIniFile = oldIniFile + QLatin1String("/") + name() + QLatin1String(".ini");
-    newIniFile = newIniFile + QLatin1String("/") + name() + QLatin1String(".ini");
-
     // update config file
     KConfigGroup generalGroup( m_projectConfig, "Conquirere" );
     generalGroup.writeEntry("libraryDir", path);
     generalGroup.sync();
 
-    // move ini file to new space
-    KIO::CopyJob *cj = KIO::move(oldIniFile, newIniFile);
-    cj->exec();
-    delete cj;
-
-    //update nepomuk data for the settingsfile to the pimo:.project
-    Nepomuk::File settingsFile = Nepomuk::File(KUrl(newIniFile));
-    QString settingsFileName = QLatin1String("file://") + newIniFile;
-    settingsFile.setProperty(Nepomuk::Vocabulary::NIE::url(), settingsFileName);
-    m_pimoThing.addGroundingOccurrence(settingsFile);
+    if(!path.isEmpty()) {
+        // create the folder
+        QDir project;
+        project.mkpath(path);
+        project.setPath(path);
+        project.mkdir(DOCPATH);
+        project.mkdir(NOTEPATH);
+    }
 
     emit projectDirChanged( projectDir() );
 }
@@ -195,7 +192,15 @@ QString ProjectSettings::projectDir(LibrarySpecialDir lsd) const
     }
 }
 
-void ProjectSettings::setProviderSyncDetails(const ProviderSyncDetails &psd, const QString &uuid)
+void ProjectSettings::deleteProjectDir()
+{
+    // delete the project dir
+    KIO::DeleteJob *dj = KIO::del(KUrl(projectDir()));
+    dj->exec();
+    delete dj;
+}
+
+QString ProjectSettings::setProviderSyncDetails(const ProviderSyncDetails &psd, const QString &uuid)
 {
     Q_ASSERT_X( psd.providerInfo, "setProviderSyncDetails", "no valid StorageInfo pointer" );
 
@@ -226,6 +231,8 @@ void ProjectSettings::setProviderSyncDetails(const ProviderSyncDetails &psd, con
         emit providerChanged(validUuid);
     else
         emit newProviderAdded(validUuid);
+
+    return validUuid;
 }
 
 void ProjectSettings::removeProviderSyncDetails(const QString &uuid)
@@ -249,6 +256,7 @@ ProviderSyncDetails ProjectSettings::providerSyncDetails(const QString &uuid) co
     KConfigGroup providerGroup( &syncGroup, uuid );
 
     ProviderSyncDetails psd;
+    psd.uuid = uuid;
 
     QString providerType = providerGroup.readEntry("provider", QString());
     if(providerType == QLatin1String("zotero")) {

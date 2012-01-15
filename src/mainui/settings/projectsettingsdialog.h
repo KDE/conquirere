@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Jörg Ehrichs <joerg.ehichs@gmx.de>
+ * Copyright 2012 Jörg Ehrichs <joerg.ehrichs@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,37 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef WELCOMEWIDGET_H
-#define WELCOMEWIDGET_H
+#ifndef PROJECTSETTINGSDIALOG_H
+#define PROJECTSETTINGSDIALOG_H
 
-#include <QtGui/QWidget>
+#include <KDE/KPageDialog>
 
-namespace Ui {
-    class WelcomeWidget;
-}
+#include "core/projectsettings.h"
 
-class Library;
-class KHTMLPart;
+class ProjectGeneralSettings;
+class ProjectSyncSettings;
 
-class WelcomeWidget : public QWidget
+class ProjectSettingsDialog : public KPageDialog
 {
     Q_OBJECT
-
 public:
-    explicit WelcomeWidget(Library *library, QWidget *parent = 0);
-    ~WelcomeWidget();
+    explicit ProjectSettingsDialog(QWidget *parent = 0);
+    virtual ~ProjectSettingsDialog();
+
+    void setProjectSettings(ProjectSettings *ps);
+
+public slots:
+    void contentChanged();
 
 private slots:
-    void updateStatistics();
-    void updateTagCloud();
-    void generateHtml();
+    void applyChanges();
 
 private:
-    void setupGui();
+    void setupPages();
 
-    Ui::WelcomeWidget *ui;
-    Library *m_library;
-    KHTMLPart *m_htmlPart;
+    ProjectGeneralSettings *m_pgs;
+    ProjectSyncSettings *m_pss;
 };
 
-#endif // WELCOMEWIDGET_H
+#endif // PROJECTSETTINGSDIALOG_H
