@@ -99,11 +99,11 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     createGUI(0); // disconnects KPart gui elements again
+    delete m_documentPreview;
 
     delete m_libraryWidget;
     delete m_mainView;
     delete m_sidebarWidget;
-    delete m_documentPreview;
     delete m_searchWidget;
 
     qDeleteAll(m_libraryList);

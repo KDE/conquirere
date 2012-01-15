@@ -34,6 +34,7 @@
 #include <QtGui/QLabel>
 
 #include <QtCore/QDebug>
+#include <KDE/KDebug>
 
 DocumentPreview::DocumentPreview(QWidget *parent) :
     QDockWidget(parent),
@@ -52,10 +53,10 @@ DocumentPreview::DocumentPreview(QWidget *parent) :
 
 DocumentPreview::~DocumentPreview()
 {
-    delete ui;
     delete m_part;
     delete m_labelInvalid;
     delete m_labelNone;
+    delete ui;
 }
 
 void DocumentPreview::setResource(Nepomuk::Resource & resource)
@@ -162,12 +163,11 @@ void DocumentPreview::showUrl(int index)
 
         if(m_part) {
             m_part->closeUrl();
+            emit activateKPart(0);
+
+            delete m_part;
+            m_part = 0;
         }
-
-        emit activateKPart(0);
-
-        delete m_part;
-        m_part = 0;
 
         return;
     }
@@ -188,6 +188,7 @@ void DocumentPreview::showUrl(int index)
     }
 
     m_lastPartsName = partsName;
+    emit activateKPart(0);
     delete m_part;
     m_part = 0;
 
@@ -219,14 +220,15 @@ void DocumentPreview::openExternally() {
 
 void DocumentPreview::hideEvent ( QHideEvent * event )
 {
+//    m_lastPartsName.clear();
     emit activateKPart(0);
 
-    delete m_part;
-    m_part = 0;
-    delete m_labelNone;
-    m_labelNone = 0;
-    delete m_labelInvalid;
-    m_labelInvalid = 0;
+//    delete m_part;
+//    m_part = 0;
+//    delete m_labelNone;
+//    m_labelNone = 0;
+//    delete m_labelInvalid;
+//    m_labelInvalid = 0;
 }
 
 void DocumentPreview::showEvent ( QShowEvent * event )

@@ -425,8 +425,12 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
 void LibraryWidget::connectModelSignals(QLibraryTreeWidgetItem *root, Library *p, ResourceSelection resourceType)
 {
     QSortFilterProxyModel *viewModel = p->viewModel(resourceType);
+    if(!viewModel)
+        return;
 
     NepomukModel *nm = qobject_cast<NepomukModel *>(viewModel->sourceModel());
+    if(!nm)
+        return;
 
     connect(nm, SIGNAL(queryStarted()), root, SLOT(startQueryFetch()));
     connect(nm, SIGNAL(queryFinished()), root, SLOT(stopQueryFetch()));
