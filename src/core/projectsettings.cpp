@@ -17,6 +17,8 @@
 
 #include "projectsettings.h"
 
+#include "core/library.h"
+
 #include "onlinestorage/zotero/zoteroinfo.h"
 #include "onlinestorage/kbibtexfile/kbtfileinfo.h"
 
@@ -61,7 +63,7 @@ void ProjectSettings::loadSettings(const QString &projectFile)
     QString name = generalGroup.readEntry(QLatin1String("name"), QString());
     m_projectTag = Nepomuk::Tag( name );
 
-    if(!m_pimoThing.isValid()) {
+    if(!m_pimoThing.isValid() && m_library->libraryType() != Library_System) {
         kDebug() << "Warning loaded project without valid PIMO::Project() resource @ project" << name;
     }
 }

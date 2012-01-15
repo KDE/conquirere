@@ -246,6 +246,7 @@ void LibraryWidget::deleteProject()
 
     if(selectedLibrary) {
         emit doCloseLibrary(selectedLibrary);
+        selectedLibrary->deleteLibrary();
     }
 }
 

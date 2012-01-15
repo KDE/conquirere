@@ -229,6 +229,9 @@ void Library::deleteLibrary()
         r.remove();
     }
 
+    // remove connection from the overall pimo collection to the deleted library
+    conquiereCollections.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), m_projectSettings->projectThing());
+
     // remove nepomuk resources for it
     m_projectSettings->projectThing().remove();
     m_projectSettings->projectTag().remove();

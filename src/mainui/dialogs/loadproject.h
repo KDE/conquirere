@@ -38,7 +38,6 @@ public:
 
 private slots:
     void showCollection(int currentRow);
-    void showExternalCollection(const QString &newurl);
 
     void accept();
 

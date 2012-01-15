@@ -92,8 +92,17 @@ MainWindow::MainWindow(QWidget *parent)
     : KParts::MainWindow()
     , m_curLibrary(0)
 {
+    Q_UNUSED(parent);
+
     setupMainWindow();
     setupActions();
+
+    //create the system library
+    m_systemLibrary = new Library();
+    m_systemLibrary->loadSystemLibrary();
+    openLibrary(m_systemLibrary);
+
+    switchView(Resource_Library, Max_BibTypes, m_systemLibrary);
 }
 
 MainWindow::~MainWindow()
@@ -223,7 +232,6 @@ void MainWindow::deleteLibrarySelection()
         closeLibrary(selectedLib);
         selectedLib->deleteLibrary();
     }
-
 }
 
 void MainWindow::closeLibrarySelection()
@@ -257,6 +265,8 @@ void MainWindow::closeLibrary(Library *l)
     if(!l || l->libraryType() == Library_System) {
         return;
     }
+
+    disconnect(m_sidebarWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), l, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
     QWidget *w = m_libraryList.take(l);
     if(w) {
@@ -380,21 +390,17 @@ void MainWindow::switchView(ResourceSelection selection, BibEntryType filter, Li
 
     m_curLibrary = p;
 
-    if(m_curLibrary->libraryType() == Library_System) {
+    if(openLibraries().empty()) {
         QAction *a = actionCollection()->action(QLatin1String("delete_project"));
-        if(a)
-            a->setEnabled(false);
+        a->setEnabled(false);
         QAction *b = actionCollection()->action(QLatin1String("close_project"));
-        if(b)
-            b->setEnabled(false);
+        b->setEnabled(false);
     }
     else {
         QAction *a = actionCollection()->action(QLatin1String("delete_project"));
-        if(a)
-            a->setEnabled(true);
+        a->setEnabled(true);
         QAction *b = actionCollection()->action(QLatin1String("close_project"));
-        if(b)
-            b->setEnabled(true);
+        b->setEnabled(true);
     }
 }
 
@@ -409,12 +415,18 @@ void MainWindow::showSearchResults()
     m_mainView->showSearchResult();
     m_sidebarWidget->showSearchResults();
 
-    QAction *a = actionCollection()->action(QLatin1String("delete_project"));
-    if(a)
+    if(openLibraries().empty()) {
+        QAction *a = actionCollection()->action(QLatin1String("delete_project"));
         a->setEnabled(false);
-    QAction *b = actionCollection()->action(QLatin1String("close_project"));
-    if(b)
+        QAction *b = actionCollection()->action(QLatin1String("close_project"));
         b->setEnabled(false);
+    }
+    else {
+        QAction *a = actionCollection()->action(QLatin1String("delete_project"));
+        a->setEnabled(true);
+        QAction *b = actionCollection()->action(QLatin1String("close_project"));
+        b->setEnabled(true);
+    }
 }
 
 void MainWindow::DEBUGDELETEALLDATA()
@@ -578,6 +590,7 @@ void MainWindow::setupMainWindow()
     m_centerWindow->setCentralWidget(nw);
     setCentralWidget(m_centerWindow);
 
+    // the main table view
     m_mainView = new ResourceTableWidget();
     m_mainView->hide();
     m_mainView->setMainWindow(this);
@@ -597,6 +610,7 @@ void MainWindow::setupMainWindow()
     m_documentPreview = new DocumentPreview(this);
     m_centerWindow->addDockWidget(Qt::BottomDockWidgetArea, m_documentPreview);
 
+    // the search widget
     m_searchWidget = new SearchWidget(this);
     addDockWidget(Qt::LeftDockWidgetArea, m_searchWidget);
     m_mainView->setSearchResultModel(m_searchWidget->searchResultModel());
@@ -619,13 +633,6 @@ void MainWindow::setupMainWindow()
 
     connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,BibEntryType,Library*)),
             this, SLOT(switchView(ResourceSelection,BibEntryType,Library*)));
-
-    //create the system library
-    m_systemLibrary = new Library();
-    m_systemLibrary->loadSystemLibrary();
-    openLibrary(m_systemLibrary);
-
-    switchView(Resource_Library, Max_BibTypes, m_systemLibrary);
 
     loadConfig();
 

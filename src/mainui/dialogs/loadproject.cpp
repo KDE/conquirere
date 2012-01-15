@@ -44,11 +44,6 @@ LoadProject::LoadProject(QWidget *parent)
     loadCollections();
 
     connect(ui->listWidget, SIGNAL(currentRowChanged(int)), this, SLOT(showCollection(int)));
-    connect(ui->listWidget, SIGNAL(currentRowChanged(int)), ui->kurlrequester, SLOT(clear()));
-    connect(ui->listWidget, SIGNAL(clicked(QModelIndex)), ui->kurlrequester, SLOT(clear()));
-    connect(ui->kurlrequester, SIGNAL(textChanged(QString)), this, SLOT(showExternalCollection(QString)));
-
-    ui->kurlrequester->lineEdit()->setReadOnly(true);
 }
 
 LoadProject::~LoadProject()
@@ -81,29 +76,13 @@ void LoadProject::showCollection(int currentRow)
     }
 }
 
-void LoadProject::showExternalCollection(const QString &newurl)
-{
-    if(newurl.isEmpty())
-        return;
-
-    KConfig libconfig( newurl, KConfig::SimpleConfig );
-    KConfigGroup generalGroup( &libconfig, "Conquirere" );
-
-    ui->labelDescription->setText(generalGroup.readEntry(QLatin1String("description")));
-    ui->labelName->setText(generalGroup.readEntry(QLatin1String("name")));
-}
-
 void LoadProject::accept()
 {
     m_loadLibrary = new Library();
-    if(!ui->kurlrequester->url().isEmpty()) {
-        m_loadLibrary->loadLibrary(ui->kurlrequester->url().path());
-    }
-    else {
-        QListWidgetItem *curItem = ui->listWidget->currentItem();
-        Nepomuk::Resource collection = Nepomuk::Resource(curItem->data(Qt::UserRole).toString());
-        m_loadLibrary->loadLibrary(collection);
-    }
+
+    QListWidgetItem *curItem = ui->listWidget->currentItem();
+    Nepomuk::Resource collection = Nepomuk::Resource(curItem->data(Qt::UserRole).toString());
+    m_loadLibrary->loadLibrary(collection);
 
     QDialog::accept();
 }
