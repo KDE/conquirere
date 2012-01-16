@@ -71,6 +71,7 @@ public slots:
     void dbBackup();
 
     void updateListCache();
+    void showConqSettings();
 
     // other helping slots
     void connectKPartGui(KParts::Part * part);

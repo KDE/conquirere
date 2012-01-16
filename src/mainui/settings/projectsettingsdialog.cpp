@@ -17,6 +17,7 @@
 
 #include "projectsettingsdialog.h"
 
+#include "core/projectsettings.h"
 #include "projectgeneralsettings.h"
 #include "projectsyncsettings.h"
 

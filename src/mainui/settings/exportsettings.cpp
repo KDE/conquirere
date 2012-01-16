@@ -15,35 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PROJECTSETTINGSDIALOG_H
-#define PROJECTSETTINGSDIALOG_H
+#include "exportsettings.h"
+#include "ui_exportsettings.h"
 
-#include <KDE/KPageDialog>
-
-class ProjectSettings;
-class ProjectGeneralSettings;
-class ProjectSyncSettings;
-
-class ProjectSettingsDialog : public KPageDialog
+ExportSettings::ExportSettings(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::ExportSettings)
 {
-    Q_OBJECT
-public:
-    explicit ProjectSettingsDialog(QWidget *parent = 0);
-    virtual ~ProjectSettingsDialog();
+    ui->setupUi(this);
+}
 
-    void setProjectSettings(ProjectSettings *ps);
-
-public slots:
-    void contentChanged();
-
-private slots:
-    void applyChanges();
-
-private:
-    void setupPages();
-
-    ProjectGeneralSettings *m_pgs;
-    ProjectSyncSettings *m_pss;
-};
-
-#endif // PROJECTSETTINGSDIALOG_H
+ExportSettings::~ExportSettings()
+{
+    delete ui;
+}

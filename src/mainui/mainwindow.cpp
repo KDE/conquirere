@@ -24,10 +24,13 @@
 #include "welcomewidget.h"
 #include "resourcetablewidget.h"
 
+#include "settings/conquireresettingsdialog.h"
 #include "sidebar/sidebarwidget.h"
+
 #include "dialogs/newprojectwizard.h"
 #include "dialogs/loadproject.h"
 #include "dialogs/selectopenproject.h"
+
 #include "docklets/librarywidget.h"
 #include "docklets/documentpreview.h"
 #include "docklets/searchwidget.h"
@@ -350,6 +353,13 @@ void MainWindow::updateListCache()
     }
 }
 
+void MainWindow::showConqSettings()
+{
+    ConquirereSettingsDialog csd;
+
+    csd.exec();
+}
+
 void MainWindow::connectKPartGui(KParts::Part * part)
 {
     // this cause the screen to flicker as it rebuilds the GUI
@@ -561,6 +571,13 @@ void MainWindow::setupActions()
     updateListCache->setIcon(KIcon(QLatin1String("view-refresh")));
     actionCollection()->addAction(QLatin1String("update_list_cache"), updateListCache);
     connect(updateListCache, SIGNAL(triggered(bool)),this, SLOT(updateListCache()));
+
+    // settings action
+    KAction* openSettings = new KAction(this);
+    openSettings->setText(i18n("Configure Conquirere"));
+    openSettings->setIcon(KIcon(QLatin1String("view-refresh")));
+    actionCollection()->addAction(QLatin1String("open_settings"), openSettings);
+    connect(openSettings, SIGNAL(triggered(bool)),this, SLOT(showConqSettings()));
 
 
     // ##############################################

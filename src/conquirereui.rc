@@ -37,6 +37,11 @@
 	<Action name="db_backup" />
       <Merge/>
     </Menu>
+    <Menu name="view">
+      <text>View</text>
+      <Action name="update_list_cache" />
+      <Merge/>
+    </Menu>
     <Menu name="settings">
       <Menu name="toggle"><text>Toggle Docks</text>
 	<Action name="toggle_library" />
@@ -45,6 +50,7 @@
 	<Action name="toggle_search" />
       </Menu>
       <Merge/>
+      <Action name="open_settings" />
     </Menu>
     <Merge/>
   </MenuBar>

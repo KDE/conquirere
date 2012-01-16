@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ExportSettings</class>
+ <widget class="QWidget" name="ExportSettings">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>466</width>
+    <height>372</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <property name="documentMode">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="refs">
+      <attribute name="title">
+       <string>Copy Reference</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Specify what and how references are send. Either via the Kile/LyX pipe or via &quot;copy reference to clipboard&quot;.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Reference command:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="KComboBox" name="editRefCommand">
+           <item>
+            <property name="text">
+             <string>No command</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>\cite{...}</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>\citealt{...}</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>\citeauthor{...}</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>\citeauthor*{...}</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>\citeyear{...}</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>\citeyearpar{...}</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>\shortcite{...}</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>\citet{...}</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>\citet*{...}</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>\citep{...}</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>\citep*{...}</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Kile/LyX pipe:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="KLineEdit" name="editPipe"/>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="bibtex">
+      <attribute name="title">
+       <string>BibTeX</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_2">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::ExpandingFieldsGrow</enum>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Encoding:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="KComboBox" name="kcombobox"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>String Delimiters:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="KComboBox" name="kcombobox_2">
+         <item>
+          <property name="text">
+           <string>&quot;...&quot;</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>{...}</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>(...)</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Comment Quoting:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="KComboBox" name="kcombobox_3">
+         <item>
+          <property name="text">
+           <string>None</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>@comment{...}</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>%{...}</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Keyword Casing:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="KComboBox" name="kcombobox_4">
+         <item>
+          <property name="text">
+           <string>lowercase</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>initial capital</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>UpperCamelCase</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>lowerCamelCase</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>UPPERCASE</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_8">
+         <property name="text">
+          <string>Protect Casing:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QCheckBox" name="checkBox">
+         <property name="text">
+          <string>Protect Titles</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>Person Names Formating:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="KComboBox" name="kcombobox_5">
+         <item>
+          <property name="text">
+           <string>John Doe Jr.</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Doe, Jr., Jon</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>KComboBox</class>
+   <extends>QComboBox</extends>
+   <header>kcombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>klineedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

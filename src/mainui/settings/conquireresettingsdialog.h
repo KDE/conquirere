@@ -15,23 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PROJECTSETTINGSDIALOG_H
-#define PROJECTSETTINGSDIALOG_H
+#ifndef CONQUIRERESETTINGSDIALOG_H
+#define CONQUIRERESETTINGSDIALOG_H
 
 #include <KDE/KPageDialog>
 
-class ProjectSettings;
-class ProjectGeneralSettings;
-class ProjectSyncSettings;
+class ExportSettings;
 
-class ProjectSettingsDialog : public KPageDialog
+class ConquirereSettingsDialog : public KPageDialog
 {
     Q_OBJECT
 public:
-    explicit ProjectSettingsDialog(QWidget *parent = 0);
-    virtual ~ProjectSettingsDialog();
-
-    void setProjectSettings(ProjectSettings *ps);
+    explicit ConquirereSettingsDialog(QWidget *parent = 0);
+    virtual ~ConquirereSettingsDialog();
 
 public slots:
     void contentChanged();
@@ -42,8 +38,8 @@ private slots:
 private:
     void setupPages();
 
-    ProjectGeneralSettings *m_pgs;
-    ProjectSyncSettings *m_pss;
+    ExportSettings *m_exportSettings;
+
 };
 
-#endif // PROJECTSETTINGSDIALOG_H
+#endif // CONQUIRERESETTINGSDIALOG_H
