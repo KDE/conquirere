@@ -356,6 +356,7 @@ void MainWindow::updateListCache()
 void MainWindow::showConqSettings()
 {
     ConquirereSettingsDialog csd;
+    csd.setProjectSettings(m_systemLibrary->settings());
 
     csd.exec();
 }
@@ -575,7 +576,7 @@ void MainWindow::setupActions()
     // settings action
     KAction* openSettings = new KAction(this);
     openSettings->setText(i18n("Configure Conquirere"));
-    openSettings->setIcon(KIcon(QLatin1String("view-refresh")));
+    openSettings->setIcon(KIcon(QLatin1String("configure")));
     actionCollection()->addAction(QLatin1String("open_settings"), openSettings);
     connect(openSettings, SIGNAL(triggered(bool)),this, SLOT(showConqSettings()));
 

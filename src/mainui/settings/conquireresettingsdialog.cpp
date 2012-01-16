@@ -18,6 +18,7 @@
 #include "conquireresettingsdialog.h"
 
 #include "exportsettings.h"
+#include "systemsyncsettings.h"
 
 #include <KDE/KLocale>
 #include <KDE/KPageWidgetItem>
@@ -35,6 +36,11 @@ ConquirereSettingsDialog::ConquirereSettingsDialog(QWidget *parent)
 ConquirereSettingsDialog::~ConquirereSettingsDialog()
 {
 
+}
+
+void ConquirereSettingsDialog::setProjectSettings(ProjectSettings *ps)
+{
+    m_systemSyncSettings->setProjectSettings(ps);
 }
 
 void ConquirereSettingsDialog::contentChanged()
@@ -63,7 +69,16 @@ void ConquirereSettingsDialog::setupPages()
     connect(this, SIGNAL(okClicked()), m_exportSettings, SLOT(applySettings()));
     connect(m_exportSettings, SIGNAL(contentChanged()), this, SLOT(contentChanged()));
 
-    KPageWidgetItem *pwitem = addPage( m_exportSettings, i18n( "Export Settings" ) );
-    pwitem->setIcon( KIcon( "document-export" ) );
+    KPageWidgetItem *esitem = addPage( m_exportSettings, i18n( "Export" ) );
+    esitem->setIcon( KIcon( "document-export" ) );
+
+    m_systemSyncSettings = new SystemSyncSettings();
+    connect(this, SIGNAL(applyClicked()), m_systemSyncSettings, SLOT(applySettings()));
+    connect(this, SIGNAL(resetClicked()), m_systemSyncSettings, SLOT(resetSettings()));
+    connect(this, SIGNAL(okClicked()), m_systemSyncSettings, SLOT(applySettings()));
+    connect(m_systemSyncSettings, SIGNAL(contentChanged()), this, SLOT(contentChanged()));
+
+    KPageWidgetItem *sssitem = addPage( m_systemSyncSettings, i18n( "Synchronize" ) );
+    sssitem->setIcon( KIcon( "view-refresh" ) );
 
 }

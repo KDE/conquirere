@@ -31,6 +31,8 @@
 #include <kbibtex/fileexporterxslt.h>
 #include <kbibtex/fileexporterbibtex.h>
 
+#include "nbibio/conquirere.h"
+
 NBibExporterFile::NBibExporterFile()
     : m_fileType(EXPORT_BIBTEX)
 {
@@ -66,6 +68,15 @@ bool NBibExporterFile::save(QIODevice *iodevice, const QList<Nepomuk::Resource> 
     case EXPORT_BIBTEX:
     {
         FileExporterBibTeX feb;
+        /*
+        feb.setEncoding(ConqSettings::encoding())
+        feb.keyEncoding = ConqSettings::encoding();
+        feb.keyStringDelimiter = ConqSettings::stringDelimiters();
+        feb.keyQuoteComment = (FileExporterBibTeX::QuoteComment)ConqSettings::commentQuoting();
+
+        feb.keyKeywordCasing = (KBibTeX::Casing)ConqSettings::keywordCasing();
+        feb.keyProtectCasing;
+*/
         feb.save(iodevice, &f, errorLog);
         break;
     }

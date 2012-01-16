@@ -16,17 +16,26 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QTabWidget" name="tabWidget">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="documentMode">
       <bool>true</bool>
      </property>
      <widget class="QWidget" name="refs">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <attribute name="title">
        <string>Copy Reference</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>10</number>
+       </property>
        <item>
         <widget class="QLabel" name="label_3">
          <property name="text">
@@ -110,15 +119,19 @@
            </item>
           </widget>
          </item>
+         <item row="1" column="1">
+          <widget class="KUrlRequester" name="editPipe">
+           <property name="mode">
+            <set>KFile::File|KFile::LocalOnly</set>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="0">
           <widget class="QLabel" name="label_2">
            <property name="text">
             <string>Kile/LyX pipe:</string>
            </property>
           </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="KLineEdit" name="editPipe"/>
          </item>
         </layout>
        </item>
@@ -138,6 +151,9 @@
       </layout>
      </widget>
      <widget class="QWidget" name="bibtex">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <attribute name="title">
        <string>BibTeX</string>
       </attribute>
@@ -153,7 +169,7 @@
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="KComboBox" name="kcombobox"/>
+        <widget class="KComboBox" name="editEncoding"/>
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="label_5">
@@ -163,23 +179,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="KComboBox" name="kcombobox_2">
-         <item>
-          <property name="text">
-           <string>&quot;...&quot;</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>{...}</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>(...)</string>
-          </property>
-         </item>
-        </widget>
+        <widget class="KComboBox" name="editDelimiters"/>
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_6">
@@ -189,23 +189,7 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="KComboBox" name="kcombobox_3">
-         <item>
-          <property name="text">
-           <string>None</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>@comment{...}</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>%{...}</string>
-          </property>
-         </item>
-        </widget>
+        <widget class="KComboBox" name="editQuoting"/>
        </item>
        <item row="3" column="0">
         <widget class="QLabel" name="label_7">
@@ -215,33 +199,7 @@
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="KComboBox" name="kcombobox_4">
-         <item>
-          <property name="text">
-           <string>lowercase</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>initial capital</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>UpperCamelCase</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>lowerCamelCase</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>UPPERCASE</string>
-          </property>
-         </item>
-        </widget>
+        <widget class="KComboBox" name="editCasing"/>
        </item>
        <item row="4" column="0">
         <widget class="QLabel" name="label_8">
@@ -251,7 +209,7 @@
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="QCheckBox" name="checkBox">
+        <widget class="QCheckBox" name="cbProtectCasing">
          <property name="text">
           <string>Protect Titles</string>
          </property>
@@ -265,15 +223,109 @@
         </widget>
        </item>
        <item row="5" column="1">
-        <widget class="KComboBox" name="kcombobox_5">
+        <widget class="KComboBox" name="editPersonFormating"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pdf">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <attribute name="title">
+       <string>Pdf</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_3">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::ExpandingFieldsGrow</enum>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelPaperSize">
+         <property name="text">
+          <string>Paper Size:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="KComboBox" name="editPaperSize">
          <item>
           <property name="text">
-           <string>John Doe Jr.</string>
+           <string>A4</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Doe, Jr., Jon</string>
+           <string>Legal</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Letter</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelBabelLang">
+         <property name="text">
+          <string>Language for 'babel':</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="KComboBox" name="editBabelLang">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <item>
+          <property name="text">
+           <string>english</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ngerman</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>swedish</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="labelBibStyle">
+         <property name="text">
+          <string>Bibliography style:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="KComboBox" name="editBibStyle">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <property name="currentIndex">
+          <number>2</number>
+         </property>
+         <item>
+          <property name="text">
+           <string>abbrv</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>alpha</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>plain</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>dcv</string>
           </property>
          </item>
         </widget>
@@ -291,9 +343,9 @@
    <header>kcombobox.h</header>
   </customwidget>
   <customwidget>
-   <class>KLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>klineedit.h</header>
+   <class>KUrlRequester</class>
+   <extends>QFrame</extends>
+   <header>kurlrequester.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

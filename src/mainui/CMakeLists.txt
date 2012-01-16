@@ -21,6 +21,7 @@ set(mainui_LIB_SRCS
 
     settings/conquireresettingsdialog.cpp
     settings/exportsettings.cpp
+    settings/systemsyncsettings.cpp
 
     sync/bibtexexportdialog.cpp
     sync/bibteximportwizard.cpp
@@ -56,6 +57,7 @@ kde4_add_ui_files( mainui_LIB_SRCS
                    settings/projectgeneralsettings.ui
                    settings/projectsyncsettings.ui
                    settings/exportsettings.ui
+                   settings/systemsyncsettings.ui
 
                    sync/bibtexexportdialog.ui
                    sync/bibteximportwizard.ui

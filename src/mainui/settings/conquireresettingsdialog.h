@@ -21,6 +21,8 @@
 #include <KDE/KPageDialog>
 
 class ExportSettings;
+class SystemSyncSettings;
+class ProjectSettings;
 
 class ConquirereSettingsDialog : public KPageDialog
 {
@@ -28,6 +30,8 @@ class ConquirereSettingsDialog : public KPageDialog
 public:
     explicit ConquirereSettingsDialog(QWidget *parent = 0);
     virtual ~ConquirereSettingsDialog();
+
+    void setProjectSettings(ProjectSettings *ps);
 
 public slots:
     void contentChanged();
@@ -38,7 +42,8 @@ private slots:
 private:
     void setupPages();
 
-    ExportSettings *m_exportSettings;
+    ExportSettings     *m_exportSettings;
+    SystemSyncSettings *m_systemSyncSettings;
 
 };
 

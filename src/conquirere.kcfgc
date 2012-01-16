@@ -1,0 +1,4 @@
+File=conquirere.kcfg
+ClassName=ConqSettings 
+Singleton=true 
+Mutators=true 

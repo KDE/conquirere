@@ -17,6 +17,8 @@
 
 #include "bibtextoclipboardpipe.h"
 
+#include "nbibio/conquirere.h"
+
 #include <kbibtex/entry.h>
 #include <kbibtex/element.h>
 #include <kbibtex/fileexporterbibtex.h>
@@ -46,11 +48,52 @@ void BibTexToClipboardPipe::pipeExport(File & bibEntries)
         foreach(const QSharedPointer<Element> &e, bibEntries) {
             const Entry *bibEntry = dynamic_cast<const Entry *>(e.data());
             if(bibEntry) {
-                text.append(bibEntry->id());
-                text.append(QLatin1String(", "));
+                switch(ConqSettings::referenceCommand()) {
+                case ConqSettings::EnumReferenceCommand::none:
+                    text.append(bibEntry->id() + QLatin1String(", "));
+                    break;
+                case ConqSettings::EnumReferenceCommand::cite:
+                    text.append(QLatin1String("\\cite{") + bibEntry->id() + QLatin1String("} "));
+                    break;
+                case ConqSettings::EnumReferenceCommand::citealt:
+                    text.append(QLatin1String("\\citealt{") + bibEntry->id() + QLatin1String("} "));
+                    break;
+                case ConqSettings::EnumReferenceCommand::citeauthor:
+                    text.append(QLatin1String("\\citeauthor{") + bibEntry->id() + QLatin1String("} "));
+                    break;
+                case ConqSettings::EnumReferenceCommand::citeauthor_:
+                    text.append(QLatin1String("\\citeauthor*{") + bibEntry->id() + QLatin1String("} "));
+                    break;
+                case ConqSettings::EnumReferenceCommand::citeyear:
+                    text.append(QLatin1String("\\citeyear{") + bibEntry->id() + QLatin1String("} "));
+                    break;
+                case ConqSettings::EnumReferenceCommand::citeyearpar:
+                    text.append(QLatin1String("\\citeyearpar{") + bibEntry->id() + QLatin1String("} "));
+                    break;
+                case ConqSettings::EnumReferenceCommand::shortcite:
+                    text.append(QLatin1String("\\shortcite{") + bibEntry->id() + QLatin1String("} "));
+                    break;
+                case ConqSettings::EnumReferenceCommand::citet:
+                    text.append(QLatin1String("\\citet{") + bibEntry->id() + QLatin1String("} "));
+                    break;
+                case ConqSettings::EnumReferenceCommand::citet_:
+                    text.append(QLatin1String("\\citet*{") + bibEntry->id() + QLatin1String("} "));
+                    break;
+                case ConqSettings::EnumReferenceCommand::citep:
+                    text.append(QLatin1String("\\citep{") + bibEntry->id() + QLatin1String("} "));
+                    break;
+                case ConqSettings::EnumReferenceCommand::citep_:
+                    text.append(QLatin1String("\\citep*{") + bibEntry->id() + QLatin1String("} "));
+                    break;
+                }
             }
         }
-        text.chop(2);
+        if(ConqSettings::referenceCommand() == ConqSettings::EnumReferenceCommand::none) {
+            text.chop(2); // remove last ", "
+        }
+        else {
+            text.chop(1); // remove last " "
+        }
 
         break;
     }

@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "projectsyncsettings.h"
-#include "ui_projectsyncsettings.h"
+#include "systemsyncsettings.h"
+#include "ui_systemsyncsettings.h"
 
 #include "core/projectsettings.h"
 #include "onlinestorage/storageinfo.h"
@@ -29,14 +29,11 @@
 
 const int PROVIDER_UUID = Qt::UserRole + 10;
 
-ProjectSyncSettings::ProjectSyncSettings(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::ProjectSyncSettings)
+SystemSyncSettings::SystemSyncSettings(QWidget *parent)
+    :QWidget(parent)
+    , ui(new Ui::SystemSyncSettings)
 {
     ui->setupUi(this);
-
-    connect(ui->editFolder, SIGNAL(textChanged(QString)), this, SLOT(updateFolderTextLabel(QString)));
-    connect(ui->syncFolderBox, SIGNAL(clicked()), this, SIGNAL(contentChanged()));
 
     ui->editButton->setIcon(KIcon("document-edit"));
     connect(ui->editButton, SIGNAL(clicked()), this, SLOT(editProvider()));
@@ -48,38 +45,20 @@ ProjectSyncSettings::ProjectSyncSettings(QWidget *parent) :
     fetchAkonadiCollection();
 }
 
-ProjectSyncSettings::~ProjectSyncSettings()
+SystemSyncSettings::~SystemSyncSettings()
 {
     delete ui;
 }
 
-void ProjectSyncSettings::setProjectSettings(ProjectSettings *ps)
+void SystemSyncSettings::setProjectSettings(ProjectSettings *ps)
 {
     m_settings = ps;
 
     resetSettings();
 }
 
-void ProjectSyncSettings::resetSettings()
+void SystemSyncSettings::resetSettings()
 {
-    //################################
-    //# Folder settings
-    QString baseDir = m_settings->projectDir();
-
-    if(baseDir.isEmpty()) {
-        ui->syncFolderBox->setChecked(false);
-        baseDir = KGlobalSettings::documentPath();
-    }
-    else {
-        ui->syncFolderBox->setChecked(true);
-        baseDir.remove(m_settings->name());
-    }
-
-    ui->editFolder->setText(baseDir);
-
-    //################################
-    //# sync provider settings
-
     ui->listProvider->clear();
 
     QList<ProviderSyncDetails> syncList = m_settings->allProviderSyncDetails();
@@ -91,44 +70,12 @@ void ProjectSyncSettings::resetSettings()
     }
 }
 
-void ProjectSyncSettings::applySettings()
+void SystemSyncSettings::applySettings()
 {
     // sync provider settings are saved automatically
-    // here we just save folder sync settings
-
-    if(ui->syncFolderBox->isChecked()) {
-        m_settings->setProjectDir(ui->labelSelectedFolder->text());
-    }
-    else {
-        if(!m_settings->projectDir().isEmpty()) {
-            int ret = KMessageBox::questionYesNo(this, i18n("Do you want to delete the old project folder %1 and all its content?", m_settings->projectDir()),
-            i18n("Delete project folder"));
-
-            if(ret == KMessageBox::Yes) {
-                m_settings->deleteProjectDir();
-            }
-        }
-
-        m_settings->setProjectDir(QString());
-    }
 }
 
-void ProjectSyncSettings::updateFolderTextLabel(const QString &folder)
-{
-    if(folder.isEmpty()) {
-        ui->labelSelectedFolder->clear();
-    }
-    else {
-        QString folderAndName= folder + QLatin1String("/") + m_settings->name();
-        folderAndName.replace(QLatin1String("//"), QLatin1String("/"));
-        ui->labelSelectedFolder->setText(folderAndName);
-    }
-
-    if(folder != m_settings->projectDir())
-        emit contentChanged();
-}
-
-void ProjectSyncSettings::editProvider()
+void SystemSyncSettings::editProvider()
 {
     QListWidgetItem *qlwi = ui->listProvider->currentItem();
     QString uuid = qlwi->data(PROVIDER_UUID).toString();
@@ -157,7 +104,7 @@ void ProjectSyncSettings::editProvider()
     }
 }
 
-void ProjectSyncSettings::addProvider()
+void SystemSyncSettings::addProvider()
 {
     KDialog dlg;
 
@@ -182,7 +129,7 @@ void ProjectSyncSettings::addProvider()
     }
 }
 
-void ProjectSyncSettings::removeProvider()
+void SystemSyncSettings::removeProvider()
 {
     QListWidgetItem *qlwi = ui->listProvider->currentItem();
     QString uuid = qlwi->data(PROVIDER_UUID).toString();
@@ -193,7 +140,7 @@ void ProjectSyncSettings::removeProvider()
     m_settings->removeProviderSyncDetails(uuid);
 }
 
-void ProjectSyncSettings::fetchAkonadiCollection()
+void SystemSyncSettings::fetchAkonadiCollection()
 {
     // fetching all collections containing contacts recursively, starting at the root collection
     Akonadi::CollectionFetchJob *job = new Akonadi::CollectionFetchJob( Akonadi::Collection::root(), Akonadi::CollectionFetchJob::Recursive, this );
@@ -207,7 +154,7 @@ void ProjectSyncSettings::fetchAkonadiCollection()
              this, SLOT(akonadiEventCollectionFetched(Akonadi::Collection::List)) );
 }
 
-void ProjectSyncSettings::akonadiContactCollectionFetched(const Akonadi::Collection::List &list)
+void SystemSyncSettings::akonadiContactCollectionFetched(const Akonadi::Collection::List &list)
 {
     m_contactList.clear();
 
@@ -221,7 +168,7 @@ void ProjectSyncSettings::akonadiContactCollectionFetched(const Akonadi::Collect
     emit addContactCollection(m_contactList);
 }
 
-void ProjectSyncSettings::akonadiEventCollectionFetched(const Akonadi::Collection::List &list)
+void SystemSyncSettings::akonadiEventCollectionFetched(const Akonadi::Collection::List &list)
 {
     m_eventList.clear();
 

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+  <include>kglobalsettings.h</include>
+  <kcfgfile name="conquirererc"/>
+
+  <group name="General-Export">
+    <entry name="ReferenceCommand" type="Enum">
+      <label>Reference Command.</label>
+      <choices>
+        <choice name="none"/>
+        <choice name="cite"/>
+        <choice name="citealt"/>
+        <choice name="citeauthor"/>
+        <choice name="citeauthor_"/>
+        <choice name="citeyear"/>
+        <choice name="citeyearpar"/>
+        <choice name="shortcite"/>
+        <choice name="citet"/>
+        <choice name="citet_"/>
+        <choice name="citep"/>
+        <choice name="citep_"/>
+      </choices>
+      <default>cite</default>
+    </entry>
+    <entry name="KileLyXPipe" type="Path">
+      <label>Kile LyX Pipe.</label>
+    </entry>
+  </group>
+
+  <group name="BibTeX-Export">
+    <entry name="Encoding" type="Enum">
+      <label>Encoding.</label>
+        <choices>
+          <choice name="LaTeX"/>
+          <choice name="CP437"/>
+          <choice name="CP720"/>
+          <choice name="CP737"/>
+          <choice name="CP775"/>
+          <choice name="CP850"/>
+          <choice name="CP852"/>
+          <choice name="CP855"/>
+          <choice name="CP857"/>
+          <choice name="CP858"/>
+          <choice name="CP860"/>
+          <choice name="CP861"/>
+          <choice name="CP862"/>
+          <choice name="CP863"/>
+          <choice name="CP864"/>
+          <choice name="CP865"/>
+          <choice name="CP866"/>
+          <choice name="CP869"/>
+          <choice name="CP1250"/>
+          <choice name="CP1251"/>
+          <choice name="CP1252"/>
+          <choice name="CP1253"/>
+          <choice name="CP1254"/>
+          <choice name="CP1255"/>
+          <choice name="CP1256"/>
+          <choice name="CP1257"/>
+          <choice name="CP1258"/>
+          <choice name="ISO_8859_1"/>
+          <choice name="ISO_8859_2"/>
+          <choice name="ISO_8859_3"/>
+          <choice name="ISO_8859_4"/>
+          <choice name="ISO_8859_5"/>
+          <choice name="ISO_8859_6"/>
+          <choice name="ISO_8859_7"/>
+          <choice name="ISO_8859_8"/>
+          <choice name="ISO_8859_9"/>
+          <choice name="ISO_8859_10"/>
+          <choice name="ISO_8859_11"/>
+          <choice name="ISO_8859_12"/>
+          <choice name="ISO_8859_13"/>
+          <choice name="ISO_8859_14"/>
+          <choice name="ISO_8859_15"/>
+          <choice name="ISO_8859_16"/>
+          <choice name="KOI8_R"/>
+          <choice name="Latin_1"/>
+          <choice name="Latin_2"/>
+          <choice name="Latin_3"/>
+          <choice name="Latin_4"/>
+          <choice name="Latin_5"/>
+          <choice name="Latin_6"/>
+          <choice name="Latin_7"/>
+          <choice name="Latin_8"/>
+          <choice name="Latin_9"/>
+          <choice name="Latin_10"/>
+          <choice name="UTF_8"/>
+          <choice name="Windows_1250"/>
+          <choice name="Windows_1251"/>
+          <choice name="Windows_1252"/>
+          <choice name="Windows_1253"/>
+          <choice name="Windows_1254"/>
+          <choice name="Windows_1255"/>
+          <choice name="Windows_1256"/>
+          <choice name="Windows_1257"/>
+          <choice name="Windows_1258"/>
+        </choices>
+      <default>LaTeX</default>
+    </entry>
+    <entry name="StringDelimiters" type="Enum">
+      <label>String Delimiters.</label>
+        <choices>
+          <choice name="Quotes"/>
+          <choice name="CurlyBrackets"/>
+          <choice name="RoundBrackets"/>
+        </choices>
+      <default>CurlyBrackets</default>
+    </entry>
+    <entry name="CommentQuoting" type="Enum">
+      <label>String Delimiters.</label>
+        <choices>
+          <choice name="None"/>
+          <choice name="Ampersat"/>
+          <choice name="PercentSign"/>
+        </choices>
+      <default>Ampersat</default>
+    </entry>
+    <entry name="KeywordCasing" type="Enum">
+      <label>Keyword Casing.</label>
+        <choices>
+          <choice name="lowercase"/>
+          <choice name="Initialcapital"/>
+          <choice name="UpperCamelCase"/>
+          <choice name="lowerCamelCase"/>
+          <choice name="UPPERCASE"/>
+        </choices>
+      <default>lowercase</default>
+    </entry>
+    <entry name="ProtectCasing" type="Bool">
+      <label>ProtectCasing.</label>
+    </entry>
+    <entry name="PersonNameFormatting" type="Enum">
+      <label>Person Name Formatting.</label>
+        <choices>
+          <choice name="Firstlast"/>
+          <choice name="LastFirst"/>
+        </choices>
+      <default>Firstlast</default>
+    </entry>
+  </group>
+  
+    <group name="Pdf-Export">
+    <entry name="PaperSize" type="Enum">
+      <label>Paper size.</label>
+      <choices>
+        <choice name="A4"/>
+        <choice name="Legal"/>
+        <choice name="Letter"/>
+      </choices>
+      <default>A4</default>
+    </entry>
+    <entry name="BabelLang" type="String">
+      <label>Language for babel</label>
+      <default>english</default>
+    </entry>
+    <entry name="BibStyle" type="String">
+      <label>Language for babel</label>
+      <default>plain</default>
+    </entry>
+  </group>
+  
+</kcfg>

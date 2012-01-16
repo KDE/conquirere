@@ -32,8 +32,17 @@ public:
     explicit ExportSettings(QWidget *parent = 0);
     ~ExportSettings();
 
+signals:
+    void contentChanged();
+
+public slots:
+    void resetSettings();
+    void applySettings();
+
 private:
     Ui::ExportSettings *ui;
+
+    void setupGui();
 };
 
 #endif // EXPORTSETTINGS_H

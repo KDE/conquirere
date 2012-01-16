@@ -17,6 +17,8 @@
 
 #include "kilelyxpipe.h"
 
+#include "nbibio/conquirere.h"
+
 #include <kbibtex/element.h>
 #include <kbibtex/entry.h>
 
@@ -85,12 +87,7 @@ void KileLyxPipe::pipeExport(QList<Nepomuk::Resource> resources)
 
 QString KileLyxPipe::findLyXKilePipe()
 {
-    //load pipe settings
-    KConfig config;
-    QString group = QLatin1String("General");
-    KConfigGroup tableViewGroup( &config, group );
-
-    return tableViewGroup.readEntry( QLatin1String("KileLyxPipe"), QString() );
+    return ConqSettings::kileLyXPipe();
 }
 
 void KileLyxPipe::sendReferences(const QString &refs)

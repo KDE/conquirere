@@ -17,6 +17,7 @@
       <Separator/>
       <Merge/>
     </Menu>
+
     <Menu name="database">
       <text>Database</text>
       <Menu name="db_import"><text>Import from</text>
@@ -37,22 +38,23 @@
 	<Action name="db_backup" />
       <Merge/>
     </Menu>
+
     <Menu name="view">
       <text>View</text>
       <Action name="update_list_cache" />
       <Merge/>
     </Menu>
+
     <Menu name="settings">
-      <Menu name="toggle"><text>Toggle Docks</text>
-	<Action name="toggle_library" />
-	<Action name="toggle_sidebar" />
-	<Action name="toggle_docpreview" />
-	<Action name="toggle_search" />
-      </Menu>
-      <Merge/>
-      <Action name="open_settings" />
+    <Menu name="toggle"><text>Toggle Docks</text>
+      <Action name="toggle_library" />
+      <Action name="toggle_sidebar" />
+      <Action name="toggle_docpreview" />
+      <Action name="toggle_search" />
     </Menu>
-    <Merge/>
+      <Action name="open_settings" append="show_merge" />
+      <Merge/>
+    </Menu>
   </MenuBar>
  
   <ToolBar name="projectToolBar">
