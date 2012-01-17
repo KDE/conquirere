@@ -30,6 +30,7 @@
 #include <kbibtex/onlinesearcharxiv.h>
 #include <kbibtex/onlinesearchjstor.h>
 #include <kbibtex/onlinesearchmathscinet.h>
+#include <kbibtex/onlinesearchingentaconnect.h>
 
 #include <kbibtex/entry.h>
 
@@ -391,6 +392,7 @@ void SearchWidget::setupUi()
     addEngine(new OnlineSearchPubMed(this));
     addEngine(new OnlineSearchScienceDirect(this));
     addEngine(new OnlineSearchSpringerLink(this));
+    addEngine(new OnlineSearchIngentaConnect(this));
 
     connect(ui->listWebEngines, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemCheckChanged(QListWidgetItem*)));
 
