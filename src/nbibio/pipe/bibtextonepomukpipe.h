@@ -177,7 +177,7 @@ private:
     QString m_syncUrl;
     QString m_syncUserId;
 
-    bool m_mergeMode;
+    bool m_replaceMode; /**< replace the content of the current publication with the content in the bibfile */
 };
 
 #endif // BIBTEXTONEPOMUKPIPE_H

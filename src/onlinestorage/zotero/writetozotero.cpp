@@ -297,10 +297,6 @@ void WriteToZotero::requestFinished()
 
             m_progress = m_progress + m_progressPerFile;
 
-            qDebug() << "########################### retrieved info from server";
-            if(!updateEntry.isNull())
-                qDebug() << "updateEntry available!" << newElementEntry->id() << PlainTextValue::text(newElementEntry->value(QLatin1String("zoteroetag")));
-
             emit progress(m_progress);
 
             // if we got an earlier Entry in the server reply we know we updated the item

@@ -55,7 +55,7 @@
 #include <QtCore/QDebug>
 
 BibTexToNepomukPipe::BibTexToNepomukPipe()
-: m_mergeMode(false)
+: m_replaceMode(false)
 {
 }
 
@@ -437,7 +437,7 @@ Entry *BibTexToNepomukPipe::getDiff(Nepomuk::Resource local, Entry *externalEntr
 
 void BibTexToNepomukPipe::merge(Nepomuk::Resource syncResource, Entry *external, bool keepLocal)
 {
-    m_mergeMode = true;
+    m_replaceMode = true;
 
     Nepomuk::Resource publication = syncResource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
     Nepomuk::Resource reference = syncResource.property(Nepomuk::Vocabulary::NBIB::reference()).toResource();
@@ -707,7 +707,7 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
 
 void BibTexToNepomukPipe::addPublisher(const Value &publisherValue, const Value &addressValue, Nepomuk::Resource publication)
 {
-    if(m_mergeMode) {
+    if(m_replaceMode) {
         publication.removeProperty(Nepomuk::Vocabulary::NCO::publisher());
     }
 
@@ -880,7 +880,7 @@ void BibTexToNepomukPipe::addAuthor(const Value &contentValue, Nepomuk::Resource
     }
 
     //now if we update the nepomuk details, we remove all existing authors first and add only the authors from the new entry again
-    if(m_mergeMode) {
+    if(m_replaceMode) {
         authorResource.removeProperty(Nepomuk::Vocabulary::NCO::creator());
     }
 
@@ -1019,7 +1019,7 @@ void BibTexToNepomukPipe::addBookAuthor(const Value &contentValue, Nepomuk::Reso
     Nepomuk::Resource authorResource = publication;
 
     // in merge mode we remove all existing authors first and add all authors from the current entry again
-    if(m_mergeMode) {
+    if(m_replaceMode) {
         authorResource.removeProperty(Nepomuk::Vocabulary::NCO::creator());
     }
 
@@ -1110,7 +1110,7 @@ void BibTexToNepomukPipe::addSeriesEditor(const Value &contentValue, Nepomuk::Re
     }
 
     // in merge mode we remove all existing editors first and add all editors from the current entry again
-    if(m_mergeMode) {
+    if(m_replaceMode) {
         seriesResource.removeProperty(Nepomuk::Vocabulary::NBIB::editor());
     }
 
@@ -1237,7 +1237,7 @@ void BibTexToNepomukPipe::addEdition(const QString &content, Nepomuk::Resource p
 void BibTexToNepomukPipe::addEditor(const Value &contentValue, Nepomuk::Resource publication)
 {
     //if we merge entries, we remove the old one first and add the new oney later on again
-    if(m_mergeMode) {
+    if(m_replaceMode) {
         publication.removeProperty(Nepomuk::Vocabulary::NBIB::editor());
     }
 
@@ -1681,6 +1681,20 @@ void BibTexToNepomukPipe::addFilingDate(const QString &content, Nepomuk::Resourc
 
 void BibTexToNepomukPipe::addUrl(const QString &content, Nepomuk::Resource publication)
 {
+    // in merge mode we remove all urls and replace them by whatever we get in the current content
+    if(m_replaceMode) {
+        publication.removeProperty(Nepomuk::Vocabulary::NBIB::isPublicationOf());
+    }
+
+    // first check if the url is already attached to the publication
+    QList<Nepomuk::Resource> dataObjectList = publication.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResourceList();
+    foreach(const Nepomuk::Resource &r, dataObjectList) {
+        if(r.property(Nepomuk::Vocabulary::NIE::url()).toString() == QString(content.toUtf8())) {
+            qDebug() << "BibTexToNepomukPipe::addUrl || url already connected to publication" << QString(content.toUtf8());
+            return;
+        }
+    }
+
     QUrl urlType;
 
     // first check if the given url points to a local file
@@ -1703,8 +1717,11 @@ void BibTexToNepomukPipe::addUrl(const QString &content, Nepomuk::Resource publi
         }
     }
 
-    Nepomuk::Resource dataObject(QUrl(), urlType);
+    Nepomuk::Resource dataObject(QString(content.toUtf8()), urlType);
     dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), QString(content.toUtf8()));
+    QStringList identifier;
+    identifier.append(QString(content.toUtf8()));
+    dataObject.setIdentifiers(identifier);
 
     publication.addProperty(Nepomuk::Vocabulary::NBIB::isPublicationOf(), dataObject);
 }
@@ -1748,7 +1765,7 @@ void BibTexToNepomukPipe::addYear(const QString &content, Nepomuk::Resource publ
 void BibTexToNepomukPipe::addKewords(const Value &content, Nepomuk::Resource publication)
 {
     // in case we merge, we remove all old keys and add only the new ones
-    if(m_mergeMode) {
+    if(m_replaceMode) {
         publication.removeProperty(Soprano::Vocabulary::NAO::hasTag());
     }
 
@@ -1776,7 +1793,7 @@ const QString &etag, const QString &updated)
     Nepomuk::Resource syncDetails;
 
     // if we merge, we try to find existing zotero details we can update first
-    if(m_mergeMode) {
+    if(m_replaceMode) {
         QList<Nepomuk::Resource> syncList = publication.property(Nepomuk::Vocabulary::SYNC::serverSyncData()).toResourceList();
 
         foreach(const Nepomuk::Resource &r, syncList) {
@@ -1796,11 +1813,6 @@ const QString &etag, const QString &updated)
         qDebug() << "BibTexToNepomukPipe::addZoteroSyncDetails >> syncDetails is not valid!";
         syncDetails = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::SYNC::ServerSyncData());
     }
-
-    qDebug() << publication.property(Nepomuk::Vocabulary::NIE::title());
-    qDebug() << "BibTexToNepomukPipe::syncDetails.setProperty OLD:" << syncDetails.property(Nepomuk::Vocabulary::SYNC::id()) << "NEW" << id;
-    qDebug() << "BibTexToNepomukPipe::syncDetails.setProperty OLD:" << syncDetails.property(Nepomuk::Vocabulary::SYNC::url()) << "NEW" << m_syncUrl;
-    qDebug() << "BibTexToNepomukPipe::syncDetails.setProperty OLD:" << syncDetails.property(Nepomuk::Vocabulary::SYNC::etag()) << "NEW" << etag;
 
     syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::provider(), QString("zotero"));
     syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), m_syncUrl);
