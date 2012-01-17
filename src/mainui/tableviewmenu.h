@@ -20,11 +20,11 @@
 
 #include <QObject>
 
+#include <kbibtex/entry.h>
 #include <Nepomuk/Resource>
 
 #include <QtCore/QSharedPointer>
 
-class Entry;
 class MainWindow;
 
 class TableViewMenu : public QObject

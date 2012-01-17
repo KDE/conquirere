@@ -22,6 +22,7 @@
 #include "providersettings.h"
 
 #include <kbibtex/file.h>
+#include <kbibtex/entry.h>
 
 #include <QtCore/QObject>
 
@@ -32,7 +33,6 @@
 
 class QIODevice;
 class QNetworkReply;
-class Entry;
 
 /**
   * @brief Abstract Base class to write bibtex entries to an online storage

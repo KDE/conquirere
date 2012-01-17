@@ -26,7 +26,6 @@
 #include "nbibio/pipe/nepomuktobibtexpipe.h"
 #include "nbibio/pipe/kilelyxpipe.h"
 
-#include <kbibtex/entry.h>
 #include <kbibtex/value.h>
 
 #include "nbib.h"

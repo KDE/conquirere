@@ -309,7 +309,7 @@ void WriteToZotero::requestFinished()
 
                 QString etag =  PlainTextValue::text(newElementEntry->value(QLatin1String("zoteroetag")));
                 QString udated =  PlainTextValue::text(newElementEntry->value(QLatin1String("zoteroupdated")));
-                emit (newElementEntry->id(),etag, udated);
+                emit entryItemUpdated(newElementEntry->id(),etag, udated);
                 break;
             }
             // otherwise, if we have no updateEntry we got a responce from an item creation request

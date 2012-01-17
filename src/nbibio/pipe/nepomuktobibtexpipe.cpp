@@ -156,7 +156,7 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
             }
         }
         else {
-            Nepomuk::Resource typeResource(publication.type());
+            Nepomuk::Resource typeResource(publication.resourceType());
             type = typeResource.genericLabel();
         }
     }
@@ -181,7 +181,7 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
     }
     // all other cases
     else {
-        Nepomuk::Resource typeResource(publication.type());
+        Nepomuk::Resource typeResource(publication.resourceType());
         type = typeResource.genericLabel();
 
         Nepomuk::Resource typeResource2(Nepomuk::Vocabulary::NBIB::Publication());
