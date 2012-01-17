@@ -23,12 +23,15 @@
 
 #include <KDE/KIcon>
 
+#include "nbibio/conquirere.h"
+
 #include <Nepomuk/Variant>
 #include <Nepomuk/Query/ResourceTerm>
 #include <Nepomuk/Query/AndTerm>
 #include <Nepomuk/Query/OrTerm>
 #include <Nepomuk/Query/ResourceTypeTerm>
 #include <Nepomuk/Query/ComparisonTerm>
+#include <Nepomuk/Query/NegationTerm>
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/PIMO>
@@ -44,8 +47,18 @@ ReferenceQuery::ReferenceQuery(QObject *parent)
 void ReferenceQuery::startFetchData()
 {
     Nepomuk::Query::AndTerm andTerm;
+    Nepomuk::Query::AndTerm hideOrTerm;
 
     andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Reference() ) );
+
+    foreach(int i, ConqSettings::hidenNbibPublications()) {
+        Nepomuk::Query::Term hiddenPublicationTerm = Nepomuk::Query::NegationTerm::negateTerm( Nepomuk::Query::ResourceTypeTerm( BibEntryTypeURL.at(i) ) );
+        Nepomuk::Query::ComparisonTerm pubTypeTerm = Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::NBIB::publication(),
+                                                                                     hiddenPublicationTerm);
+
+        hideOrTerm.addSubTerm(pubTypeTerm);
+    }
+    andTerm.addSubTerm(hideOrTerm);
 
     if(m_library->libraryType() == Library_Project) {
         Nepomuk::Query::OrTerm orTerm;
