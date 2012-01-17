@@ -27,6 +27,8 @@ SystemSyncSettings::SystemSyncSettings(QWidget *parent)
     , ui(new Ui::SystemSyncSettings)
 {
     ui->setupUi(this);
+
+    connect(ui->cbEnableSync, SIGNAL(toggled(bool)), this, SIGNAL(contentChanged()));
 }
 
 SystemSyncSettings::~SystemSyncSettings()

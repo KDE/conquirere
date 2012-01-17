@@ -16,7 +16,7 @@
  */
 
 #include "appearancesettings.h"
-#include "../build/src/mainui/ui_appearancesettings.h"
+#include "ui_appearancesettings.h"
 
 #include "globals.h"
 #include "nbibio/conquirere.h"
