@@ -437,7 +437,7 @@ void PublicationWidget::setupWidget()
 {
     int i=0;
     foreach(const QString &s, BibEntryTypeTranslation) {
-        if(ConqSettings::hidenNbibPublications().contains(i)) {
+        if(ConqSettings::hiddenNbibPublications().contains(i)) {
             i++;
             continue;
         }

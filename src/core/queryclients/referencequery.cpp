@@ -51,14 +51,16 @@ void ReferenceQuery::startFetchData()
 
     andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Reference() ) );
 
-    foreach(int i, ConqSettings::hidenNbibPublications()) {
+    foreach(int i, ConqSettings::hiddenNbibPublications()) {
         Nepomuk::Query::Term hiddenPublicationTerm = Nepomuk::Query::NegationTerm::negateTerm( Nepomuk::Query::ResourceTypeTerm( BibEntryTypeURL.at(i) ) );
         Nepomuk::Query::ComparisonTerm pubTypeTerm = Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::NBIB::publication(),
                                                                                      hiddenPublicationTerm);
 
         hideOrTerm.addSubTerm(pubTypeTerm);
     }
-    andTerm.addSubTerm(hideOrTerm);
+
+    if( !ConqSettings::hiddenNbibPublications().isEmpty())
+        andTerm.addSubTerm(hideOrTerm);
 
     if(m_library->libraryType() == Library_Project) {
         Nepomuk::Query::OrTerm orTerm;

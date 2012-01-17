@@ -50,7 +50,7 @@ void PublicationQuery::startFetchData()
 
     andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Publication() ) );
 
-    foreach(int i, ConqSettings::hidenNbibPublications()) {
+    foreach(int i, ConqSettings::hiddenNbibPublications()) {
         Nepomuk::Query::Term hiddenPublicationTerm = Nepomuk::Query::NegationTerm::negateTerm(Nepomuk::Query::ResourceTypeTerm( BibEntryTypeURL.at(i) ));
         andTerm.addSubTerm(hiddenPublicationTerm);
     }

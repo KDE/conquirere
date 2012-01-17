@@ -180,7 +180,7 @@ void SeriesWidget::setupWidget()
 {
     int i=0;
     foreach(const QString &s, SeriesTypeTranslation) {
-        if(ConqSettings::hidenNbibSeries().contains(i)) {
+        if(ConqSettings::hiddenNbibSeries().contains(i)) {
             i++;
             continue;
         }

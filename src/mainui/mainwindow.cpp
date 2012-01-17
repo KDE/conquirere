@@ -605,6 +605,14 @@ void MainWindow::setupActions()
 
 void MainWindow::setupMainWindow()
 {
+    // we start by applying all hidden sections from the "OnRestart" key to the real hidden part
+    // without ths difference, we could end up badly when the user chanegs the hiddens election and
+    // does not restart the program immediately
+
+    ConqSettings::setHiddenNbibPublications( ConqSettings::hiddenNbibPublicationsOnRestart() );
+    ConqSettings::setHiddenNbibSeries( ConqSettings::hiddenNbibSeriesOnRestart() );
+    ConqSettings::self()->writeConfig();
+
     if(ConqSettings::documentPosition() == ConqSettings::EnumDocumentPosition::middle) {
         // create second mainwindow that holds the document preview
         // this way the bottum doc widget will not take up all the space but is

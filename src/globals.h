@@ -319,7 +319,7 @@ enum SeriesType {
     Max_SeriesTypes
 };
 
-static const QStringList SeriesTypeTranslation = QStringList() << I18N_NOOP("Series")
+static const QStringList SeriesTypeTranslation = QStringList() << I18N_NOOP("Misc Series")
                                                                  << I18N_NOOP("Book Series")
                                                                  << I18N_NOOP("Journal")
                                                                  << I18N_NOOP("Magazin")

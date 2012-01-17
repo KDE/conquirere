@@ -15,12 +15,20 @@
       </choices>
       <default>middle</default>
     </entry>
-    <entry name="HidenNbibSeries" type="IntList">
-      <label>Hiden Nbib Series.</label>
+    <entry name="HiddenNbibSeries" type="IntList">
+      <label>Hidden Nbib Series.</label>
       <default></default>
     </entry>
-    <entry name="HidenNbibPublications" type="IntList">
-      <label>Hiden Nbib Publications.</label>
+    <entry name="HiddenNbibSeriesOnRestart" type="IntList">
+      <label>Hidden Nbib Series On Restart.</label>
+      <default></default>
+    </entry>
+    <entry name="HiddenNbibPublications" type="IntList">
+      <label>Hidden Nbib Publications.</label>
+      <default></default>
+    </entry>
+    <entry name="HiddenNbibPublicationsOnRestart" type="IntList">
+      <label>Hidden Nbib Publications On Restart.</label>
       <default></default>
     </entry>
   </group>

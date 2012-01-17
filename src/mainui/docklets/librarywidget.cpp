@@ -301,7 +301,7 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     m_items.append(twi5);
 
     for(int i=0; i < Max_SeriesTypes; i++) {
-        if(ConqSettings::hidenNbibSeries().contains(i)) {
+        if(ConqSettings::hiddenNbibSeries().contains(i)) {
             continue;
         }
 
@@ -331,7 +331,7 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     m_items.append(twi1a);
 
     for(int i=0; i < Max_BibTypes; i++) {
-        if(ConqSettings::hidenNbibPublications().contains(i)) {
+        if(ConqSettings::hiddenNbibPublications().contains(i)) {
             continue;
         }
 
@@ -361,7 +361,7 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     m_items.append(twi4);
 
     for(int i=0; i < Max_BibTypes; i++) {
-        if(ConqSettings::hidenNbibPublications().contains(i)) {
+        if(ConqSettings::hiddenNbibPublications().contains(i)) {
             continue;
         }
 

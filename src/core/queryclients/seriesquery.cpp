@@ -46,7 +46,7 @@ void SeriesQuery::startFetchData()
 
     andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Series() ) );
 
-    foreach(int i, ConqSettings::hidenNbibSeries()) {
+    foreach(int i, ConqSettings::hiddenNbibSeries()) {
         Nepomuk::Query::Term hiddenSeriesTerm = Nepomuk::Query::NegationTerm::negateTerm(Nepomuk::Query::ResourceTypeTerm( SeriesTypeURL.at(i) ));
         andTerm.addSubTerm(hiddenSeriesTerm);
     }
