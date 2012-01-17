@@ -144,6 +144,9 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
    ui->editLastAccessed->setResource(m_publication);
    ui->editLanguage->setResource(m_publication);
 
+   ui->editArchive->setResource(m_publication);
+   ui->editArchiveLocation->setResource(m_publication);
+   ui->editLibCatalog->setResource(m_publication);
    ui->editEprint->setResource(m_publication);
    ui->editISBN->setResource(m_publication);
    ui->editISSN->setResource(m_publication);
@@ -280,6 +283,7 @@ void PublicationWidget::newButtonClicked()
     QList<QUrl> types;
     types.append(Nepomuk::Vocabulary::NBIB::Publication());
     nb.setTypes(types);
+    nb.setProperty(Nepomuk::Vocabulary::NIE::title(), i18n("New Publication"));
 
     setResource(nb);
 }
@@ -500,6 +504,9 @@ void PublicationWidget::setupWidget()
     ui->editLanguage->setPropertyUrl( Nepomuk::Vocabulary::NIE::language());
 
     // identification section
+    ui->editArchive->setPropertyUrl( Nepomuk::Vocabulary::NBIB::archive() );
+    ui->editArchiveLocation->setPropertyUrl( Nepomuk::Vocabulary::NBIB::archiveLocation() );
+    ui->editLibCatalog->setPropertyUrl( Nepomuk::Vocabulary::NBIB::libraryCatalog() );
     ui->editEprint->setPropertyUrl( Nepomuk::Vocabulary::NBIB::eprint() );
     ui->editISBN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isbn() );
     ui->editISSN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::issn() );
@@ -542,6 +549,9 @@ void PublicationWidget::setupWidget()
     connect(ui->editLastAccessed, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editLanguage, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
+    connect(ui->editArchive, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editArchiveLocation, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editLibCatalog, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editEprint, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editISBN, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editISSN, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
@@ -722,6 +732,7 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
         break;
     case BibType_Standard:
         layoutMisc(); //TODO what is necessary for a standard? ISO etc
+        qWarning() << "BibType_Standard no layout available, what is necessary?";
         break;
     case BibType_Patent:
         layoutPatent();
