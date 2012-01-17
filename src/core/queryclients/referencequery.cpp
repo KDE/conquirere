@@ -47,20 +47,23 @@ ReferenceQuery::ReferenceQuery(QObject *parent)
 void ReferenceQuery::startFetchData()
 {
     Nepomuk::Query::AndTerm andTerm;
-    Nepomuk::Query::AndTerm hideOrTerm;
+//    Nepomuk::Query::AndTerm hideOrTerm;
 
     andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Reference() ) );
 
+    /*
+    //BUG this is something nepomuk does not like ...
+    // added workaround in queryclient.cpp
     foreach(int i, ConqSettings::hiddenNbibPublications()) {
         Nepomuk::Query::Term hiddenPublicationTerm = Nepomuk::Query::NegationTerm::negateTerm( Nepomuk::Query::ResourceTypeTerm( BibEntryTypeURL.at(i) ) );
         Nepomuk::Query::ComparisonTerm pubTypeTerm = Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::NBIB::publication(),
                                                                                      hiddenPublicationTerm);
-
         hideOrTerm.addSubTerm(pubTypeTerm);
     }
 
     if( !ConqSettings::hiddenNbibPublications().isEmpty())
         andTerm.addSubTerm(hideOrTerm);
+        */
 
     if(m_library->libraryType() == Library_Project) {
         Nepomuk::Query::OrTerm orTerm;

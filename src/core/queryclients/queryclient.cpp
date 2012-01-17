@@ -17,6 +17,10 @@
 
 #include "queryclient.h"
 
+#include "nbibio/conquirere.h"
+#include "globals.h"
+
+#include "nbib.h"
 #include <Nepomuk/Vocabulary/NCAL>
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Variant>
@@ -85,6 +89,15 @@ void QueryClient::addToCache( const QList< Nepomuk::Query::Result > &entries ) c
             Nepomuk::Thing t = r.pimoThing();
             if(t.isValid())
                 continue;
+        }
+
+        // workaround as creating a query regarding this is leads to a very bad behaviour
+        // @see referencequery.cpp
+        if(r.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
+            Nepomuk::Resource pub = r.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+            if(ConqSettings::hiddenNbibPublications().contains( (int)BibEntryTypeFromUrl(pub))) {
+                continue;
+            }
         }
 
         m_resourceWatcher->addResource(r);
