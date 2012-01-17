@@ -148,7 +148,8 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
 
 void BibTexToNepomukPipe::setAkonadiAddressbook(Akonadi::Collection & addressbook)
 {
-    m_addressbook = addressbook;
+    if(addressbook.isValid())
+        m_addressbook = addressbook;
 }
 
 void BibTexToNepomukPipe::setSyncDetails(const QString &url, const QString &userid)
@@ -1778,8 +1779,6 @@ const QString &etag, const QString &updated)
     if(m_mergeMode) {
         QList<Nepomuk::Resource> syncList = publication.property(Nepomuk::Vocabulary::SYNC::serverSyncData()).toResourceList();
 
-        qDebug() << "check " << syncList.size() << "sync information";
-
         foreach(const Nepomuk::Resource &r, syncList) {
             if(r.property(Nepomuk::Vocabulary::SYNC::provider()).toString() != QString("zotero"))
                 continue;
@@ -1799,8 +1798,9 @@ const QString &etag, const QString &updated)
     }
 
     qDebug() << publication.property(Nepomuk::Vocabulary::NIE::title());
-    qDebug() << "syncDetails.setProperty OLD:" << syncDetails.property(Nepomuk::Vocabulary::SYNC::id()) << "NEW" << id;
-    qDebug() << "syncDetails.setProperty OLD:" << syncDetails.property(Nepomuk::Vocabulary::SYNC::url()) << "NEW" << m_syncUrl;
+    qDebug() << "BibTexToNepomukPipe::syncDetails.setProperty OLD:" << syncDetails.property(Nepomuk::Vocabulary::SYNC::id()) << "NEW" << id;
+    qDebug() << "BibTexToNepomukPipe::syncDetails.setProperty OLD:" << syncDetails.property(Nepomuk::Vocabulary::SYNC::url()) << "NEW" << m_syncUrl;
+    qDebug() << "BibTexToNepomukPipe::syncDetails.setProperty OLD:" << syncDetails.property(Nepomuk::Vocabulary::SYNC::etag()) << "NEW" << etag;
 
     syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::provider(), QString("zotero"));
     syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), m_syncUrl);

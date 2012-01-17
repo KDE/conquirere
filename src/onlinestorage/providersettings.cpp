@@ -205,7 +205,6 @@ void ProviderSettings::savePasswordInKWallet()
 
 void ProviderSettings::setAkonadiContactDetails(QList<ProviderSettings::AkonadiDetails> contactCollections)
 {
-    qDebug() << "ProviderSettings::setAkonadiContactDetails";
     foreach(const AkonadiDetails & c, contactCollections) {
         ui->contactCollection->addItem(c.collectionName, c.collectionID);
     }

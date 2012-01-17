@@ -142,9 +142,11 @@ void SyncZoteroNepomuk::readDownloadSyncAfterDelete(const File &zoteroData)
         m_btnp->setSyncDetails(url, m_psd.userName);
     }
 
+    if(m_psd.akonadiContactsUUid > 1) {
     Akonadi::Collection contactBook(m_psd.akonadiContactsUUid);
     if(contactBook.isValid())
         m_btnp->setAkonadiAddressbook(contactBook);
+    }
 
     m_btnp->pipeExport(newEntries);
 
@@ -230,12 +232,14 @@ void SyncZoteroNepomuk::startUpload()
     m_curStep++;
 
     connect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(readUploadSync(File)));
+    connect(m_wtz, SIGNAL(entryItemUpdated(QString,QString,QString)), this, SLOT(updateEtagValuesAfterUpload(QString,QString,QString)));
     m_wtz->pushItems(m_bibCache, m_psd.collection);
 }
 
 void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
 {
     if(zoteroData.isEmpty()) {
+        qDebug() << "SyncZoteroNepomuk::readUploadSync";
         m_curStep++;
         emit calculateProgress(100);
         //we finished everything, so cleanup
@@ -254,6 +258,9 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
     qreal percentPerFile = 100.0/(qreal)zoteroData.size();
     qreal curProgress = 0.0;
 
+    //Step I update the etag values for all entries already known to the nepomuk storage and updated on the server
+    //File newEntry updateEtagValuesAfterUpload(zoteroData);
+
     //step one get all entries which are new to the storage
     foreach(const QSharedPointer<Element> &element, m_bibCache) {
         Entry *entry = dynamic_cast<Entry *>(element.data());
@@ -266,7 +273,7 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
     }
 
     // now find the real duplicates between the zoteroData entries and the m_bibCache entries
-    // foreach entry in zoteroData there is exact 1 entrie in m_bibCache
+    // foreach entry in zoteroData there is exact 1 entry in m_bibCache
     int entriesFound = 0;
     foreach(const QSharedPointer<Element> &zoteroElement, zoteroData) {
         Entry *zoteroEntry = dynamic_cast<Entry *>(zoteroElement.data());
@@ -280,7 +287,7 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
             if(!localEntry) { continue; }
 
             bool duplicateFound = true;
-            // and foreach entrie compare all key/value pairs with each other
+            // and foreach entry compare all key/value pairs with each other
             // except the zotero keys
             QMapIterator<QString, Value> i(*zoteroEntry);
             while (i.hasNext()) {
@@ -289,8 +296,8 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
                 //ignore zotero keys
                 if(i.key().startsWith( QLatin1String("zotero") ))
                     continue;
-                if(i.key().startsWith( QLatin1String("type") ))
-                    continue;
+//                if(i.key().startsWith( QLatin1String("articletype") ))
+//                    continue;
 
                 //get local value for currentkey
                 Value localValue = localEntry->value(i.key());
@@ -309,7 +316,10 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
             // we found the right entry
             // add the zotero sync data to it
             if(duplicateFound) {
-                writeSyncDetailsToNepomuk(localEntry, zoteroEntry);
+                writeSyncDetailsToNepomuk(localEntry,
+                                          zoteroEntry->id(),
+                                          PlainTextValue::text(zoteroEntry->value(QLatin1String("zoteroetag"))),
+                                          PlainTextValue::text(zoteroEntry->value(QLatin1String("zoteroupdated"))));
                 m_bibCache.removeAll(localElement); // remove from local storage, so we don't check it again
                 updateSuccessfull = true;
                 break;
@@ -317,7 +327,7 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
         }
 
         if(!updateSuccessfull) {
-            qWarning() << "could not add zotero sync details to the right items, duplicate not found!" << zoteroEntry->id();
+            qWarning() << "could not add zotero sync details to the right item, duplicate not found!" << zoteroEntry->id();
             qDebug() << error;
         }
         else {
@@ -330,9 +340,10 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
     }
 
     if(entriesFound != zoteroData.size()) {
-        qWarning() << "could not update all new items wit hits zotero value. missing" << zoteroData.size() - entriesFound << " from" << zoteroData.size();
+        qWarning() << "could not update all new items with its zotero value. missing" << zoteroData.size() - entriesFound << " from" << zoteroData.size();
     }
 
+    qDebug() << "SyncZoteroNepomuk::readUploadSync 2############";
     //we finished everything, so cleanup
     m_wtz->deleteLater();
     m_wtz = 0;
@@ -342,8 +353,6 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
 
     m_syncMode = false;
     emit calculateProgress(100);
-
-    qDebug() << "finished SyncZoteroNepomuk::readUploadSync" << m_curStep;
 }
 
 void SyncZoteroNepomuk::startSync()
@@ -429,6 +438,7 @@ void SyncZoteroNepomuk::findDuplicates(const File &zoteroData, File &newEntries,
             QString serverEtag = PlainTextValue::text(entry->value(QLatin1String("zoteroetag")));
 
             if(localEtag != serverEtag) {
+                qDebug() << itemID << "ETag values different! " << localEtag << serverEtag;
                 if(!syncResource.isValid()) {
                     qWarning() << "ServerSyncData has no valid publication connected to it!";
                 }
@@ -508,7 +518,21 @@ void SyncZoteroNepomuk::findDeletedEntries(const File &zoteroData, QList<SyncDet
     }
 }
 
-void SyncZoteroNepomuk::writeSyncDetailsToNepomuk(Entry *localData, Entry *zoteroData)
+void SyncZoteroNepomuk::updateEtagValuesAfterUpload(const QString &id, const QString &etag, const QString &updated)
+{
+    qDebug() << "updateEtagValuesAfterUpload" << id << etag << updated;
+    // first get the updated entry in the m_bibCache
+    foreach(const QSharedPointer<Element> &localElement, m_bibCache) {
+        Entry *localEntry = dynamic_cast<Entry *>(localElement.data());
+        if(!localEntry) { continue; }
+        if(id == localEntry->id()) {
+            qDebug() << "update Etag for" << id;
+            writeSyncDetailsToNepomuk(localEntry, id, etag, updated);
+        }
+    }
+}
+
+void SyncZoteroNepomuk::writeSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated)
 {
     //step 1 get Nepomuk resource
     QString pubUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-publication-uri")));
@@ -535,10 +559,6 @@ void SyncZoteroNepomuk::writeSyncDetailsToNepomuk(Entry *localData, Entry *zoter
     if(!syncDetails.isValid()) {
         syncDetails = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::SYNC::ServerSyncData());
     }
-
-    QString id = PlainTextValue::text(zoteroData->value(QLatin1String("zoteroKey")));
-    QString etag = PlainTextValue::text(zoteroData->value(QLatin1String("zoteroEtag")));
-    QString updated = PlainTextValue::text(zoteroData->value(QLatin1String("zoteroUpdated")));
 
     if(m_psd.collection.isEmpty()) {
         syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), m_psd.url);

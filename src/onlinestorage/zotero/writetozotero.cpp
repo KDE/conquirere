@@ -276,7 +276,7 @@ void WriteToZotero::requestFinished()
     QSharedPointer<Entry> updateEntry = serverReplyEntry(reply);
     serverReplyFinished(reply);
 
-    // if the entry is 0 we pushed new items to the server
+    // if the updateEntry is 0 we pushed new items to the server
     // otherwise we updated the item
 
     // we parse the response
@@ -297,16 +297,23 @@ void WriteToZotero::requestFinished()
 
             m_progress = m_progress + m_progressPerFile;
 
+            qDebug() << "########################### retrieved info from server";
+            if(!updateEntry.isNull())
+                qDebug() << "updateEntry available!" << newElementEntry->id() << PlainTextValue::text(newElementEntry->value(QLatin1String("zoteroetag")));
+
             emit progress(m_progress);
 
             // if we got an earlier Entry in the server reply we know we updated the item
             // update the tag and updated date
-            if(updateEntry) {
+            if(!updateEntry.isNull()) {
                 updateEntry->remove(QLatin1String("zoteroupdated"));
                 updateEntry->insert(QLatin1String("zoteroupdated"), newElementEntry->value(QLatin1String("zoteroupdated")));
                 updateEntry->remove(QLatin1String("zoteroetag"));
                 updateEntry->insert(QLatin1String("zoteroetag"), newElementEntry->value(QLatin1String("zoteroetag")));
 
+                QString etag =  PlainTextValue::text(newElementEntry->value(QLatin1String("zoteroetag")));
+                QString udated =  PlainTextValue::text(newElementEntry->value(QLatin1String("zoteroupdated")));
+                emit (newElementEntry->id(),etag, udated);
                 break;
             }
             // otherwise, if we have no updateEntry we got a responce from an item creation request
@@ -562,8 +569,6 @@ QByteArray WriteToZotero::writeJsonContent(const File &items, bool onlyUpdate)
     else {
         json = serializer.serialize(jsonMap);
     }
-
-    qDebug() << json;
 
     return json;
 }

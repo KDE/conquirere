@@ -46,6 +46,15 @@ public:
 
     File *getFile();
 
+signals:
+    /**
+      * After we changed the data on the server the etag value will change
+      *
+      * This emits the changed entry so we can update it in other places if we do not work solely with
+      * the bibtex format. If we do, this signal is not needed.
+      */
+    void entryItemUpdated(const QString &id, const QString &etag, const QString &updated);
+
 public slots:
     void pushItems(const File &items, const QString &collection = QString());
     void pushNewItems(const File &items, const QString &collection = QString());
