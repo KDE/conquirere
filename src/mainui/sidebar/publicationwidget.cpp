@@ -271,11 +271,6 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
     }
 }
 
-void PublicationWidget::selectPublication()
-{
-    qDebug() << "select from a list of systemwide publications";
-}
-
 void PublicationWidget::newButtonClicked()
 {
     //create a new resource

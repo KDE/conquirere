@@ -61,7 +61,6 @@ private slots:
       * @todo clean publication data when nbib:Publication type is changed. For example move nbib:volume data
       */
     void newBibEntryTypeSelected(int index);
-    void selectPublication();
     void newButtonClicked();
     void deleteButtonClicked();
     void addReference();
