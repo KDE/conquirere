@@ -26,6 +26,7 @@
 #include "kbibtexfile/kbtfileinfo.h"
 
 #include <KDE/KMessageBox>
+#include <QtCore/QDebug>
 
 ProviderSettings::ProviderSettings(QWidget *parent, bool showAkonadiStuff)
     : QWidget(parent)
@@ -86,6 +87,7 @@ ProviderSettings::~ProviderSettings()
 
 void ProviderSettings::setProviderSettingsDetails(const ProviderSyncDetails &psd)
 {
+    m_oldPsd = psd;
     ui->providerUserName->setText(psd.userName);
     ui->providerUrl->setText(psd.url);
     ui->providerUrlRequester->setText(psd.url);
@@ -104,6 +106,29 @@ void ProviderSettings::setProviderSettingsDetails(const ProviderSyncDetails &psd
     }
     else {
         ui->providerPwd->setText(QString());
+    }
+
+    if(!psd.collection.isEmpty()) {
+        ui->listCollection->setCurrentItem(psd.collection,true);
+    }
+
+    ui->syncMode->setCurrentIndex(psd.syncMode);
+    ui->mergeMode->setCurrentIndex(psd.mergeMode);
+    ui->askDeletion->setChecked(psd.askBeforeDeletion);
+    ui->importAttachments->setChecked(psd.importAttachments);
+    ui->exportAttachments->setChecked(psd.exportAttachments);
+
+    if(psd.akonadiContactsUUid < 1) {
+        ui->addContactsToAkonadi->setChecked(false);
+    }
+    else {
+        ui->addContactsToAkonadi->setChecked(true);
+    }
+    if(psd.akonadiEventsUUid < 1) {
+        ui->addEventsToAkonadi->setChecked(false);
+    }
+    else {
+        ui->addEventsToAkonadi->setChecked(true);
     }
 }
 
@@ -131,10 +156,21 @@ ProviderSyncDetails ProviderSettings::providerSettingsDetails() const
     psd.importAttachments = ui->importAttachments->isChecked();
     psd.exportAttachments = ui->exportAttachments->isChecked();
 
-    int curAddressBook = ui->contactCollection->currentIndex();
-    psd.akonadiContactsUUid = ui->contactCollection->itemData(curAddressBook).toULongLong();
-    int curEventCollection = ui->eventCollection->currentIndex();
-    psd.akonadiEventsUUid = ui->eventCollection->itemData(curEventCollection).toULongLong();
+    if(ui->addContactsToAkonadi->isChecked() && ui->contactCollection->count() != 0) {
+        int curAddressBook = ui->contactCollection->currentIndex();
+        psd.akonadiContactsUUid = ui->contactCollection->itemData(curAddressBook).toULongLong();
+    }
+    else {
+        psd.akonadiContactsUUid = 0;
+    }
+
+    if(ui->addEventsToAkonadi->isChecked() && ui->eventCollection->count() != 0) {
+        int curEventCollection = ui->eventCollection->currentIndex();
+        psd.akonadiEventsUUid = ui->eventCollection->itemData(curEventCollection).toULongLong();
+    }
+    else {
+        psd.akonadiEventsUUid = 0;
+    }
 
     return psd;
 }
@@ -169,6 +205,7 @@ void ProviderSettings::savePasswordInKWallet()
 
 void ProviderSettings::setAkonadiContactDetails(QList<ProviderSettings::AkonadiDetails> contactCollections)
 {
+    qDebug() << "ProviderSettings::setAkonadiContactDetails";
     foreach(const AkonadiDetails & c, contactCollections) {
         ui->contactCollection->addItem(c.collectionName, c.collectionID);
     }
@@ -276,5 +313,9 @@ void ProviderSettings::fillCollectionList(const QList<CollectionInfo> &collectio
     ui->listCollection->addItem(i18n("no collection"), QString());
     foreach(const CollectionInfo &ci, collectionList) {
         ui->listCollection->addItem(ci.name, ci.id);
+    }
+
+    if(!m_oldPsd.collection.isEmpty()) {
+        ui->listCollection->setCurrentItem(m_oldPsd.collection,true);
     }
 }

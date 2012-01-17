@@ -91,6 +91,9 @@ void ProviderSelectionWidget::editProvider()
     ps.setProviderSettingsDetails(oldPsd);
     dlg.setMainWidget(&ps);
 
+    ps.setAkonadiContactDetails(m_contactList);
+    ps.setAkonadiEventDetails(m_eventList);
+
     connect(this, SIGNAL(addContactCollection(QList<ProviderSettings::AkonadiDetails>)), &ps, SLOT(setAkonadiContactDetails(QList<ProviderSettings::AkonadiDetails>)));
     connect(this, SIGNAL(addEventCollection(QList<ProviderSettings::AkonadiDetails>)), &ps, SLOT(setAkonadiEventDetails(QList<ProviderSettings::AkonadiDetails>)));
 

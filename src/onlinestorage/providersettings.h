@@ -75,6 +75,7 @@ private slots:
 
 private:
     Ui::ProviderSettings *ui;
+    ProviderSyncDetails m_oldPsd;
 
     QList<StorageInfo*> m_availableProvider;
     KWallet::Wallet* m_wallet;
