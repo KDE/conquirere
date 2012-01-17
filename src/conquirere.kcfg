@@ -6,6 +6,12 @@
   <include>kglobalsettings.h</include>
   <kcfgfile name="conquirererc"/>
 
+  <group name="Background-Sync">
+    <entry name="EnableBackgroundSync" type="Bool">
+      <label>Enable Background Sync.</label>
+    </entry>
+  </group>
+
   <group name="General-Export">
     <entry name="ReferenceCommand" type="Enum">
       <label>Reference Command.</label>
@@ -143,7 +149,7 @@
     </entry>
   </group>
   
-    <group name="Pdf-Export">
+  <group name="Pdf-Export">
     <entry name="PaperSize" type="Enum">
       <label>Paper size.</label>
       <choices>

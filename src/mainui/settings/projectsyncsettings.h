@@ -20,10 +20,6 @@
 
 #include <QWidget>
 
-#include "onlinestorage/providersettings.h"
-
-#include <Akonadi/Collection>
-
 namespace Ui {
     class ProjectSyncSettings;
 }
@@ -42,8 +38,6 @@ public:
 
 signals:
     void contentChanged();
-    void addContactCollection( const QList<ProviderSettings::AkonadiDetails> &contactCollections );
-    void addEventCollection( const QList<ProviderSettings::AkonadiDetails> &eventCollections );
 
 public slots:
     void resetSettings();
@@ -51,20 +45,11 @@ public slots:
 
 private slots:
     void updateFolderTextLabel(const QString &folder);
-    void editProvider();
-    void addProvider();
-    void removeProvider();
-    void akonadiContactCollectionFetched(const Akonadi::Collection::List &list);
-    void akonadiEventCollectionFetched(const Akonadi::Collection::List &list);
 
 private:
-    void fetchAkonadiCollection();
-
     Ui::ProjectSyncSettings *ui;
 
     ProjectSettings *m_settings;
-    QList<ProviderSettings::AkonadiDetails> m_eventList;
-    QList<ProviderSettings::AkonadiDetails> m_contactList;
 };
 
 #endif // PROJECTSYNCSETTINGS_H

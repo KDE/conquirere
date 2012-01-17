@@ -15,39 +15,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SYSTEMSYNCSETTINGS_H
-#define SYSTEMSYNCSETTINGS_H
+#ifndef PROVIDERSELECTIONWIDGET_H
+#define PROVIDERSELECTIONWIDGET_H
 
 #include <QWidget>
 
+#include "onlinestorage/providersettings.h"
+
+#include <Akonadi/Collection>
+
 namespace Ui {
-    class SystemSyncSettings;
+    class ProviderSelectionWidget;
 }
 
 class ProjectSettings;
 
-class SystemSyncSettings : public QWidget
+class ProviderSelectionWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit SystemSyncSettings(QWidget *parent = 0);
-    ~SystemSyncSettings();
+    explicit ProviderSelectionWidget(QWidget *parent = 0);
+    ~ProviderSelectionWidget();
 
     void setProjectSettings(ProjectSettings *ps);
 
 signals:
     void contentChanged();
+    void addContactCollection( const QList<ProviderSettings::AkonadiDetails> &contactCollections );
+    void addEventCollection( const QList<ProviderSettings::AkonadiDetails> &eventCollections );
 
 public slots:
     void resetSettings();
     void applySettings();
 
+private slots:
+    void editProvider();
+    void addProvider();
+    void removeProvider();
+    void akonadiContactCollectionFetched(const Akonadi::Collection::List &list);
+    void akonadiEventCollectionFetched(const Akonadi::Collection::List &list);
+
 private:
-    Ui::SystemSyncSettings *ui;
+    void fetchAkonadiCollection();
+    Ui::ProviderSelectionWidget *ui;
     ProjectSettings *m_settings;
 
     void setupGui();
+    QList<ProviderSettings::AkonadiDetails> m_eventList;
+    QList<ProviderSettings::AkonadiDetails> m_contactList;
 };
 
-#endif // SYSTEMSYNCSETTINGS_H
+#endif // PROVIDERSELECTIONWIDGET_H
