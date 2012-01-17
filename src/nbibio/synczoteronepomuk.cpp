@@ -257,9 +257,6 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
     qreal percentPerFile = 100.0/(qreal)zoteroData.size();
     qreal curProgress = 0.0;
 
-    //Step I update the etag values for all entries already known to the nepomuk storage and updated on the server
-    //File newEntry updateEtagValuesAfterUpload(zoteroData);
-
     //step one get all entries which are new to the storage
     foreach(const QSharedPointer<Element> &element, m_bibCache) {
         Entry *entry = dynamic_cast<Entry *>(element.data());

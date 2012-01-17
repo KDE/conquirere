@@ -89,8 +89,27 @@ void ProviderSettings::setProviderSettingsDetails(const ProviderSyncDetails &psd
 {
     m_oldPsd = psd;
     ui->providerUserName->setText(psd.userName);
-    ui->providerUrl->setText(psd.url);
-    ui->providerUrlRequester->setText(psd.url);
+
+    // switch to teh selected provider
+    int curIndex=0;
+    foreach(StorageInfo *si, m_availableProvider) {
+        if(si->providerId() == psd.providerInfo->providerId())
+            break;
+        else
+            curIndex++;
+    }
+
+    ui->providerSelection->setCurrentIndex(curIndex);
+
+    if(ui->providerUrl->text().isEmpty())
+        ui->providerUrl->setText(m_availableProvider.at(curIndex)->defaultUrl());
+    else
+        ui->providerUrl->setText(psd.url);
+
+    if(ui->providerUrlRequester->text().isEmpty())
+        ui->providerUrlRequester->setText(m_availableProvider.at(curIndex)->defaultUrl());
+    else
+        ui->providerUrlRequester->setText(psd.url);
 
     QString pwdKey;
     pwdKey.append(psd.providerInfo->providerId());
@@ -258,6 +277,12 @@ void ProviderSettings::switchProvider(int curIndex)
         ui->providerUrl->setVisible(true);
         ui->providerUrlRequester->setVisible(false);
     }
+
+    if(ui->providerUrl->text().isEmpty())
+        ui->providerUrl->setText(m_availableProvider.at(curIndex)->defaultUrl());
+
+    if(ui->providerUrlRequester->text().isEmpty())
+        ui->providerUrlRequester->setText(m_availableProvider.at(curIndex)->defaultUrl());
 
     if(m_availableProvider.at(curIndex)->supportCollections()) {
         ui->collectionLabel->setEnabled(true);
