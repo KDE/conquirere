@@ -289,6 +289,22 @@
        <item row="2" column="1">
         <widget class="EventEdit" name="editEvent"/>
        </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="labelSeries">
+         <property name="toolTip">
+          <string>Defines in which series this publication is in Bookseries, Journal Newspaper and such</string>
+         </property>
+         <property name="text">
+          <string>Series:</string>
+         </property>
+         <property name="buddy">
+          <cstring>editSeries</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="SeriesEdit" name="editSeries"/>
+       </item>
        <item row="4" column="0">
         <widget class="QLabel" name="labelCollection">
          <property name="text">
@@ -314,6 +330,19 @@
        </item>
        <item row="6" column="1">
         <widget class="CodeOfLawEdit" name="editCode"/>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Court Reporter:</string>
+         </property>
+         <property name="buddy">
+          <cstring>editCourtReporter</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="EventEdit" name="editCourtReporter"/>
        </item>
        <item row="8" column="0">
         <widget class="QLabel" name="labelVolume">
@@ -341,6 +370,19 @@
        <item row="9" column="1">
         <widget class="VolumeNumberEdit" name="editNumber"/>
        </item>
+       <item row="10" column="0">
+        <widget class="QLabel" name="labelEdition">
+         <property name="text">
+          <string>Edition:</string>
+         </property>
+         <property name="buddy">
+          <cstring>editEdition</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="1">
+        <widget class="StringEdit" name="editEdition"/>
+       </item>
        <item row="11" column="0">
         <widget class="QLabel" name="labelApplicationNumber">
          <property name="text">
@@ -366,6 +408,45 @@
        </item>
        <item row="12" column="1">
         <widget class="StringEdit" name="editPriorityNumbers"/>
+       </item>
+       <item row="13" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Public Law Number:</string>
+         </property>
+         <property name="buddy">
+          <cstring>editPublicLawNumber</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="13" column="1">
+        <widget class="StringEdit" name="editPublicLawNumber"/>
+       </item>
+       <item row="14" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>References:</string>
+         </property>
+         <property name="buddy">
+          <cstring>editReferences</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="14" column="1">
+        <widget class="StringEdit" name="editReferences"/>
+       </item>
+       <item row="15" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Legal Status:</string>
+         </property>
+         <property name="buddy">
+          <cstring>editLegalStatus</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="1">
+        <widget class="StringEdit" name="editLegalStatus"/>
        </item>
        <item row="16" column="0">
         <widget class="QLabel" name="labelPublicationMethod">
@@ -396,7 +477,54 @@
        <item row="17" column="1">
         <widget class="StringEdit" name="editType"/>
        </item>
-       <item row="18" column="0">
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_6">
+      <attribute name="title">
+       <string>Other</string>
+      </attribute>
+      <layout class="QFormLayout" name="formLayout_4">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>Shorttitle:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="StringEdit" name="editShortTitle"/>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>Translator:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="ContactEdit" name="editTranslator"/>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>Contributor:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="ContactEdit" name="editContributor"/>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_16">
+         <property name="text">
+          <string>Reviewed author:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="ContactEdit" name="editReviewedAuthor"/>
+       </item>
+       <item row="4" column="0">
         <widget class="QLabel" name="labelCopyright">
          <property name="text">
           <string>Copyrigth:</string>
@@ -406,10 +534,10 @@
          </property>
         </widget>
        </item>
-       <item row="18" column="1">
+       <item row="4" column="1">
         <widget class="StringEdit" name="editCopyright"/>
        </item>
-       <item row="19" column="0">
+       <item row="5" column="0">
         <widget class="QLabel" name="labelLastAccessed">
          <property name="text">
           <string>Last Accessed:</string>
@@ -419,10 +547,10 @@
          </property>
         </widget>
        </item>
-       <item row="19" column="1">
+       <item row="5" column="1">
         <widget class="StringEdit" name="editLastAccessed"/>
        </item>
-       <item row="20" column="0">
+       <item row="6" column="0">
         <widget class="QLabel" name="labelLanguage">
          <property name="text">
           <string>Language:</string>
@@ -432,89 +560,8 @@
          </property>
         </widget>
        </item>
-       <item row="20" column="1">
+       <item row="6" column="1">
         <widget class="StringEdit" name="editLanguage"/>
-       </item>
-       <item row="14" column="1">
-        <widget class="StringEdit" name="editReferences"/>
-       </item>
-       <item row="15" column="1">
-        <widget class="StringEdit" name="editLegalStatus"/>
-       </item>
-       <item row="14" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>References:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editReferences</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="15" column="0">
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>Legal Status:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editLegalStatus</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="13" column="0">
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>Public Law Number:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editPublicLawNumber</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="13" column="1">
-        <widget class="StringEdit" name="editPublicLawNumber"/>
-       </item>
-       <item row="7" column="1">
-        <widget class="EventEdit" name="editCourtReporter"/>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="label_7">
-         <property name="text">
-          <string>Court Reporter:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editCourtReporter</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="1">
-        <widget class="StringEdit" name="editEdition"/>
-       </item>
-       <item row="10" column="0">
-        <widget class="QLabel" name="labelEdition">
-         <property name="text">
-          <string>Edition:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editEdition</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="SeriesEdit" name="editSeries"/>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="labelSeries">
-         <property name="toolTip">
-          <string>Defines in which series this publication is in Bookseries, Journal Newspaper and such</string>
-         </property>
-         <property name="text">
-          <string>Series:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editSeries</cstring>
-         </property>
-        </widget>
        </item>
       </layout>
      </widget>
@@ -1339,54 +1386,6 @@
     <hint type="destinationlabel">
      <x>148</x>
      <y>435</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>editCopyright</sender>
-   <signal>widgetShown(bool)</signal>
-   <receiver>labelCopyright</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>194</x>
-     <y>458</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>143</x>
-     <y>459</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>editLastAccessed</sender>
-   <signal>widgetShown(bool)</signal>
-   <receiver>labelLastAccessed</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>184</x>
-     <y>489</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>131</x>
-     <y>489</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>editLanguage</sender>
-   <signal>widgetShown(bool)</signal>
-   <receiver>labelLanguage</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>212</x>
-     <y>517</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>130</x>
-     <y>513</y>
     </hint>
    </hints>
   </connection>

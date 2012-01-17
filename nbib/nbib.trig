@@ -402,6 +402,27 @@ nbib: {
           rdfs:label "affirmedBy" ;
           rdfs:range nbib:Decision .
 
+    nbib:translator
+          a       rdf:Property ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "The translator of a Publication" ;
+          rdfs:label "translator" ;
+          rdfs:range nco:Contact .
+
+    nbib:contributor
+          a       rdf:Property ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "The contributor of a Publication" ;
+          rdfs:label "contributor" ;
+          rdfs:range nco:Contact .
+
+    nbib:reviewedAuthor
+          a       rdf:Property ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "The perosn who reviewed a Publication" ;
+          rdfs:label "Reviewed Author" ;
+          rdfs:range nco:Contact .
+
     nbib:assignee
           a       rdf:Property ;
           rdfs:domain nbib:Patent ;
@@ -664,6 +685,14 @@ nbib: {
           rdfs:range xsd:integer ;
           nrl:maxCardinality 1 .
 
+    nbib:numberOfVolumes
+          a       rdf:Property ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "The number of volumes that exists for a publication." ;
+          rdfs:label "number of volumes" ;
+          rdfs:range xsd:integer ;
+          nrl:maxCardinality 1 .
+
     nbib:number
           a       rdf:Property ;
           rdfs:domain nbib:Publication ;
@@ -752,8 +781,8 @@ nbib: {
     nbib:filingDate
           a       rdf:Property ;
           rdfs:domain nbib:Patent ;
-          rdfs:comment "The date when the patent was filled, the issue date is the same as the publication date" ;
-          rdfs:label "Filling Date" ;
+          rdfs:comment "The date when the patent was filed, the issue date is the same as the publication date" ;
+          rdfs:label "Filing Date" ;
           rdfs:range xsd:dateTime ;
           nrl:maxCardinality 1 .
 
@@ -807,9 +836,17 @@ nbib: {
 
     nbib:type
           a       rdf:Property ;
-          rdfs:domain nbib:Techreport ;
-          rdfs:comment "The type of tech-report, for example, 'Research Note'." ;
-          rdfs:label "Type" ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "The type of tech-report or other kind of Publication, for example, 'Research Note'." ;
+          rdfs:label "Publication Type" ;
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
+
+    nbib:shortTitle
+          a       rdf:Property ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "The short version of the title" ;
+          rdfs:label "Short Title" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 

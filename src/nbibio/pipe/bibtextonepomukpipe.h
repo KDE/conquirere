@@ -38,6 +38,7 @@ class Entry;
   * For each BibTeX entry new resources for the publication, reference, the contacts and others will be created.
   *
   * @see NBIB ontology
+  *
   */
 class BibTexToNepomukPipe : public BibTexPipe
 {
@@ -141,14 +142,19 @@ private:
     void addReporterVolume(const QString &content, Nepomuk::Resource publication);
     void addPages(const QString &content, Nepomuk::Resource reference);
     void addNumberOfPages(const QString &content, Nepomuk::Resource publication);
+    void addNumberOfVolumes(const QString &content, Nepomuk::Resource publication);
     void addPubMed(const QString &content, Nepomuk::Resource publication);
     void addEvent(const QString &content, Nepomuk::Resource publication);
     void addSeries(const QString &content, Nepomuk::Resource publication);
     void addTitle(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
+    void addShortTitle(const QString &content, Nepomuk::Resource publication);
     void addType(const QString &content, Nepomuk::Resource publication);
     void addApplicationNumber(const QString &content, Nepomuk::Resource publication);
     void addPriorityNumbers(const QString &content, Nepomuk::Resource publication);
-    void addAssignee(const QString &content, Nepomuk::Resource publication);
+    void addAssignee(const Value &contentValue, Nepomuk::Resource publication);
+    void addContributor(const Value &contentValue, Nepomuk::Resource publication);
+    void addTranslator(const Value &contentValue, Nepomuk::Resource publication);
+    void addReviewedAuthor(const Value &contentValue, Nepomuk::Resource publication);
     void addReferences(const QString &content, Nepomuk::Resource publication);
     void addLegalStatus(const QString &contente, Nepomuk::Resource publication);
     void addFilingDate(const QString &content, Nepomuk::Resource publication);
@@ -165,6 +171,8 @@ private:
     void addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference,
                               const QString &id,
                               const QString &etag, const QString &updated);
+
+    void addContact(const Value &contentValue, Nepomuk::Resource res, QUrl property, QUrl contactType );
 
     QMap<QString, Nepomuk::Resource> m_allContacts;
     QMap<QString, Nepomuk::Resource> m_allProceedings;

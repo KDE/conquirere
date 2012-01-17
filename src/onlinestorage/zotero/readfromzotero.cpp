@@ -72,9 +72,10 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     m_zoteroToBibTeX["codePages"] = QLatin1String("pages");
     m_zoteroToBibTeX["court"] = QLatin1String("organization");
     m_zoteroToBibTeX["issuingAuthority"] = QLatin1String("organization");
-    m_zoteroToBibTeX["legislativeBody"] = QLatin1String("institution");
+    m_zoteroToBibTeX["legislativeBody"] = QLatin1String("organization");
     m_zoteroToBibTeX["session"] = QLatin1String("event");
     m_zoteroToBibTeX["dateDecided"] = QLatin1String("date");
+    m_zoteroToBibTeX["dateEnacted"] = QLatin1String("date");
     m_zoteroToBibTeX["firstPage"] = QLatin1String("pages");
     m_zoteroToBibTeX["issueDate"] = QLatin1String("date");
     m_zoteroToBibTeX["extra"] = QLatin1String("note");

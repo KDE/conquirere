@@ -120,6 +120,11 @@ private:
     void setLegalStatus(Entry *e, Nepomuk::Resource publication);
     void setFilingDate(Entry *e, Nepomuk::Resource publication);
     void setAssignee(Entry *e, Nepomuk::Resource publication);
+    void setTranslator(Entry *e, Nepomuk::Resource publication);
+    void setContributor(Entry *e, Nepomuk::Resource publication);
+    void setReviewedAuthor(Entry *e, Nepomuk::Resource publication);
+    void setShortTitle(Entry *e, Nepomuk::Resource publication);
+    void setNumberOfVolumes(Entry *e, Nepomuk::Resource publication);
     void setArchive(Entry *e, Nepomuk::Resource publication);
     void setArchiveLocation(Entry *e, Nepomuk::Resource publication);
     void setLibraryCatalog(Entry *e, Nepomuk::Resource publication);

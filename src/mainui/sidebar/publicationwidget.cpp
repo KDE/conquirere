@@ -125,6 +125,15 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
    ui->editWebObject->setResource(m_publication);
    ui->editKeywords->setResource(m_publication);
 
+   ui->editShortTitle->setResource(m_publication);
+   ui->editTranslator->setResource(m_publication);
+   ui->editContributor->setResource(m_publication);
+   ui->editReviewedAuthor->setResource(m_publication);
+   ui->editCopyright->setResource(m_publication);
+   ui->editCopyright->setResource(m_publication);
+   ui->editLastAccessed->setResource(m_publication);
+   ui->editLanguage->setResource(m_publication);
+
    ui->editEdition->setResource(m_publication);
    ui->editEvent->setResource(m_publication);
    ui->editCollection->setResource(m_publication);
@@ -140,9 +149,6 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
    ui->editLegalStatus->setResource(m_publication);
    ui->editHowPublished->setResource(m_publication);
    ui->editType->setResource(m_publication);
-   ui->editCopyright->setResource(m_publication);
-   ui->editLastAccessed->setResource(m_publication);
-   ui->editLanguage->setResource(m_publication);
 
    ui->editArchive->setResource(m_publication);
    ui->editArchiveLocation->setResource(m_publication);
@@ -469,6 +475,22 @@ void PublicationWidget::setupWidget()
     ui->editKeywords->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
     ui->editKeywords->setPropertyUrl( Soprano::Vocabulary::NAO::hasTag() );
 
+    //other section
+    ui->editShortTitle->setPropertyUrl( Nepomuk::Vocabulary::NBIB::shortTitle() );
+    ui->editTranslator->setPropertyUrl( Nepomuk::Vocabulary::NBIB::translator() );
+    ui->editTranslator->setUseDetailDialog(true);
+    connect(ui->editTranslator, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
+    ui->editContributor->setPropertyUrl( Nepomuk::Vocabulary::NBIB::contributor() );
+    ui->editContributor->setUseDetailDialog(true);
+    connect(ui->editContributor, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
+    ui->editReviewedAuthor->setPropertyUrl( Nepomuk::Vocabulary::NBIB::reviewedAuthor() );
+    ui->editReviewedAuthor->setUseDetailDialog(true);
+    connect(ui->editReviewedAuthor, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
+
+    ui->editCopyright->setPropertyUrl( Nepomuk::Vocabulary::NIE::copyright() );
+    ui->editLastAccessed->setPropertyUrl( Nepomuk::Vocabulary::NUAO::lastUsage());
+    ui->editLanguage->setPropertyUrl( Nepomuk::Vocabulary::NIE::language());
+
     // Extra section
     ui->editEvent->setPropertyUrl( Nepomuk::Vocabulary::NBIB::event() );
     ui->editEvent->setUseDetailDialog(true);
@@ -494,9 +516,6 @@ void PublicationWidget::setupWidget()
     ui->editLegalStatus->setPropertyUrl( Nepomuk::Vocabulary::NBIB::legalStatus() );
     ui->editHowPublished->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationMethod() );
     ui->editType->setPropertyUrl( Nepomuk::Vocabulary::NBIB::type() );
-    ui->editCopyright->setPropertyUrl( Nepomuk::Vocabulary::NIE::copyright() );
-    ui->editLastAccessed->setPropertyUrl( Nepomuk::Vocabulary::NUAO::lastUsage());
-    ui->editLanguage->setPropertyUrl( Nepomuk::Vocabulary::NIE::language());
 
     // identification section
     ui->editArchive->setPropertyUrl( Nepomuk::Vocabulary::NBIB::archive() );
@@ -565,7 +584,8 @@ void PublicationWidget::editContactDialog(Nepomuk::Resource & resource, const QU
 
     cd.exec();
 
-    ui->editAuthors->setResource(resource);
+    ContactEdit *ce = dynamic_cast<ContactEdit *>(sender());
+    ce->setResource(resource);
 }
 
 void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl)
