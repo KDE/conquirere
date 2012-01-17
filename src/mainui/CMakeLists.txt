@@ -23,6 +23,7 @@ set(mainui_LIB_SRCS
     settings/exportsettings.cpp
     settings/systemsyncsettings.cpp
     settings/providerselectionwidget.cpp
+    settings/appearancesettings.cpp
 
     sync/bibtexexportdialog.cpp
     sync/bibteximportwizard.cpp
@@ -60,6 +61,7 @@ kde4_add_ui_files( mainui_LIB_SRCS
                    settings/exportsettings.ui
                    settings/systemsyncsettings.ui
                    settings/providerselectionwidget.ui
+                   settings/appearancesettings.ui
 
                    sync/bibtexexportdialog.ui
                    sync/bibteximportwizard.ui

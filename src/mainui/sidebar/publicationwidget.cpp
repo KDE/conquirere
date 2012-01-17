@@ -32,6 +32,8 @@
 #include "listpublicationsdialog.h"
 #include "core/library.h"
 
+#include "nbibio/conquirere.h"
+
 #include "nbib.h"
 #include <Nepomuk/Thing>
 #include <Nepomuk/Variant>
@@ -435,6 +437,10 @@ void PublicationWidget::setupWidget()
 {
     int i=0;
     foreach(const QString &s, BibEntryTypeTranslation) {
+        if(ConqSettings::hidenNbibPublications().contains(i)) {
+            i++;
+            continue;
+        }
         ui->editEntryType->addItem(s,(BibEntryType)i);
         i++;
     }

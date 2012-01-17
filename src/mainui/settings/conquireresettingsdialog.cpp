@@ -17,6 +17,7 @@
 
 #include "conquireresettingsdialog.h"
 
+#include "appearancesettings.h"
 #include "exportsettings.h"
 #include "systemsyncsettings.h"
 
@@ -62,6 +63,15 @@ void ConquirereSettingsDialog::setupPages()
     enableButtonApply(false);
     setModal(true);
     showButtonSeparator(true);
+
+    m_appearanceSettings = new AppearanceSettings();
+    connect(this, SIGNAL(applyClicked()), m_appearanceSettings, SLOT(applySettings()));
+    connect(this, SIGNAL(resetClicked()), m_appearanceSettings, SLOT(resetSettings()));
+    connect(this, SIGNAL(okClicked()), m_appearanceSettings, SLOT(applySettings()));
+    connect(m_appearanceSettings, SIGNAL(contentChanged()), this, SLOT(contentChanged()));
+
+    KPageWidgetItem *asitem = addPage( m_appearanceSettings, i18n( "Appearance" ) );
+    asitem->setIcon( KIcon( "view-choose" ) );
 
     m_exportSettings = new ExportSettings();
     connect(this, SIGNAL(applyClicked()), m_exportSettings, SLOT(applySettings()));

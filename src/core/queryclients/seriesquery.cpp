@@ -21,13 +21,15 @@
 
 #include "../../globals.h"
 
+#include "nbibio/conquirere.h"
+
 #include <Nepomuk/Variant>
 #include <Nepomuk/Query/ResourceTerm>
 #include <Nepomuk/Query/AndTerm>
 #include <Nepomuk/Query/OrTerm>
 #include <Nepomuk/Query/ResourceTypeTerm>
 #include <Nepomuk/Query/ComparisonTerm>
-
+#include <Nepomuk/Query/NegationTerm>
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/PIMO>
@@ -43,6 +45,11 @@ void SeriesQuery::startFetchData()
     Nepomuk::Query::AndTerm andTerm;
 
     andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Series() ) );
+
+    foreach(int i, ConqSettings::hidenNbibSeries()) {
+        Nepomuk::Query::Term hiddenSeriesTerm = Nepomuk::Query::NegationTerm::negateTerm(Nepomuk::Query::ResourceTypeTerm( SeriesTypeURL.at(i) ));
+        andTerm.addSubTerm(hiddenSeriesTerm);
+    }
 
     if(m_library->libraryType() == Library_Project) {
         Nepomuk::Query::OrTerm orTerm;

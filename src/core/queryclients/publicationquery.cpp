@@ -21,6 +21,8 @@
 
 #include "../../globals.h"
 
+#include "nbibio/conquirere.h"
+
 #include <KDE/KIcon>
 
 #include <Nepomuk/Variant>
@@ -29,6 +31,7 @@
 #include <Nepomuk/Query/OrTerm>
 #include <Nepomuk/Query/ResourceTypeTerm>
 #include <Nepomuk/Query/ComparisonTerm>
+#include <Nepomuk/Query/NegationTerm>
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/PIMO>
@@ -46,6 +49,11 @@ void PublicationQuery::startFetchData()
     Nepomuk::Query::AndTerm andTerm;
 
     andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Publication() ) );
+
+    foreach(int i, ConqSettings::hidenNbibPublications()) {
+        Nepomuk::Query::Term hiddenPublicationTerm = Nepomuk::Query::NegationTerm::negateTerm(Nepomuk::Query::ResourceTypeTerm( BibEntryTypeURL.at(i) ));
+        andTerm.addSubTerm(hiddenPublicationTerm);
+    }
 
     if(m_library->libraryType() == Library_Project) {
         Nepomuk::Query::OrTerm orTerm;

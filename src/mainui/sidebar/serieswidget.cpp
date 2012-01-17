@@ -16,12 +16,14 @@
  */
 
 #include "serieswidget.h"
-#include "ui_serieswidget.h"
+#include "../build/src/mainui/ui_serieswidget.h"
 
 #include "globals.h"
 #include "core/library.h"
 
 #include "listpartswidget.h"
+
+#include "nbibio/conquirere.h"
 
 #include "nbib.h"
 #include <Nepomuk/Variant>
@@ -70,7 +72,7 @@ void SeriesWidget::setResource(Nepomuk::Resource & resource)
 void SeriesWidget::newSeriesTypeSelected(int index)
 {
     // change the seriestype of the resource
-    SeriesType entryType = (SeriesType)index;
+    SeriesType entryType = (SeriesType)ui->editType->itemData(index).toInt();
 
     // update resource
     QUrl newEntryUrl = SeriesTypeURL.at(entryType);
@@ -178,6 +180,11 @@ void SeriesWidget::setupWidget()
 {
     int i=0;
     foreach(const QString &s, SeriesTypeTranslation) {
+        if(ConqSettings::hidenNbibSeries().contains(i)) {
+            i++;
+            continue;
+        }
+
         ui->editType->addItem(s,(SeriesType)i);
         i++;
     }

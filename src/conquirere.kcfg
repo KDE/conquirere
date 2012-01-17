@@ -6,9 +6,29 @@
   <include>kglobalsettings.h</include>
   <kcfgfile name="conquirererc"/>
 
+  <group name="Appearance">
+    <entry name="DocumentPosition" type="Enum">
+      <label>Enable Background Sync.</label>
+      <choices>
+        <choice name="middle"/>
+        <choice name="independant"/>
+      </choices>
+      <default>middle</default>
+    </entry>
+    <entry name="HidenNbibSeries" type="IntList">
+      <label>Hiden Nbib Series.</label>
+      <default></default>
+    </entry>
+    <entry name="HidenNbibPublications" type="IntList">
+      <label>Hiden Nbib Publications.</label>
+      <default></default>
+    </entry>
+  </group>
+  
   <group name="Background-Sync">
     <entry name="EnableBackgroundSync" type="Bool">
       <label>Enable Background Sync.</label>
+      <default>true</default>
     </entry>
   </group>
 

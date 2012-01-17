@@ -16,7 +16,7 @@
  */
 
 #include "exportsettings.h"
-#include "../build/src/mainui/ui_exportsettings.h"
+#include "ui_exportsettings.h"
 
 #include "nbibio/conquirere.h"
 

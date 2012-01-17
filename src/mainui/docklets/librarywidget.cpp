@@ -26,6 +26,8 @@
 #include "projecttreedelegate.h"
 #include "mainui/settings/projectsettingsdialog.h"
 
+#include "nbibio/conquirere.h"
+
 #include <KDE/KStandardDirs>
 
 #include <QtGui/QSortFilterProxyModel>
@@ -34,13 +36,6 @@
 #include <QtCore/QVariant>
 
 #include <QtCore/QDebug>
-
-
-
-#include <KPageDialog>
-#include <KPageWidgetItem>
-#include "mainui/settings/projectgeneralsettings.h"
-#include "mainui/settings/projectsyncsettings.h"
 
 LibraryWidget::LibraryWidget(QWidget *parent)
     : QDockWidget(parent)
@@ -61,8 +56,6 @@ LibraryWidget::LibraryWidget(QWidget *parent)
 LibraryWidget::~LibraryWidget()
 {
     delete ui;
-    //qDeleteAll(m_openLibraries);
-    //qDeleteAll(m_items);
 }
 
 void LibraryWidget::addLibrary(Library *p)
@@ -308,6 +301,10 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     m_items.append(twi5);
 
     for(int i=0; i < Max_SeriesTypes; i++) {
+        if(ConqSettings::hidenNbibSeries().contains(i)) {
+            continue;
+        }
+
         QLibraryTreeWidgetItem *refSub = new QLibraryTreeWidgetItem();
         refSub->setText(0, SeriesTypeTranslation.at(i));
         refSub->setData(0,Role_ResourceType,Resource_Series);
@@ -334,6 +331,10 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     m_items.append(twi1a);
 
     for(int i=0; i < Max_BibTypes; i++) {
+        if(ConqSettings::hidenNbibPublications().contains(i)) {
+            continue;
+        }
+
         QLibraryTreeWidgetItem *pubSub = new QLibraryTreeWidgetItem();
         pubSub->setText(0, BibEntryTypeTranslation.at(i));
         pubSub->setData(0,Role_ResourceType,Resource_Publication);
@@ -360,6 +361,10 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     m_items.append(twi4);
 
     for(int i=0; i < Max_BibTypes; i++) {
+        if(ConqSettings::hidenNbibPublications().contains(i)) {
+            continue;
+        }
+
         QLibraryTreeWidgetItem *refSub = new QLibraryTreeWidgetItem();
         refSub->setText(0, BibEntryTypeTranslation.at(i));
         refSub->setData(0,Role_ResourceType,Resource_Reference);

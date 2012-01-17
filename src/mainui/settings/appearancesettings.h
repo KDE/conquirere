@@ -15,38 +15,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONQUIRERESETTINGSDIALOG_H
-#define CONQUIRERESETTINGSDIALOG_H
+#ifndef APPEARANCESETTINGS_H
+#define APPEARANCESETTINGS_H
 
-#include <KDE/KPageDialog>
+#include <QWidget>
 
-class AppearanceSettings;
-class ExportSettings;
-class SystemSyncSettings;
-class ProjectSettings;
+namespace Ui {
+    class AppearanceSettings;
+}
 
-class ConquirereSettingsDialog : public KPageDialog
+class AppearanceSettings : public QWidget
 {
     Q_OBJECT
+
 public:
-    explicit ConquirereSettingsDialog(QWidget *parent = 0);
-    virtual ~ConquirereSettingsDialog();
+    explicit AppearanceSettings(QWidget *parent = 0);
+    ~AppearanceSettings();
 
-    void setProjectSettings(ProjectSettings *ps);
-
-public slots:
+signals:
     void contentChanged();
 
-private slots:
-    void applyChanges();
+public slots:
+    void resetSettings();
+    void applySettings();
 
 private:
-    void setupPages();
+    Ui::AppearanceSettings *ui;
 
-    AppearanceSettings *m_appearanceSettings;
-    ExportSettings     *m_exportSettings;
-    SystemSyncSettings *m_systemSyncSettings;
-
+    void setupGui();
 };
 
-#endif // CONQUIRERESETTINGSDIALOG_H
+#endif // APPEARANCESETTINGS_H

@@ -40,6 +40,8 @@
 #include "sync/synczoterodialog.h"
 #include "sync/syncbutton.h"
 
+#include "nbibio/conquirere.h"
+
 #include <KDE/KApplication>
 #include <KDE/KAction>
 #include <KDE/KLocale>
@@ -603,22 +605,47 @@ void MainWindow::setupActions()
 
 void MainWindow::setupMainWindow()
 {
-    // create second mainwindow that holds the document preview
-    // this way the bottum doc widget will not take up all the space but is
-    // limited by the left/right doc
-    m_centerWindow = new QMainWindow(this);
-    m_centerWindow->setWindowFlags(Qt::Widget);
-    QWidget *nw = new QWidget();
-    QVBoxLayout *mainLayout = new QVBoxLayout();
-    nw->setLayout(mainLayout);
-    m_centerWindow->setCentralWidget(nw);
-    setCentralWidget(m_centerWindow);
+    if(ConqSettings::documentPosition() == ConqSettings::EnumDocumentPosition::middle) {
+        // create second mainwindow that holds the document preview
+        // this way the bottum doc widget will not take up all the space but is
+        // limited by the left/right doc
+        m_centerWindow = new QMainWindow(this);
+        m_centerWindow->setWindowFlags(Qt::Widget);
+        QWidget *nw = new QWidget();
+        QVBoxLayout *mainLayout = new QVBoxLayout();
+        nw->setLayout(mainLayout);
+        m_centerWindow->setCentralWidget(nw);
+        setCentralWidget(m_centerWindow);
 
-    // the main table view
-    m_mainView = new ResourceTableWidget();
-    m_mainView->hide();
-    m_mainView->setMainWindow(this);
-    mainLayout->addWidget(m_mainView);
+        // the main table view
+        m_mainView = new ResourceTableWidget();
+        m_mainView->hide();
+        m_mainView->setMainWindow(this);
+        mainLayout->addWidget(m_mainView);
+
+        //add panel for the document preview
+        m_documentPreview = new DocumentPreview();
+        m_centerWindow->addDockWidget(Qt::BottomDockWidgetArea, m_documentPreview);
+
+    }
+    else if(ConqSettings::documentPosition() == ConqSettings::EnumDocumentPosition::independant) {
+        m_centerWindow = this;
+        QWidget *nw = new QWidget();
+        QVBoxLayout *mainLayout = new QVBoxLayout();
+        nw->setLayout(mainLayout);
+        m_centerWindow->setCentralWidget(nw);
+
+        // the main table view
+        m_mainView = new ResourceTableWidget();
+        m_mainView->hide();
+        m_mainView->setMainWindow(this);
+        mainLayout->addWidget(m_mainView);
+
+        //add panel for the document preview
+        m_documentPreview = new DocumentPreview();
+        m_centerWindow->addDockWidget(Qt::RightDockWidgetArea, m_documentPreview);
+    }
+
 
     // the left project bar
     m_libraryWidget = new LibraryWidget;
@@ -629,10 +656,6 @@ void MainWindow::setupMainWindow()
     m_sidebarWidget = new SidebarWidget;
     m_sidebarWidget->setMainWindow(this);
     addDockWidget(Qt::RightDockWidgetArea, m_sidebarWidget);
-
-    //add panel for the document preview
-    m_documentPreview = new DocumentPreview();
-    m_centerWindow->addDockWidget(Qt::BottomDockWidgetArea, m_documentPreview);
 
     // the search widget
     m_searchWidget = new SearchWidget(this);
