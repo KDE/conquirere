@@ -1,6 +1,6 @@
 format 74
 "ontology"
-  revision 25
+  revision 26
   modified_by 4 "joerg"
 
 
@@ -461,6 +461,18 @@ ${inlines}
 
       classrelation 267268 // <aggregation>
 	relation_ref 259716 // <aggregation>
+      end
+
+      classrelation 280580 // <aggregation>
+	relation_ref 272900 // <aggregation>
+      end
+
+      classrelation 280836 // <aggregation>
+	relation_ref 273028 // <aggregation>
+      end
+
+      classrelation 281092 // <aggregation>
+	relation_ref 273156 // <aggregation>
       end
     end
 
@@ -1271,6 +1283,18 @@ ${inlines}
 	python_decl ""
 	idl_decl ""
       end
+
+      classrelation 280452 // nbib:counsel (<aggregation>)
+	relation 272900 o---
+	  a role_name "nbib:counsel" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 280452 // nbib:counsel (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 280580 // <aggregation>
+      end
     end
 
     class 170884 "nbib:Bill"
@@ -1643,6 +1667,15 @@ ${inlines}
 	python_decl ""
 	idl_decl ""
       end
+
+      classrelation 280324 // nbib:attorneyAgent (<directional aggregation>)
+	relation 272772 o-->
+	  a role_name "nbib:attorneyAgent" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 280324 // nbib:attorneyAgent (<directional aggregation>)
+	  b parent class_ref 128132 // nco:Contact
+      end
     end
 
     class 129412 "nbib:Chapter"
@@ -1854,6 +1887,31 @@ ${inlines}
 
       classrelation 246276 // <aggregation>
 	relation_ref 239236 // <aggregation>
+      end
+
+      classrelation 280708 // nbib:coSponsor (<aggregation>)
+	relation 273028 o---
+	  a role_name "nbib:coSponsor" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 280708 // nbib:coSponsor (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 280836 // <aggregation>
+      end
+
+      classrelation 280964 // nco:creator (<aggregation>)
+	relation 273156 o---
+	  stereotype "sponsor"
+	  a role_name "nco:creator" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 280964 // nco:creator (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 281092 // <aggregation>
       end
     end
 

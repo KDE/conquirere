@@ -653,6 +653,18 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     else if(key == QLatin1String("reviewedauthor")) {
         addReviewedAuthor(value, publication);
     }
+    else if(key == QLatin1String("attorneyagent")) {
+        addContact(value, publication, NBIB::attorneyAgent(), NCO::PersonContact());
+    }
+    else if(key == QLatin1String("counsel")) {
+        addContact(value, publication, NBIB::counsel(), NCO::PersonContact());
+    }
+    else if(key == QLatin1String("cosponsor")) {
+        addContact(value, publication, NBIB::coSponsor(), NCO::PersonContact());
+    }
+    else if(key == QLatin1String("commenter")) {
+        addContact(value, publication, NBIB::commenter(), NCO::PersonContact());
+    }
     else if(key == QLatin1String("serieseditor")) {
         addSeriesEditor(value, publication);
     }

@@ -219,6 +219,10 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
     setContact(e, publication, NBIB::editor(), Entry::ftEditor);setContact(e, publication, NBIB::translator(), QLatin1String("translator"));
     setContact(e, publication, NBIB::contributor(), QLatin1String("contributor"));
     setContact(e, publication, NBIB::reviewedAuthor(), QLatin1String("reviewedauthor"));
+    setContact(e, publication, NBIB::commenter(), QLatin1String("commenter"));
+    setContact(e, publication, NBIB::attorneyAgent(), QLatin1String("attorneyagent"));
+    setContact(e, publication, NBIB::counsel(), QLatin1String("counsel"));
+    setContact(e, publication, NBIB::coSponsor(), QLatin1String("cosponsor"));
 
     setSeriesEditors(e, publication);
     setPublisher(e, publication);

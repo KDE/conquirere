@@ -66,7 +66,9 @@ void ReadFromFile::fetchItems(const QString &collection)
             QStringList keysForPersonDetection;
             keysForPersonDetection << QString("translator") << QString("contributor")
                                    << QString("reviewedauthor") << QString("serieseditor")
-                                   << QString("bookauthor");
+                                   << QString("bookauthor") << QString("commenter")
+                                   << QString("counsel") << QString("cosponsor")
+                                   << QString("attorneyagent");
 
             bibImporter->setKeysForPersonDetection(keysForPersonDetection);
             importer = bibImporter;

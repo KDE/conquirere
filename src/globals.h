@@ -386,5 +386,9 @@ static const QStringList keysForPersonDetection = QStringList() << QString("tran
                                                                 << QString("contributor")
                                                                 << QString("reviewedauthor")
                                                                 << QString("serieseditor")
-                                                                << QString("bookauthor");
+                                                                << QString("bookauthor")
+                                                                << QString("commenter")
+                                                                << QString("counsel")
+                                                                << QString("cosponsor")
+                                                                << QString("attorneyagent");
 #endif // GLOBALS_H

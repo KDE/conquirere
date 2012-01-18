@@ -52,6 +52,10 @@ classcanvas 133252 class_ref 185348 // nbib:LegalCaseDocument
   draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
   xyzwh 489 428 2000 197 63
 end
+classcanvas 136068 class_ref 128132 // nco:Contact
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 6 260 2000
+end
 relationcanvas 128260 relation_ref 188676 // <generalisation>
   from ref 128132 z 2007 to ref 128004
   no_role_a no_role_b
@@ -99,7 +103,8 @@ relationcanvas 132484 relation_ref 130052 // <generalisation>
 end
 relationcanvas 132740 relation_ref 205188 // <generalisation>
   decenter_begin 136
-  from ref 132612 z 2007 to point 256 286
+  decenter_end 795
+  from ref 132612 z 2007 to point 256 311
   line 135044 z 2007 to ref 128132
   no_role_a no_role_b
   no_multiplicity_a no_multiplicity_b
@@ -161,7 +166,32 @@ relationcanvas 135684 relation_ref 239236 // <aggregation>
   from ref 129412 z 2001 to point 616 378
   line 135812 z 2001 to point 316 378
   line 135940 z 2001 to ref 132612
-  role_a_pos 451 385 3000 no_role_b
+  role_a_pos 328 419 3000 no_role_b
   multiplicity_a_pos 302 419 3000 no_multiplicity_b
+end
+relationcanvas 136196 relation_ref 272772 // <directional aggregation>
+  from ref 129668 z 2007 to point 83 142
+  line 136324 z 2007 to ref 136068
+  role_a_pos 11 118 3000 no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 136452 relation_ref 272900 // <aggregation>
+  decenter_begin 337
+  decenter_end 192
+  from ref 128132 z 2007 to ref 136068
+  role_a_pos 176 249 3000 no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 136708 relation_ref 273028 // <aggregation>
+  from ref 132612 z 2001 to point 83 474
+  line 136836 z 2001 to ref 136068
+  role_a_pos 110 437 3000 no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 136964 relation_ref 273156 // <aggregation>
+  from ref 132612 z 2001 stereotype "<<sponsor>>" xyz 118.5 476 3000 to point 83 474
+  line 137092 z 2001 to ref 136068
+  role_a_pos 124 453 3000 no_role_b
+  no_multiplicity_a no_multiplicity_b
 end
 end

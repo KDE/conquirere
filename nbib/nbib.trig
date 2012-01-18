@@ -440,11 +440,39 @@ nbib: {
           rdfs:label "contributor" ;
           rdfs:range nco:Contact .
 
+    nbib:attorneyAgent
+          a       rdf:Property ;
+          rdfs:domain nbib:Patent ;
+          rdfs:comment "A attorney agent related to a patent" ;
+          rdfs:label "Attorney Agent" ;
+          rdfs:range nco:Contact .
+
+    nbib:counsel
+          a       rdf:Property ;
+          rdfs:domain nbib:LegalDocument ;
+          rdfs:comment "The counsel related to a Legal document" ;
+          rdfs:label "Counsel" ;
+          rdfs:range nco:Contact .
+
+    nbib:coSponsor
+          a       rdf:Property ;
+          rdfs:domain nbib:Legislation ;
+          rdfs:comment "The co-sponsor [of a bill]" ;
+          rdfs:label "Co-Sponsor" ;
+          rdfs:range nco:Contact .
+
     nbib:reviewedAuthor
           a       rdf:Property ;
           rdfs:domain nbib:Publication ;
-          rdfs:comment "The perosn who reviewed a Publication" ;
+          rdfs:comment "The person who reviewed a Publication" ;
           rdfs:label "Reviewed Author" ;
+          rdfs:range nco:Contact .
+
+    nbib:commenter
+          a       rdf:Property ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "The commenter of a Publication. Mostly used for Blogs, Forum posts" ;
+          rdfs:label "Commenter" ;
           rdfs:range nco:Contact .
 
     nbib:assignee

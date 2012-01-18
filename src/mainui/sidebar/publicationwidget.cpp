@@ -129,7 +129,10 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
    ui->editTranslator->setResource(m_publication);
    ui->editContributor->setResource(m_publication);
    ui->editReviewedAuthor->setResource(m_publication);
-   ui->editCopyright->setResource(m_publication);
+   ui->editCoSponsor->setResource(m_publication);
+   ui->editCounsel->setResource(m_publication);
+   ui->editCommenter->setResource(m_publication);
+   ui->editAttorneyAgent->setResource(m_publication);
    ui->editCopyright->setResource(m_publication);
    ui->editLastAccessed->setResource(m_publication);
    ui->editLanguage->setResource(m_publication);
@@ -491,7 +494,18 @@ void PublicationWidget::setupWidget()
     ui->editReviewedAuthor->setPropertyUrl( Nepomuk::Vocabulary::NBIB::reviewedAuthor() );
     ui->editReviewedAuthor->setUseDetailDialog(true);
     connect(ui->editReviewedAuthor, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
-
+    ui->editCoSponsor->setPropertyUrl( Nepomuk::Vocabulary::NBIB::coSponsor() );
+    ui->editCoSponsor->setUseDetailDialog(true);
+    connect(ui->editCoSponsor, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
+    ui->editCounsel->setPropertyUrl( Nepomuk::Vocabulary::NBIB::counsel() );
+    ui->editCounsel->setUseDetailDialog(true);
+    connect(ui->editCounsel, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
+    ui->editCommenter->setPropertyUrl( Nepomuk::Vocabulary::NBIB::commenter() );
+    ui->editCommenter->setUseDetailDialog(true);
+    connect(ui->editCommenter, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
+    ui->editAttorneyAgent->setPropertyUrl( Nepomuk::Vocabulary::NBIB::attorneyAgent() );
+    ui->editAttorneyAgent->setUseDetailDialog(true);
+    connect(ui->editAttorneyAgent, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
     ui->editCopyright->setPropertyUrl( Nepomuk::Vocabulary::NIE::copyright() );
     ui->editLastAccessed->setPropertyUrl( Nepomuk::Vocabulary::NUAO::lastUsage());
     ui->editLanguage->setPropertyUrl( Nepomuk::Vocabulary::NIE::language());
@@ -555,6 +569,10 @@ void PublicationWidget::setupWidget()
     connect(ui->editTranslator, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editContributor, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editReviewedAuthor, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editCommenter, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editCoSponsor, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editCounsel, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editAttorneyAgent, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editCopyright, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editLastAccessed, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editLanguage, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
