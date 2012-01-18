@@ -75,9 +75,6 @@ private:
     // Helper function to get the nepomuk data
     // title + booktitle
     void setTitle(Entry *e, Nepomuk::Resource publication, Nepomuk::Resource reference);
-    void setAuthors(Entry *e, Nepomuk::Resource publication);
-    void setBookAuthors(Entry *e, Nepomuk::Resource publication);
-    void setEditors(Entry *e, Nepomuk::Resource publication);
     void setSeriesEditors(Entry *e, Nepomuk::Resource publication);
     void setPublicationDate(Entry *e, Nepomuk::Resource publication);
     void setPublisher(Entry *e, Nepomuk::Resource publication);
@@ -85,54 +82,23 @@ private:
     void setCrossref(Entry *e, Nepomuk::Resource publication);
     void setUrl(Entry *e, Nepomuk::Resource publication);
     void setSeries(Entry *e, Nepomuk::Resource publication);
-    void setEdition(Entry *e, Nepomuk::Resource publication);
     void setJournal(Entry *e, Nepomuk::Resource publication);
-    void setVolume(Entry *e, Nepomuk::Resource publication);
-    void setNumber(Entry *e, Nepomuk::Resource publication);
-    void setPublicationMethod(Entry *e, Nepomuk::Resource publication);
-    void setType(Entry *e, Nepomuk::Resource publication);
-    void setCopyright(Entry *e, Nepomuk::Resource publication);
-    void setLastAccessed(Entry *e, Nepomuk::Resource publication);
-    void setDate(Entry *e, Nepomuk::Resource publication);
-    void setLanguage(Entry *e, Nepomuk::Resource publication);
-    void setEPrint(Entry *e, Nepomuk::Resource publication);
-    void setISBN(Entry *e, Nepomuk::Resource publication);
     void setISSN(Entry *e, Nepomuk::Resource publication);
-    void setLCCN(Entry *e, Nepomuk::Resource publication);
-    void setMRNumber(Entry *e, Nepomuk::Resource publication);
-    void setDOI(Entry *e, Nepomuk::Resource publication);
-    void setPubMed(Entry *e, Nepomuk::Resource publication);
-    void setAbstract(Entry *e, Nepomuk::Resource publication);
-    void setNote(Entry *e, Nepomuk::Resource publication);
-    void setAnnote(Entry *e, Nepomuk::Resource publication);
     void setChapter(Entry *e, Nepomuk::Resource reference);
-    void setPages(Entry *e, Nepomuk::Resource reference);
-    void setNumOfPages(Entry *e, Nepomuk::Resource reference);
     void setEvent(Entry *e, Nepomuk::Resource publication);
     void setCode(Entry *e, Nepomuk::Resource publication);
     void setCodeNumber(Entry *e, Nepomuk::Resource publication);
     void setCodeVolume(Entry *e, Nepomuk::Resource publication);
     void setReporter(Entry *e, Nepomuk::Resource publication);
     void setReporterVolume(Entry *e, Nepomuk::Resource publication);
-    void setApplicationNumber(Entry *e, Nepomuk::Resource publication);
-    void setPriorityNumbers(Entry *e, Nepomuk::Resource publication);
-    void setPatentReferences(Entry *e, Nepomuk::Resource publication);
-    void setLegalStatus(Entry *e, Nepomuk::Resource publication);
-    void setFilingDate(Entry *e, Nepomuk::Resource publication);
     void setAssignee(Entry *e, Nepomuk::Resource publication);
-    void setTranslator(Entry *e, Nepomuk::Resource publication);
-    void setContributor(Entry *e, Nepomuk::Resource publication);
-    void setReviewedAuthor(Entry *e, Nepomuk::Resource publication);
-    void setShortTitle(Entry *e, Nepomuk::Resource publication);
-    void setNumberOfVolumes(Entry *e, Nepomuk::Resource publication);
-    void setArchive(Entry *e, Nepomuk::Resource publication);
-    void setArchiveLocation(Entry *e, Nepomuk::Resource publication);
-    void setLibraryCatalog(Entry *e, Nepomuk::Resource publication);
     void setKewords(Entry *e, Nepomuk::Resource publication);
-    void setSyncDetails(Entry *e, Nepomuk::Resource publication);
-
-    // Zotero addition
     void setArticleType(Entry *e, Nepomuk::Resource publication);
+
+    void setValue(Entry *e, Nepomuk::Resource publication, QUrl property, const QString &bibkey);
+    void setContact(Entry *e, Nepomuk::Resource publication, QUrl property, const QString &bibkey);
+
+    void setSyncDetails(Entry *e, Nepomuk::Resource publication);
 
     File *m_bibtexFile;
     bool m_strict;

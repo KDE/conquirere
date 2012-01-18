@@ -99,8 +99,6 @@ private:
     void addEncyclopedia(const Value &journal, Nepomuk::Resource publication,
                     QUrl seriesUrl = Nepomuk::Vocabulary::NBIB::Series(),
                     QUrl issueUrl = Nepomuk::Vocabulary::NBIB::Encyclopedia());
-    void addAbstract(const QString &content, Nepomuk::Resource publication);
-    void addAnnote(const QString &content, Nepomuk::Resource publication);
 
     /**
       * @bug Akonadifeeder bug. item->url() can't be used to create a Resource anymore. It will result in a new resource with random URI and url to the akonadiitem
@@ -108,71 +106,56 @@ private:
       */
     void addAuthor(const Value &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
     void addBooktitle(const QString &content, Nepomuk::Resource publication, const QString & originalEntryType);
-    void addArchive(const QString &content, Nepomuk::Resource publication);
-    void addArchiveLocation(const QString &content, Nepomuk::Resource publication);
-    void addLibraryCatalog(const QString &content, Nepomuk::Resource publication);
     void addBookAuthor(const Value &contentValue, Nepomuk::Resource publication);
     void addSeriesEditor(const Value &contentValue, Nepomuk::Resource publication);
     void addChapter(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference);
-    void addCopyrigth(const QString &content, Nepomuk::Resource publication);
     void addCrossref(const QString &content, Nepomuk::Resource publication);
-    void addDoi(const QString &content, Nepomuk::Resource publication);
-    void addEdition(const QString &content, Nepomuk::Resource publication);
 
     /**
       * @bug Akonadifeeder bug. item->url() can't be used to create a Resource anymore. It will result in a new resource with random URI and url to the akonadiitem
       *      this results in duplication of the contacts which won't be updated correctly
       */
     void addEditor(const Value &content, Nepomuk::Resource publication);
-    void addEprint(const QString &content, Nepomuk::Resource publication);
-    void addHowPublished(const QString &content, Nepomuk::Resource publication);
-    void addIsbn(const QString &content, Nepomuk::Resource publication);
     void addIssn(const QString &content, Nepomuk::Resource publication);
-    void addLanguage(const QString &content, Nepomuk::Resource publication);
-    void addLccn(const QString &content, Nepomuk::Resource publication);
     void addMonth(const QString &content, Nepomuk::Resource publication);
-    void addMrNumber(const QString &content, Nepomuk::Resource publication);
-    void addNote(const QString &content, Nepomuk::Resource publication);
-    void addNumber(const QString &content, Nepomuk::Resource publication);
     void addOrganization(const QString &content, Nepomuk::Resource publication);
     void addCode(const QString &content, Nepomuk::Resource publication);
     void addCodeNumber(const QString &content, Nepomuk::Resource publication);
     void addCodeVolume(const QString &content, Nepomuk::Resource publication);
     void addReporter(const QString &content, Nepomuk::Resource publication);
     void addReporterVolume(const QString &content, Nepomuk::Resource publication);
-    void addPages(const QString &content, Nepomuk::Resource reference);
-    void addNumberOfPages(const QString &content, Nepomuk::Resource publication);
-    void addNumberOfVolumes(const QString &content, Nepomuk::Resource publication);
-    void addPubMed(const QString &content, Nepomuk::Resource publication);
     void addEvent(const QString &content, Nepomuk::Resource publication);
     void addSeries(const QString &content, Nepomuk::Resource publication);
     void addTitle(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
-    void addShortTitle(const QString &content, Nepomuk::Resource publication);
-    void addType(const QString &content, Nepomuk::Resource publication);
-    void addApplicationNumber(const QString &content, Nepomuk::Resource publication);
-    void addPriorityNumbers(const QString &content, Nepomuk::Resource publication);
     void addAssignee(const Value &contentValue, Nepomuk::Resource publication);
     void addContributor(const Value &contentValue, Nepomuk::Resource publication);
     void addTranslator(const Value &contentValue, Nepomuk::Resource publication);
     void addReviewedAuthor(const Value &contentValue, Nepomuk::Resource publication);
-    void addReferences(const QString &content, Nepomuk::Resource publication);
-    void addLegalStatus(const QString &contente, Nepomuk::Resource publication);
-    void addFilingDate(const QString &content, Nepomuk::Resource publication);
     /**
       * @bug replace NFO::Website() with NFO::WebDataObject() when available
       */
     void addUrl(const QString &content, Nepomuk::Resource publication);
-    void addVolume(const QString &content, Nepomuk::Resource publication);
     void addYear(const QString &content, Nepomuk::Resource publication);
-    void addLastUsage(const QString &content, Nepomuk::Resource publication);
-    void addDate(const QString &content, Nepomuk::Resource publication);
     void addKewords(const Value &content, Nepomuk::Resource publication);
 
     void addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference,
                               const QString &id,
                               const QString &etag, const QString &updated);
 
+    /**
+      * creates the contact resource and push it to nepomuk if necessary
+      */
     void addContact(const Value &contentValue, Nepomuk::Resource res, QUrl property, QUrl contactType );
+
+    /**
+      * simply sets the value
+      */
+    void addValue(const QString &content, Nepomuk::Resource publication, QUrl property);
+
+    /**
+      * Sets the value with bibtex macro lookup to replace certain abbreviations
+      */
+    void addValueWithLookup(const QString &content, Nepomuk::Resource publication, QUrl property);
 
     QMap<QString, Nepomuk::Resource> m_allContacts;
     QMap<QString, Nepomuk::Resource> m_allProceedings;
