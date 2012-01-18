@@ -113,6 +113,12 @@ nbib: {
           rdfs:label "Electronic source" ;
           rdfs:subClassOf nbib:Publication .
 
+    nbib:Map
+          a       rdfs:Class ;
+          rdfs:comment "A map with geographical data" ;
+          rdfs:label "Map" ;
+          rdfs:subClassOf nbib:Publication .
+
     nbib:ForumPost
           a       rdfs:Class ;
           rdfs:comment "Reference the post in a forum or other electronic list" ;
@@ -586,6 +592,22 @@ nbib: {
           rdfs:domain nbib:Publication ;
           rdfs:comment "The library catalog information where the publication can be found" ;
           rdfs:label "Library Catalog" ;
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
+
+    nbib:history
+          a       rdf:Property ;
+          rdfs:domain nbib:LegalDocument ;
+          rdfs:comment "The history of a legal document" ;
+          rdfs:label "History" ;
+          rdfs:range xsd:string ;
+          nrl:maxCardinality 1 .
+
+    nbib:mapScale
+          a       rdf:Property ;
+          rdfs:domain nbib:Map ;
+          rdfs:comment "The scale of a map" ;
+          rdfs:label "Map Scale" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 

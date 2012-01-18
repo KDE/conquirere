@@ -93,6 +93,7 @@ enum BibEntryType {
     BibType_LegalCaseDocument,
     BibType_Decision,
     BibType_Brief,
+    BibType_Map,
 
     Max_BibTypes
 };
@@ -134,7 +135,8 @@ static const QStringList BibEntryTypeTranslation = QStringList() << I18N_NOOP("A
                                                                  << I18N_NOOP("Statute")
                                                                  << I18N_NOOP("LegalCaseDocument")
                                                                  << I18N_NOOP("Decision")
-                                                                 << I18N_NOOP("Brief");
+                                                                 << I18N_NOOP("Brief")
+                                                                 << I18N_NOOP("Map");
 
 static const QStringList BibEntryTypeIcon = QStringList()        << QString("knewsticker")
                                                                  << QString("acroread")
@@ -173,7 +175,8 @@ static const QStringList BibEntryTypeIcon = QStringList()        << QString("kne
                                                                  << QString("knewsticker")
                                                                  << QString("knewsticker")
                                                                  << QString("knewsticker")
-                                                                 << QString("knewsticker");
+                                                                 << QString("knewsticker")
+                                                                 << QString("services");
 
 static const QList<QUrl> BibEntryTypeURL = QList<QUrl>() << Nepomuk::Vocabulary::NBIB::Article()
                                                          << Nepomuk::Vocabulary::NBIB::Book()
@@ -212,13 +215,11 @@ static const QList<QUrl> BibEntryTypeURL = QList<QUrl>() << Nepomuk::Vocabulary:
                                                          << Nepomuk::Vocabulary::NBIB::Statute()
                                                          << Nepomuk::Vocabulary::NBIB::LegalCaseDocument()
                                                          << Nepomuk::Vocabulary::NBIB::Decision()
-                                                         << Nepomuk::Vocabulary::NBIB::Brief();
+                                                         << Nepomuk::Vocabulary::NBIB::Brief()
+                                                         << Nepomuk::Vocabulary::NBIB::Map();
 
 static BibEntryType BibEntryTypeFromUrl(const Nepomuk::Resource & resource)
 {
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
-        return BibType_Article;
-    }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
         return BibType_Proceedings;
     }
@@ -326,6 +327,12 @@ static BibEntryType BibEntryTypeFromUrl(const Nepomuk::Resource & resource)
     }
     if(resource.hasType(Nepomuk::Vocabulary::NBIB::Electronic())) {
         return BibType_Electronic;
+    }
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Map())) {
+        return BibType_Map;
+    }
+    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
+        return BibType_Article;
     }
     return BibType_Misc;
 }

@@ -2,11 +2,11 @@ format 74
 
 classcanvas 128004 class_ref 128004 // nbib:Publication
   draw_all_relations default hide_attributes yes hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
-  xyzwh 360 149 2000 129 89
+  xyzwh 359 138 2000 129 89
 end
 classcanvas 128132 class_ref 170756 // nbib:LegalDocument
   draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
-  xyz 343 259 2006
+  xyz 342 248 2006
 end
 classcanvas 128388 class_ref 170884 // nbib:Bill
   draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
@@ -34,15 +34,15 @@ classcanvas 129540 class_ref 171524 // nbib:CourtReporter
 end
 classcanvas 129668 class_ref 171780 // nbib:Patent
   draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
-  xyz 30 79 2006
+  xyz 137 61 2006
 end
 classcanvas 130820 class_ref 170372 // nbib:Standard
   draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
-  xyz 373 43 2000
+  xyz 372 62 2000
 end
 classcanvas 132100 class_ref 130308 // nbib:Collection
   draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
-  xyz 607 170 2000
+  xyz 606 159 2000
 end
 classcanvas 132612 class_ref 185220 // nbib:Legislation
   draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
@@ -59,7 +59,7 @@ relationcanvas 128260 relation_ref 188676 // <generalisation>
 end
 relationcanvas 129796 relation_ref 189828 // <generalisation>
   decenter_begin 678
-  decenter_end 516
+  decenter_end 438
   from ref 129668 z 2007 to ref 128004
   no_role_a no_role_b
   no_multiplicity_a no_multiplicity_b
@@ -87,7 +87,7 @@ relationcanvas 132228 relation_ref 204932 // <generalisation>
   no_multiplicity_a no_multiplicity_b
 end
 relationcanvas 132356 relation_ref 205060 // <generalisation>
-  from ref 129540 z 2001 to point 830 187
+  from ref 129540 z 2001 to point 831 179
   line 134916 z 2001 to ref 132100
   no_role_a no_role_b
   no_multiplicity_a no_multiplicity_b

@@ -95,6 +95,7 @@ private:
     void layoutStatute();
     void layoutCase();
     void layoutCodeOfLaw();
+    void layoutMap();
 
     Nepomuk::Resource m_publication;
 

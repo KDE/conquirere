@@ -269,6 +269,8 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
     setValue(e, publication, NBIB::shortTitle(), QLatin1String("shorttitle"));
     setValue(e, publication, NBIB::numberOfPages(), QLatin1String("numpages"));
     setValue(e, publication, NBIB::numberOfVolumes(), QLatin1String("numberofvolumes"));
+    setValue(e, publication, NBIB::mapScale(), QLatin1String("scale"));
+    setValue(e, publication, NBIB::history(), QLatin1String("history"));
 
     // Zotero additions
     setSyncDetails(e, publication);

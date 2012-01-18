@@ -401,6 +401,9 @@ QUrl BibTexToNepomukPipe::typeToUrl(const QString & entryType)
     else if(entryType == QLatin1String("website")) {
         return NBIB::Website();
     }
+    else if(entryType == QLatin1String("map")) {
+        return NBIB::Map();
+    }
     else if(entryType == QLatin1String("misc")) {
         return NBIB::Publication();
     }
@@ -543,6 +546,12 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     }
     else if(key == QLatin1String("archive")) {
         addValue(PlainTextValue::text(value), publication, NBIB::archive());
+    }
+    else if(key == QLatin1String("history")) {
+        addValue(PlainTextValue::text(value), publication, NBIB::history());
+    }
+    else if(key == QLatin1String("scale")) {
+        addValue(PlainTextValue::text(value), publication, NBIB::mapScale());
     }
     else if(key == QLatin1String("archivelocation")) {
         addValue(PlainTextValue::text(value), publication, NBIB::archiveLocation());

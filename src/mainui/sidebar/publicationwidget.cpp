@@ -147,6 +147,8 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
    ui->editPublicLawNumber->setResource(m_publication);
    ui->editReferences->setResource(m_publication);
    ui->editLegalStatus->setResource(m_publication);
+   ui->editHistory->setResource(m_publication);
+   ui->editScale->setResource(m_publication);
    ui->editHowPublished->setResource(m_publication);
    ui->editType->setResource(m_publication);
 
@@ -517,6 +519,8 @@ void PublicationWidget::setupWidget()
     ui->editPublicLawNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicLawNumber() );
     ui->editReferences->setPropertyUrl( Nepomuk::Vocabulary::NBIB::patentReferences() );
     ui->editLegalStatus->setPropertyUrl( Nepomuk::Vocabulary::NBIB::legalStatus() );
+    ui->editHistory->setPropertyUrl( Nepomuk::Vocabulary::NBIB::history() );
+    ui->editScale->setPropertyUrl( Nepomuk::Vocabulary::NBIB::mapScale() );
     ui->editHowPublished->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationMethod() );
     ui->editType->setPropertyUrl( Nepomuk::Vocabulary::NBIB::type() );
 
@@ -547,6 +551,14 @@ void PublicationWidget::setupWidget()
     connect(ui->editWebObject, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editKeywords, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
+    connect(ui->editShortTitle, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editTranslator, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editContributor, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editReviewedAuthor, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editCopyright, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editLastAccessed, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editLanguage, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+
     connect(ui->editEvent, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editSeries, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editEdition, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
@@ -560,11 +572,10 @@ void PublicationWidget::setupWidget()
     connect(ui->editPublicLawNumber, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editReferences, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editLegalStatus, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editHistory, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editScale, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editHowPublished, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editType, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-    connect(ui->editCopyright, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-    connect(ui->editLastAccessed, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-    connect(ui->editLanguage, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
     connect(ui->editArchive, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editArchiveLocation, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
@@ -771,6 +782,9 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
         break;
     case BibType_Bill:
         layoutBill();
+        break;
+    case BibType_Map:
+        layoutMap();
         break;
     case BibType_Statute:
         layoutStatute();
@@ -1209,6 +1223,36 @@ void PublicationWidget::layoutCodeOfLaw()
     ui->editType->setVisible(false);
     ui->editReferences->setVisible(false);
     ui->editLegalStatus->setVisible(false);
+}
+
+void PublicationWidget::layoutMap()
+{
+    //Basics
+    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(true);
+    ui->editDate->setVisible(true);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(true);
+    ui->editAssignee->setVisible(true);
+    ui->editFillingDate->setVisible(true);
+
+    //Extra
+    ui->editEdition->setVisible(true);
+    ui->editEvent->setVisible(true);
+    ui->editCollection->setVisible(true);
+    ui->editSeries->setVisible(true);
+    ui->editCode->setVisible(true);
+    ui->editCourtReporter->setVisible(true);
+    ui->editVolume->setVisible(true);
+    ui->editNumber->setVisible(true);
+    ui->editApplicationNumber->setVisible(true);
+    ui->editPriorityNumbers->setVisible(true);
+    ui->editPublicLawNumber->setVisible(true);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+    ui->editReferences->setVisible(true);
+    ui->editLegalStatus->setVisible(true);
 }
 
 void PublicationWidget::layoutCase()

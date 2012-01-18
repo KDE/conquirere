@@ -1,6 +1,6 @@
 format 74
 "ontology"
-  revision 24
+  revision 25
   modified_by 4 "joerg"
 
 
@@ -1261,6 +1261,16 @@ ${inlines}
 	python_decl ""
 	idl_decl ""
       end
+
+      attribute 192644 "nbib:history"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
     end
 
     class 170884 "nbib:Bill"
@@ -2066,6 +2076,27 @@ ${inlines}
 	    cpp default "${type}"
 	    classrelation_ref 259716 // <generalisation>
 	  b parent class_ref 129028 // nbib:Article
+      end
+    end
+
+    class 212228 "nbib:Map"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 273796 // <generalisation>
+	relation 266244 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 273796 // <generalisation>
+	  b parent class_ref 128004 // nbib:Publication
       end
     end
   end
