@@ -165,6 +165,8 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
    ui->editMRNumber->setResource(m_publication);
    ui->editPubMed->setResource(m_publication);
    ui->editDOI->setResource(m_publication);
+
+   discardNoteChanges();
 }
 
 void PublicationWidget::newBibEntryTypeSelected(int index)
