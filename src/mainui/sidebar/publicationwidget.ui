@@ -127,12 +127,12 @@
           <string>Filling Date:</string>
          </property>
          <property name="buddy">
-          <cstring>editFillingDate</cstring>
+          <cstring>editFilingDate</cstring>
          </property>
         </widget>
        </item>
        <item row="10" column="1">
-        <widget class="DateEdit" name="editFillingDate"/>
+        <widget class="DateEdit" name="editFilingDate"/>
        </item>
        <item row="11" column="0">
         <widget class="QLabel" name="labelPublisher">
@@ -247,7 +247,7 @@
       <zorder>editKeywords</zorder>
       <zorder>labelRating</zorder>
       <zorder>editRating</zorder>
-      <zorder>editFillingDate</zorder>
+      <zorder>editFilingDate</zorder>
       <zorder>labelFillingDate</zorder>
       <zorder>editAssignee</zorder>
       <zorder>label_3</zorder>
@@ -588,7 +588,6 @@
        <item row="6" column="1">
         <widget class="ContactEdit" name="editAttorneyAgent"/>
        </item>
-
        <item row="7" column="0">
         <widget class="QLabel" name="label_54">
          <property name="text">
@@ -991,8 +990,8 @@
    <slot>acceptContentChanges()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>50</y>
+     <x>103</x>
+     <y>491</y>
     </hint>
     <hint type="destinationlabel">
      <x>425</x>
@@ -1007,8 +1006,8 @@
    <slot>discardContentChanges()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>50</y>
+     <x>103</x>
+     <y>491</y>
     </hint>
     <hint type="destinationlabel">
      <x>284</x>
@@ -1023,8 +1022,8 @@
    <slot>acceptNoteChanges()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>56</y>
+     <x>103</x>
+     <y>505</y>
     </hint>
     <hint type="destinationlabel">
      <x>256</x>
@@ -1039,8 +1038,8 @@
    <slot>discardNoteChanges()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>56</y>
+     <x>103</x>
+     <y>505</y>
     </hint>
     <hint type="destinationlabel">
      <x>425</x>
@@ -1129,7 +1128,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>editFillingDate</sender>
+   <sender>editFilingDate</sender>
    <signal>widgetShown(bool)</signal>
    <receiver>labelFillingDate</receiver>
    <slot>setVisible(bool)</slot>
@@ -1247,12 +1246,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>47</y>
+     <x>245</x>
+     <y>254</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>47</y>
+     <x>99</x>
+     <y>254</y>
     </hint>
    </hints>
   </connection>
@@ -1263,12 +1262,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>36</y>
+     <x>245</x>
+     <y>63</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>36</y>
+     <x>109</x>
+     <y>63</y>
     </hint>
    </hints>
   </connection>
@@ -1279,12 +1278,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>39</y>
+     <x>245</x>
+     <y>117</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>39</y>
+     <x>80</x>
+     <y>117</y>
     </hint>
    </hints>
   </connection>
@@ -1295,12 +1294,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>38</y>
+     <x>245</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>38</y>
+     <x>108</x>
+     <y>90</y>
     </hint>
    </hints>
   </connection>
@@ -1311,12 +1310,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>42</y>
+     <x>245</x>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>42</y>
+     <x>114</x>
+     <y>146</y>
     </hint>
    </hints>
   </connection>
@@ -1327,12 +1326,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>43</y>
+     <x>245</x>
+     <y>173</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>43</y>
+     <x>46</x>
+     <y>173</y>
     </hint>
    </hints>
   </connection>
@@ -1343,12 +1342,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>44</y>
+     <x>245</x>
+     <y>200</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>44</y>
+     <x>97</x>
+     <y>200</y>
     </hint>
    </hints>
   </connection>
@@ -1359,12 +1358,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>46</y>
+     <x>245</x>
+     <y>227</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>46</y>
+     <x>93</x>
+     <y>227</y>
     </hint>
    </hints>
   </connection>
@@ -1375,12 +1374,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>48</y>
+     <x>245</x>
+     <y>281</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>48</y>
+     <x>11</x>
+     <y>281</y>
     </hint>
    </hints>
   </connection>
@@ -1391,12 +1390,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>49</y>
+     <x>245</x>
+     <y>308</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>49</y>
+     <x>32</x>
+     <y>308</y>
     </hint>
    </hints>
   </connection>
@@ -1407,12 +1406,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>51</y>
+     <x>245</x>
+     <y>335</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>51</y>
+     <x>17</x>
+     <y>335</y>
     </hint>
    </hints>
   </connection>
@@ -1423,12 +1422,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>52</y>
+     <x>245</x>
+     <y>362</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>52</y>
+     <x>73</x>
+     <y>362</y>
     </hint>
    </hints>
   </connection>
@@ -1439,12 +1438,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>53</y>
+     <x>245</x>
+     <y>389</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>53</y>
+     <x>65</x>
+     <y>389</y>
     </hint>
    </hints>
   </connection>
@@ -1455,12 +1454,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>57</y>
+     <x>245</x>
+     <y>470</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>57</y>
+     <x>14</x>
+     <y>470</y>
     </hint>
    </hints>
   </connection>
@@ -1471,12 +1470,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>59</y>
+     <x>245</x>
+     <y>497</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>59</y>
+     <x>117</x>
+     <y>497</y>
     </hint>
    </hints>
   </connection>
@@ -1487,12 +1486,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>55</y>
+     <x>245</x>
+     <y>416</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>55</y>
+     <x>59</x>
+     <y>416</y>
     </hint>
    </hints>
   </connection>
@@ -1500,15 +1499,15 @@
    <sender>editScale</sender>
    <signal>widgetShown(bool)</signal>
    <receiver>label_18</receiver>
-   <slot>setEnabled(bool)</slot>
+   <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>56</y>
+     <x>245</x>
+     <y>443</y>
     </hint>
     <hint type="destinationlabel">
-     <x>7</x>
-     <y>56</y>
+     <x>81</x>
+     <y>443</y>
     </hint>
    </hints>
   </connection>
@@ -1583,12 +1582,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>310</x>
-     <y>262</y>
+     <x>417</x>
+     <y>291</y>
     </hint>
     <hint type="destinationlabel">
      <x>127</x>
-     <y>262</y>
+     <y>291</y>
     </hint>
    </hints>
   </connection>
@@ -1599,12 +1598,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>300</x>
-     <y>291</y>
+     <x>417</x>
+     <y>320</y>
     </hint>
     <hint type="destinationlabel">
      <x>127</x>
-     <y>291</y>
+     <y>320</y>
     </hint>
    </hints>
   </connection>
@@ -1615,12 +1614,12 @@
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>299</x>
-     <y>320</y>
+     <x>417</x>
+     <y>349</y>
     </hint>
     <hint type="destinationlabel">
      <x>127</x>
-     <y>320</y>
+     <y>349</y>
     </hint>
    </hints>
   </connection>
@@ -1669,6 +1668,22 @@
     <hint type="destinationlabel">
      <x>119</x>
      <y>223</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>editCommenter</sender>
+   <signal>widgetShown(bool)</signal>
+   <receiver>label_54</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>188</x>
+     <y>247</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>82</x>
+     <y>250</y>
     </hint>
    </hints>
   </connection>

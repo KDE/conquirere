@@ -117,7 +117,7 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
    ui->editEditor->setResource(m_publication);
    ui->editAssignee->setResource(m_publication);
    ui->editDate->setResource(m_publication);
-   ui->editFillingDate->setResource(m_publication);
+   ui->editFilingDate->setResource(m_publication);
    ui->editPublisher->setResource(m_publication);
    ui->editOrganization->setResource(m_publication);
    ui->editFileObject->setResource(m_publication);
@@ -470,7 +470,7 @@ void PublicationWidget::setupWidget()
     connect(ui->editEditor, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
     ui->editAssignee->setPropertyUrl( Nepomuk::Vocabulary::NBIB::assignee() );
     ui->editDate->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationDate() );
-    ui->editFillingDate->setPropertyUrl( Nepomuk::Vocabulary::NBIB::filingDate() );
+    ui->editFilingDate->setPropertyUrl( Nepomuk::Vocabulary::NBIB::filingDate() );
     ui->editPublisher->setPropertyUrl( Nepomuk::Vocabulary::NCO::publisher() );
     ui->editPublisher->setUseDetailDialog(true);
     connect(ui->editPublisher, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
@@ -558,7 +558,7 @@ void PublicationWidget::setupWidget()
     connect(ui->editEditor, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editAssignee, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editDate, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
-    connect(ui->editFillingDate, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editFilingDate, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editPublisher, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editFileObject, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editRemoteObject, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
@@ -733,10 +733,12 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
 {
     switch(entryType) {
     case BibType_Article:
-    case BibType_ForumPost:
-    case BibType_BlogPost:
     case BibType_WebPage:
         layoutArticle();
+        break;
+    case BibType_ForumPost:
+    case BibType_BlogPost:
+        layoutArticleExtra();
         break;
     case BibType_Book:
     case BibType_Booklet:
@@ -781,8 +783,7 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
         layoutManual();
         break;
     case BibType_Standard:
-        layoutMisc(); //TODO what is necessary for a standard? ISO etc
-        qWarning() << "BibType_Standard no layout available, what is necessary?";
+        layoutStandard();
         break;
     case BibType_Patent:
         layoutPatent();
@@ -791,32 +792,20 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
         layoutCodeOfLaw();
         break;
     case BibType_CourtReporter:
-        layoutMisc();
-        qWarning() << "BibType_CourtReporter no layout available, what is necessary?";
+        layoutCourtReporter();
         break;
     case BibType_Legislation:
-        layoutMisc();
-        qWarning() << "BibType_Legislation no layout available, what is necessary?";
-        break;
     case BibType_Bill:
-        layoutBill();
+    case BibType_Statute:
+        layoutLegislation();
         break;
     case BibType_Map:
         layoutMap();
         break;
-    case BibType_Statute:
-        layoutStatute();
-        break;
+    case BibType_Brief:
+    case BibType_Decision:
     case BibType_LegalCaseDocument:
         layoutCase();
-        break;
-    case BibType_Decision:
-        layoutMisc();
-        qWarning() << "BibType_Decision no layout available, what is necessary?";
-        break;
-    case BibType_Brief:
-        layoutMisc();
-        qWarning() << "BibType_Brief no layout available, what is necessary?";
         break;
     case Max_BibTypes:
         break;
@@ -826,481 +815,647 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
 void PublicationWidget::layoutArticle()
 {
     //Basics
-    ui->editTitle->setVisible(true);
     ui->editAuthors->setVisible(true);
     ui->editEditor->setVisible(true);
     ui->editDate->setVisible(true);
-    ui->editPublisher->setVisible(true);
-    ui->editOrganization->setVisible(false);
     ui->editAssignee->setVisible(false);
-    ui->editFillingDate->setVisible(false);
+    ui->editFilingDate->setVisible(false);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(true);
 
     //Extra
-    ui->editEdition->setVisible(false);
-    ui->editEvent->setVisible(true);
     ui->editCollection->setVisible(true);
-    ui->editSeries->setVisible(true);
     ui->editCode->setVisible(false);
     ui->editCourtReporter->setVisible(false);
     ui->editVolume->setVisible(true);
     ui->editNumber->setVisible(true);
+    ui->editEdition->setVisible(true);
     ui->editApplicationNumber->setVisible(false);
     ui->editPriorityNumbers->setVisible(false);
     ui->editPublicLawNumber->setVisible(false);
-    ui->editHowPublished->setVisible(false);
-    ui->editType->setVisible(false);
     ui->editReferences->setVisible(false);
     ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(false);
+    ui->editScale->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(true);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(false);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(false);
+}
+
+void PublicationWidget::layoutArticleExtra()
+{
+    //Basics
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(false);
+    ui->editDate->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editFilingDate->setVisible(false);
+    ui->editPublisher->setVisible(false);
+    ui->editOrganization->setVisible(false);
+
+    //Extra
+    ui->editCollection->setVisible(true);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(true);
+    ui->editNumber->setVisible(true);
+    ui->editEdition->setVisible(true);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(false);
+    ui->editScale->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(true);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(false);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(true);
 }
 
 void PublicationWidget::layoutBook()
 {
     //Basics
-    ui->editTitle->setVisible(true);
     ui->editAuthors->setVisible(true);
     ui->editEditor->setVisible(true);
     ui->editDate->setVisible(true);
-    ui->editPublisher->setVisible(true);
-    ui->editOrganization->setVisible(false);
     ui->editAssignee->setVisible(false);
-    ui->editFillingDate->setVisible(false);
+    ui->editFilingDate->setVisible(false);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(true);
 
     //Extra
-    ui->editEdition->setVisible(true);
-    ui->editEvent->setVisible(true);
     ui->editCollection->setVisible(false);
-    ui->editSeries->setVisible(true);
     ui->editCode->setVisible(false);
     ui->editCourtReporter->setVisible(false);
     ui->editVolume->setVisible(true);
     ui->editNumber->setVisible(true);
-    ui->editApplicationNumber->setVisible(false);
-    ui->editPriorityNumbers->setVisible(false);
-    ui->editPublicLawNumber->setVisible(false);
-    ui->editHowPublished->setVisible(true);
-    ui->editType->setVisible(false);
-    ui->editReferences->setVisible(false);
-    ui->editLegalStatus->setVisible(false);
-}
-
-void PublicationWidget::layoutThesis()
-{
-    //Basics
-    ui->editTitle->setVisible(true);
-    ui->editAuthors->setVisible(true);
-    ui->editEditor->setVisible(true);
-    ui->editDate->setVisible(true);
-    ui->editPublisher->setVisible(true);
-    ui->editOrganization->setVisible(true);
-    ui->editAssignee->setVisible(false);
-    ui->editFillingDate->setVisible(false);
-
-    //Extra
-    ui->editEdition->setVisible(false);
-    ui->editEvent->setVisible(false);
-    ui->editCollection->setVisible(false);
-    ui->editSeries->setVisible(true);
-    ui->editCode->setVisible(false);
-    ui->editCourtReporter->setVisible(false);
-    ui->editVolume->setVisible(false);
-    ui->editNumber->setVisible(false);
-    ui->editApplicationNumber->setVisible(false);
-    ui->editPriorityNumbers->setVisible(false);
-    ui->editPublicLawNumber->setVisible(false);
-    ui->editHowPublished->setVisible(true);
-    ui->editType->setVisible(true);
-    ui->editReferences->setVisible(false);
-    ui->editLegalStatus->setVisible(false);
-}
-
-void PublicationWidget::layoutReport()
-{
-    //Basics
-    ui->editTitle->setVisible(true);
-    ui->editAuthors->setVisible(true);
-    ui->editEditor->setVisible(true);
-    ui->editDate->setVisible(true);
-    ui->editPublisher->setVisible(true);
-    ui->editOrganization->setVisible(true);
-    ui->editAssignee->setVisible(false);
-    ui->editFillingDate->setVisible(false);
-
-    //Extra
     ui->editEdition->setVisible(true);
-    ui->editEvent->setVisible(true);
-    ui->editCollection->setVisible(false);
-    ui->editSeries->setVisible(true);
-    ui->editCode->setVisible(false);
-    ui->editCourtReporter->setVisible(false);
-    ui->editVolume->setVisible(true);
-    ui->editNumber->setVisible(true);
     ui->editApplicationNumber->setVisible(false);
     ui->editPriorityNumbers->setVisible(false);
     ui->editPublicLawNumber->setVisible(false);
-    ui->editHowPublished->setVisible(true);
-    ui->editType->setVisible(true);
     ui->editReferences->setVisible(false);
     ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(false);
+    ui->editScale->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(false);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(false);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(false);
 }
 
 void PublicationWidget::layoutCollection()
 {
     //Basics
-    ui->editTitle->setVisible(true);
     ui->editAuthors->setVisible(true);
     ui->editEditor->setVisible(true);
     ui->editDate->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editFilingDate->setVisible(false);
     ui->editPublisher->setVisible(true);
     ui->editOrganization->setVisible(true);
-    ui->editAssignee->setVisible(false);
-    ui->editFillingDate->setVisible(false);
 
     //Extra
-    ui->editEdition->setVisible(true);
-    ui->editEvent->setVisible(true);
     ui->editCollection->setVisible(false);
-    ui->editSeries->setVisible(true);
     ui->editCode->setVisible(false);
     ui->editCourtReporter->setVisible(false);
     ui->editVolume->setVisible(true);
     ui->editNumber->setVisible(true);
+    ui->editEdition->setVisible(true);
     ui->editApplicationNumber->setVisible(false);
     ui->editPriorityNumbers->setVisible(false);
     ui->editPublicLawNumber->setVisible(false);
-    ui->editHowPublished->setVisible(true);
-    ui->editType->setVisible(true);
     ui->editReferences->setVisible(false);
     ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(false);
+    ui->editScale->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(false);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(false);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(false);
 }
 
-void PublicationWidget::layoutMisc()
+void PublicationWidget::layoutThesis()
 {
     //Basics
-    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(false);
+    ui->editDate->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editFilingDate->setVisible(false);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(false);
+
+    //Extra
+    ui->editCollection->setVisible(false);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(false);
+    ui->editNumber->setVisible(false);
+    ui->editEdition->setVisible(false);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(false);
+    ui->editScale->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(true);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(false);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(false);
+}
+
+void PublicationWidget::layoutReport()
+{
+    //Basics
     ui->editAuthors->setVisible(true);
     ui->editEditor->setVisible(true);
     ui->editDate->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editFilingDate->setVisible(false);
     ui->editPublisher->setVisible(true);
     ui->editOrganization->setVisible(true);
-    ui->editAssignee->setVisible(true);
-    ui->editFillingDate->setVisible(true);
 
     //Extra
-    ui->editEdition->setVisible(true);
-    ui->editEvent->setVisible(true);
-    ui->editCollection->setVisible(true);
-    ui->editSeries->setVisible(true);
-    ui->editCode->setVisible(true);
-    ui->editCourtReporter->setVisible(true);
+    ui->editCollection->setVisible(false);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
     ui->editVolume->setVisible(true);
     ui->editNumber->setVisible(true);
-    ui->editApplicationNumber->setVisible(true);
-    ui->editPriorityNumbers->setVisible(true);
-    ui->editPublicLawNumber->setVisible(true);
+    ui->editEdition->setVisible(true);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(false);
+    ui->editScale->setVisible(false);
     ui->editHowPublished->setVisible(true);
     ui->editType->setVisible(true);
-    ui->editReferences->setVisible(true);
-    ui->editLegalStatus->setVisible(true);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(true);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(false);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(false);
 }
 
 void PublicationWidget::layoutElectronic()
 {
     //Basics
-    ui->editTitle->setVisible(true);
     ui->editAuthors->setVisible(true);
     ui->editEditor->setVisible(true);
     ui->editDate->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editFilingDate->setVisible(false);
     ui->editPublisher->setVisible(true);
     ui->editOrganization->setVisible(true);
-    ui->editAssignee->setVisible(false);
-    ui->editFillingDate->setVisible(false);
 
     //Extra
-    ui->editEdition->setVisible(false);
-    ui->editEvent->setVisible(true);
     ui->editCollection->setVisible(false);
-    ui->editSeries->setVisible(true);
     ui->editCode->setVisible(false);
     ui->editCourtReporter->setVisible(false);
-    ui->editVolume->setVisible(false);
-    ui->editNumber->setVisible(false);
+    ui->editVolume->setVisible(true);
+    ui->editNumber->setVisible(true);
+    ui->editEdition->setVisible(true);
     ui->editApplicationNumber->setVisible(false);
     ui->editPriorityNumbers->setVisible(false);
     ui->editPublicLawNumber->setVisible(false);
-    ui->editHowPublished->setVisible(true);
-    ui->editType->setVisible(true);
     ui->editReferences->setVisible(false);
     ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(false);
+    ui->editScale->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(true);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(false);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(false);
 }
 
 void PublicationWidget::layoutScript()
 {
     //Basics
-    ui->editTitle->setVisible(true);
     ui->editAuthors->setVisible(true);
     ui->editEditor->setVisible(true);
     ui->editDate->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editFilingDate->setVisible(false);
     ui->editPublisher->setVisible(true);
     ui->editOrganization->setVisible(true);
-    ui->editAssignee->setVisible(false);
-    ui->editFillingDate->setVisible(false);
 
     //Extra
-    ui->editEdition->setVisible(true);
-    ui->editEvent->setVisible(true);
     ui->editCollection->setVisible(false);
-    ui->editSeries->setVisible(true);
     ui->editCode->setVisible(false);
     ui->editCourtReporter->setVisible(false);
-    ui->editVolume->setVisible(false);
+    ui->editVolume->setVisible(true);
     ui->editNumber->setVisible(true);
+    ui->editEdition->setVisible(true);
     ui->editApplicationNumber->setVisible(false);
     ui->editPriorityNumbers->setVisible(false);
     ui->editPublicLawNumber->setVisible(false);
-    ui->editHowPublished->setVisible(true);
-    ui->editType->setVisible(true);
     ui->editReferences->setVisible(false);
     ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(false);
+    ui->editScale->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(true);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(false);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(false);
 }
 
 void PublicationWidget::layoutUnpublished()
 {
     //Basics
-    ui->editTitle->setVisible(true);
     ui->editAuthors->setVisible(true);
-    ui->editEditor->setVisible(false);
+    ui->editEditor->setVisible(true);
+    ui->editAssignee->setVisible(false);
     ui->editDate->setVisible(false);
+    ui->editFilingDate->setVisible(false);
     ui->editPublisher->setVisible(false);
     ui->editOrganization->setVisible(true);
-    ui->editAssignee->setVisible(false);
-    ui->editFillingDate->setVisible(false);
 
     //Extra
-    ui->editEdition->setVisible(false);
-    ui->editEvent->setVisible(true);
     ui->editCollection->setVisible(false);
-    ui->editSeries->setVisible(true);
     ui->editCode->setVisible(false);
     ui->editCourtReporter->setVisible(false);
     ui->editVolume->setVisible(false);
-    ui->editNumber->setVisible(false);
+    ui->editNumber->setVisible(true);
+    ui->editEdition->setVisible(true);
     ui->editApplicationNumber->setVisible(false);
     ui->editPriorityNumbers->setVisible(false);
     ui->editPublicLawNumber->setVisible(false);
-    ui->editHowPublished->setVisible(false);
-    ui->editType->setVisible(true);
     ui->editReferences->setVisible(false);
     ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(false);
+    ui->editScale->setVisible(false);
+    ui->editHowPublished->setVisible(false);
+    ui->editType->setVisible(true);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(true);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(false);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(true);
+}
+
+void PublicationWidget::layoutMisc()
+{
+    //Basics
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editDate->setVisible(true);
+    ui->editFilingDate->setVisible(false);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(true);
+
+    //Extra
+    ui->editCollection->setVisible(false);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(true);
+    ui->editNumber->setVisible(true);
+    ui->editEdition->setVisible(true);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(false);
+    ui->editScale->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(true);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(false);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(true);
 }
 
 void PublicationWidget::layoutManual()
 {
     //Basics
-    ui->editTitle->setVisible(true);
     ui->editAuthors->setVisible(true);
     ui->editEditor->setVisible(true);
     ui->editDate->setVisible(true);
-    ui->editPublisher->setVisible(true);
-    ui->editOrganization->setVisible(false);
     ui->editAssignee->setVisible(false);
-    ui->editFillingDate->setVisible(false);
+    ui->editFilingDate->setVisible(false);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(true);
 
     //Extra
-    ui->editEdition->setVisible(true);
-    ui->editEvent->setVisible(false);
     ui->editCollection->setVisible(false);
-    ui->editSeries->setVisible(true);
     ui->editCode->setVisible(false);
     ui->editCourtReporter->setVisible(false);
     ui->editVolume->setVisible(false);
     ui->editNumber->setVisible(true);
+    ui->editEdition->setVisible(true);
     ui->editApplicationNumber->setVisible(false);
     ui->editPriorityNumbers->setVisible(false);
     ui->editPublicLawNumber->setVisible(false);
-    ui->editHowPublished->setVisible(true);
-    ui->editType->setVisible(false);
     ui->editReferences->setVisible(false);
     ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(false);
+    ui->editScale->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(false);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(false);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(false);
+}
+
+void PublicationWidget::layoutStandard()
+{
+    //Basics
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(true);
+    ui->editDate->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editFilingDate->setVisible(false);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(true);
+
+    //Extra
+    ui->editCollection->setVisible(false);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(true);
+    ui->editNumber->setVisible(true);
+    ui->editEdition->setVisible(true);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(false);
+    ui->editScale->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(true);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(false);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(false);
 }
 
 void PublicationWidget::layoutPatent()
 {
     //Basics
-    ui->editTitle->setVisible(true);
     ui->editAuthors->setVisible(true);
-    ui->editEditor->setVisible(true);
-    ui->editAssignee->setVisible(true);
+    ui->editEditor->setVisible(false);
     ui->editDate->setVisible(true);
-    ui->editFillingDate->setVisible(true);
+    ui->editAssignee->setVisible(true);
+    ui->editFilingDate->setVisible(true);
     ui->editPublisher->setVisible(false);
     ui->editOrganization->setVisible(true);
 
     //Extra
-    ui->editEdition->setVisible(false);
-    ui->editEvent->setVisible(false);
     ui->editCollection->setVisible(false);
-    ui->editSeries->setVisible(false);
     ui->editCode->setVisible(false);
     ui->editCourtReporter->setVisible(false);
     ui->editVolume->setVisible(false);
-    ui->editNumber->setVisible(false);
+    ui->editNumber->setVisible(true);
+    ui->editEdition->setVisible(false);
     ui->editApplicationNumber->setVisible(true);
     ui->editPriorityNumbers->setVisible(true);
     ui->editPublicLawNumber->setVisible(false);
-    ui->editHowPublished->setVisible(false);
-    ui->editType->setVisible(false);
     ui->editReferences->setVisible(true);
     ui->editLegalStatus->setVisible(true);
-}
-
-void PublicationWidget::layoutBill()
-{
-    //Basics
-    ui->editTitle->setVisible(true);
-    ui->editAuthors->setVisible(true);
-    ui->editEditor->setVisible(false);
-    ui->editAssignee->setVisible(false);
-    ui->editDate->setVisible(false);
-    ui->editFillingDate->setVisible(false);
-    ui->editPublisher->setVisible(false);
-    ui->editOrganization->setVisible(true);
-
-    //Extra
-    ui->editEdition->setVisible(false);
-    ui->editEvent->setVisible(true);
-    ui->editCollection->setVisible(false);
-    ui->editSeries->setVisible(false);
-    ui->editCode->setVisible(true);
-    ui->editCourtReporter->setVisible(false);
-    ui->editVolume->setVisible(true);
-    ui->editNumber->setVisible(true);
-    ui->editApplicationNumber->setVisible(false);
-    ui->editPriorityNumbers->setVisible(false);
-    ui->editPublicLawNumber->setVisible(false);
+    ui->editHistory->setVisible(false);
+    ui->editScale->setVisible(false);
     ui->editHowPublished->setVisible(false);
     ui->editType->setVisible(false);
-    ui->editReferences->setVisible(false);
-    ui->editLegalStatus->setVisible(false);
-}
 
-void PublicationWidget::layoutStatute()
-{
-    //Basics
-    ui->editTitle->setVisible(true);
-    ui->editAuthors->setVisible(true);
-    ui->editEditor->setVisible(false);
-    ui->editAssignee->setVisible(false);
-    ui->editDate->setVisible(true);
-    ui->editFillingDate->setVisible(false);
-    ui->editPublisher->setVisible(false);
-    ui->editOrganization->setVisible(false);
-
-    //Extra
-    ui->editEdition->setVisible(false);
-    ui->editEvent->setVisible(true);
-    ui->editCollection->setVisible(false);
-    ui->editSeries->setVisible(false);
-    ui->editCode->setVisible(true);
-    ui->editCourtReporter->setVisible(false);
-    ui->editVolume->setVisible(false);
-    ui->editNumber->setVisible(true);
-    ui->editApplicationNumber->setVisible(false);
-    ui->editPriorityNumbers->setVisible(false);
-    ui->editPublicLawNumber->setVisible(true);
-    ui->editHowPublished->setVisible(false);
-    ui->editType->setVisible(false);
-    ui->editReferences->setVisible(false);
-    ui->editLegalStatus->setVisible(false);
+    //Other
+    ui->editReviewedAuthor->setVisible(false);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(false);
+    ui->editAttorneyAgent->setVisible(true);
+    ui->editCommenter->setVisible(false);
 }
 
 void PublicationWidget::layoutCodeOfLaw()
 {
     //Basics
-    ui->editTitle->setVisible(true);
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(true);
+    ui->editDate->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editFilingDate->setVisible(false);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(true);
+
+    //Extra
+    ui->editCollection->setVisible(false);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(true);
+    ui->editNumber->setVisible(true);
+    ui->editEdition->setVisible(true);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(false);
+    ui->editScale->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(false);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(false);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(false);
+}
+
+void PublicationWidget::layoutCourtReporter()
+{
+    //Basics
+    ui->editAuthors->setVisible(true);
+    ui->editEditor->setVisible(true);
+    ui->editDate->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editFilingDate->setVisible(false);
+    ui->editPublisher->setVisible(true);
+    ui->editOrganization->setVisible(true);
+
+    //Extra
+    ui->editCollection->setVisible(false);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(true);
+    ui->editNumber->setVisible(true);
+    ui->editEdition->setVisible(true);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(false);
+    ui->editScale->setVisible(false);
+    ui->editHowPublished->setVisible(true);
+    ui->editType->setVisible(true);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(false);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(false);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(false);
+}
+
+void PublicationWidget::layoutLegislation()
+{
+    //Basics
     ui->editAuthors->setVisible(true);
     ui->editEditor->setVisible(false);
+    ui->editDate->setVisible(true);
     ui->editAssignee->setVisible(false);
-    ui->editDate->setVisible(false);
-    ui->editFillingDate->setVisible(false);
+    ui->editFilingDate->setVisible(false);
     ui->editPublisher->setVisible(false);
     ui->editOrganization->setVisible(true);
 
     //Extra
-    ui->editEdition->setVisible(false);
-    ui->editEvent->setVisible(true);
     ui->editCollection->setVisible(false);
-    ui->editSeries->setVisible(false);
     ui->editCode->setVisible(true);
     ui->editCourtReporter->setVisible(false);
     ui->editVolume->setVisible(true);
     ui->editNumber->setVisible(true);
+    ui->editEdition->setVisible(false);
     ui->editApplicationNumber->setVisible(false);
     ui->editPriorityNumbers->setVisible(false);
-    ui->editPublicLawNumber->setVisible(false);
-    ui->editHowPublished->setVisible(false);
-    ui->editType->setVisible(false);
+    ui->editPublicLawNumber->setVisible(true);
     ui->editReferences->setVisible(false);
     ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(true);
+    ui->editScale->setVisible(false);
+    ui->editHowPublished->setVisible(false);
+    ui->editType->setVisible(false);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(false);
+    ui->editCoSponsor->setVisible(true);
+    ui->editCounsel->setVisible(true);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(false);
 }
 
 void PublicationWidget::layoutMap()
 {
     //Basics
-    ui->editTitle->setVisible(true);
     ui->editAuthors->setVisible(true);
-    ui->editEditor->setVisible(true);
+    ui->editEditor->setVisible(false);
     ui->editDate->setVisible(true);
+    ui->editAssignee->setVisible(false);
+    ui->editFilingDate->setVisible(false);
     ui->editPublisher->setVisible(true);
-    ui->editOrganization->setVisible(true);
-    ui->editAssignee->setVisible(true);
-    ui->editFillingDate->setVisible(true);
+    ui->editOrganization->setVisible(false);
 
     //Extra
+    ui->editCollection->setVisible(false);
+    ui->editCode->setVisible(false);
+    ui->editCourtReporter->setVisible(false);
+    ui->editVolume->setVisible(false);
+    ui->editNumber->setVisible(false);
     ui->editEdition->setVisible(true);
-    ui->editEvent->setVisible(true);
-    ui->editCollection->setVisible(true);
-    ui->editSeries->setVisible(true);
-    ui->editCode->setVisible(true);
-    ui->editCourtReporter->setVisible(true);
-    ui->editVolume->setVisible(true);
-    ui->editNumber->setVisible(true);
-    ui->editApplicationNumber->setVisible(true);
-    ui->editPriorityNumbers->setVisible(true);
-    ui->editPublicLawNumber->setVisible(true);
-    ui->editHowPublished->setVisible(true);
-    ui->editType->setVisible(true);
-    ui->editReferences->setVisible(true);
-    ui->editLegalStatus->setVisible(true);
+    ui->editApplicationNumber->setVisible(false);
+    ui->editPriorityNumbers->setVisible(false);
+    ui->editPublicLawNumber->setVisible(false);
+    ui->editReferences->setVisible(false);
+    ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(false);
+    ui->editScale->setVisible(true);
+    ui->editHowPublished->setVisible(false);
+    ui->editType->setVisible(false);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(false);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(false);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(false);
 }
 
 void PublicationWidget::layoutCase()
 {
     //Basics
-    ui->editTitle->setVisible(true);
     ui->editAuthors->setVisible(true);
     ui->editEditor->setVisible(false);
-    ui->editAssignee->setVisible(false);
     ui->editDate->setVisible(true);
-    ui->editFillingDate->setVisible(false);
+    ui->editAssignee->setVisible(false);
+    ui->editFilingDate->setVisible(false);
     ui->editPublisher->setVisible(false);
     ui->editOrganization->setVisible(true);
 
     //Extra
-    ui->editEdition->setVisible(false);
-    ui->editEvent->setVisible(false);
     ui->editCollection->setVisible(false);
-    ui->editSeries->setVisible(false);
     ui->editCode->setVisible(false);
     ui->editCourtReporter->setVisible(true);
     ui->editVolume->setVisible(true);
     ui->editNumber->setVisible(true);
+    ui->editEdition->setVisible(false);
     ui->editApplicationNumber->setVisible(false);
     ui->editPriorityNumbers->setVisible(false);
     ui->editPublicLawNumber->setVisible(false);
-    ui->editHowPublished->setVisible(false);
-    ui->editType->setVisible(false);
     ui->editReferences->setVisible(false);
     ui->editLegalStatus->setVisible(false);
+    ui->editHistory->setVisible(true);
+    ui->editScale->setVisible(false);
+    ui->editHowPublished->setVisible(false);
+    ui->editType->setVisible(false);
+
+    //Other
+    ui->editReviewedAuthor->setVisible(false);
+    ui->editCoSponsor->setVisible(false);
+    ui->editCounsel->setVisible(true);
+    ui->editAttorneyAgent->setVisible(false);
+    ui->editCommenter->setVisible(false);
 }
-
-

@@ -1,6 +1,6 @@
 format 74
 "ontology"
-  revision 26
+  revision 27
   modified_by 4 "joerg"
 
 
@@ -473,6 +473,18 @@ ${inlines}
 
       classrelation 281092 // <aggregation>
 	relation_ref 273156 // <aggregation>
+      end
+
+      classrelation 288004 // <aggregation>
+	relation_ref 279940 // <aggregation>
+      end
+
+      classrelation 288132 // <aggregation>
+	relation_ref 272772 // <aggregation>
+      end
+
+      classrelation 288388 // <aggregation>
+	relation_ref 280068 // <aggregation>
       end
     end
 
@@ -1668,13 +1680,27 @@ ${inlines}
 	idl_decl ""
       end
 
-      classrelation 280324 // nbib:attorneyAgent (<directional aggregation>)
-	relation 272772 o-->
+      classrelation 280324 // nbib:attorneyAgent (<aggregation>)
+	relation 272772 o---
 	  a role_name "nbib:attorneyAgent" private
 	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
 "
-	    classrelation_ref 280324 // nbib:attorneyAgent (<directional aggregation>)
-	  b parent class_ref 128132 // nco:Contact
+	    classrelation_ref 280324 // nbib:attorneyAgent (<aggregation>)
+	  b role_name "" private
+	    classrelation_ref 288132 // <aggregation>
+      end
+
+      classrelation 287876 // nco:creator (<aggregation>)
+	relation 279940 o---
+	  stereotype "inventor"
+	  a role_name "nco:creator" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 287876 // nco:creator (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 288004 // <aggregation>
       end
     end
 
@@ -1950,6 +1976,18 @@ ${inlines}
       classrelation 239364 // <aggregation>
 	relation_ref 232580 // <aggregation>
       end
+
+      classrelation 288260 // nbib:counsel (<aggregation>)
+	relation 280068 o---
+	  a role_name "nbib:counsel" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 288260 // nbib:counsel (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 288388 // <aggregation>
+      end
     end
 
     class 191876 "nbib:Dictionary"
@@ -2154,6 +2192,48 @@ ${inlines}
 	  a public
 	    cpp default "${type}"
 	    classrelation_ref 273796 // <generalisation>
+	  b parent class_ref 128004 // nbib:Publication
+      end
+    end
+
+    class 218756 "nbib:Unpublished"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 287620 // <generalisation>
+	relation 279684 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 287620 // <generalisation>
+	  b parent class_ref 128004 // nbib:Publication
+      end
+    end
+
+    class 218884 "nbib:Manual"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 287748 // <generalisation>
+	relation 279812 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 287748 // <generalisation>
 	  b parent class_ref 128004 // nbib:Publication
       end
     end
