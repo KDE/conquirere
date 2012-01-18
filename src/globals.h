@@ -354,4 +354,9 @@ static SeriesType SeriesTypeFromUrl(const Nepomuk::Resource & resource)
     return SeriesType_Series;
 }
 
+static const QStringList keysForPersonDetection = QStringList() << QString("translator")
+                                                                << QString("contributor")
+                                                                << QString("reviewedauthor")
+                                                                << QString("serieseditor")
+                                                                << QString("bookauthor");
 #endif // GLOBALS_H

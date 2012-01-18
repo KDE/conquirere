@@ -1418,6 +1418,7 @@ void BibTexToNepomukPipe::addContact(const Value &contentValue, Nepomuk::Resourc
         else {
             author.full = PlainTextValue::text(*authorItem).toUtf8();
             author.full = m_macroLookup.value(author.full, author.full);
+            qDebug() << "BibTexToNepomukPipe::addContact No Person Contact available!" << author.full;
 
             if(!contactType.isValid())
                 contactType = NCO::Contact();

@@ -61,7 +61,16 @@ void ReadFromFile::fetchItems(const QString &collection)
         QString extension = fi.completeSuffix();
 
         if(extension == QLatin1String("bib")) {
-            importer = new FileImporterBibTeX;
+            FileImporterBibTeX *bibImporter = new FileImporterBibTeX;
+
+            QStringList keysForPersonDetection;
+            keysForPersonDetection << QString("translator") << QString("contributor")
+                                   << QString("reviewedauthor") << QString("serieseditor")
+                                   << QString("bookauthor");
+
+            bibImporter->setKeysForPersonDetection(keysForPersonDetection);
+            importer = bibImporter;
+
         }
         else if(extension == QLatin1String("pdf")) {
             importer = new FileImporterPDF;

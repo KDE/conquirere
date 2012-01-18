@@ -798,6 +798,7 @@ void NepomukToBibTexPipe::setContact(Entry *e, Nepomuk::Resource publication, QU
             QString suffix = a.property(NCO::nameHonorificSuffix()).toString();
 
             if(firstName.isEmpty() || lastName.isEmpty()) {
+                qDebug() << "setContact || if(firstName.isEmpty() || lastName.isEmpty()) {";
                 QString fullname = a.property(NCO::fullname()).toString();
 
                 // assume fullname as "LastName, Firstname"

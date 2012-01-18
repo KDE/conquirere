@@ -17,6 +17,8 @@
 
 #include "nbibimporterbibtex.h"
 
+#include "globals.h"
+
 #include "pipe/bibtextonepomukpipe.h"
 #include <kbibtex/fileimporterbibtex.h>
 #include <kbibtex/fileimporterpdf.h>
@@ -62,7 +64,9 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
     switch(m_selectedFileType) {
     case EXPORT_BIBTEX:
     {
-        importer = new FileImporterBibTeX;
+        FileImporterBibTeX *bibImporter = new FileImporterBibTeX;
+        bibImporter->setKeysForPersonDetection(keysForPersonDetection);
+        importer = bibImporter;
         break;
     }
 //    case EXPORT_COPAC:
@@ -119,6 +123,7 @@ bool NBibImporterBibTex::readBibFile(const QString & filename, QStringList *erro
     }
 
     FileImporterBibTeX *importer = new FileImporterBibTeX;
+    importer->setKeysForPersonDetection(keysForPersonDetection);
     connect(importer, SIGNAL(progress(int,int)), this, SLOT(calculateImportProgress(int,int)));
 
     m_importedEntries = importer->load(&bibFile);

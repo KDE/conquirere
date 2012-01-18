@@ -92,6 +92,7 @@ void BibtexNepomukTest::importExportTest_data()
     QTest::newRow("generic standard bibtex") << QString("%1/generic_bibtex.bib").arg(testFileDir);
     QTest::newRow("generic extended bibtex") << QString("%1/generic_extended_bibtex.bib").arg(testFileDir);
     QTest::newRow("generic zotero import") << QString("%1/generic_zotero.bib").arg(testFileDir);
+    QTest::newRow("generic name import") << QString("%1/generic_names_bibtex.bib").arg(testFileDir);
 }
 
 void BibtexNepomukTest::init()
