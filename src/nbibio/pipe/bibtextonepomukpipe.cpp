@@ -216,35 +216,42 @@ void BibTexToNepomukPipe::import(Entry *e)
         }
     }
 
-    // II. a) encyclopediaarticle
+    // II. a) encyclopediaarticle / blogpost / forumpost / webpage
     if(e->contains(QLatin1String("articletype"))) {
-        QUrl seriesURL;
-        QUrl issueURL;
+        QUrl collectionURL;
 
         QString type = PlainTextValue::text(e->value(QLatin1String("articletype")));
         if(type == QLatin1String("encyclopedia")) {
-            seriesURL = NBIB::Series();
-            issueURL = NBIB::Encyclopedia();
+            collectionURL = NBIB::Encyclopedia();
+        }
+        else if(type == QLatin1String("blog")) {
+            publication.addType(NBIB::BlogPost());
+            collectionURL = NBIB::Blog();
+        }
+        else if(type == QLatin1String("webpage")) {
+            publication.addType(NBIB::Webpage());
+            collectionURL = NBIB::Website();
+        }
+        else if(type == QLatin1String("forum")) {
+            publication.addType(NBIB::ForumPost());
+            collectionURL = NBIB::Forum();
+        }
 
-            Value encyclopediaName;
+        if(collectionURL.isValid()) {
+            Value titleValue;
             if(e->contains(QLatin1String("booktitle"))) {
-                encyclopediaName = e->value(QLatin1String("booktitle"));
-                e->remove(QLatin1String("booktitle"));
+                titleValue = e->value(QLatin1String("booktitle"));
             }
             else if(e->contains(QLatin1String("journal"))) {
-                encyclopediaName = e->value(QLatin1String("journal"));
-                e->remove(QLatin1String("journal"));
+                titleValue = e->value(QLatin1String("journal"));
             }
 
-            addEncyclopedia(encyclopediaName,publication, issueURL);
+            addSpecialArticle(titleValue,publication, collectionURL);
 
             e->remove(QLatin1String("journal"));
             e->remove(QLatin1String("booktitle"));
-            e->remove(QLatin1String("number"));
-            e->remove(QLatin1String("volume"));
             e->remove(QLatin1String("articletype"));
         }
-
     }
 
     // II b). journal + number + volume + zotero articletype
@@ -373,17 +380,26 @@ QUrl BibTexToNepomukPipe::typeToUrl(const QString & entryType)
         return NBIB::Article();
     }
     else if(entryType == QLatin1String("dictionaryentry") ||
-    entryType == QLatin1String("dictionary")) {
+            entryType == QLatin1String("dictionary")) {
         return NBIB::Dictionary();
     }
     else if(entryType == QLatin1String("forumpost")) {
         return NBIB::ForumPost();
     }
+    else if(entryType == QLatin1String("forum")) {
+        return NBIB::Forum();
+    }
     else if(entryType == QLatin1String("blogpost")) {
         return NBIB::BlogPost();
     }
+    else if(entryType == QLatin1String("blog")) {
+        return NBIB::Blog();
+    }
     else if(entryType == QLatin1String("webpage")) {
-        return NBIB::WebPage();
+        return NBIB::Webpage();
+    }
+    else if(entryType == QLatin1String("website")) {
+        return NBIB::Website();
     }
     else if(entryType == QLatin1String("misc")) {
         return NBIB::Publication();
@@ -856,28 +872,29 @@ void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &vol
     journalIssue.addProperty(NBIB::article(), publication);
 }
 
-void BibTexToNepomukPipe::addEncyclopedia(const Value &journalValue, Nepomuk::Resource publication,QUrl seriesUrl,QUrl issueUrl)
+void BibTexToNepomukPipe::addSpecialArticle(const Value &titleValue, Nepomuk::Resource article, QUrl collectionUrl)
 {
-    QString encyclopediaName = PlainTextValue::text(journalValue).toUtf8();
-    encyclopediaName = m_macroLookup.value(encyclopediaName, encyclopediaName);
+    QString collectionName = PlainTextValue::text(titleValue).toUtf8();
+    collectionName = m_macroLookup.value(collectionName, collectionName);
 
-    Nepomuk::Resource encyclopediaResource;
+    Nepomuk::Resource collectionResource;
 
-    //check if the publisher already exist in the database
-    encyclopediaResource = m_allCollection.value(encyclopediaName, Nepomuk::Resource());
+    //check if the collection already exist in the database
+    collectionResource = m_allCollection.value(collectionName, Nepomuk::Resource());
 
-    if(!encyclopediaResource.isValid()) {
-        qDebug() << "no existing encyclopedia for" << encyclopediaName << "with type" << seriesUrl;
-        encyclopediaResource = Nepomuk::Resource(QUrl(), issueUrl);
-        encyclopediaResource.addType(NBIB::Collection());
-        encyclopediaResource.addType(NBIB::Publication());
-        encyclopediaResource.addType(NIE::InformationElement());
-        encyclopediaResource.setProperty(NIE::title(), encyclopediaName);
+    if(!collectionResource.isValid()) {
+        qDebug() << "no existing collection for" << collectionName << "with type" << collectionUrl;
+        collectionResource = Nepomuk::Resource(QUrl(), collectionUrl);
+        collectionResource.addType(NBIB::Collection());
+        collectionResource.addType(NBIB::Publication());
+        collectionResource.addType(NIE::InformationElement());
+        collectionResource.setProperty(NIE::title(), collectionName);
+        m_allCollection.insert(collectionName, collectionResource);
     }
 
     // now connect the issue to the Publication/Collection
-    publication.setProperty(NBIB::collection(), encyclopediaResource);
-    encyclopediaResource.addProperty(NBIB::article(), publication);
+    article.setProperty(NBIB::collection(), collectionResource);
+    collectionResource.addProperty(NBIB::article(), article);
 }
 
 void BibTexToNepomukPipe::addAuthor(const Value &contentValue, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType)

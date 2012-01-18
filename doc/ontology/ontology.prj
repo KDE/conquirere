@@ -1,6 +1,6 @@
 format 74
 "ontology"
-  revision 22
+  revision 24
   modified_by 4 "joerg"
 
 
@@ -369,6 +369,42 @@ ${inlines}
 "
 	    classrelation_ref 225668 // <aggregation>
       end
+
+      classrelation 266628 // nbib:translator (<aggregation>)
+	relation 259460 o---
+	  a role_name "nbib:translator" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 266628 // nbib:translator (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 266756 // <aggregation>
+      end
+
+      classrelation 266884 // nbib:contributor (<aggregation>)
+	relation 259588 o---
+	  a role_name "nbib:contributor" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 266884 // nbib:contributor (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 267012 // <aggregation>
+      end
+
+      classrelation 267140 // nbib:reviewedAuthor (<aggregation>)
+	relation 259716 o---
+	  a role_name "nbib:reviewedAuthor" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 267140 // nbib:reviewedAuthor (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 267268 // <aggregation>
+      end
     end
 
     class 128132 "nco:Contact"
@@ -413,6 +449,18 @@ ${inlines}
 
       classrelation 131844 // (nco:publisher)
 	relation_ref 130948 // nco:publisher
+      end
+
+      classrelation 266756 // <aggregation>
+	relation_ref 259460 // <aggregation>
+      end
+
+      classrelation 267012 // <aggregation>
+	relation_ref 259588 // <aggregation>
+      end
+
+      classrelation 267268 // <aggregation>
+	relation_ref 259716 // <aggregation>
       end
     end
 
@@ -1526,7 +1574,7 @@ ${inlines}
 	  b parent class_ref 128004 // nbib:Publication
       end
 
-      attribute 178948 "nbib:fillingDate"
+      attribute 178948 "nbib:filingDate"
 	private explicit_type ""
 	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
 "
@@ -1892,6 +1940,132 @@ ${inlines}
       
       classrelation 252932 // <aggregation>
 	relation_ref 245764 // <aggregation>
+      end
+    end
+
+    class 205060 "nbib:BlogPost"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 259588 // <generalisation>
+	relation 252420 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 259588 // <generalisation>
+	  b parent class_ref 129028 // nbib:Article
+      end
+    end
+
+    class 205188 "nbib:ForumPost"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 259460 // <generalisation>
+	relation 252292 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 259460 // <generalisation>
+	  b parent class_ref 129028 // nbib:Article
+      end
+    end
+
+    class 205316 "nbib:Blog"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 259844 // <generalisation>
+	relation 252676 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 259844 // <generalisation>
+	  b parent class_ref 130308 // nbib:Collection
+      end
+    end
+
+    class 205444 "nbib:Forum"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 259972 // <generalisation>
+	relation 252804 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 259972 // <generalisation>
+	  b parent class_ref 130308 // nbib:Collection
+      end
+    end
+
+    class 205572 "nbib:Website"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 260100 // <generalisation>
+	relation 252932 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 260100 // <generalisation>
+	  b parent class_ref 130308 // nbib:Collection
+      end
+    end
+
+    class 205700 "nbib:Webpage"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 259716 // <generalisation>
+	relation 252548 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 259716 // <generalisation>
+	  b parent class_ref 129028 // nbib:Article
       end
     end
   end

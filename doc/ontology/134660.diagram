@@ -58,7 +58,31 @@ classcanvas 135684 class_ref 191876 // nbib:Dictionary
 end
 classcanvas 135812 class_ref 192004 // nbib:Encyclopedia
   draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
-  xyz 280 445 2000
+  xyz 424 505 2000
+end
+classcanvas 136324 class_ref 205060 // nbib:BlogPost
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 687 369 2000
+end
+classcanvas 136452 class_ref 205188 // nbib:ForumPost
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 680 317 2000
+end
+classcanvas 136836 class_ref 205316 // nbib:Blog
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 112 427 2000
+end
+classcanvas 136964 class_ref 205444 // nbib:Forum
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 104 476 2000
+end
+classcanvas 137092 class_ref 205572 // nbib:Website
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 98 524 2000
+end
+classcanvas 137220 class_ref 205700 // nbib:Webpage
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 689 424 2000
 end
 relationcanvas 128260 relation_ref 129028 // <generalisation>
   from ref 128132 z 2007 to ref 128004
@@ -159,12 +183,53 @@ relationcanvas 134660 relation_ref 204804 // <generalisation>
   no_multiplicity_a no_multiplicity_b
 end
 relationcanvas 136068 relation_ref 225796 // <generalisation>
-  from ref 135812 z 3024 to ref 131204
+  decenter_end 873
+  from ref 135812 z 3024 to point 394 522
+  line 138372 z 3024 to ref 131204
   no_role_a no_role_b
   no_multiplicity_a no_multiplicity_b
 end
 relationcanvas 136196 relation_ref 225924 // <generalisation>
   from ref 135684 z 2007 to ref 128132
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 136580 relation_ref 252292 // <generalisation>
+  decenter_end 280
+  from ref 136452 z 3012 to ref 129668
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 136708 relation_ref 252420 // <generalisation>
+  decenter_end 720
+  from ref 136324 z 3012 to ref 129668
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 137348 relation_ref 252548 // <generalisation>
+  from ref 137220 z 3012 to point 575 444
+  line 137476 z 3012 to ref 129668
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 137604 relation_ref 252676 // <generalisation>
+  decenter_end 75
+  from ref 136836 z 3024 to point 299 447
+  line 137732 z 3024 to ref 131204
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 137860 relation_ref 252804 // <generalisation>
+  decenter_end 218
+  from ref 136964 z 3024 to point 316 495
+  line 137988 z 3024 to ref 131204
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 138116 relation_ref 252932 // <generalisation>
+  decenter_end 394
+  from ref 137092 z 3024 to point 337 543
+  line 138244 z 3024 to ref 131204
   no_role_a no_role_b
   no_multiplicity_a no_multiplicity_b
 end

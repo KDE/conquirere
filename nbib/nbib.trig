@@ -116,20 +116,38 @@ nbib: {
     nbib:ForumPost
           a       rdfs:Class ;
           rdfs:comment "Reference the post in a forum or other electronic list" ;
-          rdfs:label "ForumPost" ;
-          rdfs:subClassOf nbib:Electronic .
+          rdfs:label "Forum Post" ;
+          rdfs:subClassOf nbib:Article .
+
+    nbib:Forum
+          a       rdfs:Class ;
+          rdfs:comment "Reference the forum in which several ForumPost can be found" ;
+          rdfs:label "Forum" ;
+          rdfs:subClassOf nbib:Collection .
 
     nbib:BlogPost
           a       rdfs:Class ;
           rdfs:comment "Reference the post in a web log (blog)" ;
-          rdfs:label "BlogPost" ;
-          rdfs:subClassOf nbib:Electronic .
+          rdfs:label "Blog Post" ;
+          rdfs:subClassOf nbib:Article .
 
-    nbib:WebPage
+    nbib:Blog
           a       rdfs:Class ;
-          rdfs:comment "Reference a webpage in general" ;
-          rdfs:label "WebPage" ;
-          rdfs:subClassOf nbib:Electronic .
+          rdfs:comment "Reference the blog in which several BlogPost can be found" ;
+          rdfs:label "Blog" ;
+          rdfs:subClassOf nbib:Collection .
+
+    nbib:Webpage
+          a       rdfs:Class ;
+          rdfs:comment "Reference a webpage in general (only one site of the complete Website)" ;
+          rdfs:label "Webpage" ;
+          rdfs:subClassOf nbib:Article .
+
+    nbib:Website
+          a       rdfs:Class ;
+          rdfs:comment "Reference the complete website in which several webpages can be found" ;
+          rdfs:label "Website" ;
+          rdfs:subClassOf nbib:Collection .
 
     nbib:LegalDocument
           a       rdfs:Class ;

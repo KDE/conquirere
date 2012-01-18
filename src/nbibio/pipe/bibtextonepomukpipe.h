@@ -96,9 +96,7 @@ private:
     void addJournal(const Value &journal, const Value &volume, const Value &number, Nepomuk::Resource publication,
                     QUrl seriesUrl = Nepomuk::Vocabulary::NBIB::Journal(),
                     QUrl issueUrl = Nepomuk::Vocabulary::NBIB::JournalIssue());
-    void addEncyclopedia(const Value &journal, Nepomuk::Resource publication,
-                    QUrl seriesUrl = Nepomuk::Vocabulary::NBIB::Series(),
-                    QUrl issueUrl = Nepomuk::Vocabulary::NBIB::Encyclopedia());
+    void addSpecialArticle(const Value &titleValue, Nepomuk::Resource article, QUrl collectionUrl = Nepomuk::Vocabulary::NBIB::Encyclopedia());
 
     /**
       * @bug Akonadifeeder bug. item->url() can't be used to create a Resource anymore. It will result in a new resource with random URI and url to the akonadiitem

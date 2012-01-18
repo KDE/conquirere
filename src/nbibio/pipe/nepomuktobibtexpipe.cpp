@@ -126,11 +126,7 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
 {
     QString type;
 
-    // handle some special NBIB::Collection types first
-    if(publication.hasType(NBIB::Encyclopedia())) {
-        type = QLatin1String("Encyclopedia");
-    }
-    else if(publication.hasType(NBIB::Dictionary())) {
+    if(publication.hasType(NBIB::Dictionary())) {
         QString pages = reference.property(NBIB::pages()).toString();
         Nepomuk::Resource chapter = reference.property(NBIB::referencedPart()).toResource();
         if(!pages.isEmpty() || chapter.isValid()) {
@@ -168,14 +164,20 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
     else if(publication.hasType(NBIB::LegalCaseDocument())) {
         type = QLatin1String("Case");
     }
+    else if(publication.hasType(NBIB::Blog())) {
+        type = QLatin1String("Blog");
+    }
+    else if(publication.hasType(NBIB::Forum())) {
+        type = QLatin1String("Forum");
+    }
+    else if(publication.hasType(NBIB::Website())) {
+        type = QLatin1String("Website");
+    }
     // handle special articles
     else if(publication.hasType(NBIB::Article())) {
         Nepomuk::Resource collection = publication.property(NBIB::collection()).toResource();
         if(collection.hasType(NBIB::Proceedings())) {
             type = QLatin1String("Inproceedings"); //article in some proceedings paper
-        }
-        else if(collection.hasType(NBIB::Encyclopedia())) {
-            type = QLatin1String("Article"); //article in some encyclopedia
         }
         else {
             type = QLatin1String("Article"); //normal article in a journal, magazine pr newspaper
@@ -765,6 +767,15 @@ void NepomukToBibTexPipe::setArticleType(Entry *e, Nepomuk::Resource publication
         }
         else if(collection.hasType(NBIB::Encyclopedia())) {
             articleType = QLatin1String("encyclopedia"); //normal article in an ancyclopedia
+        }
+        else if(collection.hasType(NBIB::Blog())) {
+            articleType = QLatin1String("blog");
+        }
+        else if(collection.hasType(NBIB::Forum())) {
+            articleType = QLatin1String("forum");
+        }
+        else if(collection.hasType(NBIB::Webpage())) {
+            articleType = QLatin1String("webpage");
         }
 
         if(!articleType.isEmpty()) {

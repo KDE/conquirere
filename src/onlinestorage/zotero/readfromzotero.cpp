@@ -370,6 +370,30 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
                 valueList.append(QSharedPointer<ValueItem>(ptValue));
                 e->insert(QLatin1String("articletype"), valueList);
             }
+            else if(text == QLatin1String("blogpost")) {
+                e->setType(QLatin1String("article"));
+
+                PlainText *ptValue = new PlainText(QLatin1String("blog"));
+                Value valueList;
+                valueList.append(QSharedPointer<ValueItem>(ptValue));
+                e->insert(QLatin1String("articletype"), valueList);
+            }
+            else if(text == QLatin1String("forumpost")) {
+                e->setType(QLatin1String("article"));
+
+                PlainText *ptValue = new PlainText(QLatin1String("forum"));
+                Value valueList;
+                valueList.append(QSharedPointer<ValueItem>(ptValue));
+                e->insert(QLatin1String("articletype"), valueList);
+            }
+            else if(text == QLatin1String("webpage")) {
+                e->setType(QLatin1String("article"));
+
+                PlainText *ptValue = new PlainText(QLatin1String("webpage"));
+                Value valueList;
+                valueList.append(QSharedPointer<ValueItem>(ptValue));
+                e->insert(QLatin1String("articletype"), valueList);
+            }
             else {
                 e->setType(text);
             }

@@ -31,6 +31,7 @@
 #include <Nepomuk/Query/LiteralTerm>
 #include <Nepomuk/Query/ResourceTypeTerm>
 #include <Nepomuk/Query/AndTerm>
+#include <Nepomuk/Variant>
 
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Query>
@@ -110,6 +111,7 @@ void BibtexNepomukTest::init()
 
 void BibtexNepomukTest::importExportTest()
 {
+    startDate = QDateTime::currentDateTime();
     //######################################################################################
     //#
     //# Step 1 read data from testfile
@@ -136,9 +138,7 @@ void BibtexNepomukTest::importExportTest()
     //######################################################################################
 
     QStringList errorImportData;
-    startDate = QDateTime::currentDateTime();
     nbImBib->pipeToNepomuk(&errorImportData);
-    endDate = QDateTime::currentDateTime();
 
     if(!errorReadFile.isEmpty()) {
         qWarning() << errorReadFile;
@@ -153,6 +153,7 @@ void BibtexNepomukTest::importExportTest()
     //#
     //######################################################################################
 
+    endDate = QDateTime::currentDateTime();
     const Nepomuk::Query::LiteralTerm dateFrom( startDate );
     const Nepomuk::Query::LiteralTerm dateTo( endDate );
 
@@ -166,6 +167,26 @@ void BibtexNepomukTest::importExportTest()
 
     Nepomuk::Query::Query query( andTerm );
     QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
+
+    if( queryResult.size() != importedFile->size()) {
+
+        foreach(QSharedPointer<Element> elementImport, *importedFile) {
+            Entry *entryImport = dynamic_cast<Entry *>(elementImport.data());
+            if(!entryImport) continue;
+
+            bool citeKeyFound = false;
+            foreach(const Nepomuk::Query::Result & r, queryResult) {
+                QString citekey = r.resource().property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
+                if(citekey == entryImport->id()) {
+                    citeKeyFound = false;
+                    break;
+                }
+            }
+
+            qDebug() << "could not retrive citekey " << entryImport->id();
+        }
+    }
+
 
     QCOMPARE( importedFile->size(), queryResult.size() );
 

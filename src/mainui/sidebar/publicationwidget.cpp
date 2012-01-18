@@ -191,6 +191,9 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
         case BibType_Encyclopedia:
         case BibType_CodeOfLaw:
         case BibType_CourtReporter:
+        case BibType_WebSite:
+        case BibType_Blog:
+        case BibType_Forum:
             newtype.append(Nepomuk::Vocabulary::NBIB::Collection());
             break;
         case BibType_Bachelorthesis:
@@ -204,7 +207,7 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
         case BibType_BlogPost:
         case BibType_ForumPost:
         case BibType_WebPage:
-            newtype.append(Nepomuk::Vocabulary::NBIB::Electronic());
+            newtype.append(Nepomuk::Vocabulary::NBIB::Article());
             break;
         case BibType_Bill:
         case BibType_Statute:
@@ -701,6 +704,9 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
 {
     switch(entryType) {
     case BibType_Article:
+    case BibType_ForumPost:
+    case BibType_BlogPost:
+    case BibType_WebPage:
         layoutArticle();
         break;
     case BibType_Book:
@@ -714,6 +720,9 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
     case BibType_NewspaperIssue:
     case BibType_MagazinIssue:
     case BibType_Proceedings:
+    case BibType_Forum:
+    case BibType_Blog:
+    case BibType_WebSite:
         layoutCollection();
         break;
     case BibType_Bachelorthesis:
@@ -727,9 +736,6 @@ void PublicationWidget::selectLayout(BibEntryType entryType)
         layoutReport();
         break;
     case BibType_Electronic:
-    case BibType_ForumPost:
-    case BibType_BlogPost:
-    case BibType_WebPage:
     case BibType_Presentation:
         layoutElectronic();
         break;
