@@ -108,6 +108,7 @@ MainWindow::MainWindow(QWidget *parent)
     openLibrary(m_systemLibrary);
 
     switchView(Resource_Library, Max_BibTypes, m_systemLibrary);
+    m_sidebarWidget->newSelection(Resource_Library, Max_BibTypes, m_systemLibrary);
 }
 
 MainWindow::~MainWindow()

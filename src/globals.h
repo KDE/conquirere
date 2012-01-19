@@ -51,7 +51,9 @@ enum ResourceSelection {
     Resource_Series,
     Resource_Website,
     Resource_Note,
-    Resource_Event
+    Resource_Event,
+
+    Max_ResourceTypes
 };
 
 enum BibEntryType {

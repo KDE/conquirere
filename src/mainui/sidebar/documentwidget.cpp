@@ -16,7 +16,7 @@
  */
 
 #include "documentwidget.h"
-#include "ui_documentwidget.h"
+#include "../build/src/mainui/ui_documentwidget.h"
 
 #include "mainui/mainwindow.h"
 #include "listpublicationsdialog.h"
@@ -51,6 +51,10 @@ void DocumentWidget::setResource(Nepomuk::Resource & resource)
     m_document = resource;
 
     if(m_document.isValid()) {
+        ui->line->setVisible(true);
+        ui->icon->setVisible(true);
+        ui->kfmdWidget->setVisible(true);
+
         //fetch the documents icon
         QString fileUrl = m_document.property(Nepomuk::Vocabulary::NIE::url()).toString();
 
@@ -76,6 +80,12 @@ void DocumentWidget::setResource(Nepomuk::Resource & resource)
         else {
             emit hasPublication(false);
         }
+    }
+    else {
+        emit hasPublication(false);
+        ui->line->setVisible(false);
+        ui->icon->setVisible(false);
+        ui->kfmdWidget->setVisible(false);
     }
 }
 

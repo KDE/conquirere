@@ -24,6 +24,8 @@
 
 #include <QtGui/QWidget>
 
+#include <QtCore/QDebug>
+
 class Library;
 class MainWindow;
 

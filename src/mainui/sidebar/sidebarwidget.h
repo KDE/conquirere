@@ -141,14 +141,26 @@ signals:
     void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
 
 private:
+    void setupUi();
+
     Ui::DockWidget *ui;
     MainWindow *m_parent;
-    bool m_searchResultVisible;
+
     QStackedLayout *m_stackedLayout;
-    QWidget *m_blankPage;
+    SidebarComponent *m_documentWidget;
+    SidebarComponent *m_publicationWidget;
+    SidebarComponent *m_referenceWidget;
+    SidebarComponent *m_noteWidget;
+    SidebarComponent *m_eventWidget;
+    SidebarComponent *m_seriesWidget;
+    SidebarComponent *m_libraryInfoWidget;
+    SidebarComponent *m_searchResultInfoWidget;
+    SidebarComponent *m_mailWidget;
+
     MergeResourcesWidget *m_mergeWidget;
+
+    bool m_searchResultVisible;
     SidebarComponent *m_currentWidget;
-    ResourceSelection m_curSelection;
     Nepomuk::Resource m_curResource;
 };
 

@@ -243,7 +243,7 @@ void ResourceTableWidget::showSearchResult()
 
     hv->setResizeMode(QHeaderView::Interactive);
 
-    m_documentView->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_documentView->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
     connect(m_documentView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(selectedResource(QItemSelection,QItemSelection)));

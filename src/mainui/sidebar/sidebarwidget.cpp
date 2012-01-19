@@ -25,6 +25,9 @@
 #include "notewidget.h"
 #include "serieswidget.h"
 #include "eventwidget.h"
+#include "libraryinfowidget.h"
+#include "searchresultinfowidget.h"
+#include "mailwidget.h"
 #include "mergeresourceswidget.h"
 
 #include "mainui/mainwindow.h"
@@ -55,64 +58,26 @@ SidebarWidget::SidebarWidget(QWidget *parent)
     , ui(new Ui::DockWidget)
     , m_searchResultVisible(false)
     , m_currentWidget(0)
-    , m_curSelection(Resource_Library)
 {
     ui->setupUi(this);
 
-    m_stackedLayout = new QStackedLayout;
-    ui->contentWidget->setLayout(m_stackedLayout);
-
-    m_blankPage = new QWidget;
-    m_stackedLayout->addWidget(m_blankPage);
-    m_mergeWidget = new MergeResourcesWidget;
-    m_stackedLayout->addWidget(m_mergeWidget);
-
-    setFont(KGlobalSettings::smallestReadableFont());
-
-    ui->newButton->setIcon(KIcon(QLatin1String("document-new")));
-    ui->deleteButton->setIcon(KIcon(QLatin1String("document-close")));
-
-    ui->newButton->setEnabled(false);
-    ui->deleteButton->setEnabled(false);
-
-    ui->linkAddButton->setIcon(KIcon(QLatin1String("insert-link")));
-    ui->linkRemoveButton->setIcon(KIcon(QLatin1String("remove-link")));
-    ui->linkAddButton->setEnabled(false);
-    ui->linkRemoveButton->setEnabled(false);
-
-    ui->addPublication->setIcon(KIcon(QLatin1String("news-subscribe")));
-    ui->removePublication->setIcon(KIcon(QLatin1String("news-unsubscribe")));
-    ui->addPublication->setVisible(false);
-    ui->removePublication->setVisible(false);
-    ui->addPublication->setEnabled(false);
-    ui->removePublication->setEnabled(false);
-
-    ui->addReference->setIcon(KIcon(QLatin1String("format-indent-more")));
-    ui->removeReference->setIcon(KIcon(QLatin1String("format-indent-less")));
-    ui->addReference->setEnabled(true);
-    ui->removeReference->setEnabled(false);
-    ui->addReference->setVisible(false);
-    ui->removeReference->setVisible(false);
-
-    ui->findPdf->setIcon(KIcon(QLatin1String("application-pdf")));
-    ui->findPdf->setEnabled(false);
-    ui->findPdf->setVisible(false);
-    ui->lineFindPdf->setVisible(false);
+    setupUi();
 }
 
 SidebarWidget::~SidebarWidget()
 {
     delete ui;
-    delete m_mergeWidget;
-    delete m_blankPage;
-    delete m_currentWidget;
-    delete m_stackedLayout;
 }
 
 void SidebarWidget::setResource(Nepomuk::Resource & resource)
 {
-    if(m_searchResultVisible)
+    if(m_stackedLayout->currentWidget() == m_mergeWidget) {
+        m_stackedLayout->setCurrentWidget(m_currentWidget);
+    }
+
+    if(m_searchResultVisible) {
         findResourceSelection(resource);
+    }
 
     m_curResource = resource;
 
@@ -123,14 +88,12 @@ void SidebarWidget::setResource(Nepomuk::Resource & resource)
 
         if(resource.isValid()) {
             ui->deleteButton->setEnabled(true);
-            m_stackedLayout->setCurrentWidget(m_currentWidget);
             ui->linkAddButton->setEnabled(true);
             ui->linkRemoveButton->setEnabled(true);
             ui->findPdf->setEnabled(true);
         }
         else {
             ui->deleteButton->setEnabled(false);
-            m_stackedLayout->setCurrentWidget(m_blankPage);
             ui->linkAddButton->setEnabled(false);
             ui->linkRemoveButton->setEnabled(false);
         }
@@ -345,11 +308,6 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         m_searchResultVisible = false;
     }
 
-    if(m_curSelection == selection)
-        return;
-
-    m_curSelection = selection;
-
     SidebarComponent *newWidget = 0;
     ui->addPublication->setVisible(false);
     ui->removePublication->setVisible(false);
@@ -360,112 +318,120 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
     ui->newButton->setToolTip(QString());
     ui->deleteButton->setToolTip(QString());
 
+    disconnect(ui->addPublication, SIGNAL(clicked()) );
+    disconnect(ui->removePublication, SIGNAL(clicked()) );
+    disconnect(ui->addReference, SIGNAL(clicked()) );
+    disconnect(ui->removeReference, SIGNAL(clicked()) );
+
     switch(selection) {
     case Resource_Library:
-        ui->titleLabel->setText(QLatin1String(""));
+    {
+        m_stackedLayout->setCurrentWidget(m_libraryInfoWidget);
+        m_currentWidget = m_libraryInfoWidget;
+        ui->titleLabel->setText(i18nc("Header for the library details","Library"));
         break;
+    }
     case Resource_Document:
-        newWidget = new DocumentWidget(this);
-        newWidget->setMainWindow(m_parent);
+    {
+        m_stackedLayout->setCurrentWidget(m_documentWidget);
+        m_currentWidget = m_documentWidget;
         ui->titleLabel->setText(i18nc("Header for the document details","Document"));
         ui->addPublication->setVisible(true);
         ui->removePublication->setVisible(true);
-        connect(ui->addPublication, SIGNAL(clicked()), newWidget, SLOT(setPublication()));
-        connect(ui->removePublication, SIGNAL(clicked()), newWidget, SLOT(removePublication()));
         ui->newButton->setToolTip(i18n("New document details"));
         ui->deleteButton->setToolTip(i18n("Delete document"));
+
+        connect(ui->addPublication, SIGNAL(clicked()), m_documentWidget, SLOT(setPublication()));
+        connect(ui->removePublication, SIGNAL(clicked()), m_documentWidget, SLOT(removePublication()));
         break;
+    }
     case Resource_Mail:
-        newWidget = new PublicationWidget();
+    {
+        m_stackedLayout->setCurrentWidget(m_mailWidget);
+        m_currentWidget = m_mailWidget;
         ui->titleLabel->setText(i18nc("Header for the mail details","Mail"));
         break;
-    case Resource_Media:
-        newWidget = new DocumentWidget(this);
-        newWidget->setMainWindow(m_parent);
-        ui->titleLabel->setText(i18nc("Header for the media details","Media"));
-        ui->addPublication->setVisible(true);
-        ui->removePublication->setVisible(true);
-        connect(ui->addPublication, SIGNAL(clicked()), newWidget, SLOT(setPublication()));
-        connect(ui->removePublication, SIGNAL(clicked()), newWidget, SLOT(removePublication()));
-        ui->newButton->setToolTip(i18n("New media details"));
-        ui->deleteButton->setToolTip(i18n("Delete media"));
-        break;
+    }
     case Resource_Reference:
-        newWidget = new ReferenceWidget();
+    {
+        m_stackedLayout->setCurrentWidget(m_referenceWidget);
+        m_currentWidget = m_referenceWidget;
         ui->titleLabel->setText(i18nc("Header for the reference details","Reference"));
         ui->newButton->setToolTip(i18n("New reference"));
         ui->deleteButton->setToolTip(i18n("Delete reference"));
         ui->findPdf->setVisible(true);
         ui->lineFindPdf->setVisible(true);
         break;
-    case Resource_Website:
-        newWidget = new PublicationWidget();
-        ui->titleLabel->setText(i18nc("Header for the website details","Website"));
-        break;
+    }
     case Resource_Note:
-        newWidget = new NoteWidget();
+    {
+        m_stackedLayout->setCurrentWidget(m_noteWidget);
+        m_currentWidget = m_noteWidget;
         ui->titleLabel->setText(i18nc("Header for the note details","Note"));
         ui->newButton->setToolTip(i18n("New note"));
         ui->deleteButton->setToolTip(i18n("Delete note"));
         break;
+    }
     case Resource_Event:
-        newWidget = new EventWidget();
+    {
+        m_stackedLayout->setCurrentWidget(m_eventWidget);
+        m_currentWidget = m_eventWidget;
         ui->titleLabel->setText(i18nc("Header for the event details","Event"));
         ui->newButton->setToolTip(i18n("New event"));
         ui->deleteButton->setToolTip(i18n("Delete event"));
         break;
+    }
     case Resource_Publication:
+    {
+        m_stackedLayout->setCurrentWidget(m_publicationWidget);
+        m_currentWidget = m_publicationWidget;
         newWidget = new PublicationWidget(this);
         ui->titleLabel->setText(i18nc("Header for the publications details","Publication"));
         ui->addReference->setVisible(true);
         ui->removeReference->setVisible(true);
-        connect(ui->addReference, SIGNAL(clicked()), newWidget, SLOT(addReference()));
-        connect(ui->removeReference, SIGNAL(clicked()), newWidget, SLOT(removeReference()));
         ui->newButton->setToolTip(i18n("New publication"));
         ui->deleteButton->setToolTip(i18n("Delete publication"));
         ui->findPdf->setVisible(true);
         ui->lineFindPdf->setVisible(true);
+
+        connect(ui->addReference, SIGNAL(clicked()), newWidget, SLOT(addReference()));
+        connect(ui->removeReference, SIGNAL(clicked()), newWidget, SLOT(removeReference()));
         break;
+    }
     case Resource_Series:
-        newWidget = new SeriesWidget();
+    {
+        m_stackedLayout->setCurrentWidget(m_seriesWidget);
+        m_currentWidget = m_seriesWidget;
         ui->titleLabel->setText(i18nc("Header for the series details","Series"));
         ui->newButton->setToolTip(i18n("New series"));
         ui->deleteButton->setToolTip(i18n("Delete series"));
         break;
+    }
     case Resource_SearchResults:
-        ui->titleLabel->setText(QLatin1String(""));
+    {
+        //TODO show general search results page
+        m_stackedLayout->setCurrentWidget(m_searchResultInfoWidget);
+        m_currentWidget = m_searchResultInfoWidget;
+        ui->titleLabel->setText(i18nc("Header for the search result details","Search Results"));
         break;
     }
 
-    if(newWidget) {
-        newWidget->setLibrary(library);
-        m_stackedLayout->addWidget(newWidget);
-        m_stackedLayout->setCurrentWidget(newWidget);
-        ui->newButton->setEnabled(true);
-        ui->deleteButton->setEnabled(false);
-    }
-    else {
-        m_stackedLayout->setCurrentWidget(m_blankPage);
-        ui->newButton->setEnabled(false);
-        ui->deleteButton->setEnabled(false);
+    case Resource_Website:
+    case Resource_Media:
+        qDebug() << "todo not implemented yet";
+        break;
+    case Max_ResourceTypes:
+        qFatal("Max resourcetypes should never be used here");
     }
 
-    if(selection == Resource_Document) {
-        ui->newButton->setEnabled(false);
-        ui->deleteButton->setEnabled(false);
+    if(m_currentWidget) {
+        m_currentWidget->setLibrary(library);
     }
-
-    // remove old widget
-    disconnect(m_currentWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-    m_stackedLayout->removeWidget(m_currentWidget);
-    delete m_currentWidget;
-    m_currentWidget = newWidget;
-    connect(m_currentWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 }
 
 void SidebarWidget::showSearchResults()
 {
-    qDebug() << "SidebarWidget::showSearchResults()";
+    newSelection(Resource_SearchResults, Max_BibTypes, m_parent->systemLibrary());
     m_searchResultVisible = true;
 }
 
@@ -474,7 +440,10 @@ void SidebarWidget::findResourceSelection(Nepomuk::Resource & resource)
     ResourceSelection selection;
     BibEntryType filter = Max_BibTypes;
 
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Publication())) {
+    if(!resource.isValid()) {
+        selection = Resource_SearchResults;
+    }
+    else if(resource.hasType(Nepomuk::Vocabulary::NBIB::Publication())) {
        selection = Resource_Publication;
     }
     else if(resource.hasType(Nepomuk::Vocabulary::NBIB::Series())) {
@@ -509,4 +478,93 @@ void SidebarWidget::clear()
 {
     Nepomuk::Resource empty;
     setResource(empty);
+}
+
+void SidebarWidget::setupUi()
+{
+    setFont(KGlobalSettings::smallestReadableFont());
+
+    // set button icons
+    ui->newButton->setIcon(KIcon(QLatin1String("document-new")));
+    ui->deleteButton->setIcon(KIcon(QLatin1String("document-close")));
+
+    ui->newButton->setEnabled(false);
+    ui->deleteButton->setEnabled(false);
+
+    ui->linkAddButton->setIcon(KIcon(QLatin1String("insert-link")));
+    ui->linkRemoveButton->setIcon(KIcon(QLatin1String("remove-link")));
+    ui->linkAddButton->setEnabled(false);
+    ui->linkRemoveButton->setEnabled(false);
+
+    ui->addPublication->setIcon(KIcon(QLatin1String("news-subscribe")));
+    ui->removePublication->setIcon(KIcon(QLatin1String("news-unsubscribe")));
+    ui->addPublication->setVisible(false);
+    ui->removePublication->setVisible(false);
+    ui->addPublication->setEnabled(false);
+    ui->removePublication->setEnabled(false);
+
+    ui->addReference->setIcon(KIcon(QLatin1String("format-indent-more")));
+    ui->removeReference->setIcon(KIcon(QLatin1String("format-indent-less")));
+    ui->addReference->setEnabled(true);
+    ui->removeReference->setEnabled(false);
+    ui->addReference->setVisible(false);
+    ui->removeReference->setVisible(false);
+
+    ui->findPdf->setIcon(KIcon(QLatin1String("application-pdf")));
+    ui->findPdf->setEnabled(false);
+    ui->findPdf->setVisible(false);
+    ui->lineFindPdf->setVisible(false);
+
+
+    // add stacked layout and all useable widget
+    m_stackedLayout = new QStackedLayout;
+    ui->contentWidget->setLayout(m_stackedLayout);
+
+    m_mergeWidget = new MergeResourcesWidget(this);
+    m_stackedLayout->addWidget(m_mergeWidget);
+
+    m_libraryInfoWidget = new LibraryInfoWidget(this);
+    m_libraryInfoWidget->setMainWindow(m_parent);
+    m_stackedLayout->addWidget(m_libraryInfoWidget);
+
+    m_searchResultInfoWidget = new SearchResultInfoWidget(this);
+    m_searchResultInfoWidget->setMainWindow(m_parent);
+    m_stackedLayout->addWidget(m_searchResultInfoWidget);
+
+    m_documentWidget = new DocumentWidget(this);
+    m_documentWidget->setMainWindow(m_parent);
+    m_stackedLayout->addWidget(m_documentWidget);
+    connect(m_documentWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+
+    m_publicationWidget = new PublicationWidget(this);
+    m_publicationWidget->setMainWindow(m_parent);
+    m_stackedLayout->addWidget(m_publicationWidget);
+    connect(m_publicationWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+
+    m_referenceWidget = new ReferenceWidget(this);
+    m_referenceWidget->setMainWindow(m_parent);
+    m_stackedLayout->addWidget(m_referenceWidget);
+    connect(m_referenceWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+
+    m_noteWidget = new NoteWidget(this);
+    m_noteWidget->setMainWindow(m_parent);
+    m_stackedLayout->addWidget(m_noteWidget);
+    connect(m_noteWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+
+    m_eventWidget = new EventWidget(this);
+    m_eventWidget->setMainWindow(m_parent);
+    m_stackedLayout->addWidget(m_eventWidget);
+    connect(m_eventWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+
+    m_seriesWidget = new SeriesWidget(this);
+    m_seriesWidget->setMainWindow(m_parent);
+    m_stackedLayout->addWidget(m_seriesWidget);
+    connect(m_seriesWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+
+    m_mailWidget = new MailWidget(this);
+    m_mailWidget->setMainWindow(m_parent);
+    m_stackedLayout->addWidget(m_mailWidget);
+    connect(m_mailWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+
+    m_stackedLayout->setCurrentWidget(m_libraryInfoWidget);
 }
