@@ -292,6 +292,7 @@ void SidebarWidget::findPdf()
 void SidebarWidget::setLibraryManager(LibraryManager* lm)
 {
     m_libraryManager = lm;
+    connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), m_libraryManager, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 }
 
 void SidebarWidget::hasPublication(bool publication)

@@ -401,9 +401,6 @@ void MainWindow::openLibrary(Library *l)
         actionCollection()->action(QLatin1String("close_project"))->setEnabled(true);
     }
 
-    //TODO PUT SOMWHERELESE!!!!!!!!!!
-    connect(m_sidebarWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), l, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-
     switchView(Resource_Library, Max_BibTypes, l);
 }
 
@@ -413,9 +410,6 @@ void MainWindow::closeLibrary(const QUrl &projectThingUrl)
         actionCollection()->action(QLatin1String("delete_project"))->setEnabled(false);
         actionCollection()->action(QLatin1String("close_project"))->setEnabled(false);
     }
-
-    //TODO PUT SOMWHERELESE!!!!!!!!!!
-    //disconnect(m_sidebarWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
     QWidget *w = m_libraryList.take(projectThingUrl);
     if(w) {

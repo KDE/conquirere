@@ -72,6 +72,7 @@ Library *LibraryManager::libFromResourceUri(const QUrl &projectThing)
 void LibraryManager::addLibrary(Library *l)
 {
     m_openProjectList.append(l);
+    connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), l, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
     foreach (QSortFilterProxyModel *model, l->viewModels()) {
         NepomukModel *m = qobject_cast<NepomukModel *>(model->sourceModel());
@@ -85,6 +86,7 @@ void LibraryManager::addLibrary(Library *l)
 void LibraryManager::addSystemLibrary(Library *l)
 {
     m_systemLibrary = l;
+    connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), m_systemLibrary, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
     foreach (QSortFilterProxyModel *model, l->viewModels()) {
         NepomukModel *m = qobject_cast<NepomukModel *>(model->sourceModel());
@@ -97,6 +99,7 @@ void LibraryManager::addSystemLibrary(Library *l)
 
 void LibraryManager::closeLibrary(Library *l)
 {
+    disconnect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), l, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     if(l == m_currentUsedLibrary)
         m_currentUsedLibrary = m_systemLibrary;
 
@@ -108,6 +111,7 @@ void LibraryManager::closeLibrary(Library *l)
 
 void LibraryManager::deleteLibrary(Library *l)
 {
+    disconnect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), l, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     if(l == m_currentUsedLibrary)
         m_currentUsedLibrary = m_systemLibrary;
 
