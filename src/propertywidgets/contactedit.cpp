@@ -26,6 +26,7 @@ ContactEdit::ContactEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
 }
+
 void ContactEdit::setupLabel()
 {
     QString labelText;

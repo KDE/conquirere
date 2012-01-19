@@ -308,7 +308,6 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         m_searchResultVisible = false;
     }
 
-    SidebarComponent *newWidget = 0;
     ui->addPublication->setVisible(false);
     ui->removePublication->setVisible(false);
     ui->addReference->setVisible(false);
@@ -385,7 +384,6 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
     {
         m_stackedLayout->setCurrentWidget(m_publicationWidget);
         m_currentWidget = m_publicationWidget;
-        newWidget = new PublicationWidget(this);
         ui->titleLabel->setText(i18nc("Header for the publications details","Publication"));
         ui->addReference->setVisible(true);
         ui->removeReference->setVisible(true);
@@ -394,8 +392,8 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         ui->findPdf->setVisible(true);
         ui->lineFindPdf->setVisible(true);
 
-        connect(ui->addReference, SIGNAL(clicked()), newWidget, SLOT(addReference()));
-        connect(ui->removeReference, SIGNAL(clicked()), newWidget, SLOT(removeReference()));
+        connect(ui->addReference, SIGNAL(clicked()), m_publicationWidget, SLOT(addReference()));
+        connect(ui->removeReference, SIGNAL(clicked()), m_publicationWidget, SLOT(removeReference()));
         break;
     }
     case Resource_Series:
