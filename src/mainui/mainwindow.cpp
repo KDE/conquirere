@@ -19,12 +19,13 @@
 
 #include "core/library.h"
 #include "core/projectsettings.h"
-#include "core/models/nepomukmodel.h"
 
+#include "librarymanager.h"
 #include "welcomewidget.h"
 #include "resourcetablewidget.h"
 
 #include "settings/conquireresettingsdialog.h"
+
 #include "sidebar/sidebarwidget.h"
 
 #include "dialogs/newprojectwizard.h"
@@ -50,7 +51,6 @@
 #include <KDE/KStandardDirs>
 #include <KDE/KFileDialog>
 #include <KDE/KMessageBox>
-#include <KDE/KIO/NetAccess>
 #include <KDE/KGlobalSettings>
 
 #include <Nepomuk/Resource>
@@ -58,9 +58,7 @@
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Vocabulary/PIMO>
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QSplitter>
-#include <QtGui/QSortFilterProxyModel>
+#include <QtGui/QLayout>
 
 #include <QtCore/QDebug>
 #include <KDE/KDebug>
@@ -80,22 +78,9 @@
 #include <Nepomuk/Query/Result>
 #include <Nepomuk/Query/QueryParser>
 
-//DEBUG online storage sync
-
-#include "onlinestorage/zotero/readfromzotero.h"
-#include "onlinestorage/zotero/writetozotero.h"
-#include "onlinestorage/zotero/synczotero.h"
-#include "onlinestorage/syncstorageui.h"
-
-
-#include "nbibio/pipe/nepomuktobibtexpipe.h"
-#include "nbibio/nbibexporterfile.h"
-#include <kbibtex/fileexporterbibtex.h>
-#include <kbibtex/fileimporterbibtex.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : KParts::MainWindow()
-    , m_curLibrary(0)
 {
     Q_UNUSED(parent);
 
@@ -103,12 +88,12 @@ MainWindow::MainWindow(QWidget *parent)
     setupActions();
 
     //create the system library
-    m_systemLibrary = new Library();
-    m_systemLibrary->loadSystemLibrary();
-    openLibrary(m_systemLibrary);
+    Library *l = new Library();
+    l->loadSystemLibrary();
+    m_libraryManager->addSystemLibrary(l);
 
-    switchView(Resource_Library, Max_BibTypes, m_systemLibrary);
-    m_sidebarWidget->newSelection(Resource_Library, Max_BibTypes, m_systemLibrary);
+    //switchView(Resource_Library, Max_BibTypes, m_systemLibrary);
+    //m_sidebarWidget->newSelection(Resource_Library, Max_BibTypes, m_systemLibrary);
 }
 
 MainWindow::~MainWindow()
@@ -117,14 +102,17 @@ MainWindow::~MainWindow()
     delete m_mainView;
     delete m_sidebarWidget;
     delete m_searchWidget;
+    //delete m_documentPreview // done in queryExit()
 
 //    qDeleteAll(m_libraryList); not working ...
-    QMapIterator<Library *, QWidget *> i(m_libraryList);
+    QMapIterator<QUrl, QWidget *> i(m_libraryList);
      while (i.hasNext()) {
          i.next();
-         delete i.key();
          delete i.value();
      }
+
+     delete m_libraryManager;
+     delete m_centerWindow;
 }
 
 void MainWindow::createLibrary()
@@ -134,7 +122,7 @@ void MainWindow::createLibrary()
     int ret = npw.exec();
 
     if(ret == QDialog::Accepted) {
-        openLibrary(npw.newLibrary());
+        m_libraryManager->addLibrary( npw.newLibrary() );
     }
 }
 
@@ -145,68 +133,17 @@ void MainWindow::loadLibrary()
     int ret = lp.exec();
 
     if(ret == QDialog::Accepted) {
-        openLibrary(lp.loadedLibrary());
+        m_libraryManager->addLibrary( lp.loadedLibrary() );
     }
-}
-
-void MainWindow::openLibrary(Library *l)
-{
-    m_libraryWidget->addLibrary(l);
-
-    // create a welcome widget for the library
-    WelcomeWidget *ww = new WelcomeWidget(l);
-    ww->hide();
-    m_centerWindow->centralWidget()->layout()->addWidget(ww);
-    m_libraryList.insert(l, ww);
-
-    if(m_libraryList.size() > 1) {
-        actionCollection()->action(QLatin1String("delete_project"))->setEnabled(true);
-        actionCollection()->action(QLatin1String("close_project"))->setEnabled(true);
-    }
-
-    foreach (QSortFilterProxyModel *model, l->viewModels()) {
-        NepomukModel *m = qobject_cast<NepomukModel *>(model->sourceModel());
-
-        m->startFetchData();
-    }
-
-    //TODO remove this when the resourceWatcher is working lkater on
-    connect(m_sidebarWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), l, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-
-    switchView(Resource_Library, Max_BibTypes, l);
-
-    connect(l, SIGNAL(closeLibrary(Library*)), this, SLOT(closeLibrary(Library*)));
-    connect(l, SIGNAL(closeLibrary(Library*)), m_libraryWidget, SLOT(closeLibrary(Library*)));
-}
-
-QList<Library *> MainWindow::openLibraries()
-{
-    QList<Library *> openLibraryList;
-
-    QMapIterator<Library *, QWidget *> i(m_libraryList);
-    while (i.hasNext()) {
-        i.next();
-        if(i.key()->libraryType() == Library_Project) {
-            openLibraryList.append(i.key());
-        }
-    }
-
-     return openLibraryList;
-}
-
-Library *MainWindow::systemLibrary()
-{
-    return m_systemLibrary;
-}
-
-LibraryWidget *MainWindow::libraryWidget()
-{
-    return m_libraryWidget;
 }
 
 void MainWindow::deleteLibrarySelection()
 {
-    QList<Library *> libList = openLibraries();
+    QList<Library *> libList = m_libraryManager->openProjects();
+
+    if(libList.isEmpty())
+        return;
+
     Library *selectedLib = 0;
 
     if(libList.size() > 1) {
@@ -231,15 +168,17 @@ void MainWindow::deleteLibrarySelection()
                                          selectedLib->settings()->name());
 
     if(ret2 == KMessageBox::Yes) {
-        m_libraryWidget->closeLibrary(selectedLib);
-        closeLibrary(selectedLib);
-        selectedLib->deleteLibrary();
+        m_libraryManager->deleteLibrary(selectedLib);
     }
 }
 
 void MainWindow::closeLibrarySelection()
 {
-    QList<Library *> libList = openLibraries();
+    QList<Library *> libList = m_libraryManager->openProjects();
+
+    if(libList.isEmpty())
+        return;
+
     Library *selectedLib = 0;
 
     if(libList.size() > 1) {
@@ -259,32 +198,17 @@ void MainWindow::closeLibrarySelection()
         selectedLib = libList.first();
     }
 
-    m_libraryWidget->closeLibrary(selectedLib);
-    closeLibrary(selectedLib);
+    m_libraryManager->closeLibrary(selectedLib);
 }
 
-void MainWindow::closeLibrary(Library *l)
-{
-    if(!l || l->libraryType() == Library_System) {
-        return;
-    }
 
-    disconnect(m_sidebarWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), l, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-
-    QWidget *w = m_libraryList.take(l);
-    if(w) {
-        w->hide();
-        w->deleteLater();
-        l->deleteLater();
-    }
-
-    switchView(Resource_Library, Max_BibTypes, m_systemLibrary);
-}
-
+//####################################################################################################
+//####################################################################################################
+//####################################################################################################
 void MainWindow::importBibTex()
 {
     BibTeXImportWizard bid;
-    bid.setSystemLibrary(m_systemLibrary);
+    bid.setSystemLibrary(m_libraryManager->systemLibrary());
 
     bid.exec();
 }
@@ -348,18 +272,17 @@ void MainWindow::dbBackup()
 
 void MainWindow::updateListCache()
 {
-    QMapIterator<Library *, QWidget *> i(m_libraryList);
-
-    while (i.hasNext()) {
-        i.next();
-        i.key()->updateCacheData();
+    foreach(Library *l, m_libraryManager->openProjects()) {
+        l->updateCacheData();
     }
+
+    m_libraryManager->systemLibrary()->updateCacheData();
 }
 
 void MainWindow::showConqSettings()
 {
     ConquirereSettingsDialog csd;
-    csd.setProjectSettings(m_systemLibrary->settings());
+    csd.setProjectSettings(m_libraryManager->systemLibrary()->settings());
 
     csd.exec();
 }
@@ -373,8 +296,15 @@ void MainWindow::connectKPartGui(KParts::Part * part)
     createGUI(part);
 }
 
-void MainWindow::switchView(ResourceSelection selection, BibEntryType filter, Library *p)
+
+//####################################################################################################
+//####################################################################################################
+//####################################################################################################
+
+
+void MainWindow::switchView(ResourceSelection selection, BibEntryType filter, Library *selectedLibrary)
 {
+    // This case means we show the Welcome widget for the selected library
     if(selection == Resource_Library) {
         m_mainView->hide();
 
@@ -383,12 +313,16 @@ void MainWindow::switchView(ResourceSelection selection, BibEntryType filter, Li
              w->hide();
 
         //show welcome page for the current library
-        QWidget *ww = m_libraryList.value(p);
+        QWidget *ww = m_libraryList.value(selectedLibrary->settings()->projectThing().resourceUri());
         ww->show();
 
+        // reset the sidebarwidget and documentpreview
+        // if there was some Nepomuk::Resouce selected beforehand
         m_sidebarWidget->clear();
         m_documentPreview->clear();
     }
+    // This shows the normal table view with all the data
+    // the contend is based on teh users selection from te hgiven values of this function
     else {
         m_mainView->show();
 
@@ -396,23 +330,10 @@ void MainWindow::switchView(ResourceSelection selection, BibEntryType filter, Li
         foreach (QWidget *w, m_libraryList)
              w->hide();
 
-        m_mainView->switchView(selection, filter, p);
+        m_mainView->switchView(selection, filter, selectedLibrary);
     }
 
-    m_curLibrary = p;
-
-    if(openLibraries().empty()) {
-        QAction *a = actionCollection()->action(QLatin1String("delete_project"));
-        a->setEnabled(false);
-        QAction *b = actionCollection()->action(QLatin1String("close_project"));
-        b->setEnabled(false);
-    }
-    else {
-        QAction *a = actionCollection()->action(QLatin1String("delete_project"));
-        a->setEnabled(true);
-        QAction *b = actionCollection()->action(QLatin1String("close_project"));
-        b->setEnabled(true);
-    }
+    m_libraryManager->setCurrentUsedLibrary(selectedLibrary);
 }
 
 void MainWindow::showSearchResults()
@@ -426,18 +347,7 @@ void MainWindow::showSearchResults()
     m_mainView->showSearchResult();
     m_sidebarWidget->showSearchResults();
 
-    if(openLibraries().empty()) {
-        QAction *a = actionCollection()->action(QLatin1String("delete_project"));
-        a->setEnabled(false);
-        QAction *b = actionCollection()->action(QLatin1String("close_project"));
-        b->setEnabled(false);
-    }
-    else {
-        QAction *a = actionCollection()->action(QLatin1String("delete_project"));
-        a->setEnabled(true);
-        QAction *b = actionCollection()->action(QLatin1String("close_project"));
-        b->setEnabled(true);
-    }
+    m_libraryManager->setCurrentUsedLibrary(m_libraryManager->systemLibrary());
 }
 
 void MainWindow::DEBUGDELETEALLDATA()
@@ -462,6 +372,58 @@ void MainWindow::DEBUGDELETEALLDATA()
     foreach(const Nepomuk::Query::Result & r, queryResult) {
         r.resource().remove();
     }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void MainWindow::openLibrary(Library *l)
+{
+    // create a welcome widget for the library
+    WelcomeWidget *ww = new WelcomeWidget(l);
+    ww->hide();
+    m_centerWindow->centralWidget()->layout()->addWidget(ww);
+    m_libraryList.insert(l->settings()->projectThing().resourceUri(), ww);
+
+    if(!m_libraryManager->openProjects().isEmpty()) {
+        actionCollection()->action(QLatin1String("delete_project"))->setEnabled(true);
+        actionCollection()->action(QLatin1String("close_project"))->setEnabled(true);
+    }
+
+    //TODO PUT SOMWHERELESE!!!!!!!!!!
+    connect(m_sidebarWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), l, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+
+    switchView(Resource_Library, Max_BibTypes, l);
+}
+
+void MainWindow::closeLibrary(const QUrl &projectThingUrl)
+{
+    if(m_libraryManager->openProjects().isEmpty()) {
+        actionCollection()->action(QLatin1String("delete_project"))->setEnabled(false);
+        actionCollection()->action(QLatin1String("close_project"))->setEnabled(false);
+    }
+
+    //TODO PUT SOMWHERELESE!!!!!!!!!!
+    //disconnect(m_sidebarWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+
+    QWidget *w = m_libraryList.take(projectThingUrl);
+    if(w) {
+        w->hide();
+        w->deleteLater();
+    }
+
+    switchView(Resource_Library, Max_BibTypes, m_libraryManager->systemLibrary());
 }
 
 bool MainWindow::queryExit()
@@ -629,7 +591,7 @@ void MainWindow::setupMainWindow()
         // the main table view
         m_mainView = new ResourceTableWidget();
         m_mainView->hide();
-        m_mainView->setMainWindow(this);
+        m_mainView->setLibraryManager(m_libraryManager);
         mainLayout->addWidget(m_mainView);
 
         //add panel for the document preview
@@ -647,7 +609,7 @@ void MainWindow::setupMainWindow()
         // the main table view
         m_mainView = new ResourceTableWidget();
         m_mainView->hide();
-        m_mainView->setMainWindow(this);
+        m_mainView->setLibraryManager(m_libraryManager);
         mainLayout->addWidget(m_mainView);
 
         //add panel for the document preview
@@ -655,15 +617,19 @@ void MainWindow::setupMainWindow()
         m_centerWindow->addDockWidget(Qt::RightDockWidgetArea, m_documentPreview);
     }
 
+    m_libraryManager = new LibraryManager;
+    connect(m_libraryManager, SIGNAL(libraryAdded(Library*)), this, SLOT(openLibrary(Library*)));
+    connect(m_libraryManager, SIGNAL(libraryRemoved(QUrl)), this, SLOT(closeLibrary(QUrl)));
 
     // the left project bar
     m_libraryWidget = new LibraryWidget;
+    m_libraryWidget->setLibraryManager(m_libraryManager);
     addDockWidget(Qt::LeftDockWidgetArea, m_libraryWidget);
     connect(m_libraryWidget, SIGNAL(showSearchResults()), this, SLOT(showSearchResults()));
 
     //add panel for the document info
     m_sidebarWidget = new SidebarWidget;
-    m_sidebarWidget->setMainWindow(this);
+    m_sidebarWidget->setLibraryManager(m_libraryManager);
     addDockWidget(Qt::RightDockWidgetArea, m_sidebarWidget);
 
     // the search widget

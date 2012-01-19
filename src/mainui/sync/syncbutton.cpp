@@ -34,7 +34,7 @@ void SyncButton::setMainWindow(MainWindow *mw)
 
 void SyncButton::startSync()
 {
-    QList<Library*> openLibraries = m_parent->openLibraries();
+//    QList<Library*> openLibraries = m_parent->openLibraries();
 /*
     foreach(Library* l, openLibraries) {
         connect(l->backgroundSync(), SIGNAL(needsAttention()), this, SLOT(needsAttention()));

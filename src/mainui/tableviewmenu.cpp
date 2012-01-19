@@ -19,7 +19,8 @@
 
 #include "core/library.h"
 #include "core/projectsettings.h"
-#include "mainwindow.h"
+
+#include "mainui/librarymanager.h"
 
 #include "nbibio/pipe/bibtextoclipboardpipe.h"
 #include "nbibio/pipe/bibtextonepomukpipe.h"
@@ -45,7 +46,7 @@
 
 TableViewMenu::TableViewMenu(QObject *parent)
     :QObject(parent)
-    , m_parent(0)
+    , m_libraryManager(0)
     , m_bibtexEntry(0)
 {
 }
@@ -174,7 +175,7 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
     addToProject.setIcon(KIcon(QLatin1String("list-add")));
     menu.addMenu(&addToProject);
 
-    QList<Library*> openLibList = m_parent->openLibraries();
+    QList<Library*> openLibList = m_libraryManager->openProjects();
 
     if(openLibList.size() > 0) {
         foreach(Library *l, openLibList) {
@@ -309,9 +310,9 @@ void TableViewMenu::showBibTeXEntryMenu(QSharedPointer<Entry> entry)
 
 }
 
-void TableViewMenu::setMainWindow(MainWindow *mw)
+void TableViewMenu::setLibraryManager(LibraryManager *lm)
 {
-        m_parent = mw;
+    m_libraryManager = lm;
 }
 
 void TableViewMenu::addSelectedToProject()

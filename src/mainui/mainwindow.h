@@ -22,10 +22,8 @@
 
 #include <KParts/MainWindow>
 
-#include <kbibtex/file.h>
-
+class LibraryManager;
 class Library;
-class WelcomeWidget;
 class ResourceTableWidget;
 class LibraryWidget;
 class SidebarWidget;
@@ -41,20 +39,15 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    QList<Library *> openLibraries();
-    Library *systemLibrary();
-    LibraryWidget *libraryWidget();
-
 public slots:
     // Slots for the menu KAction events
 
     // File menu
     void createLibrary();
     void loadLibrary();
-    void openLibrary(Library *l);
+
     void deleteLibrarySelection();
     void closeLibrarySelection();
-    void closeLibrary(Library *l);
 
     // database menu
     void importBibTex();
@@ -75,10 +68,22 @@ public slots:
 
     // other helping slots
     void connectKPartGui(KParts::Part * part);
+
+    /**
+      * This will be called from the LibraryWidget and reflects the users choice of new data to display
+      */
     void switchView(ResourceSelection selection, BibEntryType filter, Library *p);
+
+    /**
+      * This will be called from the LibraryWidget when user clicks on "Search Results" or from the SearchWidget when  a new search was started
+      */
     void showSearchResults();
 
     void DEBUGDELETEALLDATA();
+
+private slots:
+    void openLibrary(Library *l);
+    void closeLibrary(const QUrl &projectThingUrl);
 
 private:
     bool queryExit();
@@ -87,20 +92,16 @@ private:
 
     void loadConfig();
 
+    LibraryManager *m_libraryManager;
+    QMap<QUrl, QWidget *> m_libraryList; /**< holds the welcome widget for each opened library */
+
     QMainWindow *m_centerWindow;
-    WelcomeWidget *m_welcomeWidget;
     ResourceTableWidget *m_mainView;
     LibraryWidget *m_libraryWidget;
     SidebarWidget *m_sidebarWidget;
     DocumentPreview *m_documentPreview;
     SearchWidget *m_searchWidget;
     SyncButton *m_syncButton;
-
-    QMap<Library *, QWidget *> m_libraryList; /**< holds the welcome widget for each opened library */
-    Library *m_systemLibrary;
-    Library *m_curLibrary;
-
-    File *m_bibFile;
 };
 
 #endif // MAINWINDOW_H

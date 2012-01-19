@@ -19,6 +19,8 @@
 #include "ui_eventwidget.h"
 
 #include "core/library.h"
+#include "core/projectsettings.h"
+#include "mainui/librarymanager.h"
 
 #include <Nepomuk/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
@@ -26,8 +28,6 @@
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Variant>
-
-#include <QtCore/QDebug>
 
 EventWidget::EventWidget(QWidget *parent)
     : SidebarComponent(parent)
@@ -97,6 +97,12 @@ void EventWidget::newButtonClicked()
     m_eventThing = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::PIMO::Event());
 
     m_eventThing.setProperty(Nepomuk::Vocabulary::NIE::title(), i18n("New event title"));
+
+    Library *curUsedLib = libraryManager()->currentUsedLibrary();
+    if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
+        //relate it to the project
+        m_eventThing.setProperty(Nepomuk::Vocabulary::PIMO::isRelated() , curUsedLib->settings()->projectThing());
+    }
 
     setResource(m_eventThing);
 }

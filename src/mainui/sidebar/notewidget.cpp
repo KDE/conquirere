@@ -19,14 +19,14 @@
 #include "ui_notewidget.h"
 
 #include "core/library.h"
+#include "core/projectsettings.h"
+#include "mainui/librarymanager.h"
 
 #include <Nepomuk/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Vocabulary/NFO>
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Variant>
-
-#include <QtCore/QDebug>
 
 NoteWidget::NoteWidget(QWidget *parent)
     : SidebarComponent(parent)
@@ -74,6 +74,12 @@ void NoteWidget::newButtonClicked()
     // we add a dummy title and save the note
     ui->editTitle->setText(i18n("New note title"));
     saveNote();
+
+    Library *curUsedLib = libraryManager()->currentUsedLibrary();
+    if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
+        //relate it to the project
+        m_note.setProperty(Nepomuk::Vocabulary::PIMO::isRelated() , curUsedLib->settings()->projectThing());
+    }
 
     setResource(m_note);
 }

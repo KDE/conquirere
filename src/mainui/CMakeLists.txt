@@ -1,5 +1,6 @@
 
 set(mainui_LIB_SRCS
+    librarymanager.cpp
     resourcetablewidget.cpp
     tableviewmenu.cpp
     mainwindow.cpp

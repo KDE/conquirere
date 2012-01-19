@@ -17,14 +17,17 @@
 
 #include "resourcetablewidget.h"
 
-#include "mainwindow.h"
 #include "tableviewmenu.h"
+#include "mainui/librarymanager.h"
 
 #include "core/library.h"
+#include "core/projectsettings.h"
+
 #include "core/models/nepomukmodel.h"
 #include "core/models/publicationfiltermodel.h"
 #include "core/models/seriesfiltermodel.h"
 #include "core/models/searchresultmodel.h"
+
 #include "core/delegates/ratingdelegate.h"
 #include "core/delegates/htmldelegate.h"
 
@@ -64,9 +67,9 @@ ResourceTableWidget::~ResourceTableWidget()
     delete m_documentView;
 }
 
-void ResourceTableWidget::setMainWindow(MainWindow *mw)
+void ResourceTableWidget::setLibraryManager(LibraryManager *lm)
 {
-        m_parent = mw;
+    m_libraryManager = lm;
 }
 
 void ResourceTableWidget::setSearchResultModel(SearchResultModel* srm)
@@ -79,7 +82,6 @@ void ResourceTableWidget::setSearchResultModel(SearchResultModel* srm)
 void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType filter, Library *p)
 {
     m_selection = selection;
-    m_curLibrary = p;
 
     PublicationFilterModel * pfm = qobject_cast<PublicationFilterModel *>(p->viewModel(selection));
     if(pfm) {
@@ -95,6 +97,8 @@ void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType f
     // if we only need to change the filter, forget the rest after this check
     QAbstractItemModel *oldModel = m_documentView->model();
     QAbstractItemModel *newModel = p->viewModel(selection);
+    if(!newModel)
+        return;
     if(oldModel == newModel)
         return;
 
@@ -321,6 +325,9 @@ void ResourceTableWidget::applyFilter()
 
     QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
 
+    if(!sfpm)
+        return;
+
     sfpm->setFilterKeyColumn(searchColumn);
     sfpm->setFilterRegExp(searchKey);
 }
@@ -356,7 +363,7 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
     }
 
     TableViewMenu tvm;
-    tvm.setMainWindow(m_parent);
+    tvm.setLibraryManager(m_libraryManager);
 
     if(nepomukRescource.isValid()) {
         tvm.showNepomukEntryMenu(nepomukRescource);

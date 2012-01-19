@@ -25,7 +25,7 @@
 
 #include <QtCore/QSharedPointer>
 
-class MainWindow;
+class LibraryManager;
 
 class TableViewMenu : public QObject
 {
@@ -35,7 +35,7 @@ public:
 
     void showNepomukEntryMenu(Nepomuk::Resource resource);
     void showBibTeXEntryMenu(QSharedPointer<Entry> entry);
-    void setMainWindow(MainWindow *mw);
+    void setLibraryManager(LibraryManager *lm);
 
 public slots:
     void addSelectedToProject();
@@ -49,7 +49,7 @@ public slots:
     void sendToKileLyX();
 
 private:
-    MainWindow *m_parent;
+    LibraryManager *m_libraryManager;
     Nepomuk::Resource m_nepomukResource;
     QSharedPointer<Entry> m_bibtexEntry;
 };

@@ -23,6 +23,7 @@
 #include <QtGui/QDockWidget>
 #include <QtCore/QList>
 
+class LibraryManager;
 class Library;
 class QLibraryTreeWidgetItem;
 
@@ -38,17 +39,17 @@ public:
     explicit LibraryWidget(QWidget *parent = 0);
     ~LibraryWidget();
 
-    void addLibrary(Library *p);
+    void setLibraryManager(LibraryManager *lm);
 
 signals:
     void doCloseLibrary(Library *p);
     void newSelection(ResourceSelection selection, BibEntryType filter, Library *p);
     void showSearchResults();
 
-public slots:
-    void closeLibrary(Library *p);
-
 private slots:
+    void addLibrary(Library *p);
+    void closeLibrary(const QUrl &projectThingUrl);
+
     void selectionchanged();
     void listContextMenu(const QPoint & pos);
     void renameLibrary(Library *p);
@@ -66,9 +67,8 @@ private:
     void connectModelSignals(QLibraryTreeWidgetItem *root, Library *p, ResourceSelection resourceType);
 
     Ui::LibraryWidget *ui;
-
-    QList<Library *> m_openLibraries;
-    QList<QLibraryTreeWidgetItem *> m_items;
+    QLibraryTreeWidgetItem *m_systemRoot;
+    LibraryManager *m_libraryManager;
 };
 
 #endif // LIBRARYWIDGET_H

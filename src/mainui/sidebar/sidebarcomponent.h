@@ -27,6 +27,7 @@
 #include <QtCore/QDebug>
 
 class Library;
+class LibraryManager;
 class MainWindow;
 
 /**
@@ -40,19 +41,8 @@ public:
     explicit SidebarComponent(QWidget *parent = 0);
     virtual ~SidebarComponent() {}
 
-    virtual void setLibrary(Library *p);
-    /**
-      * @bug used sometimes as system and as other lib this must be changed
-      */
-    Library *library() const;
-
-    /**
-      * sets a link to the mainwindow.
-      *
-      * Used to get the list of open libraries in the subcomponents
-      */
-    void setMainWindow(MainWindow *mw);
-    MainWindow *mainWindow() const;
+    void setLibraryManager(LibraryManager *lm);
+    LibraryManager *libraryManager();
 
 signals:
     /**
@@ -75,8 +65,7 @@ public slots:
     virtual void deleteButtonClicked() = 0;
 
 private:
-    Library *m_library;
-    MainWindow *m_parent;
+    LibraryManager *m_libraryManager;
 };
 
 #endif // SIDEBARCOMPONENT_H

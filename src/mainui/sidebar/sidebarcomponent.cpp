@@ -21,27 +21,16 @@
 
 SidebarComponent::SidebarComponent(QWidget *parent)
     : QWidget(parent)
-    , m_library(0)
-    , m_parent(0)
+    , m_libraryManager(0)
 {
 }
 
-void SidebarComponent::setLibrary(Library *p)
+void SidebarComponent::setLibraryManager(LibraryManager *lm)
 {
-    m_library = p;
+    m_libraryManager = lm;
 }
 
-Library *SidebarComponent::library() const
+LibraryManager *SidebarComponent::libraryManager()
 {
-    return m_library;
-}
-
-void SidebarComponent::setMainWindow(MainWindow *mw)
-{
-    m_parent = mw;
-}
-
-MainWindow *SidebarComponent::mainWindow() const
-{
-    return m_parent;
+    return m_libraryManager;
 }

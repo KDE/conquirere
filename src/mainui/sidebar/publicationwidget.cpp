@@ -20,7 +20,11 @@
 
 #include "globals.h"
 
-#include "propertywidgets/stringedit.h"
+#include "core/library.h"
+#include "core/projectsettings.h"
+
+#include "mainui/librarymanager.h"
+
 #include "propertywidgets/contactedit.h"
 #include "propertywidgets/fileobjectedit.h"
 
@@ -30,7 +34,6 @@
 #include "contactdialog.h"
 #include "addchapterdialog.h"
 #include "listpublicationsdialog.h"
-#include "core/library.h"
 
 #include "nbibio/conquirere.h"
 
@@ -105,7 +108,6 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
     QString abstract = m_publication.property(Nepomuk::Vocabulary::NBIB::abstract()).toString();
     ui->editAbstract->document()->setPlainText(abstract);
 
-    //set the rating
     ui->editRating->setRating(m_publication.rating());
 
     selectLayout(entryType);
@@ -284,6 +286,8 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
                 seriesResource.setTypes(x.types());
             }
         }
+
+        //DEBUG If we change collection type (forum/blog/website) also change ArticleType (forumpost/blogpost/webpage)
     }
 }
 
@@ -295,6 +299,12 @@ void PublicationWidget::newButtonClicked()
     types.append(Nepomuk::Vocabulary::NBIB::Publication());
     nb.setTypes(types);
     nb.setProperty(Nepomuk::Vocabulary::NIE::title(), i18n("New Publication"));
+
+    Library *curUsedLib = libraryManager()->currentUsedLibrary();
+    if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
+        //relate the ref to the project
+        nb.setProperty(Nepomuk::Vocabulary::PIMO::isRelated() , curUsedLib->settings()->projectThing());
+    }
 
     setResource(nb);
 }
@@ -348,8 +358,8 @@ void PublicationWidget::addReference()
     tempRef.setProperty(Nepomuk::Vocabulary::NBIB::publication(), m_publication);
 
     ReferenceWidget *rw = new ReferenceWidget();
+    rw->setLibraryManager( libraryManager() );
     rw->setResource(tempRef);
-    rw->setLibrary(library());
 
     showRefWidget.setMainWidget(rw);
     showRefWidget.setInitialSize(QSize(300,300));
@@ -630,20 +640,24 @@ void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUr
     if(changedResource.isValid()) {
         QPointer<KDialog> addIssueWidget = new KDialog(this);
         if(changedResource.hasType(Nepomuk::Vocabulary::PIMO::Event())) {
-            EventWidget *pw = new EventWidget();
-            pw->setResource(changedResource);
-            addIssueWidget->setMainWidget(pw);
+            EventWidget *ew = new EventWidget();
+            ew->setLibraryManager(libraryManager());
+            ew->setResource(changedResource);
+            addIssueWidget->setMainWidget(ew);
         }
         else if(changedResource.hasType(Nepomuk::Vocabulary::NBIB::Series())) {
-            SeriesWidget *pw = new SeriesWidget();
-            pw->setResource(changedResource);
-            addIssueWidget->setMainWidget(pw);
+            SeriesWidget *sw = new SeriesWidget();
+            sw->setLibraryManager(libraryManager());
+            sw->setResource(changedResource);
+            addIssueWidget->setMainWidget(sw);
         }
         else {
             PublicationWidget *pw = new PublicationWidget();
+            pw->setLibraryManager(libraryManager());
             pw->setResource(changedResource);
             addIssueWidget->setMainWidget(pw);
         }
+
         addIssueWidget->setInitialSize(QSize(500,300));
         addIssueWidget->exec();
         delete addIssueWidget;
@@ -682,7 +696,8 @@ void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUr
     else {
         lpd->setListMode(Resource_Reference, Max_BibTypes);
     }
-    lpd->setSystemLibrary(library());
+    lpd->setSystemLibrary(libraryManager()->systemLibrary());
+    lpd->setOpenLibraries(libraryManager()->openProjects());
 
     int ret = lpd->exec();
 

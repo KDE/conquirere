@@ -20,8 +20,12 @@
 
 #include "core/library.h"
 #include "core/projectsettings.h"
+
+#include "mainui/librarymanager.h"
+
 #include "propertywidgets/stringedit.h"
 #include "propertywidgets/contactedit.h"
+
 #include "publicationwidget.h"
 #include "listpublicationsdialog.h"
 #include "listpartswidget.h"
@@ -109,6 +113,7 @@ void ReferenceWidget::showPublicationList(Nepomuk::Resource & resource, const QU
         KDialog addIssueWidget;
 
         PublicationWidget *pw = new PublicationWidget();
+        pw->setLibraryManager(libraryManager());
         pw->setResource(changedResource);
         addIssueWidget.setMainWidget(pw);
 
@@ -129,7 +134,8 @@ void ReferenceWidget::showPublicationList(Nepomuk::Resource & resource, const QU
 
     ListPublicationsDialog lpd;
     lpd.setListMode(Resource_Publication, Max_BibTypes);
-    lpd.setSystemLibrary(library());
+    lpd.setSystemLibrary(libraryManager()->systemLibrary());
+    lpd.setOpenLibraries(libraryManager()->openProjects());
 
     int ret = lpd.exec();
 
@@ -199,9 +205,10 @@ void ReferenceWidget::newButtonClicked()
     // create a new reference
     Nepomuk::Resource newReference(QUrl(), Nepomuk::Vocabulary::NBIB::Reference());
 
-    if(library()->libraryType() == Library_Project) {
+    Library *curUsedLib = libraryManager()->currentUsedLibrary();
+    if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
         //relate the ref to the project
-        newReference.setProperty(Nepomuk::Vocabulary::PIMO::isRelated() , library()->settings()->projectThing());
+        newReference.setProperty(Nepomuk::Vocabulary::PIMO::isRelated() , curUsedLib->settings()->projectThing());
     }
 
     newReference.setProperty(Nepomuk::Vocabulary::NBIB::citeKey(), i18n("new reference"));

@@ -16,10 +16,12 @@
  */
 
 #include "documentwidget.h"
-#include "../build/src/mainui/ui_documentwidget.h"
+#include "ui_documentwidget.h"
+
+#include "listpublicationsdialog.h"
 
 #include "mainui/mainwindow.h"
-#include "listpublicationsdialog.h"
+#include "mainui/librarymanager.h"
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
@@ -30,15 +32,19 @@
 #include <KDE/KMimeType>
 #include <KDE/KIconLoader>
 
-#include <QtCore/QDebug>
+#include <KDE/KDebug>
 
-DocumentWidget::DocumentWidget(QWidget *parent) :
-    SidebarComponent(parent),
-    ui(new Ui::DocumentWidget)
+DocumentWidget::DocumentWidget(QWidget *parent)
+    : SidebarComponent(parent)
+    , ui(new Ui::DocumentWidget)
 {
     ui->setupUi(this);
 
     connect(this, SIGNAL(hasPublication(bool)), parent, SLOT(hasPublication(bool)));
+
+    ui->line->setVisible(false);
+    ui->icon->setVisible(false);
+    ui->kfmdWidget->setVisible(false);
 }
 
 DocumentWidget::~DocumentWidget()
@@ -91,19 +97,19 @@ void DocumentWidget::setResource(Nepomuk::Resource & resource)
 
 void DocumentWidget::newButtonClicked()
 {
-    qDebug() << "TODO add file metadata";
+    kDebug() << "TODO add file metadata";
 }
 
 void DocumentWidget::deleteButtonClicked()
 {
-    qDebug() << "TODO delete file + metadata";
+    kDebug() << "TODO delete file + metadata";
 }
 
 void DocumentWidget::setPublication()
 {
     ListPublicationsDialog lpd;
-    lpd.setSystemLibrary(library());
-    lpd.setOpenLibraries(mainWindow()->openLibraries());
+    lpd.setSystemLibrary( libraryManager()->systemLibrary() );
+    lpd.setOpenLibraries( libraryManager()->openProjects() );
 
     int ret = lpd.exec();
 

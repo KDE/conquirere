@@ -28,11 +28,12 @@ namespace Ui {
     class DockWidget;
 }
 
-class MainWindow;
+class LibraryManager;
+class Library;
 class QStackedLayout;
 class MergeResourcesWidget;
 class SidebarComponent;
-class Library;
+class LibraryInfoWidget;
 
 /**
   * @brief The SidebarWidget contains all contents for the right side widget
@@ -110,12 +111,7 @@ public slots:
 
     void findPdf();
 
-    /**
-      * sets a link to the mainwindow.
-      *
-      * Used to get the list of open libraries in the subcomponents
-      */
-    void setMainWindow(MainWindow *mw);
+    void setLibraryManager(LibraryManager* lm);
 
     /**
       * called from the DocumentWidget
@@ -144,7 +140,7 @@ private:
     void setupUi();
 
     Ui::DockWidget *ui;
-    MainWindow *m_parent;
+    LibraryManager* m_libraryManager;
 
     QStackedLayout *m_stackedLayout;
     SidebarComponent *m_documentWidget;
@@ -153,7 +149,7 @@ private:
     SidebarComponent *m_noteWidget;
     SidebarComponent *m_eventWidget;
     SidebarComponent *m_seriesWidget;
-    SidebarComponent *m_libraryInfoWidget;
+    LibraryInfoWidget *m_libraryInfoWidget;
     SidebarComponent *m_searchResultInfoWidget;
     SidebarComponent *m_mailWidget;
 

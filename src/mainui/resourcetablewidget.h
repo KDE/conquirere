@@ -25,7 +25,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QItemSelection>
 
-class MainWindow;
+class LibraryManager;
 class QSortFilterProxyModel;
 class SearchResultModel;
 class Library;
@@ -50,7 +50,7 @@ public:
     explicit ResourceTableWidget(QWidget *parent = 0);
     virtual ~ResourceTableWidget();
 
-    void setMainWindow(MainWindow *mw);
+    void setLibraryManager(LibraryManager *lm);
     void setSearchResultModel(SearchResultModel* srm);
 
 signals:
@@ -73,11 +73,10 @@ private slots:
 private:
     void setupWidget();
 
-    MainWindow *m_parent;
+    LibraryManager *m_libraryManager;
     KLineEdit *m_searchBox;
     KComboBox *m_searchSelection;
     QTableView *m_documentView;
-    Library *m_curLibrary;
     ResourceSelection m_selection;
     QSortFilterProxyModel* m_searchResultModel;
 

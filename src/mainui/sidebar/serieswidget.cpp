@@ -16,10 +16,12 @@
  */
 
 #include "serieswidget.h"
-#include "../build/src/mainui/ui_serieswidget.h"
+#include "ui_serieswidget.h"
 
 #include "globals.h"
 #include "core/library.h"
+#include "core/projectsettings.h"
+#include "mainui/librarymanager.h"
 
 #include "listpartswidget.h"
 
@@ -28,6 +30,7 @@
 #include "nbib.h"
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk/Vocabulary/PIMO>
 
 SeriesWidget::SeriesWidget(QWidget *parent)
     : SidebarComponent(parent)
@@ -150,6 +153,12 @@ void SeriesWidget::newButtonClicked()
     Nepomuk::Resource newSeriesResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Series());
 
     newSeriesResource.setProperty(Nepomuk::Vocabulary::NIE::title(), i18n("New Series"));
+
+    Library *curUsedLib = libraryManager()->currentUsedLibrary();
+    if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
+        //relate it to the project
+        newSeriesResource.setProperty(Nepomuk::Vocabulary::PIMO::isRelated() , curUsedLib->settings()->projectThing());
+    }
 
     setResource(newSeriesResource);
 }

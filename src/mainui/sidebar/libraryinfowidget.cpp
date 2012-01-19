@@ -16,7 +16,7 @@
  */
 
 #include "libraryinfowidget.h"
-#include "../build/src/mainui/ui_libraryinfowidget.h"
+#include "ui_libraryinfowidget.h"
 
 #include "core/library.h"
 #include "core/projectsettings.h"
@@ -37,8 +37,6 @@ LibraryInfoWidget::~LibraryInfoWidget()
 
 void LibraryInfoWidget::setLibrary(Library *p)
 {
-    SidebarComponent::setLibrary(p);
-
     if(!p)
         return;
 
