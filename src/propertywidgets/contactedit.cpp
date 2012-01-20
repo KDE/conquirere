@@ -20,6 +20,8 @@
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Variant>
 
+#include <KDE/KDebug>
+
 #include <QtGui/QStandardItemModel>
 
 ContactEdit::ContactEdit(QWidget *parent)
@@ -76,13 +78,20 @@ void ContactEdit::updateResource(const QString & text)
 
     foreach(const QString & s, entryList) {
         // try to find the propertyurl of an already existing contact
-        QUrl propUrl = propertyEntry(s.trimmed());
-        if(propUrl.isValid()) {
-            resource().addProperty( propertyUrl(), Nepomuk::Resource(propUrl));
+        QUrl propContactUrl = propertyEntry(s.trimmed());
+        if(propContactUrl.isValid()) {
+            Nepomuk::Resource contact = Nepomuk::Resource(propContactUrl);
+            kDebug() << "add existing contact" << contact.genericLabel();
+            resource().addProperty( propertyUrl(), contact);
+
+            QList<Nepomuk::Resource> authorlist = resource().property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
+            foreach(Nepomuk::Resource r, authorlist) {
+                kDebug() << "author" << r.genericLabel();
+            }
         }
         else {
             // create a new contact with the string s as fullname
-            Nepomuk::Resource newContact(propUrl, Nepomuk::Vocabulary::NCO::Contact());
+            Nepomuk::Resource newContact(propContactUrl, Nepomuk::Vocabulary::NCO::Contact());
             newContact.setProperty(Nepomuk::Vocabulary::NCO::fullname(), s.trimmed());
             resource().addProperty( propertyUrl(), newContact);
         }

@@ -68,9 +68,10 @@ void TagEdit::updateResource(const QString & text)
 
     foreach(const QString & s, entryList) {
         // try to find the propertyurl of an already existing contact
-        QUrl propUrl = propertyEntry(s.trimmed());
-        if(propUrl.isValid()) {
-            resource().addTag(Nepomuk::Tag(propUrl));
+        QUrl propTagUrl = propertyEntry(s.trimmed());
+        if(propTagUrl.isValid()) {
+            Nepomuk::Tag tag = Nepomuk::Tag(propTagUrl);
+            resource().addTag(tag);
         }
         else {
             // create a new contact with the string s as fullname
