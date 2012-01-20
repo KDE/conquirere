@@ -60,7 +60,6 @@ void BookmarkQuery::resourceChanged (const Nepomuk::Resource &resource)
     if(!resource.hasType(Nepomuk::Vocabulary::NFO::Website()))
         return;
 
-    //qDebug() << "QueryClient::resourceChanged without ResourceWatcher";
     QList<CachedRowEntry> newCache;
 
     CachedRowEntry cre;

@@ -19,7 +19,7 @@
 #include "../library.h"
 #include "../projectsettings.h"
 
-#include "../../globals.h"
+#include "globals.h"
 
 #include "nbibio/conquirere.h"
 
@@ -74,7 +74,6 @@ void PublicationQuery::resourceChanged (const Nepomuk::Resource &resource)
     if(!resource.hasType(Nepomuk::Vocabulary::NBIB::Publication()))
         return;
 
-    qDebug() << "PublicationQuery::resourceChanged";
     QList<CachedRowEntry> newCache;
 
     CachedRowEntry cre;
@@ -159,7 +158,7 @@ QVariantList PublicationQuery::createDisplayData(const Nepomuk::Resource & res) 
             foreach(const Nepomuk::Resource & r, refs) {
                 QString citykey = r.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
                 if(citykey.isEmpty()) {
-                    citykey = i18n("unknown Citekey");
+                    citykey = i18nc("indicates that the citekey for a reference is not known","unknown Citekey");
                 }
                 citekeySting.append(citykey);
                 citekeySting.append(QLatin1String("; "));

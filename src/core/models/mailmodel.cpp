@@ -54,15 +54,15 @@ QVariant MailModel::headerData(int section, Qt::Orientation orientation, int rol
     if (role == Qt::DisplayRole) {
         switch (section) {
         case MailQuery::Column_Tags:
-            return i18nc("Header for the tags","Tags");
+            return i18nc("Header for the tags column","Tags");
         case MailQuery::Column_Title:
-            return i18nc("Header for the title","Title");
+            return i18nc("Header for the title column","Title");
         case MailQuery::Column_Date:
-            return i18nc("Header for the mail received from section","Received");
+            return i18nc("Header for the mail received from section column","Received");
         case MailQuery::Column_From:
-            return i18nc("Header for the mail from section","From");
+            return i18nc("Header for the mail from section column","From");
         case MailQuery::Column_StarRate:
-            return i18nc("Header for the rating","Rating");
+            return i18nc("Header for the rating column","Rating");
         default:
             return QVariant();
         }
@@ -71,15 +71,15 @@ QVariant MailModel::headerData(int section, Qt::Orientation orientation, int rol
     if (role == Qt::ToolTipRole) {
         switch (section) {
         case MailQuery::Column_Tags:
-            return i18nc("Tooltip for the tags","Tags");
+            return i18nc("Tooltip for the tags column","Tags");
         case MailQuery::Column_Title:
-            return i18nc("Tooltip for the title","Title");
+            return i18nc("Tooltip for the title column","Title");
         case MailQuery::Column_Date:
-            return i18nc("Tooltip for the mail received from section","Received");
+            return i18nc("Tooltip for the mail received from section column","Received");
         case MailQuery::Column_From:
-            return i18nc("Tooltip for the mail from section","From");
+            return i18nc("Tooltip for the mail from section column","From");
         case MailQuery::Column_StarRate:
-            return i18nc("Tooltip for the rating","Rating");
+            return i18nc("Tooltip for the rating column","Rating");
         default:
             return QVariant();
         }

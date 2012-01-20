@@ -54,15 +54,15 @@ QVariant BookmarkModel::headerData(int section, Qt::Orientation orientation, int
     if (role == Qt::DisplayRole) {
         switch (section) {
         case BookmarkQuery::Column_Tags:
-            return i18nc("Header for the tags","Tags");
+            return i18nc("Header for the tag column","Tags");
         case BookmarkQuery::Column_Title:
-            return i18nc("Header for the title","Title");
+            return i18nc("Header for the title column","Title");
         case BookmarkQuery::Column_Date:
             return i18nc("Header for the last modified section","Last Modified");
         case BookmarkQuery::Column_Link:
-            return i18nc("Header for the www url","Link");
+            return i18nc("Header for the www url column","Link");
         case BookmarkQuery::Column_StarRate:
-            return i18nc("Header for the rating","Rating");
+            return i18nc("Header for the rating column","Rating");
         default:
             return QVariant();
         }
@@ -71,15 +71,15 @@ QVariant BookmarkModel::headerData(int section, Qt::Orientation orientation, int
     if (role == Qt::ToolTipRole) {
         switch (section) {
         case BookmarkQuery::Column_Tags:
-            return i18nc("Tooltip for the tags","Tags");
+            return i18nc("Tooltip for the tags column","Tags");
         case BookmarkQuery::Column_Title:
-            return i18nc("Tooltip for the title","Title");
+            return i18nc("Tooltip for the title column","Title");
         case BookmarkQuery::Column_Date:
             return i18nc("Tooltip for the last modified section","Last Modified");
         case BookmarkQuery::Column_Link:
-            return i18nc("Tooltip for the www url","Link");
+            return i18nc("Tooltip for the www url column","Link");
         case BookmarkQuery::Column_StarRate:
-            return i18nc("Tooltip for the rating","Rating");
+            return i18nc("Tooltip for the rating column","Rating");
         default:
             return QVariant();
         }

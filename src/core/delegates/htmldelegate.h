@@ -24,6 +24,10 @@ class QLabel;
 
 /**
   * @brief This delegate takes a HTML String from any QModelIndex and display it as richtext
+  *
+  * @see SearchResultModel::createDisplayData -> Column_Details
+  * @see SeriesQuery::createDisplayData -> Column_Details
+  * @see EventQuery::createDisplayData -> Column_Publication
   */
 class HtmlDelegate : public QStyledItemDelegate
 {

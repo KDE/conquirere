@@ -19,7 +19,7 @@
 #include "../library.h"
 #include "../projectsettings.h"
 
-#include "../../globals.h"
+#include "globals.h"
 
 #include "nbibio/conquirere.h"
 
@@ -30,6 +30,7 @@
 #include <Nepomuk/Query/ResourceTypeTerm>
 #include <Nepomuk/Query/ComparisonTerm>
 #include <Nepomuk/Query/NegationTerm>
+
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/PIMO>
@@ -70,7 +71,6 @@ void SeriesQuery::resourceChanged (const Nepomuk::Resource &resource)
     if(!resource.hasType(Nepomuk::Vocabulary::NBIB::Series()))
         return;
 
-    qDebug() << "SeriesQuery::resourceChanged";
     QList<CachedRowEntry> newCache;
 
     CachedRowEntry cre;

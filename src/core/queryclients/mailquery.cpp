@@ -16,6 +16,7 @@
  */
 
 #include "mailquery.h"
+
 #include "../library.h"
 #include "../projectsettings.h"
 
@@ -32,8 +33,8 @@
 #include <Nepomuk/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 
-MailQuery::MailQuery(QObject *parent) :
-    QueryClient(parent)
+MailQuery::MailQuery(QObject *parent)
+    : QueryClient(parent)
 {
 }
 
@@ -62,7 +63,6 @@ void MailQuery::resourceChanged (const Nepomuk::Resource &resource)
     if(!resource.hasType(Nepomuk::Vocabulary::NMO::Email()))
         return;
 
-    //qDebug() << "QueryClient::resourceChanged without ResourceWatcher";
     QList<CachedRowEntry> newCache;
 
     CachedRowEntry cre;

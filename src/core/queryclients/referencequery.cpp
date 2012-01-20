@@ -16,10 +16,11 @@
  */
 
 #include "referencequery.h"
+
 #include "../library.h"
 #include "../projectsettings.h"
 
-#include "../../globals.h"
+#include "globals.h"
 
 #include <KDE/KIcon>
 
@@ -47,13 +48,12 @@ ReferenceQuery::ReferenceQuery(QObject *parent)
 void ReferenceQuery::startFetchData()
 {
     Nepomuk::Query::AndTerm andTerm;
-//    Nepomuk::Query::AndTerm hideOrTerm;
-
     andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Reference() ) );
 
     /*
     //BUG this is something nepomuk does not like ...
     // added workaround in queryclient.cpp
+//    Nepomuk::Query::AndTerm hideOrTerm;
     foreach(int i, ConqSettings::hiddenNbibPublications()) {
         Nepomuk::Query::Term hiddenPublicationTerm = Nepomuk::Query::NegationTerm::negateTerm( Nepomuk::Query::ResourceTypeTerm( BibEntryTypeURL.at(i) ) );
         Nepomuk::Query::ComparisonTerm pubTypeTerm = Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::NBIB::publication(),
@@ -84,7 +84,6 @@ void ReferenceQuery::resourceChanged (const Nepomuk::Resource &resource)
     if(!resource.hasType(Nepomuk::Vocabulary::NBIB::Reference()))
         return;
 
-    qDebug() << "ReferenceQuery::resourceChanged";
     QList<CachedRowEntry> newCache;
 
     CachedRowEntry cre;

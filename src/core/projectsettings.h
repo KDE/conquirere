@@ -29,6 +29,10 @@
 
 class Library;
 
+/**
+  * @brief Class to interact with the .ini project settings file
+  *
+  */
 class ProjectSettings : public QObject
 {
     Q_OBJECT

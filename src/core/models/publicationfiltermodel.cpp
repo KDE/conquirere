@@ -24,6 +24,7 @@ PublicationFilterModel::PublicationFilterModel(QObject *parent)
     , m_curFilter(Max_BibTypes)
 {
     setDynamicSortFilter(false); // setting this to true slows down the view a lot
+    setFilterCaseSensitivity(Qt::CaseInsensitive);
 }
 
 void PublicationFilterModel::setResourceFilter(BibEntryType filter)
@@ -50,7 +51,19 @@ bool PublicationFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &
                                typeEnum == BibType_Proceedings ||
                                typeEnum == BibType_JournalIssue ||
                                typeEnum == BibType_MagazinIssue ||
-                               typeEnum == BibType_NewspaperIssue);
+                               typeEnum == BibType_NewspaperIssue ||
+                               typeEnum == BibType_Blog ||
+                               typeEnum == BibType_Forum ||
+                               typeEnum == BibType_WebPage ||
+                               typeEnum == BibType_CodeOfLaw ||
+                               typeEnum == BibType_CourtReporter );
+    }
+    // alsow show subtypes
+    if(m_curFilter == BibType_Article) {
+        return regexpCheck && (typeEnum == BibType_Article ||
+                               typeEnum == BibType_ForumPost ||
+                               typeEnum == BibType_BlogPost ||
+                               typeEnum == BibType_WebSite );
     }
 
     return regexpCheck && (typeEnum == m_curFilter);

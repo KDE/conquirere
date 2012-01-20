@@ -74,16 +74,23 @@ The source part is split into a few areas:
  - core
  - mainui
  - nbibio
+ - onlinestorage
  - propertywidgets
- - sidebar
 
 \subsection src_core src/core
 
-In this folder two important classes are defined. The Library is a collection of all publication/document/note/bookmark etc resources found in the nepomuk storage.
+In this folder the basic structure for the project handling and nepomuk connections is done.
 
-Conquirere always starts with the system library that represents all of nepomuk content. Furthermore the USer can create new personal librarys that contain only a subset of this data. The connection in nepomuk is done via the PIMO::isRelated() property.
+The Library class holds all importent connections to get information about a Library.
 
-The other important classes are the NepomukModel and its subclasses. They fetch the nepomuk content and press them into a QAbstractTableModel representation that can be viewed in a QTableView.
+Most importantly the ProjectSettings which is an abstraction to the .ini settings.
+Also the DirWatcher and TagCloud are available to gather more information and automatic processes to find Library information.
+
+Conquirere always starts with the system library that represents all of nepomuk content. Furthermore the User can create new personal librarys that contain only a subset of this data.
+The connection in nepomuk is done via the PIMO::isRelated() property.
+
+The other important classes are the NepomukModel and its subclasses.
+They fetch the nepomuk content via the QueryClient and its subclasses and press them into a QAbstractTableModel representation that can be viewed in a QTableView.
 
 Some other helpers are the HtmlDelegate and RatingDelegate that defines how some things are displayed in a table entry.
 

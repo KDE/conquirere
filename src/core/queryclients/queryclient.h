@@ -25,7 +25,7 @@
 #include <Nepomuk/Query/Result>
 
 /**
-  * @brief cache for one row
+  * @brief Cache for one row
   *
   * Contains the nepomuk resource and the processed text + decoration data for each column of this row
   */
@@ -45,7 +45,7 @@ class Library;
   *
   * Subclasses implement the threaded nepomuk query and table model population. It is necessary
   * to do this threaded behaviour to allow large data sets to be shown. Furthermore cache entries are used
-  * as  @c CachedRowEntry to speed up the display, sorting and filtering of these queries
+  * as  @c CachedRowEntry to speed up the display, sorting and filtering of these queries.
   *
   */
 class QueryClient : public QThread
@@ -63,6 +63,8 @@ public slots:
     void stopFetchData();
 
     /**
+      * Indicates that the resource has been changed and the cache needs an update
+      *
       * @todo remove when starting to use ResourceWatcher later on
       */
     virtual void resourceChanged (const Nepomuk::Resource &resource) = 0;

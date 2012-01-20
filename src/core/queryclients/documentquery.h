@@ -48,6 +48,8 @@ public slots:
     void startFetchData();
 
     /**
+      * Indicates that the resource has been changed and the cache needs an update
+      *
       * @todo remove when starting to use ResourceWatcher later on
       */
     void resourceChanged (const Nepomuk::Resource &resource);

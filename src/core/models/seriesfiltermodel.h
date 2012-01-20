@@ -18,7 +18,7 @@
 #ifndef SERIESFILTERMODEL_H
 #define SERIESFILTERMODEL_H
 
-#include "../../globals.h"
+#include "globals.h"
 
 #include <QtGui/QSortFilterProxyModel>
 

@@ -27,6 +27,11 @@
 #include <QtCore/QPair>
 #include <QtCore/QList>
 
+/**
+  * @brief Create the tagcloud for a @c Library to display on the @c WelcomeWidget
+  *
+  * Lists only the tags used by  resources in the current library
+  */
 class TagCloud : public QObject
 {
     Q_OBJECT
@@ -36,6 +41,11 @@ public:
 
     QList<QPair<int, QString> > tagCloud();
 
+    /**
+      * Pause the tagcloud generation
+      *
+      * Used when large data is imported
+      */
     void pauseUpdates(bool pause);
 
 public slots:

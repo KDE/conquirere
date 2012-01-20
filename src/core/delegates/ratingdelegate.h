@@ -22,6 +22,9 @@
 
 #include <QtGui/QStyledItemDelegate>
 
+/**
+  * @brief Displays the usual rating stars in the tabletwidget. Not editable
+  */
 class RatingDelegate : public QStyledItemDelegate
 {
     Q_OBJECT

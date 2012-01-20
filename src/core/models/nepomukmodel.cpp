@@ -131,8 +131,6 @@ void NepomukModel::saveCache()
     QString cacheName = QString("%1_%2").arg(m_library->settings()->name()).arg(id());
     QString cachePath = KStandardDirs::locateLocal("appdata", cacheName);
 
-    qDebug() << "save modelcache" << cachePath;
-
     QFile file(cachePath);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         qWarning() << "can't open model cache file" << cachePath;
@@ -159,8 +157,6 @@ void NepomukModel::loadCache()
 {
     QString cacheName = QString("%1_%2").arg(m_library->settings()->name()).arg(id());
     QString cachePath = KStandardDirs::locateLocal("appdata", cacheName);
-
-    qDebug() << "load modelcache" << cachePath;
 
     QFile file(cachePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {

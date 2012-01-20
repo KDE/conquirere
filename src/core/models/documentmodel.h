@@ -22,6 +22,8 @@
 
 /**
   * @brief table model to list all @c nfo:PaginatedTextDocument in the nepomuk storage
+  *
+  * @see DocumentQuery
   */
 class DocumentModel : public NepomukModel
 {

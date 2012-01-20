@@ -57,8 +57,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfoList>
 
-#include <QtCore/QDebug>
-
 const QString DOCPATH = I18N_NOOP2("Name of the documents folder to store user library documents","documents");  /**< @todo make this configurable */
 const QString NOTEPATH = I18N_NOOP2("Name of the notes folder to store user library documents","notes");     /**< @todo make this configurable */
 
@@ -253,10 +251,7 @@ void Library::addResource(Nepomuk::Resource & res)
 
 void Library::removeResource(Nepomuk::Resource & res)
 {
-    if(m_libraryType == Library_System) {
-        qWarning() << "can't remove resources from system library";
-        return;
-    }
+    Q_ASSERT_X( m_libraryType == Library_System, "removeResource", "can't remove resources from system library");
 
     res.removeProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectSettings->projectThing());
 }
@@ -298,6 +293,7 @@ void Library::setupModels()
     DocumentModel *documentModel = new DocumentModel(this);
     documentModel->setLibrary(this);
     QSortFilterProxyModel *documentFilter = new QSortFilterProxyModel;
+    documentFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     documentFilter->setSourceModel(documentModel);
     m_resources.insert(Resource_Document, documentFilter);
     connectModelToTagCloud(documentModel);
@@ -305,6 +301,7 @@ void Library::setupModels()
     BookmarkModel *bookmarkModel = new BookmarkModel;
     bookmarkModel->setLibrary(this);
     QSortFilterProxyModel *bookmarkFilter = new QSortFilterProxyModel;
+    bookmarkFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     bookmarkFilter->setSourceModel(bookmarkModel);
     m_resources.insert(Resource_Website, bookmarkFilter);
     connectModelToTagCloud(bookmarkModel);
@@ -312,6 +309,7 @@ void Library::setupModels()
     ReferenceModel *referencesModel = new ReferenceModel;
     referencesModel->setLibrary(this);
     PublicationFilterModel *referenceFilter = new PublicationFilterModel;
+    referenceFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     referenceFilter->setSourceModel(referencesModel);
     m_resources.insert(Resource_Reference, referenceFilter);
     connectModelToTagCloud(referencesModel);
@@ -319,6 +317,7 @@ void Library::setupModels()
     PublicationModel *publicationModel = new PublicationModel;
     publicationModel->setLibrary(this);
     PublicationFilterModel *publicationFilter = new PublicationFilterModel;
+    publicationFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     publicationFilter->setSourceModel(publicationModel);
     m_resources.insert(Resource_Publication, publicationFilter);
     connectModelToTagCloud(publicationModel);
@@ -326,6 +325,7 @@ void Library::setupModels()
     SeriesModel *seriesModel = new SeriesModel;
     seriesModel->setLibrary(this);
     SeriesFilterModel *seriesFilter = new SeriesFilterModel;
+    seriesFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     seriesFilter->setSourceModel(seriesModel);
     m_resources.insert(Resource_Series, seriesFilter);
     connectModelToTagCloud(seriesModel);
@@ -333,6 +333,7 @@ void Library::setupModels()
     NoteModel *noteModel = new NoteModel;
     noteModel->setLibrary(this);
     QSortFilterProxyModel *noteFilter = new QSortFilterProxyModel;
+    noteFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     noteFilter->setSourceModel(noteModel);
     m_resources.insert(Resource_Note, noteFilter);
     connectModelToTagCloud(noteModel);
@@ -340,6 +341,7 @@ void Library::setupModels()
     EventModel *eventModel = new EventModel;
     eventModel->setLibrary(this);
     QSortFilterProxyModel *eventFilter = new QSortFilterProxyModel;
+    eventFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     eventFilter->setSourceModel(eventModel);
     m_resources.insert(Resource_Event, eventFilter);
     connectModelToTagCloud(eventModel);
@@ -348,6 +350,7 @@ void Library::setupModels()
         MailModel *mailModel = new MailModel;
         mailModel->setLibrary(this);
         QSortFilterProxyModel *mailFilter = new QSortFilterProxyModel;
+        mailFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
         mailFilter->setSourceModel(mailModel);
         m_resources.insert(Resource_Mail, mailFilter);
         connectModelToTagCloud(mailModel);

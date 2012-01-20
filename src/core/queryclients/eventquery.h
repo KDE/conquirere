@@ -20,6 +20,11 @@
 
 #include "queryclient.h"
 
+/**
+  * @brief @c QueryClient to populate the @c EventModel with the @c pimo:Event and ncal:Event nepomuk resources
+  *
+  * @see EventModel
+  */
 class EventQuery : public QueryClient
 {
     Q_OBJECT
@@ -38,7 +43,10 @@ public:
 
 public slots:
     void startFetchData();
+
     /**
+      * Indicates that the resource has been changed and the cache needs an update
+      *
       * @todo remove when starting to use ResourceWatcher later on
       */
     void resourceChanged (const Nepomuk::Resource &resource);

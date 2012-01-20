@@ -20,6 +20,14 @@
 
 #include "nepomukmodel.h"
 
+/**
+  * @brief Model to hold all nepomuk bookmarks.
+  *
+  * Not used at the moment as it is unclear how bookmarks are represented in nepomuk.
+  * Check rekonq if it will be implemented there properly someday and use their way of doing it.
+  *
+  * @see BookmarkQuery
+  */
 class BookmarkModel : public NepomukModel
 {
     Q_OBJECT

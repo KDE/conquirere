@@ -71,17 +71,17 @@ QVariant DocumentModel::headerData(int section, Qt::Orientation orientation, int
         case DocumentQuery::Column_Publication:
             return QVariant();
         case DocumentQuery::Column_Author:
-            return i18nc("Header for the author","Author");
+            return i18nc("Header for the author column","Author");
         case DocumentQuery::Column_Title:
-            return i18nc("Header for the title","Title");
+            return i18nc("Header for the title column","Title");
         case DocumentQuery::Column_Date:
-            return i18nc("Header for the publication date","Date");
+            return i18nc("Header for the creation date column","Date");
         case DocumentQuery::Column_FileName:
-            return i18nc("Header for the filename","Filename");
+            return i18nc("Header for the filename column","Filename");
         case DocumentQuery::Column_Folder:
-            return i18nc("Header for the folder","Folder");
+            return i18nc("Header for the folder column","Folder");
         case DocumentQuery::Column_StarRate:
-            return i18nc("Header for the rating","Rating");
+            return i18nc("Header for the rating column","Rating");
         default:
             return QVariant();
         }
@@ -90,21 +90,21 @@ QVariant DocumentModel::headerData(int section, Qt::Orientation orientation, int
     if (role == Qt::ToolTipRole) {
         switch (section) {
         case DocumentQuery::Column_Reviewed:
-            return i18n("Reviewed");
+            return i18nc("ToolTip for the is reviewed column", "Reviewed");
         case DocumentQuery::Column_Publication:
-            return i18n("Publication available");
+            return i18nc("ToolTip for the publication is available for this file column", "Publication available");
         case DocumentQuery::Column_Author:
-            return  i18n("The author of the document");
+            return i18nc("ToolTip for the author column", "The author of the document");
         case DocumentQuery::Column_Title:
-            return i18n("The document title");
+            return i18nc("ToolTip for the document title column", "The document title");
         case DocumentQuery::Column_Date:
-            return i18n("The date of publishing or file creation");
+            return i18nc("ToolTip for the file creation column", "The date of publishing or file creation");
         case DocumentQuery::Column_FileName:
-            return  i18n("The name of the file");
+            return i18nc("ToolTip for the file name column", "The name of the file");
         case DocumentQuery::Column_Folder:
-            return  i18n("The foldername of the file");
+            return i18nc("ToolTip for the file path column", "The foldername of the file");
         case DocumentQuery::Column_StarRate:
-            return i18n("Rating");
+            return i18nc("ToolTip for the rating column", "Rating");
         default:
             return QVariant();
         }

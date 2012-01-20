@@ -71,21 +71,21 @@ QVariant PublicationModel::headerData(int section, Qt::Orientation orientation, 
         case PublicationQuery::Column_FileAvailable:
             return QVariant();
         case PublicationQuery::Column_Author:
-            return i18nc("Header for the author","Author");
+            return i18nc("Header for the author column","Author");
         case PublicationQuery::Column_Title:
-            return i18nc("Header for the title","Title");
+            return i18nc("Header for the title column","Title");
         case PublicationQuery::Column_Date:
-            return i18nc("Header for the publication date","Date");
+            return i18nc("Header for the publication date column","Date");
         case PublicationQuery::Column_Publisher:
-            return i18nc("Header for the publisher","Publisher");
+            return i18nc("Header for the publisher column","Publisher");
         case PublicationQuery::Column_Editor:
-            return i18nc("Header for the editor","Editor");
+            return i18nc("Header for the editor column","Editor");
         case PublicationQuery::Column_CiteKey:
-            return i18nc("Header for the citekeys","Citekey");
+            return i18nc("Header for the citekeys column","Citekey");
         case PublicationQuery::Column_ResourceType:
-            return i18nc("Header for the type","Type");
+            return i18nc("Header for the type column","Type");
         case PublicationQuery::Column_StarRate:
-            return i18nc("Header for the rating","Rating");
+            return i18nc("Header for the rating column","Rating");
         default:
             return QVariant();
         }

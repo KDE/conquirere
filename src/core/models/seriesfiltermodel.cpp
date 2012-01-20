@@ -24,6 +24,7 @@ SeriesFilterModel::SeriesFilterModel(QObject *parent)
     , m_curFilter(Max_SeriesTypes)
 {
     setDynamicSortFilter(false); // setting this to true slows down the view a lot
+    setFilterCaseSensitivity(Qt::CaseInsensitive);
 }
 
 void SeriesFilterModel::setResourceFilter(SeriesType filter)

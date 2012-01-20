@@ -21,7 +21,7 @@
 #include "queryclient.h"
 
 /**
-  * @brief QueryClient to fetch all @c nbib:Reference objects
+  * @brief @c QueryClient to fetch all @c nbib:Reference objects
   *
   * @see ReferenceModel
   */
@@ -50,6 +50,8 @@ public slots:
     void startFetchData();
 
     /**
+      * Indicates that the resource has been changed and the cache needs an update
+      *
       * @todo remove when starting to use ResourceWatcher later on
       */
     void resourceChanged (const Nepomuk::Resource &resource);

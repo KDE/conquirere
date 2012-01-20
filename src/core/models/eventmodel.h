@@ -20,6 +20,14 @@
 
 #include "nepomukmodel.h"
 
+/**
+  * @brief Model that holds all pimo:Event and ncal:Event resources
+  *
+  * the ncal:Events are creatded by the nepomuk feeder while conquiere created the pimo:Thing for it
+  * to attach the publications, star rating and tags.
+  *
+  * @see EventQuery
+  */
 class EventModel : public NepomukModel
 {
     Q_OBJECT

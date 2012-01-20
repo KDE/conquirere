@@ -20,6 +20,14 @@
 
 #include "queryclient.h"
 
+/**
+  * @brief @c QueryClient to populate the @c BookmarkModel with the @c nfo:Website nepomuk resources
+  *
+  * Not used at the moment as it is unclear how bookmarks are represented in nepomuk.
+  * Check rekonq if it will be implemented there properly someday and use their way of doing it.
+  *
+  * @see BookmarkModel
+  */
 class BookmarkQuery : public QueryClient
 {
     Q_OBJECT
@@ -40,6 +48,8 @@ public slots:
     void startFetchData();
 
     /**
+      * Indicates that the resource has been changed and the cache needs an update
+      *
       * @todo remove when starting to use ResourceWatcher later on
       */
     void resourceChanged (const Nepomuk::Resource &resource);
@@ -47,7 +57,6 @@ public slots:
 private:
     QVariantList createDisplayData(const Nepomuk::Resource & res) const;
     QVariantList createDecorationData(const Nepomuk::Resource & res) const;
-
 };
 
 #endif // BOOKMARKQUERY_H

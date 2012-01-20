@@ -29,13 +29,11 @@
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Vocabulary/PIMO>
 
-
 #include <KDE/KGlobalSettings>
 #include <KDE/KStandardDirs>
 
 #include <QtGui/QFont>
 #include <QtCore/QBuffer>
-#include <QtCore/QDebug>
 
 enum BibTeXColumnList {
     Column_StarRate,
@@ -49,19 +47,19 @@ enum BibTeXColumnList {
     Max_columns
 };
 
-SearchResultModel::SearchResultModel(QObject *parent) :
-    QAbstractTableModel(parent)
+SearchResultModel::SearchResultModel(QObject *parent)
+    : QAbstractTableModel(parent)
 {
     qRegisterMetaType<SearchResultEntry>("SearchResultEntry");
 
-    exporterXSLT = new FileExporterXSLT();
-    exporterXSLT->setXSLTFilename(KStandardDirs::locate("data", QLatin1String("conquirere/simple.xsl")));
+    m_exporterXSLT = new FileExporterXSLT();
+    m_exporterXSLT->setXSLTFilename(KStandardDirs::locate("data", QLatin1String("conquirere/simple.xsl")));
 }
 
 SearchResultModel::~SearchResultModel()
 {
     //qDeleteAll(m_modelCacheData);
-    delete exporterXSLT;
+    delete m_exporterXSLT;
 }
 
 int SearchResultModel::rowCount(const QModelIndex &parent) const
@@ -109,47 +107,47 @@ QVariant SearchResultModel::headerData(int section, Qt::Orientation orientation,
     if (role == Qt::DisplayRole) {
         switch(section) {
         case Column_EntryType:
-            return i18n("Type");
+            return i18nc("Header name for the search result column type (document, article, email etc)","Type");
             break;
         case Column_Details:
-            return i18n("Details");
+            return i18nc("Header name for the search result column with the general details","Details");
             break;
         case Column_Name:
-            return i18nc("Name of the document/publication etc","Name");
+            return i18nc("HeaderName of the document/publication name search result column etc","Name");
             break;
         case Column_Date:
-            return i18n("Date");
+            return i18nc("Header name for the search result date","Date");
             break;
         case Column_Author:
-            return i18n("Author");
+            return i18nc("Header name for the search result column author","Author");
             break;
         case Column_StarRate:
-            return i18nc("Header for the rating","Rating");
+            return i18nc("Header name for the rating column","Rating");
         }
     }
 
     if (role == Qt::ToolTipRole) {
         switch(section) {
         case Column_EngineIcon:
-            return i18n("The Engine where the entry was found in");
+            return i18nc("ToolTip for the search result column Engine (nepomuk or one of the search engines)","The Engine where the entry was found in");
             break;
         case Column_EntryType:
-            return i18n("The type of the entry");
+            return i18nc("ToolTip for the search result column entry type (Document/article etc.)", "The type of the entry");
             break;
         case Column_Details:
-            return i18n("Some details on the entry");
+            return i18nc("ToolTip for the search result column details", "Some details on the entry");
             break;
         case Column_Name:
-            return i18n("The name of the entry");
+            return i18nc("ToolTip for the search result column name", "The name of the entry");
             break;
         case Column_Date:
-            return i18n("The date of the entry");
+            return i18nc("ToolTip for the search result column date", "The date of the entry");
             break;
         case Column_Author:
-            return i18n("The Author of the entry");
+            return i18nc("ToolTip for the search result column author", "The Author of the entry");
             break;
         case Column_StarRate:
-            return i18n("Rating");
+            return i18nc("ToolTip for the search result column rating", "Rating");
         }
     }
 
@@ -408,7 +406,7 @@ QVariantList SearchResultModel::createDisplayData(QSharedPointer<Entry> entry, O
             QBuffer buffer;
 
             buffer.open(QBuffer::WriteOnly);
-            exporterXSLT->save(&buffer, entry, &errorLog);
+            m_exporterXSLT->save(&buffer, entry, &errorLog);
             buffer.close();
 
             buffer.open(QBuffer::ReadOnly);
@@ -505,7 +503,7 @@ QString SearchResultModel::translateEntryType(const Nepomuk::Resource & resource
         return i18nc("Note resource type","Note");
     }
     if(resource.hasType(Nepomuk::Vocabulary::NFO::Website())) {
-        return i18n("Website");
+        return i18nc("Website or bookmark","Website");
     }
 
     return i18nc("other unknown resource type","other");

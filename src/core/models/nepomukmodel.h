@@ -32,15 +32,18 @@ class QModelIndex;
   * @brief The Nepomuk model is a tablemodel that fetches and caches all nepomuk data automatically.
   *
   * In order to list and sort large sets of nepomuk data in a table model it is necessary to create a string cache for
-  * the displayed data. This Model and the necessary subcalsses realize these via the @c CachedRowEntry
+  * the displayed data. This Model and the necessary subclasses realize these via the @c CachedRowEntry
   *
   * The data is internally fetched with the corresponding @c QueryClient that retrieves the nepomuk data and updates the cache.
   * The @c QueryClient is realized as QThread to allow nonblocking polution of the TableModel.
   *
   * To alter the content of the table change the necessary header data in the @c headerData() function of the subclasses or
-  * the @c createDisplayData() and @c createDecorationData() of the cofrresponding @c QueryClient
+  * the @c createDisplayData() and @c createDecorationData() of the corresponding @c QueryClient
   *
   * @todo implement cache update via Nepomuk::ResourceWatcher
+  * @bug Updating the @c CachedRowEntry is triggered manually at the moment, this does not work always and will never update when
+  *      the resource is updated outside the program. Manually starting the list update is necessary than, or wait till the next
+  *      restart.
   */
 class NepomukModel : public QAbstractTableModel
 {
@@ -52,12 +55,27 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
 
+    /**
+      * @return the default width for a table section if the user didn't changed it.
+      */
     virtual int defaultSectionSize(int i) const = 0;
+
+    /**
+      * @return The numbers of all sections with a fixed with the user can't change (with will be default width).
+      *
+      * @see defaultSectionSize
+      */
     virtual QList<int> fixedWithSections() const;
 
     void setLibrary(Library *library);
     Nepomuk::Resource documentResource(const QModelIndex &selection);
 
+    /**
+      * @return a unique id for the table model.
+      *
+      * used to save/load table content to disk.
+      * Not used currently
+      */
     virtual QString id();
 
 signals:

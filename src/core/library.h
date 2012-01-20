@@ -40,14 +40,14 @@ class ProjectSettings;
 /**
   * @brief A Library is a collection of files and Nepomuk::Resource data of a specific topic
   *
-  * The Library can be either a System library containing all known entities or a specific
+  * The Library can be either a @c System @c library containing all known entities or a specific
   * library containing only a subset of the system entities grouped together for a
   * specific topic.
   *
   * The Library fulfils the task of organizing all necessary resource parts.
   *
   * For specific libraries the creation of the corresponding folder structure,
-  * the creation of a pimo:Project resource and creation of a settings file.
+  * the creation of a pimo:Project resource and creation of a settings file is done by this class
   *
   * Also the possibility to relate resources from the system library is the
   * responsibility of this class.
@@ -104,6 +104,9 @@ public:
       */
     void deleteLibrary();
 
+    /**
+      * @return the tagcloud for this library
+      */
     TagCloud *tagCloud();
 
     /**
@@ -116,6 +119,8 @@ public:
 
     /**
       * Updates all cached list data
+      *
+      * @todo can be removed when the ResourceWatcher is working
       */
     void updateCacheData();
 
@@ -141,7 +146,6 @@ signals:
       * @todo This should be replaced by the Nepomuk::ResourceWatcher later
       */
     void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
-    void closeLibrary(Library *l);
 
 private slots:
     void finishedInitialImport();

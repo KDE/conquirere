@@ -32,10 +32,13 @@ class Entry;
 class FileExporterXSLT;
 class OnlineSearchAbstract;
 
+/**
+  * @brief Holds the date for one search entry as retrieved from the @c SearchWidget
+  */
 struct SearchResultEntry {
-    Nepomuk::Query::Result nepomukResult;
-    OnlineSearchAbstract *webEngine;
-    QSharedPointer<Entry> webResult;
+    Nepomuk::Query::Result nepomukResult; /**< The valid resource if the result was found in the nepomuk storage */
+    OnlineSearchAbstract *webEngine;      /**< The OnlineSearch Engine details if the result comes from a websearch */
+    QSharedPointer<Entry> webResult;      /**< The BibTeX entry if the result comes from a websearch */
 };
 
 Q_DECLARE_METATYPE(SearchResultEntry)
@@ -50,11 +53,18 @@ Q_DECLARE_METATYPE(SearchResultEntry)
   * @see FileExporterXSLT
   * @see HtmlDelegate
   * @see SearchWidget
+  *
+  * @todo make the citation.xsl file configurable
   */
 class SearchResultModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
+    /**
+      * @brief Holds the cached processed table data for one search row
+      *
+      * Cache is used to speed up sorting/display of large datasets
+      */
     struct SRCachedRowEntry {
         QVariantList displayColums;
         QVariantList decorationColums;
@@ -72,10 +82,26 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
+    /**
+      * @return the default width for a table section if the user didn't changed it.
+      */
     int defaultSectionSize(int i) const;
+
+    /**
+      * @return The numbers of all sections with a fixed with the user can't change (with will be default width).
+      *
+      * @see defaultSectionSize
+      */
     QList<int> fixedWithSections() const;
 
+    /**
+      * @return the resource for the current search entry or an invalid resource if it contains a BibTeX entry
+      */
     Nepomuk::Resource nepomukResourceAt(const QModelIndex &selection);
+
+    /**
+      * @return the BibTeX entry for the current search entry or an invalid sharedpointer if it contains a Nepomuk Resource
+      */
     QSharedPointer<Entry> bibTeXResourceAt(const QModelIndex &selection);
 
 public slots:
@@ -90,11 +116,20 @@ private:
     QVariantList createDecorationData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const;
     QVariantList createToolTipData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const;
 
+    /**
+      * Generates a Translated string for the type of the nepomuk resource document from the entry
+      */
     QString translateEntryType(const Nepomuk::Resource & resource) const;
+
+    /**
+      * Generates an Icon for the mimetype of the entry that is beeing displayed
+      *
+      * @todo find better icons based on mimetype from nepomuk or the url extension rather than using a fixed generic icon
+      */
     KIcon iconizeEntryType(const Nepomuk::Resource & resource) const;
 
     QList<SRCachedRowEntry> m_modelCacheData;
-    FileExporterXSLT *exporterXSLT;
+    FileExporterXSLT *m_exporterXSLT;
 };
 
 #endif // SEARCHRESULTMODEL_H

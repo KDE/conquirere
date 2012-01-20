@@ -27,6 +27,9 @@ class Library;
 class KDirLister;
 class QDBusInterface;
 
+/**
+  * @brief Watches the @c Library documents dir for new files which should automatically added to the project
+  */
 class DirWatcher : public QObject
 {
     Q_OBJECT

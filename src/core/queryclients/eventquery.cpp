@@ -16,10 +16,11 @@
  */
 
 #include "eventquery.h"
+
 #include "../library.h"
 #include "../projectsettings.h"
 
-#include "../../globals.h"
+#include "globals.h"
 
 #include <Nepomuk/Variant>
 #include <Nepomuk/Thing>
@@ -71,7 +72,6 @@ void EventQuery::resourceChanged (const Nepomuk::Resource &resource)
        !resource.hasType(Nepomuk::Vocabulary::NCAL::Event() ))
         return;
 
-    qDebug() << "EventQuery::resourceChanged";
     QList<CachedRowEntry> newCache;
 
     CachedRowEntry cre;

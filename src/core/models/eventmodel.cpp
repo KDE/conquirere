@@ -54,13 +54,13 @@ QVariant EventModel::headerData(int section, Qt::Orientation orientation, int ro
     if (role == Qt::DisplayRole) {
         switch (section) {
         case EventQuery::Column_Title:
-            return i18nc("Header for the title","Title");
+            return i18nc("Header for the title column","Title");
         case EventQuery::Column_Date:
-            return i18nc("Header for the event date","Date");
+            return i18nc("Header for the event date column","Date");
         case EventQuery::Column_Publication:
-            return i18nc("Header for the publications of this event","Publication");
+            return i18nc("Header for the publications of this event column","Publication");
         case EventQuery::Column_StarRate:
-            return i18nc("Header for the rating","Rating");
+            return i18nc("Header for the rating column","Rating");
         default:
             return QVariant();
         }
@@ -69,13 +69,13 @@ QVariant EventModel::headerData(int section, Qt::Orientation orientation, int ro
     if (role == Qt::ToolTipRole) {
         switch (section) {
         case EventQuery::Column_Title:
-            return i18n("The document title");
+            return i18nc("Tooltip for the title column","The document title");
         case EventQuery::Column_Date:
-            return i18n("The date of the event");
+            return i18nc("Tooltip for the event date column","The date of the event");
         case EventQuery::Column_Publication:
-            return  i18n("The publications connected with this event");
+            return i18nc("Tooltip for the list of all connected publications column","The publications connected with this event");
         case EventQuery::Column_StarRate:
-            return i18n("Rating");
+            return i18nc("Tooltip for the rating column","Rating");
         default:
             return QVariant();
         }

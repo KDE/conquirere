@@ -16,6 +16,7 @@
  */
 
 #include "notequery.h"
+
 #include "../library.h"
 #include "../projectsettings.h"
 
@@ -29,8 +30,8 @@
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
 
-NoteQuery::NoteQuery(QObject *parent) :
-    QueryClient(parent)
+NoteQuery::NoteQuery(QObject *parent)
+    : QueryClient(parent)
 {
 }
 
@@ -59,7 +60,6 @@ void NoteQuery::resourceChanged (const Nepomuk::Resource &resource)
     if(!resource.hasType(Nepomuk::Vocabulary::PIMO::Note()))
         return;
 
-    //qDebug() << "QueryClient::resourceChanged without ResourceWatcher";
     QList<CachedRowEntry> newCache;
 
     CachedRowEntry cre;

@@ -18,7 +18,7 @@
 #ifndef PUBLICATIONFILTERMODEL_H
 #define PUBLICATIONFILTERMODEL_H
 
-#include "../../globals.h"
+#include "globals.h"
 
 #include <QtGui/QSortFilterProxyModel>
 
@@ -35,7 +35,7 @@ public:
     explicit PublicationFilterModel(QObject *parent = 0);
 
     /**
-      * The @p BibEntryType type to filter
+      * The @c BibEntryType type to @p filter
       */
     void setResourceFilter(BibEntryType filter);
 
