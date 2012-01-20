@@ -104,24 +104,14 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QRadioButton" name="collection_System">
+       <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>System</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
+         <string>Export Data from:</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="collection_Project">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Project</string>
-        </property>
-       </widget>
+       <widget class="KComboBox" name="dataSelection"/>
       </item>
       <item>
        <widget class="QCheckBox" name="onlyReferences">

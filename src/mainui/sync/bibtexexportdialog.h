@@ -21,14 +21,19 @@
 #include <QtGui/QDialog>
 #include <QtCore/QFutureWatcher>
 
-#include "../../nbibio/nbibexporterfile.h"
+#include "nbibio/nbibexporterfile.h"
 
 namespace Ui {
     class BibTexExportDialog;
 }
 
+class LibraryManager;
+class Library;
 class KProgressDialog;
 
+/**
+  * @todo create QWizard from it .. same look and feel like the import wizard
+  */
 class BibTexExportDialog : public QDialog
 {
     Q_OBJECT
@@ -39,6 +44,9 @@ public:
 
     void setInitialFileType(NBibExporterFile::FileType selectedFileType);
 
+    void setLibraryManager(LibraryManager *lm);
+    void setExportLibrary(Library* l);
+
 private slots:
     void accept();
     void exportFinished();
@@ -47,6 +55,8 @@ private:
     Ui::BibTexExportDialog *ui;
 
     NBibExporterFile::FileType m_selectedFileType;
+    LibraryManager *m_libraryManager;
+    Library* m_importLibrary;
     NBibExporterFile *m_exporter;
     KProgressDialog *m_progress;
     QFutureWatcher<QStringList> *m_futureWatcher;

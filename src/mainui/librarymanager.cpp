@@ -197,6 +197,11 @@ void LibraryManager::exportData(Library *l, ExportMode mode)
 
     BibTexExportDialog bed;
     bed.setInitialFileType(NBibExporterFile::EXPORT_BIBTEX);
+    bed.setLibraryManager(this);
+
+    if(l != m_systemLibrary) {
+        bed.setExportLibrary(l);
+    }
 
     bed.exec();
 }

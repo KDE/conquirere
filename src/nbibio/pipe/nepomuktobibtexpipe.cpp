@@ -682,7 +682,8 @@ void NepomukToBibTexPipe::setAssignee(Entry *e, Nepomuk::Resource publication)
     }
     else {
         QString name = assignee.property(NCO::fullname()).toString();
-        v.append(QSharedPointer<ValueItem>(new PlainText(name)));
+        if(!name.isEmpty())
+            v.append(QSharedPointer<ValueItem>(new PlainText(name)));
     }
 
     if(!v.isEmpty()) {

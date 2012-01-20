@@ -18,6 +18,10 @@
 #include "bibtexexportdialog.h"
 #include "ui_bibtexexportdialog.h"
 
+#include "mainui/librarymanager.h"
+#include "core/library.h"
+#include "core/projectsettings.h"
+
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Query/Term>
@@ -28,6 +32,9 @@
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Result>
 #include <Nepomuk/Query/QueryParser>
+#include <Nepomuk/Thing>
+#include <Nepomuk/Resource>
+#include <Nepomuk/Variant>
 
 #include <KDE/KProgressDialog>
 
@@ -56,11 +63,15 @@ BibTexExportDialog::BibTexExportDialog(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::BibTexExportDialog)
     , m_selectedFileType(NBibExporterFile::EXPORT_BIBTEX)
+    , m_libraryManager(0)
+    , m_importLibrary(0)
     , m_exporter(0)
     , m_progress(0)
     , m_futureWatcher(0)
 {
     ui->setupUi(this);
+
+    ui->dataSelection->addItem( i18n("System Library") );
 }
 
 void BibTexExportDialog::setInitialFileType(NBibExporterFile::FileType selectedFileType)
@@ -68,6 +79,31 @@ void BibTexExportDialog::setInitialFileType(NBibExporterFile::FileType selectedF
     m_selectedFileType = selectedFileType;
 
     ui->selectedFileType->setCurrentIndex(m_selectedFileType);
+}
+
+void BibTexExportDialog::setLibraryManager(LibraryManager *lm)
+{
+    m_libraryManager = lm;
+
+    int i=1;
+    int selectedIndex=0;
+    foreach(Library *l, m_libraryManager->openProjects()) {
+        ui->dataSelection->addItem(l->settings()->name(), l->settings()->projectThing().resourceUri());
+
+        if(l == m_importLibrary) { selectedIndex=i; }
+
+        i++;
+    }
+
+    ui->dataSelection->setCurrentIndex(selectedIndex);
+}
+
+void BibTexExportDialog::setExportLibrary(Library* l)
+{
+    m_importLibrary = l;
+
+    int selectLib = ui->dataSelection->findData( l->settings()->projectThing().resourceUri() );
+    ui->dataSelection->setCurrentIndex(selectLib);
 }
 
 BibTexExportDialog::~BibTexExportDialog()
@@ -105,8 +141,18 @@ void BibTexExportDialog::accept()
     Nepomuk::Query::AndTerm andTerm;
     andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Reference() ) );
 
-    if(!ui->onlyReferences->isChecked())
+    if(!ui->onlyReferences->isChecked()) {
         andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Publication() ) );
+    }
+
+    int curIndex = ui->dataSelection->currentIndex();
+    if(curIndex > 0) {
+        QUrl projectToExport = ui->dataSelection->itemData(curIndex).toUrl();
+        Nepomuk::Thing projectThing = Nepomuk::Thing(projectToExport);
+
+        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(),
+                                                            Nepomuk::Query::ResourceTerm( projectThing )));
+    }
 
     Nepomuk::Query::Query query( andTerm );
 
@@ -119,6 +165,5 @@ void BibTexExportDialog::accept()
 
 void BibTexExportDialog::exportFinished()
 {
-    qDebug() << "export finished!";
     close();
 }
