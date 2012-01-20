@@ -23,12 +23,12 @@
 #include <kbibtex/element.h>
 #include <kbibtex/fileexporterbibtex.h>
 
+#include <KDE/KDebug>
+
 #include <QtGui/QClipboard>
 #include <QtGui/QApplication>
 #include <QtCore/QBuffer>
 #include <QtCore/QTextStream>
-
-#include <QtCore/QDebug>
 
 BibTexToClipboardPipe::BibTexToClipboardPipe()
     : m_exportType(Export_SOURCE)
@@ -99,7 +99,6 @@ void BibTexToClipboardPipe::pipeExport(File & bibEntries)
     }
     case Export_SOURCE: {
         FileExporterBibTeX exporter;
-        //exporter.setEncoding(QLatin1String("latex"));
         QBuffer buffer;
         buffer.open(QBuffer::WriteOnly);
         exporter.save(&buffer, &bibEntries);
@@ -112,7 +111,7 @@ void BibTexToClipboardPipe::pipeExport(File & bibEntries)
         break;
     }
     case Export_REFERENCE: {
-        qDebug() << "BibTexToClipboardPipe::pipeExport :: Export_REFERENCE not supported currently";
+        kDebug() << "BibTexToClipboardPipe::pipeExport :: Export_REFERENCE not supported currently";
     }
     }
 

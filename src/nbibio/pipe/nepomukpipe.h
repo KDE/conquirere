@@ -24,7 +24,7 @@
 #include <QtCore/QList>
 
 /**
-  * Interface for any pipe action that transforms a list of Nepomuk resources into something else
+  * @brief Interface for any pipe action that transforms a list of Nepomuk resources into something else
   *
   * Only used for NBIB:;Publication and NBIB::Reference
   */

@@ -18,7 +18,6 @@
 #include "nbibexporter.h"
 
 #include <QtCore/QFile>
-#include <QtCore/QDebug>
 
 NBibExporter::NBibExporter()
     : QObject(0)

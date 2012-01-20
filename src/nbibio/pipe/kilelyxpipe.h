@@ -21,6 +21,11 @@
 #include "bibtexpipe.h"
 #include "nepomukpipe.h"
 
+/**
+  * @brief pipe the current entry to @c LyX or @c Kile
+  *
+  * The path for the pipe file has to be set in teh settings first
+  */
 class KileLyxPipe : public BibTexPipe, public NepomukPipe
 {
 public:
@@ -39,6 +44,9 @@ public:
     void pipeExport(QList<Nepomuk::Resource> resources);
 
 private:
+    /**
+      * @todo automatically find the pipe name from LyX / Kile pipe settings
+      */
     QString findLyXKilePipe();
     void sendReferences(const QString &refs);
 

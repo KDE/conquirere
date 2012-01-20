@@ -82,7 +82,7 @@ void SyncKBibTeXFile::startDownload()
     m_rff->fetchItems(m_psd.collection);
 }
 
-void SyncKBibTeXFile::readDownloadSync(File zoteroData)
+void SyncKBibTeXFile::readDownloadSync(const File & zoteroData)
 {
 
     //m_tmpUserDeleteRequest.clear();
@@ -94,7 +94,7 @@ void SyncKBibTeXFile::readDownloadSync(File zoteroData)
     readDownloadSyncAfterDelete(m_bibCache);
 }
 
-void SyncKBibTeXFile::readDownloadSyncAfterDelete(File zoteroData)
+void SyncKBibTeXFile::readDownloadSyncAfterDelete(const File &zoteroData)
 {
     m_tmpUserMergeRequest.clear();
     File newEntries = zoteroData;

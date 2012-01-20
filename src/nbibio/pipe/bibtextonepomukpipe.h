@@ -39,7 +39,6 @@ class Entry;
   * For each BibTeX entry new resources for the publication, reference, the contacts and others will be created.
   *
   * @see NBIB ontology
-  *
   */
 class BibTexToNepomukPipe : public BibTexPipe
 {
@@ -63,8 +62,14 @@ public:
       */
     void setAkonadiAddressbook(Akonadi::Collection & addressbook);
 
+    /**
+      * If we import something from an online storage like Zotero we alos add the @c sync:SyncDetails
+      */
     void setSyncDetails(const QString &url, const QString &userid);
 
+    /**
+      * if the @p projectThing is valid all imported data will be related via @c pimo:isRelated to the project
+      */
     void setProjectPimoThing(Nepomuk::Thing projectThing);
 
 private:

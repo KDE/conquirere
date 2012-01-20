@@ -20,12 +20,12 @@
 
 #include "nbibsync.h"
 
+#include <kbibtex/file.h>
+
 class ReadFromFile;
 class WriteToFile;
 class BibTexToNepomukPipe;
 class NepomukToBibTexPipe;
-
-#include <kbibtex/file.h>
 
 class SyncKBibTeXFile : public NBibSync
 {
@@ -46,8 +46,8 @@ private slots:
     /**
       * process all data retrieved from the zotero server
       */
-    void readDownloadSync(File zoteroData);
-    void readDownloadSyncAfterDelete(File zoteroData);
+    void readDownloadSync(const File &zoteroData);
+    void readDownloadSyncAfterDelete(const File &zoteroData);
 
     /**
       * process syncdata retrived from zotero server when new items are send to the server

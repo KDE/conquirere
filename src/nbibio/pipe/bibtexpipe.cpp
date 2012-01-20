@@ -18,7 +18,7 @@
 #include "bibtexpipe.h"
 
 BibTexPipe::BibTexPipe()
-    :QObject(0)
+    : QObject(0)
     , m_errorLog(0)
 {
 }

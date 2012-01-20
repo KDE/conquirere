@@ -95,6 +95,9 @@ private:
     void setKewords(Entry *e, Nepomuk::Resource publication);
     void setArticleType(Entry *e, Nepomuk::Resource publication);
 
+    /**
+      * Reuseable function that simply transforms a nepomuk value as QString to bibtex without further processing
+      */
     void setValue(Entry *e, Nepomuk::Resource publication, QUrl property, const QString &bibkey);
     void setContact(Entry *e, Nepomuk::Resource publication, QUrl property, const QString &bibkey);
 

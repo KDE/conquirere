@@ -46,7 +46,7 @@ public:
       *
       * @p bibEntries File is a list of all Entry elements which form a bibtex entry
       *
-      * @todo implement Export_REFERENCE
+      * @todo implement Export_REFERENCE: create reference text from nepomuk reference. Make the style configurable
       */
     void pipeExport(File & bibEntries);
 

@@ -50,9 +50,9 @@
 #include <Akonadi/CollectionCreateJob>
 #include <Akonadi/CollectionFetchJob>
 #include <Akonadi/CollectionFetchScope>
+#include <KDE/KDebug>
 
 #include <QtCore/QSharedPointer>
-#include <QtCore/QDebug>
 
 using namespace Nepomuk::Vocabulary;
 
@@ -72,7 +72,7 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
 
     //create the collection used for importing
 
-    // we start by fetching all contacts for the conflict checking
+    // we start by fetching all contacts etc for the conflict checking
     // this reduce the need to query nepomuk with every new author again and again
     Nepomuk::Query::ResourceTypeTerm type( NCO::Contact() );
     Nepomuk::Query::Query query( type );
@@ -117,7 +117,8 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
     int maxValue = bibEntries.size();
     qreal perFileProgress = (100.0/(qreal)maxValue);
 
-    //we start by filling the lookuptable for all macros
+    // we start by filling the lookuptable for all macros
+    // in BibTeX files macros are used to create abbreviations for some fields that can be used all over again
     foreach(QSharedPointer<Element> e, bibEntries ) {
         Macro *macro = dynamic_cast<Macro *>(e.data());
         if(macro) {
@@ -162,7 +163,7 @@ void BibTexToNepomukPipe::setSyncDetails(const QString &url, const QString &user
 
 void BibTexToNepomukPipe::setProjectPimoThing(Nepomuk::Thing projectThing)
 {
-    qDebug() << "import bibtex into project thing" << projectThing << projectThing.genericLabel();
+    kDebug() << "import bibtex into project thing ::" << projectThing.genericLabel();
     m_projectThing = projectThing;
 }
 
@@ -491,7 +492,7 @@ void BibTexToNepomukPipe::merge(Nepomuk::Resource syncResource, Entry *external,
 
     Entry *diffEntry = getDiff(syncResource, external, keepLocal);
 
-    qDebug() << "created the diff" << diffEntry->size() << "changed entries";
+    kDebug() << "created the diff" << diffEntry->size() << "changed entries";
 
     emit progress(0);
 
@@ -782,7 +783,7 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
         addKewords(keywordList, publication);
     }
     else {
-        qDebug() << "BibTexToNepomukPipe::addContent | unknown key ::" << key << PlainTextValue::text(value);
+        kDebug() << "unknown bibtex key ::" << key << PlainTextValue::text(value);
     }
 }
 
@@ -822,7 +823,6 @@ void BibTexToNepomukPipe::addPublisher(const Value &publisherValue, const Value 
         Nepomuk::Resource p = m_allContacts.value(publisher.full, Nepomuk::Resource());
 
         if(!p.isValid()) {
-            qDebug() << "create a new Publisher resource for " << publisher.full;
             // publisher could be a person or a organization, use Contact and let the user define it later on if he wishes
             p = Nepomuk::Resource(QUrl(), NCO::Contact());
 
@@ -860,7 +860,6 @@ void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &vol
     journalResource = m_allSeries.value(journalName, Nepomuk::Resource());
 
     if(!journalResource.isValid()) {
-        qDebug() << "no existing journal for" << journalName << "with type" << seriesUrl;
         journalResource = Nepomuk::Resource(QUrl(), seriesUrl);
         journalResource.addType(NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
         journalResource.addType(NIE::InformationElement());
@@ -920,7 +919,6 @@ void BibTexToNepomukPipe::addSpecialArticle(const Value &titleValue, Nepomuk::Re
     collectionResource = m_allCollection.value(collectionName, Nepomuk::Resource());
 
     if(!collectionResource.isValid()) {
-        qDebug() << "no existing collection for" << collectionName << "with type" << collectionUrl;
         collectionResource = Nepomuk::Resource(QUrl(), collectionUrl);
         collectionResource.addType(NBIB::Collection());
         collectionResource.addType(NBIB::Publication());
@@ -976,7 +974,6 @@ void BibTexToNepomukPipe::addBooktitle(const QString &content, Nepomuk::Resource
         Nepomuk::Resource proceedingsResource = m_allProceedings.value(utfContent, Nepomuk::Resource());
 
         if(!proceedingsResource.isValid()) {
-            qDebug() << "found no existing proceedings with the name " << utfContent << "create new one";
             if(originalEntryType == QLatin1String("inproceedings"))
                 proceedingsResource = Nepomuk::Resource(QUrl(), NBIB::Proceedings());
             else if(originalEntryType == QLatin1String("encyclopediaarticle"))
@@ -1062,7 +1059,7 @@ void BibTexToNepomukPipe::addIssn(const QString &content, Nepomuk::Resource publ
     Nepomuk::Resource journalIssue = publication.property(NBIB::collection()).toResource();
 
     if(!journalIssue.isValid()) {
-        qDebug() << "BibTexToNepomukPipe::addIssn | try to set ISSN but no journalissue available";
+        kDebug() << "try to set ISSN but no journalissue available";
         publication.setProperty(NBIB::issn(), utfContent);
         return;
     }
@@ -1166,7 +1163,6 @@ void BibTexToNepomukPipe::addOrganization(const QString &content, Nepomuk::Resou
     Nepomuk::Resource organizationResource = m_allContacts.value(utfContent, Nepomuk::Resource());
 
     if(!organizationResource.isValid()) {
-        qDebug() << "create a new OrganizationContact resource for " << utfContent;
         organizationResource = Nepomuk::Resource(QUrl(), NCO::OrganizationContact());
         organizationResource.setProperty(NCO::fullname(), utfContent);
 
@@ -1269,7 +1265,6 @@ void BibTexToNepomukPipe::addSeries(const QString &content, Nepomuk::Resource pu
     seriesResource = m_allSeries.value(utfContent, Nepomuk::Resource());
 
     if(!seriesResource.isValid()) {
-        qDebug() << "did not find existing series for name" << utfContent;
         seriesResource = Nepomuk::Resource(QUrl(), seriesType);
         seriesResource.addType(NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
         seriesResource.addType(NIE::InformationElement());
@@ -1354,7 +1349,7 @@ void BibTexToNepomukPipe::addUrl(const QString &content, Nepomuk::Resource publi
     QList<Nepomuk::Resource> dataObjectList = publication.property(NBIB::isPublicationOf()).toResourceList();
     foreach(const Nepomuk::Resource &r, dataObjectList) {
         if(r.property(NIE::url()).toString() == QString(content.toUtf8())) {
-            qDebug() << "BibTexToNepomukPipe::addUrl || url already connected to publication" << QString(content.toUtf8());
+            kDebug() << "url already connected to publication" << QString(content.toUtf8());
             return;
         }
     }
@@ -1459,7 +1454,7 @@ const QString &etag, const QString &updated)
     }
 
     if(!syncDetails.isValid()) {
-        qDebug() << "BibTexToNepomukPipe::addZoteroSyncDetails >> syncDetails is not valid!";
+        kDebug() << "syncDetails is not valid create new detail resource";
         syncDetails = Nepomuk::Resource(QUrl(), SYNC::ServerSyncData());
     }
 
@@ -1500,7 +1495,6 @@ void BibTexToNepomukPipe::addContact(const Value &contentValue, Nepomuk::Resourc
         else {
             author.full = PlainTextValue::text(*authorItem).toUtf8();
             author.full = m_macroLookup.value(author.full, author.full);
-            qDebug() << "BibTexToNepomukPipe::addContact No Person Contact available!" << author.full;
 
             if(!contactType.isValid())
                 contactType = NCO::Contact();
@@ -1510,10 +1504,9 @@ void BibTexToNepomukPipe::addContact(const Value &contentValue, Nepomuk::Resourc
         Nepomuk::Resource contact = m_allContacts.value(author.full, Nepomuk::Resource());
 
         if(!contact.isValid()) {
-            qDebug() << "create a new Contact resource for " << author.full;
 
             if(m_addressbook.isValid()) {
-                qDebug() << "add author to akonadi";
+                kDebug() << "add author" << author.full << "to akonadi collection" << m_addressbook.name();
                 KABC::Addressee addr;
                 addr.setFamilyName( author.last );
                 addr.setGivenName( author.first );
@@ -1528,7 +1521,7 @@ void BibTexToNepomukPipe::addContact(const Value &contentValue, Nepomuk::Resourc
                 Akonadi::ItemCreateJob *job = new Akonadi::ItemCreateJob( item, m_addressbook );
 
                 if ( !job->exec() ) {
-                    qDebug() << "Error:" << job->errorString();
+                    kDebug() << "Error:" << job->errorString();
                 }
 
                 // akonadi saves its contacts with a specific nepomuk uri, we use it here to
@@ -1546,7 +1539,7 @@ void BibTexToNepomukPipe::addContact(const Value &contentValue, Nepomuk::Resourc
                 if(!author.suffix.isEmpty())
                     contact.setProperty(NCO::nameHonorificSuffix(), author.suffix);
 
-                qDebug() << "akonadi/nepomuk id" << job->item().url() << contact.isValid() << contact.resourceUri();
+                kDebug() << "akonadi/nepomuk id" << job->item().url() << contact.isValid() << contact.resourceUri();
             }
             else {
                 contact = Nepomuk::Resource(QUrl(), contactType);

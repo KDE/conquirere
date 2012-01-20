@@ -29,8 +29,9 @@
 #include <Nepomuk/Variant>
 #include <Nepomuk/Tag>
 
+#include <KDE/KDebug>
+
 #include <QtCore/QSharedPointer>
-#include <QtCore/QDebug>
 
 using namespace Nepomuk::Vocabulary;
 
@@ -43,6 +44,8 @@ NepomukToBibTexPipe::NepomukToBibTexPipe()
 
 NepomukToBibTexPipe::~NepomukToBibTexPipe()
 {
+    delete m_bibtexFile;
+    m_bibtexFile = 0;
 }
 
 void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
@@ -78,14 +81,14 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
 
         QString citeKey = reference.property(NBIB::citeKey()).toString();
         if(citeKey.isEmpty()) {
-            qDebug() << "unknown citeKey for the bibtex pipe export :: create one";
+            kDebug() << "unknown citeKey for the bibtex pipe export :: create one";
             citeKey = citeRef + QString::number(citeKeyNumer);
             citeKeyNumer++;
         }
 
         QString entryType = retrieveEntryType(reference, publication);
         if(entryType.isEmpty()) {
-            qWarning() << "unknown entry type for the bibtex export with citekey" << citeKey;
+            kWarning() << "unknown entry type for the bibtex export with citekey" << citeKey;
             continue;
         }
 
@@ -196,7 +199,7 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
 
     // if we have strict export, transforn into standard types
     if(m_strict) {
-        qDebug() << "strict export is not implemented yet";
+        kDebug() << "strict export is not implemented yet";
     }
 
     return type;
@@ -710,20 +713,15 @@ void NepomukToBibTexPipe::setSyncDetails(Entry *e, Nepomuk::Resource publication
 {
     QList<Nepomuk::Resource> sycList = publication.property(SYNC::serverSyncData()).toResourceList();
 
-    //qDebug() << "NepomukToBibTexPipe::setSyncDetails for" << publication.property(NIE::title()) << "found syncsettings ::" << sycList.size();
-
     // only add the sync details the the right storage
     foreach(const Nepomuk::Resource &r, sycList) {
         if(r.property(SYNC::provider()).toString() != QString("zotero")) { //TODO make this possible for others too
-            //qDebug() << "r.property(SYNC::provider()).toString() != QString(zotero)";
             continue;
         }
         if(r.property(SYNC::userId()).toString() != m_syncUserId) {//TODO make this possible for others too
-            //qDebug() << "r.property(SYNC::userId()).toString() != m_syncUserId";
             continue;
         }
         if(r.property(SYNC::url()).toString() != m_syncUrl) {//TODO make this possible for others too
-            //qDebug() << "r.property(SYNC::url()).toString() != m_syncUrl";
             continue;
         }
 
@@ -816,7 +814,7 @@ void NepomukToBibTexPipe::setContact(Entry *e, Nepomuk::Resource publication, QU
             QString suffix = a.property(NCO::nameHonorificSuffix()).toString();
 
             if(firstName.isEmpty() || lastName.isEmpty()) {
-                qDebug() << "setContact || if(firstName.isEmpty() || lastName.isEmpty()) {";
+                kDebug() << "could not split firstname / lastname component, try to find it automatically fro mthe fullname";
                 QString fullname = a.property(NCO::fullname()).toString();
 
                 // assume fullname as "LastName, Firstname"

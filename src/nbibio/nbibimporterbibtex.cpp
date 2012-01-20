@@ -59,7 +59,6 @@ void NBibImporterBibTex::setFileType(NBibImporterBibTex::FileType selectedFileTy
 
 bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
 {
-    qDebug() << "NBibImporterBibTex::load with type" << m_selectedFileType;
     FileImporter *importer;
     switch(m_selectedFileType) {
     case EXPORT_BIBTEX:
