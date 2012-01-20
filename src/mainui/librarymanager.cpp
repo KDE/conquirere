@@ -18,8 +18,15 @@
 #include "librarymanager.h"
 
 #include "core/library.h"
+#include "core/tagcloud.h"
 #include "core/projectsettings.h"
 #include "core/models/nepomukmodel.h"
+
+#include "mainui/settings/projectsettingsdialog.h"
+#include "mainui/settings/conquireresettingsdialog.h"
+
+#include "sync/bibtexexportdialog.h"
+#include "sync/bibteximportwizard.h"
 
 #include <QtGui/QSortFilterProxyModel>
 
@@ -27,6 +34,7 @@
 
 LibraryManager::LibraryManager(QObject *parent)
     : QObject(parent)
+    , m_currentUsedLibrary(0)
 {
 }
 
@@ -55,7 +63,10 @@ void LibraryManager::setCurrentUsedLibrary(Library *l)
 
 Library *LibraryManager::currentUsedLibrary()
 {
-    return m_currentUsedLibrary;
+    if(!m_currentUsedLibrary)
+        return m_systemLibrary;
+    else
+        return m_currentUsedLibrary;
 }
 
 Library *LibraryManager::libFromResourceUri(const QUrl &projectThing)
@@ -99,24 +110,24 @@ void LibraryManager::addSystemLibrary(Library *l)
 
 void LibraryManager::closeLibrary(Library *l)
 {
-    disconnect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), l, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     if(l == m_currentUsedLibrary)
         m_currentUsedLibrary = m_systemLibrary;
 
     m_openProjectList.removeAll(l);
-    emit libraryRemoved(l->settings()->projectThing().resourceUri());
+    QUrl thingUri = l->settings()->projectThing().resourceUri();
+    emit libraryRemoved(thingUri);
 
     l->deleteLater();
 }
 
 void LibraryManager::deleteLibrary(Library *l)
 {
-    disconnect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), l, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     if(l == m_currentUsedLibrary)
         m_currentUsedLibrary = m_systemLibrary;
 
     m_openProjectList.removeAll(l);
-    emit libraryRemoved(l->settings()->projectThing().resourceUri());
+    QUrl thingUri = l->settings()->projectThing().resourceUri();
+    emit libraryRemoved(thingUri);
 
     l->deleteLibrary();
     l->deleteLater();
@@ -124,30 +135,77 @@ void LibraryManager::deleteLibrary(Library *l)
 
 void LibraryManager::openSettings()
 {
-
+    openSettings(m_systemLibrary);
 }
 
 void LibraryManager::openSettings(Library *l)
 {
+    if(l->libraryType() == Library_Project) {
+        ProjectSettingsDialog settingsDialog;
+        settingsDialog.setProjectSettings(l->settings());
 
+        settingsDialog.exec();
+    }
+    else {
+        ConquirereSettingsDialog csd;
+        csd.setProjectSettings(l->settings());
+
+        csd.exec();
+    }
 }
 
 void LibraryManager::importData(ImportMode mode)
 {
-
+    importData(m_systemLibrary, mode);
 }
 
 void LibraryManager::importData(Library *l, ImportMode mode)
 {
+    // disable tagcloud generation during import for all libraries
+    // TODO the same for the qcompleter in the property widgets
+    systemLibrary()->tagCloud()->pauseUpdates(true);
+    foreach(Library *p, m_openProjectList) {
+        p->tagCloud()->pauseUpdates(true);
+    }
 
+    BibTeXImportWizard bid;
+    bid.setLibraryManager(this);
+
+    if(l != m_systemLibrary) {
+        bid.setImportLibrary(l);
+    }
+
+    bid.setupUi();
+    bid.exec();
+
+    //updateListCache();
+
+    // enable generation again
+    systemLibrary()->tagCloud()->pauseUpdates(false);
+    foreach(Library *p, m_openProjectList) {
+        p->tagCloud()->pauseUpdates(false);
+    }
 }
 
 void LibraryManager::exportData(ExportMode mode)
 {
-
+    exportData(m_systemLibrary, mode);
 }
 
 void LibraryManager::exportData(Library *l, ExportMode mode)
 {
 
+    BibTexExportDialog bed;
+    bed.setInitialFileType(NBibExporterFile::EXPORT_BIBTEX);
+
+    bed.exec();
+}
+
+void LibraryManager::updateListCache()
+{
+    foreach(Library *l, m_openProjectList) {
+        l->updateCacheData();
+    }
+
+    m_systemLibrary->updateCacheData();
 }

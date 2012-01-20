@@ -292,6 +292,17 @@ void SidebarWidget::findPdf()
 void SidebarWidget::setLibraryManager(LibraryManager* lm)
 {
     m_libraryManager = lm;
+
+    m_libraryInfoWidget->setLibraryManager(m_libraryManager);
+    m_searchResultInfoWidget->setLibraryManager(m_libraryManager);
+    m_documentWidget->setLibraryManager(m_libraryManager);
+    m_publicationWidget->setLibraryManager(m_libraryManager);
+    m_referenceWidget->setLibraryManager(m_libraryManager);
+    m_noteWidget->setLibraryManager(m_libraryManager);
+    m_eventWidget->setLibraryManager(m_libraryManager);
+    m_seriesWidget->setLibraryManager(m_libraryManager);
+    m_mailWidget->setLibraryManager(m_libraryManager);
+
     connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), m_libraryManager, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 }
 
@@ -524,45 +535,36 @@ void SidebarWidget::setupUi()
     m_stackedLayout->addWidget(m_mergeWidget);
 
     m_libraryInfoWidget = new LibraryInfoWidget(this);
-    m_libraryInfoWidget->setLibraryManager(m_libraryManager);
     m_stackedLayout->addWidget(m_libraryInfoWidget);
 
     m_searchResultInfoWidget = new SearchResultInfoWidget(this);
-    m_searchResultInfoWidget->setLibraryManager(m_libraryManager);
     m_stackedLayout->addWidget(m_searchResultInfoWidget);
 
     m_documentWidget = new DocumentWidget(this);
-    m_documentWidget->setLibraryManager(m_libraryManager);
     m_stackedLayout->addWidget(m_documentWidget);
     connect(m_documentWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
     m_publicationWidget = new PublicationWidget(this);
-    m_publicationWidget->setLibraryManager(m_libraryManager);
     m_stackedLayout->addWidget(m_publicationWidget);
     connect(m_publicationWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
     m_referenceWidget = new ReferenceWidget(this);
-    m_referenceWidget->setLibraryManager(m_libraryManager);
     m_stackedLayout->addWidget(m_referenceWidget);
     connect(m_referenceWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
     m_noteWidget = new NoteWidget(this);
-    m_noteWidget->setLibraryManager(m_libraryManager);
     m_stackedLayout->addWidget(m_noteWidget);
     connect(m_noteWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
     m_eventWidget = new EventWidget(this);
-    m_eventWidget->setLibraryManager(m_libraryManager);
     m_stackedLayout->addWidget(m_eventWidget);
     connect(m_eventWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
     m_seriesWidget = new SeriesWidget(this);
-    m_seriesWidget->setLibraryManager(m_libraryManager);
     m_stackedLayout->addWidget(m_seriesWidget);
     connect(m_seriesWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
     m_mailWidget = new MailWidget(this);
-    m_mailWidget->setLibraryManager(m_libraryManager);
     m_stackedLayout->addWidget(m_mailWidget);
     connect(m_mailWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 

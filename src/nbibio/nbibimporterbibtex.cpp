@@ -159,6 +159,11 @@ bool NBibImporterBibTex::findDuplicates()
     return true;
 }
 
+void NBibImporterBibTex::setProjectPimoThing(Nepomuk::Thing projectThing)
+{
+    m_projectThing = projectThing;
+}
+
 QList<EntryClique*> NBibImporterBibTex::duplicates()
 {
     return m_cliques;
@@ -171,6 +176,7 @@ bool NBibImporterBibTex::pipeToNepomuk(QStringList *errorLog)
     connect (importer, SIGNAL(progress(int)), this, SIGNAL(progress(int)));
 
     importer->setAkonadiAddressbook(m_addressbook);
+    importer->setProjectPimoThing(m_projectThing);
     importer->setErrorLog(errorLog);
     importer->pipeExport(*m_importedEntries);
 

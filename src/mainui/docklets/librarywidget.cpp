@@ -150,17 +150,17 @@ void LibraryWidget::listContextMenu(const QPoint & pos)
     QMenu menu;
     QList<QAction *> actionCollection; //we throw all temp actions into it and delete them again after execution
 
-    QAction *exportToFile = new QAction(KIcon(QLatin1String("document-export")), i18n("Export to File"), this);
-    exportToFile->setData( seletedItem->data(0,Role_ProjectThing));
-    actionCollection.append(exportToFile);
-    connect(exportToFile, SIGNAL(triggered(bool)),this, SLOT(exportToFile()));
-    menu.addAction(exportToFile);
-
     QAction *importFromFile = new QAction(KIcon(QLatin1String("document-import")), i18n("Import from File"), this);
     importFromFile->setData( seletedItem->data(0,Role_ProjectThing));
     actionCollection.append(importFromFile);
     connect(importFromFile, SIGNAL(triggered(bool)),this, SLOT(importFromFile()));
     menu.addAction(importFromFile);
+
+    QAction *exportToFile = new QAction(KIcon(QLatin1String("document-export")), i18n("Export to File"), this);
+    exportToFile->setData( seletedItem->data(0,Role_ProjectThing));
+    actionCollection.append(exportToFile);
+    connect(exportToFile, SIGNAL(triggered(bool)),this, SLOT(exportToFile()));
+    menu.addAction(exportToFile);
 
     menu.addSeparator();
 
@@ -196,12 +196,22 @@ void LibraryWidget::listContextMenu(const QPoint & pos)
 
 void LibraryWidget::exportToFile()
 {
+    Library *selectedLibrary = libForAction();
 
+    if(!selectedLibrary) {
+        return;
+    }
+    m_libraryManager->exportData(selectedLibrary);
 }
 
 void LibraryWidget::importFromFile()
 {
+    Library *selectedLibrary = libForAction();
 
+    if(!selectedLibrary) {
+        return;
+    }
+    m_libraryManager->importData(selectedLibrary);
 }
 
 void LibraryWidget::openSettings()
@@ -211,13 +221,7 @@ void LibraryWidget::openSettings()
     if(!selectedLibrary) {
         return;
     }
-
-    if(selectedLibrary->libraryType() == Library_Project) {
-        ProjectSettingsDialog settingsDialog;
-        settingsDialog.setProjectSettings(selectedLibrary->settings());
-
-        settingsDialog.exec();
-    }
+    m_libraryManager->openSettings(selectedLibrary);
 }
 
 void LibraryWidget::closeProject()

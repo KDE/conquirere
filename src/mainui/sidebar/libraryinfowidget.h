@@ -40,9 +40,18 @@ public:
     void newButtonClicked();
     void deleteButtonClicked();
 
+private slots:
+    void importData();
+    void exportData();
+    void openSettings();
+    void syncData();
+    void closeLibrary();
+    void deleteLibrary();
+
 private:
     void setupUI();
     Ui::LibraryInfoWidget *ui;
+    Library * m_curLibrary;
 };
 
 #endif // LIBRARYINFOWIDGET_H

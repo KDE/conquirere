@@ -50,14 +50,8 @@ public slots:
     void closeLibrarySelection();
 
     // database menu
-    void importBibTex();
     void importZotero();
-
     void exportZotero();
-    void exportBibTex();
-    void exportPdf();
-    void exportOtherFile();
-
     void syncZotero();
 
     void dbCheck();

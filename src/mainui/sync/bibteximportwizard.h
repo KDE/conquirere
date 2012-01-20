@@ -32,6 +32,7 @@ class NBibImporterBibTex;
 class QPushButton;
 class KComboBox;
 class Library;
+class LibraryManager;
 
 namespace Ui {
     class BibTeXImportWizard;
@@ -45,17 +46,18 @@ public:
     explicit BibTeXImportWizard(QWidget *parent = 0);
     ~BibTeXImportWizard();
 
-    /**
-      * Set the system library to allow disabling live population
-      *
-      * Especially for the tag cloud generation this is really slow
-      */
-    void setSystemLibrary(Library *sl);
-    Library *systemLibrary();
+    void setLibraryManager(LibraryManager *lm);
+    LibraryManager *libraryManager();
+
+    void setImportLibrary(Library *l);
+    Library *importLibrary();
+
+    void setupUi();
 
 private:
     Ui::BibTeXImportWizard *ui;
-    Library *m_sl;
+    LibraryManager *m_libraryManager;
+    Library *m_importToLibrary;
 };
 
 /**
@@ -73,9 +75,11 @@ private slots:
     void collectionsReceived( const Akonadi::Collection::List& );
 
 public:
+    void setupUi();
     KComboBox *addressComboBox;
     KComboBox *fileType;
     KUrlRequester *fileName;
+    KComboBox *projectImport;
 };
 
 /**
@@ -109,7 +113,7 @@ private:
 };
 
 /**
-  * Parse bibtex file via KBibTeX
+  * Pipe BibTeX file to Nepomuk
   */
 class NepomukImport : public QWizardPage
 {

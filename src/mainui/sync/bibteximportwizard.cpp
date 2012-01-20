@@ -20,12 +20,17 @@
 
 #include "core/library.h"
 #include "core/tagcloud.h"
+#include "core/projectsettings.h"
+#include "mainui/librarymanager.h"
 #include "nbibio/nbibimporterbibtex.h"
 
 #include <kbibtex/fileimporterbibtex.h>
 #include <kbibtex/file.h>
 #include <kbibtex/findduplicatesui.h>
 #include <kbibtex/findduplicates.h>
+
+#include <Nepomuk/Thing>
+#include <Nepomuk/Variant>
 
 #include <KDE/KUrlRequester>
 #include <KDE/KComboBox>
@@ -54,9 +59,6 @@ BibTeXImportWizard::BibTeXImportWizard(QWidget *parent)
     : QWizard(parent)
     , ui(new Ui::BibTeXImportWizard)
 {
-    addPage(new IntroPage);
-    addPage(new ParseFile);
-    addPage(new NepomukImport);
 
     ui->setupUi(this);
 }
@@ -66,14 +68,33 @@ BibTeXImportWizard::~BibTeXImportWizard()
     delete ui;
 }
 
-void BibTeXImportWizard::setSystemLibrary(Library *sl)
+void BibTeXImportWizard::setLibraryManager(LibraryManager *lm)
 {
-    m_sl = sl;
+    m_libraryManager = lm;
 }
 
-Library *BibTeXImportWizard::systemLibrary()
+LibraryManager *BibTeXImportWizard::libraryManager()
 {
-    return m_sl;
+    return m_libraryManager;
+}
+
+void BibTeXImportWizard::setImportLibrary(Library *l)
+{
+    m_importToLibrary = l;
+}
+
+Library *BibTeXImportWizard::importLibrary()
+{
+    return m_importToLibrary;
+}
+
+void BibTeXImportWizard::setupUi()
+{
+    IntroPage *ip = new IntroPage;
+    addPage(ip);
+    ip->setupUi();
+    addPage(new ParseFile);
+    addPage(new NepomukImport);
 }
 
 /*
@@ -84,7 +105,10 @@ Library *BibTeXImportWizard::systemLibrary()
 IntroPage::IntroPage(QWidget *parent)
     : QWizardPage(parent)
 {
+}
 
+void IntroPage::setupUi()
+{
     // fetching all collections containing emails recursively, starting at the root collection
     Akonadi::CollectionFetchJob *job = new Akonadi::CollectionFetchJob( Akonadi::Collection::root(), Akonadi::CollectionFetchJob::Recursive, this );
     job->fetchScope().setContentMimeTypes( QStringList() << "application/x-vnd.kde.contactgroup" );
@@ -95,7 +119,8 @@ IntroPage::IntroPage(QWidget *parent)
     setSubTitle(i18n("This wizard will guide you through the import process."));
     //setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/watermark1.png"));
 
-    //file selection
+    //###################################################################
+    //# file selection
     QVBoxLayout *mainLayout = new QVBoxLayout();
     QFormLayout *fileLayout = new QFormLayout();
     fileType = new KComboBox();
@@ -112,8 +137,9 @@ IntroPage::IntroPage(QWidget *parent)
     fileLayout->addRow(i18n("File:"), fileName);
     mainLayout->addLayout(fileLayout);
 
-    // options
-    QGroupBox *groupBox = new QGroupBox(i18n("Collection"));
+    //###################################################################
+    //# options
+    QGroupBox *groupBox = new QGroupBox(i18n("Options"));
     QVBoxLayout *groupBoxLayout = new QVBoxLayout();
     groupBox->setLayout(groupBoxLayout);
 
@@ -121,10 +147,12 @@ IntroPage::IntroPage(QWidget *parent)
     registerField("duplicates", fdBox);
     fdBox->setChecked(true);
     groupBoxLayout->addWidget(fdBox);
+
+    //##################################################################
+    //# Import Contacts to Akonadi
     QCheckBox *cb2 = new QCheckBox(i18n("Add contacts to Akonadi"));
     registerField("akonadiContact", cb2);
     groupBoxLayout->addWidget(cb2);
-
     QHBoxLayout *comboLayout = new QHBoxLayout();
     addressComboBox = new KComboBox();
     addressComboBox->setEnabled(false);
@@ -133,6 +161,42 @@ IntroPage::IntroPage(QWidget *parent)
     comboLayout->addWidget(addressComboBox);
     groupBoxLayout->addLayout(comboLayout);
     connect(cb2, SIGNAL(clicked(bool)), addressComboBox, SLOT(setEnabled(bool)));
+
+    //##################################################################
+    //# Import to Project
+    QCheckBox *cb3 = new QCheckBox(i18n("Import to Project"));
+    registerField("projectImport", cb3);
+    groupBoxLayout->addWidget(cb3);
+    QHBoxLayout *comboLayout2 = new QHBoxLayout();
+    projectImport = new KComboBox();
+    projectImport->addItem( i18n("No Project") );
+
+    BibTeXImportWizard *biw = static_cast<BibTeXImportWizard *>(wizard());
+
+    int i=1;
+    int selectedIndex=0;
+    foreach(Library *l, biw->libraryManager()->openProjects()) {
+        projectImport->addItem(l->settings()->name(), l->settings()->projectThing().resourceUri());
+
+        if(l == biw->importLibrary()) { selectedIndex=i; }
+
+        i++;
+    }
+    projectImport->setCurrentIndex(selectedIndex);
+
+    if(selectedIndex != 0) {
+        cb3->setChecked(true);
+        projectImport->setEnabled(true);
+    }
+    else {
+        cb3->setChecked(false);
+        projectImport->setEnabled(false);
+    }
+
+    comboLayout2->addSpacing(20);
+    comboLayout2->addWidget(projectImport);
+    groupBoxLayout->addLayout(comboLayout2);
+    connect(cb3, SIGNAL(clicked(bool)), projectImport, SLOT(setEnabled(bool)));
 
     mainLayout->addWidget(groupBox);
 
@@ -173,7 +237,8 @@ ParseFile::ParseFile(QWidget *parent)
     setSubTitle(i18n("Please wait until all entries have been processed."));
     //setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/watermark1.png"));
 
-    //file selection
+    //##################################################################
+    //# file selection
     QVBoxLayout *mainLayout = new QVBoxLayout();
     QHBoxLayout *processingLayout = new QHBoxLayout();
     processingLayout->setSpacing(20);
@@ -238,13 +303,21 @@ void ParseFile::initializePage()
     fileType = 0; //disable other fileimporters for now, don't seem to work
     importer->setFileType( NBibImporterBibTex::FileType(fileType) );
     importer->setFindDuplicates(field(QLatin1String("duplicates")).toBool());
-    bool importContactToAkonadi = field(QLatin1String("akonadiContact")).toBool();
 
+    bool importContactToAkonadi = field(QLatin1String("akonadiContact")).toBool();
     if(importContactToAkonadi) {
         int curAddressBook = ip->addressComboBox->currentIndex();
         Akonadi::Collection c(ip->addressComboBox->itemData(curAddressBook).toInt());
         importer->setAkonadiAddressbook(c);
     }
+
+    bool importToProject = field(QLatin1String("projectImport")).toBool();
+    if(importToProject) {
+        int curProject = ip->projectImport->currentIndex();
+        Nepomuk::Thing pimoThing = Nepomuk::Thing (ip->projectImport->itemData(curProject).toUrl());
+        importer->setProjectPimoThing(pimoThing);
+    }
+
     connect(importer, SIGNAL(progress(int)), progressBar, SLOT(setValue(int)) );
 
     // start background thread with the import
@@ -273,7 +346,6 @@ void ParseFile::importFinished()
         File * importedFile = importer->bibFile();
 
         if(importedFile) {
-            qDebug() << "finished import with " << importedFile->size();
             entryNumber->setText(QString::number(importedFile->size()));
             int authors = importedFile->uniqueEntryValuesList(QLatin1String("author")).size();
             authorNumber->setText(QString::number(authors));
@@ -296,8 +368,6 @@ void ParseFile::showMergeDialog()
     QList<EntryClique*> cliques = importer->duplicates();
 
     if(!cliques.isEmpty()) {
-        qDebug() << "duplicate cliques" << cliques.size();
-
         MergeWidget *mw = new MergeWidget(importedFile, cliques, dlg);
         dlg->setMainWidget(mw);
         int ret = dlg->exec();
@@ -351,9 +421,6 @@ NepomukImport::NepomukImport(QWidget *parent)
 
 void NepomukImport::initializePage()
 {
-    BibTeXImportWizard *biw = qobject_cast<BibTeXImportWizard *>(wizard());
-    biw->systemLibrary()->tagCloud()->pauseUpdates(true);
-
     ParseFile *pf = dynamic_cast<ParseFile *>(wizard()->page(1));
 
     connect(pf->importer, SIGNAL(progress(int)), progressBar, SLOT(setValue(int)) );
@@ -377,8 +444,6 @@ bool NepomukImport::isComplete() const
 
 void NepomukImport::importFinished()
 {
-    qDebug() << "finished import";
     BibTeXImportWizard *biw = qobject_cast<BibTeXImportWizard *>(wizard());
-    biw->systemLibrary()->tagCloud()->pauseUpdates(false);
 }
 

@@ -21,9 +21,12 @@
 #include "core/library.h"
 #include "core/projectsettings.h"
 
-LibraryInfoWidget::LibraryInfoWidget(QWidget *parent) :
-    SidebarComponent(parent),
-    ui(new Ui::LibraryInfoWidget)
+#include "mainui/librarymanager.h"
+
+LibraryInfoWidget::LibraryInfoWidget(QWidget *parent)
+    : SidebarComponent(parent)
+    , ui(new Ui::LibraryInfoWidget)
+    , m_curLibrary(0)
 {
     ui->setupUi(this);
 
@@ -37,6 +40,8 @@ LibraryInfoWidget::~LibraryInfoWidget()
 
 void LibraryInfoWidget::setLibrary(Library *p)
 {
+    m_curLibrary = p;
+
     if(!p)
         return;
 
@@ -50,6 +55,13 @@ void LibraryInfoWidget::setLibrary(Library *p)
     else {
         ui->deleteButton->setEnabled(true);
         ui->closeButton->setEnabled(true);
+    }
+
+    if(p->settings()->allProviderSyncDetails().isEmpty()) {
+        ui->syncButton->setEnabled(false);
+    }
+    else {
+        ui->syncButton->setEnabled(true);
     }
 }
 
@@ -65,7 +77,37 @@ void LibraryInfoWidget::newButtonClicked()
 
 void LibraryInfoWidget::deleteButtonClicked()
 {
+    deleteLibrary();
+}
 
+void LibraryInfoWidget::importData()
+{
+    libraryManager()->importData(m_curLibrary);
+}
+
+void LibraryInfoWidget::exportData()
+{
+    libraryManager()->exportData(m_curLibrary);
+}
+
+void LibraryInfoWidget::openSettings()
+{
+    libraryManager()->openSettings(m_curLibrary);
+}
+
+void LibraryInfoWidget::syncData()
+{
+
+}
+
+void LibraryInfoWidget::closeLibrary()
+{
+    libraryManager()->closeLibrary(m_curLibrary);
+}
+
+void LibraryInfoWidget::deleteLibrary()
+{
+    libraryManager()->deleteLibrary(m_curLibrary);
 }
 
 void LibraryInfoWidget::setupUI()
@@ -76,4 +118,11 @@ void LibraryInfoWidget::setupUI()
     ui->syncButton->setIcon(KIcon("view-refresh"));
     ui->closeButton->setIcon(KIcon("document-close"));
     ui->deleteButton->setIcon(KIcon("document-close"));
+
+    connect(ui->editButton, SIGNAL(clicked()), this, SLOT(openSettings()));
+    connect(ui->importButton, SIGNAL(clicked()), this, SLOT(importData()));
+    connect(ui->exportButton, SIGNAL(clicked()), this, SLOT(exportData()));
+    connect(ui->syncButton, SIGNAL(clicked()), this, SLOT(syncData()));
+    connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(closeLibrary()));
+    connect(ui->deleteButton, SIGNAL(clicked()), this, SLOT(deleteLibrary()));
 }

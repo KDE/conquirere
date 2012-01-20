@@ -167,6 +167,7 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
 {
     m_propertyUrl = propertyUrl;
 
+
     //get the range of the property (so what we are allowed to enter)
     Nepomuk::Resource nr(m_propertyUrl);
     Nepomuk::Resource range = nr.property(QUrl(QLatin1String("http://www.w3.org/2000/01/rdf-schema#range"))).toResource();
@@ -186,13 +187,14 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
         Nepomuk::Query::Query query( orTerm );
         m_queryClient->query(query);
     }
+
     // if we can't use the range for the check
     // get all entries for the propertyUrl that exist, maybe there is something in it we could reuse
-    else {
+//    else {
         // get all resources of type range
         //Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( range.resourceUri() ) );
         //m_queryClient->query(query);
-    }
+//    }
 
     // if we set the resource before the property
     // it is now time to set the label the first time

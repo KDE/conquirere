@@ -21,14 +21,12 @@
     <Menu name="database">
       <text>Database</text>
       <Menu name="db_import"><text>Import from</text>
-	<Action name="db_import_bibtex" />
+	<Action name="db_import_file" />
 	<Action name="db_import_zotero" />
       </Menu>
       <Menu name="db_export"><text>Export to</text>
-	<Action name="db_export_bibtex" />
-	<Action name="db_export_zotero" />
-	<Action name="db_export_pdf" />
 	<Action name="db_export_file" />
+	<Action name="db_export_zotero" />
       </Menu>
       <Menu name="db_sync"><text>Synchronize</text>
 	<Action name="db_sync_zotero" />

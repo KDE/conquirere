@@ -42,7 +42,6 @@ public:
     void setLibraryManager(LibraryManager *lm);
 
 signals:
-    void doCloseLibrary(Library *p);
     void newSelection(ResourceSelection selection, BibEntryType filter, Library *p);
     void showSearchResults();
 

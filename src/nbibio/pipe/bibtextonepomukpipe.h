@@ -23,6 +23,7 @@
 
 #include <kbibtex/value.h>
 #include <Nepomuk/Resource>
+#include <Nepomuk/Thing>
 
 #include <Akonadi/Collection>
 
@@ -63,6 +64,8 @@ public:
     void setAkonadiAddressbook(Akonadi::Collection & addressbook);
 
     void setSyncDetails(const QString &url, const QString &userid);
+
+    void setProjectPimoThing(Nepomuk::Thing projectThing);
 
 private:
     /**
@@ -161,7 +164,9 @@ private:
     QMap<QString, Nepomuk::Resource> m_allCollection;
     QMap<QString, Nepomuk::Resource> m_allPimoEvents;
     QMap<QString, QString> m_macroLookup;
+
     Akonadi::Collection m_addressbook;
+    Nepomuk::Thing m_projectThing;
 
     QString m_syncUrl;
     QString m_syncUserId;

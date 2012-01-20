@@ -72,6 +72,8 @@ public slots:
     void exportData(ExportMode mode = Export_Select_Mode);
     void exportData(Library *l, ExportMode mode = Export_Select_Mode);
 
+    void updateListCache();
+
 signals:
     void libraryAdded(Library *l);
     void libraryRemoved(const QUrl &projectThingUrl);

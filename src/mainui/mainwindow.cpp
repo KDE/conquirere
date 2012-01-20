@@ -92,8 +92,7 @@ MainWindow::MainWindow(QWidget *parent)
     l->loadSystemLibrary();
     m_libraryManager->addSystemLibrary(l);
 
-    //switchView(Resource_Library, Max_BibTypes, m_systemLibrary);
-    //m_sidebarWidget->newSelection(Resource_Library, Max_BibTypes, m_systemLibrary);
+    m_sidebarWidget->newSelection(Resource_Library, Max_BibTypes, l);
 }
 
 MainWindow::~MainWindow()
@@ -205,13 +204,6 @@ void MainWindow::closeLibrarySelection()
 //####################################################################################################
 //####################################################################################################
 //####################################################################################################
-void MainWindow::importBibTex()
-{
-    BibTeXImportWizard bid;
-    bid.setSystemLibrary(m_libraryManager->systemLibrary());
-
-    bid.exec();
-}
 
 void MainWindow::importZotero()
 {
@@ -221,35 +213,11 @@ void MainWindow::importZotero()
     updateListCache();
 }
 
-void MainWindow::exportBibTex()
-{
-    BibTexExportDialog bed;
-    bed.setInitialFileType(NBibExporterFile::EXPORT_BIBTEX);
-
-    bed.exec();
-}
-
 void MainWindow::exportZotero()
 {
     SyncZoteroDialog szd;
 
     szd.exec();
-}
-
-void MainWindow::exportPdf()
-{
-    BibTexExportDialog bed;
-    bed.setInitialFileType(NBibExporterFile::EXPORT_PDF);
-
-    bed.exec();
-}
-
-void MainWindow::exportOtherFile()
-{
-    BibTexExportDialog bed;
-    bed.setInitialFileType(NBibExporterFile::EXPORT_HTML);
-
-    bed.exec();
 }
 
 void MainWindow::syncZotero()
@@ -461,10 +429,10 @@ void MainWindow::setupActions()
     // Database menu
     // import section
     KAction* importBibTexAction = new KAction(this);
-    importBibTexAction->setText(i18n("BibTeX"));
-    importBibTexAction->setIcon(KIcon(QLatin1String("kbibtex")));
-    actionCollection()->addAction(QLatin1String("db_import_bibtex"), importBibTexAction);
-    connect(importBibTexAction, SIGNAL(triggered(bool)),this, SLOT(importBibTex()));
+    importBibTexAction->setText(i18n("File"));
+    importBibTexAction->setIcon(KIcon(QLatin1String("application-rtf")));
+    actionCollection()->addAction(QLatin1String("db_import_file"), importBibTexAction);
+    connect(importBibTexAction, SIGNAL(triggered(bool)),m_libraryManager, SLOT(importData()));
 
     KAction* importZoteroAction = new KAction(this);
     importZoteroAction->setText(i18n("Zotero"));
@@ -474,28 +442,16 @@ void MainWindow::setupActions()
 
     // export section
     KAction* exportBibTexAction = new KAction(this);
-    exportBibTexAction->setText(i18n("BibTeX"));
-    exportBibTexAction->setIcon(KIcon(QLatin1String("kbibtex")));
-    actionCollection()->addAction(QLatin1String("db_export_bibtex"), exportBibTexAction);
-    connect(exportBibTexAction, SIGNAL(triggered(bool)),this, SLOT(exportBibTex()));
+    exportBibTexAction->setText(i18n("File"));
+    exportBibTexAction->setIcon(KIcon(QLatin1String("application-rtf")));
+    actionCollection()->addAction(QLatin1String("db_export_file"), exportBibTexAction);
+    connect(exportBibTexAction, SIGNAL(triggered(bool)),m_libraryManager, SLOT(exportData()));
 
     KAction* exportZoteroAction = new KAction(this);
     exportZoteroAction->setText(i18n("Zotero"));
     exportZoteroAction->setIcon(KIcon(QLatin1String("storage-zotero")));
     actionCollection()->addAction(QLatin1String("db_export_zotero"), exportZoteroAction);
     connect(exportZoteroAction, SIGNAL(triggered(bool)),this, SLOT(exportZotero()));
-
-    KAction* exportPdfAction = new KAction(this);
-    exportPdfAction->setText(i18n("Pdf"));
-    exportPdfAction->setIcon(KIcon(QLatin1String("application-pdf")));
-    actionCollection()->addAction(QLatin1String("db_export_pdf"), exportPdfAction);
-    connect(exportPdfAction, SIGNAL(triggered(bool)),this, SLOT(exportPdf()));
-
-    KAction* exportFileAction = new KAction(this);
-    exportFileAction->setText(i18n("other File"));
-    exportFileAction->setIcon(KIcon(QLatin1String("application-rtf")));
-    actionCollection()->addAction(QLatin1String("db_export_file"), exportFileAction);
-    connect(exportFileAction, SIGNAL(triggered(bool)),this, SLOT(exportOtherFile()));
 
     // sync actions
     KAction* syncZoteroAction = new KAction(this);
