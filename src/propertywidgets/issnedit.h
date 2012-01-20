@@ -41,7 +41,7 @@ protected:
     /**
       * No completion is used
       */
-    virtual QStandardItemModel* createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+    virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     /**
       * sets the ISSN t othe string from the KLineEdit to the connected Series

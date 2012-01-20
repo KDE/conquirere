@@ -88,20 +88,19 @@ void SeriesEdit::updateResource(const QString & text)
     newSeriesResource.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), resource());
 }
 
-QStandardItemModel* SeriesEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
+QList<QStandardItem*> SeriesEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
-    QStandardItemModel *model = new QStandardItemModel();
-    QStandardItem *parentItem = model->invisibleRootItem();
+    QList<QStandardItem*> results;
 
     foreach(const Nepomuk::Query::Result & r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
 
         item->setData(r.resource().resourceUri().toString());
 
-        parentItem->appendRow(item);
+        results.append(item);
     }
 
-    return model;
+    return results;
 }
 
 QUrl SeriesEdit::findSeriesType()

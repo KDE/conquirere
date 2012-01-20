@@ -89,10 +89,9 @@ void ContactEdit::updateResource(const QString & text)
     }
 }
 
-QStandardItemModel* ContactEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
+QList<QStandardItem*> ContactEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
-    QStandardItemModel *model = new QStandardItemModel();
-    QStandardItem *parentItem = model->invisibleRootItem();
+    QList<QStandardItem*> results;
 
     foreach(const Nepomuk::Query::Result & r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().genericLabel());
@@ -102,8 +101,8 @@ QStandardItemModel* ContactEdit::createCompletionModel( const QList< Nepomuk::Qu
         // also it is not necessary to ask nepomuk for the resource used later again
         item->setData(r.resource().resourceUri().toString().trimmed());
 
-        parentItem->appendRow(item);
+        results.append(item);
     }
 
-    return model;
+    return results;
 }

@@ -99,11 +99,13 @@ void VolumeNumberEdit::updateResource(const QString & text)
     }
 }
 
-QStandardItemModel* VolumeNumberEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
+QList<QStandardItem*> VolumeNumberEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
     // this needs a change in the propertyedit class
     // so we can fetch any value of a certain property
     // instead of searching for all occurrences of a Resourcetype
 
-    return new QStandardItemModel;
+    QList<QStandardItem*> results;
+
+    return results;
 }

@@ -122,9 +122,11 @@ void IssnEdit::updateResource(const QString & text)
     }
 }
 
-QStandardItemModel* IssnEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
+QList<QStandardItem*> IssnEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
     Q_UNUSED(entries);
 
-    return new QStandardItemModel;
+    QList<QStandardItem*> results;
+
+    return results;
 }

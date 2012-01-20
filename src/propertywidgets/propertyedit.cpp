@@ -84,6 +84,8 @@ PropertyEdit::PropertyEdit(QWidget *parent)
     connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(initialQueryFinished()));
 
     m_completer = new QCompleter(this);
+    m_completerModel = new QStandardItemModel;
+    m_completer->setModel(m_completerModel);
     m_completer->setWidget(m_lineEdit);
     m_completer->setCaseSensitivity ( Qt::CaseInsensitive );
     connect(m_completer, SIGNAL(activated(QModelIndex)), this, SLOT(insertCompletion(QModelIndex)));
@@ -234,11 +236,6 @@ void PropertyEdit::mousePressEvent ( QMouseEvent * e )
     QWidget::mousePressEvent(e);
 }
 
-void PropertyEdit::setCompletionModel(QAbstractItemModel *model)
-{
-    m_completer->setModel(model);
-}
-
 void PropertyEdit::addPropertryEntry(const QString &entryname,const QUrl & propertyUrl)
 {
     m_listCache.insert(entryname, propertyUrl);
@@ -247,22 +244,6 @@ void PropertyEdit::addPropertryEntry(const QString &entryname,const QUrl & prope
 QUrl PropertyEdit::propertyEntry(const QString &entryname)
 {
     return m_listCache.value(entryname, QUrl());
-}
-
-void PropertyEdit::changeEvent( QEvent * event )
-{
-//    emit widgetShown(m_label->isVisible());
-//    qDebug() << "QEvent::EnabledChange" << m_label->text() << isVisible();
-
-//    if(event->type() == QEvent::EnabledChange)
-//    {
-//        //qDebug() << "QEvent::EnabledChange" << isVisible();
-//        //emit widgetShown(isVisible());
-////        if(isVisible())
-////            emit widgetShown(isVisible());
-////        else
-////            emit widgetHidden(isVisible());
-//    }
 }
 
 void PropertyEdit::keyPressEvent(QKeyEvent * e)
@@ -414,13 +395,13 @@ void PropertyEdit::setVisible(bool visible)
 void PropertyEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entries)
 {
     if(m_initialQueryFinished) {
-        m_initialCompleterCache.append(entries);
+//        m_initialCompleterCache.clear();
         // start background thread the data
-        QFuture<QStandardItemModel*> future = QtConcurrent::run(this, &PropertyEdit::createCompletionModel, m_initialCompleterCache);
+        QFuture<QList<QStandardItem*> > future = QtConcurrent::run(this, &PropertyEdit::createCompletionModel, entries);
 
-        m_futureWatcher = new QFutureWatcher<QStandardItemModel*>();
-        m_futureWatcher->setFuture(future);
-        connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(completionModelProcessed()));
+        QFutureWatcher<QList<QStandardItem*> > *futureWatcher = new QFutureWatcher<QList<QStandardItem*> >();
+        futureWatcher->setFuture(future);
+        connect(futureWatcher, SIGNAL(finished()),this, SLOT(completionModelProcessed()));
     }
     else {
         m_initialCompleterCache.append(entries);
@@ -430,21 +411,28 @@ void PropertyEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entr
 void PropertyEdit::initialQueryFinished()
 {
     m_initialQueryFinished = true;
+    if(m_initialCompleterCache.isEmpty())
+        return;
+
     // don't close the query client, this allows to update the completer
 
     // start background thread the data
-    QFuture<QStandardItemModel*> future = QtConcurrent::run(this, &PropertyEdit::createCompletionModel, m_initialCompleterCache);
+    QFuture<QList<QStandardItem*> > future = QtConcurrent::run(this, &PropertyEdit::createCompletionModel, m_initialCompleterCache);
 
-    m_futureWatcher = new QFutureWatcher<QStandardItemModel*>();
-    m_futureWatcher->setFuture(future);
-    connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(completionModelProcessed()));
+    QFutureWatcher<QList<QStandardItem*> > *futureWatcher = new QFutureWatcher<QList<QStandardItem*> >();
+    futureWatcher->setFuture(future);
+    connect(futureWatcher, SIGNAL(finished()),this, SLOT(completionModelProcessed()));
 }
 
 void PropertyEdit::completionModelProcessed()
 {
-    QStandardItemModel* result = m_futureWatcher->future().result();
+    QFutureWatcher<QList<QStandardItem*> > *futureWatcher = dynamic_cast<QFutureWatcher<QList<QStandardItem*> > *>(sender());
+    QList<QStandardItem*> result = futureWatcher->future().result();
 
-    m_completer->setModel(result);
+    if(!result.isEmpty()) {
+        m_completerModel->appendRow(result);
+    }
 
-    disconnect(m_futureWatcher, SIGNAL(finished()),this, SLOT(completionModelProcessed()));
+    disconnect(futureWatcher, SIGNAL(finished()),this, SLOT(completionModelProcessed()));
+    delete futureWatcher;
 }

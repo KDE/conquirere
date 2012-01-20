@@ -41,7 +41,7 @@ protected:
     /**
       * fills the QCompleter with all fullnames of all available @c nco:OrganizationContact s
       */
-    virtual QStandardItemModel* createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+    virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     /**
       * Removes any old organization connected to the proceedings and adds the new entered.

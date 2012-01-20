@@ -45,7 +45,7 @@ protected:
       *
       * Fill the completer with the @c nco::fullname strings
       */
-    virtual QStandardItemModel* createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+    virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     /**
       * update the resource with the @p text from the edit field

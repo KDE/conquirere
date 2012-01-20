@@ -87,10 +87,9 @@ void TagEdit::updateResource(const QString & text)
     }
 }
 
-QStandardItemModel* TagEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
+QList<QStandardItem*> TagEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
-    QStandardItemModel *model = new QStandardItemModel();
-    QStandardItem *parentItem = model->invisibleRootItem();
+    QList<QStandardItem*> results;
 
     foreach(const Nepomuk::Query::Result & r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().genericLabel());
@@ -100,8 +99,8 @@ QStandardItemModel* TagEdit::createCompletionModel( const QList< Nepomuk::Query:
         // also it is not necessary to ask nepomuk for the resource used later again
         item->setData(r.resource().resourceUri().toString());
 
-        parentItem->appendRow(item);
+        results.append(item);
     }
 
-    return model;
+    return results;
 }

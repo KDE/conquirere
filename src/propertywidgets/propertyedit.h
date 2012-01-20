@@ -35,6 +35,7 @@ class QAbstractItemModel;
 class QFocusEvent;
 class QToolButton;
 class QStandardItemModel;
+class QStandardItem;
 
 /**
   * @brief Helper class to easily manipulate Nepomuk data
@@ -216,14 +217,8 @@ protected:
       *
       * @see setCompletionModel();
       */
-    virtual QStandardItemModel *createCompletionModel( const QList< Nepomuk::Query::Result > &entries ) = 0;
+    virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries ) = 0;
 
-    /**
-      * Sets the used completion model to the QCompleter.
-      *
-      * The Model is created by the subclass in the implemented createCompletionModel() function
-      */
-    void setCompletionModel(QAbstractItemModel *model);
 
     /**
       * Saves the Nepomuk::Resource URI for an entry displayed in the Label.
@@ -236,14 +231,6 @@ protected:
       * Returns the cached resource uri of the string entry
       */
     QUrl propertyEntry(const QString &entryname);
-
-    /**
-      * Emits the widgetEnabled() signal once this widget is disabled
-      *
-      * Used to disable/endable the connected QLabel that describes what this widget means.
-      * @see PublicationWidget
-      */
-    void changeEvent( QEvent * event );
 
 private slots:
     void editingFinished();
@@ -272,7 +259,7 @@ private:
     void mousePressEvent ( QMouseEvent * event );
     void keyPressEvent(QKeyEvent * e);
 
-    KSqueezedTextLabel    *m_label;
+    KSqueezedTextLabel *m_label;
     QToolButton *m_detailView;
     bool m_isListEdit;
     bool m_useDetailDialog;
@@ -283,10 +270,10 @@ private:
     QHash<QString, QUrl> m_listCache; /**< caches the label text with its nepomuk uri to easily retrieve the resource */
 
     QCompleter *m_completer;
+    QStandardItemModel* m_completerModel;
     Nepomuk::Query::QueryServiceClient *m_queryClient;
     QList<Nepomuk::Query::Result> m_initialCompleterCache;
     bool m_initialQueryFinished;
-    QFutureWatcher<QStandardItemModel*> *m_futureWatcher;
 };
 
 #endif // PROPERTYEDIT_H

@@ -82,7 +82,7 @@ void ChapterEdit::updateResource(const QString & text)
     }
 }
 
-QStandardItemModel * ChapterEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
+QList<QStandardItem*> ChapterEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
 {
     // entries contain all Chapter from any book (that are created)
     // thats not so good ;)
@@ -90,16 +90,15 @@ QStandardItemModel * ChapterEdit::createCompletionModel( const QList< Nepomuk::Q
     // idea, filter all entries to include only the once of the current resource()->usePublication entry
     // even better filter plainTextContent for all chapters available
     // a lot better use prefilled nbib:contents
-    QStandardItemModel *model = new QStandardItemModel();
-    QStandardItem *parentItem = model->invisibleRootItem();
+    QList<QStandardItem*> results;
 
     foreach(const Nepomuk::Query::Result & r, entries) {
         QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
 
         item->setData(r.resource().resourceUri().toString());
 
-        parentItem->appendRow(item);
+        results.append(item);
     }
 
-    return model;
+    return results;
 }

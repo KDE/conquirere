@@ -45,7 +45,7 @@ protected:
       *
       * @todo restrict to only the available chapters of the current publication (needs filtering and a way to find all chapters beforehand )
       */
-    virtual QStandardItemModel* createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+    virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     /**
       * update the resource with the @p text from the edit field

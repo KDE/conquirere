@@ -54,7 +54,7 @@ protected:
     /**
       * completion is ignored for this widget, as direct edit is not allowed either
       */
-    virtual QStandardItemModel* createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+    virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     /**
       * is done externally via AddDataObject

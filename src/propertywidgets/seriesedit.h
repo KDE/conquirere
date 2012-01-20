@@ -40,7 +40,7 @@ public:
 protected:
     void setupLabel();
 
-    virtual QStandardItemModel* createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
+    virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     virtual void updateResource( const QString & text );
 
