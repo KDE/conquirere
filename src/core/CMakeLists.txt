@@ -36,10 +36,6 @@ set(core_LIB_SRCS
 
 kde4_add_library( core STATIC ${core_LIB_SRCS} )
 
-target_link_libraries(core
-        nepomukdatamanagement-copy
-)
-
-install( TARGETS core  ${INSTALL_TARGETS_DEFAULT_ARGS} )
+install( TARGETS core ${INSTALL_TARGETS_DEFAULT_ARGS} )
 
 

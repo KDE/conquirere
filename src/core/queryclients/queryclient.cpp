@@ -30,7 +30,6 @@ QueryClient::QueryClient(QObject *parent)
     :QThread(parent)
     , m_queryClient(0)
     , m_startupQuery(true)
-    , m_resourceWatcher(0)
 {
     qRegisterMetaType<CachedRowEntry>("CachedRowEntry");
     qRegisterMetaType<QList<CachedRowEntry> >("QList<CachedRowEntry>");
@@ -41,7 +40,6 @@ QueryClient::~QueryClient()
 {
     m_queryClient->close();
     delete m_queryClient;
-    delete m_resourceWatcher;
 }
 
 void QueryClient::setLibrary(Library *selectedLibrary)
@@ -62,15 +60,9 @@ void QueryClient::run()
     connect(m_queryClient, SIGNAL(finishedListing()), this, SIGNAL(queryFinished()));
     connect(m_queryClient, SIGNAL(resultCount(int)), this, SLOT(resultCount(int)));
 
-    m_resourceWatcher = new Nepomuk::ResourceWatcher(this);
-    connect(m_resourceWatcher, SIGNAL(propertyAdded(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)), this, SLOT(resourceChanged(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)));
-    connect(m_resourceWatcher, SIGNAL(propertyRemoved(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)), this, SLOT(resourceChanged(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)));
-
     startFetchData();
     exec();
 
-    delete m_resourceWatcher;
-    m_resourceWatcher = 0;
     m_queryClient->close();
     delete m_queryClient;
     m_queryClient = 0;
@@ -91,7 +83,7 @@ void QueryClient::addToCache( const QList< Nepomuk::Query::Result > &entries ) c
                 continue;
         }
 
-        // workaround as creating a query regarding this is leads to a very bad behaviour
+        // workaround as creating a query regarding this leads to a very bad behaviour
         // @see referencequery.cpp
         if(r.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
             Nepomuk::Resource pub = r.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
@@ -100,7 +92,6 @@ void QueryClient::addToCache( const QList< Nepomuk::Query::Result > &entries ) c
             }
         }
 
-        m_resourceWatcher->addResource(r);
         CachedRowEntry cre;
         cre.displayColums = createDisplayData(r);
         cre.decorationColums = createDecorationData(r);
@@ -120,22 +111,7 @@ void QueryClient::resultCount(int number) const
 {
 }
 
-void QueryClient::resourceChanged (const Nepomuk::Resource &resource, const Nepomuk::Types::Property &property, const QVariant &value)
-{
-    qDebug() << "QueryClient::resourceChanged";
-    QList<CachedRowEntry> newCache;
-
-    CachedRowEntry cre;
-    cre.displayColums = createDisplayData(resource);
-    cre.decorationColums = createDecorationData(resource);
-    cre.resource = resource;
-    newCache.append(cre);
-
-    emit updateCacheEntries(newCache);
-}
-
 void QueryClient::finishedStartup()
 {
     m_startupQuery = false;
-    m_resourceWatcher->start();
 }

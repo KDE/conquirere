@@ -23,7 +23,6 @@
 #include <Nepomuk/Resource>
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Result>
-#include "dms-copy/resourcewatcher.h"
 
 /**
   * @brief cache for one row
@@ -78,7 +77,6 @@ signals:
 private slots:
     void addToCache( const QList< Nepomuk::Query::Result > &entries ) const;
     void resultCount(int number) const;
-    void resourceChanged (const Nepomuk::Resource &resource, const Nepomuk::Types::Property &property, const QVariant &value);
 
     void finishedStartup();
 
@@ -89,7 +87,6 @@ protected:
     Library *m_library;
     Nepomuk::Query::QueryServiceClient *m_queryClient;
     bool m_startupQuery;
-    Nepomuk::ResourceWatcher *m_resourceWatcher;
 };
 
 #endif // QUERYCLIENT_H

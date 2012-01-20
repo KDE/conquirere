@@ -1,13 +1,13 @@
 
-set(conquirere_SRCS
-    main.cpp
-)
-
 add_subdirectory( nbibio )
 add_subdirectory( core )
 add_subdirectory( propertywidgets )
 add_subdirectory( onlinestorage )
 add_subdirectory( mainui )
+
+set(conquirere_SRCS
+    main.cpp
+)
 
 kde4_add_app_icon(conquirere_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/../icons/hi*-app-conquirere.png")
 kde4_add_executable(conquirere ${conquirere_SRCS})
@@ -37,9 +37,9 @@ target_link_libraries(conquirere
 
 #include nepomuk
         ${NEPOMUK_LIBRARIES}
-        nepomukquery
+        ${NEPOMUK_QUERY_LIBRARIES}
         #nepomukcore
-        nepomukdatamanagement-copy
+        #nepomukdatamanagement
 
 #include kbibtex
         kbibtexio

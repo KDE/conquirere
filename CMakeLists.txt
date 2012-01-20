@@ -61,7 +61,6 @@ ADD_CUSTOM_TARGET(
 
 add_subdirectory( tests )
 add_subdirectory( nbib )
-add_subdirectory( dms-copy )
 add_subdirectory( src )
 add_subdirectory( html )
 add_subdirectory( xslt )
