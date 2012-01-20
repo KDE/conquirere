@@ -104,6 +104,10 @@ void BibTeXImportWizard::setupUi()
  */
 IntroPage::IntroPage(QWidget *parent)
     : QWizardPage(parent)
+    , addressComboBox(0)
+    , fileType(0)
+    , fileName(0)
+    , projectImport(0)
 {
 }
 
@@ -444,6 +448,6 @@ bool NepomukImport::isComplete() const
 
 void NepomukImport::importFinished()
 {
-    BibTeXImportWizard *biw = qobject_cast<BibTeXImportWizard *>(wizard());
+
 }
 

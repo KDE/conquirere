@@ -178,12 +178,13 @@ void BibtexNepomukTest::importExportTest()
             foreach(const Nepomuk::Query::Result & r, queryResult) {
                 QString citekey = r.resource().property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
                 if(citekey == entryImport->id()) {
-                    citeKeyFound = false;
+                    citeKeyFound = true;
                     break;
                 }
             }
 
-            qDebug() << "could not retrive citekey " << entryImport->id();
+            if( !citeKeyFound )
+                qDebug() << "could not retrive citekey " << entryImport->id();
         }
     }
 
