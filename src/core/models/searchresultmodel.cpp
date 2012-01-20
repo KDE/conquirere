@@ -193,7 +193,7 @@ int SearchResultModel::defaultSectionSize(int i) const
 QList<int> SearchResultModel::fixedWithSections() const
 {
     QList<int> fixedWith;
-    fixedWith << Column_EngineIcon << Column_EntryType << Column_StarRate;
+    fixedWith << Column_EngineIcon << Column_StarRate;
 
     return fixedWith;
 }
@@ -253,11 +253,6 @@ QVariantList SearchResultModel::createDisplayData(const Nepomuk::Query::Result &
             newEntry = translateEntryType(res);
             break;
         }
-//        case Column_EngineIcon:
-//        {
-//            newEntry = i18n("Nepomuk");
-//            break;
-//        }
         case Column_Author: {
             QString authorSting;
             QList<Nepomuk::Resource> authorList = res.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
@@ -278,17 +273,22 @@ QVariantList SearchResultModel::createDisplayData(const Nepomuk::Query::Result &
             break;
         }
         case Column_Date: {
-            QString dateSting;
+            QString dateString;
             if(res.hasType(Nepomuk::Vocabulary::NBIB::Publication()))
-                dateSting = res.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
-            else
-                dateSting = res.property(Nepomuk::Vocabulary::NIE::contentCreated()).toString();
+                dateString = res.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
+            else {
+                dateString = res.property(Nepomuk::Vocabulary::NMO::sentDate()).toString();
+                if(dateString.isEmpty())
+                    dateString = res.property(Nepomuk::Vocabulary::NIE::contentCreated()).toString();
+            }
 
-            newEntry = dateSting;
+            newEntry = dateString;
             break;
         }
         case Column_Details: {
             QString titleSting = res.property(Nepomuk::Vocabulary::NIE::title()).toString();
+            if(titleSting.isEmpty())
+                titleSting = res.genericLabel();
 
             QString detailText;
             detailText.append(QLatin1String("<font size=\"100%\"><b>"));
@@ -379,11 +379,6 @@ QVariantList SearchResultModel::createDisplayData(QSharedPointer<Entry> entry, O
             newEntry = entry->type();
             break;
         }
-//        case Column_EngineIcon:
-//        {
-//            newEntry = engine->name();
-//            break;
-//        }
         case Column_Author: {
             QString authorSting = PlainTextValue::text(entry->value(QLatin1String("author")));
 
@@ -452,11 +447,6 @@ QVariantList SearchResultModel::createDecorationData(QSharedPointer<Entry> entry
             newEntry = engine->icon();
             break;
         }
-//        case Column_EntryType:
-//        {
-//            newEntry = iconizeEntryType(nepomukResult.resource());
-//            break;
-//        }
         default:
             newEntry = QVariant();
         }

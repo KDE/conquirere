@@ -85,12 +85,19 @@ QVariantList MailQuery::createDisplayData(const Nepomuk::Resource & res) const
         case Column_Title: {
             QString titleSting = res.property(Nepomuk::Vocabulary::NIE::title()).toString();
 
+            if(titleSting.isEmpty())
+                titleSting = res.genericLabel();
+
             newEntry = titleSting;
             break;
         }
         case Column_Date: {
-            QString dateSting = res.property(Nepomuk::Vocabulary::NMO::receivedDate()).toString();
-            newEntry = dateSting;
+            QString dateString = res.property(Nepomuk::Vocabulary::NMO::receivedDate()).toString();
+
+            if(dateString.isEmpty())
+                dateString = res.property(Nepomuk::Vocabulary::NMO::sentDate()).toString();
+
+            newEntry = dateString;
             break;
         }
         case Column_Tags: {
