@@ -43,12 +43,17 @@
 
 #include <QtCore/QDebug>
 
+// This static is here so that we create a completion model only once per type
+// this helps to reduce the nepomuk querys, as we use the Tag and Contact edit often
+// so we only create 1 completer model and not several of them.
+// speeds up startup/update a lot
+static QMap<QUrl,QStandardItemModel*> m_completerModelList;
+
 PropertyEdit::PropertyEdit(QWidget *parent)
     : QWidget(parent)
     , m_isListEdit(true)
     , m_useDetailDialog(false)
     , m_directEditAllowed(true)
-    , m_initialQueryFinished(false)
 {
     m_label = new KSqueezedTextLabel();
     m_label->setWordWrap(true);
@@ -81,11 +86,8 @@ PropertyEdit::PropertyEdit(QWidget *parent)
     //create the query client to fetch resource data for the autocompletion
     m_queryClient = new Nepomuk::Query::QueryServiceClient();
     connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addCompletionData(QList<Nepomuk::Query::Result>)));
-    connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(initialQueryFinished()));
 
     m_completer = new QCompleter(this);
-    m_completerModel = new QStandardItemModel;
-    m_completer->setModel(m_completerModel);
     m_completer->setWidget(m_lineEdit);
     m_completer->setCaseSensitivity ( Qt::CaseInsensitive );
     connect(m_completer, SIGNAL(activated(QModelIndex)), this, SLOT(insertCompletion(QModelIndex)));
@@ -169,34 +171,34 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
 {
     m_propertyUrl = propertyUrl;
 
-
     //get the range of the property (so what we are allowed to enter)
     Nepomuk::Resource nr(m_propertyUrl);
     Nepomuk::Resource range = nr.property(QUrl(QLatin1String("http://www.w3.org/2000/01/rdf-schema#range"))).toResource();
+    m_range = range.resourceUri();
 
-    if(range.isValid() && !range.resourceUri().isEmpty()) {
-        Nepomuk::Query::OrTerm orTerm;
+    QStandardItemModel *sim = m_completerModelList.value(m_range, 0);
+    if(!sim) {
+        sim = new QStandardItemModel;
+        m_completerModelList.insert(m_range, sim);
 
-        // get all resources of type range
-        orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( QUrl(range.resourceUri().toString()) ) );
+        if(range.isValid() && !range.resourceUri().isEmpty()) {
+            Nepomuk::Query::OrTerm orTerm;
 
-        // in case the range leads to pimo:Event add also ncal:Event to the completion
-        // this is a workaround ...
-        if( QUrl(range.resourceUri()) == Nepomuk::Vocabulary::PIMO::Event()) {
-            orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NCAL::Event() ) );
+            // get all resources of type range
+            orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( QUrl(range.resourceUri().toString()) ) );
+
+            // in case the range leads to pimo:Event add also ncal:Event to the completion
+            // this is a workaround ...
+            if( QUrl(range.resourceUri()) == Nepomuk::Vocabulary::PIMO::Event()) {
+                orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NCAL::Event() ) );
+            }
+
+            Nepomuk::Query::Query query( orTerm );
+            m_queryClient->query(query);
         }
-
-        Nepomuk::Query::Query query( orTerm );
-        m_queryClient->query(query);
     }
 
-    // if we can't use the range for the check
-    // get all entries for the propertyUrl that exist, maybe there is something in it we could reuse
-//    else {
-        // get all resources of type range
-        //Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( range.resourceUri() ) );
-        //m_queryClient->query(query);
-//    }
+    m_completer->setModel(sim);
 
     // if we set the resource before the property
     // it is now time to set the label the first time
@@ -394,30 +396,8 @@ void PropertyEdit::setVisible(bool visible)
 
 void PropertyEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entries)
 {
-    if(m_initialQueryFinished) {
-//        m_initialCompleterCache.clear();
-        // start background thread the data
-        QFuture<QList<QStandardItem*> > future = QtConcurrent::run(this, &PropertyEdit::createCompletionModel, entries);
-
-        QFutureWatcher<QList<QStandardItem*> > *futureWatcher = new QFutureWatcher<QList<QStandardItem*> >();
-        futureWatcher->setFuture(future);
-        connect(futureWatcher, SIGNAL(finished()),this, SLOT(completionModelProcessed()));
-    }
-    else {
-        m_initialCompleterCache.append(entries);
-    }
-}
-
-void PropertyEdit::initialQueryFinished()
-{
-    m_initialQueryFinished = true;
-    if(m_initialCompleterCache.isEmpty())
-        return;
-
-    // don't close the query client, this allows to update the completer
-
     // start background thread the data
-    QFuture<QList<QStandardItem*> > future = QtConcurrent::run(this, &PropertyEdit::createCompletionModel, m_initialCompleterCache);
+    QFuture<QList<QStandardItem*> > future = QtConcurrent::run(this, &PropertyEdit::createCompletionModel, entries);
 
     QFutureWatcher<QList<QStandardItem*> > *futureWatcher = new QFutureWatcher<QList<QStandardItem*> >();
     futureWatcher->setFuture(future);
@@ -430,7 +410,15 @@ void PropertyEdit::completionModelProcessed()
     QList<QStandardItem*> result = futureWatcher->future().result();
 
     if(!result.isEmpty()) {
-        m_completerModel->appendRow(result);
+        QStandardItemModel *sim = m_completerModelList.value(m_range, 0);
+        if(sim) {
+            // ok this is a wired bug, if we insert new items after we added the first batch we need to use
+            // appendRow rather that appendColumn otherwise it won't show up in the popup list
+            if( sim->rowCount() == 0)
+                sim->appendColumn(result);
+            else
+                sim->appendRow(result);
+        }
     }
 
     disconnect(futureWatcher, SIGNAL(finished()),this, SLOT(completionModelProcessed()));

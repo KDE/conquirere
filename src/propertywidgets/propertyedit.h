@@ -249,7 +249,6 @@ private slots:
       * when a huge amount of entries are available.
       */
     void addCompletionData(const QList< Nepomuk::Query::Result > &entries);
-    void initialQueryFinished();
     void completionModelProcessed();
 
 protected:
@@ -270,10 +269,8 @@ private:
     QHash<QString, QUrl> m_listCache; /**< caches the label text with its nepomuk uri to easily retrieve the resource */
 
     QCompleter *m_completer;
-    QStandardItemModel* m_completerModel;
+    QUrl m_range;
     Nepomuk::Query::QueryServiceClient *m_queryClient;
-    QList<Nepomuk::Query::Result> m_initialCompleterCache;
-    bool m_initialQueryFinished;
 };
 
 #endif // PROPERTYEDIT_H
