@@ -79,6 +79,10 @@ void ContactEdit::updateResource(const QString & text)
     }
 
     foreach(const QString & s, entryList) {
+
+        if(s.trimmed().isEmpty())
+            continue;
+
         // try to find the propertyurl of an already existing contact
         QUrl propContactUrl = propertyEntry(s.trimmed());
         if(propContactUrl.isValid()) {
@@ -87,6 +91,23 @@ void ContactEdit::updateResource(const QString & text)
             resource().addProperty( propertyUrl(), contact);
         }
         else {
+            kDebug() << "try to find the name of the contact entered without complter in the complter model";
+            QStandardItemModel *sim = dynamic_cast<QStandardItemModel *>(m_completer->model());
+            if(!sim)
+                kDebug() << "no QStandardItemModel";
+            else {
+                QList<QStandardItem *> siList = sim->findItems(s.trimmed());
+                if(siList.isEmpty())
+                    kDebug() << "did not find the contact" << s.trimmed();
+                else {
+                    kDebug() << "found matching contacts" << siList.size() << "for contact" << s.trimmed();
+                    Nepomuk::Resource contact = Nepomuk::Resource(siList.first()->data(Qt::UserRole + 1).toUrl());
+                    kDebug() << "add existing contact" << contact.genericLabel();
+                    resource().addProperty( propertyUrl(), contact);
+                    continue;
+                }
+            }
+
             // create a new contact with the string s as fullname
             Nepomuk::Resource newContact(propContactUrl, Nepomuk::Vocabulary::NCO::Contact());
             newContact.setProperty(Nepomuk::Vocabulary::NCO::fullname(), s.trimmed());

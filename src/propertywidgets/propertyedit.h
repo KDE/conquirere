@@ -253,6 +253,7 @@ private slots:
 
 protected:
     KLineEdit *m_lineEdit;
+    QCompleter *m_completer;
 
 private:
     void mousePressEvent ( QMouseEvent * event );
@@ -268,7 +269,6 @@ private:
     QUrl m_propertyUrl;
     QHash<QString, QUrl> m_listCache; /**< caches the label text with its nepomuk uri to easily retrieve the resource */
 
-    QCompleter *m_completer;
     QUrl m_range;
     Nepomuk::Query::QueryServiceClient *m_queryClient;
 };

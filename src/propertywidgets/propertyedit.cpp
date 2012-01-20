@@ -422,8 +422,6 @@ void PropertyEdit::completionModelProcessed()
                 sim->appendColumn(result);
             else
                 sim->appendRow(result);
-
-            //m_completer->setModel(sim);
         }
     }
 
