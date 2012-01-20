@@ -29,6 +29,7 @@
 #include <KDE/KIcon>
 #include <KDE/KSqueezedTextLabel>
 #include <KDE/KLineEdit>
+#include <KDE/KDebug>
 
 #include <QtGui/QLabel>
 #include <QtGui/QToolButton>
@@ -40,6 +41,7 @@
 #include <QtCore/QThread>
 #include <QtCore/QtConcurrentRun>
 #include <QtGui/QStandardItemModel>
+#include <QtGui/QCompleter>
 
 // This static is here so that we create a completion model only once per type
 // this helps to reduce the nepomuk querys, as we use the Tag and Contact edit often
@@ -326,19 +328,23 @@ void PropertyEdit::insertCompletion(const QModelIndex & index)
         int tempLength = 0;
         // find the substring that is being manipulated and replace it with the selected suggestion
         bool inserted = false;
+        int curentry = 1;
         foreach(const QString & s, entrylist) {
             tempLength += s.length();
             if( !inserted && tempLength >= pos-1) {
-                exitString.append(index.data().toString());
+                exitString.append(index.data().toString().trimmed());
 
                 addPropertryEntry(index.data().toString(), index.data(Qt::UserRole + 1).toString());
                 inserted = true;
             }
             else {
-                exitString.append(s);
+                exitString.append(s.trimmed());
             }
 
             exitString.append(QLatin1String("; "));
+            // helps to adjust to all the whitespaces that come from the "; " so we still add it to the right place
+            tempLength += curentry;
+            curentry++;
         }
 
         exitString.chop(2);
@@ -417,7 +423,7 @@ void PropertyEdit::completionModelProcessed()
             else
                 sim->appendRow(result);
 
-            m_completer->setModel(sim);
+            //m_completer->setModel(sim);
         }
     }
 

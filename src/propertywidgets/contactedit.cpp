@@ -22,7 +22,9 @@
 
 #include <KDE/KDebug>
 
+#include <QAbstractItemModel>
 #include <QtGui/QStandardItemModel>
+#include <QtGui/QCompleter>
 
 ContactEdit::ContactEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -83,11 +85,6 @@ void ContactEdit::updateResource(const QString & text)
             Nepomuk::Resource contact = Nepomuk::Resource(propContactUrl);
             kDebug() << "add existing contact" << contact.genericLabel();
             resource().addProperty( propertyUrl(), contact);
-
-            QList<Nepomuk::Resource> authorlist = resource().property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
-            foreach(Nepomuk::Resource r, authorlist) {
-                kDebug() << "author" << r.genericLabel();
-            }
         }
         else {
             // create a new contact with the string s as fullname
