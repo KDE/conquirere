@@ -22,6 +22,9 @@
 
 class QStandardItemModel;
 
+/**
+  * @brief Edits the @c nbib:event and @c nbib:eventPublication of an @c nbib:Publication
+  */
 class EventEdit : public PropertyEdit
 {
     Q_OBJECT
@@ -30,7 +33,7 @@ public:
 
 protected:
     /**
-      * Shows the @c nie:ftitle of the @ nbib:event
+      * Shows the @c nie:title of the @ nbib:event
       */
     void setupLabel();
 

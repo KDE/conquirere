@@ -24,8 +24,8 @@
 #include <QtGui/QStandardItemModel>
 #include <QtCore/QUrl>
 
-CourtReporterEdit::CourtReporterEdit(QWidget *parent) :
-    PropertyEdit(parent)
+CourtReporterEdit::CourtReporterEdit(QWidget *parent)
+    : PropertyEdit(parent)
 {
     setPropertyUrl( Nepomuk::Vocabulary::NBIB::courtReporter() );
 }

@@ -25,7 +25,11 @@ class QStandardItemModel;
 /**
   * @brief Allows to edit the volume/number of either a @c nbib:JournalIssue or usual @c nbib:Publication
   *
-  * Multivolume books can have a volume/number too
+  * Multivolume books can have a volume/number too. Also we handle special cases for the @c nbib:CodeOfLaw and
+  * @c nbib:CourtReporter
+  *
+  * This means even when we show the the Publication we can add this edit and manipulate the right collections
+  * instead of the publication when we change values in teh widget,
   *
   * Shows manipulates either @c nbib:volume or @c nbib:numer depending on the propertyUrl()
   */

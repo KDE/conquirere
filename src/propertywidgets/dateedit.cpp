@@ -28,10 +28,8 @@
 #include <QtGui/QWidgetAction>
 #include <QtCore/QDateTime>
 
-#include <QtCore/QDebug>
-
 DateEdit::DateEdit(QWidget *parent)
-    :PropertyEdit(parent)
+    : PropertyEdit(parent)
 {
     setDirectEdit(false);
     setUseDetailDialog(true);

@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
   </property>
@@ -20,7 +23,7 @@
    <item>
     <widget class="QLabel" name="textlabel">
      <property name="text">
-      <string>TextLabel</string>
+      <string notr="true"/>
      </property>
     </widget>
    </item>

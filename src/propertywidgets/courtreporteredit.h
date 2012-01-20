@@ -22,6 +22,10 @@
 
 class QStandardItemModel;
 
+/**
+  * @brief USed to Edit the @c nbib:CourtReporter of an nbib:Publication
+  *
+  */
 class CourtReporterEdit : public PropertyEdit
 {
     Q_OBJECT

@@ -24,7 +24,7 @@
 #include <QtGui/QStandardItemModel>
 
 PublicationEdit::PublicationEdit(QWidget *parent)
-    :PropertyEdit(parent)
+    : PropertyEdit(parent)
 {
     setPropertyUrl(Nepomuk::Vocabulary::NBIB::publication());
     setUseDetailDialog(true);

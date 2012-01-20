@@ -32,9 +32,6 @@ void TagEdit::setupLabel()
 {
     QString labelText;
 
-    // we can always assume there can be more than 1 tag for a resource
-    //if(hasMultipleCardinality()) {
-
     QList<Nepomuk::Tag> tagList = resource().tags();
 
     foreach(const Nepomuk::Tag & t, tagList) {
@@ -78,7 +75,7 @@ void TagEdit::updateResource(const QString & text)
         else {
             // create a new contact with the string s as fullname
             Nepomuk::Tag newTag;
-            //FIXME Nepomuk::Tag does not add type Tag but twice type Resource!
+            //BUG Nepomuk::Tag does not add type Tag but twice type Resource!
             newTag.addType(Soprano::Vocabulary::NAO::Tag());
             newTag.setProperty(Soprano::Vocabulary::NAO::prefLabel(), s.trimmed());
             newTag.setProperty(Soprano::Vocabulary::NAO::identifier(), s.trimmed());

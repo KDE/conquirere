@@ -22,6 +22,9 @@
 
 class QStandardItemModel;
 
+/**
+  * @brief Edits the @c nbib:CodeOfLaw from a nbib:Publication
+  */
 class CodeOfLawEdit : public PropertyEdit
 {
     Q_OBJECT
@@ -29,6 +32,9 @@ public:
     explicit CodeOfLawEdit(QWidget *parent = 0);
 
 protected:
+    /**
+      * Use @c nie:title of the @c nbib:codeOfLaw
+      */
     void setupLabel();
 
     virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries );

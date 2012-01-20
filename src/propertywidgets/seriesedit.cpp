@@ -24,7 +24,7 @@
 #include <QtGui/QStandardItemModel>
 
 SeriesEdit::SeriesEdit(QWidget *parent)
-    :PropertyEdit(parent)
+    : PropertyEdit(parent)
 {
     setPropertyUrl(Nepomuk::Vocabulary::NBIB::inSeries());
 }

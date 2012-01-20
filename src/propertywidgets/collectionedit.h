@@ -25,6 +25,7 @@
 class QStandardItemModel;
 
 /**
+  * @brief Edit the @c nbib:Collection  of an @c nbib:Article Publication
   *
   * @pre propertyUrl() must return a nbib:Collection type
   */
@@ -36,12 +37,12 @@ public:
 
 protected:
     /**
-      * Shows the @c nie:title of the collection connected to the nbib:article
+      * Shows the @c nie:title of the collection connected to the nbib:Article
       */
     void setupLabel();
 
     /**
-      * fills the QCompleter with the titles of all available nbib:collections
+      * fills the QCompleter with the titles of all available nbib:Collections
       */
     virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 

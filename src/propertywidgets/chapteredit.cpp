@@ -24,7 +24,7 @@
 #include <QtGui/QStandardItemModel>
 
 ChapterEdit::ChapterEdit(QWidget *parent)
-    :PropertyEdit(parent)
+    : PropertyEdit(parent)
 {
 }
 

@@ -26,7 +26,7 @@
 #include <QtCore/QUrl>
 
 EventEdit::EventEdit(QWidget *parent)
-    :PropertyEdit(parent)
+    : PropertyEdit(parent)
 {
     setPropertyUrl(Nepomuk::Vocabulary::NBIB::event());
 }

@@ -27,6 +27,11 @@ class QWidgetAction;
 class KDatePicker;
 class QStandardItemModel;
 
+/**
+  * @brief Edits the Publication date @c nbib:publicationDate() of an @c nbib:Publication
+  *
+  * The date is saved as @c "yyyy-MM-ddTHH:mm:ss"
+  */
 class DateEdit : public PropertyEdit
 {
     Q_OBJECT

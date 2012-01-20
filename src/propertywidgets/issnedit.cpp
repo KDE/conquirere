@@ -25,7 +25,7 @@
 #include <QtCore/QUrl>
 
 IssnEdit::IssnEdit(QWidget *parent)
-    :PropertyEdit(parent)
+    : PropertyEdit(parent)
 {
     setPropertyCardinality(UNIQUE_PROPERTY);
 }

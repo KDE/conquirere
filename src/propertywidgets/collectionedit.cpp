@@ -25,8 +25,8 @@
 #include <QtGui/QInputDialog>
 #include <QtCore/QUrl>
 
-CollectionEdit::CollectionEdit(QWidget *parent) :
-    PropertyEdit(parent)
+CollectionEdit::CollectionEdit(QWidget *parent)
+    : PropertyEdit(parent)
 {
     setPropertyUrl( Nepomuk::Vocabulary::NBIB::collection() );
     setUseDetailDialog(true);

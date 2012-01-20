@@ -41,8 +41,6 @@
 #include <QtCore/QtConcurrentRun>
 #include <QtGui/QStandardItemModel>
 
-#include <QtCore/QDebug>
-
 // This static is here so that we create a completion model only once per type
 // this helps to reduce the nepomuk querys, as we use the Tag and Contact edit often
 // so we only create 1 completer model and not several of them.

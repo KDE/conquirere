@@ -25,7 +25,7 @@
 #include <QtCore/QUrl>
 
 OrganizationEdit::OrganizationEdit(QWidget *parent)
-    :PropertyEdit(parent)
+    : PropertyEdit(parent)
 {
     setPropertyUrl( Nepomuk::Vocabulary::NBIB::organization() );
 }

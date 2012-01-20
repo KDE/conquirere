@@ -26,10 +26,10 @@
 
 #include <KDE/KUrlRequester>
 
-AddDataObject::AddDataObject(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::AddDataObject),
-    m_kurlrequester(0)
+AddDataObject::AddDataObject(QWidget *parent)
+    : QDialog(parent)
+    , ui(new Ui::AddDataObject)
+    , m_kurlrequester(0)
 {
     ui->setupUi(this);
 
@@ -113,20 +113,17 @@ void AddDataObject::addItem(const QString & text)
         }
     }
     else if(m_mode == FileObjectEdit::Remote) {
-        qWarning() << "fileobjectedit :: find a way to find existing nfo:RemoteDataObject resources";
         Nepomuk::Resource newFile(QUrl(), Nepomuk::Vocabulary::NFO::RemoteDataObject());
         dataObject = newFile;
         dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), text);
     }
-    //TODO change this to NFO::WebDataObject()
+    //TODO change this to NFO::WebDataObject() when available
     else if(m_mode == FileObjectEdit::Website) {
-        qWarning() << "fileobjectedit :: find a way to find existing nfo:WebDataObject resources";
         Nepomuk::Resource newFile(QUrl(), Nepomuk::Vocabulary::NFO::Website());
         dataObject = newFile;
         dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), text);
     }
 
-    qDebug() << "add dataObject" << dataObject.resourceUri();
     // connect new dataobject to resource
     m_resource.addProperty( Nepomuk::Vocabulary::NBIB::isPublicationOf(), dataObject);
     //and the backreference

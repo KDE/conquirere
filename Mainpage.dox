@@ -120,11 +120,13 @@ Most noticeable are the:
 
 These classes are input helper to handle input and display of Nepomuk data. The abstract baseclass PropertyEdit is the starting point for any other edit widget.
 
-All these widget will show a KSqueezedTextLabel in the normal state. As soon as the user clicks on it, it will show a KLineEdit to alter the data. Each string represents one Nepomuk entry. Multiple strings are seperated by a "; ". In the case a simple line edit does not justify the complex data of a nepomuk entry a small button for a detail dialog can be shown via PropertyEdit::setUseDetailDialog() to avoid direct editing without such a detail dialog you can set PropertyEdit::setDirectEdit() to false.
+All these widget will show a KSqueezedTextLabel in the normal state. As soon as the user clicks on it, it will show a KLineEdit to alter the data. Each string represents one Nepomuk entry. Multiple strings are seperated by a "; ".
+In the case a simple line edit does not justify the complex data of a nepomuk entry a small button for a detail dialog can be shown via PropertyEdit::setUseDetailDialog() to avoid direct editing without such a detail dialog you can set PropertyEdit::setDirectEdit() to false.
 
 To define "what" the property edit actually represents the Nepomuk::Resource must be set via PropertyEdit::setResource() and the property that will be altered via PropertyEdit::setPropertyUrl().
 
-The neat thing about this widgets are the QCompleter function. Whenever a widget is used, it fetches all Nepomuk data in the range of the property url. SO any resource that might fitt in this case and offers automatic completion.
+The neat thing about this widgets are the QCompleter function. Whenever a widget is used, it fetches all Nepomuk data in the range of the property url.
+So any resource that might fitt in this case and offers automatic completion.
 
 If you want to add your own propertywidgets have a look at StringEdit, ContactEdit, DateEdit or FileObjectEdit as reference.
 
