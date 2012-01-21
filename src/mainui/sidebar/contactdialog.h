@@ -92,7 +92,8 @@ private slots:
       *
       * only enables akonadi export if the item is not available in akonadi already
       */
-    void itemChanged(QListWidgetItem* current, QListWidgetItem* previous);
+    void itemChanged(QListWidgetItem* current);
+    void itemSelectionChanged();
 
     /**
       * creates a akonadi contact item from the current nepomuk resource
