@@ -54,6 +54,9 @@ Here is a small list of other publications that can be handled by this ontology
 
 The ontology part below is used for law related publications
 \image html nbib_law.jpeg "Law related"
+
+The ontology part below is used for event related stuff
+\image html nbib_event.jpeg "Event related"
 */
 
 /** \page hacking Source structure
@@ -107,14 +110,33 @@ If no file im/export is used, because we handle data directly from clipboard, in
 
 \subsection src_mainui src/mainui
 
-This part contains all classes related to the look and feel of the applications. These consits of the BibTeXImportWizard and BibTexExportDialog as a frontend for the \ref src_nbibio. Also several QDockWidget classes that contain all the user interaction parts.
+This part contains all classes related to the look and feel of the applications.
+These consits of the BibTeXImportWizard and BibTexExportDialog as a frontend for the \ref src_nbibio.
+Also several QDockWidget classes that contain all the user interaction parts.
 
 Most noticeable are the:
+\li LibraryManager - manages all opened Library instances
 \li LibraryWidget - lists all open Library instances and their content.
 \li WebSearchWidget - frontend for KBibTeX websearch
 \li DocumentPreview - integrates KPart elements to display documents inside Conquirere.
 \li ResourceTableWidget - the center view that offers a QTableView to display all NepomukModel data
 \li WelcomeWidget - shows a KHtml part to display some library informations
+
+\subsection src_sidebar src/mainui/sidebar
+
+The SidebarWidget is an intelligent QDockwidget that shows content related widget for the actual view.
+Which Widget is shown depends on the selection made in the LibraryWidget for example if the user selects all publications in the LibraryWidget the PublicationWidget is shown.
+The informations that are displayed depends on the Nepomuk::Resource selected in the ResourceTableWidget.
+All this stuff is connected via signal/slots in the coresponding classes.
+
+Some important widgets are:
+\li DocumentWidget
+\li PublicationWidget
+\li ReferenceWidget
+\li NoteWidget
+
+Also when more than 1 Nepomuk::Resource  is selected the MergeResourcesWidget is shown that lets the user merge several Nepomuk::Resources into 1.
+
 
 \subsection src_propertywidgets src/propertywidgets
 
@@ -131,18 +153,6 @@ So any resource that might fitt in this case and offers automatic completion.
 If you want to add your own propertywidgets have a look at StringEdit, ContactEdit, DateEdit or FileObjectEdit as reference.
 
 The propertywidgets are used mainly in the SidbarWidget subclasses. See \ref src_sidebar
-
-\subsection src_sidebar src/sidebar
-
-The SidebarWidget is an intelligent QDockwidget that shows content related widget for the actual view. Which Widget is shown depends on the selection made in the LibraryWidget for example if the user selects all publications in the LibraryWidget the PublicationWidget is shown. The informations that are displayed depends on the Nepomuk::Resource selected in the ResourceTableWidget. All this stuff is connected via signal/slots in the coresponding classes.
-
-Some important widgets are:
-\li DocumentWidget
-\li PublicationWidget
-\li ReferenceWidget
-\li NoteWidget
-
-Also when more than 1 Nepomuk::Resource  is selected the MergeResourcesWidget is shown that lets the user merge several Nepomuk::Resources into 1.
 
 */
 

@@ -81,7 +81,7 @@ relationcanvas 131588 relation_ref 204548 // <aggregation>
   from ref 128900 z 2019 to point 620 616
   line 131716 z 2019 to point 691 616
   line 131844 z 2019 to ref 128900
-  role_a_pos 602 621 3000 no_role_b
+  role_a_pos 610 618 3000 no_role_b
   multiplicity_a_pos 677 581 3000 no_multiplicity_b
 end
 relationcanvas 132228 relation_ref 204932 // <generalisation>
@@ -197,7 +197,7 @@ relationcanvas 136964 relation_ref 273156 // <aggregation>
   no_multiplicity_a no_multiplicity_b
 end
 relationcanvas 137220 relation_ref 279940 // <aggregation>
-  from ref 129668 z 2007 stereotype "<<inventor>>" xyz 113.5 175 3000 to point 199 138
+  from ref 129668 z 2007 stereotype "<<inventor>>" xyz 113 175 3000 to point 199 138
   line 137348 z 2007 to ref 136068
   role_a_pos 119 156 3000 no_role_b
   no_multiplicity_a no_multiplicity_b
