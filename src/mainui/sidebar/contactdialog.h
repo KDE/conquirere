@@ -92,7 +92,6 @@ private slots:
       *
       * only enables akonadi export if the item is not available in akonadi already
       */
-    void itemChanged(QListWidgetItem* current);
     void itemSelectionChanged();
 
     /**

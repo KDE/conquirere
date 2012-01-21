@@ -160,8 +160,6 @@ void ContactDialog::addNepomukContact()
 
         if(ui->klistwidget->count() != 0) {
             ui->editButton->setEnabled(true);
-
-            itemChanged(ui->klistwidget->item(0));
         }
 
     }
@@ -210,8 +208,6 @@ void ContactDialog::contactStored( const Akonadi::Item& item)
 
     if(ui->klistwidget->count() != 0) {
         ui->editButton->setEnabled(true);
-
-        itemChanged(i);
     }
 }
 
