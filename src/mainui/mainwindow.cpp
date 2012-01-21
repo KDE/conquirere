@@ -36,9 +36,6 @@
 #include "docklets/documentpreview.h"
 #include "docklets/searchwidget.h"
 
-#include "sync/bibtexexportdialog.h"
-#include "sync/bibteximportwizard.h"
-#include "sync/synczoterodialog.h"
 #include "sync/syncbutton.h"
 
 #include "nbibio/conquirere.h"
@@ -49,9 +46,7 @@
 #include <KDE/KActionCollection>
 #include <KDE/KStandardAction>
 #include <KDE/KStandardDirs>
-#include <KDE/KFileDialog>
 #include <KDE/KMessageBox>
-#include <KDE/KGlobalSettings>
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Variant>
@@ -59,9 +54,6 @@
 #include <Nepomuk/Vocabulary/PIMO>
 
 #include <QtGui/QLayout>
-
-#include <QtCore/QDebug>
-#include <KDE/KDebug>
 
 
 //DEBUG ADD to delete all nepomuk data
@@ -200,32 +192,19 @@ void MainWindow::closeLibrarySelection()
     m_libraryManager->closeLibrary(selectedLib);
 }
 
-
-//####################################################################################################
-//####################################################################################################
-//####################################################################################################
-
 void MainWindow::importZotero()
 {
-    SyncZoteroDialog szd;
-
-    szd.exec();
-    updateListCache();
+    m_libraryManager->importData( LibraryManager::Zotero_Sync);
 }
 
 void MainWindow::exportZotero()
 {
-    SyncZoteroDialog szd;
-
-    szd.exec();
+    m_libraryManager->exportData(LibraryManager::Zotero_Sync);
 }
 
 void MainWindow::syncZotero()
 {
-    SyncZoteroDialog szd;
-
-    szd.exec();
-    updateListCache();
+    m_libraryManager->syncData(LibraryManager::Zotero_Sync);
 }
 
 void MainWindow::dbCheck()
@@ -236,15 +215,6 @@ void MainWindow::dbCheck()
 void MainWindow::dbBackup()
 {
     qDebug() << "MainWindow::dbBackup()";
-}
-
-void MainWindow::updateListCache()
-{
-    foreach(Library *l, m_libraryManager->openProjects()) {
-        l->updateCacheData();
-    }
-
-    m_libraryManager->systemLibrary()->updateCacheData();
 }
 
 void MainWindow::showConqSettings()
@@ -263,12 +233,6 @@ void MainWindow::connectKPartGui(KParts::Part * part)
 
     createGUI(part);
 }
-
-
-//####################################################################################################
-//####################################################################################################
-//####################################################################################################
-
 
 void MainWindow::switchView(ResourceSelection selection, BibEntryType filter, Library *selectedLibrary)
 {
@@ -486,7 +450,7 @@ void MainWindow::setupActions()
     updateListCache->setText(i18n("Update List Cache"));
     updateListCache->setIcon(KIcon(QLatin1String("view-refresh")));
     actionCollection()->addAction(QLatin1String("update_list_cache"), updateListCache);
-    connect(updateListCache, SIGNAL(triggered(bool)),this, SLOT(updateListCache()));
+    connect(updateListCache, SIGNAL(triggered(bool)),m_libraryManager, SLOT(updateListCache()));
 
     // settings action
     KAction* openSettings = new KAction(this);

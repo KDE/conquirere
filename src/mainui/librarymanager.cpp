@@ -27,6 +27,7 @@
 
 #include "sync/bibtexexportdialog.h"
 #include "sync/bibteximportwizard.h"
+#include "sync/synczoterodialog.h"
 
 #include <QtGui/QSortFilterProxyModel>
 
@@ -155,12 +156,12 @@ void LibraryManager::openSettings(Library *l)
     }
 }
 
-void LibraryManager::importData(ImportMode mode)
+void LibraryManager::importData(ModeSelection mode)
 {
     importData(m_systemLibrary, mode);
 }
 
-void LibraryManager::importData(Library *l, ImportMode mode)
+void LibraryManager::importData(Library *l, ModeSelection mode)
 {
     // disable tagcloud generation during import for all libraries
     // TODO the same for the qcompleter in the property widgets
@@ -169,17 +170,30 @@ void LibraryManager::importData(Library *l, ImportMode mode)
         p->tagCloud()->pauseUpdates(true);
     }
 
-    BibTeXImportWizard bid;
-    bid.setLibraryManager(this);
+    if(mode == Zotero_Sync) {
+        SyncZoteroDialog szd;
+//        szd.setLibraryManager(this);
 
-    if(l != m_systemLibrary) {
-        bid.setImportLibrary(l);
+//        if(l != m_systemLibrary) {
+//            szd.setImportLibrary(l);
+//        }
+//        szd.setupUi();
+
+        szd.exec();
+    }
+    else {
+        BibTeXImportWizard bid;
+        bid.setLibraryManager(this);
+
+        if(l != m_systemLibrary) {
+            bid.setImportLibrary(l);
+        }
+
+        bid.setupUi();
+        bid.exec();
     }
 
-    bid.setupUi();
-    bid.exec();
-
-    //updateListCache();
+//    updateListCache();
 
     // enable generation again
     systemLibrary()->tagCloud()->pauseUpdates(false);
@@ -188,23 +202,58 @@ void LibraryManager::importData(Library *l, ImportMode mode)
     }
 }
 
-void LibraryManager::exportData(ExportMode mode)
+void LibraryManager::exportData(ModeSelection mode)
 {
     exportData(m_systemLibrary, mode);
 }
 
-void LibraryManager::exportData(Library *l, ExportMode mode)
+void LibraryManager::exportData(Library *l, ModeSelection mode)
 {
+    if(mode == Zotero_Sync) {
+        SyncZoteroDialog szd;
+//        szd.setLibraryManager(this);
 
-    BibTexExportDialog bed;
-    bed.setInitialFileType(NBibExporterFile::EXPORT_BIBTEX);
-    bed.setLibraryManager(this);
+//        if(l != m_systemLibrary) {
+//            szd.setImportLibrary(l);
+//        }
+//        szd.setupUi();
 
-    if(l != m_systemLibrary) {
-        bed.setExportLibrary(l);
+        szd.exec();
     }
+    else {
+        BibTexExportDialog bed;
+        bed.setInitialFileType(NBibExporterFile::EXPORT_BIBTEX);
+        bed.setLibraryManager(this);
 
-    bed.exec();
+        if(l != m_systemLibrary) {
+            bed.setExportLibrary(l);
+        }
+
+        bed.exec();
+    }
+}
+
+void LibraryManager::syncData(ModeSelection mode)
+{
+    syncData(m_systemLibrary, mode);
+}
+
+void LibraryManager::syncData(Library *l, ModeSelection mode)
+{
+    if(mode == Zotero_Sync) {
+        SyncZoteroDialog szd;
+//        szd.setLibraryManager(this);
+
+//        if(l != m_systemLibrary) {
+//            szd.setImportLibrary(l);
+//        }
+//        szd.setupUi();
+
+        szd.exec();
+    }
+    else {
+
+    }
 }
 
 void LibraryManager::updateListCache()

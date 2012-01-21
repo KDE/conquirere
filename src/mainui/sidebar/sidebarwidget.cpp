@@ -48,12 +48,11 @@
 #include <Nepomuk/Vocabulary/NMO>
 
 #include <KDE/KGlobalSettings>
+#include <KDE/KDebug>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QStackedLayout>
 #include <QtGui/QMenu>
-
-#include <QtCore/QDebug>
 
 SidebarWidget::SidebarWidget(QWidget *parent)
     : QDockWidget(parent)
@@ -434,7 +433,7 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
     }
     case Resource_Website:
     case Resource_Media:
-        qDebug() << "todo not implemented yet";
+        kDebug() << "todo not implemented yet";
         break;
     case Max_ResourceTypes:
         qFatal("Max resourcetypes should never be used here");

@@ -83,6 +83,7 @@ private slots:
       * @see editChapter()
       * @see editSeries()
       * @see editCollection()
+      * @see editPublication()
       */
     void editPart();
 
@@ -93,6 +94,7 @@ private slots:
       * @see addChapter()
       * @see addSeries()
       * @see addCollection()
+      * @see addPublication()
       */
     void addPart();
 
@@ -103,6 +105,7 @@ private slots:
       * @see removeChapter()
       * @see removeSeries()
       * @see removeCollection()
+      * @see removePublication()
       */
     void removePart();
 
@@ -113,6 +116,7 @@ private slots:
       * @see deleteChapter()
       * @see deleteSeries()
       * @see deleteCollection()
+      * @see deletePublication()
       */
     void deletePart();
 

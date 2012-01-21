@@ -23,6 +23,8 @@
 
 #include "mainui/librarymanager.h"
 
+#include "mainui/dialogs/newprojectwizard.h"
+
 LibraryInfoWidget::LibraryInfoWidget(QWidget *parent)
     : SidebarComponent(parent)
     , ui(new Ui::LibraryInfoWidget)
@@ -72,7 +74,13 @@ void LibraryInfoWidget::setResource(Nepomuk::Resource & resource)
 
 void LibraryInfoWidget::newButtonClicked()
 {
+    NewProjectWizard npw;
 
+    int ret = npw.exec();
+
+    if(ret == QDialog::Accepted) {
+        libraryManager()->addLibrary( npw.newLibrary() );
+    }
 }
 
 void LibraryInfoWidget::deleteButtonClicked()

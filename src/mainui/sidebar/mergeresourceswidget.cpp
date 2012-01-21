@@ -19,13 +19,13 @@
 #include "ui_mergeresourceswidget.h"
 
 #include <Nepomuk/ResourceManager>
+
 #include <KDE/KIcon>
+#include <KDE/KDebug>
 
-#include <QtCore/QDebug>
-
-MergeResourcesWidget::MergeResourcesWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::MergeResourcesWidget)
+MergeResourcesWidget::MergeResourcesWidget(QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::MergeResourcesWidget)
 {
     ui->setupUi(this);
 
@@ -46,5 +46,5 @@ void MergeResourcesWidget::setResources(QList<Nepomuk::Resource> resourcelist)
 
 void MergeResourcesWidget::merge()
 {
-    qDebug() << "wait for kde 4.8 to arrive in ubuntu...";
+    kDebug() << "wait for kde 4.8 to arrive in ubuntu...";
 }

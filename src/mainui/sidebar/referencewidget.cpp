@@ -45,8 +45,6 @@
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
 
-#include <QtCore/QDebug>
-
 ReferenceWidget::ReferenceWidget(QWidget *parent)
     : SidebarComponent(parent)
     , ui(new Ui::ReferenceWidget)

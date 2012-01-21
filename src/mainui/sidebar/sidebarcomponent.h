@@ -18,7 +18,7 @@
 #ifndef SIDEBARCOMPONENT_H
 #define SIDEBARCOMPONENT_H
 
-#include "../globals.h"
+#include "globals.h"
 
 #include <Nepomuk/Resource>
 

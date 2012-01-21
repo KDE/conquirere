@@ -57,7 +57,6 @@ public slots:
     void dbCheck();
     void dbBackup();
 
-    void updateListCache();
     void showConqSettings();
 
     // other helping slots

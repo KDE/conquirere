@@ -28,6 +28,9 @@ namespace Ui {
     class PublicationWidget;
 }
 
+/**
+  * @brief SidbarWidget to show and manipulate all @c nbib:Publication resources
+  */
 class PublicationWidget : public SidebarComponent
 {
     Q_OBJECT

@@ -57,8 +57,6 @@
 #include <QtGui/QAction>
 #include <QtCore/QPointer>
 
-#include <QtCore/QDebug>
-
 PublicationWidget::PublicationWidget(QWidget *parent)
     : SidebarComponent(parent)
     , ui(new Ui::PublicationWidget)

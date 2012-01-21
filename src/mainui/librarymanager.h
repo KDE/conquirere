@@ -36,19 +36,11 @@ class LibraryManager : public QObject
 {
     Q_OBJECT
 public:
-    enum ImportMode {
-        Import_KBibTeX_Local,
-        Import_KBibTeX_Sync,
-        Import_Zotero_Sync,
-        Import_Select_Mode
-    };
-
-    enum ExportMode {
-        Export_KBibTeX_Local,
-        Export_Zotero_Sync,
-        Export_PDF,
-        Export_OtherFile,
-        Export_Select_Mode
+    enum ModeSelection {
+        KBibTeX_Local,
+        KBibTeX_Sync,
+        Zotero_Sync,
+        Select_Mode
     };
 
     explicit LibraryManager(QObject *parent = 0);
@@ -70,11 +62,14 @@ public slots:
     void openSettings();
     void openSettings(Library *l);
 
-    void importData(ImportMode mode = Import_Select_Mode);
-    void importData(Library *l, ImportMode mode = Import_Select_Mode);
+    void importData(ModeSelection mode = Select_Mode);
+    void importData(Library *l, ModeSelection mode = Select_Mode);
 
-    void exportData(ExportMode mode = Export_Select_Mode);
-    void exportData(Library *l, ExportMode mode = Export_Select_Mode);
+    void exportData(ModeSelection mode = Select_Mode);
+    void exportData(Library *l, ModeSelection mode = Select_Mode);
+
+    void syncData(ModeSelection mode = Select_Mode);
+    void syncData(Library *l, ModeSelection mode = Select_Mode);
 
     void updateListCache();
 

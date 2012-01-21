@@ -26,6 +26,11 @@ namespace Ui {
     class LibraryInfoWidget;
 }
 
+/**
+  * @brief SidebarWidget to show some Library details and some interaction buttons
+  *
+  * Allows to interact with a Library via t heLibraryManager
+  */
 class LibraryInfoWidget : public SidebarComponent
 {
     Q_OBJECT
