@@ -25,6 +25,9 @@
 #include <Nepomuk/Variant>
 
 #include <KDE/KUrlRequester>
+#include <KDE/KDebug>
+
+#include <QDBusInterface>
 
 AddDataObject::AddDataObject(QWidget *parent)
     : QDialog(parent)
@@ -35,6 +38,8 @@ AddDataObject::AddDataObject(QWidget *parent)
 
     connect(ui->keditlistwidget, SIGNAL(added(QString)), this, SLOT(addItem(QString)));
     connect(ui->keditlistwidget, SIGNAL(removed(QString)), this, SLOT(removeItem(QString)));
+
+    m_nepomukDBus = new QDBusInterface( "org.kde.nepomuk.services.nepomukfileindexer", "/nepomukfileindexer" );
 }
 
 AddDataObject::~AddDataObject()
@@ -95,39 +100,44 @@ void AddDataObject::fillListWidget()
     }
 }
 
-void AddDataObject::addItem(const QString & text)
+void AddDataObject::addItem(const QString & itemUrl)
 {
     Nepomuk::Resource dataObject;
 
     if(m_mode == FileObjectEdit::Local) {
         // find the resource of the file
-        KUrl url(text);
-        Nepomuk::File nf(url);
+        KUrl url(QLatin1String("file://") + itemUrl);
+        Nepomuk::File nf = Nepomuk::File(url);
         if(nf.isValid()) {
             dataObject = nf;
+            kDebug() << "found valid Nepomuk::File" << nf.url();
         }
         else {
-            Nepomuk::Resource newFile(QUrl(), Nepomuk::Vocabulary::NFO::FileDataObject());
-            dataObject = newFile;
-            dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), text);
+            dataObject = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NFO::FileDataObject());
+            dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), itemUrl);
         }
+
+        // tell the nepomuk strige client to reindex the current file
+        // as I might add files not in the index so far, this changes it. So we don't connect files here
+        // where no information is available
+        m_nepomukDBus->call("org.kde.nepomuk.FileIndexer.indexFile", itemUrl);
     }
     else if(m_mode == FileObjectEdit::Remote) {
-        Nepomuk::Resource newFile(QUrl(), Nepomuk::Vocabulary::NFO::RemoteDataObject());
-        dataObject = newFile;
-        dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), text);
+        dataObject = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NFO::RemoteDataObject());
+        dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), itemUrl);
     }
     //TODO change this to NFO::WebDataObject() when available
     else if(m_mode == FileObjectEdit::Website) {
-        Nepomuk::Resource newFile(QUrl(), Nepomuk::Vocabulary::NFO::Website());
-        dataObject = newFile;
-        dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), text);
+        dataObject = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NFO::Website());
+        dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), itemUrl);
     }
 
     // connect new dataobject to resource
     m_resource.addProperty( Nepomuk::Vocabulary::NBIB::isPublicationOf(), dataObject);
     //and the backreference
     dataObject.setProperty(Nepomuk::Vocabulary::NBIB::publishedAs(), m_resource);
+
+    kDebug() << "added dataobject" << itemUrl << "as nepomuk resource" << dataObject.genericLabel();
 }
 
 void AddDataObject::removeItem(const QString & text)

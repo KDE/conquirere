@@ -28,6 +28,7 @@ namespace Ui {
 }
 
 class KUrlRequester;
+class QDBusInterface;
 
 /**
   * @brief Dialog to add several dataobject paths to a resource
@@ -57,6 +58,7 @@ private:
     Nepomuk::Resource m_resource;
     QUrl m_propertyUrl;
     KUrlRequester * m_kurlrequester;
+    QDBusInterface *m_nepomukDBus;
 };
 
 #endif // ADDDATAOBJECT_H

@@ -27,6 +27,7 @@
 
 #include <KDE/KFileDialog>
 #include <KDE/KGlobalSettings>
+#include <KDE/KDebug>
 
 FileObjectEdit::FileObjectEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -49,7 +50,7 @@ void FileObjectEdit::setupLabel()
 
     QString dataStringList;
     foreach(const Nepomuk::Resource & nr, dataObjectList) {
-        QString url = nr.property(Nepomuk::Vocabulary::NIE::url()).toString();
+        QString url = nr.genericLabel(); //nr.property(Nepomuk::Vocabulary::NIE::url()).toString();
 
         if(m_mode == Local && nr.resourceType() == Nepomuk::Vocabulary::NFO::FileDataObject()) {
             dataStringList.append(url);
