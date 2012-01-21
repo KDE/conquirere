@@ -18,13 +18,19 @@
 #ifndef SELECTOPENPROJECT_H
 #define SELECTOPENPROJECT_H
 
-#include <QDialog>
+#include <QtGui/QDialog>
 
 namespace Ui {
     class SelectOpenProject;
 }
 
 class Library;
+
+/**
+  * @brief Small helper dialog to select one of the opened project @c Librarys from the LibraryManager
+  *
+  * Used to select which Library shoul be closed or deleted
+  */
 class SelectOpenProject : public QDialog
 {
     Q_OBJECT

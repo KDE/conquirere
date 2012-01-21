@@ -21,13 +21,17 @@
 #include <Nepomuk/Resource>
 
 #include <QtCore/QObject>
-
 #include <QtCore/QMap>
 #include <QtCore/QUrl>
 
 class Library;
 class QWidget;
 
+/**
+  * @brief Manager to hold all Library instances used in the system
+  *
+  * Used to interact with and retrieve all opend Libraries
+  */
 class LibraryManager : public QObject
 {
     Q_OBJECT

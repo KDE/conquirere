@@ -16,7 +16,6 @@
  */
 
 #include "welcomewidget.h"
-#include "ui_welcomewidget.h"
 
 #include "../core/library.h"
 #include "../core/projectsettings.h"
@@ -27,6 +26,7 @@
 #include <KDE/KHTMLView>
 #include <KDE/DOM/HTMLDocument>
 #include <KDE/KStandardDirs>
+
 #include <Nepomuk/Vocabulary/PIMO>
 
 #include <QtGui/QVBoxLayout>
@@ -37,11 +37,9 @@
 
 WelcomeWidget::WelcomeWidget(Library *library, QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::WelcomeWidget)
     , m_library(library)
     , m_htmlPart(0)
 {
-    ui->setupUi(this);
     setupGui();
 
     connect(m_library->settings(), SIGNAL(projectDetailsChanged(Library*)), this, SLOT(generateHtml()));
@@ -49,17 +47,18 @@ WelcomeWidget::WelcomeWidget(Library *library, QWidget *parent)
 
 WelcomeWidget::~WelcomeWidget()
 {
-    delete ui;
     delete m_htmlPart;
 }
 
 void WelcomeWidget::setupGui()
 {
+    QVBoxLayout *layout = new QVBoxLayout;
+
     m_htmlPart = new KHTMLPart(this);
     m_htmlPart->setJScriptEnabled(true);
     m_htmlPart->setPluginsEnabled(true);
-    QVBoxLayout *vbl = qobject_cast<QVBoxLayout*>(ui->widget->layout());
-    vbl->addWidget(m_htmlPart->view());
+    layout->addWidget(m_htmlPart->view());
+    setLayout(layout);
 
     generateHtml();
 

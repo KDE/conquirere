@@ -18,7 +18,7 @@
 #ifndef EXPORTSETTINGS_H
 #define EXPORTSETTINGS_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace Ui {
     class ExportSettings;

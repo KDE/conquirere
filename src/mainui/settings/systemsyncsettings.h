@@ -18,7 +18,7 @@
 #ifndef SYSTEMSYNCSETTINGS_H
 #define SYSTEMSYNCSETTINGS_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace Ui {
     class SystemSyncSettings;

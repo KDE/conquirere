@@ -53,12 +53,11 @@
 #include <KDE/KConfig>
 #include <KDE/KAction>
 #include <KDE/KUrl>
+#include <KDE/KDebug>
 
 #include <QtGui/QListWidgetItem>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QMenu>
-
-#include <QtCore/QDebug>
 
 const int HomepageRole = Qt::UserRole + 5;
 const int WidgetRole = Qt::UserRole + 6;
@@ -89,6 +88,10 @@ SearchWidget::SearchWidget(QWidget *parent)
     connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(nepomukQueryFinished()));
 
     loadSettings();
+
+    connect(ui->editAuthor, SIGNAL(returnPressed()), this, SLOT(startSearch()));
+    connect(ui->editContent, SIGNAL(returnPressed()), this, SLOT(startSearch()));
+    connect(ui->editTitle, SIGNAL(returnPressed()), this, SLOT(startSearch()));
 }
 
 SearchWidget::~SearchWidget()
@@ -406,7 +409,6 @@ void SearchWidget::setupUi()
 
 void SearchWidget::addEngine(OnlineSearchAbstract *engine)
 {
-
     KConfig config;
     KConfigGroup searchSettingsGroup( &config, QLatin1String("SearchSettings") );
 
@@ -420,7 +422,6 @@ void SearchWidget::addEngine(OnlineSearchAbstract *engine)
     connect(engine, SIGNAL(foundEntry(QSharedPointer<Entry>)), this, SLOT(foundOnlineEntry(QSharedPointer<Entry>)));
     connect(engine, SIGNAL(stoppedSearch(int)), this, SLOT(websearchStopped(int)));
     connect(engine, SIGNAL(progress(int,int)), this, SLOT(updateProgress(int,int)));
-
 }
 
 void SearchWidget::switchToSearch()

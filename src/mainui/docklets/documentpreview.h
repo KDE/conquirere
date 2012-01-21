@@ -33,6 +33,10 @@ namespace KParts {
 }
 class QLabel;
 
+/**
+  * @brief Dockwidget to show the right KPart for a specific publication/document url
+  *
+  */
 class DocumentPreview : public QDockWidget
 {
     Q_OBJECT
@@ -62,6 +66,7 @@ private:
     QString m_lastPartsName;
     QLabel *m_labelInvalid;
     QLabel *m_labelNone;
+    bool m_visible;
 };
 
 #endif // DOCUMENTPREVIEW_H

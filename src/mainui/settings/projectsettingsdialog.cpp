@@ -24,10 +24,10 @@
 #include <KDE/KPageWidgetItem>
 #include <KDE/KConfigSkeleton>
 #include <KDE/KIcon>
-#include <QLabel>
+#include <QtGui/QLabel>
 
 ProjectSettingsDialog::ProjectSettingsDialog(QWidget *parent)
-    :KPageDialog(parent)
+    : KPageDialog(parent)
 {
     setupPages();
 

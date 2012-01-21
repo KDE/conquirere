@@ -18,7 +18,7 @@
 #ifndef APPEARANCESETTINGS_H
 #define APPEARANCESETTINGS_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace Ui {
     class AppearanceSettings;

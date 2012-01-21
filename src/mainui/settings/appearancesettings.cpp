@@ -24,11 +24,9 @@
 #include <QtGui/QListWidget>
 #include <QtGui/QListWidgetItem>
 
-#include <QtCore/QDebug>
-
-AppearanceSettings::AppearanceSettings(QWidget *parent) :
-QWidget(parent),
-ui(new Ui::AppearanceSettings)
+AppearanceSettings::AppearanceSettings(QWidget *parent)
+    :QWidget(parent)
+    , ui(new Ui::AppearanceSettings)
 {
     ui->setupUi(this);
 

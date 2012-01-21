@@ -20,10 +20,6 @@
 
 #include <QtGui/QWidget>
 
-namespace Ui {
-    class WelcomeWidget;
-}
-
 class Library;
 class KHTMLPart;
 
@@ -43,7 +39,6 @@ private slots:
 private:
     void setupGui();
 
-    Ui::WelcomeWidget *ui;
     Library *m_library;
     KHTMLPart *m_htmlPart;
 };

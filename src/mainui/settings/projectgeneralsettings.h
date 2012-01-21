@@ -18,7 +18,7 @@
 #ifndef PROJECTGENERALSETTINGS_H
 #define PROJECTGENERALSETTINGS_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace Ui {
     class ProjectGeneralSettings;
@@ -36,8 +36,12 @@ public:
 
     void setProjectSettings(ProjectSettings *ps);
 
+    QString projectTitle() const;
+    QString projectDescription() const;
+
 signals:
     void contentChanged();
+    void projectNameChanged(const QString &name);
 
 public slots:
     void resetSettings();

@@ -50,7 +50,6 @@ set(mainui_LIB_SRCS
 )
 
 kde4_add_ui_files( mainui_LIB_SRCS
-                   welcomewidget.ui
 
                    dialogs/newprojectwizard.ui
                    dialogs/loadproject.ui

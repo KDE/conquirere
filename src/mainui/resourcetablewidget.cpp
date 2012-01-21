@@ -41,6 +41,7 @@
 #include <KDE/KLineEdit>
 #include <KDE/KComboBox>
 #include <KDE/KMimeType>
+#include <KDE/KDebug>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
@@ -49,8 +50,6 @@
 #include <QtGui/QMenu>
 #include <QtGui/QSortFilterProxyModel>
 #include <QtGui/QItemDelegate>
-
-#include <QtCore/QDebug>
 
 ResourceTableWidget::ResourceTableWidget(QWidget *parent)
     : QWidget(parent)
@@ -357,7 +356,7 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
             bibTeXResource = srm->bibTeXResourceAt(sfpm->mapToSource(selectedIndex.first()));
         }
         else {
-            qDebug() << "ResourceTableWidget::tableContextMenu no model found";
+            kDebug() << "ResourceTableWidget::tableContextMenu no model found";
             return;
         }
     }

@@ -18,7 +18,7 @@
 #ifndef PROVIDERSELECTIONWIDGET_H
 #define PROVIDERSELECTIONWIDGET_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 #include "onlinestorage/providersettings.h"
 

@@ -39,7 +39,6 @@
 #include <KDE/KInputDialog>
 
 #include <QtCore/QPointer>
-#include <QtCore/QDebug>
 
 ContactDialog::ContactDialog(QWidget *parent) :
     QDialog(parent),
@@ -47,7 +46,7 @@ ContactDialog::ContactDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->editButton->setIcon(KIcon("view-pim-contacts"));
+    ui->editButton->setIcon(KIcon("document-edit"));
     ui->akonadiExport->setIcon(KIcon("akonadi"));
     ui->addContactButton->setIcon(KIcon("contact-new"));
     ui->addResourceButton->setIcon(KIcon("list-add"));
@@ -160,7 +159,7 @@ void ContactDialog::contactStored( const Akonadi::Item& item)
     Nepomuk::Query::Query query( akonadiItemId );
     QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
 
-    qDebug() << "ContactDialog::contactStored found " << queryResult.size() << "created items with akonadiItemId:" << item.id();
+    kDebug() << "found " << queryResult.size() << "created items with akonadiItemId:" << item.id();
 
     // take first search result or create a new resource
     Nepomuk::Resource newContact;

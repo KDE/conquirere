@@ -26,7 +26,6 @@
 #include <QtCore/QMap>
 #include <QtCore/QSet>
 
-
 namespace Ui {
     class SearchWidget;
 }
@@ -39,10 +38,13 @@ namespace Nepomuk {
 
 class Entry;
 class OnlineSearchAbstract;
-
 class KAction;
 class QListWidgetItem;
 
+/**
+  * @brief Dockwidget to set some search options and allow the user to search Nepomuk and KBibTeX online engines
+  *
+  */
 class SearchWidget : public QDockWidget
 {
     Q_OBJECT

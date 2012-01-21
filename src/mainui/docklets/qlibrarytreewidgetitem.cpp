@@ -18,7 +18,6 @@
 #include "qlibrarytreewidgetitem.h"
 
 #include <QtCore/QTimer>
-#include <QtCore/QDebug>
 
 const int TREEFETCH = Qt::UserRole + 1000;
 const int TREEANGLE = Qt::UserRole + 1001;

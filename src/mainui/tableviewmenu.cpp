@@ -42,10 +42,8 @@
 #include <QtGui/QAction>
 #include <QtGui/QDesktopServices>
 
-#include <QtCore/QDebug>
-
 TableViewMenu::TableViewMenu(QObject *parent)
-    :QObject(parent)
+    : QObject(parent)
     , m_libraryManager(0)
     , m_bibtexEntry(0)
 {

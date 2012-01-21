@@ -6,17 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>593</width>
-    <height>443</height>
+    <width>303</width>
+    <height>207</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-  <item>
-   <widget class="KListWidget" name="listProvider"/>
-  </item>
+   <item>
+    <widget class="KListWidget" name="listProvider"/>
+   </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>

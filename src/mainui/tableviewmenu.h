@@ -18,7 +18,7 @@
 #ifndef TABLEVIEWMENU_H
 #define TABLEVIEWMENU_H
 
-#include <QObject>
+#include <QtCore/QObject>
 
 #include <kbibtex/entry.h>
 #include <Nepomuk/Resource>
@@ -27,6 +27,9 @@
 
 class LibraryManager;
 
+/**
+  * @brief Creates the right click menu for the ResourceTableWidget
+  */
 class TableViewMenu : public QObject
 {
     Q_OBJECT

@@ -25,9 +25,9 @@
 // from kbibtex
 #define createDelimiterString(a, b) (QString("%1%2%3").arg(a).arg(QChar(8230)).arg(b))
 
-ExportSettings::ExportSettings(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::ExportSettings)
+ExportSettings::ExportSettings(QWidget *parent)
+    : QWidget(parent)
+    , ui(new Ui::ExportSettings)
 {
     ui->setupUi(this);
 
@@ -135,6 +135,4 @@ void ExportSettings::setupGui()
 
     ui->editPersonFormating->addItem(i18n("John Doe Jr."));
     ui->editPersonFormating->addItem(i18n("Doe, Jr., John"));
-
-
 }

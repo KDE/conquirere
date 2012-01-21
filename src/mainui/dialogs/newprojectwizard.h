@@ -31,6 +31,9 @@ class Library;
 class GeneralPage;
 class SyncPage;
 
+/**
+  * @brief QWizard Dialog to create a new project Library
+  */
 class NewProjectWizard : public QWizard
 {
     Q_OBJECT
@@ -46,17 +49,16 @@ protected:
 
 private:
     Ui::NewProjectWizard *ui;
-    Library *customLibrary;
+    Library *m_customLibrary;
+
     GeneralPage *gp;
     SyncPage *sp;
 };
 
-
-class KLineEdit;
-class KTextEdit;
+class ProjectGeneralSettings;
 
 /**
-  * General Page
+  * @brief NewProjectWizard @c general @c page to specify the name and description
   */
 class GeneralPage : public QWizardPage
 {
@@ -65,12 +67,14 @@ class GeneralPage : public QWizardPage
 public:
     GeneralPage(QWidget *parent = 0);
 
+    QString projectTitle() const;
+    QString projectDescription() const;
+
 private slots:
     bool isComplete() const;
 
 public:
-    KLineEdit *projectTitle;
-    KTextEdit *projectDescription;
+    ProjectGeneralSettings *m_ui;
 };
 
 class QGroupBox;
@@ -80,7 +84,9 @@ class QListWidget;
 class QPushButton;
 
 /**
-  * Sync Page
+  * @brief NewProjectWizard @c sync @c page to specify the folder and provider to sync with
+  *
+  * @todo adapt and reuse ProviderSyncSettings
   */
 class SyncPage : public QWizardPage
 {

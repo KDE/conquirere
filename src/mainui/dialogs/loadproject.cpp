@@ -33,8 +33,6 @@
 
 #include <QtGui/QListWidgetItem>
 
-#include <QtCore/QDebug>
-
 LoadProject::LoadProject(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::LoadProject)

@@ -27,7 +27,7 @@
 #include <KDE/KIcon>
 
 ConquirereSettingsDialog::ConquirereSettingsDialog(QWidget *parent)
-    :KPageDialog(parent)
+    : KPageDialog(parent)
 {
     setupPages();
 

@@ -36,9 +36,10 @@
 #include <QtCore/QDebug>
 #include <KDE/KDebug>
 
-DocumentPreview::DocumentPreview(QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::DocumentPreview)
+DocumentPreview::DocumentPreview(QWidget *parent)
+    : QDockWidget(parent)
+    , ui(new Ui::DocumentPreview)
+    , m_visible(true)
 {
     ui->setupUi(this);
     ui->openButton->setIcon(KIcon(QLatin1String("document-open")));
@@ -102,7 +103,7 @@ void DocumentPreview::setResource(Nepomuk::Resource & resource)
                 int accuracy = 0;
                 KMimeType::Ptr mimeTypePtr = KMimeType::findByUrl(url, 0, url.isLocalFile(), true, &accuracy);
                 if (accuracy < 50) {
-                    qDebug() << "discarding mime type " << mimeTypePtr->name() << ", trying filename ";
+                    kDebug() << "discarding mime type " << mimeTypePtr->name() << ", trying filename ";
                     mimeTypePtr = KMimeType::findByPath(url.fileName(), 0, true, &accuracy);
                 }
 
@@ -133,7 +134,6 @@ void DocumentPreview::setResource(Nepomuk::Resource & resource)
             KUrl url (doi);
             ui->urlSelector->addItem(icon,url.url(),QVariant(mimetype));
         }
-
     }
 }
 
@@ -145,7 +145,7 @@ void DocumentPreview::clear()
 
 void DocumentPreview::showUrl(int index)
 {
-    if(index < 0 || isHidden())
+    if(index < 0 || isHidden() || !isVisible() || !m_visible)
         return;
 
     QString url = ui->urlSelector->itemText(index);
@@ -220,6 +220,7 @@ void DocumentPreview::openExternally() {
 
 void DocumentPreview::hideEvent ( QHideEvent * event )
 {
+//    kDebug() << "visibility changed";
 //    m_lastPartsName.clear();
     emit activateKPart(0);
 
@@ -238,4 +239,6 @@ void DocumentPreview::showEvent ( QShowEvent * event )
 
 void DocumentPreview::toggled(bool status)
 {
+//    kDebug() << "visibility changed" << status;
+    m_visible = status;
 }

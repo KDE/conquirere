@@ -16,7 +16,7 @@
  */
 
 #include "selectopenproject.h"
-#include "../../build/src/mainui/ui_selectopenproject.h"
+#include "ui_selectopenproject.h"
 
 #include "core/library.h"
 #include "core/projectsettings.h"

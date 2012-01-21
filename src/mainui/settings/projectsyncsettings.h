@@ -18,7 +18,7 @@
 #ifndef PROJECTSYNCSETTINGS_H
 #define PROJECTSYNCSETTINGS_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace Ui {
     class ProjectSyncSettings;

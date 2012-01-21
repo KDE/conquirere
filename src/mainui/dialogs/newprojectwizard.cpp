@@ -23,6 +23,7 @@
 
 #include "core/library.h"
 #include "core/projectsettings.h"
+#include "../settings/projectgeneralsettings.h"
 
 #include "onlinestorage/storageinfo.h"
 
@@ -32,6 +33,7 @@
 #include <KDE/KTextEdit>
 #include <KDE/KComboBox>
 #include <KDE/KDialog>
+#include <KDE/KDebug>
 
 #include <Akonadi/CollectionFetchJob>
 #include <Akonadi/CollectionFetchScope>
@@ -68,7 +70,7 @@ NewProjectWizard::~NewProjectWizard()
 
 Library * NewProjectWizard::newLibrary()
 {
-    return customLibrary;
+    return m_customLibrary;
 }
 
 void NewProjectWizard::done(int result)
@@ -77,17 +79,17 @@ void NewProjectWizard::done(int result)
 
         QString path;
         if(sp->m_syncWithFolder->isChecked()) {
-            path = sp->m_syncFolder->text() + QLatin1String("/") + gp->projectTitle->text();
+            path = sp->m_syncFolder->text() + QLatin1String("/") + gp->projectTitle();
         }
 
-        Nepomuk::Thing newLibraryThing = Library::createLibrary(gp->projectTitle->text(),
-                                                                gp->projectDescription->toPlainText(),
+        Nepomuk::Thing newLibraryThing = Library::createLibrary(gp->projectTitle(),
+                                                                gp->projectDescription(),
                                                                 path);
 
-        customLibrary = new Library;
-        customLibrary->loadLibrary(newLibraryThing);
+        m_customLibrary = new Library;
+        m_customLibrary->loadLibrary(newLibraryThing);
         foreach(const ProviderSyncDetails& psd, sp->m_psdList) {
-            customLibrary->settings()->setProviderSyncDetails(psd, QString());
+            m_customLibrary->settings()->setProviderSyncDetails(psd, QString());
         }
     }
 
@@ -103,31 +105,34 @@ GeneralPage::GeneralPage(QWidget *parent)
     : QWizardPage(parent)
 {
     setFinalPage(true);
+
+    m_ui = new ProjectGeneralSettings(this);
+
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    mainLayout->addWidget(m_ui);
 
-    QLabel *labelTitel = new QLabel(i18n("Research Title:"));
-    mainLayout->addWidget(labelTitel);
-    projectTitle = new KLineEdit(this);
-    registerField("projectName*", projectTitle);
-    mainLayout->addWidget(projectTitle);
-    QLabel *labelDescription = new QLabel(i18n("Description:"));
-    mainLayout->addWidget(labelDescription);
-    projectDescription = new KTextEdit(this);
-    registerField("projectDescription", projectDescription);
-    mainLayout->addWidget(projectDescription);
+    connect(m_ui, SIGNAL(projectNameChanged(QString)), this, SIGNAL(completeChanged()));
 
-    connect(projectTitle, SIGNAL(textChanged(QString)), this, SLOT(isComplete()));
-
-    setTitle(i18n("New research"));
+    setTitle(i18nc("New project wizard generalpage","New project"));
     setSubTitle(i18n("Create a new research topic and some initial settings"));
     //setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/watermark1.png"));
 
     setLayout(mainLayout);
 }
 
+QString GeneralPage::projectTitle() const
+{
+    return m_ui->projectTitle();
+}
+
+QString GeneralPage::projectDescription() const
+{
+    return m_ui->projectDescription();
+}
+
 bool GeneralPage::isComplete() const
 {
-    if(projectTitle->text().isEmpty())
+    if(m_ui->projectTitle().isEmpty())
         return false;
     else
         return true;

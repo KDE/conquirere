@@ -26,6 +26,12 @@ namespace Ui {
 
 class Library;
 
+/**
+  * @brief Dialog to open a previous Conquirere project @c Library
+  *
+  * The list of available projects is retrieved by getting all @c pimo:isRelated @c pimo:Projects
+  * for the @c pimo:Collection Conquirere program.
+  */
 class LoadProject : public QDialog
 {
     Q_OBJECT

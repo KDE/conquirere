@@ -23,7 +23,7 @@
 #include "nbibio/conquirere.h"
 
 SystemSyncSettings::SystemSyncSettings(QWidget *parent)
-    :QWidget(parent)
+    : QWidget(parent)
     , ui(new Ui::SystemSyncSettings)
 {
     ui->setupUi(this);

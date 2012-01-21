@@ -22,11 +22,10 @@
 
 #include <KDE/KMessageBox>
 
-#include <QtDebug>
-
 ProjectGeneralSettings::ProjectGeneralSettings(QWidget *parent)
-    : QWidget(parent),
-    ui(new Ui::ProjectGeneralSettings)
+    : QWidget(parent)
+    , ui(new Ui::ProjectGeneralSettings)
+    , m_settings(0)
 {
     ui->setupUi(this);
 
@@ -46,26 +45,45 @@ void ProjectGeneralSettings::setProjectSettings(ProjectSettings *ps)
     resetSettings();
 }
 
+QString ProjectGeneralSettings::projectTitle() const
+{
+    return ui->editTitle->text();
+}
+
+QString ProjectGeneralSettings::projectDescription() const
+{
+    return ui->editDescription->document()->toPlainText();
+}
+
 void ProjectGeneralSettings::resetSettings()
 {
-    ui->editTitle->setText(m_settings->name());
-    ui->editDescription->setText(m_settings->description());
+    if(m_settings) {
+        ui->editTitle->setText(m_settings->name());
+        ui->editDescription->setText(m_settings->description());
+    }
 }
 
 void ProjectGeneralSettings::applySettings()
 {
     if(ui->editTitle->text().isEmpty()) {
         KMessageBox::error(this, i18n("The project name can not be empty"), i18n("Settings error"));
-        ui->editTitle->setText(m_settings->name());
+        if(m_settings)
+            ui->editTitle->setText(m_settings->name());
         return;
     }
 
-    m_settings->setName(ui->editTitle->text());
-    m_settings->setDescription(ui->editDescription->document()->toPlainText());
+    if(m_settings) {
+        m_settings->setName(ui->editTitle->text());
+        m_settings->setDescription(ui->editDescription->document()->toPlainText());
+    }
 }
 
 void ProjectGeneralSettings::titleChanged(const QString &title)
 {
-    if(title != m_settings->name())
-        emit contentChanged();
+    if(m_settings) {
+        if(title != m_settings->name())
+            emit contentChanged();
+    }
+
+    emit projectNameChanged(title);
 }

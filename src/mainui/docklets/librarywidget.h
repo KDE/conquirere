@@ -31,6 +31,9 @@ namespace Ui {
     class LibraryWidget;
 }
 
+/**
+  * @brief Dockwidget to show a treewidget with all libraries and its content
+  */
 class LibraryWidget : public QDockWidget
 {
     Q_OBJECT

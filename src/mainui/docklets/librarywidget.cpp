@@ -37,8 +37,6 @@
 #include <QtGui/QMenu>
 #include <QtCore/QVariant>
 
-#include <QtCore/QDebug>
-
 LibraryWidget::LibraryWidget(QWidget *parent)
     : QDockWidget(parent)
     , ui(new Ui::LibraryWidget)
@@ -284,6 +282,7 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     twi1->setData(0,Role_ResourceType,Resource_Document);
     twi1->setData(0,Role_LibraryType,p->libraryType());
     twi1->setIcon(0, KIcon(QLatin1String("document-multiple")));
+    twi1->startQueryFetch();
     root->addChild(twi1);
     connectModelSignals(twi1, p, Resource_Document);
 
@@ -294,6 +293,7 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     twi5->setData(0,Role_LibraryType,p->libraryType());
     twi5->setData(0,Role_ProjectThing, p->settings()->projectThing().resourceUri());
     twi5->setIcon(0, KIcon(SeriesTypeIcon.at(0)));
+    twi5->startQueryFetch();
     root->addChild(twi5);
     connectModelSignals(twi5, p, Resource_Series);
 
@@ -320,6 +320,7 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     twi1a->setData(0,Role_ProjectThing, p->settings()->projectThing().resourceUri());
     twi1a->setData(0,Role_ResourceFilter,Max_BibTypes);
     twi1a->setIcon(0, KIcon(QLatin1String("document-open-remote")));
+    twi1a->startQueryFetch();
     root->addChild(twi1a);
     connectModelSignals(twi1a, p, Resource_Publication);
 
@@ -346,6 +347,7 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     twi4->setData(0,Role_LibraryType,p->libraryType());
     twi4->setData(0,Role_ProjectThing, p->settings()->projectThing().resourceUri());
     twi4->setIcon(0, KIcon(QLatin1String("user-identity")));
+    twi4->startQueryFetch();
     root->addChild(twi4);
     connectModelSignals(twi4, p, Resource_Reference);
 
@@ -371,6 +373,7 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     twi8->setData(0,Role_LibraryType,p->libraryType());
     twi8->setData(0,Role_ProjectThing, p->settings()->projectThing().resourceUri());
     twi8->setIcon(0, KIcon(QLatin1String("view-pim-calendar")));
+    twi8->startQueryFetch();
     root->addChild(twi8);
     connectModelSignals(twi8, p, Resource_Event);
 
@@ -380,6 +383,7 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     twi6->setData(0,Role_LibraryType,p->libraryType());
     twi6->setData(0,Role_ProjectThing, p->settings()->projectThing().resourceUri());
     twi6->setIcon(0, KIcon(QLatin1String("knotes")));
+    twi6->startQueryFetch();
     root->addChild(twi6);
     connectModelSignals(twi6, p, Resource_Note);
 
@@ -402,6 +406,7 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
         twi2->setData(0,Role_LibraryType,p->libraryType());
         twi2->setData(0,Role_ProjectThing, p->settings()->projectThing().resourceUri());
         twi2->setIcon(0, KIcon(QLatin1String("mail-flag")));
+        twi2->startQueryFetch();
         root->addChild(twi2);
         connectModelSignals(twi2, p, Resource_Mail);
     }
