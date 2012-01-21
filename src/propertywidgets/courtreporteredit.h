@@ -23,7 +23,7 @@
 class QStandardItemModel;
 
 /**
-  * @brief USed to Edit the @c nbib:CourtReporter of an nbib:Publication
+  * @brief Used to Edit the @c nbib:CourtReporter of an nbib:Publication
   *
   */
 class CourtReporterEdit : public PropertyEdit
@@ -34,8 +34,6 @@ public:
 
 protected:
     void setupLabel();
-
-    virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     virtual void updateResource( const QString & text );
 };

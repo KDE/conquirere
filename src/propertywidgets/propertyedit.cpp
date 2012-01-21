@@ -23,8 +23,11 @@
 #include <Nepomuk/Query/ResourceTypeTerm>
 #include <Nepomuk/Query/OrTerm>
 #include <Nepomuk/Variant>
+
+#include "nbib.h"
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Vocabulary/NCAL>
+#include <Nepomuk/Vocabulary/NFO>
 
 #include <KDE/KIcon>
 #include <KDE/KSqueezedTextLabel>
@@ -48,12 +51,14 @@
 // so we only create 1 completer model and not several of them.
 // speeds up startup/update a lot
 static QMap<QUrl,QStandardItemModel*> m_completerModelList;
+QMutex mutex;
 
 PropertyEdit::PropertyEdit(QWidget *parent)
     : QWidget(parent)
     , m_isListEdit(true)
     , m_useDetailDialog(false)
     , m_directEditAllowed(true)
+    , m_bulkUpdateEnable(true)
 {
     m_label = new KSqueezedTextLabel();
     m_label->setWordWrap(true);
@@ -86,6 +91,7 @@ PropertyEdit::PropertyEdit(QWidget *parent)
     //create the query client to fetch resource data for the autocompletion
     m_queryClient = new Nepomuk::Query::QueryServiceClient();
     connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addCompletionData(QList<Nepomuk::Query::Result>)));
+    connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(startUpQueryFinished()));
 
     m_completer = new QCompleter(this);
     m_completer->setWidget(m_lineEdit);
@@ -181,7 +187,11 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
         sim = new QStandardItemModel;
         m_completerModelList.insert(m_range, sim);
 
-        if(range.isValid() && !range.resourceUri().isEmpty()) {
+        if(range.isValid() && !range.resourceUri().isEmpty() &&
+           m_range != Nepomuk::Vocabulary::NFO::Document() &&
+           m_range != Nepomuk::Vocabulary::NBIB::DocumentPart()) {
+
+//            kDebug() << "start nepomuk property query for" << m_range;
             Nepomuk::Query::OrTerm orTerm;
 
             // get all resources of type range
@@ -398,33 +408,77 @@ void PropertyEdit::setVisible(bool visible)
     emit widgetShown(visible);
 }
 
+void PropertyEdit::setBulkUpdateInProgress(bool inprogress)
+{
+    m_bulkUpdateEnable = inprogress;
+
+    if(!m_bulkUpdateEnable) {
+        QStandardItemModel *completerModel = m_completerModelList.value(m_range, 0);
+        if(!completerModel)
+            return;
+
+        // start background thread the data
+        QFuture<void> future = QtConcurrent::run(this, &PropertyEdit::insertCompletionModel, m_bulkCache, completerModel);
+
+        QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>();
+        futureWatcher->setFuture(future);
+        connect(futureWatcher, SIGNAL(finished()),this, SLOT(completionModelProcessed()));
+    }
+    else {
+        m_bulkCache.clear();
+    }
+}
+
 void PropertyEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entries)
 {
-    // start background thread the data
-    QFuture<QList<QStandardItem*> > future = QtConcurrent::run(this, &PropertyEdit::createCompletionModel, entries);
+    if(m_bulkUpdateEnable) {
+        m_bulkCache.append(entries);
+    }
+    else {
+        QStandardItemModel *completerModel = m_completerModelList.value(m_range, 0);
+        if(!completerModel)
+            return;
 
-    QFutureWatcher<QList<QStandardItem*> > *futureWatcher = new QFutureWatcher<QList<QStandardItem*> >();
-    futureWatcher->setFuture(future);
-    connect(futureWatcher, SIGNAL(finished()),this, SLOT(completionModelProcessed()));
+        // start background thread the data
+        QFuture<void> future = QtConcurrent::run(this, &PropertyEdit::insertCompletionModel, entries, completerModel);
+
+        QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>();
+        futureWatcher->setFuture(future);
+        connect(futureWatcher, SIGNAL(finished()),this, SLOT(completionModelProcessed()));
+    }
+}
+
+void PropertyEdit::insertCompletionModel( const QList< Nepomuk::Query::Result > &entries, QStandardItemModel *completerModel)
+{
+    QList<QStandardItem *> allnewItems;
+    foreach(const Nepomuk::Query::Result & r, entries) {
+        QStandardItem *item = new QStandardItem(r.resource().genericLabel());
+        item->setData(r.resource().resourceUri().toString().trimmed());
+
+        allnewItems.append(item);
+    }
+
+    // ok this is a wired bug, if we insert new items after we added the first batch we need to use
+    // appendRow rather that appendColumn otherwise it won't show up in the popup list
+
+    mutex.lock();
+    if( completerModel->rowCount() == 0)
+        completerModel->appendColumn(allnewItems);
+    else
+        completerModel->appendRow(allnewItems);
+    mutex.unlock();
 }
 
 void PropertyEdit::completionModelProcessed()
 {
-    QFutureWatcher<QList<QStandardItem*> > *futureWatcher = dynamic_cast<QFutureWatcher<QList<QStandardItem*> > *>(sender());
-    QList<QStandardItem*> result = futureWatcher->future().result();
-
-    if(!result.isEmpty()) {
-        QStandardItemModel *sim = m_completerModelList.value(m_range, 0);
-        if(sim) {
-            // ok this is a wired bug, if we insert new items after we added the first batch we need to use
-            // appendRow rather that appendColumn otherwise it won't show up in the popup list
-            if( sim->rowCount() == 0)
-                sim->appendColumn(result);
-            else
-                sim->appendRow(result);
-        }
-    }
+    QFutureWatcher<void> *futureWatcher = dynamic_cast<QFutureWatcher<void> *>(sender());
 
     disconnect(futureWatcher, SIGNAL(finished()),this, SLOT(completionModelProcessed()));
     delete futureWatcher;
+}
+
+
+void PropertyEdit::startUpQueryFinished()
+{
+    setBulkUpdateInProgress(false);
 }

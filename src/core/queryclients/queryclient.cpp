@@ -70,7 +70,7 @@ void QueryClient::run()
 
 void QueryClient::addToCache( const QList< Nepomuk::Query::Result > &entries ) const
 {
-    QList<CachedRowEntry> newCache;
+//    QList<CachedRowEntry> newCache;
 
     foreach(const Nepomuk::Query::Result &nqr, entries) {
         Nepomuk::Resource r = nqr.resource();
@@ -92,19 +92,31 @@ void QueryClient::addToCache( const QList< Nepomuk::Query::Result > &entries ) c
             }
         }
 
+        QList<CachedRowEntry> newCache;
         CachedRowEntry cre;
         cre.displayColums = createDisplayData(r);
         cre.decorationColums = createDecorationData(r);
         cre.resource = r;
         newCache.append(cre);
+
+        // we do not send all found cache results at once (like commented below)
+        // because the queryclient seems to cach simmilar queries and does not return each single query
+        // as soon as found but all found entries
+        // this leads to a slot table insert and very slow startup of the program
+        if(m_startupQuery) {
+            emit updateCacheEntries(newCache);
+        }
+        else {
+            emit newCacheEntries(newCache);
+        }
     }
 
-    if(m_startupQuery) {
-        emit updateCacheEntries(newCache);
-    }
-    else {
-        emit newCacheEntries(newCache);
-    }
+//    if(m_startupQuery) {
+//        emit updateCacheEntries(newCache);
+//    }
+//    else {
+//        emit newCacheEntries(newCache);
+//    }
 }
 
 void QueryClient::resultCount(int number) const

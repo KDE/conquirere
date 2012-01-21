@@ -84,21 +84,3 @@ void TagEdit::updateResource(const QString & text)
         }
     }
 }
-
-QList<QStandardItem*> TagEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
-{
-    QList<QStandardItem*> results;
-
-    foreach(const Nepomuk::Query::Result & r, entries) {
-        QStandardItem *item = new QStandardItem(r.resource().genericLabel());
-        // save the resource uri with the model item
-        // this helps to identify the selected entry even if the generic label has
-        // the same result on two different items
-        // also it is not necessary to ask nepomuk for the resource used later again
-        item->setData(r.resource().resourceUri().toString());
-
-        results.append(item);
-    }
-
-    return results;
-}

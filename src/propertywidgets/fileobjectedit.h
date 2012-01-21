@@ -52,11 +52,6 @@ protected:
     void setupLabel();
 
     /**
-      * completion is ignored for this widget, as direct edit is not allowed either
-      */
-    virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
-
-    /**
       * is done externally via AddDataObject
       */
     virtual void updateResource( const QString & text );

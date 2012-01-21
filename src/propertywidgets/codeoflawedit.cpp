@@ -66,6 +66,7 @@ void CodeOfLawEdit::updateResource(const QString & text)
         else {
             //rename current CodeOflaw
             currentCodeOfLaw.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
+            currentCodeOfLaw.setLabel(text);
         }
         return;
     }
@@ -76,24 +77,10 @@ void CodeOfLawEdit::updateResource(const QString & text)
         // create a new publication with the string text as title
         newCodeOfLaw = Nepomuk::Resource(propUrl, Nepomuk::Vocabulary::NBIB::CodeOfLaw());
         newCodeOfLaw.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-
+        newCodeOfLaw.setLabel(text);
     }
+
     resource().setProperty( Nepomuk::Vocabulary::NBIB::codeOfLaw(), newCodeOfLaw);
     newCodeOfLaw.addProperty( Nepomuk::Vocabulary::NBIB::legislation(), resource());
-}
-
-QList<QStandardItem*> CodeOfLawEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
-{
-    QList<QStandardItem*> results;
-
-    foreach(const Nepomuk::Query::Result & r, entries) {
-        QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
-
-        item->setData(r.resource().resourceUri().toString());
-
-        results.append(item);
-    }
-
-    return results;
 }
 

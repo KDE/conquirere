@@ -80,17 +80,4 @@ void CourtReporterEdit::updateResource(const QString & text)
     newCourtReporter.addProperty( Nepomuk::Vocabulary::NBIB::legalCase() , resource());
 }
 
-QList<QStandardItem*> CourtReporterEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
-{
-    QList<QStandardItem*> results;
 
-    foreach(const Nepomuk::Query::Result & r, entries) {
-        QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
-
-        item->setData(r.resource().resourceUri().toString());
-
-        results.append(item);
-    }
-
-    return results;
-}

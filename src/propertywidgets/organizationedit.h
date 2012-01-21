@@ -39,11 +39,6 @@ protected:
     void setupLabel();
 
     /**
-      * fills the QCompleter with all fullnames of all available @c nco:OrganizationContact s
-      */
-    virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
-
-    /**
       * Removes any old organization connected to the proceedings and adds the new entered.
       *
       * Already existing resources will be used if available, or a complete new created

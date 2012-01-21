@@ -103,18 +103,3 @@ void OrganizationEdit::updateResource(const QString & text)
 
     publication.setProperty( propertyUrl(), newOrganizatzion);
 }
-
-QList<QStandardItem*> OrganizationEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
-{
-    QList<QStandardItem*> results;
-
-    foreach(const Nepomuk::Query::Result & r, entries) {
-        QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NCO::fullname()).toString());
-
-        item->setData(r.resource().resourceUri().toString());
-
-        results.append(item);
-    }
-
-    return results;
-}

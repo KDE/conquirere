@@ -653,7 +653,7 @@ nbib: {
           rdfs:domain nbib:Reference ;
           rdfs:comment "The specific part of the document of a reference. Used to reference a chapter or quote a small portion of a publication" ;
           rdfs:label "referencedChapter" ;
-          rdfs:range nbib:referencedPart ;
+          rdfs:range nbib:DocumentPart ;
           rdfs:subPropertyOf nie:hasLogicalPart ;
           nrl:maxCardinality 1 .
 

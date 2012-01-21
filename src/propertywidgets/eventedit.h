@@ -37,11 +37,6 @@ protected:
       */
     void setupLabel();
 
-    /**
-      * fills the QCompleter with all fullnames of all available @c pimo:events
-      */
-    virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
-
     virtual void updateResource( const QString & text );
 };
 

@@ -42,11 +42,6 @@ protected:
     void setupLabel();
 
     /**
-      * fills the QCompleter with the titles of all available nbib:Collections
-      */
-    virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
-
-    /**
       * changes the @c nie:title
       */
     virtual void updateResource( const QString & text );

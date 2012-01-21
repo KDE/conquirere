@@ -80,17 +80,6 @@ void FileObjectEdit::updateResource(const QString & text)
     // is done externally via AddDataObject
 }
 
-QList<QStandardItem*> FileObjectEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
-{
-    Q_UNUSED(entries);
-
-    // for the local object it might make sense to add auto completion
-    // but for the moment it will be omitted
-    QList<QStandardItem*> results;
-
-    return results;
-}
-
 void FileObjectEdit::showFileSelection()
 {
     AddDataObject ado;

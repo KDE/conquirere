@@ -35,8 +35,6 @@ public:
 protected:
     void setupLabel();
 
-    QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
-
     /**
       * @bug Nepomuk::Tag does not add type Tag but twice type Resource
       */

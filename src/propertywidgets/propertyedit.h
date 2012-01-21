@@ -59,6 +59,10 @@ class QStandardItem;
   * Furthermore if @p hasMultipleCardinality() returns true the user can split each
   * new entry with a ";" and the completer ofers new selection from this start on
   *
+  * @todo in the long run the QCompleter should be replaced by a direct query to nepomuk everytime we enter something
+  *       like it is done with KRunner. When done, another way to get the nepomuk resource for a string entered (contact name for example)
+  *       should be found, so we do not create duplicate entries when not the completer is used but the correct name is inserted
+  *       directly.
   */
 class PropertyEdit : public QWidget
 {
@@ -190,6 +194,8 @@ public slots:
 
     void setVisible(bool visible);
 
+    void setBulkUpdateInProgress(bool inprogress);
+
 protected:
     /**
       * Defines how the Nepomuk::Resource of the widget should be shown.
@@ -211,14 +217,9 @@ protected:
     virtual void updateResource(const QString & text) = 0;
 
     /**
-      * Has to be reimplemented for any subclass
-      *
-      * Creates the ItemModel for the QCompleter based on the result @p entries from nepomuk
-      *
-      * @see setCompletionModel();
+      * Updates the ItemModel for the QCompleter based on the result @p entries from nepomuk
       */
-    virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries ) = 0;
-
+    virtual void insertCompletionModel( const QList< Nepomuk::Query::Result > &entries, QStandardItemModel *completerModel);
 
     /**
       * Saves the Nepomuk::Resource URI for an entry displayed in the Label.
@@ -242,14 +243,11 @@ private slots:
     /**
       * Fills the completer with the query results from the m_queryClient
       *
-      * On the first run, all results are cached in m_initialCompleterCache and processed in one large
-      * chunk as soon as the m_queryClient is finished.
-      *
-      * The subclasses implement the completion process as thread to avoid blocking the main worker thread
-      * when a huge amount of entries are available.
+      * @see insertCompletionModel
       */
     void addCompletionData(const QList< Nepomuk::Query::Result > &entries);
     void completionModelProcessed();
+    void startUpQueryFinished();
 
 protected:
     KLineEdit *m_lineEdit;
@@ -271,6 +269,14 @@ private:
 
     QUrl m_range;
     Nepomuk::Query::QueryServiceClient *m_queryClient;
+
+    // Nepomuk does not like when we "hammer" on a huge bunch of result querys for each single result in parallel via threads.
+    // especially on startup this will sometimes crash with ***double free or incorrupt data*
+    // Thus on startup and when we import large data sets, we enable the bulkupdate
+    // this caches all single results returned from the queryclient and only if we finished (either when the queryclient throw the
+    // finishedListing signal or if we say the import is done via setBulkUpdateInProgress(false) we progress all data at once
+    bool m_bulkUpdateEnable;
+    QList< Nepomuk::Query::Result > m_bulkCache;
 };
 
 #endif // PROPERTYEDIT_H

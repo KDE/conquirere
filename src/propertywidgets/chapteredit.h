@@ -26,6 +26,8 @@ class QStandardItemModel;
   * @brief Used to add a chapter to a bibreference
   *
   * @pre setResource must be a @c nbib:Reference
+  *
+  * @todo create completion model only for the currently set publication, rather than all chapters in nepomuk
   */
 class ChapterEdit : public PropertyEdit
 {
@@ -37,15 +39,6 @@ protected:
       * Use @c nie:title of the @c nbib:Chapter
       */
     void setupLabel();
-
-    /**
-      * @p entries consits of all chapters in the nepomuk storage
-      *
-      * Fill the completer with the @c nie:title strings
-      *
-      * @todo restrict to only the available chapters of the current publication (needs filtering and a way to find all chapters beforehand )
-      */
-    virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
 
     /**
       * update the resource with the @p text from the edit field

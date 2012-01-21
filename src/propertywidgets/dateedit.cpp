@@ -85,14 +85,6 @@ void DateEdit::updateResource(const QString & text)
     resource().setProperty(propertyUrl(),date.toString("yyyy-MM-ddTHH:mm:ss"));
 }
 
-QList<QStandardItem*> DateEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
-{
-    Q_UNUSED(entries);
-
-    QList<QStandardItem*> result;
-    return result;
-}
-
 void DateEdit::detailEditRequested()
 {
     const QRect desk = KGlobalSettings::desktopGeometry(this);

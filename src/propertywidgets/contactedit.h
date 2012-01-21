@@ -41,13 +41,6 @@ protected:
     void setupLabel();
 
     /**
-      * @p entries consits of all contacts in the nepomuk storage
-      *
-      * Fill the completer with the @c nco::fullname strings
-      */
-    virtual QList<QStandardItem*> createCompletionModel( const QList< Nepomuk::Query::Result > &entries );
-
-    /**
       * update the resource with the @p text from the edit field
       *
       * Interprete @p text as @c nco::fullname of the @c nco::Contact

@@ -126,17 +126,3 @@ void CollectionEdit::updateResource(const QString & text)
     newCollection.addProperty( Nepomuk::Vocabulary::NBIB::article(), resource());
 }
 
-QList<QStandardItem*> CollectionEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
-{
-    QList<QStandardItem*> results;
-
-    foreach(const Nepomuk::Query::Result & r, entries) {
-        QStandardItem *item = new QStandardItem(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
-
-        item->setData(r.resource().resourceUri().toString());
-
-        results.append(item);
-    }
-
-    return results;
-}

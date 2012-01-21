@@ -87,49 +87,28 @@ void ContactEdit::updateResource(const QString & text)
         QUrl propContactUrl = propertyEntry(s.trimmed());
         if(propContactUrl.isValid()) {
             Nepomuk::Resource contact = Nepomuk::Resource(propContactUrl);
-            kDebug() << "add existing contact" << contact.genericLabel();
+//            kDebug() << "add existing contact" << contact.genericLabel();
             resource().addProperty( propertyUrl(), contact);
         }
         else {
-            kDebug() << "try to find the name of the contact entered without complter in the complter model";
+//            kDebug() << "try to find the name of the contact entered without completer in the completer model";
             QStandardItemModel *sim = dynamic_cast<QStandardItemModel *>(m_completer->model());
-            if(!sim)
-                kDebug() << "no QStandardItemModel";
-            else {
+            if(sim) {
                 QList<QStandardItem *> siList = sim->findItems(s.trimmed());
-                if(siList.isEmpty())
-                    kDebug() << "did not find the contact" << s.trimmed();
-                else {
-                    kDebug() << "found matching contacts" << siList.size() << "for contact" << s.trimmed();
+                if(!siList.isEmpty()) {
+//                    kDebug() << "found matching contacts" << siList.size() << "for contact" << s.trimmed();
                     Nepomuk::Resource contact = Nepomuk::Resource(siList.first()->data(Qt::UserRole + 1).toUrl());
-                    kDebug() << "add existing contact" << contact.genericLabel();
+//                    kDebug() << "add existing contact" << contact.genericLabel();
                     resource().addProperty( propertyUrl(), contact);
                     continue;
                 }
             }
 
+//            kDebug() << "create new contact" << s.trimmed();
             // create a new contact with the string s as fullname
             Nepomuk::Resource newContact(propContactUrl, Nepomuk::Vocabulary::NCO::Contact());
             newContact.setProperty(Nepomuk::Vocabulary::NCO::fullname(), s.trimmed());
             resource().addProperty( propertyUrl(), newContact);
         }
     }
-}
-
-QList<QStandardItem*> ContactEdit::createCompletionModel( const QList< Nepomuk::Query::Result > &entries )
-{
-    QList<QStandardItem*> results;
-
-    foreach(const Nepomuk::Query::Result & r, entries) {
-        QStandardItem *item = new QStandardItem(r.resource().genericLabel());
-        // save the resource uri with the model item
-        // this helps to identify the selected entry even if the generic label has
-        // the same result on two different items
-        // also it is not necessary to ask nepomuk for the resource used later again
-        item->setData(r.resource().resourceUri().toString().trimmed());
-
-        results.append(item);
-    }
-
-    return results;
 }
