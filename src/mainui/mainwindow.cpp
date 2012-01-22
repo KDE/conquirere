@@ -482,6 +482,10 @@ void MainWindow::setupActions()
 
 void MainWindow::setupMainWindow()
 {
+    m_libraryManager = new LibraryManager;
+    connect(m_libraryManager, SIGNAL(libraryAdded(Library*)), this, SLOT(openLibrary(Library*)));
+    connect(m_libraryManager, SIGNAL(libraryRemoved(QUrl)), this, SLOT(closeLibrary(QUrl)));
+
     // we start by applying all hidden sections from the "OnRestart" key to the real hidden part
     // without ths difference, we could end up badly when the user chanegs the hiddens election and
     // does not restart the program immediately
@@ -530,10 +534,6 @@ void MainWindow::setupMainWindow()
         m_documentPreview = new DocumentPreview();
         m_centerWindow->addDockWidget(Qt::RightDockWidgetArea, m_documentPreview);
     }
-
-    m_libraryManager = new LibraryManager;
-    connect(m_libraryManager, SIGNAL(libraryAdded(Library*)), this, SLOT(openLibrary(Library*)));
-    connect(m_libraryManager, SIGNAL(libraryRemoved(QUrl)), this, SLOT(closeLibrary(QUrl)));
 
     // the left project bar
     m_libraryWidget = new LibraryWidget;
