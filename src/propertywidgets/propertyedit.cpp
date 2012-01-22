@@ -91,6 +91,7 @@ PropertyEdit::PropertyEdit(QWidget *parent)
     //create the query client to fetch resource data for the autocompletion
     m_queryClient = new Nepomuk::Query::QueryServiceClient();
     connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addCompletionData(QList<Nepomuk::Query::Result>)));
+    connect(m_queryClient, SIGNAL(entriesRemoved(QList<QUrl>)), this, SLOT(removeCompletionData(QList<QUrl>)));
     connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(startUpQueryFinished()));
 
     m_completer = new QCompleter(this);
@@ -448,6 +449,20 @@ void PropertyEdit::addCompletionData(const QList< Nepomuk::Query::Result > &entr
     }
 }
 
+void PropertyEdit::removeCompletionData(const QList<QUrl> &urls)
+{
+    QStandardItemModel *completerModel = m_completerModelList.value(m_range, 0);
+    if(!completerModel)
+        return;
+
+    // start background thread the data
+    QFuture<void> future = QtConcurrent::run(this, &PropertyEdit::removeCompletionModel, urls, completerModel);
+
+    QFutureWatcher<void> *futureWatcher = new QFutureWatcher<void>();
+    futureWatcher->setFuture(future);
+    connect(futureWatcher, SIGNAL(finished()),this, SLOT(completionModelProcessed()));
+}
+
 void PropertyEdit::insertCompletionModel( const QList< Nepomuk::Query::Result > &entries, QStandardItemModel *completerModel)
 {
     QList<QStandardItem *> allnewItems;
@@ -467,6 +482,23 @@ void PropertyEdit::insertCompletionModel( const QList< Nepomuk::Query::Result > 
     else
         completerModel->appendRow(allnewItems);
     mutex.unlock();
+}
+
+void PropertyEdit::removeCompletionModel( const QList<QUrl> &urls, QStandardItemModel *completerModel)
+{
+    //find the entry that should be removed for each url
+    foreach(const QUrl &url, urls ) {
+        int maxItems = completerModel->rowCount();
+        for(int i=0; i < maxItems; i++) {
+            QModelIndex index = completerModel->index(i,0);
+            if(completerModel->data(index, Qt::UserRole + 1).toUrl() == url) {
+                mutex.lock();
+                completerModel->removeRow(i);
+                mutex.unlock();
+                break;
+            }
+        }
+    }
 }
 
 void PropertyEdit::completionModelProcessed()

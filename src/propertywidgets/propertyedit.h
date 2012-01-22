@@ -220,6 +220,7 @@ protected:
       * Updates the ItemModel for the QCompleter based on the result @p entries from nepomuk
       */
     virtual void insertCompletionModel( const QList< Nepomuk::Query::Result > &entries, QStandardItemModel *completerModel);
+    virtual void removeCompletionModel( const QList<QUrl> &urls, QStandardItemModel *completerModel);
 
     /**
       * Saves the Nepomuk::Resource URI for an entry displayed in the Label.
@@ -246,6 +247,7 @@ private slots:
       * @see insertCompletionModel
       */
     void addCompletionData(const QList< Nepomuk::Query::Result > &entries);
+    void removeCompletionData(const QList<QUrl> &urls);
     void completionModelProcessed();
     void startUpQueryFinished();
 
