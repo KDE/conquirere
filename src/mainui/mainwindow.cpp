@@ -31,6 +31,7 @@
 #include "dialogs/newprojectwizard.h"
 #include "dialogs/loadproject.h"
 #include "dialogs/selectopenproject.h"
+#include "dialogs/dbcheckdialog.h"
 
 #include "docklets/librarywidget.h"
 #include "docklets/documentpreview.h"
@@ -52,23 +53,9 @@
 #include <Nepomuk/Variant>
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Vocabulary/PIMO>
+#include <KDE/KDebug>
 
 #include <QtGui/QLayout>
-
-
-//DEBUG ADD to delete all nepomuk data
-#include "nbib.h"
-#include "sync.h"
-#include <Nepomuk/Vocabulary/NCO>
-#include <Nepomuk/Query/Term>
-#include <Nepomuk/Query/ResourceTerm>
-#include <Nepomuk/Query/ResourceTypeTerm>
-#include <Nepomuk/Query/ComparisonTerm>
-#include <Nepomuk/Query/AndTerm>
-#include <Nepomuk/Query/OrTerm>
-#include <Nepomuk/Query/QueryServiceClient>
-#include <Nepomuk/Query/Result>
-#include <Nepomuk/Query/QueryParser>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -209,12 +196,14 @@ void MainWindow::syncZotero()
 
 void MainWindow::dbCheck()
 {
-    qDebug() << "MainWindow::dbCheck()";
+    DbCheckDialog dbcd;
+
+    dbcd.exec();
 }
 
 void MainWindow::dbBackup()
 {
-    qDebug() << "MainWindow::dbBackup()";
+    kDebug() << "not implemented yet ...";
 }
 
 void MainWindow::showConqSettings()
@@ -281,44 +270,6 @@ void MainWindow::showSearchResults()
 
     m_libraryManager->setCurrentUsedLibrary(m_libraryManager->systemLibrary());
 }
-
-void MainWindow::DEBUGDELETEALLDATA()
-{
-    // fetcha data
-    Nepomuk::Query::OrTerm orTerm;
-
-    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Reference() ) );
-    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Publication() ) );
-    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NCO::Contact() ) );
-    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::DocumentPart() ) );
-    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Series() ) );
-    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Journal() ) );
-    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::SYNC::ServerSyncData() ) );
-    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::PIMO::Event() ) );
-    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::PIMO::Project() ) );
-
-    Nepomuk::Query::Query query( orTerm );
-
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
-
-    foreach(const Nepomuk::Query::Result & r, queryResult) {
-        r.resource().remove();
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void MainWindow::openLibrary(Library *l)
 {
@@ -432,7 +383,6 @@ void MainWindow::setupActions()
 
     // other database actions
     KAction* dbCheckAction = new KAction(this);
-    dbCheckAction->setEnabled(false);
     dbCheckAction->setText(i18n("Check Database"));
     dbCheckAction->setIcon(KIcon(QLatin1String("document-preview-archive")));
     actionCollection()->addAction(QLatin1String("db_check"), dbCheckAction);
@@ -458,17 +408,6 @@ void MainWindow::setupActions()
     openSettings->setIcon(KIcon(QLatin1String("configure")));
     actionCollection()->addAction(QLatin1String("open_settings"), openSettings);
     connect(openSettings, SIGNAL(triggered(bool)),this, SLOT(showConqSettings()));
-
-
-    // ##############################################
-    // Debug data
-    KAction* debugDELETE = new KAction(this);
-    debugDELETE->setText(i18n("DEBUG DELETE ALL DATA!"));
-    debugDELETE->setIcon(KIcon(QLatin1String("document-close")));
-    actionCollection()->addAction(QLatin1String("debug_delete"), debugDELETE);
-    connect(debugDELETE, SIGNAL(triggered(bool)),this, SLOT(DEBUGDELETEALLDATA()));
-
-    // ##############################################
 
     actionCollection()->addAction(QLatin1String("toggle_library"), m_libraryWidget->toggleViewAction());
     actionCollection()->addAction(QLatin1String("toggle_sidebar"), m_sidebarWidget->toggleViewAction());

@@ -64,7 +64,6 @@
       <Separator/>
       <Action name="db_background_sync" />
       <Separator/>
-      <Action name="debug_delete" />
   </ToolBar>
   
   <ToolBar name="mainToolBar" >

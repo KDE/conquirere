@@ -72,8 +72,6 @@ public slots:
       */
     void showSearchResults();
 
-    void DEBUGDELETEALLDATA();
-
 private slots:
     void openLibrary(Library *l);
     void closeLibrary(const QUrl &projectThingUrl);

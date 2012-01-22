@@ -45,11 +45,6 @@
 #include <Nepomuk/Query/Result>
 #include <Nepomuk/Query/QueryParser>
 
-//DEBUG
-#include <QDebug>
-#include <QFile>
-#include <kbibtex/fileexporterbibtex.h>
-
 SyncZoteroNepomuk::SyncZoteroNepomuk(QObject *parent)
     : NBibSync(parent)
     , m_rfz(0)

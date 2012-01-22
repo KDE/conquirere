@@ -23,7 +23,13 @@ set(nbibio_LIB_SRCS
 kde4_add_kcfg_files(nbibio_LIB_SRCS ../conquirere.kcfgc)
 install(FILES ../conquirere.kcfg DESTINATION ${KCFG_INSTALL_DIR})
 
+
 kde4_add_library( nbibio STATIC ${nbibio_LIB_SRCS} )
- 
+
+target_link_libraries(nbibio
+# include static libs from conquirere
+        ontology
+)
+
 install( TARGETS nbibio  ${INSTALL_TARGETS_DEFAULT_ARGS} )
 
