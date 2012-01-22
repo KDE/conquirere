@@ -13,6 +13,7 @@ kde4_add_app_icon(conquirere_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/../icons/hi*-app-
 kde4_add_executable(conquirere ${conquirere_SRCS})
 
 ADD_DEPENDENCIES(conquirere version)
+ADD_DEPENDENCIES(conquirere nbibio)
 
 target_link_libraries(conquirere
 # include static libs from conquirere

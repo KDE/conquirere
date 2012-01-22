@@ -89,6 +89,7 @@ kde4_add_ui_files( mainui_LIB_SRCS
 )
 
 kde4_add_library( mainui STATIC ${mainui_LIB_SRCS} )
+ADD_DEPENDENCIES(mainui nbibio)
 
 target_link_libraries(mainui
 # include static libs from conquirere
