@@ -36,7 +36,15 @@
 
 BackgroundSync::BackgroundSync(QObject *parent)
     : QObject(parent)
+    , m_syncThread(0)
+    , m_syncNepomuk(0)
 {
+}
+
+BackgroundSync::~BackgroundSync()
+{
+//    m_syncThread->deleteLater();
+    delete m_syncNepomuk;
 }
 
 void BackgroundSync::setLibraryManager(LibraryManager *lm)
@@ -73,44 +81,47 @@ void BackgroundSync::startSync(const ProviderSyncDetails &psd)
     kDebug() << "pwd" << psd.pwd;
     kDebug() << "collection" << psd.collection;
 
-    NBibSync *syncNepomuk;
+    delete m_syncNepomuk;
     if(psd.providerInfo->providerId() == QLatin1String("zotero")) {
-        syncNepomuk = new SyncZoteroNepomuk;
+        m_syncNepomuk = new SyncZoteroNepomuk;
     }
     else if(psd.providerInfo->providerId() == QLatin1String("kbibtexfile")) {
-        syncNepomuk = new SyncKBibTeXFile;
+        m_syncNepomuk = new SyncKBibTeXFile;
     }
 
-    syncNepomuk->setProviderDetails(psd);
+    m_syncNepomuk->setProviderDetails(psd);
 
     // connect the sync handler with the outside world
-    connect(syncNepomuk, SIGNAL(progress(int)), this, SIGNAL(progress(int)));
-    connect(syncNepomuk, SIGNAL(progressStatus(QString)), this, SIGNAL(progressStatus(QString)));
+    connect(m_syncNepomuk, SIGNAL(progress(int)), this, SIGNAL(progress(int)));
+    connect(m_syncNepomuk, SIGNAL(progressStatus(QString)), this, SIGNAL(progressStatus(QString)));
 
-    connect(syncNepomuk, SIGNAL(askForDeletion(QList<SyncDetails>)), this, SLOT(popDeletionQuestion(QList<SyncDetails>)));
-    connect(this, SIGNAL(deleteLocalFiles(bool)), syncNepomuk, SLOT(deleteLocalFiles(bool)));
-    connect(syncNepomuk, SIGNAL(userMerge(QList<SyncDetails>)), this, SLOT(popMergeDialog(QList<SyncDetails>)));
-    connect(this, SIGNAL(mergeFinished()), syncNepomuk, SLOT(mergeFinished()));
+    connect(m_syncNepomuk, SIGNAL(askForDeletion(QList<SyncDetails>)), this, SLOT(popDeletionQuestion(QList<SyncDetails>)));
+    connect(this, SIGNAL(deleteLocalFiles(bool)), m_syncNepomuk, SLOT(deleteLocalFiles(bool)));
+    connect(m_syncNepomuk, SIGNAL(userMerge(QList<SyncDetails>)), this, SLOT(popMergeDialog(QList<SyncDetails>)));
+    connect(this, SIGNAL(mergeFinished()), m_syncNepomuk, SLOT(mergeFinished()));
 
-    connect(syncNepomuk, SIGNAL(syncFinished()), this, SLOT(currentSyncFinished()));
+    connect(m_syncNepomuk, SIGNAL(syncFinished()), this, SLOT(currentSyncFinished()));
 
-    QThread *newThread = new QThread;
-    syncNepomuk->moveToThread(newThread);
+    delete m_syncThread;
+    m_syncThread = new QThread;
+    m_syncNepomuk->moveToThread(m_syncThread);
 
     //what mode should we use?
     switch(psd.syncMode) {
     case Download_Only:
-        connect(newThread, SIGNAL(started()),syncNepomuk, SLOT(startDownload()) );
+        connect(m_syncThread, SIGNAL(started()),m_syncNepomuk, SLOT(startDownload()) );
         break;
     case Upload_Only:
-        connect(newThread, SIGNAL(started()),syncNepomuk, SLOT(startUpload()) );
+        connect(m_syncThread, SIGNAL(started()),m_syncNepomuk, SLOT(startUpload()) );
         break;
     case Full_Sync:
-        connect(newThread, SIGNAL(started()),syncNepomuk, SLOT(startSync()) );
+        connect(m_syncThread, SIGNAL(started()),m_syncNepomuk, SLOT(startSync()) );
         break;
     }
 
-    newThread->start();
+    connect(m_syncNepomuk, SIGNAL(syncFinished()), m_syncThread, SLOT(quit()));
+
+    m_syncThread->start();
 }
 
 void BackgroundSync::popDeletionQuestion(QList<SyncDetails> items)
@@ -144,14 +155,10 @@ void BackgroundSync::popMergeDialog(QList<SyncDetails> items)
 
 void BackgroundSync::currentSyncFinished()
 {
-    NBibSync *syncNepomuk = qobject_cast<NBibSync *>(sender());
-    if(!syncNepomuk) {
-        kDebug() << "could not cast sync sender again";
-    }
-    else {
-//        delete syncNepomuk;
-//        syncNepomuk = 0;
-    }
+    delete m_syncNepomuk;
+    m_syncNepomuk = 0;
+//    m_syncThread->deleteLater();
+//    m_syncThread = 0;
 
     m_syncList.takeFirst();
 

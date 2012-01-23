@@ -25,6 +25,8 @@
 
 class LibraryManager;
 class Library;
+class NBibSync;
+class QThread;
 
 /**
   * @brief Coordinates the syncronization with all availabe provider specified in the .ini file or on localrequest via a direct call to startSync()
@@ -40,6 +42,7 @@ class BackgroundSync : public QObject
     Q_OBJECT
 public:
     explicit BackgroundSync(QObject *parent = 0);
+    ~BackgroundSync();
 
     void setLibraryManager(LibraryManager *lm);
 
@@ -87,6 +90,8 @@ private:
 
     LibraryManager *m_libraryManager;
     Library *m_libraryToSync;
+    QThread *m_syncThread;
+    NBibSync *m_syncNepomuk;
 
     QList<ProviderSyncDetails> m_syncList;
 };
