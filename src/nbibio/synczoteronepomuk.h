@@ -30,6 +30,19 @@ class Element;
 class Entry;
 class EntryClique;
 
+/**
+  * @brief Base class to sync nepomuk data with the Zotero online service
+  *
+  * This class combines the ReadFromZotero and WriteToZotero and organize the merging between these steps.
+  * When some data on the server side changes and the mergemode is set to Manual the signal userMerge() is emitted
+  * And gui that calls this class need to show a gui and resolve the issues before this calss can continue
+  * When the merge is solved the slot mergeFinished() must be called to continue the process
+  *
+  * Same applies for deleting items, when the user interaction is requested the signal askForDeletion() is emitted
+  * and the slot deleteLocalFiles() must be called when the selection was made.
+  *
+  * The current progress can be shown via progress() and progressStatus()
+  */
 class SyncZoteroNepomuk : public NBibSync
 {
     Q_OBJECT
@@ -56,11 +69,22 @@ private slots:
       * process syncdata retrived from zotero server when new items are send to the server
       */
     void readUploadSync(const File &zoteroData);
+
+    /**
+      * When an item was changed on the server side a new etag value is generated
+      *
+      * The etag valued determines if the item changed on teh server and is necessary when we download or upload the file again
+      * Here we search for the right @c sync:ServerSyncData for the item and update the etag and time value
+      */
     void updateSyncDetailsToNepomuk(const QString &id, const QString &etag, const QString &updated);
 
 private:
     void findDuplicates(const File &zoteroData, File &newEntries, QList<SyncDetails> &userMergeRequest);
     void findDeletedEntries(const File &zoteroData, QList<SyncDetails> &userDeleteRequest);
+
+    /**
+      * like updateSyncDetailsToNepomuk() but creates new sync data from new downloaded files
+      */
     void writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated);
 
 private:

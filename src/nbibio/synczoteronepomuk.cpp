@@ -236,7 +236,6 @@ void SyncZoteroNepomuk::startUpload()
 
 void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
 {
-    kDebug() << "m_wtz itemsInfo(File) called";
     if(zoteroData.isEmpty()) {
         m_curStep++;
         emit calculateProgress(100);

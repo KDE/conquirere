@@ -26,6 +26,15 @@
 class LibraryManager;
 class Library;
 
+/**
+  * @brief Coordinates the syncronization with all availabe provider specified in the .ini file or on localrequest via a direct call to startSync()
+  *
+  * The sync is done in an additional QThread in the background so while all data is imported to Nepomuk or
+  * exported and uploaded to the provider the gui thread will not freeze.
+  *
+  * @see SyncZoteroNepomuk
+  * @see SyncKBibTeXFile
+  */
 class BackgroundSync : public QObject
 {
     Q_OBJECT
@@ -37,13 +46,30 @@ public:
     void setLibraryToSyncWith(Library *l);
 
 signals:
+    /**
+      * show current sync progress as 0-100% for each provider
+      *
+      * starts again by 0 when a new provider sync is started
+      */
     void progress(int);
+
+    /**
+      * show more details about what is happening in the background
+      */
     void progressStatus(QString);
 
+    /**
+      * forwards the signal to the NBibSync class
+      */
     void deleteLocalFiles(bool deleteThem);
-    void mergedResults(QList<SyncDetails> items);
+    /**
+      * forwards the signal to the NBibSync class
+      */
     void mergeFinished();
 
+    /**
+      * Indicates the sync is finished completely for all providers
+      */
     void allSyncTargetsFinished();
 
 public slots:
