@@ -56,18 +56,18 @@ private slots:
       * process syncdata retrived from zotero server when new items are send to the server
       */
     void readUploadSync(const File &zoteroData);
-    void updateEtagValuesAfterUpload(const QString &id, const QString &etag, const QString &updated);
+    void updateSyncDetailsToNepomuk(const QString &id, const QString &etag, const QString &updated);
 
 private:
     void findDuplicates(const File &zoteroData, File &newEntries, QList<SyncDetails> &userMergeRequest);
     void findDeletedEntries(const File &zoteroData, QList<SyncDetails> &userDeleteRequest);
-    void writeSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated);
+    void writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated);
 
 private:
     ReadFromZotero *m_rfz;
     WriteToZotero *m_wtz;
     BibTexToNepomukPipe *m_btnp;
-    NepomukToBibTexPipe *m_ntnp;
+    NepomukToBibTexPipe *m_ntbp;
     File m_bibCache;
     bool m_syncMode;
     QList<SyncDetails> m_tmpUserDeleteRequest;

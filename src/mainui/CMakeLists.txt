@@ -31,6 +31,7 @@ set(mainui_LIB_SRCS
     sync/bibteximportwizard.cpp
     sync/synczoterodialog.cpp
     sync/syncbutton.cpp
+    sync/backgroundsync.cpp
 
     sidebar/sidebarwidget.cpp
     sidebar/sidebarcomponent.cpp

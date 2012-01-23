@@ -19,17 +19,17 @@
 
 #include "mainui/mainwindow.h"
 #include "core/library.h"
-#include "core/backgroundsync.h"
+
+#include <KDE/KDebug>
 
 SyncButton::SyncButton(QWidget *parent)
     : QWidget(parent)
-    , m_parent(0)
 {
 }
 
-void SyncButton::setMainWindow(MainWindow *mw)
+void SyncButton::setLibraryManager(LibraryManager *lm)
 {
-    m_parent = mw;
+    m_libraryManager = lm;
 }
 
 void SyncButton::startSync()
@@ -45,5 +45,5 @@ void SyncButton::startSync()
 
 void SyncButton::needsAttention()
 {
-    qDebug() << "user attention requested";
+    kDebug() << "user attention requested";
 }

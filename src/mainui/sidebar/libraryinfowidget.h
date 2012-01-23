@@ -53,6 +53,10 @@ private slots:
     void closeLibrary();
     void deleteLibrary();
 
+    void setSyncProgress(int value);
+    void setSyncStatus(const QString &status);
+    void syncFinished();
+
 private:
     void setupUI();
     Ui::LibraryInfoWidget *ui;

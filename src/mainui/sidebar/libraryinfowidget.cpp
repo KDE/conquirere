@@ -20,6 +20,7 @@
 
 #include "core/library.h"
 #include "core/projectsettings.h"
+#include "mainui/sync/backgroundsync.h"
 
 #include "mainui/librarymanager.h"
 
@@ -105,7 +106,16 @@ void LibraryInfoWidget::openSettings()
 
 void LibraryInfoWidget::syncData()
 {
+    BackgroundSync *backgroundSyncManager = new BackgroundSync;
+    backgroundSyncManager->setLibraryManager(libraryManager());
 
+    backgroundSyncManager->setLibraryToSyncWith(m_curLibrary);
+
+    connect(backgroundSyncManager, SIGNAL(progress(int)), this, SLOT(setSyncProgress(int)));
+    connect(backgroundSyncManager, SIGNAL(progressStatus(QString)), this, SLOT(setSyncStatus(QString)));
+    connect(backgroundSyncManager, SIGNAL(allSyncTargetsFinished()), this, SLOT(syncFinished()));
+
+    backgroundSyncManager->startSync();
 }
 
 void LibraryInfoWidget::closeLibrary()
@@ -116,6 +126,25 @@ void LibraryInfoWidget::closeLibrary()
 void LibraryInfoWidget::deleteLibrary()
 {
     libraryManager()->deleteLibrary(m_curLibrary);
+}
+
+void LibraryInfoWidget::setSyncProgress(int value)
+{
+    kDebug() << "new value" << value;
+}
+
+void LibraryInfoWidget::setSyncStatus(const QString &status)
+{
+    kDebug() << "new status" << status;
+}
+
+void LibraryInfoWidget::syncFinished()
+{
+    kDebug() << "cleanup again";
+
+    BackgroundSync *bs = qobject_cast<BackgroundSync *>(sender());
+    if(bs)
+        delete bs;
 }
 
 void LibraryInfoWidget::setupUI()

@@ -45,6 +45,11 @@ File *WriteToZotero::getFile()
 
 void WriteToZotero::pushItems(const File &items, const QString &collection)
 {
+    if(items.isEmpty()) {
+        emit itemsInfo(items);
+        return;
+    }
+
     m_entriesAfterSync->clear();
     m_allRequestsSend = false;
     m_addToCollection = collection;
@@ -85,6 +90,11 @@ void WriteToZotero::pushItems(const File &items, const QString &collection)
 
 void WriteToZotero::pushNewItems(const File &items, const QString &collection)
 {
+    if(items.isEmpty()) {
+        emit itemsInfo(items);
+        return;
+    }
+
     m_entriesAfterSync->clear();
     m_addToCollection = collection;
     //POST /users/1/items
@@ -309,7 +319,8 @@ void WriteToZotero::requestFinished()
 
                 QString etag =  PlainTextValue::text(newElementEntry->value(QLatin1String("zoteroetag")));
                 QString udated =  PlainTextValue::text(newElementEntry->value(QLatin1String("zoteroupdated")));
-                emit entryItemUpdated(newElementEntry->id(),etag, udated);
+                QString newId = newElementEntry->id();
+                emit entryItemUpdated(newId,etag, udated);
                 break;
             }
             // otherwise, if we have no updateEntry we got a responce from an item creation request

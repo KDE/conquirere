@@ -50,7 +50,7 @@ SyncZoteroNepomuk::SyncZoteroNepomuk(QObject *parent)
     , m_rfz(0)
     , m_wtz(0)
     , m_btnp(0)
-    , m_ntnp(0)
+    , m_ntbp(0)
     , m_syncMode(false)
 {
 }
@@ -58,7 +58,7 @@ SyncZoteroNepomuk::SyncZoteroNepomuk(QObject *parent)
 SyncZoteroNepomuk::~SyncZoteroNepomuk()
 {
     delete m_btnp;
-    delete m_ntnp;
+    delete m_ntbp;
 }
 
 void SyncZoteroNepomuk::startDownload()
@@ -169,6 +169,9 @@ void SyncZoteroNepomuk::mergeFinished()
     if(m_syncMode) {
         startUpload();
     }
+    else {
+        emit syncFinished();
+    }
 }
 
 void SyncZoteroNepomuk::startUpload()
@@ -178,9 +181,9 @@ void SyncZoteroNepomuk::startUpload()
     m_wtz->setAdoptBibtexTypes(true);
     connect(m_wtz, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
 
-    delete m_ntnp;
-    m_ntnp = new NepomukToBibTexPipe;
-    connect(m_ntnp, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
+    delete m_ntbp;
+    m_ntbp = new NepomukToBibTexPipe;
+    connect(m_ntbp, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
 
     // step 1 fetch data from nepomuk
     emit progressStatus(i18n("fetch data from Nepomuk"));
@@ -210,38 +213,40 @@ void SyncZoteroNepomuk::startUpload()
     m_curStep++;
 
     if(m_psd.collection.isEmpty()) {
-        m_ntnp->setSyncDetails(m_psd.url, m_psd.userName);
+        m_ntbp->setSyncDetails(m_psd.url, m_psd.userName);
     }
     else {
         QString url = m_psd.url + QLatin1String("/") + m_psd.collection;
-        m_ntnp->setSyncDetails(url, m_psd.userName);
+        m_ntbp->setSyncDetails(url, m_psd.userName);
     }
 
-    m_ntnp->addNepomukUries(true);
-    m_ntnp->pipeExport(exportList);
+    m_ntbp->addNepomukUries(true);
+    m_ntbp->pipeExport(exportList);
     m_bibCache.clear();
-    m_bibCache.append(*m_ntnp->bibtexFile());
+    m_bibCache.append(*m_ntbp->bibtexFile());
 
     // step 3 upload to zotero
     emit progressStatus(i18n("upload to Zotero"));
     m_curStep++;
 
     connect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(readUploadSync(File)));
-    connect(m_wtz, SIGNAL(entryItemUpdated(QString,QString,QString)), this, SLOT(updateEtagValuesAfterUpload(QString,QString,QString)));
+    connect(m_wtz, SIGNAL(entryItemUpdated(QString,QString,QString)), this, SLOT(updateSyncDetailsToNepomuk(QString,QString,QString)));
     m_wtz->pushItems(m_bibCache, m_psd.collection);
 }
 
 void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
 {
+    kDebug() << "m_wtz itemsInfo(File) called";
     if(zoteroData.isEmpty()) {
         m_curStep++;
         emit calculateProgress(100);
+        emit syncFinished();
         //we finished everything, so cleanup
         m_wtz->deleteLater();
         m_wtz = 0;
 
         //delete m_ntnp;
-        m_ntnp = 0;
+        m_ntbp = 0;
 
         m_syncMode = false;
         return;
@@ -307,10 +312,10 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
             // we found the right entry
             // add the zotero sync data to it
             if(duplicateFound) {
-                writeSyncDetailsToNepomuk(localEntry,
-                                          zoteroEntry->id(),
-                                          PlainTextValue::text(zoteroEntry->value(QLatin1String("zoteroetag"))),
-                                          PlainTextValue::text(zoteroEntry->value(QLatin1String("zoteroupdated"))));
+                writeNewSyncDetailsToNepomuk(localEntry,
+                                             zoteroEntry->id(),
+                                             PlainTextValue::text(zoteroEntry->value(QLatin1String("zoteroetag"))),
+                                             PlainTextValue::text(zoteroEntry->value(QLatin1String("zoteroupdated"))));
                 m_bibCache.removeAll(localElement); // remove from local storage, so we don't check it again
                 updateSuccessfull = true;
                 break;
@@ -339,10 +344,11 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
     m_wtz = 0;
 
     //delete m_ntnp;
-    m_ntnp = 0;
+    m_ntbp = 0;
 
     m_syncMode = false;
     emit calculateProgress(100);
+    emit syncFinished();
 }
 
 void SyncZoteroNepomuk::startSync()
@@ -507,19 +513,52 @@ void SyncZoteroNepomuk::findDeletedEntries(const File &zoteroData, QList<SyncDet
     }
 }
 
-void SyncZoteroNepomuk::updateEtagValuesAfterUpload(const QString &id, const QString &etag, const QString &updated)
+void SyncZoteroNepomuk::updateSyncDetailsToNepomuk(const QString &id, const QString &etag, const QString &updated)
 {
-    // first get the updated entry in the m_bibCache
-    foreach(const QSharedPointer<Element> &localElement, m_bibCache) {
-        Entry *localEntry = dynamic_cast<Entry *>(localElement.data());
-        if(!localEntry) { continue; }
-        if(id == PlainTextValue::text(localEntry->value(QLatin1String("zoteroKey")))) {
-            writeSyncDetailsToNepomuk(localEntry, id, etag, updated);
-        }
+    //step 1 get Nepomuk resource
+    QString query = "select DISTINCT ?r where {  "
+                     "?r a sync:ServerSyncData . "
+                     "?r sync:provider ?provider . FILTER regex(?provider, \"" + m_psd.providerInfo->providerId() + "\") "
+                     "?r sync:userId ?userId . FILTER regex(?userId, \"" + m_psd.userName + "\") "
+                     "?r sync:url ?url . FILTER regex(?url, \"" + m_psd.url + "\") "
+                     "?r sync:id ?id . FILTER regex(?id, \""+ id + "\") "
+                     "}";
+
+    QList<Nepomuk::Query::Result> results = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
+
+    if(results.size() > 1 || results.isEmpty()) {
+        kDebug() << "could not find the right sync details for the current item query" << m_psd.providerInfo->providerId() << m_psd.userName << m_psd.collection <<id;
+        return;
     }
+
+    Nepomuk::Resource syncDetails = results.first().resource();
+    Nepomuk::Resource publication = syncDetails.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+    Nepomuk::Resource reference = syncDetails.property(Nepomuk::Vocabulary::NBIB::reference()).toResource();
+
+    if(!publication.isValid()) {
+        qWarning() << "writeSyncDetailsToNepomuk no valid publication found" << publication.resourceUri();
+    }
+    if(!reference.isValid()) {
+        qWarning() << "writeSyncDetailsToNepomuk no valid reference found" << reference.resourceUri();
+    }
+
+    if(m_psd.collection.isEmpty()) {
+        syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), m_psd.url);
+    }
+    else {
+        QString url = m_psd.url + QLatin1String("/") + m_psd.collection;
+        syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), url);
+    }
+
+    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::provider(), m_psd.providerInfo->providerId());
+    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::userId(), m_psd.userName);
+    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::id(), id);
+    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::etag(), etag);
+    syncDetails.setProperty(Nepomuk::Vocabulary::NUAO::lastModification(), updated);
+    syncDetails.setProperty(Nepomuk::Vocabulary::NBIB::publication(), publication);
 }
 
-void SyncZoteroNepomuk::writeSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated)
+void SyncZoteroNepomuk::writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated)
 {
     //step 1 get Nepomuk resource
     QString pubUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-publication-uri")));

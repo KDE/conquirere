@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Jörg Ehrichs <joerg.ehrichs@gmx.de>
+ * Copyright 2011,2012 Jörg Ehrichs <joerg.ehrichs@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,7 @@
 
 #include <QWidget>
 
-class MainWindow;
+class LibraryManager;
 
 /**
   * @todo create a animated button from it for the toolbar so it can run run silently in the background
@@ -32,19 +32,14 @@ class SyncButton : public QWidget
 public:
     explicit SyncButton(QWidget *parent = 0);
 
-    /**
-      * sets a link to the mainwindow.
-      *
-      * Used to get the list of open libraries in the subcomponents
-      */
-    void setMainWindow(MainWindow *mw);
+    void setLibraryManager(LibraryManager *lm);
 
 public slots:
     void startSync();
     void needsAttention();
 
 private:
-    MainWindow *m_parent;
+    LibraryManager *m_libraryManager;
 
 };
 

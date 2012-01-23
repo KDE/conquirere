@@ -26,6 +26,7 @@
 
 class Library;
 class QWidget;
+class BackgroundSync;
 
 /**
   * @brief Manager to hold all Library instances used in the system
@@ -89,6 +90,7 @@ private:
     QList<Library*> m_openProjectList;
     Library *m_systemLibrary;
     Library *m_currentUsedLibrary;
+    BackgroundSync *m_backgroundSyncManager;
 };
 
 #endif // LIBRARYMANAGER_H

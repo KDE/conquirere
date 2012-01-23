@@ -67,6 +67,8 @@ signals:
       */
     void userMerge(QList<SyncDetails>);
 
+    void syncFinished();
+
 public slots:
     virtual void startUpload() = 0;
     virtual void startDownload() = 0;

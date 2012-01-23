@@ -379,7 +379,7 @@ void MainWindow::setupActions()
     triggerBackgroundSyncAction->setText(i18n("Synchronize Collection"));
     triggerBackgroundSyncAction->setIcon(KIcon(QLatin1String("view-refresh")));
     actionCollection()->addAction(QLatin1String("db_background_sync"), triggerBackgroundSyncAction);
-    connect(triggerBackgroundSyncAction, SIGNAL(triggered(bool)),m_syncButton, SLOT(startSync()));
+//    connect(triggerBackgroundSyncAction, SIGNAL(triggered(bool)),m_syncButton, SLOT(startSync()));
 
     // other database actions
     KAction* dbCheckAction = new KAction(this);
@@ -511,8 +511,8 @@ void MainWindow::setupMainWindow()
 
     loadConfig();
 
-    m_syncButton = new SyncButton();
-    m_syncButton->setMainWindow(this);
+//    m_syncButton = new SyncButton();
+//    m_syncButton->setMainWindow(this);
 }
 
 void MainWindow::loadConfig()
