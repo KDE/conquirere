@@ -399,7 +399,7 @@ void SyncZoteroNepomuk::findDuplicates(const File &zoteroData, File &newEntries,
     // In the case we found such an entry, we check if the zotero etag value is different
     // If this is the case, the item has been changed on the server side and we need to merge them
 
-    qreal percentPerFile = 100.0/(qreal)newEntries.size();
+    qreal percentPerFile = 100.0/(qreal)zoteroData.size();
     qreal curProgress = 0.0;
 
     foreach(QSharedPointer<Element> element, zoteroData) {
