@@ -84,6 +84,12 @@ private slots:
 
     void popDeletionQuestion(QList<SyncDetails> items);
     void popMergeDialog(QList<SyncDetails> items);
+    void cancelSync();
+
+    /**
+      * press the 0-100 from several syncs into an overal 0-100
+      */
+    void calculateProgress(int value);
 
 private:
     bool findPasswordInKWallet(ProviderSyncDetails &psd);
@@ -92,6 +98,9 @@ private:
     Library *m_libraryToSync;
     QThread *m_syncThread;
     NBibSync *m_syncNepomuk;
+
+    int m_syncSteps;
+    int m_curStep;
 
     QList<ProviderSyncDetails> m_syncList;
 };

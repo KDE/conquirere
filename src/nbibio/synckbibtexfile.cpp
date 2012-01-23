@@ -239,6 +239,10 @@ void SyncKBibTeXFile::startSync()
     startDownload();
 }
 
+void SyncKBibTeXFile::cancel()
+{
+
+}
 
 void SyncKBibTeXFile::deleteLocalFiles(bool deleteThem)
 {

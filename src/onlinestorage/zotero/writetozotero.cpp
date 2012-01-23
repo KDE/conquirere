@@ -79,7 +79,7 @@ void WriteToZotero::pushItems(const File &items, const QString &collection)
         emit progress(m_progress);
     }
 
-//    kDebug() << QLatin1String("send new items:") <<  newItems.size() << QLatin1String(" send updated items:") <<  updatingItems.size();
+    kDebug() << QLatin1String("send new items:") <<  newItems.size() << QLatin1String(" send updated items:") <<  updatingItems.size();
 
     if(!newItems.isEmpty()) {
         pushNewItems(newItems, m_addToCollection);

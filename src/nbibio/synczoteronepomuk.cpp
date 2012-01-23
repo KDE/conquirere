@@ -52,11 +52,14 @@ SyncZoteroNepomuk::SyncZoteroNepomuk(QObject *parent)
     , m_btnp(0)
     , m_ntbp(0)
     , m_syncMode(false)
+    , m_cancel(false)
 {
 }
 
 SyncZoteroNepomuk::~SyncZoteroNepomuk()
 {
+    delete m_rfz;
+    delete m_wtz;
     delete m_btnp;
     delete m_ntbp;
 }
@@ -81,6 +84,9 @@ void SyncZoteroNepomuk::startDownload()
     }
     emit calculateProgress(0);
 
+    if(m_cancel)
+        mergeFinished(); // cancel and clean up correctly
+
     //lets start by retrieving all items from the server and merge them with the current files
     connect(m_rfz, SIGNAL(itemsInfo(File)), this, SLOT(readDownloadSync(File)));
     m_rfz->fetchItems(m_psd.collection);
@@ -100,6 +106,10 @@ void SyncZoteroNepomuk::readDownloadSync(const File &zoteroData)
 
     m_bibCache.clear();
     m_bibCache.append(zoteroData);
+
+    if(m_cancel)
+        return;
+
     if(m_psd.askBeforeDeletion && !m_tmpUserDeleteRequest.isEmpty()) {
         emit askForDeletion(m_tmpUserDeleteRequest);
     }
@@ -148,6 +158,10 @@ void SyncZoteroNepomuk::readDownloadSyncAfterDelete(const File &zoteroData)
     m_curStep++;
     emit calculateProgress(50);
 
+    if(m_cancel) {
+        mergeFinished(); // cancel and clean up correctly
+    }
+
     // wait until the user merged all entries on its own
     if(m_tmpUserMergeRequest.size() > 0) {
         emit progressStatus(i18n("wait until user merge is finished"));
@@ -165,6 +179,11 @@ void SyncZoteroNepomuk::mergeFinished()
     m_btnp = 0;
     m_rfz->deleteLater();
     m_rfz = 0;
+
+    if(m_cancel) {
+        return;
+        emit syncFinished();
+    }
 
     if(m_syncMode) {
         startUpload();
@@ -228,6 +247,12 @@ void SyncZoteroNepomuk::startUpload()
     // step 3 upload to zotero
     emit progressStatus(i18n("upload to Zotero"));
     m_curStep++;
+
+
+    if(m_cancel) {
+        File empty;
+        readUploadSync(empty); // cancel and cleanup
+    }
 
     connect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(readUploadSync(File)));
     connect(m_wtz, SIGNAL(entryItemUpdated(QString,QString,QString)), this, SLOT(updateSyncDetailsToNepomuk(QString,QString,QString)));
@@ -358,9 +383,22 @@ void SyncZoteroNepomuk::startSync()
     startDownload();
 }
 
+void SyncZoteroNepomuk::cancel()
+{
+    m_cancel = true;
+    if(m_rfz)
+        m_rfz->cancelDownload();
+    if(m_wtz)
+        m_wtz->cancelUpload();
+}
+
 void SyncZoteroNepomuk::deleteLocalFiles(bool deleteThem)
 {
     foreach(SyncDetails sd, m_tmpUserDeleteRequest) { // krazy:exclude=foreach
+
+        if(m_cancel)
+            return;
+
         if(deleteThem) {
             Nepomuk::Resource publication = sd.syncResource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
             qDebug() << "delete publication" << publication.resourceUri();
@@ -403,6 +441,10 @@ void SyncZoteroNepomuk::findDuplicates(const File &zoteroData, File &newEntries,
     qreal curProgress = 0.0;
 
     foreach(QSharedPointer<Element> element, zoteroData) {
+
+        if(m_cancel)
+            return;
+
         Entry *entry = dynamic_cast<Entry *>(element.data());
         if(!entry) { continue; }
 
@@ -481,7 +523,7 @@ void SyncZoteroNepomuk::findDuplicates(const File &zoteroData, File &newEntries,
 
 void SyncZoteroNepomuk::findDeletedEntries(const File &zoteroData, QList<SyncDetails> &userDeleteRequest)
 {
-    // here we find any sync:ServerSyncData object in teh nepomuk storage that does not have one of the
+    // here we find any sync:ServerSyncData object in the nepomuk storage that does not have one of the
     // zoteroKeys in zoteroData
     Nepomuk::Query::AndTerm andTerm;
     andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::SYNC::ServerSyncData() ) );
@@ -497,6 +539,7 @@ void SyncZoteroNepomuk::findDeletedEntries(const File &zoteroData, QList<SyncDet
         QString itemID = PlainTextValue::text(zoteroEntry->value( QLatin1String("zoterokey")) );
         idLookup.append(itemID);
     }
+
     Nepomuk::Query::Query query( andTerm );
     QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
 

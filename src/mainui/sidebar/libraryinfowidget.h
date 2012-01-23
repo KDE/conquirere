@@ -26,6 +26,8 @@ namespace Ui {
     class LibraryInfoWidget;
 }
 
+class KProgressDialog;
+
 /**
   * @brief SidebarWidget to show some Library details and some interaction buttons
   *
@@ -61,6 +63,7 @@ private:
     void setupUI();
     Ui::LibraryInfoWidget *ui;
     Library * m_curLibrary;
+    KProgressDialog *m_kpd;
 };
 
 #endif // LIBRARYINFOWIDGET_H

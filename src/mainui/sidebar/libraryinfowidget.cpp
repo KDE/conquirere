@@ -26,6 +26,8 @@
 
 #include "mainui/dialogs/newprojectwizard.h"
 
+#include <KDE/KProgressDialog>
+
 LibraryInfoWidget::LibraryInfoWidget(QWidget *parent)
     : SidebarComponent(parent)
     , ui(new Ui::LibraryInfoWidget)
@@ -39,6 +41,7 @@ LibraryInfoWidget::LibraryInfoWidget(QWidget *parent)
 LibraryInfoWidget::~LibraryInfoWidget()
 {
     delete ui;
+    delete m_kpd;
 }
 
 void LibraryInfoWidget::setLibrary(Library *p)
@@ -106,6 +109,8 @@ void LibraryInfoWidget::openSettings()
 
 void LibraryInfoWidget::syncData()
 {
+    m_kpd = new KProgressDialog;
+    m_kpd->setMinimumWidth(400);
     BackgroundSync *backgroundSyncManager = new BackgroundSync;
     backgroundSyncManager->setLibraryManager(libraryManager());
 
@@ -114,8 +119,11 @@ void LibraryInfoWidget::syncData()
     connect(backgroundSyncManager, SIGNAL(progress(int)), this, SLOT(setSyncProgress(int)));
     connect(backgroundSyncManager, SIGNAL(progressStatus(QString)), this, SLOT(setSyncStatus(QString)));
     connect(backgroundSyncManager, SIGNAL(allSyncTargetsFinished()), this, SLOT(syncFinished()));
+    connect(m_kpd, SIGNAL(cancelClicked()), backgroundSyncManager, SLOT(cancelSync()));
 
     backgroundSyncManager->startSync();
+
+    m_kpd->exec();
 }
 
 void LibraryInfoWidget::closeLibrary()
@@ -130,16 +138,22 @@ void LibraryInfoWidget::deleteLibrary()
 
 void LibraryInfoWidget::setSyncProgress(int value)
 {
-    kDebug() << "new value" << value;
+    if(m_kpd)
+        m_kpd->progressBar()->setValue(value);
+//    kDebug() << "new value" << value;
 }
 
 void LibraryInfoWidget::setSyncStatus(const QString &status)
 {
-    kDebug() << "new status" << status;
+    if(m_kpd)
+        m_kpd->setLabelText(status);
+//    kDebug() << "new status" << status;
 }
 
 void LibraryInfoWidget::syncFinished()
 {
+    delete m_kpd;
+    m_kpd = 0;
     kDebug() << "cleanup again";
 
     BackgroundSync *bs = qobject_cast<BackgroundSync *>(sender());

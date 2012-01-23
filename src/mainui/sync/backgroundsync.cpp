@@ -36,8 +36,11 @@
 
 BackgroundSync::BackgroundSync(QObject *parent)
     : QObject(parent)
+    , m_libraryToSync(0)
     , m_syncThread(0)
     , m_syncNepomuk(0)
+    , m_syncSteps(1)
+    , m_curStep(0)
 {
 }
 
@@ -59,12 +62,24 @@ void BackgroundSync::setLibraryToSyncWith(Library *l)
 
 void BackgroundSync::startSync()
 {
-    m_syncList = m_libraryToSync->settings()->allProviderSyncDetails();
+    if(m_libraryToSync) {
+        m_syncList = m_libraryToSync->settings()->allProviderSyncDetails();
+    }
+    else {
+        m_syncSteps = 1;
+        m_syncList = m_libraryManager->systemLibrary()->settings()->allProviderSyncDetails();
+        foreach(Library *l, m_libraryManager->openProjects()) {
+            m_syncList.append(l->settings()->allProviderSyncDetails());
+        }
+    }
 
     if(m_syncList.isEmpty()) {
         emit allSyncTargetsFinished();
         kDebug() << "no provider to sync with found";
         return;
+    }
+    else {
+        m_syncSteps = m_syncList.size();
     }
 
     ProviderSyncDetails psd = m_syncList.first();
@@ -76,7 +91,7 @@ void BackgroundSync::startSync()
 
 void BackgroundSync::startSync(const ProviderSyncDetails &psd)
 {
-    kDebug() << "start to sync" << m_libraryToSync->settings()->name() << "with" << psd.providerInfo->providerName();
+//    kDebug() << "start to sync" << m_libraryToSync->settings()->name() << "with" << psd.providerInfo->providerName();
     kDebug() << "user" << psd.userName;
     kDebug() << "pwd" << psd.pwd;
     kDebug() << "collection" << psd.collection;
@@ -92,7 +107,7 @@ void BackgroundSync::startSync(const ProviderSyncDetails &psd)
     m_syncNepomuk->setProviderDetails(psd);
 
     // connect the sync handler with the outside world
-    connect(m_syncNepomuk, SIGNAL(progress(int)), this, SIGNAL(progress(int)));
+    connect(m_syncNepomuk, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
     connect(m_syncNepomuk, SIGNAL(progressStatus(QString)), this, SIGNAL(progressStatus(QString)));
 
     connect(m_syncNepomuk, SIGNAL(askForDeletion(QList<SyncDetails>)), this, SLOT(popDeletionQuestion(QList<SyncDetails>)));
@@ -153,8 +168,24 @@ void BackgroundSync::popMergeDialog(QList<SyncDetails> items)
     emit mergeFinished();
 }
 
+void BackgroundSync::cancelSync()
+{
+    m_syncNepomuk->cancel();
+    m_syncList.clear();
+}
+
+void BackgroundSync::calculateProgress(int value)
+{
+    qreal curProgress = ((qreal)value * 1.0/m_syncSteps);
+
+    curProgress += (qreal)(100.0/m_syncSteps) * m_curStep;
+
+    emit progress(curProgress);
+}
+
 void BackgroundSync::currentSyncFinished()
 {
+    m_curStep++;
     delete m_syncNepomuk;
     m_syncNepomuk = 0;
 //    m_syncThread->deleteLater();
@@ -168,7 +199,7 @@ void BackgroundSync::currentSyncFinished()
         return;
     }
 
-    ProviderSyncDetails psd = m_syncList.takeFirst();
+    ProviderSyncDetails psd = m_syncList.first();
     startSync(psd);
 }
 

@@ -38,6 +38,7 @@ public slots:
     void startUpload();
     void startDownload();
     void startSync();
+    void cancel();
 
     void deleteLocalFiles(bool deleteThem);
     void mergeFinished();

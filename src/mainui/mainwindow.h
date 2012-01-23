@@ -29,7 +29,7 @@ class LibraryWidget;
 class SidebarWidget;
 class DocumentPreview;
 class SearchWidget;
-class SyncButton;
+class KProgressDialog;
 
 class MainWindow : public KParts::MainWindow
 {
@@ -76,6 +76,16 @@ private slots:
     void openLibrary(Library *l);
     void closeLibrary(const QUrl &projectThingUrl);
 
+    /**
+      * starts the sync for all open libraries + the system library and opens a kprogress dialog to show the progress
+      *
+      * should be done in a better way but for now it works at least
+      */
+    void startFullSync();
+    void setSyncProgress(int value);
+    void setSyncStatus(const QString &status);
+    void syncFinished();
+
 private:
     bool queryExit();
     void setupActions();
@@ -92,7 +102,8 @@ private:
     SidebarWidget *m_sidebarWidget;
     DocumentPreview *m_documentPreview;
     SearchWidget *m_searchWidget;
-    SyncButton *m_syncButton;
+
+    KProgressDialog *m_kpd;
 };
 
 #endif // MAINWINDOW_H

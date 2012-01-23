@@ -37,7 +37,7 @@
 #include "docklets/documentpreview.h"
 #include "docklets/searchwidget.h"
 
-#include "sync/syncbutton.h"
+#include "sync/backgroundsync.h"
 
 #include "nbibio/conquirere.h"
 
@@ -48,6 +48,7 @@
 #include <KDE/KStandardAction>
 #include <KDE/KStandardDirs>
 #include <KDE/KMessageBox>
+#include <KDE/KProgressDialog>
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Variant>
@@ -303,6 +304,46 @@ void MainWindow::closeLibrary(const QUrl &projectThingUrl)
     switchView(Resource_Library, Max_BibTypes, m_libraryManager->systemLibrary());
 }
 
+void MainWindow::startFullSync()
+{
+    m_kpd = new KProgressDialog;
+    m_kpd->setMinimumWidth(400);
+    BackgroundSync *backgroundSyncManager = new BackgroundSync;
+    backgroundSyncManager->setLibraryManager(m_libraryManager);
+
+    connect(backgroundSyncManager, SIGNAL(progress(int)), this, SLOT(setSyncProgress(int)));
+    connect(backgroundSyncManager, SIGNAL(progressStatus(QString)), this, SLOT(setSyncStatus(QString)));
+    connect(backgroundSyncManager, SIGNAL(allSyncTargetsFinished()), this, SLOT(syncFinished()));
+    connect(m_kpd, SIGNAL(cancelClicked()), backgroundSyncManager, SLOT(cancelSync()));
+
+    backgroundSyncManager->startSync();
+
+    m_kpd->exec();
+}
+
+void MainWindow::setSyncProgress(int value)
+{
+    if(m_kpd)
+        m_kpd->progressBar()->setValue(value);
+}
+
+void MainWindow::setSyncStatus(const QString &status)
+{
+    if(m_kpd)
+        m_kpd->setLabelText(status);
+}
+
+void MainWindow::syncFinished()
+{
+    delete m_kpd;
+    m_kpd = 0;
+    kDebug() << "cleanup again";
+
+    BackgroundSync *bs = qobject_cast<BackgroundSync *>(sender());
+    if(bs)
+        delete bs;
+}
+
 bool MainWindow::queryExit()
 {
     // this here is necessary ... otherwise we crash on close because of the hiding event ...
@@ -379,7 +420,7 @@ void MainWindow::setupActions()
     triggerBackgroundSyncAction->setText(i18n("Synchronize Collection"));
     triggerBackgroundSyncAction->setIcon(KIcon(QLatin1String("view-refresh")));
     actionCollection()->addAction(QLatin1String("db_background_sync"), triggerBackgroundSyncAction);
-//    connect(triggerBackgroundSyncAction, SIGNAL(triggered(bool)),m_syncButton, SLOT(startSync()));
+    connect(triggerBackgroundSyncAction, SIGNAL(triggered(bool)), this, SLOT(startFullSync()));
 
     // other database actions
     KAction* dbCheckAction = new KAction(this);
@@ -510,9 +551,6 @@ void MainWindow::setupMainWindow()
             this, SLOT(switchView(ResourceSelection,BibEntryType,Library*)));
 
     loadConfig();
-
-//    m_syncButton = new SyncButton();
-//    m_syncButton->setMainWindow(this);
 }
 
 void MainWindow::loadConfig()

@@ -54,6 +54,7 @@ public slots:
     void startUpload();
     void startDownload();
     void startSync();
+    void cancel();
 
     void deleteLocalFiles(bool deleteThem);
     void mergeFinished();
@@ -94,6 +95,7 @@ private:
     NepomukToBibTexPipe *m_ntbp;
     File m_bibCache;
     bool m_syncMode;
+    bool m_cancel;
     QList<SyncDetails> m_tmpUserDeleteRequest;
     QList<SyncDetails> m_tmpUserMergeRequest;
 };

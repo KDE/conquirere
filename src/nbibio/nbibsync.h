@@ -73,6 +73,7 @@ public slots:
     virtual void startUpload() = 0;
     virtual void startDownload() = 0;
     virtual void startSync() = 0;
+    virtual void cancel() = 0;
 
     /**
       * connects to the response of askForDeletion() and proceeds with the sync
