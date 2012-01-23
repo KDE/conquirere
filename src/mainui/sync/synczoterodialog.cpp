@@ -63,6 +63,8 @@ SyncZoteroDialog::SyncZoteroDialog(QWidget *parent)
     connect( job2, SIGNAL(collectionsReceived(Akonadi::Collection::List)),
              this, SLOT(akonadiEventCollectionFetched(Akonadi::Collection::List)) );
 
+    KMessageBox::information(this, i18n("Be aware that the sync is still experimental.\nBackup your data before you start to upload something."),
+    i18n("Warning!"),QLatin1String("syncwarning"));
 }
 
 SyncZoteroDialog::~SyncZoteroDialog()
