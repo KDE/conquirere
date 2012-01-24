@@ -432,7 +432,6 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
 
 void SyncZoteroNepomuk::removeFilesFromGroup()
 {
-    kDebug() << "start";
     // lets reuse the writeToZotero object but disconnect the signals in this case
     disconnect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(readUploadSync(File)));
     disconnect(m_wtz, SIGNAL(entryItemUpdated(QString,QString,QString)), this, SLOT(updateSyncDetailsToNepomuk(QString,QString,QString)));
@@ -443,14 +442,6 @@ void SyncZoteroNepomuk::removeFilesFromGroup()
         removeFilesFromZotero();
         return;
     }
-
-    /*
-    m_wtz->deleteLater();
-    m_wtz = new WriteToZotero;
-    m_wtz->setProviderSettings(m_psd);
-    m_wtz->setAdoptBibtexTypes(true);
-    connect(m_wtz, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
-    */
 
     // step 5 remove items from the current selected group
     emit progressStatus(i18n("Remove files from the Zotero group: %1", m_psd.collection));
@@ -514,7 +505,6 @@ void SyncZoteroNepomuk::removeFilesFromGroup()
 
 void SyncZoteroNepomuk::removeFilesFromZotero()
 {
-    kDebug() << "start";
     disconnect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(removeFilesFromZotero()));
 
     if(!m_psd.collection.isEmpty()) {
@@ -522,13 +512,6 @@ void SyncZoteroNepomuk::removeFilesFromZotero()
         cleanupAfterUpload();
         return;
     }
-/*
-    m_wtz->deleteLater();
-    m_wtz = new WriteToZotero;
-    m_wtz->setProviderSettings(m_psd);
-    m_wtz->setAdoptBibtexTypes(true);
-    connect(m_wtz, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
-    */
 
     emit calculateProgress(100);
 
