@@ -19,6 +19,8 @@
 
 NBibSync::NBibSync(QObject *parent)
     : QObject(parent)
+    , m_systemLibrary(0)
+    , m_libraryToSyncWith(0)
     , m_syncSteps(0)
     , m_curStep(0)
 {
@@ -45,6 +47,16 @@ void NBibSync::setProviderDetails(ProviderSyncDetails psd)
 ProviderSyncDetails NBibSync::providerSyncDetails() const
 {
     return m_psd;
+}
+
+void NBibSync::setSystemLibrary(Library *sl)
+{
+    m_systemLibrary = sl;
+}
+
+void NBibSync::setLibraryToSyncWith(Library *l)
+{
+    m_libraryToSyncWith = l;
 }
 
 void NBibSync::calculateProgress(int value)

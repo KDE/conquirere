@@ -35,13 +35,25 @@ class EntryClique;
   *
   * This class combines the ReadFromZotero and WriteToZotero and organize the merging between these steps.
   * When some data on the server side changes and the mergemode is set to Manual the signal userMerge() is emitted
-  * And gui that calls this class need to show a gui and resolve the issues before this calss can continue
+  * Any gui that calls this class need to show a gui and resolve the issues before this class can continue
   * When the merge is solved the slot mergeFinished() must be called to continue the process
   *
   * Same applies for deleting items, when the user interaction is requested the signal askForDeletion() is emitted
   * and the slot deleteLocalFiles() must be called when the selection was made.
   *
   * The current progress can be shown via progress() and progressStatus()
+  *
+  * Two different sync cases must be handeled in here
+  * @li syncing with the base zotero collection (all items regardless of their groups)
+  * @li syncing with a specific group
+  *
+  * The 2nd case together with the snc of a project Library instead the full system Library changes the way
+  * the sync merging/removing/addition is done.
+  *
+  * Here we add the pimo:isRelated to any new item retrieved from the server and
+  * remove this relation when an item should be deleted (while the item will still exist in the system library)
+  *
+  * This means in return, that a local project represents 1 group on the Zotero server.
   */
 class SyncZoteroNepomuk : public NBibSync
 {
@@ -81,7 +93,7 @@ private slots:
 
 private:
     void findDuplicates(const File &zoteroData, File &newEntries, QList<SyncDetails> &userMergeRequest);
-    void findDeletedEntries(const File &zoteroData, QList<SyncDetails> &userDeleteRequest);
+    void findRemovedEntries(const File &zoteroData, QList<SyncDetails> &userDeleteRequest);
 
     /**
       * like updateSyncDetailsToNepomuk() but creates new sync data from new downloaded files

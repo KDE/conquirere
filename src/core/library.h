@@ -118,6 +118,16 @@ public:
     void removeResource(Nepomuk::Resource & res);
 
     /**
+      * Deletes the resource and also any connected resource that might not be necessary anymore
+      *
+      * like the reference for the publication, or a nbib:Series if it did not contain any other publications
+      * or a nbib:Collection if we deleted the only article in it
+      *
+      * @pre res should only be a nbib:Publication
+      */
+    void deleteResource(Nepomuk::Resource & publication);
+
+    /**
       * Updates all cached list data
       *
       * @todo can be removed when the ResourceWatcher is working

@@ -28,6 +28,8 @@
 
 class StorageInfo;
 class Entry;
+class Library;
+class LibraryManager;
 
 struct SyncDetails {
     Nepomuk::Resource syncResource;
@@ -48,6 +50,9 @@ public:
 
     void setProviderDetails(ProviderSyncDetails psd);
     ProviderSyncDetails providerSyncDetails() const;
+
+    void setSystemLibrary(Library *sl);
+    void setLibraryToSyncWith(Library *l);
 
 signals:
     void progress(int value);
@@ -87,6 +92,8 @@ protected slots:
 protected:
     QString m_uniqueId;
     ProviderSyncDetails m_psd;
+    Library *m_systemLibrary;
+    Library *m_libraryToSyncWith;
 
     int m_syncSteps;
     int m_curStep;

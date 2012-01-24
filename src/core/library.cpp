@@ -251,9 +251,43 @@ void Library::addResource(Nepomuk::Resource & res)
 
 void Library::removeResource(Nepomuk::Resource & res)
 {
-    Q_ASSERT_X( m_libraryType == Library_System, "removeResource", "can't remove resources from system library");
+    Q_ASSERT_X( m_libraryType == Library_Project, "removeResource", "can't remove resources from system library");
 
     res.removeProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectSettings->projectThing());
+
+    QList<Nepomuk::Resource> references = res.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
+    foreach(Nepomuk::Resource r, references) {
+        r.removeProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectSettings->projectThing());
+    }
+}
+
+void Library::deleteResource(Nepomuk::Resource & publication)
+{
+    Q_ASSERT_X( publication.hasType(Nepomuk::Vocabulary::NBIB::Publication()), "deleteResource", "only delete publications with this method, delete anything else on your own");
+
+    Nepomuk::Resource series = publication.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    QList<Nepomuk::Resource> seriesPubilcations = series.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
+    if(seriesPubilcations.isEmpty()) {
+        series.remove();
+    }
+
+    Nepomuk::Resource collection = publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+    QList<Nepomuk::Resource> articles = collection.property(Nepomuk::Vocabulary::NBIB::article()).toResourceList();
+    if(articles.isEmpty()) {
+        collection.remove();
+    }
+
+    QList<Nepomuk::Resource> references = publication.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
+    foreach(Nepomuk::Resource r, references) {
+        r.remove();
+    }
+
+    QList<Nepomuk::Resource> documentParts = publication.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
+    foreach(Nepomuk::Resource dp, documentParts) {
+        dp.remove();
+    }
+
+    publication.remove();
 }
 
 void Library::updateCacheData()

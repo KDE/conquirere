@@ -105,6 +105,9 @@ void BackgroundSync::startSync(const ProviderSyncDetails &psd)
     }
 
     m_syncNepomuk->setProviderDetails(psd);
+    m_syncNepomuk->setSystemLibrary(m_libraryManager->systemLibrary());
+    if(m_libraryToSync)
+        m_syncNepomuk->setLibraryToSyncWith(m_libraryToSync);
 
     // connect the sync handler with the outside world
     connect(m_syncNepomuk, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
