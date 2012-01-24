@@ -52,7 +52,7 @@ public slots:
     // database menu
     void importZotero();
     void exportZotero();
-    void syncZotero();
+    void syncStorage();
 
     void dbCheck();
     void dbBackup();

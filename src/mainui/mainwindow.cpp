@@ -38,6 +38,7 @@
 #include "docklets/searchwidget.h"
 
 #include "sync/backgroundsync.h"
+#include "sync/storagesyncwizard.h"
 
 #include "nbibio/conquirere.h"
 
@@ -190,9 +191,13 @@ void MainWindow::exportZotero()
     m_libraryManager->exportData(LibraryManager::Zotero_Sync);
 }
 
-void MainWindow::syncZotero()
+void MainWindow::syncStorage()
 {
-    m_libraryManager->syncData(LibraryManager::Zotero_Sync);
+    StorageSyncWizard ssw;
+
+    ssw.setLibraryManager(m_libraryManager);
+
+    ssw.exec();
 }
 
 void MainWindow::dbCheck()
@@ -399,11 +404,10 @@ void MainWindow::setupActions()
 
     // sync actions
     KAction* syncZoteroAction = new KAction(this);
-    syncZoteroAction->setText(i18n("External Storag Sync"));
-    syncZoteroAction->setEnabled(false);
+    syncZoteroAction->setText(i18n("External Storage Sync"));
     syncZoteroAction->setIcon(KIcon(QLatin1String("svn-update")));
     actionCollection()->addAction(QLatin1String("db_sync_storage"), syncZoteroAction);
-    connect(syncZoteroAction, SIGNAL(triggered(bool)),this, SLOT(syncZotero()));
+    connect(syncZoteroAction, SIGNAL(triggered(bool)),this, SLOT(syncStorage()));
 
     KAction* triggerBackgroundSyncAction = new KAction(this);
     triggerBackgroundSyncAction->setText(i18n("Synchronize Collection"));
