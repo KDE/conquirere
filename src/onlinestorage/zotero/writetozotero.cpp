@@ -91,7 +91,7 @@ void WriteToZotero::pushItems(const File &items, const QString &collection)
 void WriteToZotero::pushNewItems(const File &items, const QString &collection)
 {
     if(items.isEmpty()) {
-        emit itemsInfo(items);
+        if(openReplies() == 0) { emit itemsInfo(items); }
         return;
     }
 
