@@ -385,35 +385,24 @@ void MainWindow::setupActions()
     // Database menu
     // import section
     KAction* importBibTexAction = new KAction(this);
-    importBibTexAction->setText(i18n("File"));
-    importBibTexAction->setIcon(KIcon(QLatin1String("application-rtf")));
+    importBibTexAction->setText(i18n("Import from File"));
+    importBibTexAction->setIcon(KIcon(QLatin1String("document-import")));
     actionCollection()->addAction(QLatin1String("db_import_file"), importBibTexAction);
     connect(importBibTexAction, SIGNAL(triggered(bool)),m_libraryManager, SLOT(importData()));
 
-    KAction* importZoteroAction = new KAction(this);
-    importZoteroAction->setText(i18n("Zotero"));
-    importZoteroAction->setIcon(KIcon(QLatin1String("storage-zotero")));
-    actionCollection()->addAction(QLatin1String("db_import_zotero"), importZoteroAction);
-    connect(importZoteroAction, SIGNAL(triggered(bool)),this, SLOT(importZotero()));
-
     // export section
     KAction* exportBibTexAction = new KAction(this);
-    exportBibTexAction->setText(i18n("File"));
-    exportBibTexAction->setIcon(KIcon(QLatin1String("application-rtf")));
+    exportBibTexAction->setText(i18n("Export to File"));
+    exportBibTexAction->setIcon(KIcon(QLatin1String("document-export")));
     actionCollection()->addAction(QLatin1String("db_export_file"), exportBibTexAction);
     connect(exportBibTexAction, SIGNAL(triggered(bool)),m_libraryManager, SLOT(exportData()));
 
-    KAction* exportZoteroAction = new KAction(this);
-    exportZoteroAction->setText(i18n("Zotero"));
-    exportZoteroAction->setIcon(KIcon(QLatin1String("storage-zotero")));
-    actionCollection()->addAction(QLatin1String("db_export_zotero"), exportZoteroAction);
-    connect(exportZoteroAction, SIGNAL(triggered(bool)),this, SLOT(exportZotero()));
-
     // sync actions
     KAction* syncZoteroAction = new KAction(this);
-    syncZoteroAction->setText(i18n("Zotero"));
-    syncZoteroAction->setIcon(KIcon(QLatin1String("storage-zotero")));
-    actionCollection()->addAction(QLatin1String("db_sync_zotero"), syncZoteroAction);
+    syncZoteroAction->setText(i18n("External Storag Sync"));
+    syncZoteroAction->setEnabled(false);
+    syncZoteroAction->setIcon(KIcon(QLatin1String("svn-update")));
+    actionCollection()->addAction(QLatin1String("db_sync_storage"), syncZoteroAction);
     connect(syncZoteroAction, SIGNAL(triggered(bool)),this, SLOT(syncZotero()));
 
     KAction* triggerBackgroundSyncAction = new KAction(this);
