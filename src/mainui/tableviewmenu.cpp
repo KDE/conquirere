@@ -347,17 +347,9 @@ void TableViewMenu::removeSelectedFromProject()
     }
 
     if(pimoProject.isValid()) {
-        m_nepomukResource.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), pimoProject);
-        pimoProject.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), m_nepomukResource);
-
-        QList<Nepomuk::Resource> refList = m_nepomukResource.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
-
-        foreach(Nepomuk::Resource r, refList) { // krazy:exclude=foreach
-            r.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), pimoProject);
-            pimoProject.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), r);
-        }
-
-        //TODO remove also all other recources which are not needed anymore from the project
+        // find the library that is related to this prject
+        Library *l = m_libraryManager->libFromResourceUri(pimoProject.resourceUri());
+        l->removeResource(m_nepomukResource);
     }
     else {
         qDebug() << "TableViewMenu::removeSelectedFromProject() | could not find pimo project the data should be removed from";
@@ -366,15 +358,7 @@ void TableViewMenu::removeSelectedFromProject()
 
 void TableViewMenu::removeSelectedFromSystem()
 {
-    //get all connected references
-    QList<Nepomuk::Resource> refList = m_nepomukResource.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
-
-    foreach(Nepomuk::Resource r, refList) { // krazy:exclude=foreach
-        r.remove();
-    }
-
-    // remove resource
-    m_nepomukResource.remove();
+    m_libraryManager->systemLibrary()->deleteResource(m_nepomukResource);
 }
 
 void TableViewMenu::openSelected()

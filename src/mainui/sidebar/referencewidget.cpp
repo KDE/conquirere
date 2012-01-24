@@ -216,12 +216,10 @@ void ReferenceWidget::newButtonClicked()
 
 void ReferenceWidget::deleteButtonClicked()
 {
-    Nepomuk::Resource publication = m_reference.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+    libraryManager()->systemLibrary()->deleteResource(m_reference);
 
-    m_reference.remove();
-
-    setResource(m_reference);
-    emit resourceCacheNeedsUpdate(publication);
+    Nepomuk::Resource emptyResource;
+    setResource(emptyResource);
 }
 
 void ReferenceWidget::changeRating(int newRating)

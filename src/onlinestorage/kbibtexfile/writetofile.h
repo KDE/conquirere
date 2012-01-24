@@ -55,6 +55,7 @@ public slots:
       */
     void removeItemsFromCollection(const QList<QString> &ids, const QString &collection );
     void deleteItems(const File &items);
+    void deleteItems(QList<QPair<QString, QString> > items);
 
     /**
       * collections in files are not supported

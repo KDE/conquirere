@@ -165,6 +165,11 @@ void WriteToFile::deleteItems(const File &items)
 
 }
 
+void WriteToFile::deleteItems(QList<QPair<QString, QString> > items)
+{
+
+}
+
 void WriteToFile::createCollection(const CollectionInfo &ci)
 {
     Q_UNUSED(ci);

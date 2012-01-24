@@ -41,6 +41,9 @@
 #include <Nepomuk/Resource>
 #include <Nepomuk/Tag>
 #include <Nepomuk/File>
+
+#include "nbib.h"
+#include "sync.h"
 #include <Nepomuk/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Vocabulary/PIMO>
@@ -261,33 +264,45 @@ void Library::removeResource(Nepomuk::Resource & res)
     }
 }
 
-void Library::deleteResource(Nepomuk::Resource & publication)
+void Library::deleteResource(Nepomuk::Resource & resource)
 {
-    Q_ASSERT_X( publication.hasType(Nepomuk::Vocabulary::NBIB::Publication()), "deleteResource", "only delete publications with this method, delete anything else on your own");
+    Q_ASSERT_X( resource.hasType(Nepomuk::Vocabulary::NBIB::Publication()) ||
+    resource.hasType(Nepomuk::Vocabulary::NBIB::Reference()),
+    "deleteResource",
+    "only delete publications or references with this method, delete anything else on your own");
 
-    Nepomuk::Resource series = publication.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
-    QList<Nepomuk::Resource> seriesPubilcations = series.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
-    if(seriesPubilcations.isEmpty()) {
-        series.remove();
+    if( resource.hasType(Nepomuk::Vocabulary::NBIB::Reference() ) ) {
+        Nepomuk::Resource publication = resource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+        publication.removeProperty(Nepomuk::Vocabulary::NBIB::reference(), resource );
+
+        emit resourceCacheNeedsUpdate(publication);
+    }
+    else {
+        Nepomuk::Resource series = resource.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+        QList<Nepomuk::Resource> seriesPubilcations = series.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
+        if(seriesPubilcations.isEmpty()) {
+            series.remove();
+        }
+
+        Nepomuk::Resource collection = resource.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+        QList<Nepomuk::Resource> articles = collection.property(Nepomuk::Vocabulary::NBIB::article()).toResourceList();
+        if(articles.isEmpty()) {
+            collection.remove();
+        }
+
+        QList<Nepomuk::Resource> references = resource.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
+        foreach(Nepomuk::Resource r, references) {
+            r.remove();
+        }
+
+        QList<Nepomuk::Resource> documentParts = resource.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
+        foreach(Nepomuk::Resource dp, documentParts) {
+            dp.remove();
+        }
     }
 
-    Nepomuk::Resource collection = publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
-    QList<Nepomuk::Resource> articles = collection.property(Nepomuk::Vocabulary::NBIB::article()).toResourceList();
-    if(articles.isEmpty()) {
-        collection.remove();
-    }
-
-    QList<Nepomuk::Resource> references = publication.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
-    foreach(Nepomuk::Resource r, references) {
-        r.remove();
-    }
-
-    QList<Nepomuk::Resource> documentParts = publication.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
-    foreach(Nepomuk::Resource dp, documentParts) {
-        dp.remove();
-    }
-
-    publication.remove();
+    // finally remove teh resource from teh nepomuk storage
+    resource.remove();
 }
 
 void Library::updateCacheData()

@@ -112,9 +112,17 @@ public:
     /**
       * Relates a Nepomuk::Resource to this project
       *
+      * If this sycdetaisl for this item was in the "to be removed" section of the .ini provider settings
+      * They will be removed from there too
+      *
       * @p res the used Nepomuk::Resource
       */
     void addResource(Nepomuk::Resource & res);
+
+    /**
+      * removes the pimo::isRelated elation again and also adds the sync data to the syncprovider
+      * ini files so we know we need to remove it from the online storage too.
+      */
     void removeResource(Nepomuk::Resource & res);
 
     /**
@@ -123,9 +131,8 @@ public:
       * like the reference for the publication, or a nbib:Series if it did not contain any other publications
       * or a nbib:Collection if we deleted the only article in it
       *
-      * @pre res should only be a nbib:Publication
       */
-    void deleteResource(Nepomuk::Resource & publication);
+    void deleteResource(Nepomuk::Resource & resource);
 
     /**
       * Updates all cached list data

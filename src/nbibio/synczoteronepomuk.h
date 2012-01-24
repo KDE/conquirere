@@ -54,6 +54,18 @@ class EntryClique;
   * remove this relation when an item should be deleted (while the item will still exist in the system library)
   *
   * This means in return, that a local project represents 1 group on the Zotero server.
+  *
+  * Another special case:
+  * We removed the publication/reference from a library project and need to remove them on the server side too.
+  *
+  * They way to find such a case follows the following concept:
+  * Any reference/publication that is synced with a storage has it @c sync:ServerSyncData when the reference/publication is deleted
+  * by conquirere or any other program the @c sync:ServerSyncData is still there but without a valid reference/publication
+  *
+  * Now when we download data from te hserver and check for teh duplicates, we find the @c sync:ServerSyncData and see that the ref/pub was deleted
+  * We know now teh user wanted to delete it (remove it from teh group) and we do not import this entyr again. Instead we
+  * will delete it from the server side as soon as the next upload happens.
+  *
   */
 class SyncZoteroNepomuk : public NBibSync
 {
@@ -82,6 +94,12 @@ private slots:
       * process syncdata retrived from zotero server when new items are send to the server
       */
     void readUploadSync(const File &zoteroData);
+
+    // after we are finsihed uploading all new and changed items, we start to remove all entries
+    // that are removed on the local side and mus tbe removed also from the serverside
+    void removeFilesFromGroup();
+    void removeFilesFromZotero();
+    void cleanupAfterUpload();
 
     /**
       * When an item was changed on the server side a new etag value is generated

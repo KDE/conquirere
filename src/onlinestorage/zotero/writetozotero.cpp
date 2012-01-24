@@ -169,8 +169,10 @@ void WriteToZotero::addItemsToCollection(const QList<QString> &ids, const QStrin
 
 void WriteToZotero::removeItemsFromCollection(const QList<QString> &ids, const QString &collection )
 {
+    kDebug() << ids << collection;
     //DELETE /users/1/collections/QRST9876/items/ABCD2345
 
+    m_allRequestsSend = false;
     foreach(const QString &id, ids) {
         QString pushString = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/collections/") + collection + QLatin1String("/items/") + id;
 
@@ -184,13 +186,16 @@ void WriteToZotero::removeItemsFromCollection(const QList<QString> &ids, const Q
 
         startRequest(request, 0, QNetworkAccessManager::DeleteOperation);
     }
+    m_allRequestsSend = true;
 }
 
 void WriteToZotero::deleteItems(const File &items)
 {
+    kDebug() << "with bixtex items";
     //DELETE /users/1/items/ABCD2345
     //If-Match: "8e984e9b2a8fb560b0085b40f6c2c2b7"
 
+    m_allRequestsSend = false;
     foreach(QSharedPointer<Element> element, items) {
         Entry *entry = dynamic_cast<Entry *>(element.data());
         if(!entry) {
@@ -211,6 +216,34 @@ void WriteToZotero::deleteItems(const File &items)
 
         startRequest(request, 0, QNetworkAccessManager::DeleteOperation);
     }
+    m_allRequestsSend = true;
+}
+
+void WriteToZotero::deleteItems(QList<QPair<QString, QString> > items)
+{
+    kDebug() << items;
+    //DELETE /users/1/items/ABCD2345
+    //If-Match: "8e984e9b2a8fb560b0085b40f6c2c2b7"
+
+    m_allRequestsSend = false;
+    typedef QPair<QString,QString> Item;
+    foreach(const Item &pair, items) {
+        QString zoteroKey = pair.first;
+        QString pushString = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items/") + zoteroKey;
+
+        if(!m_psd.pwd.isEmpty()) {
+            pushString.append(QLatin1String("?key=") + m_psd.pwd);
+        }
+        QUrl pushUrl(pushString);
+
+        QNetworkRequest request(pushUrl);
+        request.setHeader(QNetworkRequest::ContentTypeHeader,QLatin1String("application/json"));
+        QString etag = pair.second;
+        request.setRawHeader("If-Match", etag.toLatin1());
+
+        startRequest(request, 0, QNetworkAccessManager::DeleteOperation);
+    }
+    m_allRequestsSend = true;
 }
 
 void WriteToZotero::createCollection(const CollectionInfo &ci)
@@ -277,9 +310,15 @@ void WriteToZotero::requestFinished()
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
     if(reply->error() != QNetworkReply::NoError) {
-        kDebug() <<  reply->error() << reply->errorString();
+//        kDebug() <<  reply->error() << reply->errorString();
 
         serverReplyFinished(reply);
+
+        if(m_allRequestsSend && openReplies() == 0) {
+            // now we emit all the new entries we retrived from the server as response to our sent action
+            emit itemsInfo(*m_entriesAfterSync);
+        }
+
         return;
     }
 
@@ -320,6 +359,7 @@ void WriteToZotero::requestFinished()
                 QString etag =  PlainTextValue::text(newElementEntry->value(QLatin1String("zoteroetag")));
                 QString udated =  PlainTextValue::text(newElementEntry->value(QLatin1String("zoteroupdated")));
                 QString newId = newElementEntry->id();
+                ids << newId;
                 emit entryItemUpdated(newId,etag, udated);
                 break;
             }
@@ -336,11 +376,13 @@ void WriteToZotero::requestFinished()
         }
     }
 
+    // push items to collection
+    if(!m_addToCollection.isEmpty()) {
+        addItemsToCollection(ids, m_addToCollection);
+        m_progress += m_progressPerFile;
+    }
+
     if(newFilesAdded != 0) {
-        // push items to collection
-        if(!m_addToCollection.isEmpty()) {
-            addItemsToCollection(ids, m_addToCollection);
-        }
         m_progress = m_progress + m_progressPerFile * newFilesAdded;
         emit progress(m_progress);
     }

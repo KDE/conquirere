@@ -32,6 +32,7 @@ LibraryInfoWidget::LibraryInfoWidget(QWidget *parent)
     : SidebarComponent(parent)
     , ui(new Ui::LibraryInfoWidget)
     , m_curLibrary(0)
+    , m_kpd(0)
 {
     ui->setupUi(this);
 

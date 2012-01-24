@@ -89,6 +89,7 @@ public slots:
     virtual void addItemsToCollection(const QList<QString> &ids, const QString &collection) = 0;
     virtual void removeItemsFromCollection(const QList<QString> &ids, const QString &collection) = 0;
     virtual void deleteItems(const File &items) = 0;
+    virtual void deleteItems(QList<QPair<QString, QString> > items) = 0;
 
     virtual void createCollection(const CollectionInfo &ci) = 0;
     virtual void editCollection(const CollectionInfo &ci) = 0;

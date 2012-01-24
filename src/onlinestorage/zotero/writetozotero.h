@@ -62,6 +62,9 @@ public slots:
     void addItemsToCollection(const QList<QString> &ids, const QString &collection );
     void removeItemsFromCollection(const QList<QString> &ids, const QString &collection );
     void deleteItems(const File &items);
+    // pair.first = zoteroKey
+    // pair.second = etag
+    void deleteItems(QList<QPair<QString, QString> > items);
 
     void createCollection(const CollectionInfo &ci);
     void editCollection(const CollectionInfo &ci);

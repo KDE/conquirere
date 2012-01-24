@@ -309,9 +309,10 @@ void PublicationWidget::newButtonClicked()
 
 void PublicationWidget::deleteButtonClicked()
 {
-    m_publication.remove();
+    libraryManager()->systemLibrary()->deleteResource(m_publication);
 
-    setResource(m_publication);
+    Nepomuk::Resource emptyResource;
+    setResource(emptyResource);
 }
 
 void PublicationWidget::subResourceUpdated(Nepomuk::Resource resource)
