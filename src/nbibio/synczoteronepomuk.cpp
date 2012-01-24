@@ -666,13 +666,7 @@ void SyncZoteroNepomuk::updateSyncDetailsToNepomuk(const QString &id, const QStr
         qWarning() << "writeSyncDetailsToNepomuk no valid reference found" << reference.resourceUri();
     }
 
-    if(m_psd.collection.isEmpty()) {
-        syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), m_psd.url);
-    }
-    else {
-        QString url = m_psd.url + QLatin1String("/") + m_psd.collection;
-        syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), url);
-    }
+    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), m_psd.url);
 
     syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::provider(), m_psd.providerInfo->providerId());
     syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::userId(), m_psd.userName);
@@ -710,13 +704,7 @@ void SyncZoteroNepomuk::writeNewSyncDetailsToNepomuk(Entry *localData, const QSt
         syncDetails = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::SYNC::ServerSyncData());
     }
 
-    if(m_psd.collection.isEmpty()) {
-        syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), m_psd.url);
-    }
-    else {
-        QString url = m_psd.url + QLatin1String("/") + m_psd.collection;
-        syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), url);
-    }
+    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), m_psd.url);
 
     syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::provider(), QString("zotero"));
     syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::userId(), m_psd.userName);
