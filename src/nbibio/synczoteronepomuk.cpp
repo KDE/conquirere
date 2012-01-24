@@ -143,49 +143,83 @@ void SyncZoteroNepomuk::readDownloadSync(const File &zoteroData)
 void SyncZoteroNepomuk::readDownloadSyncAfterDelete(const File &zoteroData)
 {
     File newEntries;
+    QList<Nepomuk::Resource> existingItems;
     // find all duplicate entries and merge them if the user specified the UseLocal or UseServer merge
-    findDuplicates(zoteroData, newEntries, m_tmpUserMergeRequest);
+    findDuplicates(zoteroData, newEntries, m_tmpUserMergeRequest, existingItems);
 
     if(!m_tmpUserMergeRequest.isEmpty()) {
-        kDebug() << " user merge request necessary for " << m_tmpUserMergeRequest.size() << "items";
+        kDebug() << " merge request necessary for " << m_tmpUserMergeRequest.size() << "items";
 
         if(m_psd.mergeMode == Manual) {
             emit userMerge(m_tmpUserMergeRequest);
         }
+        else {
+            // do the automatic sync use eithe rthe version from zotero or keep the local changes
+            foreach(const SyncDetails &sd, m_tmpUserMergeRequest) {
+                BibTexToNepomukPipe mergePipe;
+                mergePipe.setSyncDetails(m_psd.url, m_psd.userName);
+
+                switch(m_psd.mergeMode) {
+                case UseServer:
+                    mergePipe.merge(sd.syncResource, sd.externalResource, false);
+                    break;
+                case UseLocal:
+                    mergePipe.merge(sd.syncResource, sd.externalResource, true);
+                    break;
+                case Manual:
+                    break;
+                }
+            }
+        }
     }
 
-    // up to this point we have a list of new entries we need to add
-    // and merged all items with the server or local version unless the user wanted to merge on its own
-    delete m_btnp;
-    m_btnp = new BibTexToNepomukPipe;
-
+    // if we operate on a library project add the is related part to all existingItems
     if(m_libraryToSyncWith->libraryType() == Library_Project) {
-        // relate all new items also to the project
-        m_btnp->setProjectPimoThing(m_libraryToSyncWith->settings()->projectThing());
+        foreach(Nepomuk::Resource r, existingItems) {
+            m_libraryToSyncWith->addResource(r);
+        }
     }
 
-    connect(m_btnp, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
+    if(!newEntries.isEmpty()) {
+        // up to this point we have a list of new entries we need to add
+        // and merged all items with the server or local version unless the user wanted to merge on its own
+        delete m_btnp;
+        m_btnp = new BibTexToNepomukPipe;
 
-    emit progressStatus(i18n("push new Zotero data into Nepomuk"));
-    m_curStep++;
-    if(m_psd.collection.isEmpty()) {
-        m_btnp->setSyncDetails(m_psd.url, m_psd.userName);
+        if(m_libraryToSyncWith->libraryType() == Library_Project) {
+            // relate all new items also to the project
+            m_btnp->setProjectPimoThing(m_libraryToSyncWith->settings()->projectThing());
+        }
+
+        connect(m_btnp, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
+
+        emit progressStatus(i18n("push new Zotero data into Nepomuk"));
+        m_curStep++;
+        if(m_psd.collection.isEmpty()) {
+            m_btnp->setSyncDetails(m_psd.url, m_psd.userName);
+        }
+        else {
+            QString url = m_psd.url + QLatin1String("/") + m_psd.collection;
+            m_btnp->setSyncDetails(url, m_psd.userName);
+        }
+
+        if(m_psd.akonadiContactsUUid > 1) {
+        Akonadi::Collection contactBook(m_psd.akonadiContactsUUid);
+        if(contactBook.isValid())
+            m_btnp->setAkonadiAddressbook(contactBook);
+        }
+
+        m_btnp->pipeExport(newEntries);
+
+        m_curStep++;
+        emit calculateProgress(50);
     }
     else {
-        QString url = m_psd.url + QLatin1String("/") + m_psd.collection;
-        m_btnp->setSyncDetails(url, m_psd.userName);
+        kDebug() << "no new items for the import found";
+        m_curStep++; // step for the push new data to zotero
+        m_curStep++; // step for the merging
+        emit calculateProgress(50);
     }
-
-    if(m_psd.akonadiContactsUUid > 1) {
-    Akonadi::Collection contactBook(m_psd.akonadiContactsUUid);
-    if(contactBook.isValid())
-        m_btnp->setAkonadiAddressbook(contactBook);
-    }
-
-    m_btnp->pipeExport(newEntries);
-
-    m_curStep++;
-    emit calculateProgress(50);
 
     if(m_cancel) {
         mergeFinished(); // cancel and clean up correctly
@@ -480,7 +514,7 @@ void SyncZoteroNepomuk::deleteLocalFiles(bool deleteThem)
     readDownloadSyncAfterDelete(m_bibCache);
 }
 
-void SyncZoteroNepomuk::findDuplicates(const File &zoteroData, File &newEntries, QList<SyncDetails> &userMergeRequest)
+void SyncZoteroNepomuk::findDuplicates(const File &zoteroData, File &newEntries, QList<SyncDetails> &mergeRequest, QList<Nepomuk::Resource> &existingItems)
 {
     // for each downloaded item from zotero we try to find the item in the local storage
     // we can itendify this via the unique zotero Key
@@ -520,56 +554,34 @@ void SyncZoteroNepomuk::findDuplicates(const File &zoteroData, File &newEntries,
                 qWarning() << "database error, found more than 1 item to sync the zotero data to size::" << queryResult.size();
             }
 
+            kDebug() << "we found a valid entry check for duplicates";
+
             Nepomuk::Resource syncResource = queryResult.first().resource();
 
             QString localEtag = syncResource.property(Nepomuk::Vocabulary::SYNC::etag()).toString();
             QString serverEtag = PlainTextValue::text(entry->value(QLatin1String("zoteroetag")));
+
+            Nepomuk::Resource publication = syncResource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+            Nepomuk::Resource reference = syncResource.property(Nepomuk::Vocabulary::NBIB::reference()).toResource();
+            existingItems.append(publication);
+            existingItems.append(reference);
 
             if(localEtag != serverEtag) {
                 if(!syncResource.isValid()) {
                     qWarning() << "ServerSyncData has no valid publication connected to it!";
                 }
 
-                switch(m_psd.mergeMode) {
-                case UseServer:
-                {
-                    BibTexToNepomukPipe mergePipe;
-                    if(m_psd.collection.isEmpty()) {
-                        mergePipe.setSyncDetails(m_psd.url, m_psd.userName);
-                    }
-                    else {
-                        QString url = m_psd.url + QLatin1String("/") + m_psd.collection;
-                        mergePipe.setSyncDetails(url, m_psd.userName);
-                    }
-                    mergePipe.merge(syncResource, entry, false);
-                    break;
-                }
-                case UseLocal:
-                {
-                    BibTexToNepomukPipe mergePipe;
-                    if(m_psd.collection.isEmpty()) {
-                        mergePipe.setSyncDetails(m_psd.url, m_psd.userName);
-                    }
-                    else {
-                        QString url = m_psd.url + QLatin1String("/") + m_psd.collection;
-                        mergePipe.setSyncDetails(url, m_psd.userName);
-                    }
-                    mergePipe.merge(syncResource, entry, true);
-                    break;
-                }
-                case Manual:
-                    SyncDetails sd;
-                    sd.syncResource = syncResource;
-                    sd.externalResource = entry;
-                    userMergeRequest.append(sd);
-                    break;
-                }
+                SyncDetails sd;
+                sd.syncResource = syncResource;
+                sd.externalResource = entry;
+                mergeRequest.append(sd);
+                break;
             }
         }
-
-        curProgress += percentPerFile;
-        emit calculateProgress(curProgress);
     }
+
+    curProgress += percentPerFile;
+    emit calculateProgress(curProgress);
 }
 
 void SyncZoteroNepomuk::findRemovedEntries(const File &zoteroData, QList<SyncDetails> &userDeleteRequest)

@@ -86,13 +86,30 @@ private slots:
     /**
       * When an item was changed on the server side a new etag value is generated
       *
-      * The etag valued determines if the item changed on teh server and is necessary when we download or upload the file again
+      * The etag valued determines if the item changed on the server and is necessary when we download or upload the file again
       * Here we search for the right @c sync:ServerSyncData for the item and update the etag and time value
+      *
+      * This function is called after we send the local changes to the server and when we retrieve the new etag values for these items
       */
     void updateSyncDetailsToNepomuk(const QString &id, const QString &etag, const QString &updated);
 
 private:
-    void findDuplicates(const File &zoteroData, File &newEntries, QList<SyncDetails> &userMergeRequest);
+    /**
+      * Does what is say. It find the entry in the Nepomuk storage that is used to sync data with the zotero storage
+      *
+      * As each synced item has a @c sync::ServerSyncData attached to it, we can very easily search nepomuk for these resources
+      * that match the current provider(zotero) the given userName, url and the unique ID from zotero for this zotero storage.
+      *
+      * @li When no @c sync::ServerSyncData the @p newEntries list will be filled with the new item to process later on
+      * @li If we found the duplicate we check if the item was changed on the serverside since the last sync. This will be done by comparing the
+      *     etag value for this item wit hthe one stored in the @c sync::ServerSyncData object.
+      *     If the etag values do not match we need to merge the online and local item and store them for this purpose in @p mergeRequest
+      *
+      * @li Another feature is the detection of all resources in the storage that are in use in the @p existingItems list.
+      *     This helps to add the pimo:isRelated property to items already existing in the storage but not already related to
+      *     a project.
+      */
+    void findDuplicates(const File &zoteroData, File &newEntries, QList<SyncDetails> &mergeRequest, QList<Nepomuk::Resource> &existingItems);
     void findRemovedEntries(const File &zoteroData, QList<SyncDetails> &userDeleteRequest);
 
     /**
