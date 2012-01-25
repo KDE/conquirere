@@ -210,6 +210,10 @@ QSharedPointer<Entry> SearchResultModel::bibTeXResourceAt(const QModelIndex &sel
 
 void SearchResultModel::clearData()
 {
+    if (m_modelCacheData.isEmpty()) {
+        return;
+    }
+
     beginRemoveRows(QModelIndex(), 0, m_modelCacheData.size()-1);
     m_modelCacheData.clear();
     endRemoveRows();
