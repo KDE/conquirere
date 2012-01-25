@@ -333,6 +333,7 @@ void SyncZoteroNepomuk::startUpload()
 
 void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
 {
+    kDebug() << zoteroData.size();
     if(zoteroData.isEmpty()) {
         removeFilesFromGroup();
         return;
@@ -437,7 +438,6 @@ void SyncZoteroNepomuk::removeFilesFromGroup()
     disconnect(m_wtz, SIGNAL(entryItemUpdated(QString,QString,QString)), this, SLOT(updateSyncDetailsToNepomuk(QString,QString,QString)));
 
     if(m_psd.collection.isEmpty()) {
-        kDebug() << "m_psd.collection.isEmpty()) {";
         m_curStep++; // skip step 5
         removeFilesFromZotero();
         return;
@@ -515,7 +515,7 @@ void SyncZoteroNepomuk::removeFilesFromZotero()
 
     emit calculateProgress(100);
 
-    // step 6 delete items completely from teh server
+    // step 6 delete items completely from the server
     emit progressStatus(i18n("Remove files from the Zotero server"));
     m_curStep++;
 
@@ -578,7 +578,7 @@ void SyncZoteroNepomuk::cleanupAfterUpload()
 void SyncZoteroNepomuk::startSync()
 {
     m_syncMode = true;
-    m_syncSteps = 11;
+    m_syncSteps = 10;
     m_curStep = 0;
     startDownload();
 }

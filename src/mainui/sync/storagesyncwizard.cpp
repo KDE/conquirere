@@ -21,6 +21,7 @@
 #include "mainui/librarymanager.h"
 
 #include "onlinestorage/providersettings.h"
+#include "onlinestorage/storageglobals.h"
 #include "onlinestorage/storageinfo.h"
 
 #include "nbibio/synczoteronepomuk.h"
@@ -133,13 +134,14 @@ void SettingsPage::setupUi()
 ProgressPage::ProgressPage(QWidget *parent)
     : QWizardPage(parent)
     , m_syncNepomuk(0)
+    , isSyncFinished(false)
 {
     setupUi();
 }
 
 bool ProgressPage::isComplete() const
 {
-    return true;
+    return isSyncFinished;
 }
 
 void ProgressPage::setupUi()
@@ -183,6 +185,7 @@ void ProgressPage::initializePage()
     connect(this, SIGNAL(deleteLocalFiles(bool)), m_syncNepomuk, SLOT(deleteLocalFiles(bool)));
     connect(m_syncNepomuk, SIGNAL(userMerge(QList<SyncDetails>)), this, SLOT(popMergeDialog(QList<SyncDetails>)));
     connect(this, SIGNAL(mergeFinished()), m_syncNepomuk, SLOT(mergeFinished()));
+    connect(m_syncNepomuk, SIGNAL(syncFinished()), this, SLOT(syncFinished()));
 
     QThread *newThread = new QThread;
     m_syncNepomuk->moveToThread(newThread);
@@ -231,4 +234,10 @@ void ProgressPage::popMergeDialog(QList<SyncDetails> items)
     }
 
     emit mergeFinished();
+}
+
+void ProgressPage::syncFinished()
+{
+    isSyncFinished = true;
+    emit completeChanged();
 }

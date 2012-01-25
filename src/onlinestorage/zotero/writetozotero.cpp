@@ -95,24 +95,46 @@ void WriteToZotero::pushNewItems(const File &items, const QString &collection)
         return;
     }
 
+    kDebug() << items.size();
+
     m_entriesAfterSync->clear();
     m_addToCollection = collection;
-    //POST /users/1/items
-    //Content-Type: application/json
-    //X-Zotero-Write-Token: 19a4f01ad623aa7214f82347e3711f56
 
-    QString pushString = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items");
+    // we can upload a maximum of 50 items per request
+    if(items.size() > 49) {
+        m_allRequestsSend = false;
+        // split the QList into smaller pieces
+        File smallList;
+        foreach(QSharedPointer<Element> e, items) {
+            smallList.append(e);
+            if(smallList.size() >= 49) {
+                pushNewItems(smallList, collection);
+                smallList.clear();
+            }
+        }
+        pushNewItems(smallList, collection);
+        smallList.clear();
 
-    if(!m_psd.pwd.isEmpty()) {
-        pushString.append(QLatin1String("?key=") + m_psd.pwd);
+        m_allRequestsSend = true;
     }
-    QUrl pushUrl(pushString);
+    else {
+        //POST /users/1/items
+        //Content-Type: application/json
+        //X-Zotero-Write-Token: 19a4f01ad623aa7214f82347e3711f56
 
-    QNetworkRequest request(pushUrl);
-    request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-    //request.setRawHeader("X-Zotero-Write-Token", etag);
+        QString pushString = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items");
 
-    startRequest(request, writeJsonContent(items), QNetworkAccessManager::PostOperation);
+        if(!m_psd.pwd.isEmpty()) {
+            pushString.append(QLatin1String("?key=") + m_psd.pwd);
+        }
+        QUrl pushUrl(pushString);
+
+        QNetworkRequest request(pushUrl);
+        request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+        //request.setRawHeader("X-Zotero-Write-Token", etag);
+
+        startRequest(request, writeJsonContent(items), QNetworkAccessManager::PostOperation);
+    }
 }
 
 void WriteToZotero::updateItem(QSharedPointer<Element> item)
@@ -169,7 +191,6 @@ void WriteToZotero::addItemsToCollection(const QList<QString> &ids, const QStrin
 
 void WriteToZotero::removeItemsFromCollection(const QList<QString> &ids, const QString &collection )
 {
-    kDebug() << ids << collection;
     //DELETE /users/1/collections/QRST9876/items/ABCD2345
 
     m_allRequestsSend = false;
@@ -191,7 +212,6 @@ void WriteToZotero::removeItemsFromCollection(const QList<QString> &ids, const Q
 
 void WriteToZotero::deleteItems(const File &items)
 {
-    kDebug() << "with bixtex items";
     //DELETE /users/1/items/ABCD2345
     //If-Match: "8e984e9b2a8fb560b0085b40f6c2c2b7"
 
@@ -221,7 +241,6 @@ void WriteToZotero::deleteItems(const File &items)
 
 void WriteToZotero::deleteItems(QList<QPair<QString, QString> > items)
 {
-    kDebug() << items;
     //DELETE /users/1/items/ABCD2345
     //If-Match: "8e984e9b2a8fb560b0085b40f6c2c2b7"
 
@@ -310,7 +329,7 @@ void WriteToZotero::requestFinished()
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
     if(reply->error() != QNetworkReply::NoError) {
-//        kDebug() <<  reply->error() << reply->errorString();
+        kDebug() <<  reply->error() << reply->errorString();
 
         serverReplyFinished(reply);
 

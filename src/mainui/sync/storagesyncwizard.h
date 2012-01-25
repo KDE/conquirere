@@ -22,7 +22,6 @@
 
 #include <Akonadi/Collection>
 
-#include "onlinestorage/storageglobals.h"
 #include "nbibio/nbibsync.h"
 
 namespace Ui {
@@ -98,6 +97,7 @@ private slots:
 
     void popDeletionQuestion(QList<SyncDetails> items);
     void popMergeDialog(QList<SyncDetails> items);
+    void syncFinished();
 
 private:
     void setupUi();
@@ -108,6 +108,7 @@ private:
     QLabel *infoLabel;
 
     NBibSync *m_syncNepomuk;
+    bool isSyncFinished;
 };
 
 #endif // STORAGESYNCWIZARD_H
