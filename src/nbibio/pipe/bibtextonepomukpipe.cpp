@@ -224,27 +224,69 @@ void BibTexToNepomukPipe::import(Entry *e)
     }
 
     // II. a) encyclopediaarticle / blogpost / forumpost / webpage
+    // as retrieved from zotero mostly
     if(e->contains(QLatin1String("articletype"))) {
+        QUrl seriesURL;
         QUrl collectionURL;
+        Value emptyCollectionName;
 
         QString type = PlainTextValue::text(e->value(QLatin1String("articletype")));
         if(type == QLatin1String("encyclopedia")) {
             collectionURL = NBIB::Encyclopedia();
+            emptyCollectionName.append(QSharedPointer<ValueItem>(new PlainText(i18n("unknown encyclopedia"))));
         }
         else if(type == QLatin1String("blog")) {
             publication.addType(NBIB::BlogPost());
             collectionURL = NBIB::Blog();
+            emptyCollectionName.append(QSharedPointer<ValueItem>(new PlainText(i18n("unknown blog"))));
         }
         else if(type == QLatin1String("webpage")) {
             publication.addType(NBIB::Webpage());
             collectionURL = NBIB::Website();
+            emptyCollectionName.append(QSharedPointer<ValueItem>(new PlainText(i18n("unknown webpage"))));
         }
         else if(type == QLatin1String("forum")) {
             publication.addType(NBIB::ForumPost());
             collectionURL = NBIB::Forum();
+            emptyCollectionName.append(QSharedPointer<ValueItem>(new PlainText(i18n("unknown forum"))));
+        }
+        if(type == QLatin1String("magazine")) {
+            seriesURL = NBIB::Magazin();
+            collectionURL = NBIB::MagazinIssue();
+            emptyCollectionName.append(QSharedPointer<ValueItem>(new PlainText(i18n("unknown magazine"))));
+        }
+        else if(type == QLatin1String("newspaper")) {
+            seriesURL = NBIB::Newspaper();
+            collectionURL = NBIB::NewspaperIssue();
+            emptyCollectionName.append(QSharedPointer<ValueItem>(new PlainText(i18n("unknown newspaper"))));
+        }
+        else if(type == QLatin1String("journal")) {
+            seriesURL = NBIB::Journal();
+            collectionURL = NBIB::JournalIssue();
+            emptyCollectionName.append(QSharedPointer<ValueItem>(new PlainText(i18n("unknown journal"))));
         }
 
-        if(collectionURL.isValid()) {
+        if(seriesURL.isValid()) {
+            QString journalName = PlainTextValue::text(e->value(QLatin1String("journal")));
+            if(journalName.isEmpty()) {
+                addJournal(emptyCollectionName,
+                           e->value(QLatin1String("volume")),
+                           e->value(QLatin1String("number")),
+                           publication, seriesURL, collectionURL);
+            }
+            else {
+                addJournal(e->value(QLatin1String("journal")),
+                           e->value(QLatin1String("volume")),
+                           e->value(QLatin1String("number")),
+                           publication, seriesURL, collectionURL);
+            }
+
+            e->remove(QLatin1String("journal"));
+            e->remove(QLatin1String("number"));
+            e->remove(QLatin1String("volume"));
+            e->remove(QLatin1String("articletype"));
+        }
+        else if(collectionURL.isValid()) {
             Value titleValue;
             if(e->contains(QLatin1String("booktitle"))) {
                 titleValue = e->value(QLatin1String("booktitle"));
@@ -253,7 +295,13 @@ void BibTexToNepomukPipe::import(Entry *e)
                 titleValue = e->value(QLatin1String("journal"));
             }
 
-            addSpecialArticle(titleValue,publication, collectionURL);
+            if(titleValue.isEmpty() ) {
+                addSpecialArticle(emptyCollectionName,publication, collectionURL);
+            }
+            else {
+                addSpecialArticle(titleValue,publication, collectionURL);
+            }
+
 
             e->remove(QLatin1String("journal"));
             e->remove(QLatin1String("booktitle"));
@@ -262,6 +310,7 @@ void BibTexToNepomukPipe::import(Entry *e)
     }
 
     // II b). journal + number + volume + zotero articletype
+    // as defined in any usual bibtex file
     if(e->contains(QLatin1String("journal"))) {
         QUrl seriesURL;
         QUrl issueURL;

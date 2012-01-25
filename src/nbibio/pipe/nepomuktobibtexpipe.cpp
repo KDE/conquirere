@@ -44,8 +44,8 @@ NepomukToBibTexPipe::NepomukToBibTexPipe()
 
 NepomukToBibTexPipe::~NepomukToBibTexPipe()
 {
-    delete m_bibtexFile;
-    m_bibtexFile = 0;
+//    delete m_bibtexFile;
+//    m_bibtexFile = 0;
 }
 
 void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
@@ -826,8 +826,14 @@ void NepomukToBibTexPipe::setContact(Entry *e, Nepomuk::Resource publication, QU
                 // assume fullname as "Firstname LastName"
                 else {
                     QStringList nameSplitted = fullname.split(QLatin1String(" "));
-                    lastName = nameSplitted.first();
-                    firstName = nameSplitted.last();
+                    if(nameSplitted.size() >= 2) {
+                        firstName = nameSplitted.first();
+                        lastName = nameSplitted.last();
+                    }
+                    else {
+                        //firstName;
+                        lastName = nameSplitted.first();
+                    }
                 }
             }
 

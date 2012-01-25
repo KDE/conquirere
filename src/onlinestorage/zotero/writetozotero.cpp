@@ -27,6 +27,8 @@
 
 #include <KDE/KDebug>
 
+const int MAX_ITEMS_TO_PUSH = 45;
+
 WriteToZotero::WriteToZotero(QObject *parent)
     : WriteToStorage(parent)
     , m_allRequestsSend(false)
@@ -43,15 +45,20 @@ File *WriteToZotero::getFile()
     return m_entriesAfterSync;
 }
 
+QList<File> WriteToZotero::getFailedPushRequestItems()
+{
+    return m_failedItemPush;
+}
+
 void WriteToZotero::pushItems(const File &items, const QString &collection)
 {
     if(items.isEmpty()) {
-        emit itemsInfo(items);
+        emit finished();
         return;
     }
 
-    m_entriesAfterSync->clear();
     m_allRequestsSend = false;
+    m_entriesAfterSync->clear();
     m_addToCollection = collection;
     m_progressPerFile = (qreal)items.size() / 200.0;
     m_progress = 0;
@@ -84,37 +91,35 @@ void WriteToZotero::pushItems(const File &items, const QString &collection)
     if(!newItems.isEmpty()) {
         pushNewItems(newItems, m_addToCollection);
     }
-
-    m_allRequestsSend = true;
+    else {
+        m_allRequestsSend = true;
+    }
 }
 
 void WriteToZotero::pushNewItems(const File &items, const QString &collection)
 {
     if(items.isEmpty()) {
-        if(openReplies() == 0) { emit itemsInfo(items); }
+        if(openReplies() == 0) { emit finished(); }
         return;
     }
 
     kDebug() << items.size();
 
-    m_entriesAfterSync->clear();
-    m_addToCollection = collection;
-
     // we can upload a maximum of 50 items per request
-    if(items.size() > 49) {
+    if(items.size() > MAX_ITEMS_TO_PUSH) {
         m_allRequestsSend = false;
         // split the QList into smaller pieces
         File smallList;
         foreach(QSharedPointer<Element> e, items) {
-            smallList.append(e);
-            if(smallList.size() >= 49) {
-                pushNewItems(smallList, collection);
-                smallList.clear();
+            if(smallList.size() >= MAX_ITEMS_TO_PUSH) {
+                m_itemsToPushCache.append(e);
+            }
+            else {
+                smallList.append(e);
             }
         }
+        m_failedItemPush.append(smallList); // will be removed from this list when the zotero server did not return "Internal server error"
         pushNewItems(smallList, collection);
-        smallList.clear();
-
         m_allRequestsSend = true;
     }
     else {
@@ -328,24 +333,50 @@ void WriteToZotero::requestFinished()
     // we get a reply from the server
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
 
-    if(reply->error() != QNetworkReply::NoError) {
-        kDebug() <<  reply->error() << reply->errorString();
-
-        serverReplyFinished(reply);
-
-        if(m_allRequestsSend && openReplies() == 0) {
-            // now we emit all the new entries we retrived from the server as response to our sent action
-            emit itemsInfo(*m_entriesAfterSync);
-        }
-
-        return;
-    }
-
     QSharedPointer<Entry> updateEntry = serverReplyEntry(reply);
     serverReplyFinished(reply);
 
     // if the updateEntry is 0 we pushed new items to the server
     // otherwise we updated the item
+
+    // no check if we got an error responce
+    // sadly I can't seem to retrieve the error codes mentioned in the api documentation .. :/
+    if(reply->error() != QNetworkReply::NoError) {
+        kDebug() <<  reply->error() << reply->errorString();
+
+        // well was an error but if this came from an itemCreation request it was very likely the
+        // 299 "Error downloading https://.... - server replied: Internal Server Error"
+        // means .. the items are stored successfully on the server but we did not get the server details
+        // back. Thats bad, as we can't add teh sync information to these files
+        // so on the next sync we will create duplications ... >_<
+
+        // none the less if we have more items to send, send them and hope for the best
+        if(m_allRequestsSend && openReplies() == 0) {
+            if(!m_itemsToPushCache.isEmpty()) {
+                File smallList;
+                int nextItemCount = m_itemsToPushCache.size() >= MAX_ITEMS_TO_PUSH ? MAX_ITEMS_TO_PUSH : m_itemsToPushCache.size();
+                while (nextItemCount != 0) {
+                    smallList.append( m_itemsToPushCache.takeFirst() );
+                    nextItemCount--;
+                }
+                m_failedItemPush.append(smallList); // will be removed from this list when the zotero server did not return "Internal server error"
+                pushNewItems(smallList, m_addToCollection);
+            }
+            else {
+                // if we have no open replies and no items in the queue we concider the
+                emit finished();
+            }
+        }
+
+        return;
+    }
+
+    // so we do have a responce from an item creation request which did not return the "internal server error"
+    // remove the items from this list
+    if(updateEntry.isNull()) {
+        m_failedItemPush.takeLast();
+    }
+
 
     // we parse the response
     QXmlStreamReader xmlReader;
@@ -354,9 +385,8 @@ void WriteToZotero::requestFinished()
     int newFilesAdded = 0;
     QList<QString> ids;
     while(!xmlReader.atEnd()) {
-        if(!xmlReader.readNextStartElement()) {
-            continue;
-        }
+        if(!xmlReader.readNextStartElement()) { continue; }
+
         if(xmlReader.name() == QLatin1String("entry")) {
             ReadFromZotero rfz;
             rfz.setAdoptBibtexTypes(adoptBibtexTypes());
@@ -407,8 +437,22 @@ void WriteToZotero::requestFinished()
     }
 
     if(m_allRequestsSend && openReplies() == 0) {
-        // now we emit all the new entries we retrived from the server as response to our sent action
-        emit itemsInfo(*m_entriesAfterSync);
+
+        // we still have to send next 50 new items
+        if(!m_itemsToPushCache.isEmpty()) {
+            File smallList;
+            int nextItemCount = m_itemsToPushCache.size() >= MAX_ITEMS_TO_PUSH ? MAX_ITEMS_TO_PUSH : m_itemsToPushCache.size();
+            while (nextItemCount != 0) {
+                smallList.append( m_itemsToPushCache.takeFirst() );
+                nextItemCount--;
+            }
+            m_failedItemPush.append(smallList); // will be removed from this list when the zotero server did not return "Internal server error"
+            pushNewItems(smallList, m_addToCollection);
+        }
+        else {
+            // now we emit all the new entries we retrived from the server as response to our sent action
+            emit finished();
+        }
     }
 }
 

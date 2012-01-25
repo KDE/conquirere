@@ -32,7 +32,7 @@
         <string>Find all Collections that don't have an article connected to it.</string>
        </property>
        <property name="text">
-        <string>Collection Check</string>
+        <string>SyncData Check</string>
        </property>
       </widget>
      </item>

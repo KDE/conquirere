@@ -93,7 +93,7 @@ private slots:
     /**
       * process syncdata retrived from zotero server when new items are send to the server
       */
-    void readUploadSync(const File &zoteroData);
+    void readUploadSync();
 
     // after we are finsihed uploading all new and changed items, we start to remove all entries
     // that are removed on the local side and mus tbe removed also from the serverside
@@ -135,6 +135,17 @@ private:
       */
     void writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated);
 
+    /**
+      * This function will go through all data retrieved from the server and check it again the data from @c m_corruptedUploads
+      *
+      * Will only solve the error when:
+      * New items are uploaded to the server and successfully created
+      * but the server returned the "internal server error" message instead the item info with the zoterokey + etag value
+      *
+      * Will remove any entry from @p zoteroData that was found so we don#t have t ocheck the magain next time
+      */
+    void fixCorrputedUpload(File &zoteroData);
+
 private:
     ReadFromZotero *m_rfz;
     WriteToZotero *m_wtz;
@@ -145,6 +156,7 @@ private:
     bool m_cancel;
     QList<SyncDetails> m_tmpUserDeleteRequest;
     QList<SyncDetails> m_tmpUserMergeRequest;
+    QList<File> m_corruptedUploads;
 };
 
 #endif // SYNCZOTERONEPOMUK_H

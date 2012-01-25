@@ -80,6 +80,14 @@ signals:
       */
     void itemsInfo(const File &items);
 
+    /**
+      * This signal will announce, that the upload is finished
+      *
+      * Updated information can be retrieved via the getFile() method
+      * This file contains changes in the data due to the upload process
+      */
+    void finished();
+
 public slots:
     void cancelUpload();
 

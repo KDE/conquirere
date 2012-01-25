@@ -74,6 +74,9 @@ signals:
 
     void syncFinished();
 
+    void syncError(const QString & error);
+    void fixingSyncError(const QString & error);
+
 public slots:
     virtual void startUpload() = 0;
     virtual void startDownload() = 0;

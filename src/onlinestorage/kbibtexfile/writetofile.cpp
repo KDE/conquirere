@@ -143,7 +143,7 @@ void WriteToFile::exportFile(const File &items)
 
     emit progress(100);
 
-    emit itemsInfo(*m_emptyFile);
+    emit finished();
 }
 
 void WriteToFile::addItemsToCollection(const QList<QString> &ids, const QString &collection )

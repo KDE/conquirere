@@ -395,7 +395,10 @@ void ParseFile::showMergeDialog()
  */
 void concurrentNepomukImport(NBibImporterBibTex *importer)
 {
-    importer->pipeToNepomuk();
+    QStringList errorLog;
+    importer->pipeToNepomuk(&errorLog);
+
+    kDebug() << "pipeToNepomuk error" << errorLog;
 }
 
 NepomukImport::NepomukImport(QWidget *parent)

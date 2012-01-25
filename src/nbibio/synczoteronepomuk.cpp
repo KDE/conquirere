@@ -91,6 +91,9 @@ void SyncZoteroNepomuk::startDownload()
     if(!m_syncMode) {
         m_syncSteps = 4;
         m_curStep = 0;
+
+        if(!m_corruptedUploads.isEmpty())
+            m_syncSteps++;
     }
     else {
         m_curStep++;
@@ -107,6 +110,21 @@ void SyncZoteroNepomuk::startDownload()
 
 void SyncZoteroNepomuk::readDownloadSync(const File &zoteroData)
 {
+    m_bibCache.clear();
+    m_bibCache.append(zoteroData);
+
+    // special case if we redo the download because a previous update left us with corrupted data
+    // we fix it here.
+    // will only solve the error when:
+    // * New items are uploaded to the server and successfully created
+    // * but te hsrever returned teh "internal server error" message instead the item info with the zoterokey + etag value
+    if(!m_corruptedUploads.isEmpty()) {
+        emit progressStatus(i18n("Fix previous corrupted upload"));
+        m_curStep++;
+
+        fixCorrputedUpload(m_bibCache);
+    }
+
     emit progressStatus(i18n("sync zotero data with local Nepomuk storage"));
     m_curStep++;
 
@@ -115,9 +133,6 @@ void SyncZoteroNepomuk::readDownloadSync(const File &zoteroData)
     findRemovedEntries(zoteroData, m_tmpUserDeleteRequest);
 
     kDebug() << m_tmpUserDeleteRequest.size() << "items removed on the server remove them in the localstorage too";
-
-    m_bibCache.clear();
-    m_bibCache.append(zoteroData);
 
     if(m_cancel)
         return;
@@ -321,20 +336,23 @@ void SyncZoteroNepomuk::startUpload()
 
 
     if(m_cancel) {
-        File empty;
-        readUploadSync(empty); // cancel and cleanup
+        readUploadSync(); // cancel and cleanup
     }
 
-    connect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(readUploadSync(File)));
+    connect(m_wtz, SIGNAL(finished()), this, SLOT(readUploadSync()));
     connect(m_wtz, SIGNAL(entryItemUpdated(QString,QString,QString)), this, SLOT(updateSyncDetailsToNepomuk(QString,QString,QString)));
 
     m_wtz->pushItems(m_bibCache, m_psd.collection);
 }
 
-void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
+void SyncZoteroNepomuk::readUploadSync()
 {
-    kDebug() << zoteroData.size();
-    if(zoteroData.isEmpty()) {
+    m_corruptedUploads = m_wtz->getFailedPushRequestItems();
+
+    File *changesByUpload = m_wtz->getFile();
+    kDebug() << changesByUpload->size();
+
+    if(changesByUpload->isEmpty()) {
         removeFilesFromGroup();
         return;
     }
@@ -343,7 +361,7 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
     emit progressStatus(i18n("update Nepomuk storage with new sync details"));
     m_curStep++;
 
-    qreal percentPerFile = 100.0/(qreal)zoteroData.size();
+    qreal percentPerFile = 100.0/(qreal)changesByUpload->size();
     qreal curProgress = 0.0;
 
     //step one get all entries which are new to the storage
@@ -360,7 +378,7 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
     // now find the real duplicates between the zoteroData entries and the m_bibCache entries
     // foreach entry in zoteroData there is exact 1 entry in m_bibCache
     int entriesFound = 0;
-    foreach(const QSharedPointer<Element> &zoteroElement, zoteroData) {
+    foreach(const QSharedPointer<Element> &zoteroElement, *changesByUpload) {
         Entry *zoteroEntry = dynamic_cast<Entry *>(zoteroElement.data());
         if(!zoteroEntry) { continue; }
 
@@ -381,8 +399,11 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
                 //ignore zotero keys
                 if(i.key().startsWith( QLatin1String("zotero") ))
                     continue;
-//                if(i.key().startsWith( QLatin1String("articletype") ))
-//                    continue;
+                // ignore abstract
+                if(i.key().startsWith( QLatin1String("abstract") ))
+                    continue;
+                if(i.key().startsWith( QLatin1String("keywords") )) // might fail because we don#t keep the same order
+                    continue;
 
                 //get local value for currentkey
                 Value localValue = localEntry->value(i.key());
@@ -424,8 +445,8 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
         emit calculateProgress(curProgress);
     }
 
-    if(entriesFound != zoteroData.size()) {
-        qWarning() << "could not update all new items with its zotero value. missing" << zoteroData.size() - entriesFound << " from" << zoteroData.size();
+    if(entriesFound != changesByUpload->size()) {
+        qWarning() << "could not update all new items with its zotero value. missing" << changesByUpload->size() - entriesFound << " from" << changesByUpload->size();
     }
 
     removeFilesFromGroup();
@@ -434,7 +455,7 @@ void SyncZoteroNepomuk::readUploadSync(const File &zoteroData)
 void SyncZoteroNepomuk::removeFilesFromGroup()
 {
     // lets reuse the writeToZotero object but disconnect the signals in this case
-    disconnect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(readUploadSync(File)));
+    disconnect(m_wtz, SIGNAL(finished()), this, SLOT(readUploadSync()));
     disconnect(m_wtz, SIGNAL(entryItemUpdated(QString,QString,QString)), this, SLOT(updateSyncDetailsToNepomuk(QString,QString,QString)));
 
     if(m_psd.collection.isEmpty()) {
@@ -482,7 +503,6 @@ void SyncZoteroNepomuk::removeFilesFromGroup()
     }
 
     query += "}";
-
 
     QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
 
@@ -571,8 +591,15 @@ void SyncZoteroNepomuk::cleanupAfterUpload()
     m_ntbp = 0;
 
     m_syncMode = false;
-    emit calculateProgress(100);
-    emit syncFinished();
+
+    if(!m_corruptedUploads.isEmpty()) {
+        emit fixingSyncError(i18n("Corrupted upload process due to \"Internal Server Error\" responce from Zotero.\n Fixing it by downloading the files from Zotero again and merge the duplicates"));
+        startDownload();
+    }
+    else {
+        emit calculateProgress(100);
+        emit syncFinished();
+    }
 }
 
 void SyncZoteroNepomuk::startSync()
@@ -852,5 +879,93 @@ void SyncZoteroNepomuk::writeNewSyncDetailsToNepomuk(Entry *localData, const QSt
     if(reference.isValid()) {
         syncDetails.setProperty(Nepomuk::Vocabulary::NBIB::reference(), reference);
         reference.setProperty(Nepomuk::Vocabulary::SYNC::serverSyncData(), syncDetails);
+    }
+}
+
+void SyncZoteroNepomuk::fixCorrputedUpload(File &zoteroData)
+{
+
+    qreal curProgress = 0.0;
+    qreal percentPerFile = 100.0/(qreal)zoteroData.size();
+
+    File completeCorrupted;
+    foreach(File f, m_corruptedUploads) {
+        completeCorrupted.append(f);
+    }
+
+    // now find the real duplicates between the zoteroData entries and the m_corruptedUploads entries
+
+    int entriesFound = 0;
+    foreach(QSharedPointer<Element> corruptedElement, completeCorrupted) {
+        Entry *corruptedEntry = dynamic_cast<Entry *>(corruptedElement.data());
+        if(!corruptedEntry) { continue; }
+
+        QStringList error;
+        bool updateSuccessfull = false;
+
+        //now try go through all entries we got from the server
+        foreach(const QSharedPointer<Element> &zoteroElement, zoteroData) {
+            Entry *zoteroEntry = dynamic_cast<Entry *>(zoteroElement.data());
+            if(!zoteroEntry) { continue; }
+
+            bool duplicateFound = true;
+            // and foreach entry compare all key/value pairs with each other
+            // except the zotero keys
+            QMapIterator<QString, Value> i(*corruptedEntry);
+            while (i.hasNext()) {
+                i.next();
+
+                //ignore zotero keys
+                if(i.key().startsWith( QLatin1String("zotero") ))
+                    continue;
+                // ignore abstract
+                if(i.key().startsWith( QLatin1String("abstract") ))
+                    continue;
+                if(i.key().startsWith( QLatin1String("keywords") )) // might fail because we don't keep the same order
+                    continue;
+
+                //get local value for currentkey
+                Value zoteroValue = zoteroEntry->value(i.key());
+
+                //now check if both entries are the same
+                // if not, stop the while loop and check the next entry
+                if(PlainTextValue::text(zoteroValue) != PlainTextValue::text(i.value())) {
+                    error << "entries not the same #### Key::" +  i.key() + '\n';
+                    error << "ZOTERO :: " <<  PlainTextValue::text(zoteroValue) + "|--| LOCAL ::" + PlainTextValue::text(i.value()) + '\n';
+                    duplicateFound = false;
+                    break;
+                }
+            }
+
+            // if we checked all key/value pairs and don't get the duplicateFound=false result
+            // we found the right entry
+            // add the zotero sync data to it
+            if(duplicateFound) {
+                writeNewSyncDetailsToNepomuk(corruptedEntry,
+                                             zoteroEntry->id(),
+                                             PlainTextValue::text(zoteroEntry->value(QLatin1String("zoteroetag"))),
+                                             PlainTextValue::text(zoteroEntry->value(QLatin1String("zoteroupdated"))));
+                zoteroData.removeAll(zoteroElement); // remove from local storage, so we don't check it again
+                completeCorrupted.removeAll(corruptedElement);
+                updateSuccessfull = true;
+                break;
+            }
+        }
+
+        if(!updateSuccessfull) {
+            qWarning() << "could not add zotero sync details to the right item, duplicate not found!" << corruptedEntry->id();
+            qDebug() << error;
+        }
+        else {
+            error.clear();
+            entriesFound++;
+        }
+
+        curProgress += percentPerFile;
+        emit calculateProgress(curProgress);
+    }
+
+    if(entriesFound != completeCorrupted.size()) {
+        qWarning() << "could not update all corrupted entries from the last update :: " << completeCorrupted.size() - entriesFound << "are missing";
     }
 }

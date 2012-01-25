@@ -59,7 +59,6 @@ DbCheckDialog::DbCheckDialog(QWidget *parent) :
     connect(ui->removeData, SIGNAL(clicked()), this, SLOT(removeData()));
 
     ui->checkAuthor->setEnabled(false);
-    ui->checkCollection->setEnabled(false);
 }
 
 DbCheckDialog::~DbCheckDialog()
@@ -77,6 +76,12 @@ void DbCheckDialog::checkCollection()
     ui->checkDocumentPart->setEnabled(false);
     ui->checkReference->setEnabled(false);
     ui->checkSeries->setEnabled(false);
+
+    QString query = "select DISTINCT ?r where { "
+    "?r a sync:ServerSyncData ."
+    "}";
+
+    m_queryClient->sparqlQuery( query );
 
     ui->infoLabel->setText(i18n("processing query"));
 }
@@ -198,7 +203,7 @@ void DbCheckDialog::queryFinished()
 
     ui->checkAll->setEnabled(true);
 //    ui->checkAuthor->setEnabled(true);
-//    ui->checkCollection->setEnabled(true);
+    ui->checkCollection->setEnabled(true);
     ui->checkDocumentPart->setEnabled(true);
     ui->checkReference->setEnabled(true);
     ui->checkSeries->setEnabled(true);
