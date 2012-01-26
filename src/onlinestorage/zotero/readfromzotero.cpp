@@ -215,7 +215,7 @@ void ReadFromZotero::requestFinished()
                     qWarning() << "could not retrieve next start number for another zotero fetch.";
                 }
 
-                // retrusn a suggested limit value. Always the last used or nothing if no limit was specified
+                // returns a suggested limit value. Always the last used or nothing if no limit was specified
                 // as zotero does not support more than 50 items in one go, we default to this
                 QRegExp rxLimit(QLatin1String("limit=(\\d+)"));
                 pos = rxLimit.indexIn(href);
@@ -232,7 +232,9 @@ void ReadFromZotero::requestFinished()
         else if(xmlReader.name() == QLatin1String("entry")) {
             switch(requestType()) {
             case Items:
-                m_bibFile->append( QSharedPointer<Element>(readItemEntry(xmlReader)) );
+                Entry *e = readItemEntry(xmlReader);
+                if(e != 0)
+                    m_bibFile->append( QSharedPointer<Element>( e ) );
                 break;
             case Collections:
                 m_cachedCollectionResult.append( readCollectionEntry(xmlReader) );
@@ -303,6 +305,17 @@ Entry * ReadFromZotero::readItemEntry(QXmlStreamReader &xmlReader)
     bool finishEntry = false;
     while(!finishEntry) {
         bool startelement = xmlReader.readNextStartElement();
+
+        // skip attachment items here!
+        if(startelement && xmlReader.name() == QLatin1String("zapi:itemType")) {
+            QString itemType = xmlReader.readElementText();
+
+            if(itemType == QLatin1String("attachment") ||
+               itemType == QLatin1String("note") ) {
+                delete e;
+                return 0;
+            }
+        }
 
         if(startelement && xmlReader.name() == QLatin1String("key")) {
             QString key = xmlReader.readElementText();
