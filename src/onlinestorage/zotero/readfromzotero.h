@@ -59,8 +59,10 @@ public:
 
 public slots:
     void fetchItems(const QString &collection = QString());
+    void fetchItems(int limit, int start, const QString &collection = QString());
     void fetchItem(const QString &id, const QString &collection = QString() );
     void fetchCollections(const QString &parent = QString() );
+    void fetchCollections(int limit, int start, const QString &parent = QString());
     void fetchCollection(const QString &collection );
 
 protected slots:
@@ -81,6 +83,8 @@ private:
 
     QList<CollectionInfo> m_cachedCollectionResult;
     File *m_bibFile;
+    QString m_collectionToFetchFrom;
+    bool m_fetchIncomplete;
     QMap<QString, QString> m_zoteroToBibTeX;
 };
 

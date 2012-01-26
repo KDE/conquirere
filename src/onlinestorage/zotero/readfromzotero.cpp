@@ -23,11 +23,12 @@
 #include <QtCore/QXmlStreamReader>
 #include <qjson/parser.h>
 
-#include <QDebug>
+#include <KDE/KDebug>
 
 ReadFromZotero::ReadFromZotero(QObject *parent)
     : ReadFromStorage(parent)
     , m_bibFile(new File)
+    , m_fetchIncomplete(false)
 {
     // build the mappinglist
     // @see https://api.zotero.org/itemTypeFields?itemType=presentation&pprint=1
@@ -102,6 +103,13 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
 
 void ReadFromZotero::fetchItems(const QString &collection)
 {
+    fetchItems(50,0,collection);
+}
+
+void ReadFromZotero::fetchItems(int limit, int start, const QString &collection)
+{
+    m_collectionToFetchFrom = collection;
+
     QString apiCommand;
     if(collection.isEmpty()) {
         apiCommand = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items/top?format=atom&content=json");
@@ -109,6 +117,8 @@ void ReadFromZotero::fetchItems(const QString &collection)
     else {
         apiCommand = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/collections/") + collection + QLatin1String("/items?format=atom&content=json");
     }
+
+    apiCommand.append( QLatin1String("&limit=") + QString::number(limit) + QLatin1String("&start=") + QString::number(start) );
 
     if(!m_psd.pwd.isEmpty()) {
         apiCommand.append( QLatin1String("&key=") + m_psd.pwd);
@@ -132,6 +142,13 @@ void ReadFromZotero::fetchItem(const QString &id, const QString &collection )
 
 void ReadFromZotero::fetchCollections(const QString &parent )
 {
+    fetchCollections(50,0,parent);
+}
+
+void ReadFromZotero::fetchCollections(int limit, int start, const QString &parent)
+{
+    m_collectionToFetchFrom = parent;
+
     QString subCollection;
     if(!parent.isEmpty()) {
         subCollection = QLatin1String("/") + parent + QLatin1String("/collections");
@@ -141,6 +158,8 @@ void ReadFromZotero::fetchCollections(const QString &parent )
     if(!m_psd.pwd.isEmpty()) {
         apiCommand.append( QLatin1String("&key=") + m_psd.pwd);
     }
+
+    apiCommand.append( QLatin1String("&limit=") + QString::number(limit) + QLatin1String("&start=") + QString::number(start) );
 
     setRequestType(Collections);
     startRequest(apiCommand);
@@ -159,22 +178,58 @@ void ReadFromZotero::fetchCollection(const QString &collection )
 
 void ReadFromZotero::requestFinished()
 {
-    m_cachedCollectionResult.clear();
-    m_bibFile->clear();
+    int nextFetchLimit = 50;
+    int nextFetchStart = -1; // if it stays -1 we know we catched all follow up request and can stop now
+
+    // clear local cache unless this is a follow up from a bigger request
+    if(!m_fetchIncomplete) {
+        m_cachedCollectionResult.clear();
+        m_bibFile->clear();
+    }
 
     QXmlStreamReader xmlReader;
     xmlReader.setDevice(reply());
 
-    int totalResults = 0;
     while(!xmlReader.atEnd()) {
         if(!xmlReader.readNextStartElement()) {
             continue;
         }
-        if(xmlReader.name() == QLatin1String("totalResults")) {
-            totalResults = xmlReader.readElementText().toInt();
+
+        // parse link suggestions for the case that we have to fetch more items
+        if(xmlReader.name() == QLatin1String("link")) {
+            QXmlStreamAttributes linkAttributes = xmlReader.attributes();
+
+            // if there do exist more items we need to fetch get the right values for the next start
+            if(QLatin1String("next") == linkAttributes.value(QLatin1String("rel")) ) {
+                m_fetchIncomplete = true;
+
+                QString href = linkAttributes.value(QLatin1String("href")).toString();
+
+                // fetch the next start suggesstion
+                QRegExp rxStart(QLatin1String("start=(\\d+)"));
+                int pos = rxStart.indexIn(href);
+                if (pos > -1) {
+                    nextFetchStart = rxStart.cap(1).toInt();
+                }
+                else {
+                    qWarning() << "could not retrieve next start number for another zotero fetch.";
+                }
+
+                // retrusn a suggested limit value. Always the last used or nothing if no limit was specified
+                // as zotero does not support more than 50 items in one go, we default to this
+                QRegExp rxLimit(QLatin1String("limit=(\\d+)"));
+                pos = rxLimit.indexIn(href);
+                if (pos > -1) {
+                    nextFetchLimit = rxLimit.cap(1).toInt();
+                }
+                else {
+                    nextFetchLimit = 50;
+                }
+            }
         }
 
-        if(xmlReader.name() == QLatin1String("entry")) {
+        // parse the entry content (all item informations wee actually wanted)
+        else if(xmlReader.name() == QLatin1String("entry")) {
             switch(requestType()) {
             case Items:
                 m_bibFile->append( QSharedPointer<Element>(readItemEntry(xmlReader)) );
@@ -186,13 +241,32 @@ void ReadFromZotero::requestFinished()
         }
     }
 
-    switch(requestType()) {
-    case Items:
-        emit itemsInfo(*m_bibFile);
-        break;
-    case Collections:
-        emit collectionsInfo(m_cachedCollectionResult);
-        break;
+    if(nextFetchStart == -1)
+        m_fetchIncomplete = false;
+
+    if(m_fetchIncomplete) {
+        // fetch the next batch
+        switch(requestType()) {
+        case Items:
+            fetchItems(nextFetchLimit, nextFetchStart, m_collectionToFetchFrom);
+            break;
+        case Collections:
+            fetchCollections(nextFetchLimit, nextFetchStart, m_collectionToFetchFrom);
+            break;
+        }
+
+        return;
+    }
+    else {
+        // we are done so send the new info
+        switch(requestType()) {
+        case Items:
+            emit itemsInfo(*m_bibFile);
+            break;
+        case Collections:
+            emit collectionsInfo(m_cachedCollectionResult);
+            break;
+        }
     }
 }
 
