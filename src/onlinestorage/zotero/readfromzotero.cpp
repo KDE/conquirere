@@ -232,10 +232,12 @@ void ReadFromZotero::requestFinished()
         else if(xmlReader.name() == QLatin1String("entry")) {
             switch(requestType()) {
             case Items:
+            {
                 Entry *e = readItemEntry(xmlReader);
                 if(e != 0)
                     m_bibFile->append( QSharedPointer<Element>( e ) );
                 break;
+            }
             case Collections:
                 m_cachedCollectionResult.append( readCollectionEntry(xmlReader) );
                 break;
