@@ -1,0 +1,78 @@
+Here are some bigger TODO's that should be addressed sooner or later.
+
+######################################
+# Live Nepomuk completer
+
+Currently the auto completion wastes a lot of resources by creating huge lookup table for
+all valid resources of a specific type. This leads to ~12+ query clients that observe
+changes in the nepomuk storage to update the completer and fails horrible when a resource 
+is renamed.
+
+Solution: Create a new KCompleter or KLineEdit that does a live sparql search (like the krunner does)
+
+
+
+######################################
+# support more online storages
+
+ Like zotero there does exist more storages we could sync with
+
+* mendeley     : http://apidocs.mendeley.com/home/user-specific-methods
+* researchgate : if even possible?
+* refbase
+* ownCloud     : Someone needs to write the server side for this first
+
+and possible others I'm not aware of currently
+
+
+
+######################################
+# KDE integration
+
+make other KDE programs aware of nepomuk and the bib information
+
+* okular         : could fetch info and show links to related publications on the disk
+* calligra Words : insert citation / create reference list at the end
+* ...
+
+
+
+######################################
+# Intelligent parsing
+
+Parse pdf documents and find more information
+* metadata extraction of title, author, doi etc
+* parse the fulltext content for cited documents and add them to nepomuk (with the links)
+* auto-magically find the right publication information on the internet/nepomuk when we just have the pdf
+* keyword extraction for any documents
+* ...
+
+
+
+######################################
+# Nepomuk DMS integration
+
+switch from the plain Nepomuk::Resource approach to the SimpleResource and SimpleResourceGraph 
+this helps to avoid duplicates and so on
+
+
+
+######################################
+# Better akonadi integration
+
+Needs the todo above. Create edit/ contacts/events in akonadi with the right tools rather than in nepomuk 
+directly. Currently resource merging after we pushed a resource into akonadi fails.
+and I can't push events into akonadi
+
+
+
+######################################
+# Browser integration
+
+Like zoteros page translators create plugins that push data directly from any browser into nepomuk
+There exist a python system for rekonq already just needs proper integration
+
+
+
+######################################
+# more todos are in the doxygen docu
