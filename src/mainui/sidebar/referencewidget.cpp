@@ -72,6 +72,7 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     connect(ui->citeKeyEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
     connect(ui->pagesEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
     connect(ui->publicationEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->editAnnot, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
 }
 
 void ReferenceWidget::setResource(Nepomuk::Resource & resource)
@@ -92,6 +93,7 @@ void ReferenceWidget::setResource(Nepomuk::Resource & resource)
     ui->citeKeyEdit->setResource(m_reference);
     ui->pagesEdit->setResource(m_reference);
     ui->publicationEdit->setResource(m_reference);
+    ui->editAnnot->setResource(m_reference);
 }
 
 void ReferenceWidget::subResourceUpdated()

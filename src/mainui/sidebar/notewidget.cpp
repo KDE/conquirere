@@ -49,6 +49,11 @@ NoteWidget::~NoteWidget()
     delete ui;
 }
 
+Nepomuk::Resource NoteWidget::note()
+{
+    return m_note;
+}
+
 void NoteWidget::setResource(Nepomuk::Resource & resource)
 {
     m_note = resource;

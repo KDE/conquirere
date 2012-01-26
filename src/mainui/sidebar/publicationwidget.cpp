@@ -166,6 +166,7 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
    ui->editPubMed->setResource(m_publication);
    ui->editDOI->setResource(m_publication);
 
+   ui->editAnnot->setResource(m_publication);
    discardNoteChanges();
 }
 
@@ -437,8 +438,8 @@ void PublicationWidget::acceptNoteChanges()
     QString note = ui->editNote->document()->toPlainText();
     m_publication.setProperty(Nepomuk::Vocabulary::NIE::description(), note);
 
-    QString annote = ui->editAnnote->document()->toPlainText();
-    m_publication.setProperty(Nepomuk::Vocabulary::NIE::comment(), annote);
+//    QString annote = ui->editAnnote->document()->toPlainText();
+//    m_publication.setProperty(Nepomuk::Vocabulary::NIE::comment(), annote);
 }
 
 void PublicationWidget::discardNoteChanges()
@@ -446,8 +447,8 @@ void PublicationWidget::discardNoteChanges()
     QString note = m_publication.property(Nepomuk::Vocabulary::NIE::description()).toString();
     ui->editNote->document()->setPlainText(note);
 
-    QString annote = m_publication.property(Nepomuk::Vocabulary::NIE::comment()).toString();
-    ui->editAnnote->document()->setPlainText(annote);
+//    QString annote = m_publication.property(Nepomuk::Vocabulary::NIE::comment()).toString();
+//    ui->editAnnote->document()->setPlainText(annote);
 }
 
 void PublicationWidget::changeRating(int newRating)
@@ -618,6 +619,7 @@ void PublicationWidget::setupWidget()
     connect(ui->editDOI, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
     connect(ui->listPartsWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
+    connect(ui->editAnnot, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
 }
 
 void PublicationWidget::editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl)

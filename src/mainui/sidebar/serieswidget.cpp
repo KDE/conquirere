@@ -67,6 +67,7 @@ void SeriesWidget::setResource(Nepomuk::Resource & resource)
     ui->editTitle->setResource(m_series);
     ui->editIssn->setResource(m_series);
     ui->listPartWidget->setResource(m_series);
+    ui->editAnnot->setResource(m_series);
 
     // set rating
     ui->editRating->setRating(m_series.rating());
@@ -209,4 +210,5 @@ void SeriesWidget::setupWidget()
     connect(ui->listPartWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editIssn, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editTitle, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editAnnot, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 }

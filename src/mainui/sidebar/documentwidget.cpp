@@ -56,6 +56,8 @@ void DocumentWidget::setResource(Nepomuk::Resource & resource)
 {
     m_document = resource;
 
+    ui->editAnnot->setResource( m_document );
+
     if(m_document.isValid()) {
         ui->line->setVisible(true);
         ui->icon->setVisible(true);

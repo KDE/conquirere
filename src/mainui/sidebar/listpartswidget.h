@@ -18,7 +18,7 @@
 #ifndef LISTPARTSWIDGET_H
 #define LISTPARTSWIDGET_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 #include <Nepomuk/Resource>
 
 namespace Ui {
@@ -30,7 +30,7 @@ namespace Ui {
   *
   * This widget is used to manipulate @c nbib:chapter of books and articles, the @c nbib:article from collections
   * such as proceedings or journal issues and the @c nbib:inSeriesOf to connect a series with its content
-  * like a journal series with its single issues or a book sereis with all books.
+  * like a journal series with its single issues or a book series with all books.
   */
 class ListPartsWidget : public QWidget
 {

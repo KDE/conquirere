@@ -49,6 +49,7 @@ set(mainui_LIB_SRCS
     sidebar/libraryinfowidget.cpp
     sidebar/searchresultinfowidget.cpp
     sidebar/mailwidget.cpp
+    sidebar/listannotationswidget.cpp
 )
 
 kde4_add_ui_files( mainui_LIB_SRCS
@@ -88,6 +89,7 @@ kde4_add_ui_files( mainui_LIB_SRCS
                    sidebar/libraryinfowidget.ui
                    sidebar/searchresultinfowidget.ui
                    sidebar/mailwidget.ui
+                   sidebar/listannotationswidget.ui
 )
 
 kde4_add_library( mainui STATIC ${mainui_LIB_SRCS} )

@@ -814,9 +814,6 @@
        <string>Note</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
-       <property name="spacing">
-        <number>2</number>
-       </property>
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
@@ -831,24 +828,21 @@
         <widget class="QPlainTextEdit" name="editNote"/>
        </item>
        <item>
-        <widget class="QLabel" name="label_15">
-         <property name="text">
-          <string>Annotation:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editAnnote</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPlainTextEdit" name="editAnnote"/>
-       </item>
-       <item>
         <widget class="QDialogButtonBox" name="noteButtonBox">
          <property name="standardButtons">
           <set>QDialogButtonBox::Discard|QDialogButtonBox::Save</set>
          </property>
         </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_15">
+         <property name="text">
+          <string>Annotation:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ListAnnotationsWidget" name="editAnnot" native="true"/>
        </item>
       </layout>
      </widget>
@@ -979,6 +973,12 @@
    <class>CodeOfLawEdit</class>
    <extends>QLineEdit</extends>
    <header>propertywidgets/codeoflawedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ListAnnotationsWidget</class>
+   <extends>QWidget</extends>
+   <header>sidebar/listannotationswidget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
