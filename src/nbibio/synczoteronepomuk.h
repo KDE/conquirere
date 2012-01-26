@@ -157,6 +157,9 @@ private:
     QList<SyncDetails> m_tmpUserDeleteRequest;
     QList<SyncDetails> m_tmpUserMergeRequest;
     QList<File> m_corruptedUploads;
+
+    QList<Nepomuk::Resource> m_syncDataToBeRemoved; // sync data that tells us to delete items on the server side
+                                                    // will be removed when we succeed on the server side
 };
 
 #endif // SYNCZOTERONEPOMUK_H

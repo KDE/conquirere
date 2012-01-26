@@ -575,6 +575,7 @@ void SyncZoteroNepomuk::removeFilesFromZotero()
         item.first = syncRes.property( Nepomuk::Vocabulary::SYNC::id() ).toString();
         item.second = syncRes.property( Nepomuk::Vocabulary::SYNC::etag() ).toString();
         idsToBeRemoved.append(item);
+        m_syncDataToBeRemoved.append(syncRes);
     }
 
     connect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(cleanupAfterUpload()));
@@ -583,6 +584,12 @@ void SyncZoteroNepomuk::removeFilesFromZotero()
 
 void SyncZoteroNepomuk::cleanupAfterUpload()
 {
+    // delete the now unnecessary syc data
+    foreach(Nepomuk::Resource r, m_syncDataToBeRemoved) {
+        r.remove();
+    }
+    m_syncDataToBeRemoved.clear();
+
     //we finished everything, so cleanup
     m_wtz->deleteLater();
     m_wtz = 0;
