@@ -122,4 +122,11 @@ relationcanvas 132228 relation_ref 289028 // <generalisation>
   no_role_a no_role_b
   no_multiplicity_a no_multiplicity_b
 end
+relationcanvas 132356 relation_ref 289284 // <aggregation>
+  decenter_begin 180
+  decenter_end 276
+  from ref 130692 z 2007 to ref 128260
+  role_a_pos 170 471 3000 no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
 end

@@ -907,12 +907,12 @@ ${inlines}
 	    classrelation_ref 297860 // <aggregation>
       end
 
-      classrelation 299524 // pimo::isRelated (<aggregation>)
+      classrelation 299524 // nao::isRelated (<aggregation>)
 	relation 288900 o---
-	  a role_name "pimo::isRelated" private
+	  a role_name "nao::isRelated" private
 	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
 "
-	    classrelation_ref 299524 // pimo::isRelated (<aggregation>)
+	    classrelation_ref 299524 // nao::isRelated (<aggregation>)
 	  b role_name "" private
 	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
 "
@@ -921,6 +921,10 @@ ${inlines}
 
       classrelation 300036 // <aggregation>
 	relation_ref 289156 // <aggregation>
+      end
+
+      classrelation 300292 // <aggregation>
+	relation_ref 289284 // <aggregation>
       end
     end
 
@@ -2552,6 +2556,18 @@ ${inlines}
 
       classrelation 299652 // <aggregation>
 	relation_ref 288900 // <aggregation>
+      end
+
+      classrelation 300164 // nao::isRelated (<aggregation>)
+	relation 289284 o---
+	  a role_name "nao::isRelated" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 300164 // nao::isRelated (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 300292 // <aggregation>
       end
     end
   end
