@@ -682,6 +682,13 @@ nbib: {
           nrl:inverseProperty nbib:publication ;
           rdfs:range nbib:Reference .
 
+    nbib:citedReference
+          a       rdf:Property ;
+          rdfs:domain nie:InformationElement ;
+          rdfs:comment "Links all cited references from one publication. Good way to find new sources to read" ;
+          rdfs:label "cited reference" ;
+          rdfs:range nbib:Reference .
+
     nbib:publication
           a       rdf:Property ;
           rdfs:domain nie:InformationElement ;

@@ -1,0 +1,125 @@
+format 74
+
+classcanvas 128004 class_ref 225412 // sync:ServerSyncData
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyzwh 580 222 2000 163 255
+end
+classcanvas 128132 class_ref 128004 // nbib:Publication
+  draw_all_relations default hide_attributes yes hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyzwh 221 231 2000 169 61
+end
+classcanvas 128260 class_ref 130052 // nbib:Reference
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyzwh 225 375 2006 163 85
+end
+classcanvas 129540 class_ref 130436 // nfo:Document
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 250 88 2006
+end
+classcanvas 130692 class_ref 225668 // pimo:Note
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyzwh 251 516 2000 105 63
+end
+classcanvas 131716 class_ref 129284 // nie:InformationElement
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 802 220 3005
+end
+relationcanvas 128388 relation_ref 130308 // nbib:publication
+  decenter_begin 263
+  decenter_end 276
+  from ref 128260 z 2007 label "nbib:publication" italic xyz 162.5 320 2007 to ref 128132
+  no_role_a no_role_b
+  multiplicity_a_pos 249 301 3000 no_multiplicity_b
+end
+relationcanvas 128516 relation_ref 212356 // <aggregation>
+  decenter_begin 443
+  decenter_end 435
+  from ref 128132 z 2007 to ref 128260
+  role_a_pos 305 348 3000 no_role_b
+  multiplicity_a_pos 279 348 3000 no_multiplicity_b
+end
+relationcanvas 128644 relation_ref 286596 // <aggregation>
+  decenter_begin 852
+  decenter_end 239
+  from ref 128132 z 2001 to ref 128004
+  role_a_pos 426 256 3000 no_role_b
+  multiplicity_a_pos 561 292 3000 no_multiplicity_b
+end
+relationcanvas 128772 relation_ref 286724 // <aggregation>
+  decenter_begin 843
+  decenter_end 882
+  from ref 128260 z 2007 to ref 128004
+  role_a_pos 426 420 3000 no_role_b
+  multiplicity_a_pos 561 456 3000 no_multiplicity_b
+end
+relationcanvas 129028 relation_ref 286852 // <aggregation>
+  decenter_begin 70
+  decenter_end 147
+  from ref 128004 z 2001 to ref 128132
+  role_a_pos 399 213 3000 no_role_b
+  multiplicity_a_pos 399 249 3000 no_multiplicity_b
+end
+relationcanvas 129284 relation_ref 286980 // <aggregation>
+  decenter_begin 639
+  decenter_end 108
+  from ref 128004 z 2007 to ref 128260
+  role_a_pos 397 358 3000 no_role_b
+  multiplicity_a_pos 397 394 3000 no_multiplicity_b
+end
+relationcanvas 129668 relation_ref 131844 // nbib:publishedAs
+  decenter_begin 433
+  decenter_end 461
+  from ref 129540 z 2007 label "nbib:publishedAs" italic xyz 302 178 2007 to ref 128132
+  no_role_a no_role_b
+  multiplicity_a_pos 280 204 3000 no_multiplicity_b
+end
+relationcanvas 129796 relation_ref 131972 // nbib:isPublicationOf
+  decenter_begin 224
+  decenter_end 79
+  from ref 128132 z 2007 label "nbib:isPublicationOf" italic xyz 119 175 2007 to ref 129540
+  no_role_a no_role_b
+  multiplicity_a_pos 242 158 3000 no_multiplicity_b
+end
+relationcanvas 130180 relation_ref 287108 // <aggregation>
+  decenter_begin 737
+  decenter_end 85
+  from ref 129540 z 2007 to point 591 130
+  line 130308 z 2007 to ref 128004
+  role_a_pos 422 135 3000 no_role_b
+  multiplicity_a_pos 575 195 3000 no_multiplicity_b
+end
+relationcanvas 130436 relation_ref 287236 // <aggregation>
+  decenter_end 163
+  from ref 128004 z 2007 to point 659 95
+  line 130564 z 2007 to ref 129540
+  role_a_pos 466 74 3000 no_role_b
+  multiplicity_a_pos 372 107 3000 no_multiplicity_b
+end
+relationcanvas 130820 relation_ref 288644 // <aggregation>
+  decenter_begin 222
+  decenter_end 159
+  from ref 130692 z 2001 to point 603 527
+  line 131076 z 2001 to ref 128004
+  role_a_pos 432 506 3000 no_role_b
+  multiplicity_a_pos 587 486 3000 no_multiplicity_b
+end
+relationcanvas 131204 relation_ref 288772 // <aggregation>
+  decenter_end 857
+  from ref 128004 z 2001 to point 659 567
+  line 131332 z 2001 to ref 130692
+  role_a_pos 365 543 3000 no_role_b
+  multiplicity_a_pos 365 579 3000 no_multiplicity_b
+end
+relationcanvas 131588 relation_ref 288900 // <aggregation>
+  decenter_begin 484
+  from ref 128260 z 2007 to ref 130692
+  role_a_pos 313 489 3000 no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 132228 relation_ref 289028 // <generalisation>
+  decenter_begin 82
+  from ref 128004 z 3006 to ref 131716
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+end

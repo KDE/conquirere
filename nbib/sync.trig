@@ -43,6 +43,8 @@
 @prefix nrl:     <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
 @prefix nie:     <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
 @prefix nao:     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
+@prefix nfo:     <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
+@prefix pimo:    <http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#> .
 
 sync: {
     sync:ServerSyncData
@@ -95,6 +97,52 @@ sync: {
           rdfs:range xsd:string ;
           nrl:cardinality 1 ;
           nrl:maxCardinality 1 .
+
+    sync:attachment
+          a       rdf:Property ;
+          rdfs:domain sync:ServerSyncData ;
+          rdfs:comment "Links to the document that is ment to be an attachment for another sync entry. In zotero they have a unique etag/id too to identify changes" ;
+          rdfs:label "Attachment" ;
+          rdfs:range nfo:Document ;
+          nrl:cardinality 1 ;
+          nrl:maxCardinality 1 .
+
+    sync:note
+          a       rdf:Property ;
+          rdfs:domain sync:ServerSyncData ;
+          rdfs:comment "Links to the note that is ment to be an attachment for another sync entry. In zotero they have a unique etag/id too to identify changes" ;
+          rdfs:label "Note" ;
+          rdfs:range pimo:Note ;
+          nrl:cardinality 1 ;
+          nrl:maxCardinality 1 .
+
+####################################################################
+#
+# To express what kind of syncdata we represent here
+# Help to find deleted resource
+# thus if a ServerSyncData that represents an attachment but has no valid resource set fpr sync:attachment means we deleted it
+# locally. On the next online storage sync we remove it also from the server
+
+    sync:SyncDataType
+          a       rdfs:Class ;
+          rdfs:comment "What kind of syncdata we represent here. Help to find deleted resource thus if a ServerSyncData that represents an attachment but has no valid resource set fpr sync:attachment means we deleted it locally. On the next online storage sync we remove it also from the server. When the resource is valid we can check if the etag changed and update it" ;
+          rdfs:label "SyncDataType" ;
+          rdfs:subClassOf rdfs:Resource .
+
+    sync:Attachment
+          a       nbib:SyncDataType ;
+          rdfs:comment "Sync data Attachment" ;
+          rdfs:label "Attachment" .
+
+    sync:Note
+          a       nbib:SyncDataType ;
+          rdfs:comment "Sync data Note" ;
+          rdfs:label "Note" .
+
+    sync:BibResource
+          a       nbib:SyncDataType ;
+          rdfs:comment "Sync data BibResource (Publication and/or Reference" ;
+          rdfs:label "BibResource" .
 
 #############################################################
 #

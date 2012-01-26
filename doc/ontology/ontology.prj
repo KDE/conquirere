@@ -1,6 +1,6 @@
 format 74
 "ontology"
-  revision 28
+  revision 29
   modified_by 4 "joerg"
 
 
@@ -36,7 +36,7 @@ format 74
 
   mark_for_import
   
-  classview 128004 "ontology"
+  classview 128004 "nbib ontology"
     //class diagram settings
     draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
     //collaboration diagram settings
@@ -330,18 +330,6 @@ ${inlines}
 	    classrelation_ref 209156 // <aggregation>
       end
 
-      classrelation 209796 // nie:links (<aggregation>)
-	relation 204292 o---
-	  a role_name "nie:links" multiplicity "*" private
-	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
-"
-	    classrelation_ref 209796 // nie:links (<aggregation>)
-	  b role_name "" private
-	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
-"
-	    classrelation_ref 209924 // <aggregation>
-      end
-
       classrelation 218372 // nbib:references (<aggregation>)
 	relation 212356 o---
 	  a role_name "nbib:references" multiplicity "*" private
@@ -404,6 +392,50 @@ ${inlines}
 	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
 "
 	    classrelation_ref 267268 // <aggregation>
+      end
+
+      classrelation 294916 // sync:serverSyncData (<aggregation>)
+	relation 286596 o---
+	  a role_name "sync:serverSyncData" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 294916 // sync:serverSyncData (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 295044 // <aggregation>
+      end
+
+      classrelation 295556 // <aggregation>
+	relation_ref 286852 // <aggregation>
+      end
+
+      classrelation 297092 // <aggregation>
+	relation_ref 287620 // <aggregation>
+      end
+
+      classrelation 297988 // pimo:isRelated (<aggregation>)
+	relation 288132 o---
+	  a role_name "pimo:isRelated" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 297988 // pimo:isRelated (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 298116 // <aggregation>
+      end
+
+      classrelation 299908 // nbib:citedReference (<aggregation>)
+	relation 289156 o---
+	  a role_name "nbib:citedReference" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 299908 // nbib:citedReference (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 300036 // <aggregation>
       end
     end
 
@@ -621,9 +653,6 @@ ${inlines}
       idl_decl ""
       explicit_switch_type ""
       
-      classrelation 209924 // <aggregation>
-	relation_ref 204292 // <aggregation>
-      end
     end
 
     class 129540 "nbib:Series"
@@ -680,6 +709,18 @@ ${inlines}
 	php_decl ""
 	python_decl ""
 	idl_decl ""
+      end
+
+      classrelation 298244 // pimo:isRelated (<aggregation>)
+	relation 288260 o---
+	  a role_name "pimo:isRelated" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 298244 // pimo:isRelated (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 298372 // <aggregation>
       end
     end
 
@@ -833,6 +874,54 @@ ${inlines}
       classrelation 218500 // <aggregation>
 	relation_ref 212356 // <aggregation>
       end
+
+      classrelation 295172 // sync:serverSyncData (<aggregation>)
+	relation 286724 o---
+	  a role_name "sync:serverSyncData" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 295172 // sync:serverSyncData (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 295300 // <aggregation>
+      end
+
+      classrelation 295812 // <aggregation>
+	relation_ref 286980 // <aggregation>
+      end
+
+      classrelation 296836 // <aggregation>
+	relation_ref 287492 // <aggregation>
+      end
+
+      classrelation 297732 // pimo:isRelated (<aggregation>)
+	relation 288004 o---
+	  a role_name "pimo:isRelated" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 297732 // pimo:isRelated (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 297860 // <aggregation>
+      end
+
+      classrelation 299524 // pimo::isRelated (<aggregation>)
+	relation 288900 o---
+	  a role_name "pimo::isRelated" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 299524 // pimo::isRelated (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 299652 // <aggregation>
+      end
+
+      classrelation 300036 // <aggregation>
+	relation_ref 289156 // <aggregation>
+      end
     end
 
     class 130180 "nbib:Electronic"
@@ -940,6 +1029,38 @@ ${inlines}
       classrelation 133892 // (nbib:isPublicationOf)
 	relation_ref 131972 // nbib:isPublicationOf
       end
+
+      classrelation 295940 // sync:serverSyncData (<aggregation>)
+	relation 287108 o---
+	  a role_name "sync:serverSyncData" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 295940 // sync:serverSyncData (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 296068 // <aggregation>
+      end
+
+      classrelation 296324 // <aggregation>
+	relation_ref 287236 // <aggregation>
+      end
+
+      classrelation 296580 // <aggregation>
+	relation_ref 287364 // <aggregation>
+      end
+
+      classrelation 298756 // <aggregation>
+	relation 288516 o---
+	  a role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 298756 // <aggregation>
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 298884 // <aggregation>
+      end
     end
 
     class 136964 "nbib:BookSeries"
@@ -1022,6 +1143,22 @@ ${inlines}
 	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
 "
 	    classrelation_ref 252932 // <aggregation>
+      end
+
+      classrelation 297348 // <aggregation>
+	relation_ref 287748 // <aggregation>
+      end
+
+      classrelation 298500 // pimo:isRelated (<aggregation>)
+	relation 288388 o---
+	  a role_name "pimo:isRelated" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 298500 // pimo:isRelated (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 298628 // <aggregation>
       end
     end
 
@@ -2235,6 +2372,290 @@ ${inlines}
 	    cpp default "${type}"
 	    classrelation_ref 287748 // <generalisation>
 	  b parent class_ref 128004 // nbib:Publication
+      end
+    end
+  end
+
+  classview 134532 "Zotero"
+    //class diagram settings
+    draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+    //collaboration diagram settings
+    show_full_operations_definition default show_hierarchical_rank default write_horizontally default drawing_language default package_name_in_tab default show_context default show_msg_context default draw_all_relations default shadow default show_stereotype_properties default
+    //object diagram settings
+     write_horizontally default package_name_in_tab default show_context default auto_label_position default draw_all_relations default shadow default show_stereotype_properties default
+    //sequence diagram settings
+    show_full_operations_definition default write_horizontally default class_drawing_mode default drawing_language default draw_all_relations default shadow default show_stereotype_properties default show_class_context_mode default show_msg_context_mode default
+    //state diagram settings
+    package_name_in_tab default show_context default auto_label_position default write_trans_label_horizontally default show_trans_definition default draw_all_relations default shadow default
+    show_activities default region_horizontally default drawing_language default show_stereotype_properties default
+    //class settings
+    //activity diagram settings
+    package_name_in_tab default show_context default show_opaque_action_definition default auto_label_position default write_flow_label_horizontally default draw_all_relations default shadow default
+    show_infonote default drawing_language default show_stereotype_properties default
+    classdiagram 154500 "Sync Overview"
+      draw_all_relations no hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+      size A4-Landscape
+    end
+
+    class 225412 "sync:ServerSyncData"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      attribute 199172 "sync:provider"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 199300 "sync:url"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 199428 "sync:userId"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      classrelation 295044 // <aggregation>
+	relation_ref 286596 // <aggregation>
+      end
+
+      classrelation 295300 // <aggregation>
+	relation_ref 286724 // <aggregation>
+      end
+
+      classrelation 295428 // nbib:publication (<aggregation>)
+	relation 286852 o---
+	  a role_name "nbib:publication" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 295428 // nbib:publication (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 295556 // <aggregation>
+      end
+
+      classrelation 295684 // nbib:reference (<aggregation>)
+	relation 286980 o---
+	  a role_name "nbib:reference" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 295684 // nbib:reference (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 295812 // <aggregation>
+      end
+
+      attribute 199556 "sync:etag"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      classrelation 296068 // <aggregation>
+	relation_ref 287108 // <aggregation>
+      end
+
+      classrelation 296196 // sync:attachment (<aggregation>)
+	relation 287236 o---
+	  a role_name "sync:attachment" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 296196 // sync:attachment (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 296324 // <aggregation>
+      end
+
+      classrelation 299140 // <aggregation>
+	relation_ref 288644 // <aggregation>
+      end
+
+      classrelation 299268 // sync:note (<aggregation>)
+	relation 288772 o---
+	  a role_name "sync:note" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 299268 // sync:note (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 299396 // <aggregation>
+      end
+
+      classrelation 299780 // <generalisation>
+	relation 289028 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 299780 // <generalisation>
+	  b parent class_ref 129284 // nie:InformationElement
+      end
+    end
+
+    class 225668 "pimo:Note"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 299012 // sync:serverSyncData (<aggregation>)
+	relation 288644 o---
+	  a role_name "sync:serverSyncData" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 299012 // sync:serverSyncData (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 299140 // <aggregation>
+      end
+
+      classrelation 299396 // <aggregation>
+	relation_ref 288772 // <aggregation>
+      end
+
+      classrelation 299652 // <aggregation>
+	relation_ref 288900 // <aggregation>
+      end
+    end
+  end
+
+  classview 134660 "project concept"
+    //class diagram settings
+    draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+    //collaboration diagram settings
+    show_full_operations_definition default show_hierarchical_rank default write_horizontally default drawing_language default package_name_in_tab default show_context default show_msg_context default draw_all_relations default shadow default show_stereotype_properties default
+    //object diagram settings
+     write_horizontally default package_name_in_tab default show_context default auto_label_position default draw_all_relations default shadow default show_stereotype_properties default
+    //sequence diagram settings
+    show_full_operations_definition default write_horizontally default class_drawing_mode default drawing_language default draw_all_relations default shadow default show_stereotype_properties default show_class_context_mode default show_msg_context_mode default
+    //state diagram settings
+    package_name_in_tab default show_context default auto_label_position default write_trans_label_horizontally default show_trans_definition default draw_all_relations default shadow default
+    show_activities default region_horizontally default drawing_language default show_stereotype_properties default
+    //class settings
+    //activity diagram settings
+    package_name_in_tab default show_context default show_opaque_action_definition default auto_label_position default write_flow_label_horizontally default draw_all_relations default shadow default
+    show_infonote default drawing_language default show_stereotype_properties default
+    classdiagram 154628 "pimo:project view"
+      draw_all_relations no hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+      size A4-Landscape
+    end
+
+    class 225540 "pimo:Project"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 296452 // pimo:groundingOccurence (<aggregation>)
+	relation 287364 o---
+	  stereotype "ini file"
+	  a role_name "pimo:groundingOccurence" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 296452 // pimo:groundingOccurence (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 296580 // <aggregation>
+      end
+
+      classrelation 296708 // <aggregation>
+	relation 287492 o---
+	  a role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 296708 // <aggregation>
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 296836 // <aggregation>
+      end
+
+      classrelation 296964 // <aggregation>
+	relation 287620 o---
+	  a role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 296964 // <aggregation>
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 297092 // <aggregation>
+      end
+
+      classrelation 297220 // pimo:isRelated (<aggregation>)
+	relation 287748 o---
+	  a role_name "pimo:isRelated" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 297220 // pimo:isRelated (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 297348 // <aggregation>
+      end
+
+      classrelation 297860 // <aggregation>
+	relation_ref 288004 // <aggregation>
+      end
+
+      classrelation 298116 // <aggregation>
+	relation_ref 288132 // <aggregation>
+      end
+
+      classrelation 298372 // <aggregation>
+	relation_ref 288260 // <aggregation>
+      end
+
+      classrelation 298628 // <aggregation>
+	relation_ref 288388 // <aggregation>
+      end
+
+      classrelation 298884 // <aggregation>
+	relation_ref 288516 // <aggregation>
       end
     end
   end
