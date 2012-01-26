@@ -542,22 +542,4 @@ void MainWindow::setupMainWindow()
 
     connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,BibEntryType,Library*)),
             this, SLOT(switchView(ResourceSelection,BibEntryType,Library*)));
-
-    loadConfig();
-}
-
-void MainWindow::loadConfig()
-{
-    KSharedConfigPtr config = KSharedConfig::openConfig("conquirererc");
-
-    KConfigGroup generalGroup = config->group("General");
-    QString NepomukCollection = generalGroup.readEntry( "NepomukCollection", QString() );
-
-    if(NepomukCollection.isEmpty()) {
-        qDebug() << "create nepomuk collection";
-        Nepomuk::Resource collection(QUrl(), Nepomuk::Vocabulary::PIMO::Collection());
-        collection.setProperty(Soprano::Vocabulary::NAO::identifier(), QString("Conquirere Collection"));
-        generalGroup.writeEntry("NepomukCollection", collection.resourceUri().toString());
-        config->sync();
-    }
 }

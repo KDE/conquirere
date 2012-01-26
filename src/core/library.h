@@ -77,6 +77,7 @@ public:
       * Has to be called when a new project is created
       */
     static Nepomuk::Thing createLibrary(const QString & name, const QString & description, const QString & path);
+    static QString createIniFile(Nepomuk::Thing & pimoProject, const QString & path = QString());
 
     /**
       * Loads an existing project .ini file
@@ -86,7 +87,16 @@ public:
       */
     void loadLibrary(const QString & projectFile, LibraryType type = Library_Project);
     void loadSystemLibrary();
-    void loadLibrary(const Nepomuk::Thing & pimoProject);
+
+    /**
+      * Loads a project by its pimo:Project resource uri.
+      *
+      * This means it either has a .ini file attached as groundingOccurence already
+      * So we check all groundingOccurences for a file in the applications project path
+      *
+      * Or it was a pimo:Project created from some other program and we have to create the .ini file again
+      */
+    void loadLibrary(Nepomuk::Thing & pimoProject);
     ProjectSettings * settings();
 
     /**

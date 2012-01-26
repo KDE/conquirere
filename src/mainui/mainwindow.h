@@ -91,8 +91,6 @@ private:
     void setupActions();
     void setupMainWindow();
 
-    void loadConfig();
-
     LibraryManager *m_libraryManager;
     QMap<QUrl, QWidget *> m_libraryList; /**< holds the welcome widget for each opened library */
 

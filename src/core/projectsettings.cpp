@@ -60,30 +60,18 @@ void ProjectSettings::loadSettings(const QString &projectFile)
     KConfigGroup generalGroup( m_projectConfig, "Conquirere" );
     m_pimoThing = Nepomuk::Thing(generalGroup.readEntry("pimoProject", QString()));
 
-    QString name = generalGroup.readEntry(QLatin1String("name"), QString());
+    QString name = m_pimoThing.property(Nepomuk::Vocabulary::NIE::title()).toString();
     m_projectTag = Nepomuk::Tag( name );
+    m_projectTag.setLabel( name ); // turns out we get an invalid tag if we load a random pimo:Project not good here
+
+    kDebug() << "use project tag with name " << name << "valid?" << m_projectTag.exists() << m_projectTag.isValid();
 
     if(!m_pimoThing.isValid() && m_library->libraryType() != Library_System) {
         kDebug() << "Warning loaded project without valid PIMO::Project() resource @ project" << name;
     }
 }
 
-void ProjectSettings::loadSettings(const Nepomuk::Thing & pimoProject)
-{
-    QList<Nepomuk::Resource> settingsFiles = pimoProject.groundingOccurrences();
-
-    Nepomuk::File iniFile;
-    //if(settingsFiles.size() > 1) {
-    // This happens if we move the the folder and keep the old settingfiles intact
-    // usually the old file is removed and should be deleted from nepomuk
-    // otherwise we should filter modification date and take the newest
-    //}
-    iniFile = settingsFiles.first();
-
-    loadSettings(iniFile.url().pathOrUrl());
-}
-
-void ProjectSettings::setPimoThing( Nepomuk::Resource &thing)
+void ProjectSettings::setPimoThing( Nepomuk::Resource &thing )
 {
     Q_ASSERT_X(thing.isValid(), "setPimoThing", "no valid thing used");
 
@@ -131,8 +119,20 @@ void ProjectSettings::setName(const QString &newName)
 
 QString ProjectSettings::name() const
 {
-    KConfigGroup generalGroup( m_projectConfig, "Conquirere" );
-    return generalGroup.readEntry("name", QString());
+    QString name;
+    if(projectThing().isValid()) {
+        name = projectThing().property( Nepomuk::Vocabulary::NIE::title() ).toString();
+    }
+    if(name.isEmpty()) {
+        KConfigGroup generalGroup( m_projectConfig, "Conquirere" );
+        name = generalGroup.readEntry("name", QString());
+    }
+
+    if(name.isEmpty()) {
+        name = i18n("unknown project name");
+    }
+
+    return name;
 }
 
 void ProjectSettings::setDescription(const QString &description)
@@ -151,8 +151,16 @@ void ProjectSettings::setDescription(const QString &description)
 
 QString ProjectSettings::description() const
 {
-    KConfigGroup generalGroup( m_projectConfig, "Conquirere" );
-    return generalGroup.readEntry("description", QString());
+    QString description;
+    if(projectThing().isValid()) {
+        description = projectThing().property( Soprano::Vocabulary::NAO::description() ).toString();
+    }
+    if(description.isEmpty()) {
+        KConfigGroup generalGroup( m_projectConfig, "Conquirere" );
+        description = generalGroup.readEntry("description", QString());
+    }
+
+    return description;
 }
 
 void ProjectSettings::setProjectDir(const QString &path)

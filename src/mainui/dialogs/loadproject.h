@@ -18,7 +18,10 @@
 #ifndef LOADPROJECT_H
 #define LOADPROJECT_H
 
-#include <QDialog>
+#include <QtGui/QDialog>
+
+#include <Nepomuk/Query/QueryServiceClient>
+#include <Nepomuk/Query/Result>
 
 namespace Ui {
     class LoadProject;
@@ -40,17 +43,20 @@ public:
     explicit LoadProject(QWidget *parent = 0);
     ~LoadProject();
 
+    void fetchProjects();
     Library *loadedLibrary() const;
 
 private slots:
+    void queryFinished();
+    void fillProjectList( const QList< Nepomuk::Query::Result > &entries );
+
     void showCollection(int currentRow);
 
     void accept();
 
 private:
-    void loadCollections();
-
     Ui::LoadProject *ui;
+    Nepomuk::Query::QueryServiceClient *m_queryClient;
     Library *m_loadLibrary;
 };
 

@@ -90,20 +90,11 @@ Nepomuk::Thing Library::createLibrary(const QString & name, const QString & desc
 {
     // when a new library is created it is realized as pimo:Project
     QString identifier = QLatin1String("Conquirere Library:") + name;
-    Nepomuk::Thing projectThing = Nepomuk::Thing(identifier, Nepomuk::Vocabulary::PIMO::Project());
+    Nepomuk::Thing projectThing = Nepomuk::Thing( identifier );
+    projectThing.addType( Nepomuk::Vocabulary::PIMO::Project() );
     projectThing.setProperty( Nepomuk::Vocabulary::NIE::title() , name);
     projectThing.setProperty( Soprano::Vocabulary::NAO::description() , description);
     projectThing.setProperty( Soprano::Vocabulary::NAO::identifier() , identifier);
-
-    // relate each library to the conquiere pimo:thing
-    // this allows us to find all existing projects
-    //TODO instead of reading resource uri from file use the NAO::identifier
-    KSharedConfigPtr config = KSharedConfig::openConfig("conquirererc");
-    KConfigGroup generalGroup = config->group("General");
-    QString NepomukCollection = generalGroup.readEntry( "NepomukCollection", QString() );
-
-    Nepomuk::Resource conquiereCollections = Nepomuk::Resource(NepomukCollection);
-    conquiereCollections.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , projectThing);
 
     // create a tag with the project name
     // this way we can relate publications/documents etc via PIMO::isRelated or the tag
@@ -120,6 +111,15 @@ Nepomuk::Thing Library::createLibrary(const QString & name, const QString & desc
         project.mkdir(NOTEPATH);
     }
 
+    createIniFile(projectThing, path);
+
+    return projectThing;
+}
+
+QString Library::createIniFile(Nepomuk::Thing & pimoProject, const QString & path)
+{
+    kDebug() << "create ini file for " << pimoProject;
+
     // create the project .ini file
     QString inipath = KStandardDirs::locateLocal("appdata", QLatin1String("projects"));
     QString iniFile;
@@ -134,21 +134,21 @@ Nepomuk::Thing Library::createLibrary(const QString & name, const QString & desc
 
     ProjectSettings *projectSettings = new ProjectSettings(0);
     projectSettings->setSettingsFile(iniFile);
-    projectSettings->setName(name);
-    projectSettings->setDescription(description);
     projectSettings->setProjectDir(path);
-    projectSettings->setPimoThing(projectThing);
+    projectSettings->setPimoThing(pimoProject);
+    projectSettings->setName( pimoProject.property(Nepomuk::Vocabulary::NIE::title()).toString() );
+    projectSettings->setDescription( pimoProject.property(Soprano::Vocabulary::NAO::description()).toString() );
 
-    // connect the nepomuk data for the settingsfile to the pimo:.project
+    // connect the nepomuk data for the settingsfile to the pimo::project
     Nepomuk::File settingsFile = Nepomuk::File(KUrl(iniFile));
 
     //DEBUG the next 2 steps are necessary beacuse nepomuk did not fetch the newly created ini file at this point
     QString settingsFileName = QLatin1String("file://") + iniFile;
     settingsFile.setProperty(Nepomuk::Vocabulary::NIE::url(), settingsFileName);
 
-    projectThing.addGroundingOccurrence(settingsFile);
+    pimoProject.addGroundingOccurrence(settingsFile);
 
-    return projectThing;
+    return iniFile;
 }
 
 void Library::loadLibrary(const QString & projectFile, LibraryType type)
@@ -185,19 +185,25 @@ void Library::loadSystemLibrary()
     loadLibrary(iniFile, Library_System);
 }
 
-void Library::loadLibrary(const Nepomuk::Thing & pimoProject)
+void Library::loadLibrary(Nepomuk::Thing & pimoProject)
 {
     QList<Nepomuk::Resource> settingsFiles = pimoProject.groundingOccurrences();
 
     Nepomuk::File iniFile;
-    //if(settingsFiles.size() > 1) {
-        // This happens if we move the the folder and keep the old settingfiles intact
-        // usually the old file is removed and should be deleted from nepomuk
-        // otherwise we should filter modification date and take the newest
-    //}
-    iniFile = settingsFiles.first();
+    foreach( const Nepomuk::Resource &r, settingsFiles) {
+        iniFile = r;
+        //DEBUG we save inifiles in StandardDirs::locateLocal("appdata", QLatin1String("projects")); so
+        if(iniFile.url().pathOrUrl().contains(QLatin1String("conquirere")))
+            break;
+    }
 
-    loadLibrary(iniFile.url().pathOrUrl());
+    if(iniFile.exists()) {
+        loadLibrary(iniFile.url().pathOrUrl());
+    }
+    else {
+        QString newIniFile = createIniFile( pimoProject );
+        loadLibrary( newIniFile );
+    }
 }
 
 ProjectSettings * Library::settings()

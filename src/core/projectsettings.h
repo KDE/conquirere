@@ -47,7 +47,6 @@ public:
 
     void setSettingsFile(const QString &projectFile);
     void loadSettings(const QString &projectFile);
-    void loadSettings(const Nepomuk::Thing & pimoProject);
 
     void setPimoThing( Nepomuk::Resource &thing );
     Nepomuk::Thing projectThing() const;

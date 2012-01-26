@@ -39,7 +39,7 @@ LoadProject::LoadProject(QWidget *parent)
 {
     ui->setupUi(this);
 
-    loadCollections();
+    fetchProjects();
 
     connect(ui->listWidget, SIGNAL(currentRowChanged(int)), this, SLOT(showCollection(int)));
 }
@@ -52,6 +52,11 @@ LoadProject::~LoadProject()
 Library *LoadProject::loadedLibrary() const
 {
     return m_loadLibrary;
+}
+
+void LoadProject::queryFinished()
+{
+    m_queryClient->close();
 }
 
 void LoadProject::showCollection(int currentRow)
@@ -79,27 +84,32 @@ void LoadProject::accept()
     m_loadLibrary = new Library();
 
     QListWidgetItem *curItem = ui->listWidget->currentItem();
-    Nepomuk::Resource collection = Nepomuk::Resource(curItem->data(Qt::UserRole).toString());
+    Nepomuk::Thing collection = Nepomuk::Thing(curItem->data(Qt::UserRole).toString());
     m_loadLibrary->loadLibrary(collection);
 
     QDialog::accept();
 }
 
-void LoadProject::loadCollections()
+void LoadProject::fetchProjects()
 {
-    KSharedConfigPtr config = KSharedConfig::openConfig("conquirererc");
+    m_queryClient = new Nepomuk::Query::QueryServiceClient();
+    connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(fillProjectList(QList<Nepomuk::Query::Result>)));
+    connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(queryFinished()));
 
-    KConfigGroup generalGroup = config->group("General");
-    QString NepomukCollection = generalGroup.readEntry( "NepomukCollection", QString() );
+    QString query = "select DISTINCT ?r where { "
+                     "?r a pimo:Project ."
+                     "}";
 
-    Nepomuk::Resource conquiereCollections = Nepomuk::Resource(NepomukCollection);
+     m_queryClient->sparqlQuery( query );
+}
 
-    QList<Nepomuk::Resource> collections = conquiereCollections.property(Nepomuk::Vocabulary::PIMO::isRelated()).toResourceList();
+void LoadProject::fillProjectList( const QList< Nepomuk::Query::Result > &entries )
+{
+    foreach(const Nepomuk::Query::Result &r, entries) {
 
-    foreach(const Nepomuk::Resource &r, collections) {
         QListWidgetItem *newItem = new QListWidgetItem;
-        newItem->setText(r.property(Nepomuk::Vocabulary::NIE::title()).toString());
-        newItem->setData(Qt::UserRole, r.resourceUri());
+        newItem->setText(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
+        newItem->setData(Qt::UserRole, r.resource().resourceUri());
         ui->listWidget->addItem(newItem);
     }
 }
