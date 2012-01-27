@@ -57,6 +57,17 @@ public:
     void readJsonContent(Entry *e, const QString &content);
     File *getFile();
 
+    /**
+      * Set search filter as specified in the read api
+      *
+      * For exempel to get all Note attachments: &itemType=note
+      * Or for all file attachments : &itemType=attachment
+      *
+      * After we did the usual fetchItems() th egetFile returns a bibfile with
+      * the necessary informations for the notes/files and most importantly the parent it belongs to.
+      */
+    void setSearchFilter(const QString &filter);
+
 public slots:
     void fetchItems(const QString &collection = QString());
     void fetchItems(int limit, int start, const QString &collection = QString());
@@ -86,6 +97,8 @@ private:
     QString m_collectionToFetchFrom;
     bool m_fetchIncomplete;
     QMap<QString, QString> m_zoteroToBibTeX;
+
+    QString m_searchFilter;
 };
 
 #endif // READFROMZOTERO_H

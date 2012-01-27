@@ -75,8 +75,9 @@ public:
     virtual ~SyncZoteroNepomuk();
 
 public slots:
-    void startUpload();
     void startDownload();
+    void startAttachmentDownload();
+    void startUpload();
     void startSync();
     void cancel();
 
@@ -89,6 +90,8 @@ private slots:
       */
     void readDownloadSync(const File &zoteroData);
     void readDownloadSyncAfterDelete(const File &zoteroData);
+
+    void readDownloadAttachmentSync(const File &zoteroData);
 
     /**
       * process syncdata retrived from zotero server when new items are send to the server
@@ -112,6 +115,7 @@ private slots:
     void updateSyncDetailsToNepomuk(const QString &id, const QString &etag, const QString &updated);
 
 private:
+    void attachmentDownloadFinished();
     /**
       * Does what is say. It find the entry in the Nepomuk storage that is used to sync data with the zotero storage
       *

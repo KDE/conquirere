@@ -30,6 +30,9 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     , m_bibFile(new File)
     , m_fetchIncomplete(false)
 {
+    // ignore note / attachment downloads with normal requests
+    m_searchFilter = ("&itemType=-note || attachment");
+
     // build the mappinglist
     // @see https://api.zotero.org/itemTypeFields?itemType=presentation&pprint=1
     m_zoteroToBibTeX["callNumber"] = QLatin1String("lccn");
@@ -112,7 +115,7 @@ void ReadFromZotero::fetchItems(int limit, int start, const QString &collection)
 
     QString apiCommand;
     if(collection.isEmpty()) {
-        apiCommand = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items/top?format=atom&content=json");
+        apiCommand = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items?format=atom&content=json");
     }
     else {
         apiCommand = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/collections/") + collection + QLatin1String("/items?format=atom&content=json");
@@ -123,6 +126,8 @@ void ReadFromZotero::fetchItems(int limit, int start, const QString &collection)
     if(!m_psd.pwd.isEmpty()) {
         apiCommand.append( QLatin1String("&key=") + m_psd.pwd);
     }
+
+    apiCommand.append( m_searchFilter );
 
     setRequestType(Items);
     startRequest(apiCommand);
@@ -135,6 +140,8 @@ void ReadFromZotero::fetchItem(const QString &id, const QString &collection )
     if(!m_psd.pwd.isEmpty()) {
         apiCommand.append( QLatin1String("&key=") + m_psd.pwd);
     }
+
+    apiCommand.append( m_searchFilter );
 
     setRequestType(Items);
     startRequest(apiCommand);
@@ -159,6 +166,8 @@ void ReadFromZotero::fetchCollections(int limit, int start, const QString &paren
         apiCommand.append( QLatin1String("&key=") + m_psd.pwd);
     }
 
+    apiCommand.append( m_searchFilter );
+
     apiCommand.append( QLatin1String("&limit=") + QString::number(limit) + QLatin1String("&start=") + QString::number(start) );
 
     setRequestType(Collections);
@@ -171,6 +180,8 @@ void ReadFromZotero::fetchCollection(const QString &collection )
     if(!m_psd.pwd.isEmpty()) {
         apiCommand.append( QLatin1String("&key=") + m_psd.pwd);
     }
+
+    apiCommand.append( m_searchFilter );
 
     setRequestType(Collections);
     startRequest(apiCommand);
@@ -308,18 +319,50 @@ Entry * ReadFromZotero::readItemEntry(QXmlStreamReader &xmlReader)
     while(!finishEntry) {
         bool startelement = xmlReader.readNextStartElement();
 
-        // skip attachment items here!
-        if(startelement && xmlReader.name() == QLatin1String("zapi:itemType")) {
-            QString itemType = xmlReader.readElementText();
+        if(xmlReader.name() == QLatin1String("link")) {
+            QXmlStreamAttributes linkAttributes = xmlReader.attributes();
 
-            if(itemType == QLatin1String("attachment") ||
-               itemType == QLatin1String("note") ) {
-                delete e;
-                return 0;
+            // only parse the link entry that gives us the parent item
+            if(QLatin1String("up") == linkAttributes.value(QLatin1String("rel")) ) {
+                QString href = linkAttributes.value(QLatin1String("href")).toString();
+
+                // fetch the next start suggesstion
+                QRegExp rxStart(QLatin1String("items/(\\w+)"));
+                int pos = rxStart.indexIn(href);
+                if (pos > -1) {
+                    QString itemParent = rxStart.cap(1);
+                    PlainText *zParent = new PlainText(itemParent);
+                    Value zpValue;
+                    zpValue.append(QSharedPointer<ValueItem>(zParent));
+                    e->insert(QLatin1String("zoteroParent"), zpValue);
+                }
+                else {
+                    qWarning() << "could not parse parent item for the note/attachment!";
+                }
+            }
+            else if(QLatin1String("enclosure") == linkAttributes.value(QLatin1String("rel")) ) {
+                QString itemFileSize = linkAttributes.value(QLatin1String("length")).toString();
+                PlainText *zFileSize = new PlainText(itemFileSize);
+                Value zfsValue;
+                zfsValue.append(QSharedPointer<ValueItem>(zFileSize));
+                e->insert(QLatin1String("zoteroAttachmentFileSize"), zfsValue);
             }
         }
-
-        if(startelement && xmlReader.name() == QLatin1String("key")) {
+        else if(startelement && xmlReader.name() == QLatin1String("zapi:itemType")) {
+            QString itemType = xmlReader.readElementText();
+            PlainText *zType = new PlainText(itemType);
+            Value ztValue;
+            ztValue.append(QSharedPointer<ValueItem>(zType));
+            e->insert(QLatin1String("zoteroType"), ztValue);
+        }
+        else if(startelement && xmlReader.name() == QLatin1String("title")) {
+            QString zoteroTitle = xmlReader.readElementText();
+            PlainText *zTitle = new PlainText(zoteroTitle);
+            Value ztValue;
+            ztValue.append(QSharedPointer<ValueItem>(zTitle));
+            e->insert(QLatin1String("zoteroTitle"), ztValue);
+        }
+        else if(startelement && xmlReader.name() == QLatin1String("key")) {
             QString key = xmlReader.readElementText();
             PlainText *zKey = new PlainText(key);
             Value zkValue;
@@ -374,6 +417,11 @@ void ReadFromZotero::readJsonContent(Entry *e, const QString &content)
 File *ReadFromZotero::getFile()
 {
     return m_bibFile;
+}
+
+void ReadFromZotero::setSearchFilter(const QString &filter)
+{
+    m_searchFilter = filter;
 }
 
 void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)

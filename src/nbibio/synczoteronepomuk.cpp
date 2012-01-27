@@ -53,6 +53,12 @@
 
 #include <QtCore/QTimer>
 
+//DEBUG
+#include <QtCore/QFile>
+#include <kbibtex/fileexporterbibtex.h>
+
+using namespace Nepomuk::Vocabulary;
+
 SyncZoteroNepomuk::SyncZoteroNepomuk(QObject *parent)
     : NBibSync(parent)
     , m_rfz(0)
@@ -92,16 +98,23 @@ void SyncZoteroNepomuk::startDownload()
         m_syncSteps = 4;
         m_curStep = 0;
 
-        if(!m_corruptedUploads.isEmpty())
+        if(!m_corruptedUploads.isEmpty()) {
+            m_syncSteps++; // need to add another step, increase here to make calculation 0-100 orrect again
+        }
+
+        if(!m_psd.importAttachments) {
             m_syncSteps++;
+        }
     }
     else {
         m_curStep++;
     }
+
     emit calculateProgress(0);
 
-    if(m_cancel)
+    if(m_cancel) {
         mergeFinished(); // cancel and clean up correctly
+    }
 
     //lets start by retrieving all items from the server and merge them with the current data
     connect(m_rfz, SIGNAL(itemsInfo(File)), this, SLOT(readDownloadSync(File)));
@@ -113,11 +126,10 @@ void SyncZoteroNepomuk::readDownloadSync(const File &zoteroData)
     m_bibCache.clear();
     m_bibCache.append(zoteroData);
 
-    // special case if we redo the download because a previous update left us with corrupted data
-    // we fix it here.
+    // special case if we redo the download because a previous update left us with corrupted data we fix it here.
     // will only solve the error when:
     // * New items are uploaded to the server and successfully created
-    // * but te hsrever returned teh "internal server error" message instead the item info with the zoterokey + etag value
+    // * but thw server returned the "internal server error" message instead the item info with the zoterokey + etag value
     if(!m_corruptedUploads.isEmpty()) {
         emit progressStatus(i18n("Fix previous corrupted upload"));
         m_curStep++;
@@ -134,8 +146,9 @@ void SyncZoteroNepomuk::readDownloadSync(const File &zoteroData)
 
     kDebug() << m_tmpUserDeleteRequest.size() << "items removed on the server remove them in the localstorage too";
 
-    if(m_cancel)
+    if(m_cancel) {
         return;
+    }
 
     // now we have all files from the server and those that should be removed
     if(m_tmpUserDeleteRequest.isEmpty()) {
@@ -158,6 +171,7 @@ void SyncZoteroNepomuk::readDownloadSyncAfterDelete(const File &zoteroData)
 {
     File newEntries;
     QList<Nepomuk::Resource> existingItems;
+
     // find all duplicate entries and merge them if the user specified the UseLocal or UseServer merge
     findDuplicates(zoteroData, newEntries, m_tmpUserMergeRequest, existingItems);
 
@@ -168,8 +182,11 @@ void SyncZoteroNepomuk::readDownloadSyncAfterDelete(const File &zoteroData)
             emit userMerge(m_tmpUserMergeRequest);
         }
         else {
-            // do the automatic sync use eithe rthe version from zotero or keep the local changes
+            // do the automatic sync use either the version from zotero or keep the local changes
             foreach(const SyncDetails &sd, m_tmpUserMergeRequest) {
+
+                //TODO Normal/attachment path
+
                 BibTexToNepomukPipe mergePipe;
                 mergePipe.setSyncDetails(m_psd.url, m_psd.userName);
 
@@ -218,14 +235,15 @@ void SyncZoteroNepomuk::readDownloadSyncAfterDelete(const File &zoteroData)
             m_btnp->setAkonadiAddressbook(contactBook);
         }
 
+        // TODO Normal / attachment path
         m_btnp->pipeExport(newEntries);
 
-        m_curStep++;
+        m_curStep++; // step for the merging
         emit calculateProgress(50);
     }
     else {
         kDebug() << "no new items for the import found";
-        m_curStep++; // step for the push new data to zotero
+        m_curStep++; // skip step for the push new data to zotero
         m_curStep++; // step for the merging
         emit calculateProgress(50);
     }
@@ -246,24 +264,64 @@ void SyncZoteroNepomuk::readDownloadSyncAfterDelete(const File &zoteroData)
 void SyncZoteroNepomuk::mergeFinished()
 {
     emit calculateProgress(100);
+
     //we finished everything, so cleanup
     delete m_btnp;
     m_btnp = 0;
+
     m_rfz->deleteLater();
     m_rfz = 0;
 
     if(m_cancel) {
-        return;
         emit syncFinished();
+        return;
     }
 
-    if(m_syncMode) {
-        // give nepomuk some time to recognize that we pushed new items into it
-        QTimer::singleShot(5000, this, SLOT(startUpload()));
+    if(m_psd.importAttachments) {
+        startAttachmentDownload();
     }
     else {
-        emit syncFinished();
+
+        if(m_syncMode) {
+            // give nepomuk some time to recognize that we pushed new items into it
+            QTimer::singleShot(5000, this, SLOT(startUpload()));
+        }
+        else {
+            emit syncFinished();
+        }
     }
+}
+
+void SyncZoteroNepomuk::startAttachmentDownload()
+{
+    m_rfz = new ReadFromZotero;
+    m_rfz->setProviderSettings(m_psd);
+    m_rfz->setAdoptBibtexTypes(true);
+    connect(m_rfz, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
+
+    // if we started the download independently, initialise sync steps for progress calculation
+    if(m_curStep == 0) {
+        m_syncSteps = 4;
+    }
+    else {
+        m_curStep++;
+    }
+
+    emit progressStatus(i18n("Start to download attachments"));
+
+    // restrict zotero download to notes and attachments
+    m_rfz->setSearchFilter(QLatin1String("&itemType=note%20||%20attachment"));
+
+    connect(m_rfz, SIGNAL(itemsInfo(File)), this, SLOT(readDownloadAttachmentSync(File)));
+    m_rfz->fetchItems(m_psd.collection);
+}
+
+void SyncZoteroNepomuk::readDownloadAttachmentSync(const File &zoteroData)
+{
+}
+
+void SyncZoteroNepomuk::attachmentDownloadFinished()
+{
 }
 
 void SyncZoteroNepomuk::startUpload()
@@ -298,7 +356,7 @@ void SyncZoteroNepomuk::startUpload()
     emit calculateProgress(0);
 
     Nepomuk::Query::AndTerm andTerm;
-    andTerm.addSubTerm(  Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Reference() ) );
+    andTerm.addSubTerm(  Nepomuk::Query::ResourceTypeTerm(  NBIB::Reference() ) );
 
     // if we sync with a Library project restrict the nepomuk resources
     // to only thouse in this project
@@ -306,7 +364,7 @@ void SyncZoteroNepomuk::startUpload()
         Nepomuk::Query::OrTerm orTerm;
         orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
         Nepomuk::Query::ResourceTerm( m_libraryToSyncWith->settings()->projectTag() )));
-        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(),
+        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm(  PIMO::isRelated(),
         Nepomuk::Query::ResourceTerm(m_libraryToSyncWith->settings()->projectThing() )));
         andTerm.addSubTerm(orTerm);
     }
@@ -516,7 +574,7 @@ void SyncZoteroNepomuk::removeFilesFromGroup()
     QStringList idsToBeRemoved;
     foreach(const Nepomuk::Query::Result &nqr, queryResult) {
         Nepomuk::Resource syncRes = nqr.resource();
-        idsToBeRemoved.append( syncRes.property( Nepomuk::Vocabulary::SYNC::id() ).toString() );
+        idsToBeRemoved.append( syncRes.property(  SYNC::id() ).toString() );
     }
 
     connect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(removeFilesFromZotero()));
@@ -572,8 +630,8 @@ void SyncZoteroNepomuk::removeFilesFromZotero()
     foreach(const Nepomuk::Query::Result &nqr, queryResult) {
         Nepomuk::Resource syncRes = nqr.resource();
         QPair<QString, QString> item;
-        item.first = syncRes.property( Nepomuk::Vocabulary::SYNC::id() ).toString();
-        item.second = syncRes.property( Nepomuk::Vocabulary::SYNC::etag() ).toString();
+        item.first = syncRes.property(  SYNC::id() ).toString();
+        item.second = syncRes.property(  SYNC::etag() ).toString();
         idsToBeRemoved.append(item);
         m_syncDataToBeRemoved.append(syncRes);
     }
@@ -628,7 +686,7 @@ void SyncZoteroNepomuk::cancel()
 
 void SyncZoteroNepomuk::deleteLocalFiles(bool deleteThem)
 {
-    // now move through all all entries the user wants to be removed
+    // now move through all entries the user wants to be removed
     foreach(SyncDetails sd, m_tmpUserDeleteRequest) { // krazy:exclude=foreach
 
         if(m_cancel) { return; }
@@ -637,7 +695,7 @@ void SyncZoteroNepomuk::deleteLocalFiles(bool deleteThem)
             // if we operate on the system library remove the resources completely
             // if we operate only on a project, remove only the isRelated part
             // after all the resource could be part of a different group too
-            Nepomuk::Resource publication = sd.syncResource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+            Nepomuk::Resource publication = sd.syncResource.property( NBIB::publication()).toResource();
 
             if(m_libraryToSyncWith->libraryType() == Library_Project) {
                 m_libraryToSyncWith->removeResource(publication);
@@ -651,14 +709,13 @@ void SyncZoteroNepomuk::deleteLocalFiles(bool deleteThem)
             if(m_libraryToSyncWith->libraryType() == Library_System) {
                 // the user decided to keep the file in his storage so we want to upload it again next time we upload files
                 // we simply remove the sync::ServerSyncData so the item will be uploaded as a new item in zotero
-                Nepomuk::Resource publication = sd.syncResource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-                publication.removeProperty(Nepomuk::Vocabulary::SYNC::serverSyncData());
-                Nepomuk::Resource reference = sd.syncResource.property(Nepomuk::Vocabulary::NBIB::reference()).toResource();
-                reference.removeProperty(Nepomuk::Vocabulary::SYNC::serverSyncData());
+                Nepomuk::Resource publication = sd.syncResource.property( NBIB::publication()).toResource();
+                publication.removeProperty( SYNC::serverSyncData());
+                Nepomuk::Resource reference = sd.syncResource.property( NBIB::reference()).toResource();
+                reference.removeProperty( SYNC::serverSyncData());
                 sd.syncResource.remove();
             }
-            // in the case of an project library next time we upload all items in the project will be added
-            // again to the group, so will this also
+            // in the case of an project library next time we upload, all items will be added again to the right group
         }
     }
 
@@ -686,12 +743,12 @@ void SyncZoteroNepomuk::findDuplicates(const File &zoteroData, File &newEntries,
 
         // define what we are looking for in the nepomuk storage
         Nepomuk::Query::AndTerm andTerm;
-        andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::SYNC::ServerSyncData() ) );
-        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::SYNC::provider(), Nepomuk::Query::LiteralTerm( "zotero" ) ));
-        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::SYNC::userId(), Nepomuk::Query::LiteralTerm( m_psd.userName ) ));
-        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::SYNC::url(), Nepomuk::Query::LiteralTerm( m_psd.url ) ));
+        andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm(  SYNC::ServerSyncData() ) );
+        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm(  SYNC::provider(), Nepomuk::Query::LiteralTerm( "zotero" ) ));
+        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm(  SYNC::userId(), Nepomuk::Query::LiteralTerm( m_psd.userName ) ));
+        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm(  SYNC::url(), Nepomuk::Query::LiteralTerm( m_psd.url ) ));
         QString itemID = PlainTextValue::text(entry->value( QLatin1String("zoterokey")) );
-        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::SYNC::id(),  Nepomuk::Query::LiteralTerm( itemID )));
+        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm(  SYNC::id(),  Nepomuk::Query::LiteralTerm( itemID )));
         Nepomuk::Query::Query query( andTerm );
 
         QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
@@ -703,23 +760,25 @@ void SyncZoteroNepomuk::findDuplicates(const File &zoteroData, File &newEntries,
         // we found something, means we need to check if it changed on the server
         else {
             if(queryResult.size() > 1) {
-                qWarning() << "database error, found more than 1 item to sync the zotero data to size::" << queryResult.size();
+                qWarning() << "database error, found more than 1 item to sync the zotero data to. size::" << queryResult.size() << "item" << itemID;
             }
 
             Nepomuk::Resource syncResource = queryResult.first().resource();
 
-            QString localEtag = syncResource.property(Nepomuk::Vocabulary::SYNC::etag()).toString();
+            QString localEtag = syncResource.property( SYNC::etag()).toString();
             QString serverEtag = PlainTextValue::text(entry->value(QLatin1String("zoteroetag")));
 
-            Nepomuk::Resource publication = syncResource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-            Nepomuk::Resource reference = syncResource.property(Nepomuk::Vocabulary::NBIB::reference()).toResource();
+            //TODO Normal / attachment path
+
+            Nepomuk::Resource publication = syncResource.property( NBIB::publication()).toResource();
+            Nepomuk::Resource reference = syncResource.property( NBIB::reference()).toResource();
 
             if(reference.isValid() && publication.isValid()) {
                 if(m_libraryToSyncWith->libraryType() == Library_Project) {
-                    QList<Nepomuk::Resource> relatedTo = reference.property(Nepomuk::Vocabulary::PIMO::isRelated()).toResourceList();
+                    QList<Nepomuk::Resource> relatedTo = reference.property( PIMO::isRelated()).toResourceList();
 
                     if( !relatedTo.contains(m_libraryToSyncWith->settings()->projectThing()) ) {
-                        // so if the item is not realted to the project that we sync with this group anymore
+                        // so if the item is not related to the project that we sync with this group anymore
                         // this means in conclusion we removed it from the project and should therefore remove it also from
                         // the server group
                         continue;
@@ -778,6 +837,7 @@ void SyncZoteroNepomuk::findRemovedEntries(const File &zoteroData, QList<SyncDet
                          "?publication pimo:isRelated <" + m_libraryToSyncWith->settings()->projectThing().resourceUri().toString() + "> . ";
     }
 
+    //TODO Normal / attachment path
     QString query = "select DISTINCT ?r where {  "
                     "?r a sync:ServerSyncData . "
                     "?r sync:provider ?provider . FILTER regex(?provider, \"" + m_psd.providerInfo->providerId() + "\") "
@@ -791,7 +851,7 @@ void SyncZoteroNepomuk::findRemovedEntries(const File &zoteroData, QList<SyncDet
     QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
 
     // the results contain now only those syncDataObjects that are part of the Project (or system library) and are not
-    // part of the zotero group (or on the zotero server at all)
+    // part of the zotero group (or on the zotero server at all, depending what we synced with)
     foreach(const Nepomuk::Query::Result &nqr, queryResult) {
         Nepomuk::Resource syncRes = nqr.resource();
 
@@ -824,8 +884,10 @@ void SyncZoteroNepomuk::updateSyncDetailsToNepomuk(const QString &id, const QStr
     }
 
     Nepomuk::Resource syncDetails = results.first().resource();
-    Nepomuk::Resource publication = syncDetails.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-    Nepomuk::Resource reference = syncDetails.property(Nepomuk::Vocabulary::NBIB::reference()).toResource();
+    Nepomuk::Resource publication = syncDetails.property( NBIB::publication()).toResource();
+    Nepomuk::Resource reference = syncDetails.property( NBIB::reference()).toResource();
+
+    //TODO Normal / Attachment path
 
     if(!publication.isValid()) {
         qWarning() << "writeSyncDetailsToNepomuk no valid publication found" << publication.resourceUri();
@@ -834,14 +896,14 @@ void SyncZoteroNepomuk::updateSyncDetailsToNepomuk(const QString &id, const QStr
         qWarning() << "writeSyncDetailsToNepomuk no valid reference found" << reference.resourceUri();
     }
 
-    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), m_psd.url);
+    syncDetails.setProperty( SYNC::url(), m_psd.url);
 
-    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::provider(), m_psd.providerInfo->providerId());
-    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::userId(), m_psd.userName);
-    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::id(), id);
-    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::etag(), etag);
-    syncDetails.setProperty(Nepomuk::Vocabulary::NUAO::lastModification(), updated);
-    syncDetails.setProperty(Nepomuk::Vocabulary::NBIB::publication(), publication);
+    syncDetails.setProperty( SYNC::provider(), m_psd.providerInfo->providerId());
+    syncDetails.setProperty( SYNC::userId(), m_psd.userName);
+    syncDetails.setProperty( SYNC::id(), id);
+    syncDetails.setProperty( SYNC::etag(), etag);
+    syncDetails.setProperty( NUAO::lastModification(), updated);
+    syncDetails.setProperty( NBIB::publication(), publication);
 }
 
 void SyncZoteroNepomuk::writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated)
@@ -859,33 +921,33 @@ void SyncZoteroNepomuk::writeNewSyncDetailsToNepomuk(Entry *localData, const QSt
         qWarning() << "writeSyncDetailsToNepomuk no valid publication found" << pubUri;
     }
     else {
-        syncDetails = publication.property(Nepomuk::Vocabulary::SYNC::serverSyncData()).toResource();
+        syncDetails = publication.property( SYNC::serverSyncData()).toResource();
     }
     if(!reference.isValid()) {
         qWarning() << "writeSyncDetailsToNepomuk no valid reference found" << refUri;
     }
     else if(!syncDetails.isValid()) {
-        syncDetails = publication.property(Nepomuk::Vocabulary::SYNC::serverSyncData()).toResource();
+        syncDetails = publication.property( SYNC::serverSyncData()).toResource();
     }
 
     if(!syncDetails.isValid()) {
-        syncDetails = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::SYNC::ServerSyncData());
+        syncDetails = Nepomuk::Resource(QUrl(),  SYNC::ServerSyncData());
     }
 
-    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::url(), m_psd.url);
+    syncDetails.setProperty( SYNC::url(), m_psd.url);
 
-    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::provider(), QString("zotero"));
-    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::userId(), m_psd.userName);
-    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::id(), id);
-    syncDetails.setProperty(Nepomuk::Vocabulary::SYNC::etag(), etag);
-    syncDetails.setProperty(Nepomuk::Vocabulary::NUAO::lastModification(), updated);
-    syncDetails.setProperty(Nepomuk::Vocabulary::NBIB::publication(), publication);
+    syncDetails.setProperty( SYNC::provider(), QString("zotero"));
+    syncDetails.setProperty( SYNC::userId(), m_psd.userName);
+    syncDetails.setProperty( SYNC::id(), id);
+    syncDetails.setProperty( SYNC::etag(), etag);
+    syncDetails.setProperty( NUAO::lastModification(), updated);
+    syncDetails.setProperty( NBIB::publication(), publication);
 
-    publication.setProperty(Nepomuk::Vocabulary::SYNC::serverSyncData(), syncDetails);
+    publication.setProperty( SYNC::serverSyncData(), syncDetails);
 
     if(reference.isValid()) {
-        syncDetails.setProperty(Nepomuk::Vocabulary::NBIB::reference(), reference);
-        reference.setProperty(Nepomuk::Vocabulary::SYNC::serverSyncData(), syncDetails);
+        syncDetails.setProperty( NBIB::reference(), reference);
+        reference.setProperty( SYNC::serverSyncData(), syncDetails);
     }
 }
 

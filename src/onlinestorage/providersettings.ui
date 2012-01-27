@@ -271,7 +271,7 @@
         <item row="3" column="0" colspan="2">
          <widget class="QCheckBox" name="importAttachments">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
            <string>Import Attachments</string>
@@ -281,7 +281,7 @@
         <item row="3" column="2">
          <widget class="QCheckBox" name="exportAttachments">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
            <string>Export Attachments</string>
@@ -392,6 +392,7 @@
    <class>KUrlRequester</class>
    <extends>QFrame</extends>
    <header>kurlrequester.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
