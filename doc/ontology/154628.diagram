@@ -27,41 +27,41 @@ end
 relationcanvas 128260 relation_ref 287364 // <aggregation>
   decenter_begin 87
   from ref 128004 z 2001 stereotype "<<ini file>>" xyz 326 338 3000 to ref 128132
-  role_a_pos 226 358 3000 no_role_b
+  role_a_pos 223 360 3000 no_role_b
   no_multiplicity_a no_multiplicity_b
 end
 relationcanvas 129668 relation_ref 288004 // <aggregation>
   decenter_end 351
-  from ref 129028 z 2001 to point 465 168
+  from ref 129028 z 2001 to point 465 170
   line 130564 z 2001 to ref 128004
-  role_a_pos 366 221 3000 no_role_b
+  role_a_pos 372 222 3000 no_role_b
   no_multiplicity_a no_multiplicity_b
 end
 relationcanvas 129796 relation_ref 288132 // <aggregation>
   decenter_end 501
   from ref 128388 z 2007 to point 501 91
   line 130436 z 2007 to ref 128004
-  role_a_pos 403 125 3000 no_role_b
+  role_a_pos 410 123 3000 no_role_b
   no_multiplicity_a no_multiplicity_b
 end
 relationcanvas 129924 relation_ref 288260 // <aggregation>
   decenter_end 707
   from ref 128772 z 2001 to point 550 87
   line 130180 z 2001 to ref 128004
-  role_a_pos 589 215 3000 no_role_b
+  role_a_pos 561 119 3000 no_role_b
   no_multiplicity_a no_multiplicity_b
 end
 relationcanvas 130052 relation_ref 288388 // <aggregation>
   decenter_end 824
   from ref 128900 z 2001 to point 578 162
   line 130308 z 2001 to ref 128004
-  role_a_pos 564 121 3000 no_role_b
+  role_a_pos 589 216 3000 no_role_b
   no_multiplicity_a no_multiplicity_b
 end
 relationcanvas 130948 relation_ref 288516 // <aggregation>
   from ref 128132 z 2001 to point 501 411
   line 131076 z 2001 to ref 128004
-  no_role_a no_role_b
+  role_a_pos 513 337 3000 no_role_b
   no_multiplicity_a no_multiplicity_b
 end
 end

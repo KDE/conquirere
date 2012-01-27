@@ -157,6 +157,11 @@ void SyncZoteroDialog::popMergeDialog(QList<SyncDetails> items)
     ProviderSyncDetails psd = m_ps->providerSettingsDetails();
 
     foreach(const SyncDetails &sd, items) {
+        // ignore for now ...
+        if(sd.externalResource->type() == QLatin1String("note"))
+            continue;
+        if(sd.externalResource->type() == QLatin1String("attachment"))
+            continue;
         BibTexToNepomukPipe mergePipe;
         mergePipe.setSyncDetails(psd.url, psd.userName);
         mergePipe.merge(sd.syncResource, sd.externalResource, false);

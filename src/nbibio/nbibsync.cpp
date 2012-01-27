@@ -17,6 +17,8 @@
 
 #include "nbibsync.h"
 
+#include <KDE/KDebug>
+
 NBibSync::NBibSync(QObject *parent)
     : QObject(parent)
     , m_systemLibrary(0)
@@ -64,6 +66,8 @@ void NBibSync::calculateProgress(int value)
     qreal curProgress = ((qreal)value * 1.0/m_syncSteps);
 
     curProgress += (qreal)(100.0/m_syncSteps) * m_curStep;
+
+    kDebug() << curProgress << m_syncSteps << m_curStep;
 
     emit progress(curProgress);
 }

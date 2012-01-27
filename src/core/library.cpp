@@ -272,18 +272,13 @@ void Library::removeResource(Nepomuk::Resource & res)
 
 void Library::deleteResource(Nepomuk::Resource & resource)
 {
-    Q_ASSERT_X( resource.hasType(Nepomuk::Vocabulary::NBIB::Publication()) ||
-    resource.hasType(Nepomuk::Vocabulary::NBIB::Reference()),
-    "deleteResource",
-    "only delete publications or references with this method, delete anything else on your own");
-
     if( resource.hasType(Nepomuk::Vocabulary::NBIB::Reference() ) ) {
         Nepomuk::Resource publication = resource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
         publication.removeProperty(Nepomuk::Vocabulary::NBIB::reference(), resource );
 
         emit resourceCacheNeedsUpdate(publication);
     }
-    else {
+    else if( resource.hasType(Nepomuk::Vocabulary::NBIB::Publication()) ){
         Nepomuk::Resource series = resource.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
         QList<Nepomuk::Resource> seriesPubilcations = series.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
         if(seriesPubilcations.isEmpty()) {
@@ -307,7 +302,7 @@ void Library::deleteResource(Nepomuk::Resource & resource)
         }
     }
 
-    // finally remove teh resource from teh nepomuk storage
+    // finally remove the resource from teh nepomuk storage
     resource.remove();
 }
 

@@ -78,6 +78,7 @@ public slots:
     void startDownload();
     void startAttachmentDownload();
     void startUpload();
+    void startAttachmentUpload();
     void startSync();
     void cancel();
 
@@ -91,15 +92,13 @@ private slots:
     void readDownloadSync(const File &zoteroData);
     void readDownloadSyncAfterDelete(const File &zoteroData);
 
-    void readDownloadAttachmentSync(const File &zoteroData);
-
     /**
       * process syncdata retrived from zotero server when new items are send to the server
       */
     void readUploadSync();
 
-    // after we are finsihed uploading all new and changed items, we start to remove all entries
-    // that are removed on the local side and mus tbe removed also from the serverside
+    // after we are finished uploading all new and changed items, we start to remove all entries
+    // that are removed on the local side and must be removed also from the serverside
     void removeFilesFromGroup();
     void removeFilesFromZotero();
     void cleanupAfterUpload();
@@ -115,7 +114,6 @@ private slots:
     void updateSyncDetailsToNepomuk(const QString &id, const QString &etag, const QString &updated);
 
 private:
-    void attachmentDownloadFinished();
     /**
       * Does what is say. It find the entry in the Nepomuk storage that is used to sync data with the zotero storage
       *
@@ -150,6 +148,22 @@ private:
       */
     void fixCorrputedUpload(File &zoteroData);
 
+    /**
+      * Goes through the list of m_tmpUserMergeRequest and fixes the problems on its own
+      *
+      * Means the user specified either to use always the server or always the local version
+      * To solve the problem
+      */
+    void fixMergingAutomatically();
+    void mergingNoteAutomatically(const SyncDetails &sd);
+
+    void importNewBibResources(File &newEntries);
+    void importNewAttachments(File &newEntries);
+    void importNewNote(Entry *e);
+    void importNewFile(Entry *e);
+
+    QSharedPointer<Element> transformAttachmentToBibTeX(Nepomuk::Resource resource);
+
 private:
     ReadFromZotero *m_rfz;
     WriteToZotero *m_wtz;
@@ -157,6 +171,7 @@ private:
     NepomukToBibTexPipe *m_ntbp;
     File m_bibCache;
     bool m_syncMode;
+    bool m_attachmentMode;
     bool m_cancel;
     QList<SyncDetails> m_tmpUserDeleteRequest;
     QList<SyncDetails> m_tmpUserMergeRequest;

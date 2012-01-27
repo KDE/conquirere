@@ -81,7 +81,7 @@ relationcanvas 131588 relation_ref 204548 // <aggregation>
   from ref 128900 z 2019 to point 620 616
   line 131716 z 2019 to point 691 616
   line 131844 z 2019 to ref 128900
-  role_a_pos 703 581 3000 no_role_b
+  role_a_pos 608 618 3000 no_role_b
   multiplicity_a_pos 677 581 3000 no_multiplicity_b
 end
 relationcanvas 132228 relation_ref 204932 // <generalisation>

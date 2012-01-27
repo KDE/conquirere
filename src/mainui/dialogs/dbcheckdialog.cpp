@@ -35,6 +35,8 @@
 #include <Nepomuk/Query/QueryParser>
 #include <Nepomuk/Tag>
 
+#include <Nepomuk/Variant>
+
 #include <QDebug>
 
 using namespace Nepomuk::Vocabulary;
@@ -108,6 +110,18 @@ void DbCheckDialog::checkSeries()
 
     Nepomuk::Query::Query queryTEST(term);
     qDebug() << myTag.resourceUri().toString();
+
+    Nepomuk::Resource syncTest = Nepomuk::Resource(QUrl());
+    syncTest.addType(Nepomuk::Vocabulary::SYNC::ServerSyncData());
+    QUrl x = Nepomuk::Vocabulary::SYNC::Attachment();
+    syncTest.setProperty(Nepomuk::Vocabulary::SYNC::syncDataType(), x);
+    syncTest.setProperty(Nepomuk::Vocabulary::SYNC::id(), "yay");
+
+    Nepomuk::Resource syncTest2 = Nepomuk::Resource(QUrl());
+    syncTest2.addType(Nepomuk::Vocabulary::SYNC::ServerSyncData());
+    QUrl y = Nepomuk::Vocabulary::SYNC::Note();
+    syncTest2.setProperty(Nepomuk::Vocabulary::SYNC::syncDataType(), y);
+    syncTest2.setProperty(Nepomuk::Vocabulary::SYNC::id(), "yay1234");
 
      m_queryClient->sparqlQuery( query );
      ui->infoLabel->setText(i18n("processing query"));

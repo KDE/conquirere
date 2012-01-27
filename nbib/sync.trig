@@ -120,7 +120,7 @@ sync: {
 #
 # To express what kind of syncdata we represent here
 # Help to find deleted resource
-# thus if a ServerSyncData that represents an attachment but has no valid resource set fpr sync:attachment means we deleted it
+# thus if a ServerSyncData that represents an attachment but has no valid resource set for sync:attachment means we deleted it
 # locally. On the next online storage sync we remove it also from the server
 
     sync:SyncDataType
@@ -144,10 +144,21 @@ sync: {
           rdfs:comment "Sync data BibResource (Publication and/or Reference" ;
           rdfs:label "BibResource" .
 
+    sync:syncDataType
+          a       rdf:Property ;
+          rdfs:domain sync:ServerSyncData ;
+          rdfs:comment "Saves which SyncDataType enum value this resource represents (Note, Attachment, BibResource)" ;
+          rdfs:label "syncDataType" ;
+          rdfs:range sync:SyncDataType ;
+          nrl:cardinality 1 ;
+          nrl:maxCardinality 1 .
+
 #############################################################
 #
 # connection to the NBIB ontology
 #
+# Todo domain must be nie:InformationElement and pimo:Note ...
+
     sync:serverSyncData
           a       rdf:Property ;
           rdfs:domain nie:InformationElement ;

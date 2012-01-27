@@ -1507,6 +1507,7 @@ const QString &etag, const QString &updated)
         syncDetails = Nepomuk::Resource(QUrl(), SYNC::ServerSyncData());
     }
 
+    syncDetails.setProperty(SYNC::syncDataType(), SYNC::BibResource());
     syncDetails.setProperty(SYNC::provider(), QString("zotero"));
     syncDetails.setProperty(SYNC::url(), m_syncUrl);
     syncDetails.setProperty(SYNC::userId(), m_syncUserId);

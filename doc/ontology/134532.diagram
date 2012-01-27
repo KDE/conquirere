@@ -145,7 +145,7 @@ relationcanvas 132740 relation_ref 187908 // <aggregation>
   decenter_begin 55
   decenter_end 96
   from ref 128004 z 3006 to ref 132356
-  role_a_pos 454 104 3000 no_role_b
+  role_a_pos 356 123 3000 no_role_b
   multiplicity_a_pos 426 104 3000 no_multiplicity_b
 end
 relationcanvas 133124 relation_ref 189572 // <aggregation>

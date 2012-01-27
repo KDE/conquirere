@@ -373,7 +373,7 @@ void WriteToZotero::requestFinished()
 
     // so we do have a responce from an item creation request which did not return the "internal server error"
     // remove the items from this list
-    if(updateEntry.isNull()) {
+    if(updateEntry.isNull() && !m_failedItemPush.isEmpty()) {
         m_failedItemPush.takeLast();
     }
 

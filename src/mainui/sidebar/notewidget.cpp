@@ -105,20 +105,11 @@ void NoteWidget::saveNote()
 
     // these exist because of the Semnote implementation
     m_note.setProperty(Soprano::Vocabulary::NAO::prefLabel(), ui->editTitle->text());
-    m_note.setProperty(QUrl(QLatin1String("http://purl.org/dc/elements/1.1/title")), ui->editTitle->text());
 
     //now the content for Notably style directly to the PIMO:note
     m_note.setProperty(Nepomuk::Vocabulary::NIE::plainTextContent(), ui->editContent->document()->toPlainText());
     m_note.setProperty(Nepomuk::Vocabulary::NIE::htmlContent(), ui->editContent->document()->toHtml());
 
-    //now Semnotes style, as an additional resource of type HtmlDocument with content "html content"
-    Nepomuk::Resource nr = m_note.property(Nepomuk::Vocabulary::PIMO::groundingOccurrence()).toResource();
-    if(!nr.isValid()) {
-        nr = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NFO::HtmlDocument());
-        m_note.setProperty(Nepomuk::Vocabulary::PIMO::groundingOccurrence(), nr);
-    }
-
-    nr.setProperty(Nepomuk::Vocabulary::NIE::htmlContent(), ui->editContent->document()->toHtml());
     emit resourceCacheNeedsUpdate(m_note);
 }
 
@@ -131,22 +122,9 @@ void NoteWidget::discardNote()
     if(title.isEmpty())
         title = m_note.property(Soprano::Vocabulary::NAO::prefLabel()).toString();
 
-    // these exist because of the Semnote implementation
-    if(title.isEmpty())
-        title = m_note.property(QUrl(QLatin1String("http://purl.org/dc/elements/1.1/title"))).toString();
-
     ui->editTitle->setText(title);
 
-    //Notably saves the content in PIMO:Note=>plaintextContent And htmlContent
-    QString content;
-
-    content = m_note.property(Nepomuk::Vocabulary::NIE::htmlContent()).toString();
-
-    //Semnotes saves it as additional Resource of type HTMLDocument and links it via groundingOccurence
-    if(content.isEmpty()) {
-        Nepomuk::Resource nr = m_note.property(Nepomuk::Vocabulary::PIMO::groundingOccurrence()).toResource();
-        content = nr.property(Nepomuk::Vocabulary::NIE::htmlContent()).toString();
-    }
+    QString content = m_note.property(Nepomuk::Vocabulary::NIE::htmlContent()).toString();
 
     ui->editContent->document()->setHtml(content);
 }
