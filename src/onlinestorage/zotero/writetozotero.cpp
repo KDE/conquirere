@@ -103,8 +103,6 @@ void WriteToZotero::pushNewItems(const File &items, const QString &collection)
         return;
     }
 
-    kDebug() << items.size();
-
     // we can upload a maximum of 50 items per request
     if(items.size() > MAX_ITEMS_TO_PUSH) {
         m_allRequestsSend = false;
@@ -120,7 +118,6 @@ void WriteToZotero::pushNewItems(const File &items, const QString &collection)
         }
         m_failedItemPush.append(smallList); // will be removed from this list when the zotero server did not return "Internal server error"
         pushNewItems(smallList, collection);
-        m_allRequestsSend = true;
     }
     else {
         //POST /users/1/items
@@ -129,16 +126,32 @@ void WriteToZotero::pushNewItems(const File &items, const QString &collection)
 
         QString pushString = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items");
 
+        // This is a special occasion. When we add child notes (attachments) to an item. We add all items in "items"
+        // to the same parent, so if we specified a parent, we now that all following items are an attachment
+        QSharedPointer<Element> attachmentItem = items.first();
+        Entry *entry = dynamic_cast<Entry *>(attachmentItem.data());
+        if(!entry) { return; }
+        QString attachmentparent = PlainTextValue::text( entry->value(QLatin1String("zoteroParent")) );
+
+        kDebug() << "push new item with parent" << attachmentparent;
+
+        if(!attachmentparent.isEmpty()) {
+            pushString.append( QLatin1String("/") + attachmentparent + QLatin1String("/children"));
+        }
+
         if(!m_psd.pwd.isEmpty()) {
             pushString.append(QLatin1String("?key=") + m_psd.pwd);
         }
         QUrl pushUrl(pushString);
+
+        kDebug() << pushString;
 
         QNetworkRequest request(pushUrl);
         request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
         //request.setRawHeader("X-Zotero-Write-Token", etag);
 
         startRequest(request, writeJsonContent(items), QNetworkAccessManager::PostOperation);
+        m_allRequestsSend = true;
     }
 }
 
@@ -464,6 +477,16 @@ QByteArray WriteToZotero::writeJsonContent(const File &items, bool onlyUpdate)
     foreach(QSharedPointer<Element> element, items) {
         Entry *entry = dynamic_cast<Entry *>(element.data());
         if(!entry) {
+            continue;
+        }
+
+        // attachment types note and file attachment
+        if(entry->type().toLower() == QLatin1String("note")) {
+            itemList.append( createNoteJson( entry ) );
+            continue;
+        }
+        else if(entry->type().toLower() == QLatin1String("attachment")) {
+            itemList.append( createAttachmentJson( entry ) );
             continue;
         }
 
@@ -2076,7 +2099,20 @@ QVariantMap WriteToZotero::createNoteJson(Entry *e)
     QVariantMap jsonMap;
 
     jsonMap.insert(QLatin1String("itemType"),QLatin1String("note"));
-    jsonMap.insert(QLatin1String("note"),QLatin1String("text"));
+
+    jsonMap.insert(QLatin1String("note"), PlainTextValue::text(e->value(QLatin1String("note"))));
+    jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
+
+    return jsonMap;
+}
+
+QVariantMap WriteToZotero::createAttachmentJson(Entry *e)
+{
+    qWarning() << "attachment upload is currently not supported by the normal zotero write api :(";
+    QVariantMap jsonMap;
+
+    jsonMap.insert(QLatin1String("itemType"),QLatin1String("attachment"));
+//    jsonMap.insert(QLatin1String("note"),QLatin1String("text"));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
 
     return jsonMap;

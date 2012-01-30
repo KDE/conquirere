@@ -104,6 +104,16 @@ private slots:
     void cleanupAfterUpload();
 
     /**
+      * Attachment uploads are a tiny bit different as we have to take care about
+      * its parent. Also as this contains large binary blogs (pdf etc) we should do this
+      * one by one.
+      *
+      * this slot calls itself recursive and always takes the next attachment from m_attachmentsToUpload
+      * until it is finished.
+      */
+    void uploadNextAttachment();
+
+    /**
       * When an item was changed on the server side a new etag value is generated
       *
       * The etag valued determines if the item changed on the server and is necessary when we download or upload the file again
@@ -134,8 +144,10 @@ private:
 
     /**
       * like updateSyncDetailsToNepomuk() but creates new sync data from new downloaded files
+      *
+      * @return the newly created sync:ServerSyncData object
       */
-    void writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated);
+    Nepomuk::Resource writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated);
 
     /**
       * This function will go through all data retrieved from the server and check it again the data from @c m_corruptedUploads
@@ -176,6 +188,8 @@ private:
     QList<SyncDetails> m_tmpUserDeleteRequest;
     QList<SyncDetails> m_tmpUserMergeRequest;
     QList<File> m_corruptedUploads;
+    File m_attachmentsToUpload;
+    File m_nextAttachment;
 
     QList<Nepomuk::Resource> m_syncDataToBeRemoved; // sync data that tells us to delete items on the server side
                                                     // will be removed when we succeed on the server side

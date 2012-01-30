@@ -53,8 +53,10 @@
 #include <KDE/KDebug>
 
 #include <QtCore/QSharedPointer>
+#include <QtGui/QTextDocument>
 
 using namespace Nepomuk::Vocabulary;
+using namespace Soprano::Vocabulary;
 
 BibTexToNepomukPipe::BibTexToNepomukPipe()
 : m_replaceMode(false)
@@ -174,6 +176,13 @@ void BibTexToNepomukPipe::import(Entry *e)
         e->setType(QLatin1String("inproceedings"));
     }
 
+    // thats a special case. Zotero allows to store bibtex entries of type note
+    // this is not the usual publication/reference but will be created as pimo:Note instead
+    if( e->type() == QLatin1String("note") ) {
+        createNoteContent(e);
+        return;
+    }
+
     //do not check duplicates, just add new resources to the system storage
     QUrl typeUrl = typeToUrl(e->type().toLower());
     Nepomuk::Resource publication = Nepomuk::Resource(QUrl(), typeUrl);
@@ -187,15 +196,7 @@ void BibTexToNepomukPipe::import(Entry *e)
     // add zotero sync details / this only adds new information
     // if we updated the details, we need to change that differently
     if(e->contains(QLatin1String("zoterokey"))) {
-        addZoteroSyncDetails(publication,
-        reference,
-        PlainTextValue::text(e->value(QLatin1String("zoterokey"))),
-        PlainTextValue::text(e->value(QLatin1String("zoteroetag"))),
-        PlainTextValue::text(e->value(QLatin1String("zoteroupdated"))));
-
-        e->remove(QLatin1String("zoterokey"));
-        e->remove(QLatin1String("zoteroetag"));
-        e->remove(QLatin1String("zoteroupdated"));
+        addZoteroSyncDetails(publication,reference,e);
     }
 
     //before we go through the whole list one by one, we take care of some special cases
@@ -358,6 +359,33 @@ void BibTexToNepomukPipe::import(Entry *e)
         publication.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectThing);
         reference.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectThing);
     }
+}
+
+
+void BibTexToNepomukPipe::createNoteContent(Entry *e)
+{
+    // create new pimo:Note
+    Nepomuk::Resource note = Nepomuk::Resource();
+    note.addType(PIMO::Note());
+
+    note.setProperty(NAO::prefLabel(), PlainTextValue::text(e->value(QLatin1String("zoterotitle"))) );
+    note.setProperty(NIE::title(), PlainTextValue::text(e->value(QLatin1String("zoterotitle"))) );
+
+    QTextDocument content;
+    content.setHtml( PlainTextValue::text(e->value(QLatin1String("note"))).simplified() );
+    note.setProperty(NIE::plainTextContent(), content.toPlainText());
+    note.setProperty(NIE::htmlContent(), content.toHtml());
+
+    Value keywords = e->value("keywords");
+    if(!keywords.isEmpty())
+        addKewords(keywords, note);
+
+
+    Nepomuk::Resource empty;
+    if(e->contains(QLatin1String("zoterokey"))) {
+        addZoteroSyncDetails(note, empty, e);
+    }
+
 }
 
 QUrl BibTexToNepomukPipe::typeToUrl(const QString & entryType)
@@ -571,15 +599,7 @@ void BibTexToNepomukPipe::merge(Nepomuk::Resource syncResource, Entry *external,
 
     // update zotero sync details
     if(diffEntry->contains(QLatin1String("zoterokey"))) {
-        addZoteroSyncDetails(publication,
-        reference,
-        PlainTextValue::text(diffEntry->value(QLatin1String("zoterokey"))),
-        PlainTextValue::text(diffEntry->value(QLatin1String("zoteroetag"))),
-        PlainTextValue::text(diffEntry->value(QLatin1String("zoteroupdated"))));
-
-        diffEntry->remove(QLatin1String("zoterokey"));
-        diffEntry->remove(QLatin1String("zoteroetag"));
-        diffEntry->remove(QLatin1String("zoteroupdated"));
+        addZoteroSyncDetails(publication, reference, diffEntry );
     }
 
     //go through the list of all remaining entries
@@ -1480,9 +1500,18 @@ void BibTexToNepomukPipe::addKewords(const Value &content, Nepomuk::Resource pub
     }
 }
 
-void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference, const QString &id,
-const QString &etag, const QString &updated)
+void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference, Entry *e)
 {
+    QString id = PlainTextValue::text(e->value(QLatin1String("zoterokey")));
+    QString etag = PlainTextValue::text(e->value(QLatin1String("zoteroetag")));
+    QString updated = PlainTextValue::text(e->value(QLatin1String("zoteroupdated")));
+    QString parentId = PlainTextValue::text(e->value(QLatin1String("zoteroparent")));
+
+    e->remove(QLatin1String("zoterokey"));
+    e->remove(QLatin1String("zoteroetag"));
+    e->remove(QLatin1String("zoteroupdated"));
+    e->remove(QLatin1String("zoteroparent"));
+
     Nepomuk::Resource syncDetails;
 
     // if we merge, we try to find existing zotero details we can update first
@@ -1504,21 +1533,85 @@ const QString &etag, const QString &updated)
 
     if(!syncDetails.isValid()) {
         kDebug() << "syncDetails is not valid create new detail resource";
-        syncDetails = Nepomuk::Resource(QUrl(), SYNC::ServerSyncData());
+        syncDetails = Nepomuk::Resource();
+        syncDetails.addType( SYNC::ServerSyncData() );
     }
 
-    syncDetails.setProperty(SYNC::syncDataType(), SYNC::BibResource());
     syncDetails.setProperty(SYNC::provider(), QString("zotero"));
     syncDetails.setProperty(SYNC::url(), m_syncUrl);
     syncDetails.setProperty(SYNC::userId(), m_syncUserId);
     syncDetails.setProperty(SYNC::id(), id);
     syncDetails.setProperty(SYNC::etag(), etag);
     syncDetails.setProperty(NUAO::lastModification(), updated);
-    syncDetails.setProperty(NBIB::publication(), publication);
-    syncDetails.setProperty(NBIB::reference(), reference);
 
-    publication.setProperty(SYNC::serverSyncData(), syncDetails);
-    reference.setProperty(SYNC::serverSyncData(), syncDetails);
+    if(e->type() == QLatin1String("note")) {
+        syncDetails.setProperty(SYNC::syncDataType(), SYNC::Note());
+
+        syncDetails.setProperty(SYNC::note(), publication);
+
+        publication.setProperty(SYNC::serverSyncData(), syncDetails);
+    }
+    else if(e->type() == QLatin1String("attachment")) {
+        syncDetails.setProperty(SYNC::syncDataType(), SYNC::Attachment());
+
+        syncDetails.setProperty(SYNC::attachment(), publication);
+        publication.setProperty(SYNC::serverSyncData(), syncDetails);
+    }
+    else {
+        syncDetails.setProperty(SYNC::syncDataType(), SYNC::BibResource());
+
+        syncDetails.setProperty(NBIB::publication(), publication);
+        syncDetails.setProperty(NBIB::reference(), reference);
+
+        publication.setProperty(SYNC::serverSyncData(), syncDetails);
+        reference.setProperty(SYNC::serverSyncData(), syncDetails);
+    }
+
+    if( parentId.isEmpty() ) {
+        return;
+    }
+
+    //now we do have a parent id, so find the parent and make the important isRealated relation
+    QString query = "select DISTINCT ?r where {  "
+                     "?r a sync:ServerSyncData . "
+                     "?r sync:provider ?provider . FILTER regex(?provider, \"zotero\") "
+                     "?r sync:userId ?userId . FILTER regex(?userId, \"" + m_syncUserId + "\") "
+                     "?r sync:url ?url . FILTER regex(?url, \"" + m_syncUrl + "\") "
+                     "?r sync:id ?id . FILTER regex(?id, \""+ parentId + "\") "
+                     "}";
+
+    QList<Nepomuk::Query::Result> results = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
+
+    if(results.size() > 1 || results.isEmpty()) {
+        kDebug() << "could not find the right sync details for the current parent item query" << "zotero" << m_syncUserId << m_syncUrl << parentId;
+        return;
+    }
+
+    Nepomuk::Resource parentSyncResource = results.first().resource();
+
+    QUrl syncDataType = parentSyncResource.property(SYNC::syncDataType()).toUrl();
+
+    if(syncDataType == SYNC::Attachment()) {
+        Nepomuk::Resource parentAttachment = parentSyncResource.property(SYNC::attachment()).toResource();
+        parentAttachment.addProperty( NAO::isRelated(), publication);
+        publication.addProperty( NAO::isRelated(), parentAttachment);
+    }
+    else if(syncDataType == SYNC::Note()) {
+        Nepomuk::Resource parentNote = parentSyncResource.property(SYNC::note()).toResource();
+        parentNote.addProperty( NAO::isRelated(), publication);
+        publication.addProperty( NAO::isRelated(), parentNote);
+    }
+    else if(syncDataType == SYNC::BibResource()) { // this should be happen to 99% of the time ...
+        Nepomuk::Resource parentPublication = parentSyncResource.property(NBIB::publication()).toResource();
+        parentPublication.addProperty( NAO::isRelated(), publication);
+        publication.addProperty( NAO::isRelated(), parentPublication);
+
+        Nepomuk::Resource parentReference = parentSyncResource.property(NBIB::reference()).toResource();
+        parentReference.addProperty( NAO::isRelated(), publication);
+        publication.addProperty( NAO::isRelated(), parentReference);
+    }
+
+    syncDetails.setProperty(NAO::isRelated(), parentSyncResource); // connect child to its parent
 }
 
 void BibTexToNepomukPipe::addContact(const Value &contentValue, Nepomuk::Resource res, QUrl property, QUrl contactType )

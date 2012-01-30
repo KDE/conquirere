@@ -166,6 +166,7 @@ private:
     QVariantMap createMapJson(Entry *e);
     QVariantMap createNewspaperArticleJson(Entry *e);
     QVariantMap createNoteJson(Entry *e);
+    QVariantMap createAttachmentJson(Entry *e);
     QVariantMap createPatentJson(Entry *e);
     QVariantMap createPodcastJson(Entry *e);
     QVariantMap createPresentationJson(Entry *e);
