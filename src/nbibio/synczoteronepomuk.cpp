@@ -76,10 +76,12 @@ SyncZoteroNepomuk::SyncZoteroNepomuk(QObject *parent)
 
 SyncZoteroNepomuk::~SyncZoteroNepomuk()
 {
+    /*
     delete m_rfz;
     delete m_wtz;
     delete m_btnp;
     delete m_ntbp;
+    */
 }
 
 void SyncZoteroNepomuk::startDownload()
@@ -284,7 +286,8 @@ void SyncZoteroNepomuk::startAttachmentDownload()
     emit progressStatus(i18n("Start to download attachments"));
 
     // restrict zotero download to notes and attachments
-    m_rfz->setSearchFilter(QLatin1String("&itemType=note%20||%20attachment"));
+//    m_rfz->setSearchFilter(QLatin1String("&itemType=note%20||%20attachment"));
+    m_rfz->setSearchFilter(QLatin1String("&itemType=note%20"));
 
     connect(m_rfz, SIGNAL(itemsInfo(File)), this, SLOT(readDownloadSync(File)));
     m_rfz->fetchItems(m_psd.collection);
@@ -632,11 +635,11 @@ void SyncZoteroNepomuk::cleanupAfterUpload()
     m_syncDataToBeRemoved.clear();
 
     //we finished everything, so cleanup
-    m_wtz->deleteLater();
-    m_wtz = 0;
+//    m_wtz->deleteLater();
+//    m_wtz = 0;
 
     //delete m_ntnp;
-    m_ntbp = 0;
+//    m_ntbp = 0;
 
     if(!m_corruptedUploads.isEmpty()) {
         emit fixingSyncError(i18n("Corrupted upload process due to \"Internal Server Error\" responce from Zotero.\n Fixing it by downloading the files from Zotero again and merge the duplicates"));
@@ -647,11 +650,10 @@ void SyncZoteroNepomuk::cleanupAfterUpload()
     calculateProgress(100);
 
     if(m_psd.exportAttachments && !m_attachmentMode) {
-        kDebug() << "startAttachmentUpload";
         startAttachmentUpload();
     }
     else {
-        kDebug() << "syncFinished";
+        kDebug() << "emit syncFinished();";
         emit syncFinished();
     }
     m_syncMode = false;
@@ -739,23 +741,20 @@ void SyncZoteroNepomuk::startAttachmentUpload()
     connect(m_wtz, SIGNAL(finished()), this, SLOT(uploadNextAttachment()));
     connect(m_wtz, SIGNAL(entryItemUpdated(QString,QString,QString)), this, SLOT(updateSyncDetailsToNepomuk(QString,QString,QString)));
 
-    m_nextAttachment.clear();
-    m_nextAttachment.append(m_attachmentsToUpload.takeFirst());
-    m_wtz->pushItems(m_nextAttachment, m_psd.collection);
+    File *narf = new File(); // ... not good but get problems with dereferencing qsharedpointern otherwise..
+    narf->append(m_attachmentsToUpload.takeFirst());
+    m_wtz->pushItems(*narf, m_psd.collection);
 }
 
 void SyncZoteroNepomuk::uploadNextAttachment()
 {
-    m_nextAttachment.clear();
-
     if(m_attachmentsToUpload.isEmpty()) {
-        kDebug() << "finished attachment upload completeley?";
         cleanupAfterUpload();
     }
     else {
-        kDebug() << "finished one attachment upload start next";
-        m_nextAttachment.append(m_attachmentsToUpload.takeFirst());
-        m_wtz->pushItems(m_nextAttachment, m_psd.collection);
+        File *narf = new File();
+        narf->append(m_attachmentsToUpload.takeFirst());
+        m_wtz->pushItems(*narf, m_psd.collection);
     }
 }
 

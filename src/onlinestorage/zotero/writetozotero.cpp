@@ -180,11 +180,6 @@ void WriteToZotero::updateItem(QSharedPointer<Element> item)
     itemFile.append(item);
     QSharedPointer<Entry> entryPointer(entry);
 
-
-
-    kDebug() << pushString << "etag" << etag;
-    kDebug() << writeJsonContent(itemFile, true);
-
     startRequest(request, writeJsonContent(itemFile, true), QNetworkAccessManager::PutOperation, entryPointer);
 }
 
