@@ -223,7 +223,7 @@ void Library::deleteLibrary()
     KConfigGroup generalGroup = config->group("General");
     QString NepomukCollection = generalGroup.readEntry( "NepomukCollection", QString() );
     Nepomuk::Resource conquiereCollections = Nepomuk::Resource(NepomukCollection);
-    conquiereCollections.removeProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectSettings->projectThing());
+    conquiereCollections.removeProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectSettings->projectThing());
 
     QList<Nepomuk::Resource> gos = m_projectSettings->projectThing().groundingOccurrences();
 
@@ -237,7 +237,7 @@ void Library::deleteLibrary()
     }
 
     // remove connection from the overall pimo collection to the deleted library
-    conquiereCollections.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), m_projectSettings->projectThing());
+    conquiereCollections.removeProperty(Soprano::Vocabulary::NAO::isRelated(), m_projectSettings->projectThing());
 
     // remove nepomuk resources for it
     m_projectSettings->projectThing().remove();
@@ -251,10 +251,10 @@ void Library::addResource(Nepomuk::Resource & res)
         return;
     }
 
-    Nepomuk::Resource relatesTo = res.property( Nepomuk::Vocabulary::PIMO::isRelated()).toResource();
+    Nepomuk::Resource relatesTo = res.property( Soprano::Vocabulary::NAO::isRelated()).toResource();
 
     if ( relatesTo != m_projectSettings->projectThing()) {
-        res.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectSettings->projectThing());
+        res.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectSettings->projectThing());
     }
 }
 
@@ -262,11 +262,11 @@ void Library::removeResource(Nepomuk::Resource & res)
 {
     Q_ASSERT_X( m_libraryType == Library_Project, "removeResource", "can't remove resources from system library");
 
-    res.removeProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectSettings->projectThing());
+    res.removeProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectSettings->projectThing());
 
     QList<Nepomuk::Resource> references = res.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
     foreach(Nepomuk::Resource r, references) {
-        r.removeProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectSettings->projectThing());
+        r.removeProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectSettings->projectThing());
     }
 }
 

@@ -24,7 +24,7 @@
 
 #include <Nepomuk/File>
 #include <Nepomuk/Variant>
-#include <Nepomuk/Vocabulary/PIMO>
+#include <Soprano/Vocabulary/NAO>
 
 #include <QDBusInterface>
 
@@ -73,7 +73,7 @@ void DirWatcher::itemsAdded (const KUrl &directoryUrl, const KFileItemList &item
 
         Nepomuk::File addedFile(file.url());
 
-        QList<Nepomuk::Resource> relatesTo = addedFile.property( Nepomuk::Vocabulary::PIMO::isRelated()).toResourceList();
+        QList<Nepomuk::Resource> relatesTo = addedFile.property( Soprano::Vocabulary::NAO::isRelated()).toResourceList();
 
         if(!relatesTo.contains(m_library->settings()->projectThing())) {
             QString filePath = file.url().url().remove(QLatin1String("file://"));

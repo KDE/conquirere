@@ -23,6 +23,7 @@
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/PIMO>
+#include <Soprano/Vocabulary/NAO>
 
 #include <Nepomuk/Query/Term>
 #include <Nepomuk/Query/ResourceTerm>
@@ -106,7 +107,7 @@ void DbCheckDialog::checkSeries()
                      "}";
 
     Nepomuk::Resource myTag = Nepomuk::Resource(QString("nepomuk:/res/dd299c50-d0d8-4c09-9a3b-58d761bae1e3"));
-    Nepomuk::Query::ComparisonTerm term( Nepomuk::Vocabulary::PIMO::isRelated(), Nepomuk::Query::ResourceTerm(myTag) );
+    Nepomuk::Query::ComparisonTerm term( Soprano::Vocabulary::NAO::isRelated(), Nepomuk::Query::ResourceTerm(myTag) );
 
     Nepomuk::Query::Query queryTEST(term);
     qDebug() << myTag.resourceUri().toString();

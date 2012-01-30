@@ -35,6 +35,7 @@
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/PIMO>
+#include <Soprano/Vocabulary/NAO>
 
 #include <KDE/KGlobalSettings>
 #include <KDE/KDialog>
@@ -208,7 +209,7 @@ void ReferenceWidget::newButtonClicked()
     Library *curUsedLib = libraryManager()->currentUsedLibrary();
     if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
         //relate the ref to the project
-        newReference.setProperty(Nepomuk::Vocabulary::PIMO::isRelated() , curUsedLib->settings()->projectThing());
+        newReference.setProperty(Soprano::Vocabulary::NAO::isRelated() , curUsedLib->settings()->projectThing());
     }
 
     newReference.setProperty(Nepomuk::Vocabulary::NBIB::citeKey(), i18n("new reference"));

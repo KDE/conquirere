@@ -55,7 +55,7 @@ void DocumentQuery::startFetchData()
         Nepomuk::Query::OrTerm orTerm;
         orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
                                                            Nepomuk::Query::ResourceTerm( m_library->settings()->projectTag() )));
-        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(),
+        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
                                                            Nepomuk::Query::ResourceTerm(m_library->settings()->projectThing() )));
         andTerm.addSubTerm(orTerm);
 
@@ -63,7 +63,7 @@ void DocumentQuery::startFetchData()
         // now we also add all rescources with nfo:FileDataObject and isRelated() for the project too
         Nepomuk::Query::AndTerm subAndTerm;
         subAndTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::FileDataObject() ) );
-        subAndTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(),
+        subAndTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
                                                                Nepomuk::Query::ResourceTerm(m_library->settings()->projectThing() )));
 
         mainOrTerm.addSubTerm(subAndTerm);

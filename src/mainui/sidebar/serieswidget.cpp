@@ -31,6 +31,7 @@
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/PIMO>
+#include <Soprano/Vocabulary/NAO>
 
 SeriesWidget::SeriesWidget(QWidget *parent)
     : SidebarComponent(parent)
@@ -158,7 +159,7 @@ void SeriesWidget::newButtonClicked()
     Library *curUsedLib = libraryManager()->currentUsedLibrary();
     if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
         //relate it to the project
-        newSeriesResource.setProperty(Nepomuk::Vocabulary::PIMO::isRelated() , curUsedLib->settings()->projectThing());
+        newSeriesResource.setProperty(Soprano::Vocabulary::NAO::isRelated() , curUsedLib->settings()->projectThing());
     }
 
     setResource(newSeriesResource);

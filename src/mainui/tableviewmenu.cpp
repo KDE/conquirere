@@ -33,6 +33,7 @@
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NFO>
+#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Variant>
 
 #include <KDE/KMimeType>
@@ -196,7 +197,7 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
     menu.addMenu(&removeFromProject);
 
     // fill al list of all project this file is in
-    QList<Nepomuk::Resource> projectList = m_nepomukResource.property(Nepomuk::Vocabulary::PIMO::isRelated()).toResourceList();
+    QList<Nepomuk::Resource> projectList = m_nepomukResource.property(Soprano::Vocabulary::NAO::isRelated()).toResourceList();
 
     if(projectList.isEmpty()) {
         removeFromProject.setEnabled(false);
@@ -323,14 +324,14 @@ void TableViewMenu::addSelectedToProject()
     }
 
     if(pimoProject.isValid()) {
-        m_nepomukResource.addProperty(Nepomuk::Vocabulary::PIMO::isRelated(), pimoProject);
-        pimoProject.addProperty(Nepomuk::Vocabulary::PIMO::isRelated(), m_nepomukResource);
+        m_nepomukResource.addProperty(Soprano::Vocabulary::NAO::isRelated(), pimoProject);
+        pimoProject.addProperty(Soprano::Vocabulary::NAO::isRelated(), m_nepomukResource);
 
         // small special case, if the resource was a reference add also the publication to the project
         if(m_nepomukResource.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
             Nepomuk::Resource pub = m_nepomukResource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-            pub.addProperty(Nepomuk::Vocabulary::PIMO::isRelated(), pimoProject);
-            pimoProject.addProperty(Nepomuk::Vocabulary::PIMO::isRelated(), pub);
+            pub.addProperty(Soprano::Vocabulary::NAO::isRelated(), pimoProject);
+            pimoProject.addProperty(Soprano::Vocabulary::NAO::isRelated(), pub);
         }
     }
     else {

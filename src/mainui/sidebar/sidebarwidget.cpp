@@ -43,6 +43,7 @@
 #include <Nepomuk/Resource>
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/PIMO>
+#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Vocabulary/NFO>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NMO>
@@ -169,7 +170,7 @@ void SidebarWidget::removeFromProject()
     QList<QAction*> actionCollection;
     QMenu addToProjects;
 
-    QList<Nepomuk::Resource> relatedList = m_curResource.property(Nepomuk::Vocabulary::PIMO::isRelated()).toResourceList();
+    QList<Nepomuk::Resource> relatedList = m_curResource.property(Soprano::Vocabulary::NAO::isRelated()).toResourceList();
 
     if(relatedList.isEmpty()) {
         addToProjects.addAction(i18n("not related to any project"));
@@ -199,8 +200,8 @@ void SidebarWidget::removeFromSelectedProject()
     Nepomuk::Resource pimoProject = Nepomuk::Resource(a->data().toString());
 
     if(m_curResource.isValid()) {
-        m_curResource.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), pimoProject);
-        pimoProject.removeProperty(Nepomuk::Vocabulary::PIMO::isRelated(), m_curResource);
+        m_curResource.removeProperty(Soprano::Vocabulary::NAO::isRelated(), pimoProject);
+        pimoProject.removeProperty(Soprano::Vocabulary::NAO::isRelated(), m_curResource);
     }
 }
 

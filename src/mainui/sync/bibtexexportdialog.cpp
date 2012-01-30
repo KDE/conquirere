@@ -24,6 +24,7 @@
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/PIMO>
+#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Query/Term>
 #include <Nepomuk/Query/ResourceTerm>
 #include <Nepomuk/Query/ResourceTypeTerm>
@@ -150,7 +151,7 @@ void BibTexExportDialog::accept()
         QUrl projectToExport = ui->dataSelection->itemData(curIndex).toUrl();
         Nepomuk::Thing projectThing = Nepomuk::Thing(projectToExport);
 
-        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::PIMO::isRelated(),
+        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
                                                             Nepomuk::Query::ResourceTerm( projectThing )));
     }
 

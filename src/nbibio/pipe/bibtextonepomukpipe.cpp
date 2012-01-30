@@ -356,8 +356,8 @@ void BibTexToNepomukPipe::import(Entry *e)
     }
 
     if(m_projectThing.isValid()) {
-        publication.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectThing);
-        reference.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectThing);
+        publication.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
+        reference.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
     }
 }
 
@@ -972,8 +972,8 @@ void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &vol
     journalIssue.addProperty(NBIB::article(), publication);
 
     if(m_projectThing.isValid()) {
-        journalIssue.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectThing);
-        journalResource.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectThing);
+        journalIssue.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
+        journalResource.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
     }
 }
 
@@ -1001,7 +1001,7 @@ void BibTexToNepomukPipe::addSpecialArticle(const Value &titleValue, Nepomuk::Re
     collectionResource.addProperty(NBIB::article(), article);
 
     if(m_projectThing.isValid()) {
-        collectionResource.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectThing);
+        collectionResource.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
     }
 }
 
@@ -1058,7 +1058,7 @@ void BibTexToNepomukPipe::addBooktitle(const QString &content, Nepomuk::Resource
         proceedingsResource.addProperty(NBIB::article(), publication);
 
         if(m_projectThing.isValid()) {
-            proceedingsResource.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectThing);
+            proceedingsResource.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
         }
     }
     else {
@@ -1146,7 +1146,7 @@ void BibTexToNepomukPipe::addIssn(const QString &content, Nepomuk::Resource publ
     series.setProperty(NBIB::issn(), utfContent);
 
     if(m_projectThing.isValid()) {
-        series.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectThing);
+        series.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
     }
 }
 
@@ -1259,7 +1259,7 @@ void BibTexToNepomukPipe::addCode(const QString &content, Nepomuk::Resource publ
     publication.setProperty(NBIB::codeOfLaw(), codeOfLaw);
 
     if(m_projectThing.isValid()) {
-        codeOfLaw.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectThing);
+        codeOfLaw.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
     }
 }
 
@@ -1282,7 +1282,7 @@ void BibTexToNepomukPipe::addReporter(const QString &content, Nepomuk::Resource 
     publication.setProperty(NBIB::courtReporter(), courtReporter);
 
     if(m_projectThing.isValid()) {
-        courtReporter.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectThing);
+        courtReporter.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
     }
 }
 
@@ -1310,7 +1310,7 @@ void BibTexToNepomukPipe::addEvent(const QString &content, Nepomuk::Resource pub
     publication.setProperty(NBIB::event(), eventResource);
 
     if(m_projectThing.isValid()) {
-        eventResource.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectThing);
+        eventResource.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
     }
 }
 
@@ -1345,7 +1345,7 @@ void BibTexToNepomukPipe::addSeries(const QString &content, Nepomuk::Resource pu
     publication.setProperty(NBIB::inSeries(), seriesResource);
 
     if(m_projectThing.isValid()) {
-        seriesResource.addProperty( Nepomuk::Vocabulary::PIMO::isRelated() , m_projectThing);
+        seriesResource.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
     }
 }
 
