@@ -179,6 +179,12 @@ void WriteToZotero::updateItem(QSharedPointer<Element> item)
     File itemFile;
     itemFile.append(item);
     QSharedPointer<Entry> entryPointer(entry);
+
+
+
+    kDebug() << pushString << "etag" << etag;
+    kDebug() << writeJsonContent(itemFile, true);
+
     startRequest(request, writeJsonContent(itemFile, true), QNetworkAccessManager::PutOperation, entryPointer);
 }
 
@@ -2101,6 +2107,7 @@ QVariantMap WriteToZotero::createNoteJson(Entry *e)
     jsonMap.insert(QLatin1String("itemType"),QLatin1String("note"));
 
     jsonMap.insert(QLatin1String("note"), PlainTextValue::text(e->value(QLatin1String("note"))));
+    jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("newspaperArticle")));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
 
     return jsonMap;

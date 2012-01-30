@@ -169,10 +169,7 @@ private:
     void fixMergingAutomatically();
     void mergingNoteAutomatically(const SyncDetails &sd);
 
-    void importNewBibResources(File &newEntries);
-    void importNewAttachments(File &newEntries);
-    void importNewNote(Entry *e);
-    void importNewFile(Entry *e);
+    void importNewResources(File &newEntries);
 
     QSharedPointer<Element> transformAttachmentToBibTeX(Nepomuk::Resource resource);
 

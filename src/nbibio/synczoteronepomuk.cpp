@@ -202,11 +202,13 @@ void SyncZoteroNepomuk::readDownloadSyncAfterDelete(const File &zoteroData)
         // and merged all items with the server or local version
         // unless the user wanted to merge on its own
         if(m_attachmentMode) {
-            importNewAttachments(newEntries);
+            emit progressStatus(i18n("push new Zotero attachments into Nepomuk"));
         }
         else {
-            importNewBibResources(newEntries);
+            emit progressStatus(i18n("push new Zotero references into Nepomuk"));
         }
+        m_curStep++;
+        importNewResources(newEntries);
 
         m_curStep++; // step for the merging
         calculateProgress(50);
@@ -263,6 +265,7 @@ void SyncZoteroNepomuk::mergeFinished()
 
 void SyncZoteroNepomuk::startAttachmentDownload()
 {
+    kDebug() << "start with attachment download";
     m_attachmentMode = true;
 
     m_rfz = new ReadFromZotero;
@@ -644,9 +647,11 @@ void SyncZoteroNepomuk::cleanupAfterUpload()
     calculateProgress(100);
 
     if(m_psd.exportAttachments && !m_attachmentMode) {
+        kDebug() << "startAttachmentUpload";
         startAttachmentUpload();
     }
     else {
+        kDebug() << "syncFinished";
         emit syncFinished();
     }
     m_syncMode = false;
@@ -731,7 +736,6 @@ void SyncZoteroNepomuk::startAttachmentUpload()
         readUploadSync(); // cancel and cleanup
     }
 
-    //TODO do the actual upload ...
     connect(m_wtz, SIGNAL(finished()), this, SLOT(uploadNextAttachment()));
     connect(m_wtz, SIGNAL(entryItemUpdated(QString,QString,QString)), this, SLOT(updateSyncDetailsToNepomuk(QString,QString,QString)));
 
@@ -1248,7 +1252,7 @@ void SyncZoteroNepomuk::mergingNoteAutomatically(const SyncDetails &sd)
     syncResource.setProperty( NUAO::lastModification(), PlainTextValue::text(sd.externalResource->value(QLatin1String("zoteroupdated"))));
 }
 
-void SyncZoteroNepomuk::importNewBibResources(File &newEntries)
+void SyncZoteroNepomuk::importNewResources(File &newEntries)
 {
     delete m_btnp;
     m_btnp = new BibTexToNepomukPipe;
@@ -1272,117 +1276,6 @@ void SyncZoteroNepomuk::importNewBibResources(File &newEntries)
     }
 
     m_btnp->pipeExport(newEntries);
-}
-
-void SyncZoteroNepomuk::importNewAttachments(File &newEntries)
-{
-    emit progressStatus(i18n("push new Zotero attachments into Nepomuk"));
-    m_curStep++;
-
-    qreal curProgress = 0.0;
-    qreal percentPerFile = 100.0/(qreal)newEntries.size();
-
-    foreach(const QSharedPointer<Element> &zoteroElement, newEntries) {
-        Entry *zoteroEntry = dynamic_cast<Entry *>(zoteroElement.data());
-        if(!zoteroEntry) { continue; }
-
-        if(zoteroEntry->type() == QLatin1String("note")) {
-            importNewNote(zoteroEntry);
-        }
-        else if(zoteroEntry->type() == QLatin1String("attachment")) {
-            importNewFile(zoteroEntry);
-        }
-        else {
-            qWarning() << "unknown attachment type occured, don't know what to do with it";
-        }
-
-        curProgress += percentPerFile;
-        calculateProgress(curProgress);
-    }
-}
-
-void SyncZoteroNepomuk::importNewNote(Entry *e)
-{
-    // create new pimo:Note
-    Nepomuk::Resource note = Nepomuk::Resource();
-    note.addType(PIMO::Note());
-
-    note.setProperty(NAO::prefLabel(), PlainTextValue::text(e->value(QLatin1String("zoterotitle"))) );
-    note.setProperty(NIE::title(), PlainTextValue::text(e->value(QLatin1String("zoterotitle"))) );
-
-    QTextDocument content;
-    content.setHtml( PlainTextValue::text(e->value(QLatin1String("note"))).simplified() );
-    note.setProperty(NIE::plainTextContent(), content.toPlainText());
-    note.setProperty(NIE::htmlContent(), content.toHtml());
-
-    Value keywords = e->value("keywords");
-    foreach(QSharedPointer<ValueItem> vi, keywords) {
-        Keyword *k = dynamic_cast<Keyword *>(vi.data());
-        Nepomuk::Tag tag(k->text().toUtf8());
-        tag.setLabel(k->text().toUtf8());
-        note.addTag(tag);
-    }
-
-    Value uriValue;
-    uriValue.append( QSharedPointer<ValueItem>(new PlainText( note.resourceUri().toString() )) );
-    e->insert( QLatin1String("nepomuk-note-uri"), uriValue);
-
-    // resource created. now conect it to the right parent resource
-
-    // find the resource
-    QString parentId = PlainTextValue::text(e->value(QLatin1String("zoteroparent")));
-    QString query = "select DISTINCT ?r where {  "
-                     "?r a sync:ServerSyncData . "
-                     "?r sync:provider ?provider . FILTER regex(?provider, \"" + m_psd.providerInfo->providerId() + "\") "
-                     "?r sync:userId ?userId . FILTER regex(?userId, \"" + m_psd.userName + "\") "
-                     "?r sync:url ?url . FILTER regex(?url, \"" + m_psd.url + "\") "
-                     "?r sync:id ?id . FILTER regex(?id, \""+ parentId + "\") "
-                     "}";
-
-    QList<Nepomuk::Query::Result> results = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
-
-    if(results.size() > 1 || results.isEmpty()) {
-        kDebug() << "could not find the right sync details for the current parent item query" << m_psd.providerInfo->providerId() << m_psd.userName << m_psd.collection << parentId;
-        return;
-    }
-
-    Nepomuk::Resource parentSyncResource = results.first().resource();
-
-    QUrl syncDataType = parentSyncResource.property(SYNC::syncDataType()).toUrl();
-
-    if(syncDataType == SYNC::Attachment()) {
-        Nepomuk::Resource attachment = parentSyncResource.property(SYNC::attachment()).toResource();
-        attachment.addProperty( NAO::isRelated(), note);
-        note.addProperty( NAO::isRelated(), attachment);
-    }
-    else if(syncDataType == SYNC::Note()) {
-        Nepomuk::Resource parentNote = parentSyncResource.property(SYNC::note()).toResource();
-        parentNote.addProperty( NAO::isRelated(), note);
-        note.addProperty( NAO::isRelated(), parentNote);
-    }
-    else if(syncDataType == SYNC::BibResource()) { // this should be happen to 99% of the time ...
-        Nepomuk::Resource publication = parentSyncResource.property(NBIB::publication()).toResource();
-        publication.addProperty( NAO::isRelated(), note);
-        note.addProperty( NAO::isRelated(), publication);
-
-        Nepomuk::Resource reference = parentSyncResource.property(NBIB::reference()).toResource();
-        reference.addProperty( NAO::isRelated(), note);
-        note.addProperty( NAO::isRelated(), reference);
-    }
-
-    // connection done, now create the new sync:ServerSyncData
-    QString id = PlainTextValue::text(e->value(QLatin1String("zoterokey")));
-    QString etag = PlainTextValue::text(e->value(QLatin1String("zoteroetag")));
-    QString updated = PlainTextValue::text(e->value(QLatin1String("zoteroupdated")));
-
-    Nepomuk::Resource noteSyncResource = writeNewSyncDetailsToNepomuk(e,id,etag, updated);
-
-    noteSyncResource.setProperty(NAO::isRelated(), parentSyncResource); // connect child to it sparent
-}
-
-void SyncZoteroNepomuk::importNewFile(Entry *e)
-{
-    kDebug() << "download and import the file attachment";
 }
 
 QSharedPointer<Element> SyncZoteroNepomuk::transformAttachmentToBibTeX(Nepomuk::Resource resource)
