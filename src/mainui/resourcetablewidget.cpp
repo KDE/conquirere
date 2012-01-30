@@ -345,8 +345,9 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
 
     QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
     NepomukModel *nm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
+
     if(nm) {
-        nepomukRescource = nm->documentResource(selectedIndex.first());
+        nepomukRescource = nm->documentResource(sfpm->mapToSource(selectedIndex.first()));
     }
     else {
         SearchResultModel *srm = qobject_cast<SearchResultModel *>(sfpm->sourceModel());
