@@ -25,6 +25,8 @@ namespace Ui {
     class ListPartsWidget;
 }
 
+class LibraryManager;
+
 /**
   * @brief This widget offers a simple way to edit/add/remove/create parts of a resource
   *
@@ -51,6 +53,8 @@ public:
 
     explicit ListPartsWidget(QWidget *parent = 0);
     virtual ~ListPartsWidget();
+
+    void setLibraryManager(LibraryManager *lm);
 
     /**
       * sets the resource for this widget
@@ -147,6 +151,7 @@ private:
     void deletePublication(Nepomuk::Resource publication);
 
     Ui::ListPartsWidget *ui;
+    LibraryManager *m_libraryManager;
 
     Nepomuk::Resource m_resource;
     PartType m_partType;

@@ -36,6 +36,8 @@ class ReferenceWidget : public SidebarComponent
 public:
     explicit ReferenceWidget(QWidget *parent = 0);
 
+    Nepomuk::Resource resource();
+
 public slots:
     /**
       * Sets the recource that will be altered here

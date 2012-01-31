@@ -18,6 +18,7 @@
 #include "listpublicationsdialog.h"
 #include "ui_listpublicationsdialog.h"
 
+#include "mainui/librarymanager.h"
 #include "core/library.h"
 #include "core/projectsettings.h"
 #include "core/models/nepomukmodel.h"
@@ -26,10 +27,18 @@
 #include "core/delegates/ratingdelegate.h"
 #include "core/delegates/htmldelegate.h"
 
+#include "referencewidget.h"
+#include "publicationwidget.h"
+#include "notewidget.h"
+#include "eventwidget.h"
+#include "serieswidget.h"
+
 #include <KDE/KConfig>
 #include <KDE/KConfigGroup>
 #include <KDE/KLineEdit>
 #include <KDE/KComboBox>
+#include <KDE/KIcon>
+#include <KDE/KDebug>
 
 #include <QtGui/QTableView>
 #include <QtGui/QHeaderView>
@@ -45,6 +54,9 @@ ListPublicationsDialog::ListPublicationsDialog(QWidget *parent)
     , m_filter(Max_BibTypes)
 {
     ui->setupUi(this);
+
+    connect(ui->createNew, SIGNAL(clicked()), this, SLOT(createNew()));
+    ui->createNew->setIcon(KIcon("document-new"));
 
     // view that holds the table models for selection
     m_htmlDelegate = new HtmlDelegate();
@@ -70,8 +82,8 @@ ListPublicationsDialog::ListPublicationsDialog(QWidget *parent)
 
 ListPublicationsDialog::~ListPublicationsDialog()
 {
-    //rest filter for the mainview again
-    PublicationFilterModel * pfm = qobject_cast<PublicationFilterModel *>(m_systemLibrary->viewModel(m_selection));
+    //reset filter for the mainview again
+    PublicationFilterModel * pfm = qobject_cast<PublicationFilterModel *>(m_libraryManager->systemLibrary()->viewModel(m_selection));
     if(pfm) {
         pfm->setResourceFilter(Max_BibTypes);
         pfm->setFilterKeyColumn(0);
@@ -81,25 +93,57 @@ ListPublicationsDialog::~ListPublicationsDialog()
     delete ui;
 }
 
+void ListPublicationsDialog::setLibraryManager(LibraryManager *lm)
+{
+    m_libraryManager = lm;
+
+    showLibraryModel(lm->systemLibrary());
+
+    foreach(Library *l, lm->openProjects()) {
+        ui->libraryComboBox->addItem(l->settings()->name());
+    }
+}
+
 void ListPublicationsDialog::setListMode(ResourceSelection selection, BibEntryType filter)
 {
     m_selection = selection;
     m_filter = filter;
-}
 
-void ListPublicationsDialog::setSystemLibrary(Library *p)
-{
-    m_systemLibrary = p;
-    showLibraryModel(m_systemLibrary);
-
-    ui->libraryComboBox->addItem(m_systemLibrary->settings()->name());
-}
-
-void ListPublicationsDialog::setOpenLibraries(QList<Library *> openLibList)
-{
-    m_openLibList = openLibList;
-    foreach(Library *l, openLibList) {
-        ui->libraryComboBox->addItem(l->settings()->name());
+    switch(selection) {
+    case Resource_Document:
+        ui->label->setText(i18n("Please select one of the available documents."));
+        ui->createNew->setEnabled(false);
+        break;
+    case Resource_Mail:
+        ui->label->setText(i18n("Please select one of the available mails."));
+        ui->createNew->setEnabled(false);
+        break;
+    case Resource_Media:
+        ui->label->setText(i18n("Please select one of the available media objects or create a new one."));
+        break;
+    case Resource_Reference:
+        ui->label->setText(i18n("Please select one of the available references or create a new one."));
+        break;
+    case Resource_Publication:
+        ui->label->setText(i18n("Please select one of the available publications or create a new one."));
+        break;
+    case Resource_Series:
+        ui->label->setText(i18n("Please select one of the available series or create a new one."));
+        break;
+    case Resource_Website:
+        ui->label->setText(i18n("Please select one of the available websites or create a new one."));
+        break;
+    case Resource_Note:
+        ui->label->setText(i18n("Please select one of the available notes or create a new one."));
+        break;
+    case Resource_Event:
+        ui->label->setText(i18n("Please select one of the available events or create a new one."));
+        break;
+    case Resource_SearchResults:
+    case Resource_Library:
+        ui->createNew->setEnabled(false);
+        // nothing ... shouldn't happen anyway
+        break;
     }
 }
 
@@ -146,11 +190,11 @@ void ListPublicationsDialog::applyFilter()
 void ListPublicationsDialog::changeLibrary()
 {
     if(ui->libraryComboBox->currentIndex() < 1) {
-        showLibraryModel(m_systemLibrary);
+        showLibraryModel(m_libraryManager->systemLibrary());
     }
     else {
         int index = ui->libraryComboBox->currentIndex() - 1;
-        showLibraryModel(m_openLibList.at(index));
+        showLibraryModel(m_libraryManager->openProjects().at(index));
     }
 }
 
@@ -217,11 +261,17 @@ void ListPublicationsDialog::sectionResized( int logicalIndex, int oldSize, int 
 
 void ListPublicationsDialog::showLibraryModel(Library *p)
 {
-
     PublicationFilterModel * pfm = qobject_cast<PublicationFilterModel *>(p->viewModel(m_selection));
     if(pfm) {
         pfm->setResourceFilter(m_filter);
     }
+    else {
+        SeriesFilterModel * pfm = qobject_cast<SeriesFilterModel *>(p->viewModel(m_selection));
+        if(pfm) {
+            pfm->setResourceFilter(SeriesType(m_filter));
+        }
+    }
+
 
     switch(m_selection) {
     case Resource_Event:
@@ -292,6 +342,59 @@ void ListPublicationsDialog::showLibraryModel(Library *p)
     ui->tableView->selectRow(0);
 
     QList<int> fixedWithList = nm->fixedWithSections();
-    foreach(int section, fixedWithList)
+    foreach(int section, fixedWithList) {
         hv->setResizeMode(section, QHeaderView::Fixed);
+    }
+}
+
+void ListPublicationsDialog::createNew()
+{
+    KDialog createNewWidget;
+
+    SidebarComponent *sbcWidget;
+
+    switch(m_selection) {
+    //case Resource_Media:
+    case Resource_Reference:
+        sbcWidget = new ReferenceWidget();
+        break;
+    case Resource_Publication:
+        sbcWidget = new PublicationWidget();
+        break;
+    case Resource_Series:
+        sbcWidget = new SeriesWidget();
+        break;
+    case Resource_Website:
+        sbcWidget = new ReferenceWidget();
+        break;
+    case Resource_Note:
+        sbcWidget = new NoteWidget();
+        break;
+    case Resource_Event:
+        sbcWidget = new EventWidget();
+        break;
+    case Resource_Document:
+    case Resource_Mail:
+    case Resource_SearchResults:
+    case Resource_Library:
+        // nothing ... shouldn't happen anyway
+        break;
+    }
+
+    sbcWidget->setLibraryManager(m_libraryManager);
+    sbcWidget->newButtonClicked();
+
+    createNewWidget.setMainWidget(sbcWidget);
+    createNewWidget.setInitialSize(QSize(400,300));
+
+    int ret = createNewWidget.exec();
+
+    if(ret == KDialog::Ok || ret == KDialog::Accepted) {
+        ui->tableView->selectRow(ui->tableView->model()->rowCount());
+    }
+    else {
+        // remove resource and anything that only depends on it again
+        Nepomuk::Resource createdResource = sbcWidget->resource();
+        m_libraryManager->systemLibrary()->deleteResource( createdResource );
+    }
 }

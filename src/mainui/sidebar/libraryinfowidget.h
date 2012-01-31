@@ -41,6 +41,8 @@ public:
     explicit LibraryInfoWidget(QWidget *parent = 0);
     ~LibraryInfoWidget();
 
+    Nepomuk::Resource resource();
+
     void setLibrary(Library *p);
 
     void setResource(Nepomuk::Resource & resource);

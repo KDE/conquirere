@@ -807,6 +807,9 @@
        <item>
         <widget class="ListPartsWidget" name="listPartsWidget" native="true"/>
        </item>
+       <item>
+        <widget class="ListCitedSources" name="editCitedSources" native="true"/>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_4">
@@ -978,6 +981,12 @@
    <class>ListAnnotationsWidget</class>
    <extends>QWidget</extends>
    <header>sidebar/listannotationswidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ListCitedSources</class>
+   <extends>QWidget</extends>
+   <header>sidebar/listcitedsources.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

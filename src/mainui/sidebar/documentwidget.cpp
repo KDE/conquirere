@@ -52,6 +52,11 @@ DocumentWidget::~DocumentWidget()
     delete ui;
 }
 
+Nepomuk::Resource DocumentWidget::resource()
+{
+    return m_document;
+}
+
 void DocumentWidget::setResource(Nepomuk::Resource & resource)
 {
     m_document = resource;
@@ -110,8 +115,7 @@ void DocumentWidget::deleteButtonClicked()
 void DocumentWidget::setPublication()
 {
     ListPublicationsDialog lpd;
-    lpd.setSystemLibrary( libraryManager()->systemLibrary() );
-    lpd.setOpenLibraries( libraryManager()->openProjects() );
+    lpd.setLibraryManager(libraryManager());
 
     int ret = lpd.exec();
 

@@ -15,30 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LISTANNOTATIONSWIDGET_H
-#define LISTANNOTATIONSWIDGET_H
+#ifndef LISTCITEDSOURCES_H
+#define LISTCITEDSOURCES_H
 
 #include <QtGui/QWidget>
+
 #include <Nepomuk/Resource>
 
 namespace Ui {
-    class ListAnnotationsWidget;
+    class ListCitedSources;
 }
 
 class LibraryManager;
 
-/**
-  * Shows a list of all @c nao:isRelated pimo:Notes objects
-  *
-  * Also allows to edit/add/remove them
-  */
-class ListAnnotationsWidget : public QWidget
+class ListCitedSources : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit ListAnnotationsWidget(QWidget *parent = 0);
-    ~ListAnnotationsWidget();
+    explicit ListCitedSources(QWidget *parent = 0);
+    ~ListCitedSources();
 
     void setLibraryManager(LibraryManager *lm);
     void setResource(Nepomuk::Resource resource);
@@ -58,23 +54,25 @@ private slots:
     /**
       * called when the user clicks the edit button
       */
-    void editAnnotation();
+    void editReference();
+
+    void findeMoreReferences();
 
     /**
       * called when the user clicks the add button
       */
-    void addAnnotation();
+    void addReference();
 
     /**
       * called when the user clicks the remove button
       */
-    void removeAnnotation();
+    void removeReference();
 
 private:
-    Ui::ListAnnotationsWidget *ui;
+    Ui::ListCitedSources *ui;
     LibraryManager *m_libraryManager;
 
     Nepomuk::Resource m_resource;
 };
 
-#endif // LISTANNOTATIONSWIDGET_H
+#endif // LISTCITEDSOURCES_H

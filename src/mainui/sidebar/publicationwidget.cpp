@@ -34,6 +34,7 @@
 #include "contactdialog.h"
 #include "addchapterdialog.h"
 #include "listpublicationsdialog.h"
+#include "listcitedsources.h"
 
 #include "nbibio/conquirere.h"
 
@@ -75,6 +76,15 @@ PublicationWidget::PublicationWidget(QWidget *parent)
 PublicationWidget::~PublicationWidget()
 {
     delete ui;
+}
+
+void PublicationWidget::setLibraryManager(LibraryManager *lm)
+{
+    SidebarComponent::setLibraryManager(lm);
+
+    ui->editCitedSources->setLibraryManager(lm);
+    ui->listPartsWidget->setLibraryManager(lm);
+    ui->editAnnot->setLibraryManager(lm);
 }
 
 void PublicationWidget::setResource(Nepomuk::Resource & resource)
@@ -167,7 +177,13 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
    ui->editDOI->setResource(m_publication);
 
    ui->editAnnot->setResource(m_publication);
+   ui->editCitedSources->setResource(m_publication);
    discardNoteChanges();
+}
+
+Nepomuk::Resource PublicationWidget::resource()
+{
+    return m_publication;
 }
 
 void PublicationWidget::newBibEntryTypeSelected(int index)
@@ -437,18 +453,12 @@ void PublicationWidget::acceptNoteChanges()
 {
     QString note = ui->editNote->document()->toPlainText();
     m_publication.setProperty(Nepomuk::Vocabulary::NIE::description(), note);
-
-//    QString annote = ui->editAnnote->document()->toPlainText();
-//    m_publication.setProperty(Nepomuk::Vocabulary::NIE::comment(), annote);
 }
 
 void PublicationWidget::discardNoteChanges()
 {
     QString note = m_publication.property(Nepomuk::Vocabulary::NIE::description()).toString();
     ui->editNote->document()->setPlainText(note);
-
-//    QString annote = m_publication.property(Nepomuk::Vocabulary::NIE::comment()).toString();
-//    ui->editAnnote->document()->setPlainText(annote);
 }
 
 void PublicationWidget::changeRating(int newRating)
@@ -619,6 +629,7 @@ void PublicationWidget::setupWidget()
     connect(ui->editDOI, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
     connect(ui->listPartsWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
+    connect(ui->editCitedSources, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editAnnot, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
 }
 
@@ -697,8 +708,7 @@ void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUr
     else {
         lpd->setListMode(Resource_Reference, Max_BibTypes);
     }
-    lpd->setSystemLibrary(libraryManager()->systemLibrary());
-    lpd->setOpenLibraries(libraryManager()->openProjects());
+    lpd->setLibraryManager(libraryManager());
 
     int ret = lpd->exec();
 

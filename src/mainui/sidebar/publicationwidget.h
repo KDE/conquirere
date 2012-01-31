@@ -28,6 +28,8 @@ namespace Ui {
     class PublicationWidget;
 }
 
+class LibraryManager;
+
 /**
   * @brief SidbarWidget to show and manipulate all @c nbib:Publication resources
   */
@@ -37,6 +39,9 @@ class PublicationWidget : public SidebarComponent
 public:
     explicit PublicationWidget(QWidget *parent = 0);
     virtual ~PublicationWidget();
+
+    void setLibraryManager(LibraryManager *lm);
+    Nepomuk::Resource resource();
 
 public slots:
     /**

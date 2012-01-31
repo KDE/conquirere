@@ -76,6 +76,11 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     connect(ui->editAnnot, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
 }
 
+Nepomuk::Resource ReferenceWidget::resource()
+{
+    return m_reference;
+}
+
 void ReferenceWidget::setResource(Nepomuk::Resource & resource)
 {
     if(resource.isValid()) {
@@ -135,8 +140,7 @@ void ReferenceWidget::showPublicationList(Nepomuk::Resource & resource, const QU
 
     ListPublicationsDialog lpd;
     lpd.setListMode(Resource_Publication, Max_BibTypes);
-    lpd.setSystemLibrary(libraryManager()->systemLibrary());
-    lpd.setOpenLibraries(libraryManager()->openProjects());
+    lpd.setLibraryManager(libraryManager());
 
     int ret = lpd.exec();
 

@@ -42,6 +42,8 @@ public:
     explicit SeriesWidget(QWidget *parent = 0);
     virtual ~SeriesWidget();
 
+    Nepomuk::Resource resource();
+
 public slots:
     /**
       * called when something is selected in the project view

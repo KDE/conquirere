@@ -41,8 +41,10 @@ public:
     explicit SidebarComponent(QWidget *parent = 0);
     virtual ~SidebarComponent() {}
 
-    void setLibraryManager(LibraryManager *lm);
+    virtual void setLibraryManager(LibraryManager *lm);
     LibraryManager *libraryManager();
+
+    virtual Nepomuk::Resource resource() = 0;
 
 signals:
     /**

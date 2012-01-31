@@ -18,6 +18,7 @@
 #include "listannotationswidget.h"
 #include "ui_listannotationswidget.h"
 
+#include "mainui/librarymanager.h"
 #include "notewidget.h"
 
 #include "nbib.h"
@@ -49,6 +50,11 @@ ListAnnotationsWidget::ListAnnotationsWidget(QWidget *parent)
 ListAnnotationsWidget::~ListAnnotationsWidget()
 {
     delete ui;
+}
+
+void ListAnnotationsWidget::setLibraryManager(LibraryManager *lm)
+{
+    m_libraryManager = lm;
 }
 
 void ListAnnotationsWidget::setResource(Nepomuk::Resource resource)
@@ -93,7 +99,7 @@ void ListAnnotationsWidget::editAnnotation()
 
     NoteWidget *nw = new NoteWidget();
     nw->setResource( note );
-    //pw->setLibrary(library());
+    nw->setLibraryManager(m_libraryManager);
 
     addAnnotationWidget.setMainWidget(nw);
     addAnnotationWidget.setInitialSize(QSize(400,300));
@@ -113,7 +119,7 @@ void ListAnnotationsWidget::addAnnotation()
     Nepomuk::Resource note = Nepomuk::Resource();
     note.addType(Nepomuk::Vocabulary::PIMO::Note());
     nw->setResource( note );
-    //pw->setLibrary(library());
+    nw->setLibraryManager(m_libraryManager);
 
     addAnnotationWidget.setMainWidget(nw);
     addAnnotationWidget.setInitialSize(QSize(400,300));
@@ -121,7 +127,7 @@ void ListAnnotationsWidget::addAnnotation()
     int ret = addAnnotationWidget.exec();
 
     if(ret == KDialog::Accepted) {
-        Nepomuk::Resource note = nw->note();
+        Nepomuk::Resource note = nw->resource();
 
         m_resource.addProperty(Soprano::Vocabulary::NAO::isRelated(), note);
         note.addProperty(Soprano::Vocabulary::NAO::isRelated(), m_resource);

@@ -61,9 +61,21 @@ EventWidget::~EventWidget()
     delete ui;
 }
 
+void EventWidget::setLibraryManager(LibraryManager *lm)
+{
+    SidebarComponent::setLibraryManager(lm);
+    ui->listPartsWidget->setLibraryManager(lm);
+}
+
+Nepomuk::Resource EventWidget::resource()
+{
+    return m_eventThing;
+}
+
 void EventWidget::setResource(Nepomuk::Resource & resource)
 {
     m_eventThing = resource.pimoThing();
+    m_eventThing.addType(Nepomuk::Vocabulary::PIMO::Event());
     if(resource.resourceUri() == m_eventThing.resourceUri()) {
         m_eventResource = m_eventThing.property(Nepomuk::Vocabulary::PIMO::groundingOccurrence()).toResource();
     }

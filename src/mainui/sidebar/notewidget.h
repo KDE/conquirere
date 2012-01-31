@@ -37,10 +37,10 @@ public:
     explicit NoteWidget(QWidget *parent = 0);
     ~NoteWidget();
 
-    Nepomuk::Resource note();
+    Nepomuk::Resource resource();
 
 public slots:
-    void setResource(Nepomuk::Resource & note);
+    void setResource(Nepomuk::Resource & resource);
 
 private slots:
     /**

@@ -30,6 +30,15 @@ SearchResultInfoWidget::~SearchResultInfoWidget()
     delete ui;
 }
 
+
+
+Nepomuk::Resource SearchResultInfoWidget::resource()
+{
+    qWarning() << "this shouldn't be used .... SearchResultInfoWidget can't return a resource";
+    Nepomuk::Resource empty;
+    return empty;
+}
+
 void SearchResultInfoWidget::setResource(Nepomuk::Resource & resource)
 {
     Q_UNUSED(resource);

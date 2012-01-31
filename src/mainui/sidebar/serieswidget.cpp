@@ -48,6 +48,11 @@ SeriesWidget::~SeriesWidget()
     delete ui;
 }
 
+Nepomuk::Resource SeriesWidget::resource()
+{
+    return m_series;
+}
+
 void SeriesWidget::setResource(Nepomuk::Resource & resource)
 {
     m_series = resource;

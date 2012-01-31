@@ -42,6 +42,8 @@ public:
     explicit DocumentWidget(QWidget *parent = 0);
     virtual ~DocumentWidget();
 
+    Nepomuk::Resource resource();
+
 public slots:
     /**
       * sets the document resource for the SidebarComponent

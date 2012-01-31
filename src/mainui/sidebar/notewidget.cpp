@@ -49,7 +49,7 @@ NoteWidget::~NoteWidget()
     delete ui;
 }
 
-Nepomuk::Resource NoteWidget::note()
+Nepomuk::Resource NoteWidget::resource()
 {
     return m_note;
 }

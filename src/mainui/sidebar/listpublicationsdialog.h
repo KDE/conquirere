@@ -29,6 +29,7 @@ namespace Ui {
 }
 
 class Library;
+class LibraryManager;
 class HtmlDelegate;
 
 /**
@@ -49,17 +50,7 @@ public:
 
     void setListMode(ResourceSelection selection, BibEntryType filter);
 
-    /**
-      * sets the Library with all systemwide publication data
-      */
-    void setSystemLibrary(Library *p);
-
-    /**
-      * sets the list of all open libraries
-      *
-      * useful to show only publications in a specific collection
-      */
-    void setOpenLibraries(QList<Library *> openLibList);
+    void setLibraryManager(LibraryManager *lm);
 
     /**
       * returns the current selected @c nbib:publication
@@ -77,13 +68,13 @@ private slots:
     void headerContextMenu(const QPoint &pos);
     void changeHeaderSectionVisibility();
     void sectionResized( int logicalIndex, int oldSize, int newSize );
+    void createNew();
 
 private:
     void showLibraryModel(Library *p);
     Ui::ListPublicationsDialog *ui;
 
-    Library *m_systemLibrary;
-    QList<Library *> m_openLibList;
+    LibraryManager *m_libraryManager;
     ResourceSelection m_selection;
     BibEntryType m_filter;
     HtmlDelegate *m_htmlDelegate;

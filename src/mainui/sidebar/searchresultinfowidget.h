@@ -34,6 +34,8 @@ public:
     explicit SearchResultInfoWidget(QWidget *parent = 0);
     ~SearchResultInfoWidget();
 
+    Nepomuk::Resource resource();
+
     void setResource(Nepomuk::Resource & resource);
     void newButtonClicked();
     void deleteButtonClicked();

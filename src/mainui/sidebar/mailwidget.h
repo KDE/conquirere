@@ -33,13 +33,17 @@ class MailWidget : public SidebarComponent
 public:
     explicit MailWidget(QWidget *parent = 0);
     ~MailWidget();
+    Nepomuk::Resource resource();
 
+public slots:
     void setResource(Nepomuk::Resource & resource);
     void newButtonClicked();
     void deleteButtonClicked();
 
 private:
     Ui::MailWidget *ui;
+
+    Nepomuk::Resource m_mail;
 };
 
 #endif // MAILWIDGET_H

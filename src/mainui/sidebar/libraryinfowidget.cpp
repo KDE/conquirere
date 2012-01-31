@@ -45,6 +45,13 @@ LibraryInfoWidget::~LibraryInfoWidget()
     delete m_kpd;
 }
 
+Nepomuk::Resource LibraryInfoWidget::resource()
+{
+    qWarning() << "this shouldn't be used .... LibraryInfoWidget can't return a resource";
+    Nepomuk::Resource empty;
+    return empty;
+}
+
 void LibraryInfoWidget::setLibrary(Library *p)
 {
     m_curLibrary = p;

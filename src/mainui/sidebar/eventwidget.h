@@ -48,6 +48,9 @@ public:
     explicit EventWidget(QWidget *parent = 0);
     ~EventWidget();
 
+   void setLibraryManager(LibraryManager *lm);
+   Nepomuk::Resource resource();
+
 public slots:
     virtual void setResource(Nepomuk::Resource & resource);
 
