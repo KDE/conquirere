@@ -48,6 +48,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="findMore">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>find more</string>
        </property>

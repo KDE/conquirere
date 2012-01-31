@@ -39,6 +39,8 @@ ListCitedSources::ListCitedSources(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->findMore->setVisible(false);
+
     ui->editPart->setIcon(KIcon("document-edit"));
     ui->addPart->setIcon(KIcon("list-add"));
     ui->removePart->setIcon(KIcon("list-remove"));
