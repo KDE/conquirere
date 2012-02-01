@@ -62,7 +62,7 @@ void SyncZoteroNepomuk::startDownload()
 
     connect(m_zoteroDownload, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
     connect(m_zoteroDownload, SIGNAL(progressStatus(QString)), this, SIGNAL(progressStatus(QString)));
-    connect(m_zoteroDownload, SIGNAL(askForDeletion(QList<SyncDetails>)), this, SIGNAL(askForDeletion(QList<SyncDetails>)));
+    connect(m_zoteroDownload, SIGNAL(askForLocalDeletion(QList<SyncDetails>)), this, SIGNAL(askForLocalDeletion(QList<SyncDetails>)));
     connect(m_zoteroDownload, SIGNAL(userMerge(QList<SyncDetails>)), this, SIGNAL(userMerge(QList<SyncDetails>)));
     connect(m_zoteroDownload, SIGNAL(finished()), this, SLOT(downloadFinished()));
 
@@ -144,6 +144,10 @@ void SyncZoteroNepomuk::startUpload()
 
     connect(m_zoteroUpload, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
     connect(m_zoteroUpload, SIGNAL(progressStatus(QString)), this, SIGNAL(progressStatus(QString)));
+
+    connect(m_zoteroUpload, SIGNAL(askForServerDeletion(QList<SyncDetails>)), this, SIGNAL(askForServerDeletion(QList<SyncDetails>)));
+    connect(m_zoteroUpload, SIGNAL(askForGroupRemoval(QList<SyncDetails>)), this, SIGNAL(askForGroupRemoval(QList<SyncDetails>)));
+
     connect(m_zoteroUpload, SIGNAL(finished()), this, SLOT(uploadFinished()));
 
     m_zoteroUpload->startUpload();
@@ -275,6 +279,16 @@ void SyncZoteroNepomuk::cancel()
 void SyncZoteroNepomuk::deleteLocalFiles(bool deleteThem)
 {
     m_zoteroDownload->deleteLocalFiles(deleteThem);
+}
+
+void SyncZoteroNepomuk::deleteServerFiles(bool deleteThem)
+{
+    m_zoteroUpload->removeFilesFromZotero(deleteThem);
+}
+
+void SyncZoteroNepomuk::deleteFromGroup(bool deleteThem)
+{
+    m_zoteroUpload->removeFilesFromGroup(deleteThem);
 }
 
 //QSharedPointer<Element> SyncZoteroNepomuk::transformAttachmentToBibTeX(Nepomuk::Resource resource)

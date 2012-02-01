@@ -45,7 +45,6 @@ public:
     virtual ~WriteToZotero();
 
     File *getFile();
-
     File *getFailedPushRequestItems();
 
 signals:
@@ -58,12 +57,12 @@ signals:
     void entryItemUpdated(const QString &id, const QString &etag, const QString &updated);
 
 public slots:
-    void pushItems(const File &items, const QString &collection = QString());
-    void pushNewItems(const File &items, const QString &collection = QString());
+    void pushItems(File *items, const QString &collection = QString());
+    void pushNewItems(File *items, const QString &collection = QString());
     void updateItem(QSharedPointer<Element> item);
     void addItemsToCollection(const QList<QString> &ids, const QString &collection );
     void removeItemsFromCollection(const QList<QString> &ids, const QString &collection );
-    void deleteItems(const File &items);
+    void deleteItems(File *items);
     // pair.first = zoteroKey
     // pair.second = etag
     void deleteItems(QList<QPair<QString, QString> > items);
@@ -89,7 +88,7 @@ private:
       * all intems in this list will be downloaded as duplicates!
       * because the items are available on the server but we don't know what ID they have
       */
-    QList<File> m_failedItemPush;
+    QList<File*> m_failedItemPush;
 
     /**
       * contains the list of all entries we created newly on the server and where we didn't get the "Internal Server Error" responce
@@ -102,7 +101,7 @@ private:
     qreal m_progress;
     QString m_addToCollection;
 
-    QByteArray writeJsonContent(const File &items, bool onlyUpdate = false);
+    QByteArray writeJsonContent(File *items, bool onlyUpdate = false);
     QByteArray writeJsonContent(const CollectionInfo &collection);
 
     /**

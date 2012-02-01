@@ -110,8 +110,15 @@ void SyncZoteroDialog::slotButtonClicked(int button)
     connect(m_syncNepomuk, SIGNAL(progress(int)), m_pdlg->progressBar(), SLOT(setValue(int)));
     connect(m_syncNepomuk, SIGNAL(progressStatus(QString)), this, SLOT(setProgressStatus(QString)));
 
-    connect(m_syncNepomuk, SIGNAL(askForDeletion(QList<SyncDetails>)), this, SLOT(popDeletionQuestion(QList<SyncDetails>)));
+    connect(m_syncNepomuk, SIGNAL(askForLocalDeletion(QList<SyncDetails>)), this, SLOT(popLocalDeletionQuestion(QList<SyncDetails>)));
     connect(this, SIGNAL(deleteLocalFiles(bool)), m_syncNepomuk, SLOT(deleteLocalFiles(bool)));
+    connect(m_syncNepomuk, SIGNAL(askForServerDeletion(QList<SyncDetails>)), this, SLOT(popServerDeletionQuestion(QList<SyncDetails>)));
+    connect(this, SIGNAL(deleteServerFiles(bool)), m_syncNepomuk, SLOT(deleteServerFiles(bool)));
+    connect(m_syncNepomuk, SIGNAL(askForGroupRemoval(QList<SyncDetails>)), this, SLOT(popGroupRemovalQuestion(QList<SyncDetails>)));
+    connect(this, SIGNAL(removeGroupFiles(bool)), m_syncNepomuk, SLOT(deleteFromGroup(bool)));
+
+
+
     connect(m_syncNepomuk, SIGNAL(userMerge(QList<SyncDetails>)), this, SLOT(popMergeDialog(QList<SyncDetails>)));
     connect(this, SIGNAL(mergeFinished()), m_syncNepomuk, SLOT(mergeFinished()));
 
@@ -136,15 +143,39 @@ void SyncZoteroDialog::slotButtonClicked(int button)
     m_pdlg->exec();
 }
 
-void SyncZoteroDialog::popDeletionQuestion(QList<SyncDetails> items)
+void SyncZoteroDialog::popLocalDeletionQuestion(QList<SyncDetails> items)
 {
-    int ret = KMessageBox::warningYesNo(0,i18n("%1 items are deleted on the server.\n\nDo you want to delete them locally too?.\nOtherwise they will be uploaded again.", items.size()));
+    int ret = KMessageBox::warningYesNo(0,i18n("%1 items are deleted on the server.\n\nDo you want to delete them locally too?.\nOtherwise they will be uploaded again with the next sync.", items.size()));
 
     if(ret == KMessageBox::Yes) {
         emit deleteLocalFiles(true);
     }
     else {
         emit deleteLocalFiles(false);
+    }
+}
+
+void SyncZoteroDialog::popServerDeletionQuestion(QList<SyncDetails> items)
+{
+    int ret = KMessageBox::warningYesNo(0,i18n("%1 items are deleted locally.\n\nDo you want to delete them on the server too?.\nOtherwise they will be downloaded again with the next sync.", items.size()));
+
+    if(ret == KMessageBox::Yes) {
+        emit deleteServerFiles(true);
+    }
+    else {
+        emit deleteServerFiles(false);
+    }
+}
+
+void SyncZoteroDialog::popGroupRemovalQuestion(QList<SyncDetails> items)
+{
+    int ret = KMessageBox::warningYesNo(0,i18n("%1 items are removed from the local project.\n\nDo you want to remove them from the server group too?.\nOtherwise they will be attached to the group again with the next sync.", items.size()));
+
+    if(ret == KMessageBox::Yes) {
+        emit removeGroupFiles(true);
+    }
+    else {
+        emit removeGroupFiles(false);
     }
 }
 

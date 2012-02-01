@@ -45,7 +45,9 @@ private slots:
     void slotButtonClicked(int button);
     void setProgressStatus(const QString &status);
 
-    void popDeletionQuestion(QList<SyncDetails> items);
+    void popLocalDeletionQuestion(QList<SyncDetails> items);
+    void popServerDeletionQuestion(QList<SyncDetails> items);
+    void popGroupRemovalQuestion(QList<SyncDetails> items);
     void popMergeDialog(QList<SyncDetails> items);
 
     void akonadiContactCollectionFetched(const Akonadi::Collection::List &list);
@@ -53,6 +55,8 @@ private slots:
 
 signals:
     void deleteLocalFiles(bool deleteThem);
+    void deleteServerFiles(bool deleteThem);
+    void removeGroupFiles(bool deleteThem);
     void mergedResults(QList<SyncDetails> items);
     void mergeFinished();
 

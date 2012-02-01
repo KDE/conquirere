@@ -90,12 +90,16 @@ public:
 
 signals:
     void deleteLocalFiles(bool deleteThem);
+    void deleteServerFiles(bool deleteThem);
+    void removeGroupFiles(bool deleteThem);
     void mergeFinished();
 
 private slots:
     bool isComplete() const;
 
-    void popDeletionQuestion(QList<SyncDetails> items);
+    void popLocalDeletionQuestion(QList<SyncDetails> items);
+    void popServerDeletionQuestion(QList<SyncDetails> items);
+    void popGroupRemovalQuestion(QList<SyncDetails> items);
     void popMergeDialog(QList<SyncDetails> items);
     void syncFinished();
 

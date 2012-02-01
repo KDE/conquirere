@@ -41,6 +41,8 @@ public slots:
     void cancel();
 
     void deleteLocalFiles(bool deleteThem);
+    void deleteServerFiles(bool deleteThem);
+    void deleteFromGroup(bool deleteThem);
     void mergeFinished();
 
 private slots:

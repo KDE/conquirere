@@ -53,14 +53,14 @@ File *WriteToFile::getFile()
     return m_emptyFile;
 }
 
-void WriteToFile::pushItems(const File &items, const QString &collection)
+void WriteToFile::pushItems(File *items, const QString &collection)
 {
     Q_UNUSED(collection);
 
     exportFile(items);
 }
 
-void WriteToFile::pushNewItems(const File &items, const QString &collection)
+void WriteToFile::pushNewItems(File *items, const QString &collection)
 {
     Q_UNUSED(collection);
 
@@ -76,7 +76,7 @@ void WriteToFile::updateItem(QSharedPointer<Element> item)
     // for now ignore and use pushItems instead to update everything
 }
 
-void WriteToFile::exportFile(const File &items)
+void WriteToFile::exportFile(File *items)
 {
     emit progress(0);
 
@@ -95,39 +95,39 @@ void WriteToFile::exportFile(const File &items)
 
     if(extension == QLatin1String("bib")) {
         FileExporterBibTeX feb;
-        feb.save(&tmpFile, &items, &errorLog);
+        feb.save(&tmpFile, items, &errorLog);
     }
     else if(extension == QLatin1String("pdf")) {
         FileExporterPDF fepdf;
-        fepdf.save(&tmpFile, &items, &errorLog);
+        fepdf.save(&tmpFile, items, &errorLog);
     }
     else if(extension == QLatin1String("html")) {
         FileExporterBibTeX2HTML feb2html;
-        feb2html.save(&tmpFile, &items, &errorLog);
+        feb2html.save(&tmpFile, items, &errorLog);
     }
     else if(extension == QLatin1String("blg")) {
         FileExporterBLG feblg;
-        feblg.save(&tmpFile, &items, &errorLog);
+        feblg.save(&tmpFile, items, &errorLog);
     }
     else if(extension == QLatin1String("ps")) {
         FileExporterPS feps;
-        feps.save(&tmpFile, &items, &errorLog);
+        feps.save(&tmpFile, items, &errorLog);
     }
     else if(extension == QLatin1String("ris")) {
         FileExporterRIS feris;
-        feris.save(&tmpFile, &items, &errorLog);
+        feris.save(&tmpFile, items, &errorLog);
     }
     else if(extension == QLatin1String("rtf")) {
         FileExporterRTF fertf;
-        fertf.save(&tmpFile, &items, &errorLog);
+        fertf.save(&tmpFile, items, &errorLog);
     }
     else if(extension == QLatin1String("xml")) {
         FileExporterXML fexml;
-        fexml.save(&tmpFile, &items, &errorLog);
+        fexml.save(&tmpFile, items, &errorLog);
     }
     else if(extension == QLatin1String("xslt")) {
         FileExporterXSLT fexslt;
-        fexslt.save(&tmpFile, &items, &errorLog);
+        fexslt.save(&tmpFile, items, &errorLog);
     }
     else {
         qWarning() << "WriteToFile::exportFile # unknown file extension " << extension;
@@ -160,7 +160,7 @@ void WriteToFile::removeItemsFromCollection(const QList<QString> &ids, const QSt
     // collections in files are not supported
 }
 
-void WriteToFile::deleteItems(const File &items)
+void WriteToFile::deleteItems(File *items)
 {
 
 }

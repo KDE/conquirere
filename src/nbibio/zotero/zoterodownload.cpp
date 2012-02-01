@@ -148,7 +148,7 @@ void ZoteroDownload::readDownloadSync()
     if(m_psd.askBeforeDeletion) {
         // ask user if he really wants to remove them or upload again next time
         // after this emit we wait for the slot call deleteLocalFiles(...)
-        emit askForDeletion(m_tmpUserDeleteRequest);
+        emit askForLocalDeletion(m_tmpUserDeleteRequest);
     }
     else {
         // default is to delete the resource or remove the isRelated connection
@@ -742,7 +742,7 @@ void ZoteroDownload::calculateProgress(int value)
 
     curProgress += (qreal)(100.0/m_syncSteps) * m_currentStep;
 
-    kDebug() << curProgress << m_syncSteps << m_currentStep;
+//    kDebug() << curProgress << m_syncSteps << m_currentStep;
 
     emit progress(curProgress);
 }

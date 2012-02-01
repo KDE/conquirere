@@ -201,7 +201,7 @@ void SyncZotero::readSync(const File &serverFiles)
         m_wtz = new WriteToZotero;
         m_wtz->setProviderSettings(m_psd);
         m_wtz->setAdoptBibtexTypes(adoptBibtexTypes());
-        m_wtz->pushItems(*m_systemFiles, m_addToCollection);
+        m_wtz->pushItems(m_systemFiles, m_addToCollection);
 
         connect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(writeSync(File)));
         connect(m_wtz, SIGNAL(progress(int)), this, SLOT(writeProgress(int)));

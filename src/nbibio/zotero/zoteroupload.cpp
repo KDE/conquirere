@@ -98,8 +98,8 @@ void ZoteroUpload::startUpload()
     m_wtz->setAdoptBibtexTypes(true);
     connect(m_wtz, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
 
-    m_ntbp = new NepomukToBibTexPipe;
-    connect(m_ntbp, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
+    NepomukToBibTexPipe *ntbp = new NepomukToBibTexPipe;
+    connect(ntbp, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
 
     // step 1 fetch data from nepomuk
     emit progressStatus(i18n("fetch reference data from Nepomuk"));
@@ -132,11 +132,25 @@ void ZoteroUpload::startUpload()
     emit progressStatus(i18n("prepare %1 reference items for the Zotero upload", exportList.size()));
     m_currentStep++;
 
-    m_ntbp->setSyncDetails(m_psd.url, m_psd.userName);
+    ntbp->setSyncDetails(m_psd.url, m_psd.userName);
 
-    m_ntbp->addNepomukUries(true);
-    m_ntbp->pipeExport(exportList);
-    m_bibCache = m_ntbp->bibtexFile();
+    ntbp->addNepomukUries(true);
+    ntbp->pipeExport(exportList);
+    m_bibCache = ntbp->bibtexFile();
+
+    //BUG workaround that carsh the system otherwise
+    // no clue why put if we push m_bibCache into the WriteToZotero class @ m_wtz->pushItems(m_bibCache, m_psd.collection) the
+    // QSharedPointers from m_bibCache get invalid and the dynamic_csat crash the system
+    // therefore I need to create this twice ... as this function is fast enough its stil ok,
+    // but must be fixed nonetheless
+    delete ntbp;
+    ntbp = new NepomukToBibTexPipe;
+    ntbp->setSyncDetails(m_psd.url, m_psd.userName);
+
+    ntbp->addNepomukUries(true);
+    ntbp->pipeExport(exportList);
+    File *itemsToPush = ntbp->bibtexFile();
+    //end bug workaround
 
     // step 3 upload to zotero
     emit progressStatus(i18n("upload %1 references to Zotero", exportList.size()));
@@ -148,7 +162,7 @@ void ZoteroUpload::startUpload()
     connect(m_wtz, SIGNAL(finished()), this, SLOT(readUploadSync()));
     connect(m_wtz, SIGNAL(entryItemUpdated(QString,QString,QString)), this, SLOT(updateSyncDetailsToNepomuk(QString,QString,QString)));
 
-    m_wtz->pushItems(*m_bibCache, m_psd.collection);
+    m_wtz->pushItems(itemsToPush, m_psd.collection);
 }
 
 void ZoteroUpload::readUploadSync()
@@ -156,9 +170,10 @@ void ZoteroUpload::readUploadSync()
     m_corruptedUploads = m_wtz->getFailedPushRequestItems();
 
     File *newItemWithSyncDetails = m_wtz->getFile();
-    kDebug() << newItemWithSyncDetails->size();
 
-    if(!newItemWithSyncDetails->isEmpty()) { // no new files uploaded
+    kDebug() << newItemWithSyncDetails->size() << "new items where we need to add sync data to";
+
+    if(newItemWithSyncDetails->isEmpty()) { // no new files uploaded
         m_currentStep++; // skip step 4
         removeFilesFromGroup();
         return;
@@ -175,6 +190,9 @@ void ZoteroUpload::readUploadSync()
     // foreach entry in zoteroData there is exact 1 entry in m_bibCache
     int entriesFound = 0;
     foreach(const QSharedPointer<Element> &zoteroElement, *newItemWithSyncDetails) {
+
+        if(m_cancel) { cleanupAfterUpload(); return; }
+
         Entry *zoteroEntry = dynamic_cast<Entry *>(zoteroElement.data());
         if(!zoteroEntry) { continue; }
 
@@ -265,9 +283,7 @@ void ZoteroUpload::removeFilesFromGroup()
     m_currentStep++;
     calculateProgress(0);
 
-    if(m_cancel) {
-        cleanupAfterUpload();
-    }
+    if(m_cancel) { cleanupAfterUpload(); return; }
 
     // now we fetch nepomuk for all sync:ServerSyncData objects that are not related to the current project
     // or do not have a valid reference/publication anymore
@@ -304,24 +320,59 @@ void ZoteroUpload::removeFilesFromGroup()
 
     calculateProgress(50);
 
-    if(queryResult.isEmpty()) {
-        removeFilesFromZotero();
-        return;
-    }
+    if(queryResult.isEmpty()) { removeFilesFromZotero(); return; }
 
-    QStringList idsToBeRemoved;
+    kDebug() << queryResult.size() << "items must be removed from server group";
+
+    m_tmpUserDeleteRequest.clear();
     foreach(const Nepomuk::Query::Result &nqr, queryResult) {
-        Nepomuk::Resource syncRes = nqr.resource();
-        idsToBeRemoved.append( syncRes.property(  SYNC::id() ).toString() );
+        SyncDetails sd;
+        sd.syncResource = nqr.resource();
+        m_tmpUserDeleteRequest.append(sd);
     }
 
-    connect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(removeFilesFromZotero()));
-    m_wtz->removeItemsFromCollection(idsToBeRemoved, m_psd.collection);
+    if(m_psd.askBeforeDeletion) {
+        // ask user if he really wants to remove them or download again next time
+        // after this emit we wait for the slot call removeFilesFromGroup(...)
+        emit askForGroupRemoval(m_tmpUserDeleteRequest);
+    }
+    else {
+        removeFilesFromGroup(true);
+    }
+}
+
+void ZoteroUpload::removeFilesFromGroup(bool removeThem)
+{
+    if(removeThem) {
+
+        QStringList idsToBeRemoved;
+        foreach(SyncDetails sd, m_tmpUserDeleteRequest) {
+
+            if(m_cancel) { cleanupAfterUpload(); return; }
+
+            idsToBeRemoved.append( sd.syncResource.property(  SYNC::id() ).toString() );
+            sd.syncResource.remove();
+        }
+
+        connect(m_wtz, SIGNAL(finished()), this, SLOT(removeFilesFromZotero()));
+        m_wtz->removeItemsFromCollection(idsToBeRemoved, m_psd.collection);
+    }
+    else {
+        // do not remove from server, but remove sync:ServerSyncData objects locally file will be downloaded again next time
+
+        foreach(SyncDetails sd, m_tmpUserDeleteRequest) {
+            if(m_cancel) { cleanupAfterUpload(); return; }
+
+            sd.syncResource.remove();
+        }
+
+        removeFilesFromZotero();
+    }
 }
 
 void ZoteroUpload::removeFilesFromZotero()
 {
-    disconnect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(removeFilesFromZotero()));
+    disconnect(m_wtz, SIGNAL(finished()), this, SLOT(removeFilesFromZotero()));
 
     if(!m_psd.collection.isEmpty()) {
         m_currentStep++; // skip step 6
@@ -370,23 +421,57 @@ void ZoteroUpload::removeFilesFromZotero()
 
     calculateProgress(50);
 
-    if(queryResult.isEmpty()) {
-        cleanupAfterUpload();
-        return;
-    }
+    if(queryResult.isEmpty()) { cleanupAfterUpload(); return; }
 
-    QList<QPair<QString, QString> > idsToBeRemoved;
+    kDebug() << queryResult.size() << "items must be removed from the server completely";
+
+    m_tmpUserDeleteRequest.clear();
     foreach(const Nepomuk::Query::Result &nqr, queryResult) {
-        Nepomuk::Resource syncRes = nqr.resource();
-        QPair<QString, QString> item;
-        item.first = syncRes.property(  SYNC::id() ).toString();
-        item.second = syncRes.property(  SYNC::etag() ).toString();
-        idsToBeRemoved.append(item);
-        m_syncDataToBeRemoved.append(syncRes);
+        SyncDetails sd;
+        sd.syncResource = nqr.resource();
+        m_tmpUserDeleteRequest.append(sd);
     }
 
-    connect(m_wtz, SIGNAL(itemsInfo(File)), this, SLOT(cleanupAfterUpload()));
-    m_wtz->deleteItems(idsToBeRemoved);
+    if(m_psd.askBeforeDeletion) {
+        // ask user if he really wants to remove them or download again next time
+        // after this emit we wait for the slot call removeFilesFromZotero(...)
+        emit askForServerDeletion(m_tmpUserDeleteRequest);
+    }
+    else {
+        removeFilesFromZotero(true);
+    }
+}
+
+void ZoteroUpload::removeFilesFromZotero(bool removeThem)
+{
+    kDebug() << "remove " << m_tmpUserDeleteRequest.size() << "items?" << removeThem;
+    if(removeThem) {
+        QList<QPair<QString, QString> > idsToBeRemoved;
+        foreach(SyncDetails sd, m_tmpUserDeleteRequest) {
+            Nepomuk::Resource syncRes = sd.syncResource;
+            QPair<QString, QString> item;
+            item.first = syncRes.property(  SYNC::id() ).toString();
+            item.second = syncRes.property(  SYNC::etag() ).toString();
+            idsToBeRemoved.append(item);
+            m_syncDataToBeRemoved.append(syncRes);
+
+            sd.syncResource.remove();
+        }
+
+        connect(m_wtz, SIGNAL(finished()), this, SLOT(cleanupAfterUpload()));
+        m_wtz->deleteItems(idsToBeRemoved);
+    }
+    else {
+
+        // do not remove from server, but remove sync:ServerSyncData objects locally file will be downloaded again next time
+        foreach(SyncDetails sd, m_tmpUserDeleteRequest) {
+            if(m_cancel) { cleanupAfterUpload(); return; }
+
+            sd.syncResource.remove();
+        }
+
+        cleanupAfterUpload();
+    }
 }
 
 void ZoteroUpload::cleanupAfterUpload()
@@ -396,6 +481,7 @@ void ZoteroUpload::cleanupAfterUpload()
         r.remove();
     }
     m_syncDataToBeRemoved.clear();
+    m_tmpUserDeleteRequest.clear();
 
     m_wtz->deleteLater();
     m_wtz = 0;
@@ -448,6 +534,7 @@ void ZoteroUpload::updateSyncDetailsToNepomuk(const QString &id, const QString &
 
 Nepomuk::Resource ZoteroUpload::writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated)
 {
+    kDebug() << "local entry" << localData->type() << id;
     // This one is only called when we upload new data to the server
     // So we know we must have a valid Nepomuk::Resource attached to the "localData" Entry
 
@@ -529,7 +616,7 @@ void ZoteroUpload::calculateProgress(int value)
 
     curProgress += (qreal)(100.0/m_syncSteps) * m_currentStep;
 
-    kDebug() << curProgress << m_syncSteps << m_currentStep;
+//    kDebug() << curProgress << m_syncSteps << m_currentStep;
 
     emit progress(curProgress);
 }

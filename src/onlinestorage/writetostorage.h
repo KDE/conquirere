@@ -67,20 +67,6 @@ signals:
     void progress(int currentProgress);
 
     /**
-      * This signal will be emitted if the processed data is ready
-      *
-      * @p collections information about the changed collections
-      */
-    void collectionsInfo(const QList<CollectionInfo> &collections);
-
-    /**
-      * This signal will be emitted if the processed data is ready
-      *
-      * @p items the bibtex file containing the changes made to the server
-      */
-    void itemsInfo(const File &items);
-
-    /**
       * This signal will announce, that the upload is finished
       *
       * Updated information can be retrieved via the getFile() method
@@ -91,12 +77,12 @@ signals:
 public slots:
     void cancelUpload();
 
-    virtual void pushItems(const File &items, const QString &collection = QString()) = 0;
-    virtual void pushNewItems(const File &items, const QString &collection = QString()) = 0;
+    virtual void pushItems(File *items, const QString &collection = QString()) = 0;
+    virtual void pushNewItems(File *items, const QString &collection = QString()) = 0;
     virtual void updateItem(QSharedPointer<Element> item) = 0;
     virtual void addItemsToCollection(const QList<QString> &ids, const QString &collection) = 0;
     virtual void removeItemsFromCollection(const QList<QString> &ids, const QString &collection) = 0;
-    virtual void deleteItems(const File &items) = 0;
+    virtual void deleteItems(File *items) = 0;
     virtual void deleteItems(QList<QPair<QString, QString> > items) = 0;
 
     virtual void createCollection(const CollectionInfo &ci) = 0;

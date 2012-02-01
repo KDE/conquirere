@@ -49,16 +49,16 @@ File *WriteToZotero::getFailedPushRequestItems()
 {
     File *corruptedEntries = new File;
 
-    foreach(File f,  m_failedItemPush) {
-        corruptedEntries->append(f);
+    foreach(File *f,  m_failedItemPush) {
+        corruptedEntries->append(*f);
     }
 
     return corruptedEntries;
 }
 
-void WriteToZotero::pushItems(const File &items, const QString &collection)
+void WriteToZotero::pushItems(File *items, const QString &collection)
 {
-    if(items.isEmpty()) {
+    if(items->isEmpty()) {
         emit finished();
         return;
     }
@@ -66,14 +66,14 @@ void WriteToZotero::pushItems(const File &items, const QString &collection)
     m_allRequestsSend = false;
     m_entriesAfterSync->clear();
     m_addToCollection = collection;
-    m_progressPerFile = (qreal)items.size() / 200.0;
+    m_progressPerFile = (qreal)items->size() / 200.0;
     m_progress = 0;
 
     // separate new items from the ones that send updates
-    File newItems;
-    File updatingItems;
+    File *newItems = new File;
+    File *updatingItems = new File;
 
-    foreach(const QSharedPointer<Element> &element, items) {
+    foreach(const QSharedPointer<Element> &element, *items) {
         Entry *entry = dynamic_cast<Entry *>(element.data());
         if(!entry) {
             continue;
@@ -81,10 +81,10 @@ void WriteToZotero::pushItems(const File &items, const QString &collection)
         QString zoteroKey = PlainTextValue::text(entry->value(QLatin1String("zoteroKey")));
 
         if(zoteroKey.isEmpty()) {
-            newItems.append(element);
+            newItems->append(element);
         }
         else {
-            updatingItems.append(element);
+            updatingItems->append(element);
             updateItem(element);
         }
 
@@ -92,9 +92,9 @@ void WriteToZotero::pushItems(const File &items, const QString &collection)
         emit progress(m_progress);
     }
 
-    kDebug() << QLatin1String("send new items:") <<  newItems.size() << QLatin1String(" send updated items:") <<  updatingItems.size();
+    kDebug() << QLatin1String("send new items:") <<  newItems->size() << QLatin1String(" send updated items:") <<  updatingItems->size();
 
-    if(!newItems.isEmpty()) {
+    if(!newItems->isEmpty()) {
         pushNewItems(newItems, m_addToCollection);
     }
     else {
@@ -102,24 +102,24 @@ void WriteToZotero::pushItems(const File &items, const QString &collection)
     }
 }
 
-void WriteToZotero::pushNewItems(const File &items, const QString &collection)
+void WriteToZotero::pushNewItems(File *items, const QString &collection)
 {
-    if(items.isEmpty()) {
+    if(items->isEmpty()) {
         if(openReplies() == 0) { emit finished(); }
         return;
     }
 
     // we can upload a maximum of 50 items per request
-    if(items.size() > MAX_ITEMS_TO_PUSH) {
+    if(items->size() > MAX_ITEMS_TO_PUSH) {
         m_allRequestsSend = false;
         // split the QList into smaller pieces
-        File smallList;
-        foreach(QSharedPointer<Element> e, items) {
-            if(smallList.size() >= MAX_ITEMS_TO_PUSH) {
+        File *smallList = new File;
+        foreach(QSharedPointer<Element> e, *items) {
+            if(smallList->size() >= MAX_ITEMS_TO_PUSH) {
                 m_itemsToPushCache.append(e);
             }
             else {
-                smallList.append(e);
+                smallList->append(e);
             }
         }
         m_failedItemPush.append(smallList); // will be removed from this list when the zotero server did not return "Internal server error"
@@ -134,7 +134,7 @@ void WriteToZotero::pushNewItems(const File &items, const QString &collection)
 
         // This is a special occasion. When we add child notes (attachments) to an item. We add all items in "items"
         // to the same parent, so if we specified a parent, we now that all following items are an attachment
-        QSharedPointer<Element> attachmentItem = items.first();
+        QSharedPointer<Element> attachmentItem = items->first();
         Entry *entry = dynamic_cast<Entry *>(attachmentItem.data());
         if(!entry) { return; }
         QString attachmentparent = PlainTextValue::text( entry->value(QLatin1String("zoteroParent")) );
@@ -182,8 +182,8 @@ void WriteToZotero::updateItem(QSharedPointer<Element> item)
     request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
     request.setRawHeader("If-Match", etag.toLatin1());
 
-    File itemFile;
-    itemFile.append(item);
+    File *itemFile = new File;
+    itemFile->append(item);
     QSharedPointer<Entry> entryPointer(entry);
 
     startRequest(request, writeJsonContent(itemFile, true), QNetworkAccessManager::PutOperation, entryPointer);
@@ -235,13 +235,13 @@ void WriteToZotero::removeItemsFromCollection(const QList<QString> &ids, const Q
     m_allRequestsSend = true;
 }
 
-void WriteToZotero::deleteItems(const File &items)
+void WriteToZotero::deleteItems(File *items)
 {
     //DELETE /users/1/items/ABCD2345
     //If-Match: "8e984e9b2a8fb560b0085b40f6c2c2b7"
 
     m_allRequestsSend = false;
-    foreach(QSharedPointer<Element> element, items) {
+    foreach(QSharedPointer<Element> element, *items) {
         Entry *entry = dynamic_cast<Entry *>(element.data());
         if(!entry) {
             continue;
@@ -373,10 +373,10 @@ void WriteToZotero::requestFinished()
         // none the less if we have more items to send, send them and hope for the best
         if(m_allRequestsSend && openReplies() == 0) {
             if(!m_itemsToPushCache.isEmpty()) {
-                File smallList;
+                File *smallList = new File;
                 int nextItemCount = m_itemsToPushCache.size() >= MAX_ITEMS_TO_PUSH ? MAX_ITEMS_TO_PUSH : m_itemsToPushCache.size();
                 while (nextItemCount != 0) {
-                    smallList.append( m_itemsToPushCache.takeFirst() );
+                    smallList->append( m_itemsToPushCache.takeFirst() );
                     nextItemCount--;
                 }
                 m_failedItemPush.append(smallList); // will be removed from this list when the zotero server did not return "Internal server error"
@@ -460,10 +460,10 @@ void WriteToZotero::requestFinished()
 
         // we still have to send next 50 new items
         if(!m_itemsToPushCache.isEmpty()) {
-            File smallList;
+            File *smallList = new File;
             int nextItemCount = m_itemsToPushCache.size() >= MAX_ITEMS_TO_PUSH ? MAX_ITEMS_TO_PUSH : m_itemsToPushCache.size();
             while (nextItemCount != 0) {
-                smallList.append( m_itemsToPushCache.takeFirst() );
+                smallList->append( m_itemsToPushCache.takeFirst() );
                 nextItemCount--;
             }
             m_failedItemPush.append(smallList); // will be removed from this list when the zotero server did not return "Internal server error"
@@ -476,12 +476,12 @@ void WriteToZotero::requestFinished()
     }
 }
 
-QByteArray WriteToZotero::writeJsonContent(const File &items, bool onlyUpdate)
+QByteArray WriteToZotero::writeJsonContent(File *items, bool onlyUpdate)
 {
     QVariantMap jsonMap;
     QVariantList itemList;
 
-    foreach(QSharedPointer<Element> element, items) {
+    foreach(QSharedPointer<Element> element, *items) {
         Entry *entry = dynamic_cast<Entry *>(element.data());
         if(!entry) {
             continue;

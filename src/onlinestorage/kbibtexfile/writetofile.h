@@ -37,8 +37,8 @@ public:
     File *getFile();
 
 public slots:
-    void pushItems(const File &items, const QString &collection = QString());
-    void pushNewItems(const File &items, const QString &collection = QString());
+    void pushItems(File *items, const QString &collection = QString());
+    void pushNewItems(File *items, const QString &collection = QString());
 
     /**
       * Not used currently, use @c pushItems() instead to update everything
@@ -54,7 +54,7 @@ public slots:
       * collections in files are not supported
       */
     void removeItemsFromCollection(const QList<QString> &ids, const QString &collection );
-    void deleteItems(const File &items);
+    void deleteItems(File *items);
     void deleteItems(QList<QPair<QString, QString> > items);
 
     /**
@@ -79,7 +79,7 @@ private:
     /**
       * @bug use Kio to export file to network space
       */
-    void exportFile(const File &items);
+    void exportFile(File *items);
 
     File *m_emptyFile;
 };

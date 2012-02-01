@@ -29,8 +29,6 @@
 
 class Library;
 class WriteToZotero;
-//class File;
-class NepomukToBibTexPipe;
 
 class ZoteroUpload : public QObject
 {
@@ -46,10 +44,15 @@ public:
 signals:
     void progress(int value);
     void progressStatus(const QString &status);
+    void askForServerDeletion(QList<SyncDetails>);
+    void askForGroupRemoval(QList<SyncDetails>);
     void finished();
 
 public slots:
     void startUpload();
+    void removeFilesFromGroup(bool removeThem);
+    void removeFilesFromZotero(bool removeThem);
+
     void startAttachmentUpload();
 
     void cancel();
@@ -110,9 +113,9 @@ private:
     WriteToZotero *m_wtz;
     File *m_bibCache;
     File *m_corruptedUploads;
-    NepomukToBibTexPipe *m_ntbp;
 
     QList<Nepomuk::Resource> m_syncDataToBeRemoved;
+    QList<SyncDetails> m_tmpUserDeleteRequest;
 
 };
 

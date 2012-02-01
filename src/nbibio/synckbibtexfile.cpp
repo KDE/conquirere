@@ -212,7 +212,7 @@ void SyncKBibTeXFile::startUpload()
     m_curStep++;
 
     connect(m_wtf, SIGNAL(itemsInfo(File)), this, SLOT(readUploadSync(File)));
-    m_wtf->pushItems(m_bibCache, m_psd.collection);
+    m_wtf->pushItems(&m_bibCache, m_psd.collection);
 }
 
 void SyncKBibTeXFile::readUploadSync(File zoteroData)
@@ -249,3 +249,12 @@ void SyncKBibTeXFile::deleteLocalFiles(bool deleteThem)
 
 }
 
+void SyncKBibTeXFile::deleteServerFiles(bool deleteThem)
+{
+
+}
+
+void SyncKBibTeXFile::deleteFromGroup(bool deleteThem)
+{
+
+}

@@ -65,6 +65,8 @@ signals:
       * forwards the signal to the NBibSync class
       */
     void deleteLocalFiles(bool deleteThem);
+    void deleteServerFiles(bool deleteThem);
+    void removeGroupFiles(bool deleteThem);
     /**
       * forwards the signal to the NBibSync class
       */
@@ -82,7 +84,9 @@ private slots:
     void startSync(const ProviderSyncDetails &psd);
     void currentSyncFinished();
 
-    void popDeletionQuestion(QList<SyncDetails> items);
+    void popLocalDeletionQuestion(QList<SyncDetails> items);
+    void popServerDeletionQuestion(QList<SyncDetails> items);
+    void popGroupRemovalQuestion(QList<SyncDetails> items);
     void popMergeDialog(QList<SyncDetails> items);
     void cancelSync();
 

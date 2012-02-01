@@ -54,7 +54,7 @@ signals:
       *
       * call deleteLocalFiles() when the user made his choice to proceed sync
       */
-    void askForDeletion(QList<SyncDetails>);
+    void askForLocalDeletion(QList<SyncDetails>);
 
     /**
       * emitted when the user needs to decide how to merge certain items

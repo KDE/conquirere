@@ -60,7 +60,9 @@ signals:
       *
       * call deleteLocalFiles() when the user made his choice to proceed sync
       */
-    void askForDeletion(QList<SyncDetails>);
+    void askForLocalDeletion(QList<SyncDetails>);
+    void askForGroupRemoval(QList<SyncDetails>);
+    void askForServerDeletion(QList<SyncDetails>);
 
     /**
       * emitted when the user needs to decide how to merge certain items
@@ -84,6 +86,8 @@ public slots:
       * connects to the response of askForDeletion() and proceeds with the sync
       */
     virtual void deleteLocalFiles(bool deleteThem) = 0;
+    virtual void deleteServerFiles(bool deleteThem) = 0;
+    virtual void deleteFromGroup(bool deleteThem) = 0;
     virtual void mergeFinished() = 0;
 
 protected slots:
