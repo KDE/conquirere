@@ -40,6 +40,12 @@ File *ReadFromFile::getFile()
     return m_importedFile;
 }
 
+QList<CollectionInfo> ReadFromFile::getCollectionInfo()
+{
+    QList<CollectionInfo> empty;
+    return empty;
+}
+
 void ReadFromFile::fetchItems(const QString &collection)
 {
     Q_UNUSED(collection);
@@ -89,7 +95,7 @@ void ReadFromFile::fetchItems(const QString &collection)
 
         m_importedFile = importer->load(&bibFile);
 
-        emit itemsInfo(*m_importedFile);
+        emit finished();
 
         KIO::NetAccess::removeTempFile(tmpFile);
     }

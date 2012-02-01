@@ -46,7 +46,7 @@ public:
 
     File *getFile();
 
-    QList<File> getFailedPushRequestItems();
+    File *getFailedPushRequestItems();
 
 signals:
     /**
@@ -84,7 +84,7 @@ private:
     File m_itemsToPushCache;
 
     /**
-      * when the serevr returns error "Internal Server Error" as responce of a new item push request
+      * when the server returns error "Internal Server Error" as responce of a new item push request
       * we couldn't add the sync data to it. Thus on a next sync we need to keep in mind
       * all intems in this list will be downloaded as duplicates!
       * because the items are available on the server but we don't know what ID they have
@@ -92,7 +92,7 @@ private:
     QList<File> m_failedItemPush;
 
     /**
-      * contains the list of all entries we created newly on teh server and where we didn't get the "Internal Server Error" responce
+      * contains the list of all entries we created newly on the server and where we didn't get the "Internal Server Error" responce
       * So we need to find the duplicates for it and add the zoteroKey to them
       */
     File *m_entriesAfterSync;

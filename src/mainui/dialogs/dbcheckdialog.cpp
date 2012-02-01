@@ -195,7 +195,7 @@ void DbCheckDialog::checkAll()
 
     QString query = "select DISTINCT ?r where { "
                      "?r a ?v2 ."
-                     "FILTER(?v2 in (nco:Contact,nbib:Reference,nbib:Publication,nbib:Series,nbib:DocumentPart,pimo:Event,pimo:Project,sync:ServerSyncData)) ."
+                     "FILTER(?v2 in (nco:Contact,nbib:Reference,nbib:Publication,nbib:Series,nbib:DocumentPart,pimo:Project,sync:ServerSyncData)) ."
                      "OPTIONAL { ?r aneo:akonadiItemId ?fromakonadi } ."
                      "FILTER (!bound(?fromakonadi) )"
                      "}";

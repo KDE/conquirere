@@ -19,7 +19,7 @@
 #include "ui_newprojectwizard.h"
 
 #include "nbibio/nbibsync.h"
-#include "nbibio/synczoteronepomuk.h"
+#include "nbibio/zotero/synczoteronepomuk.h"
 
 #include "core/library.h"
 #include "core/projectsettings.h"

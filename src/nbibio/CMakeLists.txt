@@ -7,7 +7,9 @@ set(nbibio_LIB_SRCS
     nbibimporterbibtex.cpp
 
     nbibsync.cpp
-    synczoteronepomuk.cpp
+    zotero/synczoteronepomuk.cpp
+    zotero/zoterodownload.cpp
+    zotero/zoteroupload.cpp
     synckbibtexfile.cpp
 
     pipe/bibtexpipe.cpp

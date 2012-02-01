@@ -45,9 +45,6 @@ class NBibSync : public QObject
 public:
     explicit NBibSync(QObject *parent = 0);
 
-    void setUniqueProviderID(const QString &id);
-    QString uniqueProviderID() const;
-
     void setProviderDetails(ProviderSyncDetails psd);
     ProviderSyncDetails providerSyncDetails() const;
 

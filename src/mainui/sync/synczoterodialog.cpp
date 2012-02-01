@@ -20,7 +20,7 @@
 #include "onlinestorage/providersettings.h"
 #include "onlinestorage/storageinfo.h"
 
-#include "nbibio/synczoteronepomuk.h"
+#include "nbibio/zotero/synczoteronepomuk.h"
 #include "nbibio/synckbibtexfile.h"
 #include "nbibio/pipe/bibtextonepomukpipe.h"
 

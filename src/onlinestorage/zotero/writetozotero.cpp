@@ -45,9 +45,15 @@ File *WriteToZotero::getFile()
     return m_entriesAfterSync;
 }
 
-QList<File> WriteToZotero::getFailedPushRequestItems()
+File *WriteToZotero::getFailedPushRequestItems()
 {
-    return m_failedItemPush;
+    File *corruptedEntries = new File;
+
+    foreach(File f,  m_failedItemPush) {
+        corruptedEntries->append(f);
+    }
+
+    return corruptedEntries;
 }
 
 void WriteToZotero::pushItems(const File &items, const QString &collection)
@@ -67,7 +73,7 @@ void WriteToZotero::pushItems(const File &items, const QString &collection)
     File newItems;
     File updatingItems;
 
-    foreach(QSharedPointer<Element> element, items) {
+    foreach(const QSharedPointer<Element> &element, items) {
         Entry *entry = dynamic_cast<Entry *>(element.data());
         if(!entry) {
             continue;

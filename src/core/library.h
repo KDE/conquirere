@@ -141,8 +141,9 @@ public:
       * like the reference for the publication, or a nbib:Series if it did not contain any other publications
       * or a nbib:Collection if we deleted the only article in it
       *
+      * @p recursiveDeletion if this is true also the publication from a reference will be deleted. BEside they zotero sync shouldn't be necessary
       */
-    void deleteResource(Nepomuk::Resource & resource);
+    void deleteResource(Nepomuk::Resource & resource, bool recursiveDeletion = false);
 
     /**
       * Updates all cached list data

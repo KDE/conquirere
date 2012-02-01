@@ -466,12 +466,12 @@ void PropertyEdit::removeCompletionData(const QList<QUrl> &urls)
 void PropertyEdit::insertCompletionModel( const QList< Nepomuk::Query::Result > &entries, QStandardItemModel *completerModel)
 {
     QList<QStandardItem *> allnewItems;
-    foreach(const Nepomuk::Query::Result & r, entries) {
-        QStandardItem *item = new QStandardItem(r.resource().genericLabel());
-        item->setData(r.resource().resourceUri().toString().trimmed());
+//    foreach(const Nepomuk::Query::Result & r, entries) {
+//        QStandardItem *item = new QStandardItem(r.resource().genericLabel());
+//        item->setData(r.resource().resourceUri().toString().trimmed());
 
-        allnewItems.append(item);
-    }
+//        allnewItems.append(item);
+//    }
 
     // ok this is a wired bug, if we insert new items after we added the first batch we need to use
     // appendRow rather that appendColumn otherwise it won't show up in the popup list

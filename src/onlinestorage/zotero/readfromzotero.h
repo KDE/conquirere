@@ -56,6 +56,7 @@ public:
     Entry * readItemEntry(QXmlStreamReader &xmlReader);
     void readJsonContent(Entry *e, const QString &content);
     File *getFile();
+    QList<CollectionInfo> getCollectionInfo();
 
     /**
       * Set search filter as specified in the read api

@@ -71,7 +71,7 @@ private slots:
     void switchProvider(int curIndex);
     void showHelp();
     void fetchCollection();
-    void fillCollectionList(const QList<CollectionInfo> &collectionList);
+    void fillCollectionList();
 
 private:
     Ui::ProviderSettings *ui;

@@ -61,19 +61,6 @@ using namespace Soprano::Vocabulary;
 BibTexToNepomukPipe::BibTexToNepomukPipe()
 : m_replaceMode(false)
 {
-}
-
-BibTexToNepomukPipe::~BibTexToNepomukPipe()
-{
-
-}
-
-void BibTexToNepomukPipe::pipeExport(File & bibEntries)
-{
-    emit progress(0);
-
-    //create the collection used for importing
-
     // we start by fetching all contacts etc for the conflict checking
     // this reduce the need to query nepomuk with every new author again and again
     Nepomuk::Query::ResourceTypeTerm type( NCO::Contact() );
@@ -115,6 +102,18 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
         QString title = nqr.resource().property(NIE::title()).toString();
         m_allCollection.insert(QString(title.toUtf8()), nqr.resource());
     }
+}
+
+BibTexToNepomukPipe::~BibTexToNepomukPipe()
+{
+
+}
+
+void BibTexToNepomukPipe::pipeExport(File & bibEntries)
+{
+    emit progress(0);
+
+    //create the collection used for importing
 
     int maxValue = bibEntries.size();
     qreal perFileProgress = (100.0/(qreal)maxValue);
@@ -380,12 +379,10 @@ void BibTexToNepomukPipe::createNoteContent(Entry *e)
     if(!keywords.isEmpty())
         addKewords(keywords, note);
 
-
     Nepomuk::Resource empty;
     if(e->contains(QLatin1String("zoterokey"))) {
         addZoteroSyncDetails(note, empty, e);
     }
-
 }
 
 QUrl BibTexToNepomukPipe::typeToUrl(const QString & entryType)
@@ -556,62 +553,52 @@ Entry *BibTexToNepomukPipe::getDiff(Nepomuk::Resource local, Entry *externalEntr
 
 void BibTexToNepomukPipe::merge(Nepomuk::Resource syncResource, Entry *external, bool keepLocal)
 {
-    m_replaceMode = true;
+    kDebug() << syncResource.genericLabel() << keepLocal;
 
-    Nepomuk::Resource publication = syncResource.property(NBIB::publication()).toResource();
-    Nepomuk::Resource reference = syncResource.property(NBIB::reference()).toResource();
+    m_replaceMode = true; // tells all functions we call from addContent() to replace the values with the new ones
 
-    if(!publication.isValid())
-        publication = Nepomuk::Resource(QUrl(), NBIB::Publication());
+    Nepomuk::Resource publication;
+    Nepomuk::Resource reference;
+    QUrl syncType = syncResource.property(SYNC::syncDataType()).toUrl();
 
-    if(!reference.isValid())
-        reference = Nepomuk::Resource(QUrl(), NBIB::Reference());
-
-    Entry *diffEntry = getDiff(syncResource, external, keepLocal);
-
-    kDebug() << "created the diff" << diffEntry->size() << "changed entries";
-
-    emit progress(0);
-
-    //create the collection used for importing
-
-    // we start by fetching all contacts for the conflict checking
-    // this reduce the need to query nepomuk with every new author again and again
-    Nepomuk::Query::ResourceTypeTerm type( NCO::Contact() );
-    Nepomuk::Query::Query query( type );
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
-    foreach(const Nepomuk::Query::Result & nqr, queryResult) {
-        QString fullname = nqr.resource().property(NCO::fullname()).toString();
-        m_allContacts.insert(fullname, nqr.resource());
+    if( syncType == SYNC::Note()) {
+        publication = syncResource.property(SYNC::note()).toResource();
+    }
+    else if ( syncType == SYNC::Attachment()) {
+        publication = syncResource.property(SYNC::attachment()).toResource();
+    }
+    else {
+        publication = syncResource.property(NBIB::publication()).toResource();
+        reference = syncResource.property(NBIB::reference()).toResource();
     }
 
-    Nepomuk::Query::ResourceTypeTerm typeP( NBIB::Proceedings() );
-    Nepomuk::Query::Query queryP( typeP );
-    QList<Nepomuk::Query::Result> queryResultP = Nepomuk::Query::QueryServiceClient::syncQuery(queryP);
-    foreach(const Nepomuk::Query::Result & nqr, queryResultP) {
-        QString title = nqr.resource().property(NIE::title()).toString();
-        m_allProceedings.insert(QString(title.toUtf8()), nqr.resource());
-    }
+    // so we update only whats different
+    // and if keep local is true, only thjose entries that do not exist currently
+    Entry *diffEntry = getDiff(publication, external, keepLocal);
 
-    int maxValue = diffEntry->size();
-    qreal perFileProgress = (100.0/(qreal)maxValue);
-    qreal curProcess = 0.0;
+    kDebug() << "created the diff with" << diffEntry->size() << "changed entries";
 
     // update zotero sync details
-    if(diffEntry->contains(QLatin1String("zoterokey"))) {
+    if(external->contains(QLatin1String("zoterokey"))) {
         addZoteroSyncDetails(publication, reference, diffEntry );
+    }
+
+    if(external->type() == QLatin1String("note")) {
+        // here the note key is actually the content of the note
+        QTextDocument content;
+        content.setHtml( PlainTextValue::text(external->value(QLatin1String("note"))).simplified() );
+        publication.setProperty(NIE::plainTextContent(), content.toPlainText());
+        publication.setProperty(NIE::htmlContent(), content.toHtml());
+        diffEntry->remove( QLatin1String("note") );
     }
 
     //go through the list of all remaining entries
     QMapIterator<QString, Value> i(*diffEntry);
     while (i.hasNext()) {
         i.next();
+        kDebug() << "merge key" << i.key().toLower() << "from resource" << publication.genericLabel();
         addContent(i.key().toLower(), i.value(), publication, reference, diffEntry->type());
-        curProcess += perFileProgress;
-        emit progress(curProcess);
     }
-
-    emit progress(100);
 }
 
 void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType)

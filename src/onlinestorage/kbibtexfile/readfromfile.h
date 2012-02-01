@@ -40,6 +40,7 @@ public:
     explicit ReadFromFile(QObject *parent = 0);
 
     File *getFile();
+    QList<CollectionInfo> getCollectionInfo();
 
 public slots:
     /**

@@ -31,7 +31,8 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     , m_fetchIncomplete(false)
 {
     // ignore note / attachment downloads with normal requests
-    m_searchFilter = ("&itemType=-note || attachment");
+//    m_searchFilter = ("&itemType=-note || attachment");
+        m_searchFilter = ("&itemType=-attachment");
 
     // build the mappinglist
     // @see https://api.zotero.org/itemTypeFields?itemType=presentation&pprint=1
@@ -273,15 +274,7 @@ void ReadFromZotero::requestFinished()
         return;
     }
     else {
-        // we are done so send the new info
-        switch(requestType()) {
-        case Items:
-            emit itemsInfo(*m_bibFile);
-            break;
-        case Collections:
-            emit collectionsInfo(m_cachedCollectionResult);
-            break;
-        }
+        emit finished();
     }
 }
 
@@ -417,6 +410,11 @@ void ReadFromZotero::readJsonContent(Entry *e, const QString &content)
 File *ReadFromZotero::getFile()
 {
     return m_bibFile;
+}
+
+QList<CollectionInfo> ReadFromZotero::getCollectionInfo()
+{
+    return m_cachedCollectionResult;
 }
 
 void ReadFromZotero::setSearchFilter(const QString &filter)

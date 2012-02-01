@@ -31,16 +31,6 @@ NBibSync::NBibSync(QObject *parent)
     qRegisterMetaType<SyncDetails>("File");
 }
 
-void NBibSync::setUniqueProviderID(const QString &id)
-{
-    m_uniqueId = id;
-}
-
-QString NBibSync::uniqueProviderID() const
-{
-    return m_uniqueId;
-}
-
 void NBibSync::setProviderDetails(ProviderSyncDetails psd)
 {
     m_psd = psd;

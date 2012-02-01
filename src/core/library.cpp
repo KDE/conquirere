@@ -270,22 +270,48 @@ void Library::removeResource(Nepomuk::Resource & res)
     }
 }
 
-void Library::deleteResource(Nepomuk::Resource & resource)
+void Library::deleteResource(Nepomuk::Resource & resource, bool recursiveDeletion)
 {
+    kDebug() << "delete resource" << resource.genericLabel();
     if( resource.hasType(Nepomuk::Vocabulary::NBIB::Reference() ) ) {
         Nepomuk::Resource publication = resource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-        publication.removeProperty(Nepomuk::Vocabulary::NBIB::reference(), resource );
 
-        emit resourceCacheNeedsUpdate(publication);
+        // remove also all notes related only to this reference
+        QList<Nepomuk::Resource> notes = resource.property(Soprano::Vocabulary::NAO::isRelated()).toResourceList();
+        foreach(Nepomuk::Resource note, notes) {
+
+            // only delete notes that are sololey related to the reference
+            // keep notes tha tfor example are related to the note and the publication
+            QList<Nepomuk::Resource> relations = note.property(Soprano::Vocabulary::NAO::isRelated()).toResourceList();
+            if(!relations.isEmpty() && relations.size() < 2) {
+                note.remove();
+            }
+        }
+
+        if(!notes.isEmpty() && notes.size() > 1) {
+            notes.first().remove();
+        }
+
+        if(recursiveDeletion) {
+            deleteResource(publication);
+        }
+        else {
+            publication.removeProperty(Nepomuk::Vocabulary::NBIB::reference(), resource );
+            emit resourceCacheNeedsUpdate(publication);
+        }
     }
     else if( resource.hasType(Nepomuk::Vocabulary::NBIB::Publication()) ){
         Nepomuk::Resource series = resource.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+        series.removeProperty( Nepomuk::Vocabulary::NBIB::seriesOf(), resource);
+        // if it wasn't the series of any other publication, remove this too
         QList<Nepomuk::Resource> seriesPubilcations = series.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
         if(seriesPubilcations.isEmpty()) {
             series.remove();
         }
 
         Nepomuk::Resource collection = resource.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+        collection.removeProperty( Nepomuk::Vocabulary::NBIB::article(), resource);
+        // if it wasn't teh collection of any other article, delete it too
         QList<Nepomuk::Resource> articles = collection.property(Nepomuk::Vocabulary::NBIB::article()).toResourceList();
         if(articles.isEmpty()) {
             collection.remove();
@@ -293,16 +319,23 @@ void Library::deleteResource(Nepomuk::Resource & resource)
 
         QList<Nepomuk::Resource> references = resource.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
         foreach(Nepomuk::Resource r, references) {
-            r.remove();
+            deleteResource(r);
         }
 
         QList<Nepomuk::Resource> documentParts = resource.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
         foreach(Nepomuk::Resource dp, documentParts) {
             dp.remove();
         }
+
+        // delete the notes regardless of the amount of other isRelated stuff
+        // the notes attached to a publication make no sese as standalone note anyway
+        QList<Nepomuk::Resource> notes = resource.property(Soprano::Vocabulary::NAO::isRelated()).toResourceList();
+        foreach(Nepomuk::Resource note, notes) {
+            note.remove();
+        }
     }
 
-    // finally remove the resource from teh nepomuk storage
+    // finally remove the resource from the nepomuk storage
     resource.remove();
 }
 

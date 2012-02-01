@@ -49,6 +49,7 @@ public:
     void setAdoptBibtexTypes(bool adopt);
     bool adoptBibtexTypes() const;
     virtual File *getFile() = 0;
+    virtual QList<CollectionInfo> getCollectionInfo() = 0;
 
 signals:
     /**
@@ -62,19 +63,9 @@ signals:
     void progress(int currentProgress);
 
     /**
-      * This signal will be emitted if the processed data is ready
-      *
-      * @p collections information about all available collections
+      * downlaod finished, retrieve the items from getFile()
       */
-    void collectionsInfo(const QList<CollectionInfo> &collections);
-
-    /**
-      * This signal will be emitted if the processed data is ready
-      *
-      * @p items the bibtex files containing all available bibtex items
-      *          the result should be merged with the current entries
-      */
-    void itemsInfo(const File &items);
+    void finished();
 
 public slots:
     void cancelDownload();

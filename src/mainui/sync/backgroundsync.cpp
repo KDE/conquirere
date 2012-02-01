@@ -23,7 +23,7 @@
 #include "onlinestorage/storageinfo.h"
 #include "onlinestorage/storageinfo.h"
 
-#include "nbibio/synczoteronepomuk.h"
+#include "nbibio/zotero/synczoteronepomuk.h"
 #include "nbibio/synckbibtexfile.h"
 
 #include "nbibio/pipe/bibtextonepomukpipe.h" //just until we created the merge dialog
@@ -96,7 +96,7 @@ void BackgroundSync::startSync(const ProviderSyncDetails &psd)
     kDebug() << "pwd" << psd.pwd;
     kDebug() << "collection" << psd.collection;
 
-    delete m_syncNepomuk;
+//    delete m_syncNepomuk;
     if(psd.providerInfo->providerId() == QLatin1String("zotero")) {
         m_syncNepomuk = new SyncZoteroNepomuk;
     }

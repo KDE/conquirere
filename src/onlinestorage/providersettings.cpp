@@ -265,7 +265,7 @@ void ProviderSettings::findPasswordInKWallet()
 void ProviderSettings::switchProvider(int curIndex)
 {
     foreach(StorageInfo* si, m_availableProvider)
-        disconnect(si->readHandle(), SIGNAL(collectionsInfo(QList<CollectionInfo>)), this, SLOT(fillCollectionList(QList<CollectionInfo>)));
+        disconnect(si->readHandle(), SIGNAL(finished()), this, SLOT(fillCollectionList()));
 
     ui->listCollection->clear();
 
@@ -290,7 +290,7 @@ void ProviderSettings::switchProvider(int curIndex)
         ui->removeCollection->setEnabled(true);
         ui->fetchCollection->setEnabled(true);
         ui->listCollection->setEnabled(true);
-        connect(m_availableProvider.at(curIndex)->readHandle(), SIGNAL(collectionsInfo(QList<CollectionInfo>)), this, SLOT(fillCollectionList(QList<CollectionInfo>)));
+        connect(m_availableProvider.at(curIndex)->readHandle(), SIGNAL(finished()), this, SLOT(fillCollectionList()));
     }
     else {
         ui->collectionLabel->setEnabled(false);
@@ -330,8 +330,12 @@ void ProviderSettings::fetchCollection()
     rfs->fetchCollections();
 }
 
-void ProviderSettings::fillCollectionList(const QList<CollectionInfo> &collectionList)
+void ProviderSettings::fillCollectionList()
 {
+//    kDebug() << "muh";
+    ReadFromStorage *rfs = qobject_cast<ReadFromStorage *>(sender());
+    QList<CollectionInfo> collectionList = rfs->getCollectionInfo();
+
     ui->listCollection->clear();
 
     ui->listCollection->addItem(i18n("no collection"), QString());
