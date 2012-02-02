@@ -32,6 +32,7 @@ set(mainui_LIB_SRCS
     sync/synczoterodialog.cpp
     sync/backgroundsync.cpp
     sync/storagesyncwizard.cpp
+    sync/itemdeletedialog.cpp
 
     sidebar/sidebarwidget.cpp
     sidebar/sidebarcomponent.cpp
@@ -74,6 +75,7 @@ kde4_add_ui_files( mainui_LIB_SRCS
                    sync/bibtexexportdialog.ui
                    sync/bibteximportwizard.ui
                    sync/storagesyncwizard.ui
+                   sync/itemdeletedialog.ui
 
                    sidebar/referencewidget.ui
                    sidebar/listpublicationsdialog.ui

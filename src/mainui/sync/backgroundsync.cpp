@@ -20,6 +20,8 @@
 #include "core/library.h"
 #include "../librarymanager.h"
 
+#include "mainui/sync/itemdeletedialog.h"
+
 #include "onlinestorage/storageinfo.h"
 #include "onlinestorage/storageinfo.h"
 
@@ -151,9 +153,12 @@ void BackgroundSync::startSync(const ProviderSyncDetails &psd)
 
 void BackgroundSync::popLocalDeletionQuestion(QList<SyncDetails> items)
 {
-    int ret = KMessageBox::warningYesNo(0,i18n("%1 items are deleted on the server.\n\nDo you want to delete them locally too?.\nOtherwise they will be uploaded again with the next sync.", items.size()));
+    ItemDeleteDialog idd(ItemDeleteDialog::LocalDelete);
 
-    if(ret == KMessageBox::Yes) {
+    idd.setItems(items);
+    int ret = idd.exec();
+
+    if(ret == QDialog::Accepted) {
         emit deleteLocalFiles(true);
     }
     else {
@@ -163,9 +168,12 @@ void BackgroundSync::popLocalDeletionQuestion(QList<SyncDetails> items)
 
 void BackgroundSync::popServerDeletionQuestion(QList<SyncDetails> items)
 {
-    int ret = KMessageBox::warningYesNo(0,i18n("%1 items are deleted locally.\n\nDo you want to delete them on the server too?.\nOtherwise they will be downloaded again with the next sync.", items.size()));
+    ItemDeleteDialog idd(ItemDeleteDialog::ServerDelete);
 
-    if(ret == KMessageBox::Yes) {
+    idd.setItems(items);
+    int ret = idd.exec();
+
+    if(ret == QDialog::Accepted) {
         emit deleteServerFiles(true);
     }
     else {
@@ -175,9 +183,12 @@ void BackgroundSync::popServerDeletionQuestion(QList<SyncDetails> items)
 
 void BackgroundSync::popGroupRemovalQuestion(QList<SyncDetails> items)
 {
-    int ret = KMessageBox::warningYesNo(0,i18n("%1 items are removed from the local project.\n\nDo you want to remove them from the server group too?.\nOtherwise they will be attached to the group again with the next sync.", items.size()));
+    ItemDeleteDialog idd(ItemDeleteDialog::ServerGroupRemoval);
 
-    if(ret == KMessageBox::Yes) {
+    idd.setItems(items);
+    int ret = idd.exec();
+
+    if(ret == QDialog::Accepted) {
         emit removeGroupFiles(true);
     }
     else {
