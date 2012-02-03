@@ -27,6 +27,7 @@
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/NUAO>
 #include <Nepomuk/Vocabulary/PIMO>
+#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Variant>
 #include <Nepomuk/Tag>
 
@@ -35,6 +36,7 @@
 #include <QtCore/QSharedPointer>
 
 using namespace Nepomuk::Vocabulary;
+using namespace Soprano::Vocabulary;
 
 NepomukToBibTexPipe::NepomukToBibTexPipe()
     : m_bibtexFile(0)
@@ -98,21 +100,30 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
         Entry *e = entry.data();
         e->setType(entryType);
         e->setId(citeKey);
+
+        // special handling for notes
         if( entryType == QLatin1String("Note")) {
             collectNoteContent(e, publication);
+
+            if(m_addNepomukUris) {
+                Value v1;
+                v1.append(QSharedPointer<ValueItem>(new PlainText(publication.resourceUri().toString())));
+                e->insert(QLatin1String("nepomuk-note-uri"), v1);
+            }
         }
+        // all other references
         else {
             collectContent(e, reference, publication);
-        }
 
-        if(m_addNepomukUris) {
-            Value v1;
-            v1.append(QSharedPointer<ValueItem>(new PlainText(publication.resourceUri().toString())));
-            e->insert(QLatin1String("nepomuk-publication-uri"), v1);
-            if(reference.isValid()) {
-                Value v2;
-                v2.append(QSharedPointer<ValueItem>(new PlainText(reference.resourceUri().toString())));
-                e->insert(QLatin1String("nepomuk-reference-uri"), v2);
+            if(m_addNepomukUris) {
+                Value v1;
+                v1.append(QSharedPointer<ValueItem>(new PlainText(publication.resourceUri().toString())));
+                e->insert(QLatin1String("nepomuk-publication-uri"), v1);
+                if(reference.isValid()) {
+                    Value v2;
+                    v2.append(QSharedPointer<ValueItem>(new PlainText(reference.resourceUri().toString())));
+                    e->insert(QLatin1String("nepomuk-reference-uri"), v2);
+                }
             }
         }
 
@@ -294,11 +305,44 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
 
 void NepomukToBibTexPipe::collectNoteContent(Entry *e, Nepomuk::Resource publication)
 {
+    kDebug() << "collectNoteContent";
     setValue(e, publication, NIE::plainTextContent(), QLatin1String("note"));
     setKewords(e, publication);
 
     // Zotero additions
     setSyncDetails(e, publication);
+
+    // if we don't have a zotero key we might need to add a new item and need to know the parent of it first
+    if(e->contains("zoteroKey"))
+        return;
+
+    QList<Nepomuk::Resource> parents = publication.property(NAO::isRelated()).toResourceList();
+
+    foreach( const Nepomuk::Resource &r, parents) {
+        QList<Nepomuk::Resource> sycList = r.property(SYNC::serverSyncData()).toResourceList();
+
+        // only add the sync details the the right storage
+        foreach(const Nepomuk::Resource &parentSync, sycList) {
+            if(parentSync.property(SYNC::provider()).toString() != QString("zotero")) { //TODO make this possible for others too
+                continue;
+            }
+            if(parentSync.property(SYNC::userId()).toString() != m_syncUserId) {
+                continue;
+            }
+            if(parentSync.property(SYNC::url()).toString() != m_syncUrl) {
+                continue;
+            }
+
+            //now we have the right object, write down parent sync details
+
+            QString updated = parentSync.property(SYNC::id()).toString();
+            Value v3;
+            v3.append(QSharedPointer<ValueItem>(new PlainText(updated)));
+            e->insert(QLatin1String("zoteroParent"), v3);
+
+            return; // stop here
+        }
+    }
 }
 
 void NepomukToBibTexPipe::setTitle(Entry *e, Nepomuk::Resource publication, Nepomuk::Resource reference)
@@ -736,10 +780,10 @@ void NepomukToBibTexPipe::setSyncDetails(Entry *e, Nepomuk::Resource publication
         if(r.property(SYNC::provider()).toString() != QString("zotero")) { //TODO make this possible for others too
             continue;
         }
-        if(r.property(SYNC::userId()).toString() != m_syncUserId) {//TODO make this possible for others too
+        if(r.property(SYNC::userId()).toString() != m_syncUserId) {
             continue;
         }
-        if(r.property(SYNC::url()).toString() != m_syncUrl) {//TODO make this possible for others too
+        if(r.property(SYNC::url()).toString() != m_syncUrl) {
             continue;
         }
 

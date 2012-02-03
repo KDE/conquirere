@@ -111,20 +111,31 @@ void ZoteroUpload::startUpload()
 
     calculateProgress(0);
 
-    Nepomuk::Query::AndTerm andTerm;
-    andTerm.addSubTerm(  Nepomuk::Query::ResourceTypeTerm(  NBIB::Reference() ) );
-
-    // if we sync with a Library project restrict the nepomuk resources
-    // to only thouse in this project
-    if(m_libraryToSyncWith->libraryType() == Library_Project) {
-        Nepomuk::Query::OrTerm orTerm;
-        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm(  PIMO::isRelated(),
-                           Nepomuk::Query::ResourceTerm(m_libraryToSyncWith->settings()->projectThing() )));
-        andTerm.addSubTerm(orTerm);
+    QString projectFilter;
+    if( m_libraryToSyncWith->libraryType() == Library_Project) {
+        projectFilter =  "?r nbib:publication ?publication . "
+                         "?publication pimo:isRelated <" + m_libraryToSyncWith->settings()->projectThing().resourceUri().toString() + "> . ";
     }
 
-    Nepomuk::Query::Query query( andTerm );
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
+    QString query = "select DISTINCT ?r where {"
+    + projectFilter +
+    "{"
+    "?r a nbib:Reference ."
+    "}"
+    "UNION"
+    "{"
+    "?r a pimo:Note ."
+    "?r nao:isRelated ?x ."
+    "?x a nbib:Reference ."
+    "}"
+    "UNION"
+    "{"
+    "?r a pimo:Note ."
+    "?r sync:serverSyncData ?h . FILTER (bound(?h))"
+    "}"
+    "}";
+
+    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
 
     QList<Nepomuk::Resource> exportList;
     foreach(const Nepomuk::Query::Result & r, queryResult) {
@@ -312,7 +323,7 @@ void ZoteroUpload::removeFilesFromGroup()
         // the current project anymore
         // This will be a huge list if we have lots of items
         // as it really gets all items that are not in the group
-        // but there is no way to tell if we just removed one item from a group earlyer or if it was never in this group bef
+        // but there is no way to tell if we just removed one item from a group earlier or if it was never in this group before
         query += "?r nbib:reference ?reference . "
                  "Optional { ?reference pimo:isRelated ?pimoRef . }"
                  "FILTER (!bound (?pimoRef)) . ";
@@ -571,11 +582,13 @@ Nepomuk::Resource ZoteroUpload::writeNewSyncDetailsToNepomuk(Entry *localData, c
 
 
     // Now theck where this sync data belongs to
-
-    if(localData->type() == QLatin1String("note")) {
+    if(localData->type().toLower() == QLatin1String("note")) {
         syncDetails.setProperty( SYNC::syncDataType(), SYNC::Note());
 
         QString noteUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-note-uri")));
+        if(noteUri.isEmpty())
+            noteUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-publication-uri")));
+
         Nepomuk::Resource note = Nepomuk::Resource(QUrl(noteUri));
 
         if(!note.exists())

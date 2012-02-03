@@ -625,7 +625,8 @@ void BibTexToNepomukPipe::mergeManual(Nepomuk::Resource syncResource, Entry *sel
         addZoteroSyncDetails(publication, reference, selectedDiff );
     }
 
-    if(selectedDiff->type() == QLatin1String("note")) {
+    if(selectedDiff->type().toLower() == QLatin1String("note")) {
+        kDebug() << "change note content to" << PlainTextValue::text(selectedDiff->value(QLatin1String("note"))).simplified();
         // here the note key is actually the content of the note
         QTextDocument content;
         content.setHtml( PlainTextValue::text(selectedDiff->value(QLatin1String("note"))).simplified() );
@@ -1575,23 +1576,18 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Ne
 
     if(e->type() == QLatin1String("note")) {
         syncDetails.setProperty(SYNC::syncDataType(), SYNC::Note());
-
         syncDetails.setProperty(SYNC::note(), publication);
-
         publication.setProperty(SYNC::serverSyncData(), syncDetails);
     }
     else if(e->type() == QLatin1String("attachment")) {
         syncDetails.setProperty(SYNC::syncDataType(), SYNC::Attachment());
-
         syncDetails.setProperty(SYNC::attachment(), publication);
         publication.setProperty(SYNC::serverSyncData(), syncDetails);
     }
     else {
         syncDetails.setProperty(SYNC::syncDataType(), SYNC::BibResource());
-
         syncDetails.setProperty(NBIB::publication(), publication);
         syncDetails.setProperty(NBIB::reference(), reference);
-
         publication.setProperty(SYNC::serverSyncData(), syncDetails);
         reference.setProperty(SYNC::serverSyncData(), syncDetails);
     }

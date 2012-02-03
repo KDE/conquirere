@@ -269,6 +269,8 @@ void ItemMergeDialog::showItem(int index)
 
     QUrl syncType = mr.localSyncResource.property(SYNC::syncDataType()).toUrl();
 
+    kDebug() << "sync type" << syncType << "entry item type" << mr.mergedChanges->type();
+
     if( syncType == SYNC::Note()) {
         publication = mr.localSyncResource.property(SYNC::note()).toResource();
         ui->itemIcon->setPixmap(KIcon("knotes").pixmap(22,22));
