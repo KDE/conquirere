@@ -21,14 +21,13 @@
 #include "../librarymanager.h"
 
 #include "mainui/sync/itemdeletedialog.h"
+#include "mainui/sync/itemmergedialog.h"
 
 #include "onlinestorage/storageinfo.h"
 #include "onlinestorage/storageinfo.h"
 
 #include "nbibio/zotero/synczoteronepomuk.h"
 #include "nbibio/synckbibtexfile.h"
-
-#include "nbibio/pipe/bibtextonepomukpipe.h" //just until we created the merge dialog
 
 #include <KDE/KMessageBox>
 #include <KWallet/Wallet>
@@ -97,6 +96,7 @@ void BackgroundSync::startSync(const ProviderSyncDetails &psd)
     kDebug() << "user" << psd.userName;
     kDebug() << "pwd" << psd.pwd;
     kDebug() << "collection" << psd.collection;
+    m_currentPsd = psd;
 
 //    delete m_syncNepomuk;
     if(psd.providerInfo->providerId() == QLatin1String("zotero")) {
@@ -198,17 +198,16 @@ void BackgroundSync::popGroupRemovalQuestion(QList<SyncDetails> items)
 
 void BackgroundSync::popMergeDialog(QList<SyncDetails> items)
 {
-    kDebug() << "show blocking merge dialog for " << items.size() << "items";
+    ItemMergeDialog imd;
 
-    KMessageBox::sorry( 0, QLatin1String("TODO:: User selected entry merging, default to use server verion for now."), QLatin1String("Sorry") );
-
-    ProviderSyncDetails psd = m_syncList.first();
-
-    foreach(const SyncDetails &sd, items) {
-        BibTexToNepomukPipe mergePipe;
-        mergePipe.setSyncDetails(psd.url, psd.userName);
-        mergePipe.merge(sd.syncResource, sd.externalResource, false);
+    imd.setProviderDetails(m_currentPsd);
+    if(m_libraryToSync) {
+        imd.setLibraryToSyncWith(m_libraryToSync);
     }
+
+    imd.setItemsToMerge(items);
+
+    imd.exec();
 
     emit mergeFinished();
 }

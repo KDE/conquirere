@@ -24,6 +24,9 @@
 #include "onlinestorage/storageglobals.h"
 #include "onlinestorage/storageinfo.h"
 
+#include "mainui/sync/itemdeletedialog.h"
+#include "mainui/sync/itemmergedialog.h"
+
 #include "nbibio/zotero/synczoteronepomuk.h"
 #include "nbibio/synckbibtexfile.h"
 #include "nbibio/pipe/bibtextonepomukpipe.h"
@@ -213,9 +216,12 @@ void ProgressPage::initializePage()
 
 void ProgressPage::popLocalDeletionQuestion(QList<SyncDetails> items)
 {
-    int ret = KMessageBox::warningYesNo(0,i18n("%1 items are deleted on the server.\n\nDo you want to delete them locally too?.\nOtherwise they will be uploaded again with the next sync.", items.size()));
+    ItemDeleteDialog idd(ItemDeleteDialog::LocalDelete);
 
-    if(ret == KMessageBox::Yes) {
+    idd.setItems(items);
+    int ret = idd.exec();
+
+    if(ret == QDialog::Accepted) {
         emit deleteLocalFiles(true);
     }
     else {
@@ -225,9 +231,12 @@ void ProgressPage::popLocalDeletionQuestion(QList<SyncDetails> items)
 
 void ProgressPage::popServerDeletionQuestion(QList<SyncDetails> items)
 {
-    int ret = KMessageBox::warningYesNo(0,i18n("%1 items are deleted locally.\n\nDo you want to delete them on the server too?.\nOtherwise they will be downloaded again with the next sync.", items.size()));
+    ItemDeleteDialog idd(ItemDeleteDialog::ServerDelete);
 
-    if(ret == KMessageBox::Yes) {
+    idd.setItems(items);
+    int ret = idd.exec();
+
+    if(ret == QDialog::Accepted) {
         emit deleteServerFiles(true);
     }
     else {
@@ -237,9 +246,12 @@ void ProgressPage::popServerDeletionQuestion(QList<SyncDetails> items)
 
 void ProgressPage::popGroupRemovalQuestion(QList<SyncDetails> items)
 {
-    int ret = KMessageBox::warningYesNo(0,i18n("%1 items are removed from the local project.\n\nDo you want to remove them from the server group too?.\nOtherwise they will be attached to the group again with the next sync.", items.size()));
+    ItemDeleteDialog idd(ItemDeleteDialog::ServerGroupRemoval);
 
-    if(ret == KMessageBox::Yes) {
+    idd.setItems(items);
+    int ret = idd.exec();
+
+    if(ret == QDialog::Accepted) {
         emit removeGroupFiles(true);
     }
     else {
@@ -250,18 +262,17 @@ void ProgressPage::popGroupRemovalQuestion(QList<SyncDetails> items)
 
 void ProgressPage::popMergeDialog(QList<SyncDetails> items)
 {
-    kDebug() << "show blocking merge dialog for " << items.size() << "items";
-
-    KMessageBox::sorry( this, QLatin1String("TODO:: User selected entry merging, default to use server verion for now."), QLatin1String("Sorry") );
+    ItemMergeDialog imd;
 
     StorageSyncWizard *ssw = qobject_cast<StorageSyncWizard *>(wizard());
+
     ProviderSyncDetails psd = ssw->sp->providerSettings->providerSettingsDetails();
 
-    foreach(const SyncDetails &sd, items) {
-        BibTexToNepomukPipe mergePipe;
-        mergePipe.setSyncDetails(psd.url, psd.userName);
-        mergePipe.merge(sd.syncResource, sd.externalResource, false);
-    }
+    imd.setProviderDetails(psd);
+
+    imd.setItemsToMerge(items);
+
+    imd.exec();
 
     emit mergeFinished();
 }

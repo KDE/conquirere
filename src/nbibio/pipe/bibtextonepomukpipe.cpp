@@ -500,7 +500,7 @@ QUrl BibTexToNepomukPipe::typeToUrl(const QString & entryType)
     }
 }
 
-Entry *BibTexToNepomukPipe::getDiff(Nepomuk::Resource local, Entry *externalEntry, bool keepLocal)
+Entry *BibTexToNepomukPipe::getDiff(Nepomuk::Resource local, Entry *externalEntry, bool keepLocal, QSharedPointer<Entry> &localEntry)
 {
     //first we transform the nepomuk resource to a flat bibtex entry
     QList<Nepomuk::Resource> resources;
@@ -510,7 +510,8 @@ Entry *BibTexToNepomukPipe::getDiff(Nepomuk::Resource local, Entry *externalEntr
 
     File *localBibFile = ntbp.bibtexFile();
 
-    Entry *localEntry = static_cast<Entry *>(localBibFile->first().data());
+    localEntry = localBibFile->first().staticCast<Entry>();
+
     if(!localEntry)
         return 0;
 
@@ -553,8 +554,6 @@ Entry *BibTexToNepomukPipe::getDiff(Nepomuk::Resource local, Entry *externalEntr
 
 void BibTexToNepomukPipe::merge(Nepomuk::Resource syncResource, Entry *external, bool keepLocal)
 {
-    kDebug() << syncResource.genericLabel() << keepLocal;
-
     m_replaceMode = true; // tells all functions we call from addContent() to replace the values with the new ones
 
     Nepomuk::Resource publication;
@@ -573,8 +572,9 @@ void BibTexToNepomukPipe::merge(Nepomuk::Resource syncResource, Entry *external,
     }
 
     // so we update only whats different
-    // and if keep local is true, only thjose entries that do not exist currently
-    Entry *diffEntry = getDiff(publication, external, keepLocal);
+    // and if keep local is true, only those entries that do not exist currently
+    QSharedPointer<Entry> nepomukEntry;
+    Entry *diffEntry = getDiff(publication, external, keepLocal, nepomukEntry);
 
     kDebug() << "created the diff with" << diffEntry->size() << "changed entries";
 
@@ -598,6 +598,48 @@ void BibTexToNepomukPipe::merge(Nepomuk::Resource syncResource, Entry *external,
         i.next();
         kDebug() << "merge key" << i.key().toLower() << "from resource" << publication.genericLabel();
         addContent(i.key().toLower(), i.value(), publication, reference, diffEntry->type());
+    }
+}
+
+void BibTexToNepomukPipe::mergeManual(Nepomuk::Resource syncResource, Entry *selectedDiff)
+{
+    m_replaceMode = true; // tells all functions we call from addContent() to replace the values with the new ones
+
+    Nepomuk::Resource publication;
+    Nepomuk::Resource reference;
+    QUrl syncType = syncResource.property(SYNC::syncDataType()).toUrl();
+
+    if( syncType == SYNC::Note()) {
+        publication = syncResource.property(SYNC::note()).toResource();
+    }
+    else if ( syncType == SYNC::Attachment()) {
+        publication = syncResource.property(SYNC::attachment()).toResource();
+    }
+    else {
+        publication = syncResource.property(NBIB::publication()).toResource();
+        reference = syncResource.property(NBIB::reference()).toResource();
+    }
+
+    // update zotero sync details
+    if(selectedDiff->contains(QLatin1String("zoterokey"))) {
+        addZoteroSyncDetails(publication, reference, selectedDiff );
+    }
+
+    if(selectedDiff->type() == QLatin1String("note")) {
+        // here the note key is actually the content of the note
+        QTextDocument content;
+        content.setHtml( PlainTextValue::text(selectedDiff->value(QLatin1String("note"))).simplified() );
+        publication.setProperty(NIE::plainTextContent(), content.toPlainText());
+        publication.setProperty(NIE::htmlContent(), content.toHtml());
+        selectedDiff->remove( QLatin1String("note") );
+    }
+
+    //go through the list of all remaining entries
+    QMapIterator<QString, Value> i(*selectedDiff);
+    while (i.hasNext()) {
+        i.next();
+        kDebug() << "merge key" << i.key().toLower() << "from resource" << publication.genericLabel();
+        addContent(i.key().toLower(), i.value(), publication, reference, selectedDiff->type());
     }
 }
 

@@ -102,6 +102,7 @@ private:
     Library *m_libraryToSync;
     QThread *m_syncThread;
     NBibSync *m_syncNepomuk;
+    ProviderSyncDetails m_currentPsd;
 
     int m_syncSteps;
     int m_curStep;

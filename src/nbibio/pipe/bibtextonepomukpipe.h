@@ -54,6 +54,10 @@ public:
       */
     void pipeExport(File & bibEntries);
     void merge(Nepomuk::Resource syncResource, Entry *external, bool keepLocal);
+    void mergeManual(Nepomuk::Resource syncResource, Entry *selectedDiff);
+
+    /* updating entry */
+    static Entry * getDiff(Nepomuk::Resource local, Entry *externalEntry, bool keepLocal, QSharedPointer<Entry> &localEntry);
 
     /**
       * Sets the Akonadi addressbook where all contacts (authors, editors etc) are imported to beside the Nepomuk storage.
@@ -100,9 +104,6 @@ private:
 
     QUrl typeToUrl(const QString & entryType);
     void addContent(const QString &key, const Value &value, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
-
-    /* updating entry */
-    Entry * getDiff(Nepomuk::Resource local, Entry *externalEntry, bool keepLocal);
 
     /* Helping functions */
     void addPublisher(const Value &publisherString, const Value &address, Nepomuk::Resource publication);
