@@ -41,6 +41,8 @@ public:
     void setSystemLibrary(Library *sl);
     void setLibraryToSyncWith(Library *l);
 
+    File *corruptedUploads();
+
 signals:
     void progress(int value);
     void progressStatus(const QString &status);

@@ -156,7 +156,7 @@ void ItemMergeDialog::setItemsToMerge(QList<SyncDetails> items)
             publication = sd.syncResource.property(SYNC::attachment()).toResource();
         }
         else {
-            publication = sd.syncResource.property(NBIB::publication()).toResource();
+            publication = sd.syncResource.property(NBIB::reference()).toResource();
         }
 
         MergedResults mr;

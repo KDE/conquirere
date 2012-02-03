@@ -22,6 +22,7 @@
 
 class ZoteroDownload;
 class ZoteroUpload;
+class File;
 
 /**
   * @brief Base class to sync nepomuk data with the Zotero online service
@@ -69,9 +70,7 @@ public:
 
 public slots:
     void startDownload();
-    void startAttachmentDownload();
     void startUpload();
-    void startAttachmentUpload();
     void startSync();
     void cancel();
 
@@ -84,27 +83,12 @@ private slots:
     void downloadFinished();
     void uploadFinished();
 
-    /**
-      * Attachment uploads are a tiny bit different as we have to take care about
-      * its parent. Also as this contains large binary blogs (pdf etc) we should do this
-      * one by one.
-      *
-      * this slot calls itself recursive and always takes the next attachment from m_attachmentsToUpload
-      * until it is finished.
-      */
-    void uploadNextAttachment();
-
-private:
-//    QSharedPointer<Element> transformAttachmentToBibTeX(Nepomuk::Resource resource);
-
 private:
     bool m_syncMode;
     bool m_cancel;
     ZoteroDownload *m_zoteroDownload;
     ZoteroUpload *m_zoteroUpload;
-
-//    QList<Nepomuk::Resource> m_syncDataToBeRemoved; // sync data that tells us to delete items on the server side
-                                                    // will be removed when we succeed on the server side
+    File *m_corruptedUploads;
 };
 
 #endif // SYNCZOTERONEPOMUK_H

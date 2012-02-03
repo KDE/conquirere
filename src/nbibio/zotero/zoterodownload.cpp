@@ -99,10 +99,9 @@ void ZoteroDownload::startDownload()
 
     connect(m_rfz, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
     emit progressStatus(i18n("fetch data from Zotero server"));
+    calculateProgress(0);
 
-    if(m_cancel) {
-        finishAndCleanUp(); // cancel and clean up correctly
-    }
+    if(m_cancel) { finishAndCleanUp(); }
 
     //lets start by retrieving all items from the server and merge them with the current data
     connect(m_rfz, SIGNAL(finished()), this, SLOT(readDownloadSync()));
@@ -135,8 +134,6 @@ void ZoteroDownload::readDownloadSync()
     m_tmpUserDeleteRequest.clear();
     findRemovedEntries();
 
-    kDebug() << m_tmpUserDeleteRequest.size() << "items removed on the server remove them in the localstorage too";
-
     if(m_cancel) { finishAndCleanUp(); return; }
 
     // now we have all files from the server and those that should be removed
@@ -168,8 +165,6 @@ void ZoteroDownload::readDownloadSyncAfterDelete()
     findDuplicates(existingItems);
 
     if(!m_tmpUserMergeRequest.isEmpty()) {
-        kDebug() << "merge request necessary for " << m_tmpUserMergeRequest.size() << "items";
-
         if(m_psd.mergeMode == Manual) {
             emit userMerge(m_tmpUserMergeRequest);
         }
@@ -207,9 +202,7 @@ void ZoteroDownload::readDownloadSyncAfterDelete()
         calculateProgress(50);
     }
 
-    if(m_cancel) {
-        mergeFinished(); // cancel and clean up correctly
-    }
+    if(m_cancel) { mergeFinished(); }
 
     // wait until the user merged all entries on its own
     if(m_tmpUserMergeRequest.size() > 0) {
@@ -222,12 +215,17 @@ void ZoteroDownload::readDownloadSyncAfterDelete()
 
 void ZoteroDownload::startAttachmentDownload()
 {
+    m_attachmentMode = true;
+
+    kDebug() << "start attachment Download";
+
     m_currentStep++;
     calculateProgress(0);
 
     emit progressStatus(i18n("fetch zotero attachment infos"));
+    calculateProgress(100);
 
-    kDebug() << "start attachment Download";
+    finishAndCleanUp();
 }
 
 void ZoteroDownload::deleteLocalFiles(bool deleteThem)
@@ -329,6 +327,7 @@ void ZoteroDownload::cancel()
 
 void ZoteroDownload::finishAndCleanUp()
 {
+    calculateProgress(100);
     kDebug() << "finishAndCleanUp";
     emit finished();
 }

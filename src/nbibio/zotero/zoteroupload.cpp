@@ -82,6 +82,11 @@ void ZoteroUpload::setLibraryToSyncWith(Library *l)
     m_libraryToSyncWith = l;
 }
 
+File *ZoteroUpload::corruptedUploads()
+{
+    return m_corruptedUploads;
+}
+
 void ZoteroUpload::startUpload()
 {
     Q_ASSERT( m_systemLibrary != 0);
@@ -138,9 +143,9 @@ void ZoteroUpload::startUpload()
     ntbp->pipeExport(exportList);
     m_bibCache = ntbp->bibtexFile();
 
-    //BUG workaround that carsh the system otherwise
-    // no clue why put if we push m_bibCache into the WriteToZotero class @ m_wtz->pushItems(m_bibCache, m_psd.collection) the
-    // QSharedPointers from m_bibCache get invalid and the dynamic_csat crash the system
+    //BUG workaround that crash the system otherwise
+    // no clue why but if we push m_bibCache into the WriteToZotero class @ m_wtz->pushItems(m_bibCache, m_psd.collection) the
+    // QSharedPointers from m_bibCache get invalid and the dynamic_cast crash the system
     // therefore I need to create this twice ... as this function is fast enough its stil ok,
     // but must be fixed nonetheless
     delete ntbp;
@@ -216,7 +221,7 @@ void ZoteroUpload::readUploadSync()
                 // ignore abstract
                 if(i.key().startsWith( QLatin1String("abstract") ))
                     continue;
-                if(i.key().startsWith( QLatin1String("keywords") )) // might fail because we don#t keep the same order
+                if(i.key().startsWith( QLatin1String("keywords") )) // might fail because we don't keep the same order
                     continue;
 
                 //get local value for currentkey
@@ -444,7 +449,6 @@ void ZoteroUpload::removeFilesFromZotero()
 
 void ZoteroUpload::removeFilesFromZotero(bool removeThem)
 {
-    kDebug() << "remove " << m_tmpUserDeleteRequest.size() << "items?" << removeThem;
     if(removeThem) {
         QList<QPair<QString, QString> > idsToBeRemoved;
         foreach(SyncDetails sd, m_tmpUserDeleteRequest) {
@@ -476,7 +480,9 @@ void ZoteroUpload::removeFilesFromZotero(bool removeThem)
 
 void ZoteroUpload::cleanupAfterUpload()
 {
-    kDebug() << "cleanup and start child / note upload";
+    calculateProgress(100);
+
+    kDebug() << "cleanup and start attachment upload";
     foreach(Nepomuk::Resource r, m_syncDataToBeRemoved) {
         r.remove();
     }
@@ -486,12 +492,26 @@ void ZoteroUpload::cleanupAfterUpload()
     m_wtz->deleteLater();
     m_wtz = 0;
 
-    emit finished();
+    if(m_psd.exportAttachments && !m_attachmentMode) {
+        startAttachmentUpload();
+    }
+    else {
+        emit finished();
+    }
 }
 
 void ZoteroUpload::startAttachmentUpload()
 {
+    m_attachmentMode = true;
+    kDebug() << "start attachment upload ...";
 
+    m_currentStep++;
+    calculateProgress(0);
+
+    emit progressStatus(i18n("upload attachments to zotero"));
+    calculateProgress(100);
+
+    cleanupAfterUpload();
 }
 
 void ZoteroUpload::uploadNextAttachment()
@@ -503,8 +523,9 @@ void ZoteroUpload::cancel()
 {
     m_cancel = true;
 
-    if(m_wtz)
+    if(m_wtz) {
         m_wtz->cancelUpload();
+    }
 }
 
 void ZoteroUpload::updateSyncDetailsToNepomuk(const QString &id, const QString &etag, const QString &updated)
@@ -534,7 +555,6 @@ void ZoteroUpload::updateSyncDetailsToNepomuk(const QString &id, const QString &
 
 Nepomuk::Resource ZoteroUpload::writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated)
 {
-    kDebug() << "local entry" << localData->type() << id;
     // This one is only called when we upload new data to the server
     // So we know we must have a valid Nepomuk::Resource attached to the "localData" Entry
 
@@ -605,18 +625,11 @@ Nepomuk::Resource ZoteroUpload::writeNewSyncDetailsToNepomuk(Entry *localData, c
     return syncDetails;
 }
 
-//QSharedPointer<Element> ZoteroUpload::transformAttachmentToBibTeX(Nepomuk::Resource resource)
-//{
-
-//}
-
 void ZoteroUpload::calculateProgress(int value)
 {
     qreal curProgress = ((qreal)value * 1.0/m_syncSteps);
 
     curProgress += (qreal)(100.0/m_syncSteps) * m_currentStep;
-
-//    kDebug() << curProgress << m_syncSteps << m_currentStep;
 
     emit progress(curProgress);
 }
