@@ -71,6 +71,7 @@ private:
       */
     QString retrieveEntryType(Nepomuk::Resource reference, Nepomuk::Resource publication);
     void collectContent(Entry *e, Nepomuk::Resource reference, Nepomuk::Resource publication);
+    void collectNoteContent(Entry *e, Nepomuk::Resource publication);
 
     // Helper function to get the nepomuk data
     // title + booktitle

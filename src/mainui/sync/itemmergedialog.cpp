@@ -45,6 +45,7 @@ using namespace Nepomuk::Vocabulary;
 ItemMergeDialog::ItemMergeDialog(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::ItemMergeDialog)
+    , m_libraryToSyncWith(0)
     , m_currentItem(0)
     , m_localScrollArea(0)
     , m_serverScrollArea(0)
@@ -229,7 +230,8 @@ void ItemMergeDialog::finish()
 {
     BibTexToNepomukPipe btnp;
     btnp.setSyncDetails(m_psd.url, m_psd.userName);
-    if(m_libraryToSyncWith->libraryType() == Library_Project) {
+
+    if(m_libraryToSyncWith && m_libraryToSyncWith->libraryType() == Library_Project) {
         btnp.setProjectPimoThing(m_libraryToSyncWith->settings()->projectThing());
     }
 

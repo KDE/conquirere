@@ -26,6 +26,7 @@
 #include <Nepomuk/Vocabulary/NFO>
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/NUAO>
+#include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Variant>
 #include <Nepomuk/Tag>
 
@@ -97,7 +98,12 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
         Entry *e = entry.data();
         e->setType(entryType);
         e->setId(citeKey);
-        collectContent(e, reference, publication);
+        if( entryType == QLatin1String("Note")) {
+            collectNoteContent(e, publication);
+        }
+        else {
+            collectContent(e, reference, publication);
+        }
 
         if(m_addNepomukUris) {
             Value v1;
@@ -185,6 +191,9 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
         else {
             type = QLatin1String("Article"); //normal article in a journal, magazine pr newspaper
         }
+    }
+    else if(publication.hasType( PIMO::Note() )) {
+        type = QLatin1String("Note");
     }
     // all other cases
     else {
@@ -278,6 +287,15 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
     setValue(e, publication, NBIB::numberOfVolumes(), QLatin1String("numberofvolumes"));
     setValue(e, publication, NBIB::mapScale(), QLatin1String("scale"));
     setValue(e, publication, NBIB::history(), QLatin1String("history"));
+
+    // Zotero additions
+    setSyncDetails(e, publication);
+}
+
+void NepomukToBibTexPipe::collectNoteContent(Entry *e, Nepomuk::Resource publication)
+{
+    setValue(e, publication, NIE::plainTextContent(), QLatin1String("note"));
+    setKewords(e, publication);
 
     // Zotero additions
     setSyncDetails(e, publication);
