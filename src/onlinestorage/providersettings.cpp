@@ -16,7 +16,7 @@
  */
 
 #include "providersettings.h"
-#include "ui_providersettings.h"
+#include "onlinestorage/ui_providersettings.h"
 
 #include "storageinfo.h"
 #include "syncstorage.h"
@@ -33,6 +33,10 @@ ProviderSettings::ProviderSettings(QWidget *parent, bool showAkonadiStuff)
     , ui(new Ui::ProviderSettings)
 {
     ui->setupUi(this);
+
+    ui->contactCollection->setEnabled(false);
+    ui->localStorageUrl->setEnabled(false);
+    ui->storageLabel->setEnabled(false);
 
     m_wallet = KWallet::Wallet::openWallet(KWallet::Wallet::NetworkWallet(),winId(), KWallet::Wallet::Synchronous);
     if(!m_wallet->hasFolder(QLatin1String("kbibtex"))) {
@@ -53,6 +57,9 @@ ProviderSettings::ProviderSettings(QWidget *parent, bool showAkonadiStuff)
     switchProvider(0);
 
     connect(ui->providerUserName, SIGNAL(textChanged(QString)), this, SLOT(findPasswordInKWallet()));
+    connect(ui->providerUserName, SIGNAL(textChanged(QString)), this, SLOT(showLocalStoragePathCompletion()));
+    connect(ui->localStorageUrl, SIGNAL(textChanged(QString)), this, SLOT(showLocalStoragePathCompletion()));
+    connect(ui->providerSelection, SIGNAL(currentIndexChanged(int)), this, SLOT(showLocalStoragePathCompletion()));
 
     ui->fetchCollection->setIcon(KIcon(QLatin1String("svn-update")));
     ui->addCollection->setIcon(KIcon(QLatin1String("list-add")));
@@ -90,7 +97,7 @@ void ProviderSettings::setProviderSettingsDetails(const ProviderSyncDetails &psd
     m_oldPsd = psd;
     ui->providerUserName->setText(psd.userName);
 
-    // switch to teh selected provider
+    // switch to the selected provider
     int curIndex=0;
     foreach(StorageInfo *si, m_availableProvider) {
         if(si->providerId() == psd.providerInfo->providerId())
@@ -101,15 +108,19 @@ void ProviderSettings::setProviderSettingsDetails(const ProviderSyncDetails &psd
 
     ui->providerSelection->setCurrentIndex(curIndex);
 
-    if(ui->providerUrl->text().isEmpty())
+    if(ui->providerUrl->text().isEmpty()) {
         ui->providerUrl->setText(m_availableProvider.at(curIndex)->defaultUrl());
-    else
+    }
+    else {
         ui->providerUrl->setText(psd.url);
+    }
 
-    if(ui->providerUrlRequester->text().isEmpty())
+    if(ui->providerUrlRequester->text().isEmpty()) {
         ui->providerUrlRequester->setText(m_availableProvider.at(curIndex)->defaultUrl());
-    else
+    }
+    else {
         ui->providerUrlRequester->setText(psd.url);
+    }
 
     QString pwdKey;
     pwdKey.append(psd.providerInfo->providerId());
@@ -136,6 +147,9 @@ void ProviderSettings::setProviderSettingsDetails(const ProviderSyncDetails &psd
     ui->askDeletion->setChecked(psd.askBeforeDeletion);
     ui->importAttachments->setChecked(psd.importAttachments);
     ui->exportAttachments->setChecked(psd.exportAttachments);
+
+    ui->localStorageUrl->setEnabled( psd.importAttachments );
+    ui->localStorageUrl->setUrl( psd.localStoragePath );
 
     if(psd.akonadiContactsUUid < 1) {
         ui->addContactsToAkonadi->setChecked(false);
@@ -174,6 +188,8 @@ ProviderSyncDetails ProviderSettings::providerSettingsDetails() const
     psd.askBeforeDeletion = ui->askDeletion->isChecked();
     psd.importAttachments = ui->importAttachments->isChecked();
     psd.exportAttachments = ui->exportAttachments->isChecked();
+
+    psd.localStoragePath = ui->localStorageUrl->text();
 
     if(ui->addContactsToAkonadi->isChecked() && ui->contactCollection->count() != 0) {
         int curAddressBook = ui->contactCollection->currentIndex();
@@ -332,7 +348,6 @@ void ProviderSettings::fetchCollection()
 
 void ProviderSettings::fillCollectionList()
 {
-//    kDebug() << "muh";
     ReadFromStorage *rfs = qobject_cast<ReadFromStorage *>(sender());
     QList<CollectionInfo> collectionList = rfs->getCollectionInfo();
 
@@ -346,4 +361,16 @@ void ProviderSettings::fillCollectionList()
     if(!m_oldPsd.collection.isEmpty()) {
         ui->listCollection->setCurrentItem(m_oldPsd.collection,true);
     }
+}
+
+void ProviderSettings::showLocalStoragePathCompletion()
+{
+    QString path = ui->localStorageUrl->text();
+    if(!path.isEmpty()) {
+        int curProviderIndex = ui->providerSelection->currentIndex();
+
+        path.append( QLatin1String("/") + m_availableProvider.at(curProviderIndex)->providerId() + QLatin1String("/") + ui->providerUserName->text());
+    }
+
+    ui->localStoragePath->setText(path);
 }

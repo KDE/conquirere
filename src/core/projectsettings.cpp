@@ -231,6 +231,7 @@ QString ProjectSettings::setProviderSyncDetails(const ProviderSyncDetails &psd, 
     providerGroup.writeEntry(QLatin1String("syncMode"), (int)psd.syncMode);
     providerGroup.writeEntry(QLatin1String("importAttachments"), psd.importAttachments);
     providerGroup.writeEntry(QLatin1String("exportAttachments"), psd.exportAttachments);
+    providerGroup.writeEntry(QLatin1String("localStoragePath"), psd.localStoragePath);
     providerGroup.writeEntry(QLatin1String("akonadiContactsUUid"), psd.akonadiContactsUUid);
     providerGroup.writeEntry(QLatin1String("akonadiEventsUUid"), psd.akonadiEventsUUid);
 
@@ -308,6 +309,8 @@ ProviderSyncDetails ProjectSettings::providerSyncDetails(const QString &uuid) co
         psd.exportAttachments = false;
     else
         psd.exportAttachments = true;
+
+    psd.localStoragePath = providerGroup.readEntry("localStoragePath", QString());
 
     QString akonadiContactsUUid = providerGroup.readEntry("akonadiContactsUUid", QString());
     psd.akonadiContactsUUid = akonadiContactsUUid.toInt();

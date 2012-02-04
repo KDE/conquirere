@@ -73,6 +73,8 @@ private slots:
     void fetchCollection();
     void fillCollectionList();
 
+    void showLocalStoragePathCompletion();
+
 private:
     Ui::ProviderSettings *ui;
     ProviderSyncDetails m_oldPsd;

@@ -127,7 +127,6 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
             }
         }
 
-
         m_bibtexFile->append(entry);
     }
 }
@@ -775,6 +774,17 @@ void NepomukToBibTexPipe::setSyncDetails(Entry *e, Nepomuk::Resource publication
 {
     QList<Nepomuk::Resource> sycList = publication.property(SYNC::serverSyncData()).toResourceList();
 
+    QUrl syncDataType;
+    if(publication.hasType(PIMO::Note())) {
+        syncDataType = SYNC::Note();
+    }
+    else if(publication.hasType(NBIB::Reference()) || publication.hasType(NBIB::Publication())) {
+        syncDataType = SYNC::BibResource();
+    }
+    else{
+        syncDataType = SYNC::Attachment();
+    }
+
     // only add the sync details the the right storage
     foreach(const Nepomuk::Resource &r, sycList) {
         if(r.property(SYNC::provider()).toString() != QString("zotero")) { //TODO make this possible for others too
@@ -784,6 +794,11 @@ void NepomukToBibTexPipe::setSyncDetails(Entry *e, Nepomuk::Resource publication
             continue;
         }
         if(r.property(SYNC::url()).toString() != m_syncUrl) {
+            continue;
+        }
+        // this step is necessary to find the right sync detail resource when we double type.
+        // As we might have Attachment and bibresource on the same nepomukresource (double typed)
+        if(r.property(SYNC::syncDataType()).toUrl() != syncDataType) {
             continue;
         }
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>473</width>
-    <height>407</height>
+    <width>480</width>
+    <height>457</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -288,7 +288,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0" colspan="2">
+        <item row="6" column="0" colspan="2">
          <widget class="QCheckBox" name="addContactsToAkonadi">
           <property name="enabled">
            <bool>true</bool>
@@ -298,7 +298,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="2">
+        <item row="6" column="2">
          <widget class="KComboBox" name="contactCollection">
           <property name="enabled">
            <bool>true</bool>
@@ -311,7 +311,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0" colspan="2">
+        <item row="7" column="0" colspan="2">
          <widget class="QCheckBox" name="addEventsToAkonadi">
           <property name="enabled">
            <bool>false</bool>
@@ -321,7 +321,7 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="2">
+        <item row="7" column="2">
          <widget class="KComboBox" name="eventCollection">
           <property name="enabled">
            <bool>false</bool>
@@ -366,7 +366,31 @@
         <item row="2" column="0" colspan="3">
          <widget class="QCheckBox" name="askDeletion">
           <property name="text">
-           <string>Ask before local entries are deleted</string>
+           <string>Ask before entries are deleted</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1" colspan="2">
+         <widget class="KUrlRequester" name="localStorageUrl">
+          <property name="mode">
+           <set>KFile::Directory|KFile::LocalOnly</set>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="storageLabel">
+          <property name="text">
+           <string>Local Storage:</string>
+          </property>
+          <property name="buddy">
+           <cstring>localStorageUrl</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1" colspan="2">
+         <widget class="QLabel" name="localStoragePath">
+          <property name="text">
+           <string notr="true"/>
           </property>
          </widget>
         </item>
@@ -410,6 +434,86 @@
     <hint type="destinationlabel">
      <x>93</x>
      <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addContactsToAkonadi</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>contactCollection</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>163</x>
+     <y>407</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>350</x>
+     <y>404</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addEventsToAkonadi</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>eventCollection</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>182</x>
+     <y>433</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>334</x>
+     <y>430</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>importAttachments</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>localStorageUrl</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>161</x>
+     <y>328</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>165</x>
+     <y>344</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>importAttachments</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>storageLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>82</x>
+     <y>325</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>76</x>
+     <y>348</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>importAttachments</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>localStoragePath</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>125</x>
+     <y>321</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>203</x>
+     <y>375</y>
     </hint>
    </hints>
   </connection>

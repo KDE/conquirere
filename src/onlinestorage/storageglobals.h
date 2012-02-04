@@ -55,7 +55,7 @@ enum MergeStrategy {
 class StorageInfo;
 
 /**
-  * Holds information about the provider to sync with
+  * @brief Holds information about the provider to sync with
   */
 struct ProviderSyncDetails {
     QString uuid;
@@ -64,6 +64,7 @@ struct ProviderSyncDetails {
     QString pwd;
     QString url;
     QString collection;
+    QString localStoragePath;
     SyncMode syncMode;
     MergeStrategy mergeMode;
     bool askBeforeDeletion;
