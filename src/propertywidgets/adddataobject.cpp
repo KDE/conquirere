@@ -85,15 +85,17 @@ void AddDataObject::fillListWidget()
 
     foreach( const Nepomuk::Resource & nr, dataObjectList) {
         QString url = nr.property( Nepomuk::Vocabulary::NIE::url() ).toString();
-        if(m_mode == FileObjectEdit::Local && nr.hasType(Nepomuk::Vocabulary::NFO::FileDataObject())) {
-            ui->keditlistwidget->insertItem(url);
-            continue;
-        }
+
         if(m_mode == FileObjectEdit::Remote && nr.hasType(Nepomuk::Vocabulary::NFO::RemoteDataObject())) {
             ui->keditlistwidget->insertItem(url);
             continue;
         }
-        if(m_mode == FileObjectEdit::Website && nr.hasType(Nepomuk::Vocabulary::NFO::Website())) {
+        else if(m_mode == FileObjectEdit::Local && nr.hasType(Nepomuk::Vocabulary::NFO::FileDataObject())
+                && !nr.hasType(Nepomuk::Vocabulary::NFO::RemoteDataObject())) {
+            ui->keditlistwidget->insertItem(url);
+            continue;
+        }
+        else if(m_mode == FileObjectEdit::Website && nr.hasType(Nepomuk::Vocabulary::NFO::WebDataObject())) {
             ui->keditlistwidget->insertItem(url);
             continue;
         }
@@ -126,9 +128,8 @@ void AddDataObject::addItem(const QString & itemUrl)
         dataObject = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NFO::RemoteDataObject());
         dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), itemUrl);
     }
-    //TODO change this to NFO::WebDataObject() when available
     else if(m_mode == FileObjectEdit::Website) {
-        dataObject = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NFO::Website());
+        dataObject = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NFO::WebDataObject());
         dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), itemUrl);
     }
 

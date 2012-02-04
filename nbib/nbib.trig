@@ -487,18 +487,14 @@ nbib: {
          rdfs:domain nfo:Document ;
          rdfs:comment "Links a document to its publication information." ;
          rdfs:label "publishedAs" ;
-         rdfs:range nbib:Publication ;
-         rdfs:subPropertyOf nie:isLogicalPartOf ;
-         nrl:inverseProperty nbib:isPublicationOf .
+         rdfs:range nbib:Publication .
 
    nbib:isPublicationOf
          a       rdf:Property ;
          rdfs:domain nbib:Publication ;
          rdfs:comment "Links a publication to its document." ;
          rdfs:label "isPublicationOf" ;
-         rdfs:subPropertyOf nie:hasLogicalPart ;
-         rdfs:range nfo:Document ;
-         nrl:inverseProperty nbib:publishedAs .
+         rdfs:range nfo:Document .
 
    nbib:courtReporter
          a       rdf:Property ;

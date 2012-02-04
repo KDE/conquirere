@@ -43,6 +43,7 @@
 
 #include <KDE/KIO/NetAccess>
 #include <QDBusInterface>
+#include <QNetworkReply>
 
 using namespace Nepomuk::Vocabulary;
 using namespace Soprano::Vocabulary;
@@ -180,8 +181,6 @@ void ZoteroDownload::readDownloadSyncAfterDelete()
     // fills also m_newEntries
     findDuplicates(existingItems);
 
-    kDebug() << "found duplicates that needs merging" << existingItems.size();
-
     if(!m_tmpUserMergeRequest.isEmpty()) {
         if(m_psd.mergeMode == Manual) {
             emit userMerge(m_tmpUserMergeRequest);
@@ -212,6 +211,11 @@ void ZoteroDownload::readDownloadSyncAfterDelete()
         m_currentStep++;
         if(m_attachmentMode) {
             importNewAttachments();
+
+            if(!m_newEntriesToDownload->isEmpty()) {
+                downloadNextAttachment();
+                return;
+            }
         }
         else {
             importNewResources();
@@ -235,6 +239,172 @@ void ZoteroDownload::readDownloadSyncAfterDelete()
     else {
         mergeFinished();
     }
+}
+
+void ZoteroDownload::downloadNextAttachment()
+{
+    // if we have nothing to download anymore, proceed
+    if(m_newEntriesToDownload->isEmpty()) {
+        if(m_tmpUserMergeRequest.size() > 0) {
+            emit progressStatus(i18n("wait until user merge is finished"));
+            return;
+        }
+        else {
+            mergeFinished();
+            return;
+        }
+    }
+
+    // else take first element and start the next download
+    QSharedPointer<Element> element = m_newEntriesToDownload->first();
+    Entry *entry = dynamic_cast<Entry *>(element.data());
+
+    if(!entry) { finishAndCleanUp(); return; }
+
+    QString remoteUrlString = PlainTextValue::text(entry->value(QLatin1String("zoteroAttachmentFile")) );
+    remoteUrlString.append(QLatin1String("?key=") + m_psd.pwd );
+
+    QUrl remoteUrl = QUrl( remoteUrlString );
+
+    QString localStoragePath = m_psd.localStoragePath + QLatin1String("/zotero/") + m_psd.userName;
+    QString tmpFile = localStoragePath + QLatin1String("/") + PlainTextValue::text(entry->value(QLatin1String("title")));
+
+    QFileInfo fileInfo(tmpFile);
+    QString fileName = fileInfo.fileName();
+    if (fileName.isEmpty()) {
+        kDebug() << "no filename specified for the attachment download";
+        fileName = QLatin1String("error.pdf");
+    }
+
+    if (QFile::exists(tmpFile)) {
+        kDebug() << "file " << fileName << "exists already, stop download";
+        m_newEntriesToDownload->takeFirst();
+        downloadNextAttachment();
+        return;
+    }
+
+    m_attachmentFile = new QFile(tmpFile);
+    if (!m_attachmentFile->open(QIODevice::WriteOnly)) {
+        qWarning() << "file " << fileName << "can't be opened for the write process";
+        delete m_attachmentFile;
+        m_attachmentFile = 0;
+        m_newEntriesToDownload->takeFirst();
+        downloadNextAttachment();
+        return;
+    }
+
+    emit progressStatus(i18n("download attachment %1 from Zotero", fileName));
+    kDebug() << "start attachment download Remote::" << remoteUrl << "to local" << tmpFile;
+
+    m_downloadReply = qnam.get(QNetworkRequest(remoteUrl));
+    connect(m_downloadReply, SIGNAL(finished()),this, SLOT(attachmentDownloadFinished()));
+    connect(m_downloadReply, SIGNAL(readyRead()),this, SLOT(attachmentReadyRead()));
+    connect(m_downloadReply, SIGNAL(downloadProgress(qint64,qint64)),this, SLOT(updateDataReadProgress(qint64,qint64)));
+}
+
+void ZoteroDownload::attachmentDownloadFinished()
+{
+    if(m_cancel) {
+        if (m_attachmentFile) {
+            m_attachmentFile->close();
+            m_attachmentFile->remove();
+            delete m_attachmentFile;
+            m_attachmentFile = 0;
+        }
+
+        m_downloadReply->deleteLater();
+        m_downloadReply = 0;
+        finishAndCleanUp();
+        return;
+    }
+
+    QVariant redirectionTarget = m_downloadReply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+    if (m_downloadReply->error()) {
+        m_attachmentFile->remove();
+        kDebug() << "download failed" << m_downloadReply->errorString();
+        downloadNextAttachment();
+        return;
+    }
+    // zotero redirects the fiel download to the amazon cloud service, this takes care of those redirects
+    else if (!redirectionTarget.isNull()) {
+        QUrl newUrl = redirectionTarget.toUrl();
+
+        m_downloadReply->deleteLater();
+        m_attachmentFile->open(QIODevice::WriteOnly);
+        m_attachmentFile->resize(0);
+
+        m_downloadReply = qnam.get(QNetworkRequest(newUrl));
+        connect(m_downloadReply, SIGNAL(finished()),this, SLOT(attachmentDownloadFinished()));
+        connect(m_downloadReply, SIGNAL(readyRead()),this, SLOT(attachmentReadyRead()));
+        connect(m_downloadReply, SIGNAL(downloadProgress(qint64,qint64)),this, SLOT(updateDataReadProgress(qint64,qint64)));
+
+        return;
+    }
+
+    m_attachmentFile->flush();
+    m_attachmentFile->close();
+
+    // start nepomuk reindexing on this file
+    kDebug() << "start nepomuk indexer for file " << m_attachmentFile->fileName();
+    m_nepomukDBus->call("org.kde.nepomuk.FileIndexer.indexFile", m_attachmentFile->fileName());
+
+    m_downloadReply->deleteLater();
+    m_downloadReply = 0;
+    delete m_attachmentFile;
+    m_attachmentFile = 0;
+
+    // now push the data into nepomuk
+
+    // first we add the path where the localfile was downloaded to to the entry
+    QSharedPointer<Element> element = m_newEntriesToDownload->first();
+    Entry *entry = dynamic_cast<Entry *>(element.data());
+    if(!entry) { finishAndCleanUp(); return; }
+
+    QString localStoragePath = m_psd.localStoragePath + QLatin1String("/zotero/") + m_psd.userName;
+    QString tmpFile = localStoragePath + QLatin1String("/") + PlainTextValue::text(entry->value(QLatin1String("title")));
+    Value v;
+    v.append(QSharedPointer<ValueItem>(new PlainText(tmpFile)));
+    entry->insert(QLatin1String("localFile"), v);
+
+    // now we push it into the nepomuk storage
+    BibTexToNepomukPipe *btnp = new BibTexToNepomukPipe;
+
+    if(m_libraryToSyncWith->libraryType() == Library_Project) {
+        // relate all new items also to the project
+        btnp->setProjectPimoThing(m_libraryToSyncWith->settings()->projectThing());
+    }
+
+    btnp->setSyncDetails(m_psd.url, m_psd.userName);
+
+    File currentAttachment;
+    kDebug() << "push attachment into nepomuk storage";
+    currentAttachment.append( m_newEntriesToDownload->takeFirst() );
+    btnp->pipeExport(currentAttachment);
+
+    delete btnp;
+
+    downloadNextAttachment();
+}
+
+void ZoteroDownload::attachmentReadyRead()
+{
+    // this slot gets called every time the QNetworkReply has new data.
+    // We read all of its new data and write it into the file.
+    // That way we use less RAM than when reading it at the finished()
+    // signal of the QNetworkReply
+    if (m_attachmentFile) {
+        m_attachmentFile->write(m_downloadReply->readAll());
+    }
+
+    if(m_cancel) {
+        m_downloadReply->abort();
+    }
+}
+
+void ZoteroDownload::updateDataReadProgress(qint64 bytesReceived,qint64 bytesTotal)
+{
+    qreal percent = (100.0/(qreal)bytesTotal) * (qreal)bytesReceived;
+    //kDebug() << "downloaded" << percent;
 }
 
 void ZoteroDownload::startAttachmentDownload()
@@ -789,6 +959,8 @@ void ZoteroDownload::importNewResources()
 
 void ZoteroDownload::importNewAttachments()
 {
+    m_newEntriesToDownload = new File;
+
     // now we check the returned fileinfo from zotero
     // we get either attachments that we can downlaod (.pdf and such)
     // or we get attachments without file, but with a link.
@@ -798,10 +970,7 @@ void ZoteroDownload::importNewAttachments()
     // the files will be added as nfo:FileDataObject to the publication
     // all others as nfo:RemoteDataObject
 
-    qreal progressperFile = 100.0/(qreal)m_newEntries->size();
-    qreal currentProgress = 0.0;
-
-    QString localStoragePath = m_psd.localStoragePath + QLatin1String("/zotero/") + m_psd.userName;
+    //Split the m_newEntries File into downloadable files and links
     foreach(QSharedPointer<Element> element, *m_newEntries) {
 
         if(m_cancel) { return; }
@@ -810,54 +979,35 @@ void ZoteroDownload::importNewAttachments()
         if(!entry) { continue; }
 
         if(entry->contains(QLatin1String("zoteroAttachmentFile"))) {
-            //download file
-            QString remoteFileName = PlainTextValue::text(entry->value(QLatin1String("zoteroTitle")) );
-            QString remoteUrlString = PlainTextValue::text(entry->value(QLatin1String("zoteroAttachmentFile")) );
-            remoteUrlString.append(QLatin1String("?key=") + m_psd.pwd );
 
-            KUrl remoteUrl = KUrl( remoteUrlString );
-            QString tmpFile = localStoragePath + QLatin1String("/") + PlainTextValue::text(entry->value(QLatin1String("title")));
-            kDebug() << "download remote:" << remoteUrl << " to local" << tmpFile;
+            m_newEntriesToDownload->append(element);
+            m_newEntries->removeAll(element);
+        }
+    }
 
-            emit progressStatus(i18n("download file %1 from Zotero", remoteFileName));
+    kDebug() << "attachment import :: Links" << m_newEntries->size() << "files" << m_newEntriesToDownload->size();
 
-            if( KIO::NetAccess::download(remoteUrl, tmpFile, 0)) {
-                kDebug() << "download succeeded ... parse with nepomuk";
-                m_nepomukDBus->call("org.kde.nepomuk.FileIndexer.indexFile", tmpFile);
+    if(!m_newEntries->isEmpty()) {
+        BibTexToNepomukPipe *btnp = new BibTexToNepomukPipe;
 
-                Value v;
-                v.append(QSharedPointer<ValueItem>(new PlainText(tmpFile)));
-                entry->insert(QLatin1String("localFile"), v);
-            }
-            else {
-                kDebug() << "error" << KIO::NetAccess::lastErrorString();
-                m_newEntries->removeAll(element);
-            }
+        if(m_libraryToSyncWith->libraryType() == Library_Project) {
+            // relate all new items also to the project
+            btnp->setProjectPimoThing(m_libraryToSyncWith->settings()->projectThing());
         }
 
-        currentProgress += progressperFile;
-        calculateProgress( currentProgress );
+        connect(btnp, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
+
+        emit progressStatus(i18n("add %1 new Zotero attachments to Nepomuk", m_newEntries->size()));
+        m_currentStep++;
+
+        btnp->setSyncDetails(m_psd.url, m_psd.userName);
+
+        btnp->pipeExport(*m_newEntries);
+
+        delete btnp;
+        delete m_newEntries;
+        m_newEntries = 0;
     }
-
-    BibTexToNepomukPipe *btnp = new BibTexToNepomukPipe;
-
-    if(m_libraryToSyncWith->libraryType() == Library_Project) {
-        // relate all new items also to the project
-        btnp->setProjectPimoThing(m_libraryToSyncWith->settings()->projectThing());
-    }
-
-    connect(btnp, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
-
-    emit progressStatus(i18n("add %1 new Zotero attachments to Nepomuk", m_newEntries->size()));
-    m_currentStep++;
-
-    btnp->setSyncDetails(m_psd.url, m_psd.userName);
-
-    btnp->pipeExport(*m_newEntries);
-
-    delete btnp;
-    delete m_newEntries;
-    m_newEntries = 0;
 }
 
 void ZoteroDownload::calculateProgress(int value)

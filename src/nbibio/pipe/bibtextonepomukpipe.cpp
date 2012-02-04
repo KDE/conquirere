@@ -398,21 +398,24 @@ void BibTexToNepomukPipe::createAttachmentContent(Entry *e)
     //create a new FileDataObject
     Nepomuk::Resource attachment = Nepomuk::Resource();
     attachment.addType(NIE::DataObject());
+    attachment.addType(NFO::FileDataObject());
 
     if(e->contains(QLatin1String("zoteroAttachmentFile"))) {
-        attachment.addType(NFO::FileDataObject());
 
         Value url = e->value("localFile");
         QString localFilePath = PlainTextValue::text(url);
         localFilePath.prepend(QLatin1String("file://"));
         addValue(localFilePath, attachment, NIE::url());
         addValue(localFilePath, attachment, NAO::identifier());
+
+        kDebug() << "create attachment with url" << localFilePath;
     }
     else {
         attachment.addType(NFO::RemoteDataObject());
         Value url = e->value("url");
         addValue(PlainTextValue::text(url), attachment, NAO::identifier());
         addValue(PlainTextValue::text(url), attachment, NIE::url());
+        kDebug() << "create attachment with url" << PlainTextValue::text(url);
     }
 
     Value title = e->value("title");
@@ -444,16 +447,8 @@ void BibTexToNepomukPipe::createAttachmentContent(Entry *e)
     }
 
     Nepomuk::Resource empty;
-    Nepomuk::Resource parent;
     if(e->contains(QLatin1String("zoterokey"))) {
-        parent = addZoteroSyncDetails(attachment, empty, e);
-    }
-
-    if(parent.exists()) {
-        parent.addProperty(NBIB::isPublicationOf(), attachment);
-    }
-    else {
-        kDebug() << "parent did not exist can't add attachment to it";
+        addZoteroSyncDetails(attachment, empty, e);
     }
 }
 
@@ -1513,7 +1508,13 @@ void BibTexToNepomukPipe::addUrl(const QString &content, Nepomuk::Resource publi
 {
     // in merge mode we remove all urls and replace them by whatever we get in the current content
     if(m_replaceMode) {
-        publication.removeProperty(NBIB::isPublicationOf());
+        QList<Nepomuk::Resource> dataObjectList = publication.property(NBIB::isPublicationOf()).toResourceList();
+        foreach(Nepomuk::Resource r, dataObjectList) {
+            if(r.hasType( NFO::WebDataObject() ) ) {
+                publication.removeProperty( NBIB::isPublicationOf(), r);
+                r.removeProperty( NBIB::publishedAs(), publication);
+            }
+        }
     }
 
     // first check if the url is already attached to the publication
@@ -1525,35 +1526,29 @@ void BibTexToNepomukPipe::addUrl(const QString &content, Nepomuk::Resource publi
         }
     }
 
-    QUrl urlType;
+    Nepomuk::Resource dataObject(QString(content.toUtf8()));
+    dataObject.addType( NFO::Document() );
 
     // first check if the given url points to a local file
     KUrl url = KUrl(content);
-    if(url.isLocalFile()) {
-        urlType = NFO::FileDataObject();
+    if(!url.isLocalFile()) {
+        dataObject.addType( NFO::WebDataObject() );
     }
     else {
-        // simple check, either the url ends with ".xxx" like .pdf
-        // than it is a RemoteDataObject
-        // otherwise a Website
-        // this will produce wrong results when the webpage is a php script that returns files
-        QString path = QUrl(content).path();
-
-        if(path.contains(QRegExp(".*\\.\\D{3}$"))) {
-            urlType = NFO::RemoteDataObject();
-        }
-        else {
-            urlType = NFO::Website();
-        }
+        // pure local file
+        dataObject.addType( NFO::FileDataObject() );
     }
 
-    Nepomuk::Resource dataObject(QString(content.toUtf8()), urlType);
     dataObject.setProperty(NIE::url(), QString(content.toUtf8()));
+    dataObject.setProperty(NIE::title(), QString(content.toUtf8()));
     QStringList identifier;
     identifier.append(QString(content.toUtf8()));
     dataObject.setIdentifiers(identifier);
 
+    kDebug() << "add URL to publication" << url;
+
     publication.addProperty(NBIB::isPublicationOf(), dataObject);
+    dataObject.addProperty(NBIB::publishedAs(), publication);
 }
 
 void BibTexToNepomukPipe::addYear(const QString &content, Nepomuk::Resource publication)
@@ -1602,7 +1597,7 @@ void BibTexToNepomukPipe::addKewords(const Value &content, Nepomuk::Resource pub
     }
 }
 
-Nepomuk::Resource BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference, Entry *e)
+void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference, Entry *e)
 {
     QString id = PlainTextValue::text(e->value(QLatin1String("zoterokey")));
     QString etag = PlainTextValue::text(e->value(QLatin1String("zoteroetag")));
@@ -1664,9 +1659,9 @@ Nepomuk::Resource BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource pu
         reference.setProperty(SYNC::serverSyncData(), syncDetails);
     }
 
+    // check if the current item we added is a child oitem and need to be added to a parent too
     if( parentId.isEmpty() ) {
-        Nepomuk::Resource invalid;
-        return invalid;
+        return;
     }
 
     //now we do have a parent id, so find the parent and make the important isRealated relation
@@ -1682,42 +1677,41 @@ Nepomuk::Resource BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource pu
 
     if(results.size() > 1 || results.isEmpty()) {
         kDebug() << "could not find the right sync details for the current parent item query" << "zotero" << m_syncUserId << m_syncUrl << parentId;
-        Nepomuk::Resource invalid;
-        return invalid;
+        return;
     }
 
     Nepomuk::Resource parentSyncResource = results.first().resource();
-    Nepomuk::Resource parentResource;
 
     QUrl syncDataType = parentSyncResource.property(SYNC::syncDataType()).toUrl();
 
     if(syncDataType == SYNC::Attachment()) {
-        Nepomuk::Resource parentAttachment = parentSyncResource.property(SYNC::attachment()).toResource();
-        parentAttachment.addProperty( NAO::isRelated(), publication);
-        publication.addProperty( NAO::isRelated(), parentAttachment);
-        parentResource = parentAttachment;
+        //ignore
     }
     else if(syncDataType == SYNC::Note()) {
-        Nepomuk::Resource parentNote = parentSyncResource.property(SYNC::note()).toResource();
-        parentNote.addProperty( NAO::isRelated(), publication);
-        publication.addProperty( NAO::isRelated(), parentNote);
-        parentResource = parentNote;
+        //ignore
     }
-    else if(syncDataType == SYNC::BibResource()) { // this should be happen to 99% of the time ...
-        Nepomuk::Resource parentPublication = parentSyncResource.property(NBIB::publication()).toResource();
-        parentPublication.addProperty( NAO::isRelated(), publication);
-        publication.addProperty( NAO::isRelated(), parentPublication);
+    else if(syncDataType == SYNC::BibResource()) {
+        // here we ad the information that a note as related(a child) of the reference and the publication
+        // and that the attachment (nfo:FileDataObject) is the publicationOf publishedAs of the nbib:Publication
 
-        Nepomuk::Resource parentReference = parentSyncResource.property(NBIB::reference()).toResource();
-        parentReference.addProperty( NAO::isRelated(), publication);
-        publication.addProperty( NAO::isRelated(), parentReference);
+        if( publication.hasType(PIMO::Note())) {
+            Nepomuk::Resource parentPublication = parentSyncResource.property(NBIB::publication()).toResource();
+            parentPublication.addProperty( NAO::isRelated(), publication);
+            publication.addProperty( NAO::isRelated(), parentPublication);
 
-        parentResource = parentPublication;
+            Nepomuk::Resource parentReference = parentSyncResource.property(NBIB::reference()).toResource();
+            parentReference.addProperty( NAO::isRelated(), publication);
+            publication.addProperty( NAO::isRelated(), parentReference);
+        }
+        else if( publication.hasType(NFO::FileDataObject())) {
+            Nepomuk::Resource parentPublication = parentSyncResource.property(NBIB::publication()).toResource();
+            parentPublication.addProperty( NBIB::isPublicationOf(), publication);  // here the "publication" is the actual file attachment
+            publication.addProperty( NBIB::publishedAs(), parentPublication);
+        }
     }
 
-    syncDetails.setProperty(NAO::isRelated(), parentSyncResource); // connect child to its parent
-
-    return parentResource;
+    // this creates the link for the syncResources so we know how they are connected
+    syncDetails.setProperty(NAO::isRelated(), parentSyncResource); // connect child syncDetails to its parent syncDetails
 }
 
 void BibTexToNepomukPipe::addContact(const Value &contentValue, Nepomuk::Resource res, QUrl property, QUrl contactType )

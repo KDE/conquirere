@@ -158,9 +158,8 @@ private:
       *
       * Also adds it as a nao:isRelated to the zoteroParent if the resource is a child note
       *
-      * @return the parent resource or an invalid resource
       */
-    Nepomuk::Resource addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference, Entry *e);
+    void addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference, Entry *e);
 
     /**
       * creates the contact resource and push it to nepomuk if necessary

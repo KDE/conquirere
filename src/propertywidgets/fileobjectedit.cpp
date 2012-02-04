@@ -46,26 +46,26 @@ void FileObjectEdit::setMode(Mode mode)
 
 void FileObjectEdit::setupLabel()
 {
-    QList<Nepomuk::Resource> dataObjectList = resource().property(propertyUrl()).toResourceList();
+    QList<Nepomuk::Resource> dataObjectList = resource().property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResourceList();
+
+    kDebug() << resource().genericLabel() << "has " << dataObjectList.size() << "publications attached to it";
 
     QString dataStringList;
     foreach(const Nepomuk::Resource & nr, dataObjectList) {
-        QString url = nr.genericLabel(); //nr.property(Nepomuk::Vocabulary::NIE::url()).toString();
+        QString url = nr.genericLabel();
 
-        if(m_mode == Local && nr.resourceType() == Nepomuk::Vocabulary::NFO::FileDataObject()) {
+        if(m_mode == Remote && nr.hasType(Nepomuk::Vocabulary::NFO::RemoteDataObject()) ) {
             dataStringList.append(url);
             dataStringList.append(QLatin1String("; "));
-            continue;
         }
-        else if(m_mode == Remote && nr.resourceType() == Nepomuk::Vocabulary::NFO::RemoteDataObject()) {
+        else if(m_mode == Local && nr.hasType(Nepomuk::Vocabulary::NFO::FileDataObject() )
+                && !nr.hasType(Nepomuk::Vocabulary::NFO::RemoteDataObject())) {
             dataStringList.append(url);
             dataStringList.append(QLatin1String("; "));
-            continue;
         }
-        else if(m_mode == Website && nr.resourceType() == Nepomuk::Vocabulary::NFO::Website()) {
+        else if(m_mode == Website && nr.hasType(Nepomuk::Vocabulary::NFO::WebDataObject()) ) {
             dataStringList.append(url);
             dataStringList.append(QLatin1String("; "));
-            continue;
         }
     }
 

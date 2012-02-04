@@ -23,11 +23,15 @@
 #include "onlinestorage/storageglobals.h"
 #include "../nbibsync.h"
 
+#include <QNetworkAccessManager>
+
 class Library;
 class ReadFromZotero;
 class File;
 class Entry;
 class QDBusInterface;
+class QNetworkReply;
+class QFile;
 
 /**
   * @brief takes care of the zotero Download, resource merging/deletion/creation
@@ -81,6 +85,11 @@ private slots:
       */
     void readDownloadSync();
     void readDownloadSyncAfterDelete();
+
+    void downloadNextAttachment();
+    void attachmentDownloadFinished();
+    void attachmentReadyRead();
+    void updateDataReadProgress(qint64 bytesReceived,qint64 bytesTotal);
 
     void calculateProgress(int value);
 
@@ -161,7 +170,13 @@ private:
     File *m_bibCache; // retrieved entries from zotero
     File *m_newEntries;
     File* m_corruptedUploads;
+
+    //for the attachment download
+    File *m_newEntriesToDownload;
     QDBusInterface *m_nepomukDBus;
+    QNetworkAccessManager qnam;
+    QNetworkReply *m_downloadReply;
+    QFile *m_attachmentFile;
 };
 
 #endif // ZOTERODOWNLOAD_H

@@ -584,18 +584,44 @@ void NepomukToBibTexPipe::setUrl(Entry *e, Nepomuk::Resource publication)
     QList<Nepomuk::Resource> objectList = publication.property(NBIB::isPublicationOf()).toResourceList();
 
     QString urlList;
+    QString fileList;
+    QString remoteList;
     foreach(const Nepomuk::Resource &dataObjects, objectList) {
-        QUrl url = dataObjects.property(NIE::url()).toUrl();
-
-        urlList.append(url.toString());
-        urlList.append(QLatin1String(", "));
+        if(dataObjects.hasType(NFO::WebDataObject()) ) {
+            QUrl url = dataObjects.property(NIE::url()).toUrl();
+            urlList.append(url.toString());
+            urlList.append(QLatin1String(", "));
+        }
+        else if(dataObjects.hasType(NFO::RemoteDataObject()) ) {
+            QUrl url = dataObjects.property(NIE::url()).toUrl();
+            remoteList.append(url.toString());
+            remoteList.append(QLatin1String(", "));
+        }
+        else if(dataObjects.hasType(NFO::FileDataObject()) ) {
+            QUrl url = dataObjects.property(NIE::url()).toUrl();
+            fileList.append(url.toString());
+            fileList.append(QLatin1String(", "));
+        }
     }
 
     urlList.chop(2);
+    fileList.chop(2);
+    remoteList.chop(2);
+
     if(!urlList.isEmpty()) {
         Value v;
         v.append(QSharedPointer<ValueItem>(new PlainText(urlList)));
         e->insert(Entry::ftUrl, v);
+    }
+    if(!fileList.isEmpty()) {
+        Value v;
+        v.append(QSharedPointer<ValueItem>(new PlainText(fileList)));
+        e->insert(QLatin1String("localfile"), v);
+    }
+    if(!remoteList.isEmpty()) {
+        Value v;
+        v.append(QSharedPointer<ValueItem>(new PlainText(remoteList)));
+        e->insert(QLatin1String("remotefile"), v);
     }
 }
 
