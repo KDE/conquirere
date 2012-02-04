@@ -199,13 +199,10 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
     // fill al list of all project this file is in
     QList<Nepomuk::Resource> projectList = m_nepomukResource.property(Soprano::Vocabulary::NAO::isRelated()).toResourceList();
 
-    if(projectList.isEmpty()) {
-        removeFromProject.setEnabled(false);
-    }
-    else {
-        removeFromProject.setEnabled(true);
-
-        foreach(const Nepomuk::Resource &project, projectList) {
+    bool projectRelated = false;
+    foreach(const Nepomuk::Resource &project, projectList) {
+        if(project.hasType(Nepomuk::Vocabulary::PIMO::Project())) {
+            projectRelated = true;
             QAction *a = new QAction(KIcon(QLatin1String("conquirere")), project.property(Nepomuk::Vocabulary::NIE::title()).toString(), this);
             a->setData(project.resourceUri());
             actionCollection.append(a);
@@ -213,6 +210,7 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
             removeFromProject.addAction(a);
         }
     }
+    removeFromProject.setEnabled(projectRelated);
 
 
     // ###########################################################
