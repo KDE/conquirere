@@ -58,6 +58,7 @@ DbCheckDialog::DbCheckDialog(QWidget *parent) :
     connect(ui->checkDocumentPart, SIGNAL(clicked()), this, SLOT(checkDocumentPart()));
     connect(ui->checkReference, SIGNAL(clicked()), this, SLOT(checkReference()));
     connect(ui->checkSeries, SIGNAL(clicked()), this, SLOT(checkSeries()));
+    connect(ui->checkTags, SIGNAL(clicked()), this, SLOT(checkTags()));
 
     connect(ui->removeData, SIGNAL(clicked()), this, SLOT(removeData()));
 
@@ -79,6 +80,7 @@ void DbCheckDialog::checkCollection()
     ui->checkDocumentPart->setEnabled(false);
     ui->checkReference->setEnabled(false);
     ui->checkSeries->setEnabled(false);
+    ui->checkTags->setEnabled(false);
 
     QString query = "select DISTINCT ?r where { "
     "?r a sync:ServerSyncData ."
@@ -99,6 +101,7 @@ void DbCheckDialog::checkSeries()
     ui->checkDocumentPart->setEnabled(false);
     ui->checkReference->setEnabled(false);
     ui->checkSeries->setEnabled(false);
+    ui->checkTags->setEnabled(false);
 
     QString query = "select DISTINCT ?r where { "
                      "?r a nbib:Series ."
@@ -138,6 +141,7 @@ void DbCheckDialog::checkAuthor()
     ui->checkDocumentPart->setEnabled(false);
     ui->checkReference->setEnabled(false);
     ui->checkSeries->setEnabled(false);
+    ui->checkTags->setEnabled(false);
 }
 
 void DbCheckDialog::checkReference()
@@ -150,6 +154,7 @@ void DbCheckDialog::checkReference()
     ui->checkDocumentPart->setEnabled(false);
     ui->checkReference->setEnabled(false);
     ui->checkSeries->setEnabled(false);
+    ui->checkTags->setEnabled(false);
 
     QString query = "select DISTINCT ?r where { "
                      "?r a nbib:Reference ."
@@ -171,11 +176,32 @@ void DbCheckDialog::checkDocumentPart()
     ui->checkDocumentPart->setEnabled(false);
     ui->checkReference->setEnabled(false);
     ui->checkSeries->setEnabled(false);
+    ui->checkTags->setEnabled(false);
 
     QString query = "select DISTINCT ?r where { "
                      "?r a nbib:DocumentPart . "
                      "OPTIONAL { ?r nbib:documentPartOf ?documentPartOf } ."
                      "FILTER (!bound(?documentPartOf) )"
+                     "}";
+
+     m_queryClient->sparqlQuery( query );
+     ui->infoLabel->setText(i18n("processing query"));
+}
+
+void DbCheckDialog::checkTags()
+{
+    m_toBeDeleted.clear();
+    ui->listWidget->clear();
+    ui->checkAll->setEnabled(false);
+    ui->checkAuthor->setEnabled(false);
+    ui->checkCollection->setEnabled(false);
+    ui->checkDocumentPart->setEnabled(false);
+    ui->checkReference->setEnabled(false);
+    ui->checkSeries->setEnabled(false);
+    ui->checkTags->setEnabled(false);
+
+    QString query = "select DISTINCT ?r where { "
+                     "?r a nao:Tag . "
                      "}";
 
      m_queryClient->sparqlQuery( query );
@@ -192,6 +218,7 @@ void DbCheckDialog::checkAll()
     ui->checkDocumentPart->setEnabled(false);
     ui->checkReference->setEnabled(false);
     ui->checkSeries->setEnabled(false);
+    ui->checkTags->setEnabled(false);
 
     QString query = "select DISTINCT ?r where { "
                      "?r a ?v2 ."
@@ -222,6 +249,7 @@ void DbCheckDialog::queryFinished()
     ui->checkDocumentPart->setEnabled(true);
     ui->checkReference->setEnabled(true);
     ui->checkSeries->setEnabled(true);
+    ui->checkTags->setEnabled(true);
 
     ui->infoLabel->setText(i18n("Found %1 entries", m_toBeDeleted.size()));
 }

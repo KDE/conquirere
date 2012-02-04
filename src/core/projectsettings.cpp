@@ -61,10 +61,13 @@ void ProjectSettings::loadSettings(const QString &projectFile)
     m_pimoThing = Nepomuk::Thing(generalGroup.readEntry("pimoProject", QString()));
 
     QString name = m_pimoThing.property(Nepomuk::Vocabulary::NIE::title()).toString();
-    m_projectTag = Nepomuk::Tag( name );
-    m_projectTag.setLabel( name ); // turns out we get an invalid tag if we load a random pimo:Project not good here
+    if(!name.isEmpty()) {
+        m_projectTag = Nepomuk::Tag( name.toAscii() );
+        if(!m_projectTag.exists())
+            m_projectTag.setLabel( name.toUtf8() );
 
-    kDebug() << "use project tag with name " << name << "valid?" << m_projectTag.exists() << m_projectTag.isValid();
+        kDebug() << "use project tag with name " << name << "valid?" << m_projectTag.exists() << m_projectTag.isValid();
+    }
 
     if(!m_pimoThing.isValid() && m_library->libraryType() != Library_System) {
         kDebug() << "Warning loaded project without valid PIMO::Project() resource @ project" << name;
@@ -94,24 +97,37 @@ Nepomuk::Tag ProjectSettings::projectTag() const
 
 void ProjectSettings::setName(const QString &newName)
 {
-    QString oldName = name();
+    if( newName == name())
+        return;
 
     KConfigGroup generalGroup( m_projectConfig, "Conquirere" );
     generalGroup.writeEntry("name", newName);
     generalGroup.sync();
 
+    // check if a tag with the project name exist
+    m_projectTag = Nepomuk::Tag( name().toAscii() );
+
     // update the used tag for the project
-    Nepomuk::Tag libraryTag = Nepomuk::Tag( oldName );
-    libraryTag.setLabel(newName);
-    QStringList identifiers;
-    identifiers << newName;
-    libraryTag.setIdentifiers(identifiers);
+    if(m_projectTag.exists()) {
+        kDebug() << "project tag existed with name" << name() << ", rename it to" << newName;
+        m_projectTag.removeProperty( Soprano::Vocabulary::NAO::prefLabel());
+        m_projectTag.setLabel( newName.toUtf8() );
+        m_projectTag.removeProperty( Soprano::Vocabulary::NAO::identifier());
+        QStringList identifiers;
+        QUrl encodedIdent = QUrl( newName );
+        identifiers << encodedIdent.toEncoded();
+        m_projectTag.setIdentifiers(identifiers);
+    }
+    else {
+        kDebug() << "no project Tag existed with name" << name() << ", create a new one" << newName;
+        m_projectTag = Nepomuk::Tag( newName );
+        m_projectTag.setLabel( newName.toUtf8() );
+    }
 
     // update the project thing
     if(projectThing().isValid()) {
-        projectThing().setProperty( Nepomuk::Vocabulary::NIE::title() , newName);
-        QString identifier = QLatin1String("Conquirere Library:") + newName;
-        projectThing().setProperty( Soprano::Vocabulary::NAO::identifier() , identifier);
+        projectThing().removeProperty( Nepomuk::Vocabulary::NIE::title() );
+        projectThing().setProperty( Nepomuk::Vocabulary::NIE::title() , QString(newName.toUtf8()) );
     }
 
     emit projectDetailsChanged(m_library);
@@ -143,7 +159,7 @@ void ProjectSettings::setDescription(const QString &description)
 
     // update the project thing
     if(projectThing().isValid()) {
-        projectThing().setProperty( Soprano::Vocabulary::NAO::description() , description);
+        projectThing().setProperty( Soprano::Vocabulary::NAO::description() , QString(description.toUtf8()));
     }
 
     emit projectDetailsChanged(m_library);

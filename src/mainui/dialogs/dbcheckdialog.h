@@ -53,6 +53,7 @@ private slots:
     void checkAuthor();
     void checkReference();
     void checkDocumentPart();
+    void checkTags();
 
     /**
       * @todo should be changed to "delete all data created by this application"

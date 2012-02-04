@@ -89,17 +89,15 @@ Library::~Library()
 Nepomuk::Thing Library::createLibrary(const QString & name, const QString & description, const QString & path)
 {
     // when a new library is created it is realized as pimo:Project
-    QString identifier = QLatin1String("Conquirere Library:") + name;
-    Nepomuk::Thing projectThing = Nepomuk::Thing( identifier );
+    Nepomuk::Thing projectThing = Nepomuk::Thing( );
     projectThing.addType( Nepomuk::Vocabulary::PIMO::Project() );
-    projectThing.setProperty( Nepomuk::Vocabulary::NIE::title() , name);
-    projectThing.setProperty( Soprano::Vocabulary::NAO::description() , description);
-    projectThing.setProperty( Soprano::Vocabulary::NAO::identifier() , identifier);
+    projectThing.setProperty( Nepomuk::Vocabulary::NIE::title() , QString(name.toUtf8()) );
+    projectThing.setProperty( Soprano::Vocabulary::NAO::description() , QString(description.toUtf8()) );
 
     // create a tag with the project name
     // this way we can relate publications/documents etc via PIMO::isRelated or the tag
-    Nepomuk::Tag libraryTag = Nepomuk::Tag( name );
-    libraryTag.setLabel(name);
+    Nepomuk::Tag libraryTag = Nepomuk::Tag( name.toAscii() );
+    libraryTag.setLabel( name.toUtf8() );
 
     // check if a library path is set
     // we create the path if not available then
