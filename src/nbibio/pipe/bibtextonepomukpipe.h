@@ -101,6 +101,7 @@ private:
       * handle @note type to cretae pimo:Notes instead of the usual publication/references
       */
     void createNoteContent(Entry *e);
+    void createAttachmentContent(Entry *e);
 
     QUrl typeToUrl(const QString & entryType);
     void addContent(const QString &key, const Value &value, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
@@ -152,8 +153,14 @@ private:
     void addYear(const QString &content, Nepomuk::Resource publication);
     void addKewords(const Value &content, Nepomuk::Resource publication);
 
-    void addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference,
-                              Entry *e);
+    /**
+      * writes teh zotero Snc details to the resource
+      *
+      * Also adds it as a nao:isRelated to the zoteroParent if the resource is a child note
+      *
+      * @return the parent resource or an invalid resource
+      */
+    Nepomuk::Resource addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference, Entry *e);
 
     /**
       * creates the contact resource and push it to nepomuk if necessary

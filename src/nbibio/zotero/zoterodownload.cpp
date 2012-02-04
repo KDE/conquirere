@@ -35,10 +35,14 @@
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Vocabulary/NUAO>
+#include <Nepomuk/Vocabulary/NIE>
 
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Result>
 #include <Nepomuk/Query/QueryParser>
+
+#include <KDE/KIO/NetAccess>
+#include <QDBusInterface>
 
 using namespace Nepomuk::Vocabulary;
 using namespace Soprano::Vocabulary;
@@ -53,6 +57,8 @@ ZoteroDownload::ZoteroDownload(QObject *parent)
     , m_bibCache(0)
     , m_corruptedUploads(0)
 {
+    qRegisterMetaType<KIO::filesize_t>("KIO::filesize_t");
+    m_nepomukDBus = new QDBusInterface( "org.kde.nepomuk.services.nepomukfileindexer", "/nepomukfileindexer" );
 }
 
 ZoteroDownload::~ZoteroDownload()
@@ -119,6 +125,7 @@ void ZoteroDownload::readDownloadSync()
     // * New items are uploaded to the server and successfully created
     // * but the server returned the "internal server error" message instead the item info with the zoterokey + etag value
 
+    // Step 1 fix previous corrupted upload
     m_currentStep++;
     if(m_corruptedUploads && !m_corruptedUploads->isEmpty()) {
         emit progressStatus(i18n("Fix previous corrupted upload"));
@@ -128,7 +135,14 @@ void ZoteroDownload::readDownloadSync()
 
     if(m_cancel) { finishAndCleanUp(); return; }
 
-    emit progressStatus(i18n("sync %1 zotero items with local Nepomuk storage", m_bibCache->size() ));
+    if(m_attachmentMode) {
+        emit progressStatus(i18n("sync %1 zotero attachments with local Nepomuk storage", m_bibCache->size() ));
+    }
+    else {
+        emit progressStatus(i18n("sync %1 zotero items with local Nepomuk storage", m_bibCache->size() ));
+    }
+
+    // Step 2 find entries removed from the server
     m_currentStep++;
 
     m_tmpUserDeleteRequest.clear();
@@ -158,11 +172,15 @@ void ZoteroDownload::readDownloadSyncAfterDelete()
     m_newEntries = new File;
     QList<Nepomuk::Resource> existingItems;
 
+    // step 4 find duplicates for the merge process
     m_currentStep++;
     calculateProgress(0);
 
     // find all duplicate entries and merge them if the user specified the UseLocal or UseServer merge
+    // fills also m_newEntries
     findDuplicates(existingItems);
+
+    kDebug() << "found duplicates that needs merging" << existingItems.size();
 
     if(!m_tmpUserMergeRequest.isEmpty()) {
         if(m_psd.mergeMode == Manual) {
@@ -190,15 +208,21 @@ void ZoteroDownload::readDownloadSyncAfterDelete()
         else {
             emit progressStatus(i18n("push %1 new Zotero references into Nepomuk", m_newEntries->size()));
         }
+        //Step 5 import new resources
         m_currentStep++;
-        importNewResources();
+        if(m_attachmentMode) {
+            importNewAttachments();
+        }
+        else {
+            importNewResources();
+        }
 
         calculateProgress(50);
     }
     else {
         kDebug() << "no new items for the import found";
-        m_currentStep++; // skip step for the push new data to zotero
-        m_currentStep++; // step for the merging
+        m_currentStep++; // skip step 5 for the push new data to zotero
+        m_currentStep++; // step for 6 the merging
         calculateProgress(50);
     }
 
@@ -220,16 +244,26 @@ void ZoteroDownload::startAttachmentDownload()
     kDebug() << "start attachment Download";
 
     m_currentStep++;
+
+    m_rfz = new ReadFromZotero;
+    m_rfz->setProviderSettings(m_psd);
+    m_rfz->setAdoptBibtexTypes(true);
+    m_rfz->setSearchFilter(QLatin1String("&itemType=attachment")); // so we fetch only attachments nothing else
+
+    connect(m_rfz, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
+    emit progressStatus(i18n("fetch zotero attachment infos"));
     calculateProgress(0);
 
-    emit progressStatus(i18n("fetch zotero attachment infos"));
-    calculateProgress(100);
+    if(m_cancel) { finishAndCleanUp(); }
 
-    finishAndCleanUp();
+    //lets start by retrieving all items from the server and merge them with the current data
+    connect(m_rfz, SIGNAL(finished()), this, SLOT(readDownloadSync()));
+    m_rfz->fetchItems(m_psd.collection);
 }
 
 void ZoteroDownload::deleteLocalFiles(bool deleteThem)
 {
+    // step 3 delete either some local resources or the sync part to upload it again
     m_currentStep++;
     if(deleteThem)
         emit progressStatus(i18n("delete %1 items from the Nepomuk storage", m_tmpUserDeleteRequest.size() ));
@@ -249,11 +283,13 @@ void ZoteroDownload::deleteLocalFiles(bool deleteThem)
             // after all the resource could be part of a different group too
             Nepomuk::Resource mainResource;
             QUrl syncDataType = sd.syncResource.property( SYNC::syncDataType() ).toUrl();
+            bool deleteFileFromDisk = false;
             if( syncDataType == SYNC::Note()) {
                 mainResource = sd.syncResource.property( SYNC::note() ).toResource();
             }
             else if( syncDataType == SYNC::Attachment()) {
                 mainResource = sd.syncResource.property( SYNC::attachment() ).toResource();
+                deleteFileFromDisk = true;
             }
             else {
                 mainResource = sd.syncResource.property( NBIB::publication() ).toResource();
@@ -264,6 +300,21 @@ void ZoteroDownload::deleteLocalFiles(bool deleteThem)
             }
             else {
                 m_systemLibrary->deleteResource(mainResource, true);
+
+                if(deleteFileFromDisk) {
+                    //get the file url
+                    QUrl fileUrl = mainResource.property(NIE::url()).toUrl();
+                    QString localFile = fileUrl.toLocalFile();
+
+                    if(localFile.startsWith(QLatin1String("file://"))) {
+                        QString localFilePath = localFile.remove( QLatin1String("file://") );
+                        QFile localFile( localFilePath );
+
+                        if(!localFile.remove()) {
+                            kDebug() << "file " << localFilePath << "could not be removed";
+                        }
+                    }
+                }
             }
 
             sd.syncResource.remove();
@@ -294,12 +345,13 @@ void ZoteroDownload::deleteLocalFiles(bool deleteThem)
         }
     }
 
-    calculateProgress(1000);
+    calculateProgress(100);
     readDownloadSyncAfterDelete();
 }
 
 void ZoteroDownload::mergeFinished()
 {
+    //Step 6 merge finished
     m_currentStep++;
     calculateProgress(100);
 
@@ -696,7 +748,7 @@ bool childItemsLast(const QSharedPointer<Element> &s1, const QSharedPointer<Elem
     Entry *entryS1 = dynamic_cast<Entry *>(s1.data());
     bool S1hasParent = entryS1->contains(QLatin1String("zoteroparent"));
 
-    if(S1hasParent) // items with parent are "higher" thus will be sorted at the end
+    if(S1hasParent) // items with parents are "higher" thus will be sorted at the end
         return false;
     else
         return true;
@@ -727,6 +779,79 @@ void ZoteroDownload::importNewResources()
 
     // sort entries that need a parent at the end of the list
     qSort(m_newEntries->begin(), m_newEntries->end(), childItemsLast);
+
+    btnp->pipeExport(*m_newEntries);
+
+    delete btnp;
+    delete m_newEntries;
+    m_newEntries = 0;
+}
+
+void ZoteroDownload::importNewAttachments()
+{
+    // now we check the returned fileinfo from zotero
+    // we get either attachments that we can downlaod (.pdf and such)
+    // or we get attachments without file, but with a link.
+
+    // what we do here is that we download all files into ~m_psd.localStoragePath/zotero/userId/
+    // then we push all entries into nepomuk
+    // the files will be added as nfo:FileDataObject to the publication
+    // all others as nfo:RemoteDataObject
+
+    qreal progressperFile = 100.0/(qreal)m_newEntries->size();
+    qreal currentProgress = 0.0;
+
+    QString localStoragePath = m_psd.localStoragePath + QLatin1String("/zotero/") + m_psd.userName;
+    foreach(QSharedPointer<Element> element, *m_newEntries) {
+
+        if(m_cancel) { return; }
+
+        Entry *entry = dynamic_cast<Entry *>(element.data());
+        if(!entry) { continue; }
+
+        if(entry->contains(QLatin1String("zoteroAttachmentFile"))) {
+            //download file
+            QString remoteFileName = PlainTextValue::text(entry->value(QLatin1String("zoteroTitle")) );
+            QString remoteUrlString = PlainTextValue::text(entry->value(QLatin1String("zoteroAttachmentFile")) );
+            remoteUrlString.append(QLatin1String("?key=") + m_psd.pwd );
+
+            KUrl remoteUrl = KUrl( remoteUrlString );
+            QString tmpFile = localStoragePath + QLatin1String("/") + PlainTextValue::text(entry->value(QLatin1String("title")));
+            kDebug() << "download remote:" << remoteUrl << " to local" << tmpFile;
+
+            emit progressStatus(i18n("download file %1 from Zotero", remoteFileName));
+
+            if( KIO::NetAccess::download(remoteUrl, tmpFile, 0)) {
+                kDebug() << "download succeeded ... parse with nepomuk";
+                m_nepomukDBus->call("org.kde.nepomuk.FileIndexer.indexFile", tmpFile);
+
+                Value v;
+                v.append(QSharedPointer<ValueItem>(new PlainText(tmpFile)));
+                entry->insert(QLatin1String("localFile"), v);
+            }
+            else {
+                kDebug() << "error" << KIO::NetAccess::lastErrorString();
+                m_newEntries->removeAll(element);
+            }
+        }
+
+        currentProgress += progressperFile;
+        calculateProgress( currentProgress );
+    }
+
+    BibTexToNepomukPipe *btnp = new BibTexToNepomukPipe;
+
+    if(m_libraryToSyncWith->libraryType() == Library_Project) {
+        // relate all new items also to the project
+        btnp->setProjectPimoThing(m_libraryToSyncWith->settings()->projectThing());
+    }
+
+    connect(btnp, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
+
+    emit progressStatus(i18n("add %1 new Zotero attachments to Nepomuk", m_newEntries->size()));
+    m_currentStep++;
+
+    btnp->setSyncDetails(m_psd.url, m_psd.userName);
 
     btnp->pipeExport(*m_newEntries);
 

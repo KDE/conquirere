@@ -27,6 +27,7 @@ class Library;
 class ReadFromZotero;
 class File;
 class Entry;
+class QDBusInterface;
 
 /**
   * @brief takes care of the zotero Download, resource merging/deletion/creation
@@ -141,6 +142,7 @@ private:
       * Imports all entries in @c m_newEntries and push them int othe nepomuk storage
       */
     void importNewResources();
+    void importNewAttachments();
 
 private:
     bool m_cancel;
@@ -159,6 +161,7 @@ private:
     File *m_bibCache; // retrieved entries from zotero
     File *m_newEntries;
     File* m_corruptedUploads;
+    QDBusInterface *m_nepomukDBus;
 };
 
 #endif // ZOTERODOWNLOAD_H

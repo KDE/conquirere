@@ -31,7 +31,6 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     , m_fetchIncomplete(false)
 {
     // ignore note / attachment downloads with normal requests
-//    m_searchFilter = ("&itemType=-note || attachment");
         m_searchFilter = ("&itemType=-attachment");
 
     // build the mappinglist
@@ -334,6 +333,12 @@ Entry * ReadFromZotero::readItemEntry(QXmlStreamReader &xmlReader)
                 }
             }
             else if(QLatin1String("enclosure") == linkAttributes.value(QLatin1String("rel")) ) {
+                QString itemFile = linkAttributes.value(QLatin1String("href")).toString();
+                PlainText *zFile = new PlainText(itemFile);
+                Value zfValue;
+                zfValue.append(QSharedPointer<ValueItem>(zFile));
+                e->insert(QLatin1String("zoteroAttachmentFile"), zfValue);
+
                 QString itemFileSize = linkAttributes.value(QLatin1String("length")).toString();
                 PlainText *zFileSize = new PlainText(itemFileSize);
                 Value zfsValue;

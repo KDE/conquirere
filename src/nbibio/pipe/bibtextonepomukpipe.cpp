@@ -182,6 +182,12 @@ void BibTexToNepomukPipe::import(Entry *e)
         return;
     }
 
+    //special case attachment
+    if( e->type() == QLatin1String("attachment") ) {
+        createAttachmentContent(e);
+        return;
+    }
+
     //do not check duplicates, just add new resources to the system storage
     QUrl typeUrl = typeToUrl(e->type().toLower());
     Nepomuk::Resource publication = Nepomuk::Resource(QUrl(), typeUrl);
@@ -382,6 +388,72 @@ void BibTexToNepomukPipe::createNoteContent(Entry *e)
     Nepomuk::Resource empty;
     if(e->contains(QLatin1String("zoterokey"))) {
         addZoteroSyncDetails(note, empty, e);
+    }
+}
+
+void BibTexToNepomukPipe::createAttachmentContent(Entry *e)
+{
+    kDebug() << "create attachment";
+
+    //create a new FileDataObject
+    Nepomuk::Resource attachment = Nepomuk::Resource();
+    attachment.addType(NIE::DataObject());
+
+    if(e->contains(QLatin1String("zoteroAttachmentFile"))) {
+        attachment.addType(NFO::FileDataObject());
+
+        Value url = e->value("localFile");
+        QString localFilePath = PlainTextValue::text(url);
+        localFilePath.prepend(QLatin1String("file://"));
+        addValue(localFilePath, attachment, NIE::url());
+        addValue(localFilePath, attachment, NAO::identifier());
+    }
+    else {
+        attachment.addType(NFO::RemoteDataObject());
+        Value url = e->value("url");
+        addValue(PlainTextValue::text(url), attachment, NAO::identifier());
+        addValue(PlainTextValue::text(url), attachment, NIE::url());
+    }
+
+    Value title = e->value("title");
+    addValue(PlainTextValue::text(title), attachment, NIE::title());
+
+    Value keywords = e->value("keywords");
+    if(!keywords.isEmpty()) {
+        addKewords(keywords, attachment);
+    }
+
+    Value accessdate = e->value("accessdate");
+    addValue(PlainTextValue::text(accessdate), attachment, NUAO::lastUsage());
+
+    // create new pimo:Note for the note content
+    if(e->contains(QLatin1String("note"))) {
+        Nepomuk::Resource note = Nepomuk::Resource();
+        note.addType(PIMO::Note());
+
+        QString noteTitle = PlainTextValue::text(e->value(QLatin1String("title"))) + QLatin1String(": ") + i18n("Note");
+        note.setProperty(NAO::prefLabel(), noteTitle );
+        note.setProperty(NIE::title(), noteTitle );
+
+        QTextDocument content;
+        content.setHtml( PlainTextValue::text(e->value(QLatin1String("note"))).simplified() );
+        note.setProperty(NIE::plainTextContent(), content.toPlainText());
+        note.setProperty(NIE::htmlContent(), content.toHtml());
+
+        note.addIsRelated(attachment);
+    }
+
+    Nepomuk::Resource empty;
+    Nepomuk::Resource parent;
+    if(e->contains(QLatin1String("zoterokey"))) {
+        parent = addZoteroSyncDetails(attachment, empty, e);
+    }
+
+    if(parent.exists()) {
+        parent.addProperty(NBIB::isPublicationOf(), attachment);
+    }
+    else {
+        kDebug() << "parent did not exist can't add attachment to it";
     }
 }
 
@@ -1530,7 +1602,7 @@ void BibTexToNepomukPipe::addKewords(const Value &content, Nepomuk::Resource pub
     }
 }
 
-void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference, Entry *e)
+Nepomuk::Resource BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference, Entry *e)
 {
     QString id = PlainTextValue::text(e->value(QLatin1String("zoterokey")));
     QString etag = PlainTextValue::text(e->value(QLatin1String("zoteroetag")));
@@ -1593,7 +1665,8 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Ne
     }
 
     if( parentId.isEmpty() ) {
-        return;
+        Nepomuk::Resource invalid;
+        return invalid;
     }
 
     //now we do have a parent id, so find the parent and make the important isRealated relation
@@ -1609,10 +1682,12 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Ne
 
     if(results.size() > 1 || results.isEmpty()) {
         kDebug() << "could not find the right sync details for the current parent item query" << "zotero" << m_syncUserId << m_syncUrl << parentId;
-        return;
+        Nepomuk::Resource invalid;
+        return invalid;
     }
 
     Nepomuk::Resource parentSyncResource = results.first().resource();
+    Nepomuk::Resource parentResource;
 
     QUrl syncDataType = parentSyncResource.property(SYNC::syncDataType()).toUrl();
 
@@ -1620,11 +1695,13 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Ne
         Nepomuk::Resource parentAttachment = parentSyncResource.property(SYNC::attachment()).toResource();
         parentAttachment.addProperty( NAO::isRelated(), publication);
         publication.addProperty( NAO::isRelated(), parentAttachment);
+        parentResource = parentAttachment;
     }
     else if(syncDataType == SYNC::Note()) {
         Nepomuk::Resource parentNote = parentSyncResource.property(SYNC::note()).toResource();
         parentNote.addProperty( NAO::isRelated(), publication);
         publication.addProperty( NAO::isRelated(), parentNote);
+        parentResource = parentNote;
     }
     else if(syncDataType == SYNC::BibResource()) { // this should be happen to 99% of the time ...
         Nepomuk::Resource parentPublication = parentSyncResource.property(NBIB::publication()).toResource();
@@ -1634,9 +1711,13 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Ne
         Nepomuk::Resource parentReference = parentSyncResource.property(NBIB::reference()).toResource();
         parentReference.addProperty( NAO::isRelated(), publication);
         publication.addProperty( NAO::isRelated(), parentReference);
+
+        parentResource = parentPublication;
     }
 
     syncDetails.setProperty(NAO::isRelated(), parentSyncResource); // connect child to its parent
+
+    return parentResource;
 }
 
 void BibTexToNepomukPipe::addContact(const Value &contentValue, Nepomuk::Resource res, QUrl property, QUrl contactType )
