@@ -1,0 +1,55 @@
+project(libdatamanagement)
+
+add_subdirectory( interfaces )
+include_directories( interfaces )
+
+set(datamanagement_SRC
+  abstracttimeoutdbusinterface.cpp
+  datamanagement.cpp
+  dbustypes.cpp
+  genericdatamanagementjob.cpp
+  simpleresource.cpp
+  createresourcejob.cpp
+  datamanagementinterface.cpp
+  describeresourcesjob.cpp
+  resourcewatcher.cpp
+  simpleresourcegraph.cpp
+  storeresourcesjob.cpp
+  kdbusconnectionpool.cpp
+)
+
+# set(datamanagementservice_dbus_desc interfaces/org.kde.nepomuk.DataManagement.xml)
+# 
+# set_source_files_properties(
+#   ${datamanagementservice_dbus_desc}
+#   PROPERTIES
+#   INCLUDE "dbustypes.h")
+
+#the interfaces are directly copied from the buildfiles to avoid installing the interface multiple times
+set(datamanagement_SRC ${datamanagement_SRC} interfaces/resourcewatcherconnectioninterface.cpp interfaces/resourcewatchermanagerinterface.cpp 
+datamanagementinterface.cpp)
+
+# qt4_add_dbus_interface(datamanagement_SRC
+#   interfaces/org.kde.nepomuk.ResourceWatcherConnection.xml
+#   resourcewatcherconnectioninterface)
+# 
+# qt4_add_dbus_interface(datamanagement_SRC
+#   interfaces/org.kde.nepomuk.ResourceWatcher.xml
+#   resourcewatchermanagerinterface)
+# 
+# qt4_add_dbus_interface(datamanagement_SRC
+#   ${datamanagementservice_dbus_desc}
+#   datamanagementinterface)
+
+kde4_add_library(nepomukdatamanagement-copy SHARED
+  ${datamanagement_SRC})
+
+target_link_libraries(nepomukdatamanagement-copy
+  ${QT_QTCORE_LIBRARY}
+  ${QT_QTDBUS_LIBRARY}
+  ${SOPRANO_LIBRARIES}
+  ${NEPOMUK_LIBRARIES}
+  ${KDE4_KDECORE_LIBS})
+
+ install(TARGETS nepomukdatamanagement-copy
+   DESTINATION ${LIB_INSTALL_DIR})

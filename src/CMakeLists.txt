@@ -1,4 +1,5 @@
 
+add_subdirectory( dms-copy )
 add_subdirectory( nbibio )
 add_subdirectory( core )
 add_subdirectory( propertywidgets )
@@ -16,6 +17,7 @@ ADD_DEPENDENCIES(conquirere version)
 ADD_DEPENDENCIES(conquirere nbibio)
 
 target_link_libraries(conquirere
+        nepomukdatamanagement-copy
 # include static libs from conquirere
         ontology
         core

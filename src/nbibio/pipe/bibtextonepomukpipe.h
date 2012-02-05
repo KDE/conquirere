@@ -19,7 +19,7 @@
 #define BIBTEXTONEPOMUKPIPE_H
 
 #include "bibtexpipe.h"
-#include "nbib.h"
+#include "nbib/nbib.h"
 
 #include <kbibtex/value.h>
 #include <Nepomuk/Resource>

@@ -1,0 +1,5 @@
+
+
+Parsed ontology files via "nepomuk-simpleresource-rcgen" becuase currently the systemwide files do not use the SimleResource approach.
+
+Will be removed again when the nepomuk-dms part will get into main kde
