@@ -72,16 +72,6 @@ private slots:
     void cleanupAfterUpload();
 
     /**
-      * Attachment uploads are a tiny bit different as we have to take care about
-      * its parent. Also as this contains large binary blogs (pdf etc) we should do this
-      * one by one.
-      *
-      * this slot calls itself recursive and always takes the next attachment from m_attachmentsToUpload
-      * until it is finished.
-      */
-    void uploadNextAttachment();
-
-    /**
       * When an item was changed on the server side a new etag value is generated
       *
       * The etag valued determines if the item changed on the server and is necessary when we download or upload the file again
@@ -101,8 +91,6 @@ private:
       */
     Nepomuk::Resource writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated);
 
-//    QSharedPointer<Element> transformAttachmentToBibTeX(Nepomuk::Resource resource);
-
 private:
     bool m_cancel;
     int m_syncSteps;
@@ -113,12 +101,11 @@ private:
     Library *m_libraryToSyncWith;
 
     WriteToZotero *m_wtz;
-    File *m_bibCache;
+    File *m_uploadBibCache;
     File *m_corruptedUploads;
 
     QList<Nepomuk::Resource> m_syncDataToBeRemoved;
     QList<SyncDetails> m_tmpUserDeleteRequest;
-
 };
 
 #endif // ZOTEROUPLOAD_H

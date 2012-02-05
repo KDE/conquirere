@@ -146,7 +146,7 @@ void WriteToZotero::pushNewItems(File *items, const QString &collection)
         }
 
         if(!m_psd.pwd.isEmpty()) {
-            pushString.append(QLatin1String("?key=") + m_psd.pwd);
+            pushString.append(QLatin1String("?&key=") + m_psd.pwd);
         }
         QUrl pushUrl(pushString);
 
@@ -173,7 +173,7 @@ void WriteToZotero::updateItem(QSharedPointer<Element> item)
     QString pushString = QLatin1String("https://api.zotero.org/") + m_psd.url + QLatin1String("/") + m_psd.userName + QLatin1String("/items/") + zoteroKey;
 
     if(!m_psd.pwd.isEmpty()) {
-        pushString.append(QLatin1String("?key=") + m_psd.pwd);
+        pushString.append(QLatin1String("?&key=") + m_psd.pwd);
     }
 
     QUrl pushUrl(pushString);
@@ -185,6 +185,9 @@ void WriteToZotero::updateItem(QSharedPointer<Element> item)
     File *itemFile = new File;
     itemFile->append(item);
     QSharedPointer<Entry> entryPointer(entry);
+
+    kDebug() << pushUrl;
+    kDebug() << writeJsonContent(itemFile, true);
 
     startRequest(request, writeJsonContent(itemFile, true), QNetworkAccessManager::PutOperation, entryPointer);
 }
@@ -1104,6 +1107,23 @@ QVariantList WriteToZotero::createTagsJson(Entry *e)
             jsonMap.append(tagMap);
         }
     }
+
+    return jsonMap;
+}
+
+QVariantMap WriteToZotero::createAttachmentJson(Entry *e)
+{
+    QVariantMap jsonMap;
+
+    jsonMap.insert(QLatin1String("itemType"),QLatin1String("attachment"));
+    jsonMap.insert(QLatin1String("title"), PlainTextValue::text(e->value(QLatin1String("title"))));
+    jsonMap.insert(QLatin1String("url"),PlainTextValue::text(e->value(QLatin1String("url"))));
+    jsonMap.insert(QLatin1String("linkMode"),PlainTextValue::text(e->value(QLatin1String("linkMode"))));
+    jsonMap.insert(QLatin1String("accessDate"),PlainTextValue::text(e->value(QLatin1String("accessDate"))));
+    jsonMap.insert(QLatin1String("note"),PlainTextValue::text(e->value(QLatin1String("note"))));
+    jsonMap.insert(QLatin1String("mimeType"),PlainTextValue::text(e->value(QLatin1String("mimeType"))));
+    jsonMap.insert(QLatin1String("charset"),PlainTextValue::text(e->value(QLatin1String("charset"))));
+    jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
 
     return jsonMap;
 }
@@ -2109,18 +2129,6 @@ QVariantMap WriteToZotero::createNoteJson(Entry *e)
 
     jsonMap.insert(QLatin1String("note"), PlainTextValue::text(e->value(QLatin1String("note"))));
     jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("newspaperArticle")));
-    jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
-
-    return jsonMap;
-}
-
-QVariantMap WriteToZotero::createAttachmentJson(Entry *e)
-{
-    qWarning() << "attachment upload is currently not supported by the normal zotero write api :(";
-    QVariantMap jsonMap;
-
-    jsonMap.insert(QLatin1String("itemType"),QLatin1String("attachment"));
-//    jsonMap.insert(QLatin1String("note"),QLatin1String("text"));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
 
     return jsonMap;

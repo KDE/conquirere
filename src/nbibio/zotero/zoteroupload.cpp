@@ -47,6 +47,9 @@
 #include <Nepomuk/Query/Result>
 #include <Nepomuk/Query/QueryParser>
 
+//DEBUG
+#include <kbibtex/fileexporterbibtex.h>
+
 using namespace Nepomuk::Vocabulary;
 using namespace Soprano::Vocabulary;
 
@@ -91,7 +94,13 @@ void ZoteroUpload::startUpload()
 {
     Q_ASSERT( m_systemLibrary != 0);
 
-    m_syncSteps = 6;
+    if(m_psd.exportAttachments) {
+        m_syncSteps = 11;
+    }
+    else {
+        m_syncSteps = 6;
+    }
+
     m_currentStep = 0;
 
     if(!m_libraryToSyncWith) {
@@ -152,7 +161,7 @@ void ZoteroUpload::startUpload()
 
     ntbp->addNepomukUries(true);
     ntbp->pipeExport(exportList);
-    m_bibCache = ntbp->bibtexFile();
+    m_uploadBibCache = ntbp->bibtexFile();
 
     //BUG workaround that crash the system otherwise
     // no clue why but if we push m_bibCache into the WriteToZotero class @ m_wtz->pushItems(m_bibCache, m_psd.collection) the
@@ -215,7 +224,7 @@ void ZoteroUpload::readUploadSync()
         QStringList error;
         bool updateSuccessfull = false;
         //now try go through all entries we send
-        foreach(const QSharedPointer<Element> &localElement, *m_bibCache) {
+        foreach(const QSharedPointer<Element> &localElement, *m_uploadBibCache) {
             Entry *localEntry = dynamic_cast<Entry *>(localElement.data());
             if(!localEntry) { continue; }
 
@@ -256,7 +265,7 @@ void ZoteroUpload::readUploadSync()
                                              zoteroEntry->id(),
                                              PlainTextValue::text(zoteroEntry->value(QLatin1String("zoteroetag"))),
                                              PlainTextValue::text(zoteroEntry->value(QLatin1String("zoteroupdated"))));
-                m_bibCache->removeAll(localElement); // remove from local storage, so we don't check it again
+                m_uploadBibCache->removeAll(localElement); // remove from local storage, so we don't check it again
                 updateSuccessfull = true;
                 break;
             }
@@ -477,7 +486,6 @@ void ZoteroUpload::removeFilesFromZotero(bool removeThem)
         m_wtz->deleteItems(idsToBeRemoved);
     }
     else {
-
         // do not remove from server, but remove sync:ServerSyncData objects locally file will be downloaded again next time
         foreach(SyncDetails sd, m_tmpUserDeleteRequest) {
             if(m_cancel) { cleanupAfterUpload(); return; }
@@ -499,6 +507,7 @@ void ZoteroUpload::cleanupAfterUpload()
     }
     m_syncDataToBeRemoved.clear();
     m_tmpUserDeleteRequest.clear();
+    delete m_uploadBibCache;
 
     m_wtz->deleteLater();
     m_wtz = 0;
@@ -516,18 +525,79 @@ void ZoteroUpload::startAttachmentUpload()
     m_attachmentMode = true;
     kDebug() << "start attachment upload ...";
 
+    emit progressStatus(i18n("prepare attachments for Zotero upload"));
+
     m_currentStep++;
     calculateProgress(0);
 
-    emit progressStatus(i18n("upload attachments to zotero"));
-    calculateProgress(100);
+    m_wtz = new WriteToZotero;
+    m_wtz->setProviderSettings(m_psd);
+    m_wtz->setAdoptBibtexTypes(true);
+    connect(m_wtz, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
 
-    cleanupAfterUpload();
-}
+    // select all nfo:RemoteDataObject that are connected to any nbib:Publication
+    // of any nbib:Reference we want to update these are threated as "links" in zotero
+    // actuall file uploads should be done in a second step
 
-void ZoteroUpload::uploadNextAttachment()
-{
+    QString query = "select DISTINCT ?r ?url where {"
+//                    "{"
+                    "?r a nfo:RemoteDataObject ."
+//                    "}"
+//                    "UNION"
+//                    "{"
+//                    "?r a nfo:FileDataObject ."
+//                    "}"
+                    "?r nbib:publishedAs ?x ."
+                    "?x a nbib:Publication ."
+                    "?r nie:url ?url ."
+                    "}";
 
+    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
+
+    QList<Nepomuk::Resource> exportList;
+    foreach(const Nepomuk::Query::Result & r, queryResult) {
+        exportList.append(r.resource());
+    }
+
+    if(m_cancel) { cleanupAfterUpload(); return; }
+
+    // step 2 pipe to bibtex
+    emit progressStatus(i18n("prepare %1 link attachments for the Zotero upload", exportList.size()));
+
+    NepomukToBibTexPipe *ntbp = new NepomukToBibTexPipe;
+    connect(ntbp, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
+
+    ntbp->setSyncDetails(m_psd.url, m_psd.userName);
+
+    ntbp->addNepomukUries(true);
+    ntbp->pipeExport(exportList);
+    m_uploadBibCache = ntbp->bibtexFile();
+
+    //BUG workaround that crash the system otherwise
+    // no clue why but if we push m_bibCache into the WriteToZotero class @ m_wtz->pushItems(m_bibCache, m_psd.collection) the
+    // QSharedPointers from m_bibCache get invalid and the dynamic_cast crash the system
+    // therefore I need to create this twice ... as this function is fast enough its stil ok,
+    // but must be fixed nonetheless
+    delete ntbp;
+    ntbp = new NepomukToBibTexPipe;
+    ntbp->setSyncDetails(m_psd.url, m_psd.userName);
+
+    ntbp->addNepomukUries(true);
+    ntbp->pipeExport(exportList);
+    File *itemsToPush = ntbp->bibtexFile();
+    //end bug workaround
+
+    // step 3 upload to zotero
+    emit progressStatus(i18n("upload %1 link attachments to Zotero", exportList.size()));
+    m_currentStep++;
+
+
+    if(m_cancel) { cleanupAfterUpload(); return; }
+
+    connect(m_wtz, SIGNAL(finished()), this, SLOT(readUploadSync()));
+    connect(m_wtz, SIGNAL(entryItemUpdated(QString,QString,QString)), this, SLOT(updateSyncDetailsToNepomuk(QString,QString,QString)));
+
+    m_wtz->pushItems(itemsToPush, m_psd.collection);
 }
 
 void ZoteroUpload::cancel()
@@ -643,6 +713,8 @@ void ZoteroUpload::calculateProgress(int value)
     qreal curProgress = ((qreal)value * 1.0/m_syncSteps);
 
     curProgress += (qreal)(100.0/m_syncSteps) * m_currentStep;
+
+    kDebug() << curProgress << m_currentStep << m_syncSteps;
 
     emit progress(curProgress);
 }

@@ -140,6 +140,7 @@ private:
 
     // everything below is responsible for mapping the bibtex keys back to what zotero expects
     // this takes care of the correct remapping if adoptToBibTeX is true
+    QVariantMap createAttachmentJson(Entry *e);
     QVariantMap createArtworkJson(Entry *e);
     QVariantMap createAudioRecordingJson(Entry *e);
     QVariantMap createBillJson(Entry *e);
@@ -165,7 +166,6 @@ private:
     QVariantMap createMapJson(Entry *e);
     QVariantMap createNewspaperArticleJson(Entry *e);
     QVariantMap createNoteJson(Entry *e);
-    QVariantMap createAttachmentJson(Entry *e);
     QVariantMap createPatentJson(Entry *e);
     QVariantMap createPodcastJson(Entry *e);
     QVariantMap createPresentationJson(Entry *e);

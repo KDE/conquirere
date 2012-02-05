@@ -79,6 +79,7 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
         else {
             //we have a publication and no idea what reference to use with it
             // we will extract as many information as possible anyway
+            // or we try to export pimo:Note or some attachment infos
             publication = resource;
         }
 
@@ -109,6 +110,16 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
                 Value v1;
                 v1.append(QSharedPointer<ValueItem>(new PlainText(publication.resourceUri().toString())));
                 e->insert(QLatin1String("nepomuk-note-uri"), v1);
+            }
+        }
+        // special handling for attachments
+        else if( entryType == QLatin1String("Attachment")) {
+            collectAttachmentContent(e, publication);
+
+            if(m_addNepomukUris) {
+                Value v1;
+                v1.append(QSharedPointer<ValueItem>(new PlainText(publication.resourceUri().toString())));
+                e->insert(QLatin1String("nepomuk-attachment-uri"), v1);
             }
         }
         // all other references
@@ -204,6 +215,10 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
     }
     else if(publication.hasType( PIMO::Note() )) {
         type = QLatin1String("Note");
+    }
+    else if( publication.hasType( NFO::Document() ) || publication.hasType( NFO::FileDataObject() )
+             || publication.hasType( NFO::RemoteDataObject() )) {
+        type = QLatin1String("Attachment");
     }
     // all other cases
     else {
@@ -302,25 +317,25 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
     setSyncDetails(e, publication);
 }
 
-void NepomukToBibTexPipe::collectNoteContent(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::collectNoteContent(Entry *e, Nepomuk::Resource note)
 {
-    kDebug() << "collectNoteContent";
-    setValue(e, publication, NIE::plainTextContent(), QLatin1String("note"));
-    setKewords(e, publication);
+    setValue(e, note, NIE::plainTextContent(), QLatin1String("note"));
+    setKewords(e, note);
 
     // Zotero additions
-    setSyncDetails(e, publication);
+    setSyncDetails(e, note);
 
     // if we don't have a zotero key we might need to add a new item and need to know the parent of it first
-    if(e->contains("zoteroKey"))
+    if(e->contains("zoteroKey")) {
         return;
+    }
 
-    QList<Nepomuk::Resource> parents = publication.property(NAO::isRelated()).toResourceList();
+    QList<Nepomuk::Resource> parents = note.property(NAO::isRelated()).toResourceList();
 
     foreach( const Nepomuk::Resource &r, parents) {
         QList<Nepomuk::Resource> sycList = r.property(SYNC::serverSyncData()).toResourceList();
 
-        // only add the sync details the the right storage
+        // only add the sync details from the right storage
         foreach(const Nepomuk::Resource &parentSync, sycList) {
             if(parentSync.property(SYNC::provider()).toString() != QString("zotero")) { //TODO make this possible for others too
                 continue;
@@ -329,6 +344,83 @@ void NepomukToBibTexPipe::collectNoteContent(Entry *e, Nepomuk::Resource publica
                 continue;
             }
             if(parentSync.property(SYNC::url()).toString() != m_syncUrl) {
+                continue;
+            }
+
+            //now we have the right object, write down parent sync details
+
+            QString updated = parentSync.property(SYNC::id()).toString();
+            Value v3;
+            v3.append(QSharedPointer<ValueItem>(new PlainText(updated)));
+            e->insert(QLatin1String("zoteroParent"), v3);
+
+            return; // stop here
+        }
+    }
+}
+
+void NepomukToBibTexPipe::collectAttachmentContent(Entry *e, Nepomuk::Resource attachment)
+{
+    kDebug() << "collectAttachmentContent";
+    setValue(e, attachment, NIE::title(), QLatin1String("title"));
+    if(!e->contains( QLatin1String("title") )) {
+        setValue(e, attachment, NIE::url(), QLatin1String("title"));
+    }
+
+    setValue(e, attachment, NIE::url(), QLatin1String("url"));
+    setValue(e, attachment, NUAO::lastUsage(), QLatin1String("accessDate"));
+
+    QString linkMode;
+    if(attachment.hasType(NFO::RemoteDataObject())) {
+        linkMode = '1';
+    }
+    else {
+        linkMode = '0';
+    }
+
+    Value v;
+    v.append(QSharedPointer<ValueItem>(new PlainText(linkMode)));
+    e->insert(QLatin1String("linkMode"), v);
+
+
+    //DEBUG
+    Value v1;
+    v1.append(QSharedPointer<ValueItem>(new PlainText(QString("text/html"))));
+    e->insert(QLatin1String("mimeType"), v1);
+    Value v2;
+    v2.append(QSharedPointer<ValueItem>(new PlainText(QString("utf-8"))));
+    e->insert(QLatin1String("charset"), v2);
+
+
+    //DEBUG END
+
+    setValue(e, attachment, NIE::comment(), QLatin1String("note"));
+
+    setKewords(e, attachment);
+
+    // Zotero additions
+    setSyncDetails(e, attachment);
+
+    // if we don't have a zotero key we might need to add a new item and need to know the parent of it first
+    // because attachments are always a child of an existing parent item
+    if(e->contains("zoteroKey")) {
+        return;
+    }
+
+    QList<Nepomuk::Resource> parents = attachment.property(NBIB::publishedAs()).toResourceList();
+
+    foreach( const Nepomuk::Resource &r, parents) {
+        QList<Nepomuk::Resource> sycList = r.property(SYNC::serverSyncData()).toResourceList();
+
+        // only add the sync details from the right storage
+        foreach(const Nepomuk::Resource &parentSync, sycList) {
+            if(parentSync.property(SYNC::provider()).toString() != QString("zotero")) { //TODO make this possible for others too
+                continue;
+            }
+            else if(parentSync.property(SYNC::userId()).toString() != m_syncUserId) {
+                continue;
+            }
+            else if(parentSync.property(SYNC::url()).toString() != m_syncUrl) {
                 continue;
             }
 
