@@ -132,10 +132,6 @@ void NoteWidget::saveNote()
     Nepomuk::setProperty(resUri, NAO::prefLabel(), value);
 
     resUri.clear(); resUri << m_note.uri();
-    value.clear(); value << ui->editTitle->text();
-    Nepomuk::setProperty(resUri, NIE::title(), value);
-
-    resUri.clear(); resUri << m_note.uri();
     value.clear(); value << ui->editContent->document()->toPlainText();
     Nepomuk::setProperty(resUri, NIE::plainTextContent(), value);
 

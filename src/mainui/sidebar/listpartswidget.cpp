@@ -127,6 +127,12 @@ void ListPartsWidget::setResource(Nepomuk::Resource resource)
             showString = showArticleString(r);
             break;
         }
+
+        if(m_partType != Chapter) {
+            BibEntryType bet = BibEntryTypeFromUrl(r);
+            i->setIcon( KIcon(BibEntryTypeIcon.at(bet)) );
+        }
+
         i->setText(showString);
         i->setData(Qt::UserRole, r.resourceUri());
         ui->listWidget->addItem(i);
@@ -202,26 +208,31 @@ void ListPartsWidget::editPart()
     QListWidgetItem *i = ui->listWidget->currentItem();
     if(!i)  { return; }
 
-    Nepomuk::Resource tmpChapter = Nepomuk::Resource::fromResourceUri(i->data(Qt::UserRole).toString());
+    Nepomuk::Resource resourceToEdit = Nepomuk::Resource::fromResourceUri(i->data(Qt::UserRole).toString());
     QString showNewString;
 
     switch(m_partType) {
     case Chapter:
-        editChapter(tmpChapter);
-        showNewString = showChapterString(tmpChapter);
+        editChapter(resourceToEdit);
+        showNewString = showChapterString(resourceToEdit);
         break;
     case Series:
-        editFromSeries(tmpChapter);
-        showNewString = showSeriesOfString(tmpChapter);
+        editFromSeries(resourceToEdit);
+        showNewString = showSeriesOfString(resourceToEdit);
         break;
     case Collection:
-        editFromCollection(tmpChapter);
-        showNewString = showArticleString(tmpChapter);
+        editFromCollection(resourceToEdit);
+        showNewString = showArticleString(resourceToEdit);
         break;
     case Publication:
-        editFromEvent(tmpChapter);
-        showNewString = showArticleString(tmpChapter);
+        editFromEvent(resourceToEdit);
+        showNewString = showArticleString(resourceToEdit);
         break;
+    }
+
+    if(m_partType != Chapter) {
+        BibEntryType bet = BibEntryTypeFromUrl(resourceToEdit);
+        i->setIcon( KIcon(BibEntryTypeIcon.at(bet)) );
     }
 
     i->setText(showNewString);
@@ -373,6 +384,7 @@ void ListPartsWidget::addChapter()
     if(ret == QDialog::Accepted) {
         QListWidgetItem *i = new QListWidgetItem();
         QString showString = showChapterString(tempResource);
+
         i->setText(showString);
         i->setData(Qt::UserRole, tempResource.resourceUri());
         ui->listWidget->addItem(i);
@@ -475,6 +487,12 @@ void ListPartsWidget::addToSeries()
         // the user wants to keep this resource
         QListWidgetItem *i = new QListWidgetItem();
         QString showString = showSeriesOfString(tempResource);
+
+        if(m_partType != Chapter) {
+            BibEntryType bet = BibEntryTypeFromUrl(tempResource);
+            i->setIcon( KIcon(BibEntryTypeIcon.at(bet)) );
+        }
+
         i->setText(showString);
         i->setData(Qt::UserRole, tempResource.resourceUri());
         ui->listWidget->addItem(i);
@@ -564,6 +582,12 @@ void ListPartsWidget::addToCollection()
         // the user wants to keep this resource
         QListWidgetItem *i = new QListWidgetItem();
         QString showString = showArticleString(tempResource);
+
+        if(m_partType != Chapter) {
+            BibEntryType bet = BibEntryTypeFromUrl(tempResource);
+            i->setIcon( KIcon(BibEntryTypeIcon.at(bet)) );
+        }
+
         i->setText(showString);
         i->setData(Qt::UserRole, tempResource.resourceUri());
         ui->listWidget->addItem(i);
@@ -634,6 +658,12 @@ void ListPartsWidget::addToEvent()
         Nepomuk::addProperty(resUri, NBIB::event(), value);
 
         QListWidgetItem *i = new QListWidgetItem();
+
+        if(m_partType != Chapter) {
+            BibEntryType bet = BibEntryTypeFromUrl(publication);
+            i->setIcon( KIcon(BibEntryTypeIcon.at(bet)) );
+        }
+
         i->setText(publication.property(NIE::title()).toString());
         i->setData(Qt::UserRole, publication.resourceUri());
         ui->listWidget->addItem(i);

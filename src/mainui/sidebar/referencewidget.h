@@ -36,6 +36,7 @@ class ReferenceWidget : public SidebarComponent
 public:
     explicit ReferenceWidget(QWidget *parent = 0);
 
+    void setLibraryManager(LibraryManager *lm);
     Nepomuk::Resource resource();
 
 public slots:

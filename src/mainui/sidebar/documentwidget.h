@@ -42,6 +42,7 @@ public:
     explicit DocumentWidget(QWidget *parent = 0);
     virtual ~DocumentWidget();
 
+    void setLibraryManager(LibraryManager *lm);
     Nepomuk::Resource resource();
 
 public slots:

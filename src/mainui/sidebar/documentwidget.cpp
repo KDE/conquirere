@@ -23,6 +23,9 @@
 #include "mainui/mainwindow.h"
 #include "mainui/librarymanager.h"
 
+#include "dms-copy/datamanagement.h"
+#include <KDE/KJob>
+
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Variant>
@@ -33,6 +36,8 @@
 #include <KDE/KIconLoader>
 
 #include <KDE/KDebug>
+
+using namespace Nepomuk::Vocabulary;
 
 DocumentWidget::DocumentWidget(QWidget *parent)
     : SidebarComponent(parent)
@@ -50,6 +55,12 @@ DocumentWidget::DocumentWidget(QWidget *parent)
 DocumentWidget::~DocumentWidget()
 {
     delete ui;
+}
+
+void DocumentWidget::setLibraryManager(LibraryManager *lm)
+{
+    ui->editAnnot->setLibraryManager(lm);
+    SidebarComponent::setLibraryManager(lm);
 }
 
 Nepomuk::Resource DocumentWidget::resource()
@@ -114,16 +125,24 @@ void DocumentWidget::deleteButtonClicked()
 
 void DocumentWidget::setPublication()
 {
-    ListPublicationsDialog lpd;
-    lpd.setLibraryManager(libraryManager());
+    QPointer<ListPublicationsDialog> lpd = new ListPublicationsDialog(this);
+    lpd->setLibraryManager(libraryManager());
 
-    int ret = lpd.exec();
+    int ret = lpd->exec();
 
     if(ret == QDialog::Accepted) {
-        Nepomuk::Resource publication = lpd.selectedPublication();
+        Nepomuk::Resource publication = lpd->selectedPublication();
 
-        m_document.setProperty(Nepomuk::Vocabulary::NBIB::publishedAs(), publication);
-        publication.addProperty(Nepomuk::Vocabulary::NBIB::isPublicationOf(), m_document);
+        QList<QUrl> resUri; resUri << m_document.uri();
+        QVariantList value; value << publication.uri();
+        KJob *job1 = Nepomuk::addProperty(resUri, NBIB::publishedAs(), value);
+        job1->exec(); //blocking call...
+
+        resUri.clear(); resUri << publication.uri();
+        value.clear(); value << m_document.uri();
+        KJob *job2 = Nepomuk::addProperty(resUri, NBIB::isPublicationOf(), value);
+        job2->exec(); //blocking call...
+
         setResource(m_document);
         emit resourceCacheNeedsUpdate(m_document);
         emit resourceCacheNeedsUpdate(publication);
@@ -134,8 +153,16 @@ void DocumentWidget::removePublication()
 {
     Nepomuk::Resource publication = m_document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
 
-    m_document.removeProperty(Nepomuk::Vocabulary::NBIB::publishedAs());
-    publication.removeProperty(Nepomuk::Vocabulary::NBIB::isPublicationOf(), m_document);
+
+    QList<QUrl> resourceUris; resourceUris << m_document.uri();
+    QVariantList value; value << publication.uri();
+    KJob *job1 = Nepomuk::removeProperty(resourceUris, NBIB::publishedAs(), value);
+    job1->exec(); //blocking call...
+
+    resourceUris.clear(); resourceUris << publication.uri();
+    value.clear(); value << m_document.uri();
+    KJob *job2 = Nepomuk::removeProperty(resourceUris, NBIB::isPublicationOf(), value);
+    job2->exec(); //blocking call...
 
     //update
     setResource(m_document);

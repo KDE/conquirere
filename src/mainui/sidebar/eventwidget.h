@@ -52,6 +52,9 @@ public:
    Nepomuk::Resource resource();
 
 public slots:
+   /**
+     * @bug AkonadiContactFeder needs to be changed to respect pimo:Event and add its tags to the thing not the ncal:Event
+     */
     virtual void setResource(Nepomuk::Resource & resource);
 
 private slots:
