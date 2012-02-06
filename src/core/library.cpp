@@ -37,13 +37,22 @@
 #include "models/seriesfiltermodel.h"
 #include "models/eventmodel.h"
 
+#include "dms-copy/simpleresource.h"
+#include "dms-copy/simpleresourcegraph.h"
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
+#include <KDE/KJob>
+#include "sro/pimo/thing.h"
+#include "sro/nao/tag.h"
+#include "sro/nie/dataobject.h"
+#include "sro/nfo/document.h"
+
 #include <Nepomuk/Variant>
 #include <Nepomuk/Resource>
 #include <Nepomuk/Tag>
 #include <Nepomuk/File>
 
 #include "nbib.h"
-#include "sync.h"
 #include <Nepomuk/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Vocabulary/PIMO>
@@ -62,6 +71,9 @@
 
 const QString DOCPATH = I18N_NOOP2("Name of the documents folder to store user library documents","documents");  /**< @todo make this configurable */
 const QString NOTEPATH = I18N_NOOP2("Name of the notes folder to store user library documents","notes");     /**< @todo make this configurable */
+
+using namespace Nepomuk::Vocabulary;
+using namespace Soprano::Vocabulary;
 
 Library::Library()
     : QObject(0)
@@ -88,19 +100,40 @@ Library::~Library()
 
 Nepomuk::Thing Library::createLibrary(const QString & name, const QString & description, const QString & path)
 {
-    // when a new library is created it is realized as pimo:Project
-    Nepomuk::Thing projectThing = Nepomuk::Thing( );
-    projectThing.addType( Nepomuk::Vocabulary::PIMO::Project() );
-    projectThing.setProperty( Nepomuk::Vocabulary::NIE::title() , QString(name.toUtf8()) );
-    projectThing.setProperty( Soprano::Vocabulary::NAO::description() , QString(description.toUtf8()) );
+    Nepomuk::Thing projectThing;
 
-    // create a tag with the project name
-    // this way we can relate publications/documents etc via PIMO::isRelated or the tag
-    Nepomuk::Tag libraryTag = Nepomuk::Tag( name.toAscii() );
-    libraryTag.setLabel( name.toUtf8() );
+    // We create a new pimo:Project and tag via the DMS system.
+    // this ensures we handle duplicates and set the nao:maintainedBy correctly
+    Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::PIMO::Thing newThing;
+    newThing.addType( PIMO::Project() );
+    newThing.setProperty( NAO::prefLabel() , name );
+    newThing.setProperty( NAO::description() , description );
+
+    graph << newThing;
+
+    Nepomuk::SimpleResource tagResource;
+    Nepomuk::NAO::Tag newTag(&tagResource);
+    tagResource.setProperty( NAO::identifier(), QUrl::toPercentEncoding(name) );
+    newTag.addPrefLabel( name );
+    newThing.addProperty(NAO::hasSubResource(), tagResource.uri() ); // remove tag when project is deleted
+
+    graph << tagResource;
+    newThing.addTag( tagResource.uri() );
+
+    //blocking graph save
+    Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph,Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties);
+    if( !srj->exec() ) {
+        kWarning() << "could not create pimo:Project" << srj->errorString();
+        return projectThing;
+    }
+    else {
+        // get the pimo project from the return job mappings
+        projectThing = Nepomuk::Thing( srj->mappings().value( newThing.uri() ) );
+    }
 
     // check if a library path is set
-    // we create the path if not available then
+    // we create the path if not available
     if(!path.isEmpty()) {
         QDir project;
         project.mkpath(path);
@@ -134,17 +167,30 @@ QString Library::createIniFile(Nepomuk::Thing & pimoProject, const QString & pat
     projectSettings->setSettingsFile(iniFile);
     projectSettings->setProjectDir(path);
     projectSettings->setPimoThing(pimoProject);
-    projectSettings->setName( pimoProject.property(Nepomuk::Vocabulary::NIE::title()).toString() );
-    projectSettings->setDescription( pimoProject.property(Soprano::Vocabulary::NAO::description()).toString() );
+    projectSettings->setName( pimoProject.property( NAO::prefLabel()).toString() );
+    projectSettings->setDescription( pimoProject.property( NAO::description()).toString() );
 
     // connect the nepomuk data for the settingsfile to the pimo::project
-    Nepomuk::File settingsFile = Nepomuk::File(KUrl(iniFile));
-
-    //DEBUG the next 2 steps are necessary beacuse nepomuk did not fetch the newly created ini file at this point
+    Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::NFO::Document iniFileSimpleResource;
+    iniFileSimpleResource.addType(NIE::DataObject());
+    iniFileSimpleResource.addType(NIE::InformationElement());
     QString settingsFileName = QLatin1String("file://") + iniFile;
-    settingsFile.setProperty(Nepomuk::Vocabulary::NIE::url(), settingsFileName);
+    iniFileSimpleResource.setProperty( NIE::url(), settingsFileName );
+    iniFileSimpleResource.setProperty( NIE::title(), i18n("Conquirer settings for project: %1", pimoProject.property( NAO::prefLabel()).toString()) );
 
-    pimoProject.addGroundingOccurrence(settingsFile);
+    graph << iniFileSimpleResource;
+
+    //blocking graph save
+    Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph,Nepomuk::IdentifyNone, Nepomuk::OverwriteProperties);
+    if( !srj->exec() ) {
+        kWarning() << "could not create project ini resource file" << srj->errorString();
+    }
+    else {
+        kDebug() << "save successfull" << srj->mappings();
+        // get the resource from the return job mappings
+        pimoProject.addProperty( PIMO::groundingOccurrence(), srj->mappings().value( iniFileSimpleResource.uri() ) );
+    }
 
     return iniFile;
 }
@@ -190,7 +236,7 @@ void Library::loadLibrary(Nepomuk::Thing & pimoProject)
     Nepomuk::File iniFile;
     foreach( const Nepomuk::Resource &r, settingsFiles) {
         iniFile = r;
-        //DEBUG we save inifiles in StandardDirs::locateLocal("appdata", QLatin1String("projects")); so
+        //DEBUG we save inifiles in StandardDirs::locateLocal("appdata", QLatin1String("projects"));
         if(iniFile.url().pathOrUrl().contains(QLatin1String("conquirere")))
             break;
     }
@@ -216,14 +262,7 @@ LibraryType Library::libraryType() const
 
 void Library::deleteLibrary()
 {
-    // remove the library from the conquiere pimo:thing
-    KSharedConfigPtr config = KSharedConfig::openConfig("conquirererc");
-    KConfigGroup generalGroup = config->group("General");
-    QString NepomukCollection = generalGroup.readEntry( "NepomukCollection", QString() );
-    Nepomuk::Resource conquiereCollections = Nepomuk::Resource(NepomukCollection);
-    conquiereCollections.removeProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectSettings->projectThing());
-
-    QList<Nepomuk::Resource> gos = m_projectSettings->projectThing().groundingOccurrences();
+   QList<Nepomuk::Resource> gos = m_projectSettings->projectThing().groundingOccurrences();
 
     // delete all groundingOccurences, in our case this should be only the .ini files
     foreach(Nepomuk::Resource r, gos) {
@@ -234,18 +273,17 @@ void Library::deleteLibrary()
         r.remove();
     }
 
-    // remove connection from the overall pimo collection to the deleted library
-    conquiereCollections.removeProperty(Soprano::Vocabulary::NAO::isRelated(), m_projectSettings->projectThing());
+    QList<QUrl> projectUris;
+    projectUris << m_projectSettings->projectThing().uri() << m_projectSettings->projectTag().uri();
 
-    // remove nepomuk resources for it
-    m_projectSettings->projectThing().remove();
-    m_projectSettings->projectTag().remove();
+    connect(Nepomuk::removeResources( projectUris, Nepomuk::RemoveSubResoures ),
+            SIGNAL(result(KJob*)), this, SLOT(nepomukDMSfinishedInfo(KJob*)));
 }
 
 void Library::addResource(Nepomuk::Resource & res)
 {
     if(m_libraryType == Library_System) {
-        qWarning() << "can't add resources to system library";
+        kWarning() << "can't add resources to system library";
         return;
     }
 
@@ -260,81 +298,55 @@ void Library::removeResource(Nepomuk::Resource & res)
 {
     Q_ASSERT_X( m_libraryType == Library_Project, "removeResource", "can't remove resources from system library");
 
-    res.removeProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectSettings->projectThing());
+    QList<QUrl> resourceUris;
+    resourceUris << res.uri();
 
-    QList<Nepomuk::Resource> references = res.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
-    foreach(Nepomuk::Resource r, references) {
-        r.removeProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectSettings->projectThing());
+    QList<Nepomuk::Resource> subResources = res.property(Soprano::Vocabulary::NAO::hasSubResource()).toResourceList();
+    foreach(const Nepomuk::Resource &r, subResources) {
+        resourceUris << r.uri();
     }
+
+    QVariantList propertyUris;
+    propertyUris << m_projectSettings->projectThing().uri();
+    Nepomuk::removeProperty(resourceUris, NAO::isRelated(), propertyUris);
 }
 
-void Library::deleteResource(Nepomuk::Resource & resource, bool recursiveDeletion)
+void Library::deleteResource(Nepomuk::Resource & resource )
 {
-    kDebug() << "delete resource" << resource.genericLabel();
-    if( resource.hasType(Nepomuk::Vocabulary::NBIB::Reference() ) ) {
-        Nepomuk::Resource publication = resource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+    QList<QUrl> removeResourcesUris;
+    removeResourcesUris << resource.uri();
 
-        // remove also all notes related only to this reference
-        QList<Nepomuk::Resource> notes = resource.property(Soprano::Vocabulary::NAO::isRelated()).toResourceList();
-        foreach(Nepomuk::Resource note, notes) {
+    //check if the resource is in a collection that has no other articles attached to it anymore
+    Nepomuk::Resource collection = resource.property(NBIB::collection()).toResource();
+    if( collection.exists() ) {
+        QList<Nepomuk::Resource> articles = collection.property(NBIB::article()).toResourceList();
+        if(articles.size() <= 1) {
+            removeResourcesUris << collection.uri();
+        }
 
-            // only delete notes that are sololey related to the reference
-            // keep notes tha tfor example are related to the note and the publication
-            QList<Nepomuk::Resource> relations = note.property(Soprano::Vocabulary::NAO::isRelated()).toResourceList();
-            if(!relations.isEmpty() && relations.size() < 2) {
-                note.remove();
+        // check if the collection is in a Series that has no other publication attached to it anymore
+        Nepomuk::Resource series = collection.property(NBIB::inSeries()).toResource();
+        if( series.exists() ) {
+            QList<Nepomuk::Resource> seriesPublication = series.property(NBIB::seriesOf()).toResourceList();
+            if(seriesPublication.size() <= 1) {
+                removeResourcesUris << series.uri();
             }
         }
-
-        if(!notes.isEmpty() && notes.size() > 1) {
-            notes.first().remove();
-        }
-
-        if(recursiveDeletion) {
-            deleteResource(publication);
-        }
-        else {
-            publication.removeProperty(Nepomuk::Vocabulary::NBIB::reference(), resource );
-            emit resourceCacheNeedsUpdate(publication);
-        }
     }
-    else if( resource.hasType(Nepomuk::Vocabulary::NBIB::Publication()) ){
-        Nepomuk::Resource series = resource.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
-        series.removeProperty( Nepomuk::Vocabulary::NBIB::seriesOf(), resource);
-        // if it wasn't the series of any other publication, remove this too
-        QList<Nepomuk::Resource> seriesPubilcations = series.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
-        if(seriesPubilcations.isEmpty()) {
-            series.remove();
-        }
 
-        Nepomuk::Resource collection = resource.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
-        collection.removeProperty( Nepomuk::Vocabulary::NBIB::article(), resource);
-        // if it wasn't teh collection of any other article, delete it too
-        QList<Nepomuk::Resource> articles = collection.property(Nepomuk::Vocabulary::NBIB::article()).toResourceList();
-        if(articles.isEmpty()) {
-            collection.remove();
-        }
-
-        QList<Nepomuk::Resource> references = resource.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
-        foreach(Nepomuk::Resource r, references) {
-            deleteResource(r);
-        }
-
-        QList<Nepomuk::Resource> documentParts = resource.property(Nepomuk::Vocabulary::NBIB::documentPart()).toResourceList();
-        foreach(Nepomuk::Resource dp, documentParts) {
-            dp.remove();
-        }
-
-        // delete the notes regardless of the amount of other isRelated stuff
-        // the notes attached to a publication make no sese as standalone note anyway
-        QList<Nepomuk::Resource> notes = resource.property(Soprano::Vocabulary::NAO::isRelated()).toResourceList();
-        foreach(Nepomuk::Resource note, notes) {
-            note.remove();
+    // check if the resource is in a Series that has no other publication attached to it anymore
+    Nepomuk::Resource series = resource.property(NBIB::inSeries()).toResource();
+    if( series.exists() ) {
+        QList<Nepomuk::Resource> seriesPublication = series.property(NBIB::seriesOf()).toResourceList();
+        if(seriesPublication.size() <= 1) {
+            removeResourcesUris << series.uri();
         }
     }
 
-    // finally remove the resource from the nepomuk storage
-    resource.remove();
+    // now delete everything and its subresources
+
+    connect(Nepomuk::removeResources( removeResourcesUris, Nepomuk::RemoveSubResoures ),
+            SIGNAL(result(KJob*)), this, SLOT(nepomukDMSfinishedInfo(KJob*)));
 }
 
 void Library::updateCacheData()
@@ -366,6 +378,14 @@ void Library::finishedInitialImport()
 
     if(m_initialImportFinished == m_resources.size()) {
         m_tagCloud->pauseUpdates(false);
+    }
+}
+
+void Library::nepomukDMSfinishedInfo(KJob *job)
+{
+    if(job->error()) {
+        kWarning() << "error during Nepomuk DMS call";
+        kWarning() << job->errorString();
     }
 }
 

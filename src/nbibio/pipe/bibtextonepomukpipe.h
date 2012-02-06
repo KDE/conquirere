@@ -141,7 +141,8 @@ private:
     void addTranslator(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
     void addReviewedAuthor(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
     /**
-      * @bug replace NFO::Website() with NFO::WebDataObject() when available
+      * @bug split webpages by ',' or ';' if necessary
+      * @bug create nfo:RemoteDataObject or nfo:FileDataObject as nbib:published as if the url is not a webpage
       */
     void addUrl(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
     void addPublicationDate(const QString &fullDate, Nepomuk::NBIB::Publication &publication);
@@ -151,7 +152,7 @@ private:
     void addTopic(const Value &content, Nepomuk::SimpleResource &resource, Nepomuk::SimpleResourceGraph &graph);
 
     /**
-      * writes teh zotero Snc details to the resource
+      * writes the zotero Snc details to the resource
       *
       * Also adds it as a nao:isRelated to the zoteroParent if the resource is a child note
       *

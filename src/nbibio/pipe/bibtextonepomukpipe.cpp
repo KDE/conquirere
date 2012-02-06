@@ -26,7 +26,7 @@
 #include "dms-copy/simpleresource.h"
 #include "dms-copy/datamanagement.h"
 #include "dms-copy/storeresourcesjob.h"
-#include <KJob>
+#include <KDE/KJob>
 
 
 #include "sro/nbib/series.h"
@@ -1066,6 +1066,7 @@ void BibTexToNepomukPipe::addPublisher(const Value &publisherValue, const Value 
             publisherResource.setNameHonorificSuffixs( suffixes );
             if(!addressString.isEmpty()) {
                 publisherResource.addPostalAddress( postalAddress.uri() );
+                publisherResource.addProperty(NAO::hasSubResource(), postalAddress.uri() );
             }
 
             graph << publisherResource;
@@ -1077,6 +1078,7 @@ void BibTexToNepomukPipe::addPublisher(const Value &publisherValue, const Value 
             publisherResource.setFullname( publisher.full );
             if(!addressString.isEmpty()) {
                 publisherResource.addPostalAddress( postalAddress.uri() );
+                publisherResource.addProperty(NAO::hasSubResource(), postalAddress.uri() );
             }
 
             graph << publisherResource;
@@ -1120,6 +1122,7 @@ void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &vol
     // connect article <-> collection
     publication.setProperty(NBIB::collection(), collection );
     collection.addArticle( publication.uri() );
+    collection.addProperty(NAO::hasSubResource(), publication.uri() ); // delete article when collection is removed
 
     if(m_projectThing.isValid()) {
         collection.addProperty( NAO::isRelated() , m_projectThing.uri());
@@ -1143,6 +1146,7 @@ void BibTexToNepomukPipe::addSpecialArticle(const Value &titleValue, Nepomuk::NB
     // connect article <-> collection
     article.setProperty(NBIB::collection(), collection.uri() );
     collection.addArticle( article.uri() );
+    collection.addProperty(NAO::hasSubResource(), article.uri() ); // delete article when collection is removed
 
     if(m_projectThing.isValid()) {
         collection.addProperty( NAO::isRelated() , m_projectThing.uri());
@@ -1171,7 +1175,7 @@ void BibTexToNepomukPipe::addAuthor(const Value &contentValue, Nepomuk::NBIB::Pu
             // connect refrence <-> chapter <-> publication
             chapterResource.setDocumentPartOf( publication.uri() );
             publication.addDocumentPart( chapterResource.uri() );
-            publication.addProperty(NAO::hasSubResource(), chapterResource.uri() );
+            publication.addProperty(NAO::hasSubResource(), chapterResource.uri() ); //delete chapter when publication is removed
             reference.setReferencedPart( chapterResource.uri() );
 
             graph << chapterResource;
@@ -1216,6 +1220,7 @@ void BibTexToNepomukPipe::addBooktitle(const QString &content, Nepomuk::NBIB::Pu
         // connect collection <-> article publication
         publication.setProperty(NBIB::collection(), collection.uri() );
         collection.addArticle( publication.uri() );
+        collection.addProperty(NAO::hasSubResource(), publication.uri() ); // delete article when collection is removed
 
         if(m_projectThing.isValid()) {
             collection.addProperty( NAO::isRelated() , m_projectThing.uri() );
@@ -1280,7 +1285,7 @@ void BibTexToNepomukPipe::addChapter(const QString &content, Nepomuk::NBIB::Publ
         // connect refrence <-> chapter <-> publication
         chapterResource.setDocumentPartOf( publication.uri() );
         publication.addDocumentPart( chapterResource.uri() );
-        publication.addProperty(NAO::hasSubResource(), chapterResource.uri() );
+        publication.addProperty(NAO::hasSubResource(), chapterResource.uri() ); //delete chapter when publication is removed
         reference.setReferencedPart( chapterResource.uri() );
 
         graph << chapterResource;
@@ -1553,7 +1558,7 @@ void BibTexToNepomukPipe::addTitle(const QString &content, Nepomuk::NBIB::Public
             reference.setReferencedPart( chapter.uri() );
             publication.addDocumentPart( chapter.uri() );
             chapter.setDocumentPartOf( publication.uri() );
-            publication.addProperty(NAO::hasSubResource(), chapter.uri() );
+            publication.addProperty(NAO::hasSubResource(), chapter.uri() ); // delete chapter when publication is removed
 
             graph << chapter;
         }
@@ -1724,7 +1729,8 @@ void BibTexToNepomukPipe::addTag(const Value &content, Nepomuk::SimpleResource &
     foreach(QSharedPointer<ValueItem> vi, content) {
         Keyword *k = dynamic_cast<Keyword *>(vi.data());
 
-        //TODO does this need a change? works differentlyy than pimo:Topic creation, still works though...
+        //TODO does this need a change? works differently than pimo:Topic creation, still works though...
+        // there exist 2 apis for the ontology class, one that uses pointers the other that uses references ...
         Nepomuk::SimpleResource tagResource;
         Nepomuk::NAO::Tag tag (&tagResource);
 
@@ -1842,6 +1848,8 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::SimpleResource &mainReso
             parentPublication.addProperty( NAO::isRelated(), mainResource.uri());
             mainResource.addProperty( NAO::isRelated(), parentPublication.uri());
 
+            parentPublication.addProperty( NAO::hasSubResource(), mainResource.uri()); //delete note when publication is deleted
+
             Nepomuk::Resource parentReference = parentSyncResource.property(NBIB::reference()).toResource();
             parentReference.addProperty( NAO::isRelated(), mainResource.uri());
             mainResource.addProperty( NAO::isRelated(), parentReference.uri());
@@ -1850,6 +1858,8 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::SimpleResource &mainReso
             Nepomuk::Resource parentPublication = parentSyncResource.property(NBIB::publication()).toResource();
             parentPublication.addProperty( NBIB::isPublicationOf(), mainResource.uri());
             mainResource.addProperty( NBIB::publishedAs(), parentPublication.uri());
+
+            parentPublication.addProperty( NAO::hasSubResource(), mainResource.uri()); // delete file when publication is deleted
         }
     }
 

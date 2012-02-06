@@ -36,6 +36,7 @@ class DirWatcher;
 class NBibSync;
 class BackgroundSync;
 class ProjectSettings;
+class KJob;
 
 /**
   * @brief A Library is a collection of files and Nepomuk::Resource data of a specific topic
@@ -136,14 +137,12 @@ public:
     void removeResource(Nepomuk::Resource & res);
 
     /**
-      * Deletes the resource and also any connected resource that might not be necessary anymore
+      * Deletes the resource and also any subresources
       *
-      * like the reference for the publication, or a nbib:Series if it did not contain any other publications
-      * or a nbib:Collection if we deleted the only article in it
-      *
-      * @p recursiveDeletion if this is true also the publication from a reference will be deleted. BEside they zotero sync shouldn't be necessary
+      * Also detects if this removed the only @c article in a @c collection or only @c publication in a @c series
+      * and removes them too.
       */
-    void deleteResource(Nepomuk::Resource & resource, bool recursiveDeletion = false);
+    void deleteResource(Nepomuk::Resource & resource);
 
     /**
       * Updates all cached list data
@@ -177,6 +176,7 @@ signals:
 
 private slots:
     void finishedInitialImport();
+    void nepomukDMSfinishedInfo(KJob *job);
 
 private:
     /**

@@ -68,7 +68,7 @@ void LoadProject::showCollection(int currentRow)
 
         Nepomuk::Resource collection = Nepomuk::Resource(item->data(Qt::UserRole).toString());
 
-        ui->labelName->setText(collection.property(Nepomuk::Vocabulary::NIE::title()).toString());
+        ui->labelName->setText(collection.property(Soprano::Vocabulary::NAO::prefLabel()).toString());
 
         QString description = collection.property(Soprano::Vocabulary::NAO::description()).toString();
         if(description.isEmpty()) {
@@ -106,9 +106,8 @@ void LoadProject::fetchProjects()
 void LoadProject::fillProjectList( const QList< Nepomuk::Query::Result > &entries )
 {
     foreach(const Nepomuk::Query::Result &r, entries) {
-
         QListWidgetItem *newItem = new QListWidgetItem;
-        newItem->setText(r.resource().property(Nepomuk::Vocabulary::NIE::title()).toString());
+        newItem->setText(r.resource().property(Soprano::Vocabulary::NAO::prefLabel()).toString());
         newItem->setData(Qt::UserRole, r.resource().resourceUri());
         ui->listWidget->addItem(newItem);
     }

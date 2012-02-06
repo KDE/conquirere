@@ -469,7 +469,7 @@ void ZoteroDownload::deleteLocalFiles(bool deleteThem)
                 m_libraryToSyncWith->removeResource(mainResource);
             }
             else {
-                m_systemLibrary->deleteResource(mainResource, true);
+                m_systemLibrary->deleteResource(mainResource);
 
                 if(deleteFileFromDisk) {
                     //get the file url

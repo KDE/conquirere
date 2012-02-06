@@ -60,11 +60,12 @@ void ProjectSettings::loadSettings(const QString &projectFile)
     KConfigGroup generalGroup( m_projectConfig, "Conquirere" );
     m_pimoThing = Nepomuk::Thing(generalGroup.readEntry("pimoProject", QString()));
 
-    QString name = m_pimoThing.property(Nepomuk::Vocabulary::NIE::title()).toString();
+    QString name = m_pimoThing.property(Soprano::Vocabulary::NAO::prefLabel()).toString();
     if(!name.isEmpty()) {
-        m_projectTag = Nepomuk::Tag( name.toAscii() );
-        if(!m_projectTag.exists())
-            m_projectTag.setLabel( name.toUtf8() );
+        m_projectTag = Nepomuk::Tag( QUrl::toPercentEncoding(name) );
+        if(!m_projectTag.exists()) {
+            m_projectTag.setLabel( name );
+        }
 
         kDebug() << "use project tag with name " << name << "valid?" << m_projectTag.exists() << m_projectTag.isValid();
     }
@@ -105,7 +106,7 @@ void ProjectSettings::setName(const QString &newName)
     generalGroup.sync();
 
     // check if a tag with the project name exist
-    m_projectTag = Nepomuk::Tag( name().toAscii() );
+    m_projectTag = Nepomuk::Tag( QUrl::toPercentEncoding(name()) );
 
     // update the used tag for the project
     if(m_projectTag.exists()) {
@@ -114,20 +115,19 @@ void ProjectSettings::setName(const QString &newName)
         m_projectTag.setLabel( newName.toUtf8() );
         m_projectTag.removeProperty( Soprano::Vocabulary::NAO::identifier());
         QStringList identifiers;
-        QUrl encodedIdent = QUrl( newName );
-        identifiers << encodedIdent.toEncoded();
+        identifiers << QUrl::toPercentEncoding(newName);
         m_projectTag.setIdentifiers(identifiers);
     }
     else {
         kDebug() << "no project Tag existed with name" << name() << ", create a new one" << newName;
-        m_projectTag = Nepomuk::Tag( newName );
+        m_projectTag = Nepomuk::Tag( QUrl::toPercentEncoding(newName) );
         m_projectTag.setLabel( newName.toUtf8() );
     }
 
     // update the project thing
     if(projectThing().isValid()) {
-        projectThing().removeProperty( Nepomuk::Vocabulary::NIE::title() );
-        projectThing().setProperty( Nepomuk::Vocabulary::NIE::title() , QString(newName.toUtf8()) );
+        projectThing().removeProperty( Soprano::Vocabulary::NAO::prefLabel() );
+        projectThing().setProperty( Soprano::Vocabulary::NAO::prefLabel() , QString(newName.toUtf8()) );
     }
 
     emit projectDetailsChanged(m_library);
@@ -137,7 +137,7 @@ QString ProjectSettings::name() const
 {
     QString name;
     if(projectThing().isValid()) {
-        name = projectThing().property( Nepomuk::Vocabulary::NIE::title() ).toString();
+        name = projectThing().property( Soprano::Vocabulary::NAO::prefLabel() ).toString();
     }
     if(name.isEmpty()) {
         KConfigGroup generalGroup( m_projectConfig, "Conquirere" );
