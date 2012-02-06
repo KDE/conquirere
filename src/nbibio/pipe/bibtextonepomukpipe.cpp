@@ -1944,8 +1944,9 @@ void BibTexToNepomukPipe::addContact(const Value &contentValue, Nepomuk::SimpleR
             // akonadi saves its contacts with a specific nepomuk url, we create another one with the same url
             // this the DMS will megre these resources. Akonadi will fill all necessary parts of the contact itself, as
             // from now on changes are made via Akonadi not nepomuk
-            Nepomuk::ANEO::AkonadiDataObject contact;
-            contact.addType(NCO::Contact());
+            Nepomuk::NCO::Contact contact;
+            contact.addType(NIE::InformationElement());
+            contact.addType(NIE::DataObject());
             contact.setProperty(NIE::url(), job->item().url());
 
             graph << contact;

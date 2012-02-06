@@ -22,11 +22,22 @@
 #include "core/projectsettings.h"
 #include "mainui/librarymanager.h"
 
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/simpleresourcegraph.h"
+#include "dms-copy/storeresourcesjob.h"
+#include <KDE/KJob>
+#include "sro/pimo/note.h"
+
 #include <Nepomuk/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Vocabulary/NFO>
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Variant>
+
+#include <KDE/KDebug>
+
+using namespace Nepomuk::Vocabulary;
+using namespace Soprano::Vocabulary;
 
 NoteWidget::NoteWidget(QWidget *parent)
     : SidebarComponent(parent)
@@ -37,7 +48,7 @@ NoteWidget::NoteWidget(QWidget *parent)
     ui->frameWidget->setEnabled(false);
 
     ui->editTags->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
-    ui->editTags->setPropertyUrl( Soprano::Vocabulary::NAO::hasTag() );
+    ui->editTags->setPropertyUrl( NAO::hasTag() );
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 
     //TODO remove and use ResourceWatcher later on
@@ -74,7 +85,24 @@ void NoteWidget::setResource(Nepomuk::Resource & resource)
 
 void NoteWidget::newButtonClicked()
 {
-    m_note = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::PIMO::Note());
+    // create temp Resource via DMS
+    // if the user clicks cancel in the next dialog, the resource will be deleted again
+    Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::PIMO::Note note;
+
+    note.addType( NIE::InformationElement() );
+    note.setProperty(NIE::title(), i18n("New Note"));
+
+    graph << note;
+
+    //blocking graph save
+    Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone );
+    if( !srj->exec() ) {
+        kWarning() << "could not create temporay publication" << srj->errorString();
+        return;
+    }
+
+    m_note = Nepomuk::Resource::fromResourceUri( srj->mappings().value( note.uri() ) );
 
     // we add a dummy title and save the note
     ui->editTitle->setText(i18n("New note title"));
@@ -82,8 +110,7 @@ void NoteWidget::newButtonClicked()
 
     Library *curUsedLib = libraryManager()->currentUsedLibrary();
     if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
-        //relate it to the project
-        m_note.setProperty(Soprano::Vocabulary::NAO::isRelated() , curUsedLib->settings()->projectThing());
+        curUsedLib->addResource( m_note );
     }
 
     setResource(m_note);
@@ -91,24 +118,30 @@ void NoteWidget::newButtonClicked()
 
 void NoteWidget::deleteButtonClicked()
 {
-    //check if we have a pimo:note, we should delete the note and the connected conntent resource
-    Nepomuk::Resource nr = m_note.property(Nepomuk::Vocabulary::PIMO::groundingOccurrence()).toResource();
-    nr.remove();
+    libraryManager()->systemLibrary()->deleteResource( m_note );
 
-    m_note.remove();
-    setResource(m_note);
+    Nepomuk::Resource invalid;
+    setResource(invalid);
 }
 
 void NoteWidget::saveNote()
 {
-    m_note.setProperty(Nepomuk::Vocabulary::NIE::title(), ui->editTitle->text());
+    QList<QUrl> resUri; resUri << m_note.uri();
+    QVariantList value; value << ui->editTitle->text();
+    Nepomuk::setProperty(resUri, NIE::title(), value);
+    Nepomuk::setProperty(resUri, NAO::prefLabel(), value);
 
-    // these exist because of the Semnote implementation
-    m_note.setProperty(Soprano::Vocabulary::NAO::prefLabel(), ui->editTitle->text());
+    resUri.clear(); resUri << m_note.uri();
+    value.clear(); value << ui->editTitle->text();
+    Nepomuk::setProperty(resUri, NIE::title(), value);
 
-    //now the content for Notably style directly to the PIMO:note
-    m_note.setProperty(Nepomuk::Vocabulary::NIE::plainTextContent(), ui->editContent->document()->toPlainText());
-    m_note.setProperty(Nepomuk::Vocabulary::NIE::htmlContent(), ui->editContent->document()->toHtml());
+    resUri.clear(); resUri << m_note.uri();
+    value.clear(); value << ui->editContent->document()->toPlainText();
+    Nepomuk::setProperty(resUri, NIE::plainTextContent(), value);
+
+    resUri.clear(); resUri << m_note.uri();
+    value.clear(); value << ui->editContent->document()->toHtml();
+    Nepomuk::setProperty(resUri, NIE::htmlContent(), value);
 
     emit resourceCacheNeedsUpdate(m_note);
 }
@@ -117,23 +150,35 @@ void NoteWidget::discardNote()
 {
     //show note content
     QString title;
-    title = m_note.property(Nepomuk::Vocabulary::NIE::title()).toString();
+    title = m_note.property(NIE::title()).toString();
 
-    if(title.isEmpty())
-        title = m_note.property(Soprano::Vocabulary::NAO::prefLabel()).toString();
+    if(title.isEmpty()) {
+        title = m_note.property( NAO::prefLabel()).toString();
+    }
 
     ui->editTitle->setText(title);
 
-    QString content = m_note.property(Nepomuk::Vocabulary::NIE::htmlContent()).toString();
+    QString content = m_note.property(NIE::htmlContent()).toString();
+    if(content.isEmpty()) {
+        content = m_note.property(NIE::plainTextContent()).toString();
+    }
 
     ui->editContent->document()->setHtml(content);
 }
 
 void NoteWidget::changeRating(int newRating)
 {
-    if(newRating != m_note.rating()) {
-        m_note.setRating(newRating);
+    if(newRating == m_note.rating() ) {
+        return;
+    }
 
+    QList<QUrl> resourceUris;
+    resourceUris << m_note.uri();
+    QVariantList rating;
+    rating <<  newRating;
+    KJob *job = Nepomuk::setProperty(resourceUris, Soprano::Vocabulary::NAO::numericRating(), rating);
+
+    if(job->exec()) {
         emit resourceCacheNeedsUpdate(m_note);
     }
 }

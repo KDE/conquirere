@@ -21,10 +21,16 @@
 #include "propertywidgets/contactedit.h"
 #include "contactdialog.h"
 
+#include "dms-copy/datamanagement.h"
+#include <KDE/KJob>
+#include "sro/nbib/chapter.h"
+
 #include "nbib.h"
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/NCO>
+
+using namespace Nepomuk::Vocabulary;
 
 AddChapterDialog::AddChapterDialog(QWidget *parent) :
     QDialog(parent),
@@ -32,7 +38,7 @@ AddChapterDialog::AddChapterDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->chapterAuthor->setPropertyUrl( Nepomuk::Vocabulary::NCO::creator() );
+    ui->chapterAuthor->setPropertyUrl( NCO::creator() );
     ui->chapterAuthor->setUseDetailDialog(true);
     connect(ui->chapterAuthor, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
 }
@@ -47,24 +53,19 @@ void AddChapterDialog::setResource(Nepomuk::Resource resource)
     m_resource = resource;
 
     //fill the fields
-    QString chapterNumer = m_resource.property(Nepomuk::Vocabulary::NBIB::chapterNumber()).toString();
+    QString chapterNumer = m_resource.property(NBIB::chapterNumber()).toString();
     ui->chapterNumber->setText(chapterNumer);
 
-    QString chapterTitle = m_resource.property(Nepomuk::Vocabulary::NIE::title()).toString();
+    QString chapterTitle = m_resource.property(NIE::title()).toString();
     ui->chapterTitle->setText(chapterTitle);
 
     ui->chapterAuthor->setResource(resource);
 
-    QString pageStart = m_resource.property(Nepomuk::Vocabulary::NBIB::pageStart()).toString();
+    QString pageStart = m_resource.property(NBIB::pageStart()).toString();
     ui->pageStart->setValue(pageStart.toInt());
 
-    QString pageEnd = m_resource.property(Nepomuk::Vocabulary::NBIB::pageEnd()).toString();
+    QString pageEnd = m_resource.property(NBIB::pageEnd()).toString();
     ui->pageEnd->setValue(pageEnd.toInt());
-}
-
-void AddChapterDialog::setPublication(Nepomuk::Resource resource)
-{
-    m_publication = resource;
 }
 
 Nepomuk::Resource AddChapterDialog::resource()
@@ -74,37 +75,27 @@ Nepomuk::Resource AddChapterDialog::resource()
 
 void AddChapterDialog::accept()
 {
-    if(!m_resource.isValid()) {
-        m_resource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Chapter());
+    if(!m_resource.exists()) {
+        kWarning() << "try to return an invalid chapter resource";
     }
 
-    //if we accept, save all values into the resource
-    QString chapterNumer = ui->chapterNumber->text();
-    if(!chapterNumer.isEmpty()) {
-        m_resource.setProperty(Nepomuk::Vocabulary::NBIB::chapterNumber(), chapterNumer);
-    }
+    QList<QUrl> resUri; resUri << m_resource.uri();
+    QVariantList value; value << ui->chapterNumber->text();
+    KJob *job = Nepomuk::setProperty(resUri, NBIB::chapterNumber(), value);
+    job->exec();// wait till changes are made .. to properly update listWidget afterwards again
 
-    QString chapterTitle = ui->chapterTitle->text();
-    if(!chapterTitle.isEmpty()) {
-        m_resource.setProperty(Nepomuk::Vocabulary::NIE::title(), chapterTitle);
-    }
+    resUri.clear(); resUri << m_resource.uri();
+    value.clear(); value << ui->chapterTitle->text();
+    KJob *job2 = Nepomuk::setProperty(resUri, NIE::title(), value);
+    job2->exec();// wait till changes are made .. to properly update listWidget afterwards again
 
-    //chapterAuthor is handled by the property edit widget itself.
-    QString pageStart = QString::number(ui->pageStart->value());
-    if(!pageStart.isEmpty()) {
-        m_resource.setProperty(Nepomuk::Vocabulary::NBIB::pageStart(), pageStart);
-    }
+    resUri.clear(); resUri << m_resource.uri();
+    value.clear(); value << ui->pageStart->text();
+    Nepomuk::setProperty(resUri, NBIB::pageStart(), value);
 
-    QString pageEnd = QString::number(ui->pageEnd->value());
-    if(!pageEnd.isEmpty()) {
-        m_resource.setProperty(Nepomuk::Vocabulary::NBIB::pageEnd(), pageEnd);
-    }
-
-    // connect to publication
-    if(m_publication.isValid() && m_resource.isValid()) {
-        m_resource.setProperty(Nepomuk::Vocabulary::NBIB::documentPartOf(), m_publication);
-        m_publication.addProperty(Nepomuk::Vocabulary::NBIB::documentPart(), m_resource);
-    }
+    resUri.clear(); resUri << m_resource.uri();
+    value.clear(); value << ui->pageEnd->text();
+    Nepomuk::setProperty(resUri, NBIB::pageEnd(), value);
 
     QDialog::accept();
 }

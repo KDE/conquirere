@@ -41,8 +41,6 @@ public:
 
 public slots:
     void setResource(Nepomuk::Resource & resource);
-
-private slots:
     /**
       * creates a new @c pimo:Note
       */
@@ -53,6 +51,7 @@ private slots:
       */
     void deleteButtonClicked();
 
+private slots:
     void saveNote();
     void discardNote();
     void changeRating(int newRating);

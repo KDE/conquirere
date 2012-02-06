@@ -289,9 +289,30 @@ void Library::addResource(Nepomuk::Resource & res)
 
     Nepomuk::Resource relatesTo = res.property( Soprano::Vocabulary::NAO::isRelated()).toResource();
 
-    if ( relatesTo != m_projectSettings->projectThing()) {
-        res.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectSettings->projectThing());
+    if ( relatesTo == m_projectSettings->projectThing()) {
+        return;
     }
+
+    QList<QUrl> publicationUrisToAddProject;
+    publicationUrisToAddProject << res.uri();
+    QVariantList projectValue;
+    projectValue <<  m_projectSettings->projectThing().uri();
+
+    // and the backlink parts
+    QList<QUrl> projectUrisToAddPublication;
+    projectUrisToAddPublication << m_projectSettings->projectThing().uri();
+    QVariantList publicationValues;
+    publicationValues <<  res.uri();
+
+    // small special case, if the resource was a reference add also the publication to the project
+    if(res.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
+        Nepomuk::Resource pub = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+        publicationUrisToAddProject << pub.uri();
+        publicationValues << pub.uri();
+    }
+
+    Nepomuk::setProperty(publicationUrisToAddProject, Soprano::Vocabulary::NAO::isRelated(), projectValue);
+    Nepomuk::setProperty(projectUrisToAddPublication, Soprano::Vocabulary::NAO::isRelated(), publicationValues);
 }
 
 void Library::removeResource(Nepomuk::Resource & res)

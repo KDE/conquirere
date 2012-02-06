@@ -18,7 +18,7 @@
 #ifndef ADDCHAPTERDIALOG_H
 #define ADDCHAPTERDIALOG_H
 
-#include <QDialog>
+#include <QtGui/QDialog>
 
 #include <Nepomuk/Resource>
 
@@ -49,13 +49,6 @@ public:
     void setResource(Nepomuk::Resource resource);
 
     /**
-      * Sets the publication where the new chapter should be aded to
-      *
-      * @pre valid @c nbib:Publication resource
-      */
-    void setPublication(Nepomuk::Resource resource);
-
-    /**
       * @return The newly crated @c nbib:Chapter
       */
     Nepomuk::Resource resource();
@@ -74,7 +67,6 @@ private:
     Ui::AddChapterDialog *ui;
 
     Nepomuk::Resource m_resource;
-    Nepomuk::Resource m_publication;
 };
 
 #endif // ADDCHAPTERDIALOG_H

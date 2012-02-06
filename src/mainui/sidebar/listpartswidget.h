@@ -134,21 +134,23 @@ private:
     void removeChapter(Nepomuk::Resource chapter);
     void deleteChapter(Nepomuk::Resource chapter);
 
-    void addSeries();
-    void editSeries(Nepomuk::Resource editResource);
-    void removeSeries(Nepomuk::Resource publication);
-    void deleteSeries(Nepomuk::Resource publication);
+    // collections to series
+    void addToSeries();
+    void editFromSeries(Nepomuk::Resource editResource);
+    void removeFromSeries(Nepomuk::Resource publication);
+    void deleteFromSeries(Nepomuk::Resource publication);
 
-    void addCollection();
-    void editCollection(Nepomuk::Resource editResource);
-    void removeCollection(Nepomuk::Resource article);
-    void deleteCollection(Nepomuk::Resource article);
+    // articles to Collections
+    void addToCollection();
+    void editFromCollection(Nepomuk::Resource editResource);
+    void removeFromCollection(Nepomuk::Resource article);
+    void deleteFromCollection(Nepomuk::Resource article);
 
-    // for events
-    void addPublication();
-    void editPublication(Nepomuk::Resource editResource);
-    void removePublication(Nepomuk::Resource publication);
-    void deletePublication(Nepomuk::Resource publication);
+    // publication for events
+    void addToEvent();
+    void editFromEvent(Nepomuk::Resource editResource);
+    void removeFromEvent(Nepomuk::Resource publication);
+    void deleteFromEvent(Nepomuk::Resource publication);
 
     Ui::ListPartsWidget *ui;
     LibraryManager *m_libraryManager;

@@ -35,6 +35,7 @@
 #include "addchapterdialog.h"
 #include "listpublicationsdialog.h"
 #include "listcitedsources.h"
+#include "sidebarwidget.h"
 
 #include "nbibio/conquirere.h"
 
@@ -68,7 +69,7 @@ PublicationWidget::PublicationWidget(QWidget *parent)
 
     setupWidget();
 
-    if(parent) {
+    if(qobject_cast<SidebarWidget*>(parent)) {
         connect(this, SIGNAL(hasReference(bool)), parent, SLOT(hasReference(bool)));
     }
 }

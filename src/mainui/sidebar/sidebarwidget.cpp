@@ -194,14 +194,13 @@ void SidebarWidget::removeFromSelectedProject()
 {
     QAction *a = qobject_cast<QAction *>(sender());
 
-    if(!a)
-        return;
+    if(!a) { return; }
 
     Nepomuk::Resource pimoProject = Nepomuk::Resource(a->data().toString());
 
-    if(m_curResource.isValid()) {
-        m_curResource.removeProperty(Soprano::Vocabulary::NAO::isRelated(), pimoProject);
-        pimoProject.removeProperty(Soprano::Vocabulary::NAO::isRelated(), m_curResource);
+    if(m_curResource.isValid() && pimoProject.exists()) {
+        Library *l = m_libraryManager->libFromResourceUri(pimoProject.resourceUri());
+        l->removeResource(m_curResource);
     }
 }
 

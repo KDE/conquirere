@@ -18,6 +18,12 @@
 #include "contactdialog.h"
 #include "ui_contactdialog.h"
 
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
+#include "dms-copy/simpleresourcegraph.h"
+#include "sro/nco/personcontact.h"
+#include "sro/aneo/akonadidataobject.h"
+
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/NCO>
 #include <Soprano/Vocabulary/NAO>
@@ -40,6 +46,8 @@
 
 #include <QtCore/QPointer>
 
+using namespace Nepomuk::Vocabulary;
+
 const int AKONADI_URL = Qt::UserRole + 100;
 const int NEPOMUK_RESOURCE = Qt::UserRole + 101;
 
@@ -61,7 +69,6 @@ ContactDialog::ContactDialog(QWidget *parent) :
     connect(ui->addResourceButton, SIGNAL(clicked()), this, SLOT(addNepomukContact()));
     connect(ui->removeButton, SIGNAL(clicked()), this, SLOT(removeItem()));
     connect(ui->klistwidget, SIGNAL(itemSelectionChanged()),this, SLOT(itemSelectionChanged()));
-
 }
 
 ContactDialog::~ContactDialog()
@@ -102,6 +109,7 @@ void ContactDialog::fillWidget()
     if(resList.isEmpty()) {
         ui->editButton->setEnabled(false);
         ui->akonadiExport->setEnabled(false);
+        ui->removeButton->setEnabled(false);
     }
 }
 
@@ -117,8 +125,12 @@ void ContactDialog::editItem()
                                              i18nc("The name of the person", "Name:"),i->text(), &ok, this);
 
         if (ok && !text.isEmpty()) {
-            Nepomuk::Resource contact(i->data(NEPOMUK_RESOURCE).toString());
-            contact.setProperty(Nepomuk::Vocabulary::NCO::fullname(), text);
+            // change name via DMS
+
+            QList<QUrl> resourceUris; resourceUris << i->data(NEPOMUK_RESOURCE).toString();
+            QVariantList value; value << text;
+            Nepomuk::setProperty(resourceUris, NCO::fullname(), value);
+
             i->setText(text);
         }
     }
@@ -127,6 +139,7 @@ void ContactDialog::editItem()
         const Akonadi::Item contact = Akonadi::Item(strippedId.toInt());
 
         Akonadi::ContactEditorDialog *dlg = new Akonadi::ContactEditorDialog( Akonadi::ContactEditorDialog::EditMode, this );
+        connect( dlg, SIGNAL(contactStored(Akonadi::Item)),this, SLOT(contactUpdated(Akonadi::Item)) );
         dlg->setContact( contact );
         dlg->show();
     }
@@ -146,78 +159,127 @@ void ContactDialog::addNepomukContact()
                                          i18n("Contact name:"), QString(), &ok, this);
 
     if (ok && !text.isEmpty()) {
-        Nepomuk::Resource newContact = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::PersonContact());
-        newContact.setProperty(Nepomuk::Vocabulary::NCO::fullname(), text);
 
-        // connect new contact to resource
-        m_resource.addProperty(m_propertyUrl, newContact);
+        //create new contact via Nepomuk DMS
+        Nepomuk::SimpleResourceGraph graph;
+        Nepomuk::NCO::PersonContact contact;
+
+        contact.setFullname( text );
+        contact.setProperty(Soprano::Vocabulary::NAO::prefLabel(), text);
+
+        graph << contact;
+
+        //blocking graph save
+        Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNew );
+        if( !srj->exec() ) {
+            kWarning() << "could not create new contact" << srj->errorString();
+            return;
+        }
+
+        Nepomuk::Resource contactResource = Nepomuk::Resource::fromResourceUri( srj->mappings().value( contact.uri() ) );
+
+        // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
+        QList<QUrl> resUri; resUri << m_resource.uri();
+        QVariantList value; value << contactResource.uri();
+        Nepomuk::addProperty(resUri, m_propertyUrl, value);
+
+        kDebug() << "add resource" << contactResource << contactResource.uri() << "to publication";
 
         // and add it to the listwidget
         QListWidgetItem *i = new QListWidgetItem;
-        i->setText(newContact.genericLabel());
-        i->setData(NEPOMUK_RESOURCE, newContact.resourceUri());
+        i->setText( text );
+        i->setData(NEPOMUK_RESOURCE, contactResource.resourceUri());
         ui->klistwidget->addItem(i);
 
-        if(ui->klistwidget->count() != 0) {
-            ui->editButton->setEnabled(true);
-        }
+        ui->editButton->setEnabled(true);
+        ui->removeButton->setEnabled(true);
 
+        ui->klistwidget->setCurrentRow(0);
     }
 }
 
 void ContactDialog::contactStored( const Akonadi::Item& item)
 {
-    Nepomuk::Query::ComparisonTerm akonadiItemId( Nepomuk::Vocabulary::NIE::url(), Nepomuk::Query::LiteralTerm( item.url().toEncoded() ) );
+    // ok Akonadi saved its data and is about to stream it into nepomuk
+    // we create a new Contact resource here that contains the aknadi specific url
+    // the Nepomuk DMS system will merge them correctly
 
-    Nepomuk::Query::Query query( akonadiItemId );
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
-
-    kDebug() << "found " << queryResult.size() << "created items with akonadiItemId:" << item.id();
-
-    // take first search result or create a new resource
-    Nepomuk::Resource newContact;
-
-    QString akonadiResUrl = QLatin1String("akonadi:?item=");
-    akonadiResUrl.append(QString::number(item.id()));
-    newContact = Nepomuk::Resource(item.url(), Nepomuk::Vocabulary::NCO::PersonContact());
-
+    QString contactFullname;
     if (item.hasPayload<KABC::Addressee>())
     {
         KABC::Addressee addr = item.payload<KABC::Addressee>();
 
-        QString name = addr.name();
-        if(name .isEmpty()) {
-            name = addr.formattedName();
+        contactFullname = addr.name();
+        if(contactFullname.isEmpty()) {
+            contactFullname = addr.formattedName();
         }
-
-        newContact.setProperty(Nepomuk::Vocabulary::NCO::fullname(), name);
     }
 
-    // connect new contact to resource
-    m_resource.addProperty(m_propertyUrl, newContact);
+    //create new contact via Nepomuk DMS
+    Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::NCO::Contact contact;
+    contact.addType(NIE::InformationElement());
+    contact.addType(NIE::DataObject());
+
+    contact.setProperty(NIE::url(), item.url());
+
+    graph << contact;
+
+    //blocking graph save
+    Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNew );
+    if( !srj->exec() ) {
+        kWarning() << "could not create new akonadi contact" << srj->errorString();
+        return;
+    }
+    Nepomuk::Resource contactResource = Nepomuk::Resource::fromResourceUri( srj->mappings().value( contact.uri() ) );
+
+    // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
+    QList<QUrl> resUri; resUri << m_resource.uri();
+    QVariantList value; value << contactResource.uri();
+    Nepomuk::addProperty(resUri, m_propertyUrl, value);
 
     // and add it to the listwidget
     QListWidgetItem *i = new QListWidgetItem;
-    i->setText(newContact.genericLabel());
+    i->setText( contactFullname );
     i->setData(AKONADI_URL, item.url().toEncoded());
-    i->setData(NEPOMUK_RESOURCE, newContact.uri());
+    i->setData(NEPOMUK_RESOURCE, contactResource.uri());
     i->setIcon(KIcon("view-pim-contacts"));
     ui->klistwidget->addItem(i);
 
-    kDebug() << "add akonadi contact with url" << item.url();
+    ui->editButton->setEnabled(true);
+    ui->removeButton->setEnabled(true);
 
-    if(ui->klistwidget->count() != 0) {
-        ui->editButton->setEnabled(true);
+    ui->klistwidget->setCurrentRow(0);
+}
+
+void ContactDialog::contactUpdated( const Akonadi::Item& item)
+{
+    QString contactFullname;
+    if (item.hasPayload<KABC::Addressee>())
+    {
+        KABC::Addressee addr = item.payload<KABC::Addressee>();
+
+        contactFullname = addr.name();
+        if(contactFullname.isEmpty()) {
+            contactFullname = addr.formattedName();
+        }
     }
+
+    // fake update of the listwidget. Whe nwe close the dialog the nepomuk resource is reloaded and
+    // the real data as pushed from akinadi is shown instead
+    QListWidgetItem *i = ui->klistwidget->currentItem();
+    i->setText( contactFullname );
 }
 
 void ContactDialog::removeItem()
 {
     QListWidgetItem *i = ui->klistwidget->currentItem();
 
-    QUrl resUri = i->data(NEPOMUK_RESOURCE).toUrl();
-    Nepomuk::Resource contactRes(resUri);
-    m_resource.removeProperty(m_propertyUrl, contactRes);
+    QUrl contactUri = i->data(NEPOMUK_RESOURCE).toUrl();
+
+    QList<QUrl> resourceUris; resourceUris << m_resource.uri();
+    QVariantList value; value << contactUri;
+    Nepomuk::removeProperty(resourceUris, m_propertyUrl, value);
 
     int row = ui->klistwidget->row(i);
     ui->klistwidget->takeItem(row);
@@ -226,11 +288,15 @@ void ContactDialog::removeItem()
     if(ui->klistwidget->count() == 0) {
         ui->editButton->setEnabled(false);
         ui->akonadiExport->setEnabled(false);
+        ui->removeButton->setEnabled(false);
     }
 }
 
 void ContactDialog::itemSelectionChanged()
 {
+    if( !ui->klistwidget->currentItem() )
+        return;
+
     QString akonadiItemId = ui->klistwidget->currentItem()->data(AKONADI_URL).toString();
 
     if(akonadiItemId.isEmpty()) {
@@ -255,13 +321,28 @@ void ContactDialog::pushContactToAkonadi()
 
         QListWidgetItem *i = ui->klistwidget->currentItem();
 
-        QUrl resUri = i->data(NEPOMUK_RESOURCE).toUrl();
-        Nepomuk::Resource contactRes(resUri);
+        Nepomuk::Resource contactRes = Nepomuk::Resource::fromResourceUri(i->data(NEPOMUK_RESOURCE).toUrl());
+
+        QString fullname = contactRes.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+        QString name;
+        QString familyname;
+        QStringList splittedName = fullname.split(QLatin1String(" "));
+        if(splittedName.size() >= 2) {
+            name = splittedName.first();
+            familyname = splittedName.last();
+        }
+        else {
+            familyname = fullname;
+        }
+
+        // clean the resource
+//        QList<QUrl> conatctUri; conatctUri << i->data(NEPOMUK_RESOURCE).toUrl();
+//        Nepomuk::removeDataByApplication( conatctUri );
 
         KABC::Addressee addr;
-        addr.setName( contactRes.property(Nepomuk::Vocabulary::NCO::fullname()).toString() );
-        addr.setFamilyName( contactRes.property(Nepomuk::Vocabulary::NCO::fullname()).toString() );
-        addr.setFormattedName( contactRes.property(Nepomuk::Vocabulary::NCO::fullname()).toString() );
+        addr.setGivenName( name );
+        addr.setFamilyName( familyname );
+        addr.setFormattedName( fullname );
 
         Akonadi::Item item;
         item.setMimeType( KABC::Addressee::mimeType() );
@@ -273,9 +354,9 @@ void ContactDialog::pushContactToAkonadi()
             qDebug() << "Error:" << job->errorString();
         }
 
-        contactRes.setProperty(Nepomuk::Vocabulary::NIE::url(), QUrl(job->item().url()));
-        //contactRes.addType( QUrl("http://akonadi-project.org/ontologies/aneo#AkonadiDataObject"));
-        //contactRes.setProperty("http://akonadi-project.org/ontologies/aneo#akonadiItemId",job->item().id() );
+        QList<QUrl> resUri; resUri << contactRes.uri();
+        QVariantList value; value << job->item().url();
+        Nepomuk::setProperty(resUri, NIE::url(), value);
 
         i->setData(AKONADI_URL, job->item().url().toEncoded());
         i->setIcon(KIcon("view-pim-contacts"));
@@ -283,3 +364,5 @@ void ContactDialog::pushContactToAkonadi()
 
     delete dlg;
 }
+
+

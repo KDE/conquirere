@@ -33,7 +33,7 @@ class QListWidgetItem;
 /**
   * @brief Shows a new dialog to edit contacts in deeper detail
   *
-  * Allows to create ne contacts eitehr in Nepomuk or as Akonadi::Item
+  * Allows to create new contacts either in Nepomuk or as Akonadi::Item
   * can push already existing nepomuk contacts to an akonadi adressbook collection
   *
   */
@@ -75,10 +75,13 @@ private slots:
 
     /**
       * create nepomuk resource from the akonadi item and connects it to the publication
-      *
-      * @todo fix resource duplication when a new akonadi item is created
       */
     void contactStored( const Akonadi::Item& item);
+    /**
+      * called when we editied the contact will update the list widget accordingly, as we don't knwo when akonadi will push
+      * the info into nepomuk.
+      */
+    void contactUpdated( const Akonadi::Item& item);
 
     /**
       * removes the contact from the publication again

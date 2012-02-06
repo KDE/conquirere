@@ -29,6 +29,8 @@
 
 #include <kbibtex/value.h>
 
+#include "dms-copy/datamanagement.h"
+
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Vocabulary/NIE>
@@ -38,10 +40,14 @@
 
 #include <KDE/KMimeType>
 #include <KDE/KIcon>
+#include <KDE/KDebug>
 
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 #include <QtGui/QDesktopServices>
+
+using namespace Nepomuk::Vocabulary;
+using namespace Soprano::Vocabulary;
 
 TableViewMenu::TableViewMenu(QObject *parent)
     : QObject(parent)
@@ -64,24 +70,24 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
     openExternal.setIcon(KIcon(QLatin1String("document-open")));
     menu.addMenu(&openExternal);
 
-    if(m_nepomukResource.hasType(Nepomuk::Vocabulary::NBIB::Publication()) || m_nepomukResource.hasType(Nepomuk::Vocabulary::NBIB::Reference()) ) {
+    if(m_nepomukResource.hasType(NBIB::Publication()) || m_nepomukResource.hasType(NBIB::Reference()) ) {
         Nepomuk::Resource queryResource;
-        if(resource.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
-            queryResource = m_nepomukResource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+        if(resource.hasType(NBIB::Reference())) {
+            queryResource = m_nepomukResource.property(NBIB::publication()).toResource();
         }
         else {
             queryResource = m_nepomukResource;
         }
 
-        QList<Nepomuk::Resource> fileList = queryResource.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResourceList();
+        QList<Nepomuk::Resource> fileList = queryResource.property(NBIB::isPublicationOf()).toResourceList();
 
         bool hasDataObjects = false;
         bool hasDOI = false;
-        // this adds all  DataObject links
+        // this adds all DataObject links
         if(!fileList.isEmpty()) {
             hasDataObjects = true;
             foreach(const Nepomuk::Resource &r, fileList) {
-                KUrl file = r.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+                KUrl file = r.property(NIE::url()).toUrl();
                 QString name;
                 KIcon icon(KMimeType::iconNameForUrl(file));
 
@@ -89,7 +95,7 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
                     name = file.fileName();
                 }
                 else {
-                    if(r.resourceType() == Nepomuk::Vocabulary::NFO::RemoteDataObject()) {
+                    if(r.resourceType() == NFO::RemoteDataObject()) {
                         name = file.path();
                     }
                     else {
@@ -105,7 +111,7 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
         }
 
         // this adds the doi link
-        QString doi = queryResource.property(Nepomuk::Vocabulary::NBIB::doi()).toString();
+        QString doi = queryResource.property(NBIB::doi()).toString();
 
         if(!doi.isEmpty()) {
             hasDOI = true;
@@ -126,7 +132,7 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
         }
     }
     else {
-        KUrl file = m_nepomukResource.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+        KUrl file = m_nepomukResource.property(NIE::url()).toUrl();
         QString name;
         KIcon icon(KMimeType::iconNameForUrl(file));
         if(file.isLocalFile()) {
@@ -197,13 +203,13 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
     menu.addMenu(&removeFromProject);
 
     // fill al list of all project this file is in
-    QList<Nepomuk::Resource> projectList = m_nepomukResource.property(Soprano::Vocabulary::NAO::isRelated()).toResourceList();
+    QList<Nepomuk::Resource> projectList = m_nepomukResource.property(NAO::isRelated()).toResourceList();
 
     bool projectRelated = false;
     foreach(const Nepomuk::Resource &project, projectList) {
-        if(project.hasType(Nepomuk::Vocabulary::PIMO::Project())) {
+        if(project.hasType(PIMO::Project())) {
             projectRelated = true;
-            QAction *a = new QAction(KIcon(QLatin1String("conquirere")), project.property(Nepomuk::Vocabulary::NIE::title()).toString(), this);
+            QAction *a = new QAction(KIcon(QLatin1String("conquirere")), project.property(NAO::prefLabel()).toString(), this);
             a->setData(project.resourceUri());
             actionCollection.append(a);
             connect(a, SIGNAL(triggered(bool)),this, SLOT(removeSelectedFromProject()));
@@ -322,18 +328,11 @@ void TableViewMenu::addSelectedToProject()
     }
 
     if(pimoProject.isValid()) {
-        m_nepomukResource.addProperty(Soprano::Vocabulary::NAO::isRelated(), pimoProject);
-        pimoProject.addProperty(Soprano::Vocabulary::NAO::isRelated(), m_nepomukResource);
-
-        // small special case, if the resource was a reference add also the publication to the project
-        if(m_nepomukResource.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
-            Nepomuk::Resource pub = m_nepomukResource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-            pub.addProperty(Soprano::Vocabulary::NAO::isRelated(), pimoProject);
-            pimoProject.addProperty(Soprano::Vocabulary::NAO::isRelated(), pub);
-        }
+        Library *l = m_libraryManager->libFromResourceUri(pimoProject.resourceUri());
+        l->addResource(m_nepomukResource);
     }
     else {
-        qDebug() << "TableViewMenu::addSelectedToProject() | could not find pimo project the data should be connected to";
+        kDebug() << "TableViewMenu::addSelectedToProject() | could not find pimo project the data should be connected to";
     }
 }
 void TableViewMenu::removeSelectedFromProject()
@@ -351,7 +350,7 @@ void TableViewMenu::removeSelectedFromProject()
         l->removeResource(m_nepomukResource);
     }
     else {
-        qDebug() << "TableViewMenu::removeSelectedFromProject() | could not find pimo project the data should be removed from";
+        kDebug() << "TableViewMenu::removeSelectedFromProject() | could not find pimo project the data should be removed from";
     }
 }
 

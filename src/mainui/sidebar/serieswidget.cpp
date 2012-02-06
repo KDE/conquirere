@@ -27,10 +27,15 @@
 
 #include "nbibio/conquirere.h"
 
+#include "dms-copy/simpleresourcegraph.h"
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
+#include <KDE/KJob>
+#include "sro/nbib/series.h"
+
 #include "nbib.h"
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
 
 SeriesWidget::SeriesWidget(QWidget *parent)
@@ -46,6 +51,13 @@ SeriesWidget::SeriesWidget(QWidget *parent)
 SeriesWidget::~SeriesWidget()
 {
     delete ui;
+}
+
+void SeriesWidget::setLibraryManager(LibraryManager *lm)
+{
+    ui->editAnnot->setLibraryManager(lm);
+    ui->listPartWidget->setLibraryManager(lm);
+    SidebarComponent::setLibraryManager(lm);
 }
 
 Nepomuk::Resource SeriesWidget::resource()
@@ -123,7 +135,7 @@ void SeriesWidget::newSeriesTypeSelected(int index)
             case SeriesType_BookSeries:
             {
                 // this changes the resource from a collection to a Book
-                // (might run into somw bad stuff when articles are attached to it)
+                // (might run into some bad stuff when articles are attached to it)
                 //TODO check if we need to take special attention here
                 Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::Book());
                 r.setTypes(x.types());
@@ -156,15 +168,27 @@ void SeriesWidget::newSeriesTypeSelected(int index)
 
 void SeriesWidget::newButtonClicked()
 {
-    //create a new resource
-    Nepomuk::Resource newSeriesResource = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Series());
+    //create a new resource with default name
 
-    newSeriesResource.setProperty(Nepomuk::Vocabulary::NIE::title(), i18n("New Series"));
+    Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::NBIB::Series newSeries;
+
+    newSeries.setProperty( Nepomuk::Vocabulary::NIE::title(), i18n("New Series"));
+
+    graph << newSeries;
+    //blocking graph save
+    Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone);
+    if( !srj->exec() ) {
+        kWarning() << "could not new default series" << srj->errorString();
+        return;
+    }
+
+    // get the pimo project from the return job mappings
+    Nepomuk::Resource newSeriesResource = Nepomuk::Resource::fromResourceUri( srj->mappings().value( newSeries.uri() ) );
 
     Library *curUsedLib = libraryManager()->currentUsedLibrary();
     if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
-        //relate it to the project
-        newSeriesResource.setProperty(Soprano::Vocabulary::NAO::isRelated() , curUsedLib->settings()->projectThing());
+        curUsedLib->addResource( newSeriesResource );
     }
 
     setResource(newSeriesResource);
@@ -172,22 +196,26 @@ void SeriesWidget::newButtonClicked()
 
 void SeriesWidget::deleteButtonClicked()
 {
-    QList<Nepomuk::Resource> list = m_series.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
+    libraryManager()->systemLibrary()->deleteResource( m_series );
 
-    // remove backlinks for all connected publications
-    foreach(Nepomuk::Resource r, list) { // krazy:exclude=foreach
-        r.removeProperty(Nepomuk::Vocabulary::NBIB::inSeries(), m_series);
-    }
+    Nepomuk::Resource invalid;
 
-    m_series.remove();
-
-    setResource(m_series);
+    setResource(invalid);
 }
 
 void SeriesWidget::changeRating(int newRating)
 {
-    if(newRating != m_series.rating()) {
-        m_series.setRating(newRating);
+    if(newRating == m_series.rating() ) {
+        return;
+    }
+
+    QList<QUrl> resourceUris;
+    resourceUris << m_series.uri();
+    QVariantList rating;
+    rating <<  newRating;
+    KJob *job = Nepomuk::setProperty(resourceUris, Soprano::Vocabulary::NAO::numericRating(), rating);
+
+    if(job->exec()) {
         emit resourceCacheNeedsUpdate(m_series);
     }
 }

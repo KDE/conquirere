@@ -349,29 +349,29 @@ void ListPublicationsDialog::showLibraryModel(Library *p)
 
 void ListPublicationsDialog::createNew()
 {
-    KDialog createNewWidget;
+    QPointer<KDialog> createNewWidget = new KDialog(this);
 
     SidebarComponent *sbcWidget;
 
     switch(m_selection) {
     //case Resource_Media:
     case Resource_Reference:
-        sbcWidget = new ReferenceWidget();
+        sbcWidget = new ReferenceWidget(createNewWidget);
         break;
     case Resource_Publication:
-        sbcWidget = new PublicationWidget();
+        sbcWidget = new PublicationWidget(createNewWidget);
         break;
     case Resource_Series:
-        sbcWidget = new SeriesWidget();
+        sbcWidget = new SeriesWidget(createNewWidget);
         break;
     case Resource_Website:
-        sbcWidget = new ReferenceWidget();
+        sbcWidget = new ReferenceWidget(createNewWidget);
         break;
     case Resource_Note:
-        sbcWidget = new NoteWidget();
+        sbcWidget = new NoteWidget(createNewWidget);
         break;
     case Resource_Event:
-        sbcWidget = new EventWidget();
+        sbcWidget = new EventWidget(createNewWidget);
         break;
     case Resource_Document:
     case Resource_Mail:
@@ -384,10 +384,10 @@ void ListPublicationsDialog::createNew()
     sbcWidget->setLibraryManager(m_libraryManager);
     sbcWidget->newButtonClicked();
 
-    createNewWidget.setMainWidget(sbcWidget);
-    createNewWidget.setInitialSize(QSize(400,300));
+    createNewWidget->setMainWidget(sbcWidget);
+    createNewWidget->setInitialSize(QSize(400,300));
 
-    int ret = createNewWidget.exec();
+    int ret = createNewWidget->exec();
 
     if(ret == KDialog::Ok || ret == KDialog::Accepted) {
         ui->tableView->selectRow(ui->tableView->model()->rowCount());
@@ -397,4 +397,6 @@ void ListPublicationsDialog::createNew()
         Nepomuk::Resource createdResource = sbcWidget->resource();
         m_libraryManager->systemLibrary()->deleteResource( createdResource );
     }
+
+    delete createNewWidget;
 }

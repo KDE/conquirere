@@ -18,8 +18,11 @@
 #include "listannotationswidget.h"
 #include "ui_listannotationswidget.h"
 
+#include "core/library.h"
 #include "mainui/librarymanager.h"
 #include "notewidget.h"
+
+#include "dms-copy/datamanagement.h"
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
@@ -31,6 +34,10 @@
 #include <KDE/KIcon>
 
 #include <QtGui/QListWidgetItem>
+#include <QtCore/QPointer>
+
+using namespace Soprano::Vocabulary;
+using namespace Nepomuk::Vocabulary;
 
 ListAnnotationsWidget::ListAnnotationsWidget(QWidget *parent)
     : QWidget(parent)
@@ -64,15 +71,19 @@ void ListAnnotationsWidget::setResource(Nepomuk::Resource resource)
     ui->listWidget->clear();
 
     // fill the widget with all pimo:notes
-    QList<Nepomuk::Resource> resourceList = m_resource.property(Soprano::Vocabulary::NAO::isRelated()).toResourceList();
+    QList<Nepomuk::Resource> resourceList = m_resource.property(NAO::isRelated()).toResourceList();
 
     foreach(const Nepomuk::Resource & r, resourceList) {
-        if( !r.hasType( Nepomuk::Vocabulary::PIMO::Note() ) ) { continue; }
+        if( !r.hasType( PIMO::Note() ) ) { continue; }
 
         QListWidgetItem *i = new QListWidgetItem();
 
         i->setIcon( KIcon(QLatin1String("view-pim-notes")) );
-        i->setText( r.property(Nepomuk::Vocabulary::NIE::title()).toString() );
+        QString title = r.property(NAO::prefLabel()).toString();
+        if(title.isEmpty()) {
+            title = r.property(NIE::title()).toString();
+        }
+        i->setText( title );
         i->setData(Qt::UserRole, r.resourceUri());
         ui->listWidget->addItem(i);
     }
@@ -92,55 +103,74 @@ void ListAnnotationsWidget::editAnnotation()
     QListWidgetItem *i = ui->listWidget->currentItem();
     if(!i)  { return; }
 
-    Nepomuk::Resource note(i->data(Qt::UserRole).toString());
+    Nepomuk::Resource note = Nepomuk::Resource::fromResourceUri(i->data(Qt::UserRole).toString());
 
     // open dialog to edit the note
-    KDialog addAnnotationWidget;
+    QPointer<KDialog> addAnnotationWidget = new KDialog(this);
 
-    NoteWidget *nw = new NoteWidget();
+    NoteWidget *nw = new NoteWidget(addAnnotationWidget);
     nw->setResource( note );
     nw->setLibraryManager(m_libraryManager);
 
-    addAnnotationWidget.setMainWidget(nw);
-    addAnnotationWidget.setInitialSize(QSize(400,300));
+    addAnnotationWidget->setMainWidget(nw);
+    addAnnotationWidget->setInitialSize(QSize(400,300));
 
-    addAnnotationWidget.exec();
+    addAnnotationWidget->exec();
 
-    i->setText(note.property( Nepomuk::Vocabulary::NIE::title()).toString() );
+    delete addAnnotationWidget;
+
+    QString title = note.property(NAO::prefLabel()).toString();
+    if(title.isEmpty()) {
+        title = note.property(NIE::title()).toString();
+    }
+
+    i->setText( title );
     emit resourceCacheNeedsUpdate(m_resource);
 }
 
 void ListAnnotationsWidget::addAnnotation()
 {
     // open dialog to create a new note
-    KDialog addAnnotationWidget;
+    QPointer<KDialog> addAnnotationWidget = new KDialog(this);
 
-    NoteWidget *nw = new NoteWidget();
-    Nepomuk::Resource note = Nepomuk::Resource();
-    note.addType(Nepomuk::Vocabulary::PIMO::Note());
-    nw->setResource( note );
+    NoteWidget *nw = new NoteWidget(addAnnotationWidget);
+
     nw->setLibraryManager(m_libraryManager);
+    nw->newButtonClicked();
 
-    addAnnotationWidget.setMainWidget(nw);
-    addAnnotationWidget.setInitialSize(QSize(400,300));
+    addAnnotationWidget->setMainWidget(nw);
+    addAnnotationWidget->setInitialSize(QSize(400,300));
 
-    int ret = addAnnotationWidget.exec();
+    int ret = addAnnotationWidget->exec();
 
+    Nepomuk::Resource note = nw->resource();
     if(ret == KDialog::Accepted) {
-        Nepomuk::Resource note = nw->resource();
+        // create the nao relations and declare it a subresource
+        QList<QUrl> resUri; resUri << m_resource.uri();
+        QVariantList value; value << note.uri();
+        Nepomuk::addProperty(resUri, NAO::isRelated(), value);
 
-        m_resource.addProperty(Soprano::Vocabulary::NAO::isRelated(), note);
-        note.addProperty(Soprano::Vocabulary::NAO::isRelated(), m_resource);
+        resUri.clear(); resUri << note.uri();
+        value.clear(); value << m_resource.uri();
+        Nepomuk::addProperty(resUri, NAO::isRelated(), value);
+
+        resUri.clear(); resUri << m_resource.uri();
+        value.clear(); value << note.uri();
+        Nepomuk::addProperty(resUri, NAO::hasSubResource(), value);
 
         QListWidgetItem *i = new QListWidgetItem();
 
         i->setIcon( KIcon(QLatin1String("view-pim-notes")) );
-        i->setText( note.property(Nepomuk::Vocabulary::NIE::title()).toString() );
+        QString title = note.property(NAO::prefLabel()).toString();
+        if(title.isEmpty()) {
+            title = note.property(NIE::title()).toString();
+        }
+        i->setText( title );
         i->setData(Qt::UserRole, note.resourceUri());
         ui->listWidget->addItem(i);
     }
     else {
-        note.remove();
+        m_libraryManager->systemLibrary()->deleteResource( note );
     }
 
     if(ui->listWidget->count() == 0) {
@@ -152,6 +182,8 @@ void ListAnnotationsWidget::addAnnotation()
         ui->removePart->setEnabled(true);
     }
 
+    delete addAnnotationWidget;
+
     emit resourceCacheNeedsUpdate(m_resource);
 }
 
@@ -160,12 +192,11 @@ void ListAnnotationsWidget::removeAnnotation()
     QListWidgetItem *i = ui->listWidget->currentItem();
     if(!i) { return; }
 
-    Nepomuk::Resource note(i->data(Qt::UserRole).toUrl());
+    Nepomuk::Resource note = Nepomuk::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
+    m_libraryManager->systemLibrary()->deleteResource( note );
+
     ui->listWidget->removeItemWidget(i);
     delete i;
-
-    m_resource.removeProperty(Soprano::Vocabulary::NAO::isRelated(), note);
-    note.remove();
 
     ui->listWidget->setCurrentRow(0);
 

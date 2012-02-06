@@ -31,8 +31,8 @@ namespace Ui {
   *
   * Here new @c nbib:Series can be created and connected to other publication via @c nbib:inSeries and @c nbib:seriesOf
   *
-  * For each series only the @c nie:title, nbib:issn, the rating will be altered directly in this widget.
-  * The lublication list is handled by the @c ListPartsWidget
+  * For each series only the @c nie:title, @c nbib:issn, the @c nao:numericRating will be altered directly in this widget.
+  * The publication list is handled by the @c ListPartsWidget
   */
 class SeriesWidget : public SidebarComponent
 {
@@ -42,6 +42,7 @@ public:
     explicit SeriesWidget(QWidget *parent = 0);
     virtual ~SeriesWidget();
 
+    void setLibraryManager(LibraryManager *lm);
     Nepomuk::Resource resource();
 
 public slots:

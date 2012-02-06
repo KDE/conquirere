@@ -63,8 +63,6 @@ DbCheckDialog::DbCheckDialog(QWidget *parent) :
     connect(ui->checkTags, SIGNAL(clicked()), this, SLOT(checkTags()));
 
     connect(ui->removeData, SIGNAL(clicked()), this, SLOT(removeData()));
-
-    ui->checkAuthor->setEnabled(false);
 }
 
 DbCheckDialog::~DbCheckDialog()
@@ -144,6 +142,14 @@ void DbCheckDialog::checkAuthor()
     ui->checkReference->setEnabled(false);
     ui->checkSeries->setEnabled(false);
     ui->checkTags->setEnabled(false);
+
+    QString query = "select DISTINCT ?r where { "
+    "?r a nco:Contact ."
+    "}";
+
+    m_queryClient->sparqlQuery( query );
+
+    ui->infoLabel->setText(i18n("processing query"));
 }
 
 void DbCheckDialog::checkReference()
@@ -255,7 +261,7 @@ void DbCheckDialog::queryFinished()
     m_queryClient->close();
 
     ui->checkAll->setEnabled(true);
-//    ui->checkAuthor->setEnabled(true);
+    ui->checkAuthor->setEnabled(true);
     ui->checkCollection->setEnabled(true);
     ui->checkDocumentPart->setEnabled(true);
     ui->checkReference->setEnabled(true);
