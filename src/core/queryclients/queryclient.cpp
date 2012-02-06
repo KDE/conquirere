@@ -23,6 +23,7 @@
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NCAL>
 #include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Variant>
 #include <Nepomuk/Thing>
 
@@ -58,14 +59,71 @@ void QueryClient::run()
     connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addToCache(QList<Nepomuk::Query::Result>)));
     connect(m_queryClient, SIGNAL(entriesRemoved(QList<QUrl>)), this, SIGNAL(removeCacheEntries(QList<QUrl>)));
     connect(m_queryClient, SIGNAL(finishedListing()), this, SIGNAL(queryFinished()));
+    connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(initalQueryFinished()));
     connect(m_queryClient, SIGNAL(resultCount(int)), this, SLOT(resultCount(int)));
+
+    m_resourceWatcher = new Nepomuk::ResourceWatcher(this);
+    m_resourceWatcher->addProperty(Nepomuk::Vocabulary::NIE::title());
+//    m_resourceWatcher->addProperty(Nepomuk::Vocabulary::NBIB::publishedAs());
+//    m_resourceWatcher->addProperty(Nepomuk::Vocabulary::NBIB::isPublicationOf());
+    //    m_resourceWatcher->addProperty(Soprano::Vocabulary::NAO::isRelated());
+
+    connect(m_resourceWatcher, SIGNAL(propertyAdded(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)), this, SLOT(propertyAdded(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)));
+    connect(m_resourceWatcher, SIGNAL(propertyChanged(Nepomuk::Resource,Nepomuk::Types::Property,QVariantList,QVariantList)), this, SLOT(propertyChanged(Nepomuk::Resource,Nepomuk::Types::Property,QVariantList,QVariantList)));
+    connect(m_resourceWatcher, SIGNAL(propertyRemoved(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)), this, SLOT(propertyRemoved(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)));
+    connect(m_resourceWatcher, SIGNAL(resourceTypeAdded(Nepomuk::Resource,Nepomuk::Types::Class)), this, SLOT(resourceTypeAdded(Nepomuk::Resource,Nepomuk::Types::Class)));
+    connect(m_resourceWatcher, SIGNAL(resourceTypeRemoved(Nepomuk::Resource,Nepomuk::Types::Class)), this, SLOT(resourceTypeRemoved(Nepomuk::Resource,Nepomuk::Types::Class)));
+
 
     startFetchData();
     exec();
 
+    m_resourceWatcher->stop();
+    delete m_resourceWatcher;
+    m_resourceWatcher = 0;
     m_queryClient->close();
     delete m_queryClient;
     m_queryClient = 0;
+}
+
+void QueryClient::propertyAdded (const Nepomuk::Resource &resource, const Nepomuk::Types::Property &property, const QVariant &value)
+{
+    updateCacheEntry(resource);
+}
+
+void QueryClient::propertyChanged (const Nepomuk::Resource &resource, const Nepomuk::Types::Property &property, const QVariantList &oldValue, const QVariantList &newValue)
+{
+    updateCacheEntry(resource);
+}
+
+void QueryClient::propertyRemoved (const Nepomuk::Resource &resource, const Nepomuk::Types::Property &property, const QVariant &value)
+{
+    updateCacheEntry(resource);
+}
+
+void QueryClient::resourceTypeAdded (const Nepomuk::Resource &res, const Nepomuk::Types::Class &type)
+{
+    updateCacheEntry(res);
+}
+
+void QueryClient::resourceTypeRemoved (const Nepomuk::Resource &res, const Nepomuk::Types::Class &type)
+{
+    updateCacheEntry(res);
+}
+
+void QueryClient::updateCacheEntry(const Nepomuk::Resource &resource)
+{
+    kDebug() << "resourcewatcher found change by" << resource.genericLabel();
+
+    QList<CachedRowEntry> newCache;
+
+    CachedRowEntry cre;
+    cre.displayColums = createDisplayData(resource);
+    cre.decorationColums = createDecorationData(resource);
+    cre.resource = resource;
+    newCache.append(cre);
+
+    emit updateCacheEntries(newCache);
 }
 
 void QueryClient::addToCache( const QList< Nepomuk::Query::Result > &entries ) const
@@ -91,6 +149,8 @@ void QueryClient::addToCache( const QList< Nepomuk::Query::Result > &entries ) c
                 continue;
             }
         }
+
+        m_resourceWatcher->addResource(r);
 
         QList<CachedRowEntry> newCache;
         CachedRowEntry cre;
@@ -126,4 +186,12 @@ void QueryClient::resultCount(int number) const
 void QueryClient::finishedStartup()
 {
     m_startupQuery = false;
+}
+
+void QueryClient::initalQueryFinished()
+{
+//    kDebug() << "startResourceWatcher" << m_resourceWatcher->resources().size();
+
+//    if( m_resourceWatcher->resources().size() > 0)
+//        m_resourceWatcher->start();
 }

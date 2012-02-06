@@ -38,6 +38,8 @@
 
 #include <Nepomuk/Variant>
 
+#include "dms-copy/datamanagement.h"
+
 #include <QDebug>
 
 using namespace Nepomuk::Vocabulary;
@@ -234,6 +236,15 @@ void DbCheckDialog::checkAll()
 void DbCheckDialog::addToList( const QList< Nepomuk::Query::Result > &entries )
 {
     foreach(const Nepomuk::Query::Result &result, entries) {
+
+
+//        QList<QUrl> resourceUris;
+//        resourceUris << result.resource().uri();
+//        QVariantList value;
+//        value <<  QString("DMS TEST");
+//        Nepomuk::setProperty(resourceUris, NIE::title(), value);
+
+
         ui->listWidget->addItem(result.resource().genericLabel());
         m_toBeDeleted.append(result.resource());
     }

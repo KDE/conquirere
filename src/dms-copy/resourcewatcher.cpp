@@ -238,26 +238,31 @@ void Nepomuk::ResourceWatcher::setTypes(const QList< Nepomuk::Types::Class >& ty
 
 void Nepomuk::ResourceWatcher::slotResourceCreated(const QString &res, const QStringList &types)
 {
+    kDebug() << res << types;
     emit resourceCreated(Nepomuk::Resource::fromResourceUri(KUrl(res)), convertUris(types));
 }
 
 void Nepomuk::ResourceWatcher::slotResourceRemoved(const QString &res, const QStringList &types)
 {
+    kDebug() << res << types;
     emit resourceRemoved(KUrl(res), convertUris(types));
 }
 
 void Nepomuk::ResourceWatcher::slotResourceTypeAdded(const QString &res, const QString &type)
 {
+    kDebug() << res << type;
     emit resourceTypeAdded(KUrl(res), KUrl(type));
 }
 
 void Nepomuk::ResourceWatcher::slotResourceTypeRemoved(const QString &res, const QString &type)
 {
+    kDebug() << res << type;
     emit resourceTypeRemoved(KUrl(res), KUrl(type));
 }
 
 void Nepomuk::ResourceWatcher::slotPropertyAdded(const QString& res, const QString& prop, const QVariantList &objects)
 {
+    kDebug() << res << prop<<objects;
     foreach(const QVariant& v, objects) {
         emit propertyAdded( Resource::fromResourceUri(KUrl(res)), Types::Property( KUrl(prop) ), v );
     }
@@ -265,6 +270,7 @@ void Nepomuk::ResourceWatcher::slotPropertyAdded(const QString& res, const QStri
 
 void Nepomuk::ResourceWatcher::slotPropertyRemoved(const QString& res, const QString& prop, const QVariantList &objects)
 {
+    kDebug() << res << prop<<objects;
     foreach(const QVariant& v, objects) {
         emit propertyRemoved( Resource::fromResourceUri(KUrl(res)), Types::Property( KUrl(prop) ), v );
     }
@@ -272,6 +278,7 @@ void Nepomuk::ResourceWatcher::slotPropertyRemoved(const QString& res, const QSt
 
 void Nepomuk::ResourceWatcher::slotPropertyChanged(const QString& res, const QString& prop, const QVariantList& oldObjs, const QVariantList& newObjs)
 {
+    kDebug() << res << prop<<newObjs;
     emit propertyChanged( Resource::fromResourceUri(KUrl(res)), Types::Property( KUrl(prop) ),
                           oldObjs, newObjs );
 }

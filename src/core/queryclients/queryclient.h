@@ -24,6 +24,8 @@
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Result>
 
+#include "dms-copy/resourcewatcher.h"
+
 /**
   * @brief Cache for one row
   *
@@ -77,17 +79,31 @@ signals:
     void queryFinished() const;
 
 private slots:
+    //process resourceWatcher signals
+    void propertyAdded (const Nepomuk::Resource &resource, const Nepomuk::Types::Property &property, const QVariant &value);
+    void propertyChanged (const Nepomuk::Resource &resource, const Nepomuk::Types::Property &property, const QVariantList &oldValue, const QVariantList &newValue);
+    void propertyRemoved (const Nepomuk::Resource &resource, const Nepomuk::Types::Property &property, const QVariant &value);
+    void resourceTypeAdded (const Nepomuk::Resource &res, const Nepomuk::Types::Class &type);
+    void resourceTypeRemoved (const Nepomuk::Resource &res, const Nepomuk::Types::Class &type);
+
+
+
+
     void addToCache( const QList< Nepomuk::Query::Result > &entries ) const;
     void resultCount(int number) const;
 
     void finishedStartup();
+    void initalQueryFinished();
 
 protected:
+    void updateCacheEntry(const Nepomuk::Resource &resource);
+
     virtual QVariantList createDisplayData(const Nepomuk::Resource & res) const = 0;
     virtual QVariantList createDecorationData(const Nepomuk::Resource & res) const = 0;
 
     Library *m_library;
     Nepomuk::Query::QueryServiceClient *m_queryClient;
+    Nepomuk::ResourceWatcher *m_resourceWatcher;
     bool m_startupQuery;
 };
 

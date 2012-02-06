@@ -122,7 +122,7 @@ namespace Nepomuk {
          *
          * \sa setProperties()
          */
-        void addProperty( const Types::Property & property );
+        void addProperty( const Nepomuk::Types::Property & property );
 
         /**
          * \brief Remove a type to be watched.
@@ -131,7 +131,7 @@ namespace Nepomuk {
          *
          * \sa setTypes()
          */
-        void removeType( const Types::Class & type );
+        void removeType( const Nepomuk::Types::Class & type );
 
         /**
          * \brief Remove a resource to be watched.
@@ -151,7 +151,7 @@ namespace Nepomuk {
          *
          * \sa setProperties()
          */
-        void removeProperty( const Types::Property & property );
+        void removeProperty( const Nepomuk::Types::Property & property );
 
         /**
          * \brief Set the types to be watched.
@@ -247,7 +247,7 @@ namespace Nepomuk {
          * \param res The changed resource.
          * \param type The newly added type. If types() have been configured it will be one of them.
          */
-        void resourceTypeAdded( const Nepomuk::Resource & res, const Types::Class & type );
+        void resourceTypeAdded( const Nepomuk::Resource & res, const Nepomuk::Types::Class & type );
 
         /**
          * \brief This signal is emitted when a type has been removed from a resource.
@@ -257,7 +257,7 @@ namespace Nepomuk {
          * \param res The changed resource.
          * \param type The removed type. If types() have been configured it will be one of them.
          */
-        void resourceTypeRemoved( const Nepomuk::Resource & res, const Types::Class & type );
+        void resourceTypeRemoved( const Nepomuk::Resource & res, const Nepomuk::Types::Class & type );
 
         /**
          * \brief This signal is emitted when a property value is added.

@@ -399,6 +399,7 @@ void Library::setupModels()
     m_resources.insert(Resource_Document, documentFilter);
     connectModelToTagCloud(documentModel);
 
+    /*
     BookmarkModel *bookmarkModel = new BookmarkModel;
     bookmarkModel->setLibrary(this);
     QSortFilterProxyModel *bookmarkFilter = new QSortFilterProxyModel;
@@ -406,6 +407,7 @@ void Library::setupModels()
     bookmarkFilter->setSourceModel(bookmarkModel);
     m_resources.insert(Resource_Website, bookmarkFilter);
     connectModelToTagCloud(bookmarkModel);
+    */
 
     ReferenceModel *referencesModel = new ReferenceModel;
     referencesModel->setLibrary(this);
