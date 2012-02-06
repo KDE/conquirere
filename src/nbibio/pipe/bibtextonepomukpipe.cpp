@@ -364,7 +364,7 @@ void BibTexToNepomukPipe::importBibResource(Entry *entry, Nepomuk::SimpleResourc
     QMapIterator<QString, Value> i(*entry);
     while (i.hasNext()) {
         i.next();
-        addContent(i.key().toLower(), i.value(), publication, reference, graph, entry->type());
+        addContent(i.key().toLower(), i.value(), publication, reference, graph, entry->type(), entry->id());
     }
 
     if(m_projectThing.isValid()) {
@@ -771,16 +771,15 @@ void BibTexToNepomukPipe::mergeManual(Nepomuk::Resource syncResource, Entry *sel
     }
 }
 
-void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph, const QString & originalEntryType)
+void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nepomuk::NBIB::Publication &publication,
+                                     Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph,
+                                     const QString & originalEntryType, const QString & citeKey)
 {
     //############################################
     // Simple set commands
 
     if(key == QLatin1String("abstract")) {
         addValue(PlainTextValue::text(value), publication, NBIB::abstract() );
-    }
-    else if(key == QLatin1String("annote")) {
-        addValue(PlainTextValue::text(value), publication, NIE::comment() );
     }
     else if(key == QLatin1String("archive")) {
         addValue(PlainTextValue::text(value), publication, NBIB::archive());
@@ -823,9 +822,6 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     }
     else if(key == QLatin1String("mrnumber")) {
         addValue(PlainTextValue::text(value), publication, NBIB::mrNumber());
-    }
-    else if(key == QLatin1String("note")) {
-        addValue(PlainTextValue::text(value), publication, NIE::description());
     }
     else if(key == QLatin1String("number")) {
         addValue(PlainTextValue::text(value), publication, NBIB::number());
@@ -1020,9 +1016,32 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
 
         addTopic(keywordList, publication, graph);
     }
+    else if(key.startsWith(QLatin1String("note")) || key.startsWith(QLatin1String("annote"))) {
+        QString title = citeKey + ": " + key;
+        addNote( PlainTextValue::text(value), title, publication, graph);
+    }
     else {
         kDebug() << "unknown bibtex key ::" << key << PlainTextValue::text(value);
     }
+}
+
+void BibTexToNepomukPipe::addNote(const QString &contentVale, const QString &noteType, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
+{
+    Nepomuk::PIMO::Note note;
+    note.addType(NIE::InformationElement());
+
+    note.setProperty( NAO::prefLabel(), noteType );
+    note.setProperty( NIE::title(), noteType );
+
+    QTextDocument content;
+    content.setHtml( contentVale.simplified() );
+    note.setProperty( NIE::plainTextContent(), content.toPlainText());
+    note.setProperty( NIE::htmlContent(), content.toHtml());
+
+    publication.addProperty(NAO::isRelated(), note);
+    publication.addProperty(NAO::hasSubResource(), note);
+
+    graph << note;
 }
 
 void BibTexToNepomukPipe::addPublisher(const Value &publisherValue, const Value &addressValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)

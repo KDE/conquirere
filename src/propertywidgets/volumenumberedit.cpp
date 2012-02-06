@@ -17,12 +17,14 @@
 
 #include "volumenumberedit.h"
 
+#include "dms-copy/datamanagement.h"
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Resource>
 #include <Nepomuk/Variant>
 
 #include <QtGui/QStandardItemModel>
+
+using namespace Nepomuk::Vocabulary;
 
 VolumeNumberEdit::VolumeNumberEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -37,21 +39,21 @@ void VolumeNumberEdit::setupLabel()
     Nepomuk::Resource issueResource;
 
     // I. resource() is an article, with an attached Collection, from a Series
-    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Article())) {
-        issueResource = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+    if(resource().hasType(NBIB::Article())) {
+        issueResource = resource().property(NBIB::collection()).toResource();
     }
-    else if(resource().hasType(Nepomuk::Vocabulary::NBIB::Legislation())) {
+    else if(resource().hasType(NBIB::Legislation())) {
         // the number in this case is for the bill not the codeOfLaw
-        if(propertyUrl() == Nepomuk::Vocabulary::NBIB::volume())
-            issueResource = resource().property(Nepomuk::Vocabulary::NBIB::codeOfLaw()).toResource();
+        if(propertyUrl() == NBIB::volume())
+            issueResource = resource().property(NBIB::codeOfLaw()).toResource();
     }
-    else if(resource().hasType(Nepomuk::Vocabulary::NBIB::LegalCaseDocument())) {
+    else if(resource().hasType(NBIB::LegalCaseDocument())) {
         // the number in this case is for the case not the courtreporter
-        if(propertyUrl() == Nepomuk::Vocabulary::NBIB::volume())
-            issueResource = resource().property(Nepomuk::Vocabulary::NBIB::courtReporter()).toResource();
+        if(propertyUrl() == NBIB::volume())
+            issueResource = resource().property(NBIB::courtReporter()).toResource();
     }
     // IV. resource() is an Collection, from a Series
-    else if(resource().hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
+    else if(resource().hasType(NBIB::Collection())) {
         issueResource = resource();
     }
 
@@ -76,25 +78,29 @@ void VolumeNumberEdit::updateResource(const QString & text)
     // or the volume for the CodeOfLaw of an legislation
 
     // check if the resource has a Collection attaced to it
-    Nepomuk::Resource journalIssue = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
-    Nepomuk::Resource codeOfLaw = resource().property(Nepomuk::Vocabulary::NBIB::codeOfLaw()).toResource();
-    Nepomuk::Resource courtReporter = resource().property(Nepomuk::Vocabulary::NBIB::courtReporter()).toResource();
+    Nepomuk::Resource journalIssue = resource().property(NBIB::collection()).toResource();
+    Nepomuk::Resource codeOfLaw = resource().property(NBIB::codeOfLaw()).toResource();
+    Nepomuk::Resource courtReporter = resource().property(NBIB::courtReporter()).toResource();
 
+    QList<QUrl> resourceUris;
     if(journalIssue.isValid()) {
         // in this case attach volume/number to the issue rather than the publication from resource()
-        journalIssue.setProperty(propertyUrl(), text);
+        resourceUris << journalIssue.uri();
     }
-    else if(codeOfLaw.isValid() && propertyUrl() == Nepomuk::Vocabulary::NBIB::volume()) {
+    else if(codeOfLaw.isValid() && propertyUrl() == NBIB::volume()) {
         // in this case attach volume to the issue rather than the publication from resource()
         // the number is the bill number for the Legislation
-        codeOfLaw.setProperty(propertyUrl(), text);
+        resourceUris << codeOfLaw.uri();
     }
-    else if(courtReporter.isValid() && propertyUrl() == Nepomuk::Vocabulary::NBIB::volume()) {
+    else if(courtReporter.isValid() && propertyUrl() == NBIB::volume()) {
         // in this case attach volume to the issue rather than the publication from resource()
         // the number is the docket number for the LegalCaseDocument
-        courtReporter.setProperty(propertyUrl(), text);
+        resourceUris << courtReporter.uri();
     }
     else {
-        resource().setProperty(propertyUrl(), text);
+        resourceUris << resource().uri();
     }
+
+    QVariantList value; value << text;
+    Nepomuk::setProperty(resourceUris, propertyUrl(), value);
 }

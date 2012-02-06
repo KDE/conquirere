@@ -39,6 +39,12 @@
 
 #include "nbibio/conquirere.h"
 
+#include "dms-copy/simpleresourcegraph.h"
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
+#include <KDE/KJob>
+#include "sro/nbib/publication.h"
+
 #include "nbib.h"
 #include <Nepomuk/Thing>
 #include <Nepomuk/Variant>
@@ -49,6 +55,7 @@
 #include <Soprano/Vocabulary/NAO>
 #include <KDE/KComboBox>
 #include <KDE/KDialog>
+#include <KDE/KDebug>
 
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
@@ -58,6 +65,10 @@
 #include <QtGui/QMenu>
 #include <QtGui/QAction>
 #include <QtCore/QPointer>
+#include <QtCore/QUrl>
+
+using namespace Nepomuk::Vocabulary;
+using namespace Soprano::Vocabulary;
 
 PublicationWidget::PublicationWidget(QWidget *parent)
     : SidebarComponent(parent)
@@ -93,14 +104,14 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
     m_publication = resource;
 
     //check if the resource is a valid publication
-    if(!m_publication.isValid()) {
+    if(!m_publication.exists()) {
         ui->tabWidget->setEnabled(false);
     }
     else {
         ui->tabWidget->setEnabled(true);
     }
 
-    QList<Nepomuk::Resource> references = m_publication.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
+    QList<Nepomuk::Resource> references = m_publication.property(NBIB::reference()).toResourceList();
 
     if(references.isEmpty()) {
         emit hasReference(false);
@@ -114,7 +125,7 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
     int index = ui->editEntryType->findData(entryType);
     ui->editEntryType->setCurrentIndex(index);
 
-    QString abstract = m_publication.property(Nepomuk::Vocabulary::NBIB::abstract()).toString();
+    QString abstract = m_publication.property(NBIB::abstract()).toString();
     ui->editAbstract->document()->setPlainText(abstract);
 
     ui->editRating->setRating(m_publication.rating());
@@ -131,10 +142,9 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
    ui->editFilingDate->setResource(m_publication);
    ui->editPublisher->setResource(m_publication);
    ui->editOrganization->setResource(m_publication);
-   ui->editFileObject->setResource(m_publication);
-   ui->editRemoteObject->setResource(m_publication);
    ui->editWebObject->setResource(m_publication);
-   ui->editKeywords->setResource(m_publication);
+   ui->editTags->setResource(m_publication);
+   ui->editTopics->setResource(m_publication);
 
    ui->editShortTitle->setResource(m_publication);
    ui->editTranslator->setResource(m_publication);
@@ -179,7 +189,6 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
 
    ui->editAnnot->setResource(m_publication);
    ui->editCitedSources->setResource(m_publication);
-   discardNoteChanges();
 }
 
 Nepomuk::Resource PublicationWidget::resource()
@@ -200,14 +209,14 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
         // create the full hierarchy
         //DEBUG this seems wrong, but is currently the only way to preserve type hierarchy
         QList<QUrl>newtype;
-        newtype.append(Nepomuk::Vocabulary::NIE::InformationElement());
-        newtype.append(Nepomuk::Vocabulary::NBIB::Publication());
+        newtype.append(NIE::InformationElement());
+        newtype.append(NBIB::Publication());
         newtype.append(newEntryUrl);
 
         // add another hierarchy if the newEntryUrl is not a direct subclass of NBIB::Publication()
         switch(entryType) {
         case BibType_Dictionary:
-            newtype.append(Nepomuk::Vocabulary::NBIB::Book());
+            newtype.append(NBIB::Book());
             break;
         case BibType_MagazinIssue:
         case BibType_NewspaperIssue:
@@ -219,30 +228,30 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
         case BibType_WebSite:
         case BibType_Blog:
         case BibType_Forum:
-            newtype.append(Nepomuk::Vocabulary::NBIB::Collection());
+            newtype.append(NBIB::Collection());
             break;
         case BibType_Bachelorthesis:
         case BibType_Mastersthesis:
         case BibType_Phdthesis:
-            newtype.append(Nepomuk::Vocabulary::NBIB::Thesis());
+            newtype.append(NBIB::Thesis());
             break;
         case BibType_Techreport:
-            newtype.append(Nepomuk::Vocabulary::NBIB::Report());
+            newtype.append(NBIB::Report());
             break;
         case BibType_BlogPost:
         case BibType_ForumPost:
         case BibType_WebPage:
-            newtype.append(Nepomuk::Vocabulary::NBIB::Article());
+            newtype.append(NBIB::Article());
             break;
         case BibType_Bill:
         case BibType_Statute:
-            newtype.append(Nepomuk::Vocabulary::NBIB::Legislation());
-            newtype.append(Nepomuk::Vocabulary::NBIB::LegalDocument());
+            newtype.append(NBIB::Legislation());
+            newtype.append(NBIB::LegalDocument());
             break;
         case BibType_Decision:
         case BibType_Brief:
-            newtype.append(Nepomuk::Vocabulary::NBIB::LegalCaseDocument());
-            newtype.append(Nepomuk::Vocabulary::NBIB::LegalDocument());
+            newtype.append(NBIB::LegalCaseDocument());
+            newtype.append(NBIB::LegalDocument());
             break;
             //ignore the following cases, as they are a direct subtype of nbib:publication and as such no need to add
             // another hirachry entry is necessary
@@ -273,32 +282,32 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
         // a special case when the new type is a collection or subclass of a collection
         // change also the type of any connected Series.
         // this ensures we don't end up with a JournalIssue from Magazin or NewspaperIssue from a Journal
-        if(m_publication.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
-            Nepomuk::Resource seriesResource = m_publication.property((Nepomuk::Vocabulary::NBIB::inSeries())).toResource();
+        if(m_publication.hasType(NBIB::Collection())) {
+            Nepomuk::Resource seriesResource = m_publication.property((NBIB::inSeries())).toResource();
 
             if(seriesResource.isValid()) {
-                if(m_publication.hasType(Nepomuk::Vocabulary::NBIB::JournalIssue())) {
-                    Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::Journal());
+                if(m_publication.hasType(NBIB::JournalIssue())) {
+                    Nepomuk::Resource x(QUrl(), NBIB::Journal());
                     seriesResource.setTypes(x.types());
                 }
-                else if(m_publication.hasType(Nepomuk::Vocabulary::NBIB::NewspaperIssue())) {
-                    Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::Newspaper());
+                else if(m_publication.hasType(NBIB::NewspaperIssue())) {
+                    Nepomuk::Resource x(QUrl(), NBIB::Newspaper());
                     seriesResource.setTypes(x.types());
                 }
-                else if(m_publication.hasType(Nepomuk::Vocabulary::NBIB::MagazinIssue())) {
-                    Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::Magazin());
+                else if(m_publication.hasType(NBIB::MagazinIssue())) {
+                    Nepomuk::Resource x(QUrl(), NBIB::Magazin());
                     seriesResource.setTypes(x.types());
                 }
                 else {
-                    Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::Series());
+                    Nepomuk::Resource x(QUrl(), NBIB::Series());
                     seriesResource.setTypes(x.types());
                 }
             }
         }
-        else if(m_publication.hasType(Nepomuk::Vocabulary::NBIB::Book())) {
-            Nepomuk::Resource seriesResource = m_publication.property((Nepomuk::Vocabulary::NBIB::inSeries())).toResource();
+        else if(m_publication.hasType(NBIB::Book())) {
+            Nepomuk::Resource seriesResource = m_publication.property((NBIB::inSeries())).toResource();
             if(seriesResource.isValid()) {
-                Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::BookSeries());
+                Nepomuk::Resource x(QUrl(), NBIB::BookSeries());
                 seriesResource.setTypes(x.types());
             }
         }
@@ -309,20 +318,30 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
 
 void PublicationWidget::newButtonClicked()
 {
-    //create a new resource
-    Nepomuk::Resource nb;
-    QList<QUrl> types;
-    types.append(Nepomuk::Vocabulary::NBIB::Publication());
-    nb.setTypes(types);
-    nb.setProperty(Nepomuk::Vocabulary::NIE::title(), i18n("New Publication"));
+    //create a new resource with default name
+
+    Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::NBIB::Publication newPublication;
+
+    newPublication.setProperty( Nepomuk::Vocabulary::NIE::title(), i18n("New Publication"));
+
+    graph << newPublication;
+    //blocking graph save
+    Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone);
+    if( !srj->exec() ) {
+        kWarning() << "could not new default series" << srj->errorString();
+        return;
+    }
+
+    // get the pimo project from the return job mappings
+    Nepomuk::Resource newPublicationResource = Nepomuk::Resource::fromResourceUri( srj->mappings().value( newPublication.uri() ) );
 
     Library *curUsedLib = libraryManager()->currentUsedLibrary();
     if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
-        //relate the ref to the project
-        nb.setProperty(Soprano::Vocabulary::NAO::isRelated() , curUsedLib->settings()->projectThing());
+        curUsedLib->addResource( newPublicationResource );
     }
 
-    setResource(nb);
+    setResource(newPublicationResource);
 }
 
 void PublicationWidget::deleteButtonClicked()
@@ -341,27 +360,27 @@ void PublicationWidget::subResourceUpdated(Nepomuk::Resource resource)
     emit resourceCacheNeedsUpdate(m_publication);
 
     // also update the cache entry for any kind of connected resource
-    QList<Nepomuk::Resource> refs = m_publication.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
+    QList<Nepomuk::Resource> refs = m_publication.property(NBIB::reference()).toResourceList();
     foreach(const Nepomuk::Resource &r, refs) {
         emit resourceCacheNeedsUpdate(r);
     }
 
-    Nepomuk::Resource event = m_publication.property(Nepomuk::Vocabulary::NBIB::event()).toResource();
+    Nepomuk::Resource event = m_publication.property(NBIB::event()).toResource();
     if(event.isValid()) {
         emit resourceCacheNeedsUpdate(event);
     }
 
-    Nepomuk::Resource series = m_publication.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    Nepomuk::Resource series = m_publication.property(NBIB::inSeries()).toResource();
     if(series.isValid()) {
         emit resourceCacheNeedsUpdate(series);
     }
 
-    QList<Nepomuk::Resource> articles = m_publication.property(Nepomuk::Vocabulary::NBIB::article()).toResourceList();
+    QList<Nepomuk::Resource> articles = m_publication.property(NBIB::article()).toResourceList();
     foreach(const Nepomuk::Resource &a, articles) {
         emit resourceCacheNeedsUpdate(a);
     }
 
-    Nepomuk::Resource collection = m_publication.property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+    Nepomuk::Resource collection = m_publication.property(NBIB::collection()).toResource();
     if(collection.isValid()) {
         emit resourceCacheNeedsUpdate(collection);
     }
@@ -369,27 +388,38 @@ void PublicationWidget::subResourceUpdated(Nepomuk::Resource resource)
 
 void PublicationWidget::addReference()
 {
-    KDialog showRefWidget;
+    QPointer<KDialog> showRefWidget = new KDialog(this);
 
-    Nepomuk::Resource tempRef(QUrl(), Nepomuk::Vocabulary::NBIB::Reference());
-    tempRef.setProperty(Nepomuk::Vocabulary::NBIB::publication(), m_publication);
+    Nepomuk::Resource tempRef(QUrl(), NBIB::Reference());
+    tempRef.setProperty(NBIB::publication(), m_publication);
 
-    ReferenceWidget *rw = new ReferenceWidget();
+    ReferenceWidget *rw = new ReferenceWidget(showRefWidget);
     rw->setLibraryManager( libraryManager() );
-    rw->setResource(tempRef);
+    rw->newButtonClicked();
+    Nepomuk::Resource tmpReference = rw->resource();
 
-    showRefWidget.setMainWidget(rw);
-    showRefWidget.setInitialSize(QSize(300,300));
+    QList<QUrl> resourceUris; resourceUris << tmpReference.uri();
+    QVariantList value; value << m_publication.uri();
+    KJob *job = Nepomuk::setProperty(resourceUris, NBIB::publication(), value);
+    job->exec(); //blocking to ensure resource is fully updated
 
-    int ret = showRefWidget.exec();
+
+    showRefWidget->setMainWidget(rw);
+    showRefWidget->setInitialSize(QSize(300,300));
+
+    int ret = showRefWidget->exec();
 
     if(ret == KDialog::Accepted) {
-        m_publication.addProperty(Nepomuk::Vocabulary::NBIB::reference(), tempRef);
+        QList<QUrl> resourceUris; resourceUris << m_publication.uri();
+        QVariantList value; value <<  tmpReference.uri();
+        KJob *job = Nepomuk::setProperty(resourceUris, NBIB::reference(), value);
+        job->exec(); //blocking to ensure resource is fully updated
+
         emit resourceCacheNeedsUpdate(m_publication);
     }
     else {
         // remove temp citation again
-        tempRef.remove();
+        libraryManager()->systemLibrary()->deleteResource( tmpReference );
     }
 }
 
@@ -398,10 +428,10 @@ void PublicationWidget::removeReference()
     QList<QAction*> actionCollection;
     QMenu removeReference;
 
-    QList<Nepomuk::Resource> referenceList = m_publication.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
+    QList<Nepomuk::Resource> referenceList = m_publication.property(NBIB::reference()).toResourceList();
 
     foreach(const Nepomuk::Resource &r, referenceList) {
-        QAction *a = new QAction(r.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString(), this);
+        QAction *a = new QAction(r.property(NBIB::citeKey()).toString(), this);
         a->setData(r.resourceUri());
         connect(a, SIGNAL(triggered(bool)),this, SLOT(removeFromSelectedReference()));
         removeReference.addAction(a);
@@ -417,16 +447,14 @@ void PublicationWidget::removeFromSelectedReference()
 {
     QAction *a = qobject_cast<QAction *>(sender());
 
-    if(!a)
-        return;
+    if(!a) { return; }
 
-    Nepomuk::Resource reference = Nepomuk::Resource(a->data().toString());
-    m_publication.removeProperty(Nepomuk::Vocabulary::NBIB::reference(), reference);
+    QList<QUrl> resourceUris; resourceUris << m_publication.uri();
+    QVariantList value; value << a->data().toString();
+    KJob *job = Nepomuk::removeProperty(resourceUris, NBIB::reference(), value);
+    job->exec(); // blocking wait till resource is updated
 
-    reference.remove();
-
-
-    QList<Nepomuk::Resource> references = m_publication.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
+    QList<Nepomuk::Resource> references = m_publication.property(NBIB::reference()).toResourceList();
 
     if(references.isEmpty()) {
         emit hasReference(false);
@@ -440,31 +468,27 @@ void PublicationWidget::removeFromSelectedReference()
 
 void PublicationWidget::acceptContentChanges()
 {
-    QString abstract = ui->editAbstract->document()->toPlainText();
-    m_publication.setProperty(Nepomuk::Vocabulary::NBIB::abstract(), abstract);
+    QList<QUrl> resourceUris; resourceUris << m_publication.uri();
+    QVariantList value; value <<  ui->editAbstract->document()->toPlainText();
+    Nepomuk::setProperty(resourceUris, NBIB::abstract(), value);
 }
 
 void PublicationWidget::discardContentChanges()
 {
-    QString abstract = m_publication.property(Nepomuk::Vocabulary::NBIB::abstract()).toString();
+    QString abstract = m_publication.property(NBIB::abstract()).toString();
     ui->editAbstract->document()->setPlainText(abstract);
-}
-
-void PublicationWidget::acceptNoteChanges()
-{
-    QString note = ui->editNote->document()->toPlainText();
-    m_publication.setProperty(Nepomuk::Vocabulary::NIE::description(), note);
-}
-
-void PublicationWidget::discardNoteChanges()
-{
-    QString note = m_publication.property(Nepomuk::Vocabulary::NIE::description()).toString();
-    ui->editNote->document()->setPlainText(note);
 }
 
 void PublicationWidget::changeRating(int newRating)
 {
-    m_publication.setRating(newRating);
+    if(newRating == m_publication.rating() ) {
+        return;
+    }
+
+    QList<QUrl> resourceUris; resourceUris << m_publication.uri();
+    QVariantList rating; rating <<  newRating;
+    KJob *job = Nepomuk::setProperty(resourceUris, Soprano::Vocabulary::NAO::numericRating(), rating);
+    job->exec(); // blocking wait ...
 
     subResourceUpdated(m_publication);
 }
@@ -484,94 +508,92 @@ void PublicationWidget::setupWidget()
     connect(ui->editEntryType, SIGNAL(currentIndexChanged(int)), this, SLOT(newBibEntryTypeSelected(int)));
 
     // Basics section
-    ui->editTitle->setPropertyUrl( Nepomuk::Vocabulary::NIE::title() );
-    ui->editAuthors->setPropertyUrl( Nepomuk::Vocabulary::NCO::creator() );
+    ui->editTitle->setPropertyUrl( NIE::title() );
+    ui->editAuthors->setPropertyUrl( NCO::creator() );
     ui->editAuthors->setUseDetailDialog(true);
     connect(ui->editAuthors, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
-    ui->editEditor->setPropertyUrl( Nepomuk::Vocabulary::NBIB::editor() );
+    ui->editEditor->setPropertyUrl( NBIB::editor() );
     ui->editEditor->setUseDetailDialog(true);
     connect(ui->editEditor, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
-    ui->editAssignee->setPropertyUrl( Nepomuk::Vocabulary::NBIB::assignee() );
-    ui->editDate->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationDate() );
-    ui->editFilingDate->setPropertyUrl( Nepomuk::Vocabulary::NBIB::filingDate() );
-    ui->editPublisher->setPropertyUrl( Nepomuk::Vocabulary::NCO::publisher() );
+    ui->editAssignee->setPropertyUrl( NBIB::assignee() );
+    ui->editDate->setPropertyUrl( NBIB::publicationDate() );
+    ui->editFilingDate->setPropertyUrl( NBIB::filingDate() );
+    ui->editPublisher->setPropertyUrl( NCO::publisher() );
     ui->editPublisher->setUseDetailDialog(true);
     connect(ui->editPublisher, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
-    ui->editFileObject->setMode(FileObjectEdit::Local);
-    ui->editFileObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
-    ui->editRemoteObject->setMode(FileObjectEdit::Remote);
-    ui->editRemoteObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
     ui->editWebObject->setMode(FileObjectEdit::Website);
-    ui->editWebObject->setPropertyUrl( Nepomuk::Vocabulary::NIE::links() );
-    ui->editKeywords->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
-    ui->editKeywords->setPropertyUrl( Soprano::Vocabulary::NAO::hasTag() );
+    ui->editWebObject->setPropertyUrl( NIE::links() );
+    ui->editTags->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
+    ui->editTags->setPropertyUrl( NAO::hasTag() );
+    ui->editTopics->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
+    ui->editTopics->setPropertyUrl( NAO::hasTopic() );
 
     //other section
-    ui->editShortTitle->setPropertyUrl( Nepomuk::Vocabulary::NBIB::shortTitle() );
-    ui->editTranslator->setPropertyUrl( Nepomuk::Vocabulary::NBIB::translator() );
+    ui->editShortTitle->setPropertyUrl( NBIB::shortTitle() );
+    ui->editTranslator->setPropertyUrl( NBIB::translator() );
     ui->editTranslator->setUseDetailDialog(true);
     connect(ui->editTranslator, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
-    ui->editContributor->setPropertyUrl( Nepomuk::Vocabulary::NBIB::contributor() );
+    ui->editContributor->setPropertyUrl( NBIB::contributor() );
     ui->editContributor->setUseDetailDialog(true);
     connect(ui->editContributor, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
-    ui->editReviewedAuthor->setPropertyUrl( Nepomuk::Vocabulary::NBIB::reviewedAuthor() );
+    ui->editReviewedAuthor->setPropertyUrl( NBIB::reviewedAuthor() );
     ui->editReviewedAuthor->setUseDetailDialog(true);
     connect(ui->editReviewedAuthor, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
-    ui->editCoSponsor->setPropertyUrl( Nepomuk::Vocabulary::NBIB::coSponsor() );
+    ui->editCoSponsor->setPropertyUrl( NBIB::coSponsor() );
     ui->editCoSponsor->setUseDetailDialog(true);
     connect(ui->editCoSponsor, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
-    ui->editCounsel->setPropertyUrl( Nepomuk::Vocabulary::NBIB::counsel() );
+    ui->editCounsel->setPropertyUrl( NBIB::counsel() );
     ui->editCounsel->setUseDetailDialog(true);
     connect(ui->editCounsel, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
-    ui->editCommenter->setPropertyUrl( Nepomuk::Vocabulary::NBIB::commenter() );
+    ui->editCommenter->setPropertyUrl( NBIB::commenter() );
     ui->editCommenter->setUseDetailDialog(true);
     connect(ui->editCommenter, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
-    ui->editAttorneyAgent->setPropertyUrl( Nepomuk::Vocabulary::NBIB::attorneyAgent() );
+    ui->editAttorneyAgent->setPropertyUrl( NBIB::attorneyAgent() );
     ui->editAttorneyAgent->setUseDetailDialog(true);
     connect(ui->editAttorneyAgent, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
-    ui->editCopyright->setPropertyUrl( Nepomuk::Vocabulary::NIE::copyright() );
-    ui->editLastAccessed->setPropertyUrl( Nepomuk::Vocabulary::NUAO::lastUsage());
-    ui->editLanguage->setPropertyUrl( Nepomuk::Vocabulary::NIE::language());
+    ui->editCopyright->setPropertyUrl( NIE::copyright() );
+    ui->editLastAccessed->setPropertyUrl( NUAO::lastUsage());
+    ui->editLanguage->setPropertyUrl( NIE::language());
 
     // Extra section
-    ui->editEvent->setPropertyUrl( Nepomuk::Vocabulary::NBIB::event() );
+    ui->editEvent->setPropertyUrl( NBIB::event() );
     ui->editEvent->setUseDetailDialog(true);
     connect(ui->editEvent, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showDetailDialog(Nepomuk::Resource&,QUrl)));
     ui->editSeries->setUseDetailDialog(true);
     connect(ui->editSeries, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showDetailDialog(Nepomuk::Resource&,QUrl)));
-    ui->editEdition->setPropertyUrl( Nepomuk::Vocabulary::NBIB::edition() );
-    ui->editCollection->setPropertyUrl( Nepomuk::Vocabulary::NBIB::collection() );
+    ui->editEdition->setPropertyUrl( NBIB::edition() );
+    ui->editCollection->setPropertyUrl( NBIB::collection() );
     ui->editCollection->setUseDetailDialog(true);
     connect(ui->editCollection, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showDetailDialog(Nepomuk::Resource&,QUrl)));
-    ui->editCode->setPropertyUrl( Nepomuk::Vocabulary::NBIB::codeOfLaw() );
+    ui->editCode->setPropertyUrl( NBIB::codeOfLaw() );
     ui->editCode->setUseDetailDialog(true);
     connect(ui->editCode, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showDetailDialog(Nepomuk::Resource&,QUrl)));
-    ui->editCourtReporter->setPropertyUrl( Nepomuk::Vocabulary::NBIB::courtReporter() );
+    ui->editCourtReporter->setPropertyUrl( NBIB::courtReporter() );
     ui->editCourtReporter->setUseDetailDialog(true);
     connect(ui->editCourtReporter, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showDetailDialog(Nepomuk::Resource&,QUrl)));
-    ui->editVolume->setPropertyUrl( Nepomuk::Vocabulary::NBIB::volume() );
-    ui->editNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::number() );
-    ui->editApplicationNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::applicationNumber() );
-    ui->editPriorityNumbers->setPropertyUrl( Nepomuk::Vocabulary::NBIB::priorityNumbers() );
-    ui->editPublicLawNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicLawNumber() );
-    ui->editReferences->setPropertyUrl( Nepomuk::Vocabulary::NBIB::patentReferences() );
-    ui->editLegalStatus->setPropertyUrl( Nepomuk::Vocabulary::NBIB::legalStatus() );
-    ui->editHistory->setPropertyUrl( Nepomuk::Vocabulary::NBIB::history() );
-    ui->editScale->setPropertyUrl( Nepomuk::Vocabulary::NBIB::mapScale() );
-    ui->editHowPublished->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationMethod() );
-    ui->editType->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationType() );
+    ui->editVolume->setPropertyUrl( NBIB::volume() );
+    ui->editNumber->setPropertyUrl( NBIB::number() );
+    ui->editApplicationNumber->setPropertyUrl( NBIB::applicationNumber() );
+    ui->editPriorityNumbers->setPropertyUrl( NBIB::priorityNumbers() );
+    ui->editPublicLawNumber->setPropertyUrl( NBIB::publicLawNumber() );
+    ui->editReferences->setPropertyUrl( NBIB::patentReferences() );
+    ui->editLegalStatus->setPropertyUrl( NBIB::legalStatus() );
+    ui->editHistory->setPropertyUrl( NBIB::history() );
+    ui->editScale->setPropertyUrl( NBIB::mapScale() );
+    ui->editHowPublished->setPropertyUrl( NBIB::publicationMethod() );
+    ui->editType->setPropertyUrl( NBIB::publicationType() );
 
     // identification section
-    ui->editArchive->setPropertyUrl( Nepomuk::Vocabulary::NBIB::archive() );
-    ui->editArchiveLocation->setPropertyUrl( Nepomuk::Vocabulary::NBIB::archiveLocation() );
-    ui->editLibCatalog->setPropertyUrl( Nepomuk::Vocabulary::NBIB::libraryCatalog() );
-    ui->editEprint->setPropertyUrl( Nepomuk::Vocabulary::NBIB::eprint() );
-    ui->editISBN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isbn() );
-    ui->editISSN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::issn() );
-    ui->editLCCN->setPropertyUrl( Nepomuk::Vocabulary::NBIB::lccn() );
-    ui->editMRNumber->setPropertyUrl( Nepomuk::Vocabulary::NBIB::mrNumber() );
-    ui->editPubMed->setPropertyUrl( Nepomuk::Vocabulary::NBIB::pubMed() );
-    ui->editDOI->setPropertyUrl( Nepomuk::Vocabulary::NBIB::doi() );
+    ui->editArchive->setPropertyUrl( NBIB::archive() );
+    ui->editArchiveLocation->setPropertyUrl( NBIB::archiveLocation() );
+    ui->editLibCatalog->setPropertyUrl( NBIB::libraryCatalog() );
+    ui->editEprint->setPropertyUrl( NBIB::eprint() );
+    ui->editISBN->setPropertyUrl( NBIB::isbn() );
+    ui->editISSN->setPropertyUrl( NBIB::issn() );
+    ui->editLCCN->setPropertyUrl( NBIB::lccn() );
+    ui->editMRNumber->setPropertyUrl( NBIB::mrNumber() );
+    ui->editPubMed->setPropertyUrl( NBIB::pubMed() );
+    ui->editDOI->setPropertyUrl( NBIB::doi() );
 
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 
@@ -583,10 +605,9 @@ void PublicationWidget::setupWidget()
     connect(ui->editDate, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editFilingDate, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editPublisher, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-    connect(ui->editFileObject, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-    connect(ui->editRemoteObject, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editWebObject, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-    connect(ui->editKeywords, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editTags, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editTopics, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
     connect(ui->editShortTitle, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editTranslator, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
@@ -636,11 +657,15 @@ void PublicationWidget::setupWidget()
 
 void PublicationWidget::editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl)
 {
-    ContactDialog cd;
-    cd.setResource(resource, propertyUrl);
+    QPointer<ContactDialog> cd = new ContactDialog(this);
+    cd->setResource(resource, propertyUrl);
 
-    cd.exec();
+    cd->exec();
 
+    delete cd;
+
+    // because this slot gets called from different PropertyEditWidgets
+    // we find the right une (the sender()) and update the main resource, so the changed contacs will be reloaded
     ContactEdit *ce = dynamic_cast<ContactEdit *>(sender());
     ce->setResource(resource);
 }
@@ -652,20 +677,20 @@ void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUr
     // first if the resource is valid, we just want to edit it
     if(changedResource.isValid()) {
         QPointer<KDialog> addIssueWidget = new KDialog(this);
-        if(changedResource.hasType(Nepomuk::Vocabulary::PIMO::Event())) {
-            EventWidget *ew = new EventWidget();
+        if(changedResource.hasType(PIMO::Event())) {
+            EventWidget *ew = new EventWidget(addIssueWidget);
             ew->setLibraryManager(libraryManager());
             ew->setResource(changedResource);
             addIssueWidget->setMainWidget(ew);
         }
-        else if(changedResource.hasType(Nepomuk::Vocabulary::NBIB::Series())) {
-            SeriesWidget *sw = new SeriesWidget();
+        else if(changedResource.hasType(NBIB::Series())) {
+            SeriesWidget *sw = new SeriesWidget(addIssueWidget);
             sw->setLibraryManager(libraryManager());
             sw->setResource(changedResource);
             addIssueWidget->setMainWidget(sw);
         }
         else {
-            PublicationWidget *pw = new PublicationWidget();
+            PublicationWidget *pw = new PublicationWidget(addIssueWidget);
             pw->setLibraryManager(libraryManager());
             pw->setResource(changedResource);
             addIssueWidget->setMainWidget(pw);
@@ -682,33 +707,34 @@ void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUr
     }
 
     //2nd if no valid resource is availabe the user want
-    // a) create a new one ignored, user should enter the title into the field first and press edit then
+    // a) create a new one
     // b) select from a list of existing resources
 
     //get the range of the property (so what we are allowed to enter)
     //Nepomuk::Resource nr(propertyUrl);
     //Nepomuk::Resource range = nr.property(QUrl(QLatin1String("http://www.w3.org/2000/01/rdf-schema#range"))).toResource();
     // not working sadly :/
-
+kDebug() << propertyUrl;
     QPointer<ListPublicationsDialog> lpd = new ListPublicationsDialog(this);
-    if(propertyUrl == Nepomuk::Vocabulary::NBIB::inSeries()) {
-        lpd->setListMode(Resource_Series, Max_BibTypes);
+    if(propertyUrl == NBIB::inSeries()) {
+        lpd->setListMode(Resource_Series, BibEntryType(Max_SeriesTypes));
     }
-    else if(propertyUrl == Nepomuk::Vocabulary::NBIB::codeOfLaw()) {
+    else if(propertyUrl == NBIB::codeOfLaw()) {
         lpd->setListMode(Resource_Publication, BibType_CodeOfLaw);
     }
-    else if(propertyUrl == Nepomuk::Vocabulary::NBIB::courtReporter()) {
+    else if(propertyUrl == NBIB::courtReporter()) {
         lpd->setListMode(Resource_Publication, BibType_CourtReporter);
     }
-    else if(propertyUrl == Nepomuk::Vocabulary::NBIB::collection()) {
+    else if(propertyUrl == NBIB::collection()) {
         lpd->setListMode(Resource_Publication, BibType_Collection);
     }
-    else if(propertyUrl == Nepomuk::Vocabulary::NBIB::event()) {
+    else if(propertyUrl == NBIB::event()) {
         lpd->setListMode(Resource_Event, Max_BibTypes);
     }
     else {
         lpd->setListMode(Resource_Reference, Max_BibTypes);
     }
+
     lpd->setLibraryManager(libraryManager());
 
     int ret = lpd->exec();
@@ -716,39 +742,53 @@ void PublicationWidget::showDetailDialog(Nepomuk::Resource & resource, const QUr
     if(ret == QDialog::Accepted) {
         Nepomuk::Resource selectedPart = lpd->selectedPublication();
 
-        // here I need to take into account, that backlinks must be handled somehow
-        if(propertyUrl == Nepomuk::Vocabulary::NBIB::inSeries()) {
-            resource.setProperty(propertyUrl, selectedPart );
-            selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), resource );
-        }
-        else if(propertyUrl == Nepomuk::Vocabulary::NBIB::codeOfLaw()) {
-            resource.setProperty(propertyUrl, selectedPart );
-            selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::legislation(), resource );
-        }
-        else if(propertyUrl == Nepomuk::Vocabulary::NBIB::courtReporter()) {
-            resource.setProperty(propertyUrl, selectedPart );
-            selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::legalCase(), resource );
-        }
-        else if(propertyUrl == Nepomuk::Vocabulary::NBIB::collection()) {
-            resource.setProperty(propertyUrl, selectedPart );
-            selectedPart.addProperty(Nepomuk::Vocabulary::NBIB::article(), resource );
-        }
-        else if(propertyUrl == Nepomuk::Vocabulary::NBIB::event()) {
-            Nepomuk::Thing eventThing = selectedPart.pimoThing();
-
-            // adapt pimo::thing, as it is highly likely that we had to create a new pimo::event
-            eventThing.addType(Nepomuk::Vocabulary::PIMO::Event());
-            QString eventTitle = selectedPart.property(Nepomuk::Vocabulary::NIE::title()).toString();
-            eventThing.setProperty(Nepomuk::Vocabulary::NIE::title(), eventTitle);
-
-            //TODO aknadifeeder needs to be changed to respect pimo:Event and adds its tags there rather thatn to its ncal:Event
+        if(propertyUrl == NBIB::event()) {
+            // switch from ncal:Event to pimo:Event
+            QString eventTitle = selectedPart.property(NIE::title()).toString();
             QList<Nepomuk::Tag> ncalTags = selectedPart.tags();
-            foreach(const Nepomuk::Tag &t, ncalTags)
-                eventThing.addTag(t);
+            QList<QUrl> resourceUris; resourceUris << selectedPart.uri();
+            QVariantList value; value << eventTitle;
 
-            resource.setProperty(propertyUrl, eventThing );
-            eventThing.addProperty(Nepomuk::Vocabulary::NBIB::eventPublication(), resource );
+            selectedPart = selectedPart.pimoThing();
+            selectedPart.addType(PIMO::Event());
+            selectedPart.addType(NIE::InformationElement());
+
+            Nepomuk::setProperty(resourceUris, NIE::title(), value);
+            Nepomuk::setProperty(resourceUris, NAO::prefLabel(), value);
+
+            foreach(const Nepomuk::Tag &t, ncalTags)
+                selectedPart.addTag(t);
         }
+
+        // add forward link
+        QList<QUrl> resourceUris; resourceUris << resource.uri();
+        QVariantList value; value << selectedPart.uri();
+        KJob *job = Nepomuk::setProperty(resourceUris, propertyUrl, value);
+        job->exec(); //blocking to ensure we udate the resource
+
+        // here I need to take into account, that backlinks must be handled somehow
+        QUrl backwardLink;
+        if(propertyUrl == NBIB::inSeries()) {
+            backwardLink = NBIB::seriesOf();
+        }
+        else if(propertyUrl == NBIB::codeOfLaw()) {
+            backwardLink = NBIB::legislation();
+        }
+        else if(propertyUrl == NBIB::courtReporter()) {
+            backwardLink = NBIB::legalCase();
+        }
+        else if(propertyUrl == NBIB::collection()) {
+            backwardLink = NBIB::article();
+        }
+        else if(propertyUrl == NBIB::event()) {
+            backwardLink = NBIB::eventPublication();
+        }
+
+        // add backward link
+        resourceUris.clear(); resourceUris << selectedPart.uri();
+        value.clear(); value << resource.uri();
+        KJob *job2 = Nepomuk::setProperty(resourceUris, backwardLink, value);
+        job2->exec(); //blocking to ensure we udate the resource
 
         setResource(m_publication); // this updates the changes in the current widget again
         subResourceUpdated(m_publication);

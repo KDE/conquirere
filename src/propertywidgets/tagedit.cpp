@@ -17,11 +17,21 @@
 
 #include "tagedit.h"
 
-#include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Tag>
-#include <Nepomuk/Variant>
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
+#include "dms-copy/simpleresourcegraph.h"
+#include "dms-copy/simpleresource.h"
+#include <KDE/KJob>
+#include "sro/nao/tag.h"
+#include "sro/pimo/topic.h"
 
-#include <QtGui/QStandardItemModel>
+#include <Soprano/Vocabulary/NAO>
+#include <Nepomuk/Variant>
+#include <KDE/KDebug>
+
+#include <QtCore/QUrl>
+
+using namespace Soprano::Vocabulary;
 
 TagEdit::TagEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -32,13 +42,11 @@ void TagEdit::setupLabel()
 {
     QString labelText;
 
-    QList<Nepomuk::Tag> tagList = resource().tags();
+    QList<Nepomuk::Resource> tagList = resource().property(propertyUrl()).toResourceList();
 
-    foreach(const Nepomuk::Tag & t, tagList) {
+    foreach(const Nepomuk::Resource & t, tagList) {
         QString prefLabel = t.genericLabel();
         labelText.append(prefLabel);
-        addPropertryEntry(prefLabel, t.resourceUri().toString());
-
         labelText.append(QLatin1String("; "));
     }
 
@@ -49,11 +57,12 @@ void TagEdit::setupLabel()
 
 void TagEdit::updateResource(const QString & text)
 {
-    // remove any tag first and add only what is specified in "text" again
-    resource().removeProperty(Soprano::Vocabulary::NAO::hasTag());
+    QList<QUrl> resourceUris; resourceUris << resource().uri();
+    QList<QUrl> value; value << propertyUrl();
+    KJob *job = Nepomuk::removeProperties(resourceUris, value);
+    job->exec();
 
-    if(text.isEmpty())
-        return;
+    if(text.isEmpty()) { return; }
 
     QStringList entryList;
     if(hasMultipleCardinality()) {
@@ -66,21 +75,43 @@ void TagEdit::updateResource(const QString & text)
         entryList.append(text);
     }
 
+    Nepomuk::SimpleResourceGraph graph;
     foreach(const QString & s, entryList) {
-        // try to find the propertyurl of an already existing contact
-        QUrl propTagUrl = propertyEntry(s.trimmed());
-        if(propTagUrl.isValid()) {
-            Nepomuk::Tag tag = Nepomuk::Tag(propTagUrl);
-            resource().addTag(tag);
+        if( propertyUrl() == NAO::hasTag()) {
+            Nepomuk::SimpleResource tagResource;
+            Nepomuk::NAO::Tag tag (&tagResource);
+
+            tagResource.addProperty( NAO::identifier(), QUrl::fromEncoded(s.toUtf8()) );
+            tag.addPrefLabel( s );
+
+            graph << tagResource;
+        }
+        else if(propertyUrl() == NAO::hasTopic()) {
+
+            Nepomuk::PIMO::Topic topic;
+
+            topic.addProperty( NAO::identifier(), QUrl::fromEncoded(s.toUtf8()) );
+            topic.setTagLabel( s );
+
+            graph << topic;
         }
         else {
-            // create a new contact with the string s as fullname
-            Nepomuk::Tag newTag;
-            //BUG Nepomuk::Tag does not add type Tag but twice type Resource!
-            newTag.addType(Soprano::Vocabulary::NAO::Tag());
-            newTag.setProperty(Soprano::Vocabulary::NAO::prefLabel(), s.trimmed());
-            newTag.setProperty(Soprano::Vocabulary::NAO::identifier(), s.trimmed());
-            resource().addTag(newTag);
+            kWarning() << "unknown tag property set";
         }
     }
+
+    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties), SIGNAL(finished()),this, SLOT(addTags(KJob*)));
+}
+
+void TagEdit::addTags(Nepomuk::StoreResourcesJob *job)
+{
+    // now get all the uris for the new tags
+    QVariantList tagUris;
+    foreach (QUrl uri, job->mappings()) {
+         tagUris << uri;
+    }
+
+    QList<QUrl> resourceUris; resourceUris << resource().uri();
+    // and attach all tags to the current Nepomuk resource
+    Nepomuk::setProperty(resourceUris, propertyUrl(), tagUris);
 }

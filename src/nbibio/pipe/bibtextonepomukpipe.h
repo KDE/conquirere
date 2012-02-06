@@ -115,8 +115,11 @@ private:
                     QUrl issueUrl = Nepomuk::Vocabulary::NBIB::JournalIssue());
     void addSpecialArticle(const Value &titleValue, Nepomuk::NBIB::Publication &article, Nepomuk::SimpleResourceGraph &graph, QUrl collectionUrl = Nepomuk::Vocabulary::NBIB::Encyclopedia());
 
-    void addContent(const QString &key, const Value &value, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph, const QString & originalEntryType);
+    void addContent(const QString &key, const Value &value, Nepomuk::NBIB::Publication &publication,
+                    Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph,
+                    const QString & originalEntryType, const QString & citeKey);
 
+    void addNote(const QString &content, const QString &noteType, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
 
 
     void addAuthor(const Value &content, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph, const QString & originalEntryType);

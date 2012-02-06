@@ -77,8 +77,6 @@ private slots:
 
     void acceptContentChanges();
     void discardContentChanges();
-    void acceptNoteChanges();
-    void discardNoteChanges();
 
     void changeRating(int newRating);
     void editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl);

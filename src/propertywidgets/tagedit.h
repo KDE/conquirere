@@ -20,10 +20,12 @@
 
 #include "propertyedit.h"
 
-class QStandardItemModel;
+namespace Nepomuk {
+class StoreResourcesJob;
+}
 
 /**
-  * @brief simple linedit to add/remove Tags to a resource with qcompleter help
+  * @brief simple linedit to add/remove Tags @c nao:Tag or @c pimo:Topic to a resource
   *
   */
 class TagEdit : public PropertyEdit
@@ -32,14 +34,12 @@ class TagEdit : public PropertyEdit
 public:
     explicit TagEdit(QWidget *parent = 0);
 
+private slots:
+    void addTags(Nepomuk::StoreResourcesJob *job);
+
 protected:
     void setupLabel();
-
-    /**
-      * @bug Nepomuk::Tag does not add type Tag but twice type Resource
-      */
     void updateResource( const QString & text );
-
 };
 
 #endif // TAGEDIT_H

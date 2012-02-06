@@ -55,6 +55,8 @@ public slots:
       */
     void subResourceUpdated();
 
+    void newButtonClicked();
+
 private slots:
     void showPublicationList(Nepomuk::Resource & resource, const QUrl & propertyUrl);
     void showChapterList();
@@ -63,7 +65,6 @@ private slots:
       * enables/disables the widgets if a valid publication is set or not
       */
     void enableReferenceDetails();
-    void newButtonClicked();
     void deleteButtonClicked();
     void changeRating(int newRating);
 

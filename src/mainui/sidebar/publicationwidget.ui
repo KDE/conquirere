@@ -26,231 +26,285 @@
       <attribute name="title">
        <string>Basics</string>
       </attribute>
-      <layout class="QFormLayout" name="formLayout_3">
-       <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::ExpandingFieldsGrow</enum>
-       </property>
-       <property name="horizontalSpacing">
-        <number>-1</number>
-       </property>
-       <property name="verticalSpacing">
-        <number>2</number>
-       </property>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Entry type:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editEntryType</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="KComboBox" name="editEntryType">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="labelTitle">
-         <property name="text">
-          <string>Title:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editTitle</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="StringEdit" name="editTitle"/>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="labelAuthors">
-         <property name="text">
-          <string>Authors:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editAuthors</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="ContactEdit" name="editAuthors"/>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="labelEditors">
-         <property name="text">
-          <string>Editors:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editEditor</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="1">
-        <widget class="ContactEdit" name="editEditor"/>
-       </item>
-       <item row="8" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Assignee:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editAssignee</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="1">
-        <widget class="ContactEdit" name="editAssignee"/>
-       </item>
-       <item row="9" column="0">
-        <widget class="QLabel" name="labelPublicationDate">
-         <property name="text">
-          <string>Publication Date:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editDate</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="1">
-        <widget class="DateEdit" name="editDate"/>
-       </item>
-       <item row="10" column="0">
-        <widget class="QLabel" name="labelFillingDate">
-         <property name="text">
-          <string>Filling Date:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editFilingDate</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="1">
-        <widget class="DateEdit" name="editFilingDate"/>
-       </item>
-       <item row="11" column="0">
-        <widget class="QLabel" name="labelPublisher">
-         <property name="text">
-          <string>Publisher:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editPublisher</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="11" column="1">
-        <widget class="ContactEdit" name="editPublisher"/>
-       </item>
-       <item row="14" column="0">
-        <widget class="QLabel" name="labelOrganization">
-         <property name="text">
-          <string>Organization:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editOrganization</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="14" column="1">
-        <widget class="OrganizationEdit" name="editOrganization"/>
-       </item>
-       <item row="18" column="0">
-        <widget class="QLabel" name="labelFile">
-         <property name="text">
-          <string>File:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editFileObject</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="18" column="1">
-        <widget class="FileObjectEdit" name="editFileObject"/>
-       </item>
-       <item row="20" column="0">
-        <widget class="QLabel" name="labelRemoteFile">
-         <property name="text">
-          <string>Remote File:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editRemoteObject</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="20" column="1">
-        <widget class="FileObjectEdit" name="editRemoteObject"/>
-       </item>
-       <item row="21" column="0">
-        <widget class="QLabel" name="labelWebsite">
-         <property name="text">
-          <string>Website:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editWebObject</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="21" column="1">
-        <widget class="FileObjectEdit" name="editWebObject"/>
-       </item>
-       <item row="22" column="0">
-        <widget class="QLabel" name="labelKeywords">
-         <property name="text">
-          <string>Keywords:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editKeywords</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="22" column="1">
-        <widget class="TagEdit" name="editKeywords"/>
-       </item>
-       <item row="23" column="0">
-        <widget class="QLabel" name="labelRating">
-         <property name="text">
-          <string>Rating:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="23" column="1">
-        <widget class="KRatingWidget" name="editRating"/>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <layout class="QFormLayout" name="formLayout_3">
+         <item row="1" column="1">
+          <widget class="KComboBox" name="editEntryType">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Entry type:</string>
+           </property>
+           <property name="buddy">
+            <cstring>editEntryType</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="StringEdit" name="editTitle"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="labelTitle">
+           <property name="text">
+            <string>Title:</string>
+           </property>
+           <property name="buddy">
+            <cstring>editTitle</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="ContactEdit" name="editAuthors"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="labelAuthors">
+           <property name="text">
+            <string>Authors:</string>
+           </property>
+           <property name="buddy">
+            <cstring>editAuthors</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="ContactEdit" name="editEditor"/>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="labelEditors">
+           <property name="text">
+            <string>Editors:</string>
+           </property>
+           <property name="buddy">
+            <cstring>editEditor</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="ContactEdit" name="editAssignee"/>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Assignee:</string>
+           </property>
+           <property name="buddy">
+            <cstring>editAssignee</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="DateEdit" name="editDate"/>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="labelPublicationDate">
+           <property name="text">
+            <string>Publication Date:</string>
+           </property>
+           <property name="buddy">
+            <cstring>editDate</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="DateEdit" name="editFilingDate"/>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="labelFillingDate">
+           <property name="text">
+            <string>Filling Date:</string>
+           </property>
+           <property name="buddy">
+            <cstring>editFilingDate</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="ContactEdit" name="editPublisher"/>
+         </item>
+         <item row="8" column="0">
+          <widget class="QLabel" name="labelPublisher">
+           <property name="text">
+            <string>Publisher:</string>
+           </property>
+           <property name="buddy">
+            <cstring>editPublisher</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="1">
+          <widget class="OrganizationEdit" name="editOrganization"/>
+         </item>
+         <item row="9" column="0">
+          <widget class="QLabel" name="labelOrganization">
+           <property name="text">
+            <string>Organization:</string>
+           </property>
+           <property name="buddy">
+            <cstring>editOrganization</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="1">
+          <widget class="FileObjectEdit" name="editWebObject"/>
+         </item>
+         <item row="10" column="0">
+          <widget class="QLabel" name="labelWebsite">
+           <property name="text">
+            <string>Website:</string>
+           </property>
+           <property name="buddy">
+            <cstring>editWebObject</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="KListWidget" name="fileListWidget">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>80</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>80</height>
+              </size>
+             </property>
+             <property name="showDropIndicator" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_4">
+             <property name="spacing">
+              <number>-1</number>
+             </property>
+             <item>
+              <widget class="QPushButton" name="fileAdd">
+               <property name="maximumSize">
+                <size>
+                 <width>22</width>
+                 <height>22</height>
+                </size>
+               </property>
+               <property name="text">
+                <string notr="true"/>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>22</width>
+                 <height>22</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="fileEdit">
+               <property name="minimumSize">
+                <size>
+                 <width>22</width>
+                 <height>22</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>22</width>
+                 <height>22</height>
+                </size>
+               </property>
+               <property name="text">
+                <string notr="true"/>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>22</width>
+                 <height>22</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="fileRemove">
+               <property name="maximumSize">
+                <size>
+                 <width>22</width>
+                 <height>22</height>
+                </size>
+               </property>
+               <property name="text">
+                <string notr="true"/>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>22</width>
+                 <height>22</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item row="11" column="0">
+          <widget class="QLabel" name="label_24">
+           <property name="text">
+            <string>Files:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="1">
+          <widget class="TagEdit" name="editTopics"/>
+         </item>
+         <item row="12" column="0">
+          <widget class="QLabel" name="labelKeywords">
+           <property name="text">
+            <string>Topics:</string>
+           </property>
+           <property name="buddy">
+            <cstring>editTopics</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="13" column="1">
+          <widget class="TagEdit" name="editTags"/>
+         </item>
+         <item row="13" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Tags:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="14" column="1">
+          <widget class="KRatingWidget" name="editRating"/>
+         </item>
+         <item row="14" column="0">
+          <widget class="QLabel" name="labelRating">
+           <property name="text">
+            <string>Rating:</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
-      <zorder>label_2</zorder>
-      <zorder>editEntryType</zorder>
-      <zorder>labelTitle</zorder>
-      <zorder>editTitle</zorder>
-      <zorder>labelAuthors</zorder>
-      <zorder>editAuthors</zorder>
-      <zorder>labelEditors</zorder>
-      <zorder>editEditor</zorder>
-      <zorder>labelPublicationDate</zorder>
-      <zorder>editDate</zorder>
-      <zorder>labelPublisher</zorder>
-      <zorder>editPublisher</zorder>
-      <zorder>labelOrganization</zorder>
-      <zorder>editOrganization</zorder>
-      <zorder>labelFile</zorder>
-      <zorder>editFileObject</zorder>
-      <zorder>labelRemoteFile</zorder>
-      <zorder>editRemoteObject</zorder>
-      <zorder>labelWebsite</zorder>
-      <zorder>editWebObject</zorder>
-      <zorder>labelKeywords</zorder>
-      <zorder>editKeywords</zorder>
-      <zorder>labelRating</zorder>
-      <zorder>editRating</zorder>
-      <zorder>editFilingDate</zorder>
-      <zorder>labelFillingDate</zorder>
-      <zorder>editAssignee</zorder>
-      <zorder>label_3</zorder>
      </widget>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -807,9 +861,6 @@
        <item>
         <widget class="ListPartsWidget" name="listPartsWidget" native="true"/>
        </item>
-       <item>
-        <widget class="ListCitedSources" name="editCitedSources" native="true"/>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_4">
@@ -818,27 +869,13 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Note:</string>
-         </property>
-         <property name="buddy">
-          <cstring>editNote</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPlainTextEdit" name="editNote"/>
-       </item>
-       <item>
-        <widget class="QDialogButtonBox" name="noteButtonBox">
-         <property name="standardButtons">
-          <set>QDialogButtonBox::Discard|QDialogButtonBox::Save</set>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QLabel" name="label_15">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Annotation:</string>
          </property>
@@ -846,6 +883,9 @@
        </item>
        <item>
         <widget class="ListAnnotationsWidget" name="editAnnot" native="true"/>
+       </item>
+       <item>
+        <widget class="ListCitedSources" name="editCitedSources" native="true"/>
        </item>
       </layout>
      </widget>
@@ -873,6 +913,16 @@
    <header>kcombobox.h</header>
   </customwidget>
   <customwidget>
+   <class>KLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>klineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KListWidget</class>
+   <extends>QListWidget</extends>
+   <header>klistwidget.h</header>
+  </customwidget>
+  <customwidget>
    <class>KRatingWidget</class>
    <extends>QFrame</extends>
    <header>kratingwidget.h</header>
@@ -893,13 +943,28 @@
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>ListAnnotationsWidget</class>
+   <extends>QWidget</extends>
+   <header>sidebar/listannotationswidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>ContactEdit</class>
-   <extends>QLineEdit</extends>
+   <extends>KLineEdit</extends>
    <header>propertywidgets/contactedit.h</header>
    <slots>
     <signal>widgetEnabled(bool)</signal>
     <signal>widgetShown(bool)</signal>
     <signal>widgetHidden(bool)</signal>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>TagEdit</class>
+   <extends>QLineEdit</extends>
+   <header>propertywidgets/tagedit.h</header>
+   <slots>
+    <signal>widgetEnabled(bool)</signal>
+    <signal>widgetShown(bool)</signal>
    </slots>
   </customwidget>
   <customwidget>
@@ -942,15 +1007,6 @@
    <header>propertywidgets/issnedit.h</header>
   </customwidget>
   <customwidget>
-   <class>TagEdit</class>
-   <extends>QLineEdit</extends>
-   <header>propertywidgets/tagedit.h</header>
-   <slots>
-    <signal>widgetEnabled(bool)</signal>
-    <signal>widgetShown(bool)</signal>
-   </slots>
-  </customwidget>
-  <customwidget>
    <class>DateEdit</class>
    <extends>QLineEdit</extends>
    <header>propertywidgets/dateedit.h</header>
@@ -976,12 +1032,6 @@
    <class>CodeOfLawEdit</class>
    <extends>QLineEdit</extends>
    <header>propertywidgets/codeoflawedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ListAnnotationsWidget</class>
-   <extends>QWidget</extends>
-   <header>sidebar/listannotationswidget.h</header>
-   <container>1</container>
   </customwidget>
   <customwidget>
    <class>ListCitedSources</class>
@@ -1021,38 +1071,6 @@
     <hint type="destinationlabel">
      <x>284</x>
      <y>513</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>noteButtonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>PublicationWidget</receiver>
-   <slot>acceptNoteChanges()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>103</x>
-     <y>505</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>256</x>
-     <y>523</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>noteButtonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>PublicationWidget</receiver>
-   <slot>discardNoteChanges()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>103</x>
-     <y>505</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>425</x>
-     <y>428</y>
     </hint>
    </hints>
   </connection>
@@ -1185,38 +1203,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>editFileObject</sender>
-   <signal>widgetShown(bool)</signal>
-   <receiver>labelFile</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>356</x>
-     <y>321</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>125</x>
-     <y>321</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>editRemoteObject</sender>
-   <signal>widgetShown(bool)</signal>
-   <receiver>labelRemoteFile</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>325</x>
-     <y>350</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>125</x>
-     <y>350</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>editWebObject</sender>
    <signal>widgetShown(bool)</signal>
    <receiver>labelWebsite</receiver>
@@ -1233,7 +1219,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>editKeywords</sender>
+   <sender>editTopics</sender>
    <signal>widgetShown(bool)</signal>
    <receiver>labelKeywords</receiver>
    <slot>setVisible(bool)</slot>
