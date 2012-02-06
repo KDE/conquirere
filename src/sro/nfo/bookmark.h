@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 namespace Nepomuk {
 namespace NFO {
@@ -99,35 +99,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterPosition. 
-     * Character position of the bookmark. 
-     */
-    qint64 characterPosition() const {
-        qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterPosition", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterPosition", QUrl::StrictMode)).first().value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterPosition. 
-     * Character position of the bookmark. 
-     */
-    void setCharacterPosition(const qint64& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterPosition", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterPosition. 
-     * Character position of the bookmark. 
-     */
-    void addCharacterPosition(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterPosition", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels. 
      * Number of side channels 
      */
@@ -154,6 +125,64 @@ public:
      */
     void addSideChannels(const qint64& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#bookmarks. 
+     * The address of the linked object. Usually a web URI. 
+     */
+    QUrl bookmarks() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#bookmarks", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#bookmarks", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#bookmarks. 
+     * The address of the linked object. Usually a web URI. 
+     */
+    void setBookmarks(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#bookmarks", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#bookmarks. 
+     * The address of the linked object. Usually a web URI. 
+     */
+    void addBookmarks(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#bookmarks", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterPosition. 
+     * Character position of the bookmark. 
+     */
+    qint64 characterPosition() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterPosition", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterPosition", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterPosition. 
+     * Character position of the bookmark. 
+     */
+    void setCharacterPosition(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterPosition", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterPosition. 
+     * Character position of the bookmark. 
+     */
+    void addCharacterPosition(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterPosition", QUrl::StrictMode), value);
     }
 
     /**
@@ -241,35 +270,6 @@ public:
      */
     void addLfeChannels(const qint64& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#bookmarks. 
-     * The address of the linked object. Usually a web URI. 
-     */
-    QUrl bookmarks() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#bookmarks", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#bookmarks", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#bookmarks. 
-     * The address of the linked object. Usually a web URI. 
-     */
-    void setBookmarks(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#bookmarks", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#bookmarks. 
-     * The address of the linked object. Usually a web URI. 
-     */
-    void addBookmarks(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#bookmarks", QUrl::StrictMode), value);
     }
 
 protected:

@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 namespace Nepomuk {
 namespace NFO {
@@ -64,32 +64,32 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fontFamily. 
-     * The name of the font family. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#foundry. 
+     * The foundry, the organization that created the font. 
      */
-    QString fontFamily() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fontFamily", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fontFamily", QUrl::StrictMode)).first().value<QString>();
+    QUrl foundry() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#foundry", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#foundry", QUrl::StrictMode)).first().value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fontFamily. 
-     * The name of the font family. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#foundry. 
+     * The foundry, the organization that created the font. 
      */
-    void setFontFamily(const QString& value) {
+    void setFoundry(const QUrl& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fontFamily", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#foundry", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fontFamily. 
-     * The name of the font family. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#foundry. 
+     * The foundry, the organization that created the font. 
      */
-    void addFontFamily(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fontFamily", QUrl::StrictMode), value);
+    void addFoundry(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#foundry", QUrl::StrictMode), value);
     }
 
     /**
@@ -122,6 +122,35 @@ public:
     }
 
     /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fontFamily. 
+     * The name of the font family. 
+     */
+    QString fontFamily() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fontFamily", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fontFamily", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fontFamily. 
+     * The name of the font family. 
+     */
+    void setFontFamily(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fontFamily", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fontFamily. 
+     * The name of the font family. 
+     */
+    void addFontFamily(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fontFamily", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels. 
      * Number of side channels 
      */
@@ -148,35 +177,6 @@ public:
      */
     void addSideChannels(const qint64& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#foundry. 
-     * The foundry, the organization that created the font. 
-     */
-    QUrl foundry() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#foundry", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#foundry", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#foundry. 
-     * The foundry, the organization that created the font. 
-     */
-    void setFoundry(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#foundry", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#foundry. 
-     * The foundry, the organization that created the font. 
-     */
-    void addFoundry(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#foundry", QUrl::StrictMode), value);
     }
 
     /**

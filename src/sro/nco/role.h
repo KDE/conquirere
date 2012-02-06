@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 namespace Nepomuk {
 namespace NCO {
@@ -72,41 +72,39 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#end. 
-     * End datetime for the role, such as: the datetime of leaving a 
-     * project or organization, datetime of ending employment, datetime 
-     * of divorce. If absent or set to a date in the future, the role is 
-     * currently active. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasEmailAddress. 
+     * An address for electronic mail communication with the object 
+     * specified by this contact. An equivalent of the 'EMAIL' property 
+     * as defined in RFC 2426 Sec. 3.3.1. 
      */
-    QDateTime end() const {
-        QDateTime value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#end", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#end", QUrl::StrictMode)).first().value<QDateTime>();
+    QList<QUrl> emailAddresses() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasEmailAddress", QUrl::StrictMode)))
+            value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#end. 
-     * End datetime for the role, such as: the datetime of leaving a 
-     * project or organization, datetime of ending employment, datetime 
-     * of divorce. If absent or set to a date in the future, the role is 
-     * currently active. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasEmailAddress. 
+     * An address for electronic mail communication with the object 
+     * specified by this contact. An equivalent of the 'EMAIL' property 
+     * as defined in RFC 2426 Sec. 3.3.1. 
      */
-    void setEnd(const QDateTime& value) {
+    void setEmailAddresses(const QList<QUrl>& value) {
         QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#end", QUrl::StrictMode), values);
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasEmailAddress", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#end. 
-     * End datetime for the role, such as: the datetime of leaving a 
-     * project or organization, datetime of ending employment, datetime 
-     * of divorce. If absent or set to a date in the future, the role is 
-     * currently active. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasEmailAddress. 
+     * An address for electronic mail communication with the object 
+     * specified by this contact. An equivalent of the 'EMAIL' property 
+     * as defined in RFC 2426 Sec. 3.3.1. 
      */
-    void addEnd(const QDateTime& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#end", QUrl::StrictMode), value);
+    void addEmailAddress(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasEmailAddress", QUrl::StrictMode), value);
     }
 
     /**
@@ -274,6 +272,44 @@ public:
     }
 
     /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#end. 
+     * End datetime for the role, such as: the datetime of leaving a 
+     * project or organization, datetime of ending employment, datetime 
+     * of divorce. If absent or set to a date in the future, the role is 
+     * currently active. 
+     */
+    QDateTime end() const {
+        QDateTime value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#end", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#end", QUrl::StrictMode)).first().value<QDateTime>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#end. 
+     * End datetime for the role, such as: the datetime of leaving a 
+     * project or organization, datetime of ending employment, datetime 
+     * of divorce. If absent or set to a date in the future, the role is 
+     * currently active. 
+     */
+    void setEnd(const QDateTime& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#end", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#end. 
+     * End datetime for the role, such as: the datetime of leaving a 
+     * project or organization, datetime of ending employment, datetime 
+     * of divorce. If absent or set to a date in the future, the role is 
+     * currently active. 
+     */
+    void addEnd(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#end", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#url. 
      * A uniform resource locator associated with the given role of 
      * a Contact. Inspired by the 'URL' property defined in RFC 2426 
@@ -370,42 +406,6 @@ public:
      */
     void addContactMedium(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasContactMedium", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasEmailAddress. 
-     * An address for electronic mail communication with the object 
-     * specified by this contact. An equivalent of the 'EMAIL' property 
-     * as defined in RFC 2426 Sec. 3.3.1. 
-     */
-    QList<QUrl> emailAddresses() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasEmailAddress", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasEmailAddress. 
-     * An address for electronic mail communication with the object 
-     * specified by this contact. An equivalent of the 'EMAIL' property 
-     * as defined in RFC 2426 Sec. 3.3.1. 
-     */
-    void setEmailAddresses(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasEmailAddress", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasEmailAddress. 
-     * An address for electronic mail communication with the object 
-     * specified by this contact. An equivalent of the 'EMAIL' property 
-     * as defined in RFC 2426 Sec. 3.3.1. 
-     */
-    void addEmailAddress(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasEmailAddress", QUrl::StrictMode), value);
     }
 
 protected:

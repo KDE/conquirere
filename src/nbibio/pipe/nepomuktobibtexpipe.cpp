@@ -285,7 +285,7 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
     setValue(e, publication, NBIB::number(), Entry::ftNumber);
     setValue(e, publication, NIE::copyright(), QLatin1String("copyright"));
     setValue(e, publication, NBIB::publicationMethod(), QLatin1String("howpublished"));
-    setValue(e, publication, NBIB::type(), QLatin1String("type"));
+    setValue(e, publication, NBIB::publicationType(), QLatin1String("type"));
     setValue(e, publication, NUAO::lastUsage(), QLatin1String("accessdate"));
     setValue(e, publication, NBIB::publicationDate(), QLatin1String("date"));
     setValue(e, publication, NBIB::eprint(), QLatin1String("eprint"));

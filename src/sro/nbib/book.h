@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 #include "nbib/publication.h"
 
@@ -32,35 +32,6 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.example.com/nbib#Book", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#edition. The 
-     * edition of a book, long form (such as 'first' or 'second'). 
-     */
-    QString edition() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#edition", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#edition", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#edition. The 
-     * edition of a book, long form (such as 'first' or 'second'). 
-     */
-    void setEdition(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#edition", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#edition. 
-     * The edition of a book, long form (such as 'first' or 'second'). 
-     */
-    void addEdition(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#edition", QUrl::StrictMode), value);
     }
 
 protected:

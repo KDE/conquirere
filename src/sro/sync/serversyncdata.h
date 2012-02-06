@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 namespace Nepomuk {
 namespace SYNC {
@@ -65,7 +65,8 @@ public:
 
     /**
      * Get property http://www.example.com/sync#syncDataType. 
-     * Saves which SyncDataType enum value we this resource represents 
+     * Saves which SyncDataType enum value this resource represents 
+     * (Note, Attachment, BibResource) 
      */
     QUrl syncDataType() const {
         QUrl value;
@@ -76,7 +77,8 @@ public:
 
     /**
      * Set property http://www.example.com/sync#syncDataType. 
-     * Saves which SyncDataType enum value we this resource represents 
+     * Saves which SyncDataType enum value this resource represents 
+     * (Note, Attachment, BibResource) 
      */
     void setSyncDataType(const QUrl& value) {
         QVariantList values;
@@ -86,7 +88,8 @@ public:
 
     /**
      * Add value to property http://www.example.com/sync#syncDataType. 
-     * Saves which SyncDataType enum value we this resource represents 
+     * Saves which SyncDataType enum value this resource represents 
+     * (Note, Attachment, BibResource) 
      */
     void addSyncDataType(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.example.com/sync#syncDataType", QUrl::StrictMode), value);

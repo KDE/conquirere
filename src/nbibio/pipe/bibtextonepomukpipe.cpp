@@ -22,6 +22,45 @@
 #include <kbibtex/entry.h>
 #include <kbibtex/macro.h>
 
+
+#include "dms-copy/simpleresource.h"
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
+#include <KJob>
+
+
+#include "sro/nbib/series.h"
+#include "sro/nbib/collection.h"
+#include "sro/nbib/documentpart.h"
+#include "sro/nbib/chapter.h"
+#include "sro/nbib/article.h"
+#include "sro/nbib/proceedings.h"
+#include "sro/nbib/codeoflaw.h"
+#include "sro/nbib/legislation.h"
+#include "sro/nbib/courtreporter.h"
+#include "sro/nbib/legalcasedocument.h"
+
+
+#include "sro/sync/serversyncdata.h"
+#include "sro/pimo/note.h"
+#include "sro/pimo/topic.h"
+#include "sro/pimo/event.h"
+#include "sro/nie/informationelement.h"
+#include "sro/nao/tag.h"
+#include "sro/nfo/filedataobject.h"
+#include "sro/nfo/website.h"
+#include "sro/nco/postaladdress.h"
+#include "sro/nco/personcontact.h"
+#include "sro/nco/contact.h"
+#include "sro/nco/organizationcontact.h"
+#include "sro/aneo/akonadidataobject.h"
+
+#include <Soprano/Vocabulary/RDF>
+
+
+
+
+
 #include "nbib.h"
 #include "sync.h"
 #include <Nepomuk/Vocabulary/PIMO>
@@ -32,16 +71,9 @@
 #include <Nepomuk/Vocabulary/NUAO>
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Variant>
-#include <Nepomuk/Tag>
 
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/Result>
-#include <Nepomuk/Query/Term>
-#include <Nepomuk/Query/LiteralTerm>
-#include <Nepomuk/Query/ResourceTerm>
-#include <Nepomuk/Query/ResourceTypeTerm>
-#include <Nepomuk/Query/ComparisonTerm>
-#include <Nepomuk/Query/AndTerm>
 
 #include <Akonadi/Item>
 #include <KABC/Addressee>
@@ -54,6 +86,7 @@
 
 #include <QtCore/QSharedPointer>
 #include <QtGui/QTextDocument>
+#include <QtCore/QUuid>
 
 using namespace Nepomuk::Vocabulary;
 using namespace Soprano::Vocabulary;
@@ -61,47 +94,6 @@ using namespace Soprano::Vocabulary;
 BibTexToNepomukPipe::BibTexToNepomukPipe()
 : m_replaceMode(false)
 {
-    // we start by fetching all contacts etc for the conflict checking
-    // this reduce the need to query nepomuk with every new author again and again
-    Nepomuk::Query::ResourceTypeTerm type( NCO::Contact() );
-    Nepomuk::Query::Query query( type );
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
-    foreach(const Nepomuk::Query::Result & nqr, queryResult) {
-        QString fullname = nqr.resource().property(NCO::fullname()).toString();
-        m_allContacts.insert(fullname, nqr.resource());
-    }
-
-    Nepomuk::Query::ResourceTypeTerm typeP( NBIB::Proceedings() );
-    Nepomuk::Query::Query queryP( typeP );
-    QList<Nepomuk::Query::Result> queryResultP = Nepomuk::Query::QueryServiceClient::syncQuery(queryP);
-    foreach(const Nepomuk::Query::Result & nqr, queryResultP) {
-        QString title = nqr.resource().property(NIE::title()).toString();
-        m_allProceedings.insert(QString(title.toUtf8()), nqr.resource());
-    }
-
-    Nepomuk::Query::ResourceTypeTerm typeE( PIMO::Event() );
-    Nepomuk::Query::Query queryE( typeE );
-    QList<Nepomuk::Query::Result> queryResultE = Nepomuk::Query::QueryServiceClient::syncQuery(queryE);
-    foreach(const Nepomuk::Query::Result & nqr, queryResultE) {
-        QString title = nqr.resource().property(NIE::title()).toString();
-        m_allPimoEvents.insert(QString(title.toUtf8()), nqr.resource());
-    }
-
-    Nepomuk::Query::ResourceTypeTerm typeS( NBIB::Series() );
-    Nepomuk::Query::Query queryS( typeS );
-    QList<Nepomuk::Query::Result> queryResultS = Nepomuk::Query::QueryServiceClient::syncQuery(queryS);
-    foreach(const Nepomuk::Query::Result & nqr, queryResultS) {
-        QString title = nqr.resource().property(NIE::title()).toString();
-        m_allSeries.insert(QString(title.toUtf8()), nqr.resource());
-    }
-
-    Nepomuk::Query::ResourceTypeTerm typeC( NBIB::Collection() );
-    Nepomuk::Query::Query queryC( typeC );
-    QList<Nepomuk::Query::Result> queryResultC = Nepomuk::Query::QueryServiceClient::syncQuery(queryC);
-    foreach(const Nepomuk::Query::Result & nqr, queryResultC) {
-        QString title = nqr.resource().property(NIE::title()).toString();
-        m_allCollection.insert(QString(title.toUtf8()), nqr.resource());
-    }
 }
 
 BibTexToNepomukPipe::~BibTexToNepomukPipe()
@@ -117,6 +109,7 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
 
     int maxValue = bibEntries.size();
     qreal perFileProgress = (100.0/(qreal)maxValue);
+    qreal currentprogress = 0.0;
 
     // we start by filling the lookuptable for all macros
     // in BibTeX files macros are used to create abbreviations for some fields that can be used all over again
@@ -127,24 +120,40 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
         }
     }
 
-    int i = 0;
+    // now do the actual import
     foreach(QSharedPointer<Element> e, bibEntries ) {
         Entry *entry = dynamic_cast<Entry *>(e.data());
 
-        if(entry) {
-            if(entry->contains(Entry::ftCrossRef)) {
-                Entry *entry2 = Entry::resolveCrossref(*entry, &bibEntries);
-                import(entry2);
-            }
-            else {
-                import(entry);
-            }
+        if(!entry) { continue; }
+
+        Nepomuk::SimpleResourceGraph graph;
+
+        // the crossref part means we fetch bibtex entries from other bibtex entries
+        // so the title is only added to one and related to all others via the crossref
+        if(entry->contains(Entry::ftCrossRef)) {
+            entry = Entry::resolveCrossref(*entry, &bibEntries);
         }
-        i++;
+        // thats a special case. Zotero allows to store bibtex entries of type note
+        // this is not the usual publication/reference but will be created as pimo:Note instead
+        if( entry->type() == QLatin1String("note") ) {
+            importNote(entry, graph);
+        }
+        else if( entry->type() == QLatin1String("attachment") ) {
+            importAttachment(entry, graph);
+        }
+        else {
+            importBibResource(entry, graph);
+        }
 
-        int p = i * perFileProgress;
+        // start the job
+        Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph,Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties);
+//        connect(Nepomuk::storeResources(graph), SIGNAL(result(KJob*)), this, SLOT(slotSaveToNepomukDone(KJob*)));
+        connect(srj, SIGNAL(result(KJob*)), this, SLOT(slotSaveToNepomukDone(KJob*)));
+        srj->exec();
 
-        emit progress(p);
+        currentprogress += perFileProgress;
+
+        emit progress(currentprogress);
     }
 
     emit progress(100);
@@ -152,8 +161,9 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
 
 void BibTexToNepomukPipe::setAkonadiAddressbook(Akonadi::Collection & addressbook)
 {
-    if(addressbook.isValid())
+    if(addressbook.isValid()) {
         m_addressbook = addressbook;
+    }
 }
 
 void BibTexToNepomukPipe::setSyncDetails(const QString &url, const QString &userid)
@@ -168,75 +178,58 @@ void BibTexToNepomukPipe::setProjectPimoThing(Nepomuk::Thing projectThing)
     m_projectThing = projectThing;
 }
 
-void BibTexToNepomukPipe::import(Entry *e)
+void BibTexToNepomukPipe::importBibResource(Entry *entry, Nepomuk::SimpleResourceGraph &graph)
 {
-    // conference is just another form of inproceedings...
-    if(e->type() == QLatin1String("conference")) {
-        e->setType(QLatin1String("inproceedings"));
-    }
+    Nepomuk::NBIB::Publication publication;
+    addPublicationSubTypes(publication, entry);
 
-    // thats a special case. Zotero allows to store bibtex entries of type note
-    // this is not the usual publication/reference but will be created as pimo:Note instead
-    if( e->type() == QLatin1String("note") ) {
-        createNoteContent(e);
-        return;
-    }
+    Nepomuk::NBIB::Reference reference;
+    reference.setCiteKey( entry->id() );
+    reference.addProperty( NAO::prefLabel(), entry->id()); // adds no real value, but looks nicer in the Nepomuk shell
 
-    //special case attachment
-    if( e->type() == QLatin1String("attachment") ) {
-        createAttachmentContent(e);
-        return;
-    }
+    reference.setProperty( NBIB::publication(), publication);
+    publication.setProperty( NBIB::reference(), reference);
 
-    //do not check duplicates, just add new resources to the system storage
-    QUrl typeUrl = typeToUrl(e->type().toLower());
-    Nepomuk::Resource publication = Nepomuk::Resource(QUrl(), typeUrl);
+    publication.addProperty(NAO::hasSubResource(), reference.uri() ); // remove reference when publication is deleted
 
-    Nepomuk::Resource reference = Nepomuk::Resource(QUrl(), NBIB::Reference());
-    reference.setProperty(NBIB::citeKey(), e->id());
-    reference.setLabel(e->id()); // adds no real value, but looks nicer in the Nepomuk shell
-    reference.setProperty(NBIB::publication(), publication);
-    publication.addProperty(NBIB::reference(), reference);
-
-    // add zotero sync details / this only adds new information
-    // if we updated the details, we need to change that differently
-    if(e->contains(QLatin1String("zoterokey"))) {
-        addZoteroSyncDetails(publication,reference,e);
+    // add zotero sync details
+    if(entry->contains(QLatin1String("zoterokey"))) {
+        addZoteroSyncDetails(publication,reference,entry, graph);
     }
 
     //before we go through the whole list one by one, we take care of some special cases
 
     // I. publisher/school/institution + address
     //    means address belongs to publisher
-    if(e->contains(QLatin1String("address"))) {
+    if(entry->contains(QLatin1String("address"))) {
         Value publisher;
-        if(e->contains(QLatin1String("publisher"))) {
-            publisher = e->value(QLatin1String("publisher"));
-            e->remove(QLatin1String("publisher"));
+        if(entry->contains(QLatin1String("publisher"))) {
+            publisher = entry->value(QLatin1String("publisher"));
+            entry->remove(QLatin1String("publisher"));
         }
-        else if(e->contains(QLatin1String("school"))) {
-            publisher = e->value(QLatin1String("school"));
-            e->remove(QLatin1String("school"));
+        else if(entry->contains(QLatin1String("school"))) {
+            publisher = entry->value(QLatin1String("school"));
+            entry->remove(QLatin1String("school"));
         }
-        else if(e->contains(QLatin1String("institution"))) {
-            publisher = e->value(QLatin1String("institution"));
-            e->remove(QLatin1String("institution"));
+        else if(entry->contains(QLatin1String("institution"))) {
+            publisher = entry->value(QLatin1String("institution"));
+            entry->remove(QLatin1String("institution"));
         }
 
         if(!publisher.isEmpty()) {
-            addPublisher(publisher, e->value(QLatin1String("address")),  publication);
-            e->remove(QLatin1String("address"));
+            addPublisher(publisher, entry->value(QLatin1String("address")), publication, graph);
+            entry->remove(QLatin1String("address"));
         }
     }
 
-    // II. a) encyclopediaarticle / blogpost / forumpost / webpage
-    // as retrieved from zotero mostly
-    if(e->contains(QLatin1String("articletype"))) {
+    // II. encyclopediaarticle / blogpost / forumpost / webpage / other article type that must be in a collection
+    //     as retrieved from zotero mostly
+    if(entry->contains(QLatin1String("articletype"))) {
         QUrl seriesURL;
         QUrl collectionURL;
         Value emptyCollectionName;
 
-        QString type = PlainTextValue::text(e->value(QLatin1String("articletype")));
+        QString type = PlainTextValue::text(entry->value(QLatin1String("articletype")));
         if(type == QLatin1String("encyclopedia")) {
             collectionURL = NBIB::Encyclopedia();
             emptyCollectionName.append(QSharedPointer<ValueItem>(new PlainText(i18n("unknown encyclopedia"))));
@@ -272,56 +265,53 @@ void BibTexToNepomukPipe::import(Entry *e)
             emptyCollectionName.append(QSharedPointer<ValueItem>(new PlainText(i18n("unknown journal"))));
         }
 
+        // special series case, article in collection(Issue), in a series
         if(seriesURL.isValid()) {
-            QString journalName = PlainTextValue::text(e->value(QLatin1String("journal")));
-            if(journalName.isEmpty()) {
-                addJournal(emptyCollectionName,
-                           e->value(QLatin1String("volume")),
-                           e->value(QLatin1String("number")),
-                           publication, seriesURL, collectionURL);
-            }
-            else {
-                addJournal(e->value(QLatin1String("journal")),
-                           e->value(QLatin1String("volume")),
-                           e->value(QLatin1String("number")),
-                           publication, seriesURL, collectionURL);
+            Value journalName = entry->value(QLatin1String("journal"));
+            if(PlainTextValue::text(journalName).isEmpty()) {
+                journalName = emptyCollectionName;
             }
 
-            e->remove(QLatin1String("journal"));
-            e->remove(QLatin1String("number"));
-            e->remove(QLatin1String("volume"));
-            e->remove(QLatin1String("articletype"));
+            addJournal(entry->value(QLatin1String("journal")),
+                       entry->value(QLatin1String("volume")),
+                       entry->value(QLatin1String("number")),
+                       publication, graph, seriesURL, collectionURL);
+
+            entry->remove(QLatin1String("journal"));
+            entry->remove(QLatin1String("number"));
+            entry->remove(QLatin1String("volume"));
+            entry->remove(QLatin1String("articletype"));
         }
+        // other types like article in a blogpost, or encyclopedia
         else if(collectionURL.isValid()) {
             Value titleValue;
-            if(e->contains(QLatin1String("booktitle"))) {
-                titleValue = e->value(QLatin1String("booktitle"));
+            if(entry->contains(QLatin1String("booktitle"))) {
+                titleValue = entry->value(QLatin1String("booktitle"));
             }
-            else if(e->contains(QLatin1String("journal"))) {
-                titleValue = e->value(QLatin1String("journal"));
+            else if(entry->contains(QLatin1String("journal"))) {
+                titleValue = entry->value(QLatin1String("journal"));
             }
 
             if(titleValue.isEmpty() ) {
-                addSpecialArticle(emptyCollectionName,publication, collectionURL);
+                addSpecialArticle(emptyCollectionName,publication, graph, collectionURL);
             }
             else {
-                addSpecialArticle(titleValue,publication, collectionURL);
+                addSpecialArticle(titleValue,publication, graph, collectionURL);
             }
 
-
-            e->remove(QLatin1String("journal"));
-            e->remove(QLatin1String("booktitle"));
-            e->remove(QLatin1String("articletype"));
+            entry->remove(QLatin1String("journal"));
+            entry->remove(QLatin1String("booktitle"));
+            entry->remove(QLatin1String("articletype"));
         }
     }
 
-    // II b). journal + number + volume + zotero articletype
-    // as defined in any usual bibtex file
-    if(e->contains(QLatin1String("journal"))) {
+    // III. journal + number + volume + zotero articletype
+    //      as defined in any usual bibtex file
+    if(entry->contains(QLatin1String("journal"))) {
         QUrl seriesURL;
         QUrl issueURL;
 
-        QString type = PlainTextValue::text(e->value(QLatin1String("articletype")));
+        QString type = PlainTextValue::text(entry->value(QLatin1String("articletype")));
         if(type == QLatin1String("magazine")) {
             seriesURL = NBIB::Magazin();
             issueURL = NBIB::MagazinIssue();
@@ -335,74 +325,95 @@ void BibTexToNepomukPipe::import(Entry *e)
             issueURL = NBIB::JournalIssue();
         }
 
-        addJournal(e->value(QLatin1String("journal")),
-                   e->value(QLatin1String("volume")),
-                   e->value(QLatin1String("number")),
-                   publication, seriesURL, issueURL);
+        addJournal(entry->value(QLatin1String("journal")),
+                   entry->value(QLatin1String("volume")),
+                   entry->value(QLatin1String("number")),
+                   publication, graph, seriesURL, issueURL);
 
-        e->remove(QLatin1String("journal"));
-        e->remove(QLatin1String("number"));
-        e->remove(QLatin1String("volume"));
-        e->remove(QLatin1String("articletype"));
+        entry->remove(QLatin1String("journal"));
+        entry->remove(QLatin1String("number"));
+        entry->remove(QLatin1String("volume"));
+        entry->remove(QLatin1String("articletype"));
     }
 
-    // III. archivePrefix + eprint
+    // IV. archivePrefix + eprint
     //TODO implement archivePrefix stuff
 
-    //now go through the list of all remaining entries
-    QMapIterator<QString, Value> i(*e);
-    while (i.hasNext()) {
-        i.next();
-        addContent(i.key().toLower(), i.value(), publication, reference, e->type());
+    // V. publication date
+    if(entry->contains(QLatin1String("date"))) {
+        addPublicationDate( PlainTextValue::text(entry->value(QLatin1String("date"))), publication );
+        entry->remove(QLatin1String("date"));
+        entry->remove(QLatin1String("year"));
+        entry->remove(QLatin1String("month"));
+        entry->remove(QLatin1String("day"));
+
+    }
+    else if(entry->contains(QLatin1String("year")) || entry->contains(QLatin1String("month"))) {
+        addPublicationDate( PlainTextValue::text(entry->value(QLatin1String("year"))),
+                            PlainTextValue::text(entry->value(QLatin1String("month"))),
+                            PlainTextValue::text(entry->value(QLatin1String("day"))),
+                            publication );
+
+        entry->remove(QLatin1String("date"));
+        entry->remove(QLatin1String("year"));
+        entry->remove(QLatin1String("month"));
+        entry->remove(QLatin1String("day"));
     }
 
-    if(publication.hasType(NBIB::Collection()) ) {
-        m_allProceedings.insert(publication.property(NIE::title()).toString(), publication);
+    //now go through the list of all remaining entries
+    QMapIterator<QString, Value> i(*entry);
+    while (i.hasNext()) {
+        i.next();
+        addContent(i.key().toLower(), i.value(), publication, reference, graph, entry->type());
     }
 
     if(m_projectThing.isValid()) {
-        publication.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
-        reference.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
+        publication.addProperty( NAO::isRelated(), m_projectThing.uri());
+        reference.addProperty( NAO::isRelated(), m_projectThing.uri());
     }
+
+    graph << publication << reference;
 }
 
 
-void BibTexToNepomukPipe::createNoteContent(Entry *e)
+void BibTexToNepomukPipe::importNote(Entry *e, Nepomuk::SimpleResourceGraph &graph)
 {
-    // create new pimo:Note
-    Nepomuk::Resource note = Nepomuk::Resource();
-    note.addType(PIMO::Note());
+    Nepomuk::PIMO::Note note;
+    note.addType(NIE::InformationElement());
 
-    note.setProperty(NAO::prefLabel(), PlainTextValue::text(e->value(QLatin1String("zoterotitle"))) );
-    note.setProperty(NIE::title(), PlainTextValue::text(e->value(QLatin1String("zoterotitle"))) );
+    note.setProperty( NAO::prefLabel(), PlainTextValue::text(e->value(QLatin1String("zoterotitle"))) );
+    note.setProperty( NIE::title(), PlainTextValue::text(e->value(QLatin1String("zoterotitle"))) );
 
     QTextDocument content;
     content.setHtml( PlainTextValue::text(e->value(QLatin1String("note"))).simplified() );
-    note.setProperty(NIE::plainTextContent(), content.toPlainText());
-    note.setProperty(NIE::htmlContent(), content.toHtml());
+    note.setProperty( NIE::plainTextContent(), content.toPlainText());
+    note.setProperty( NIE::htmlContent(), content.toHtml());
 
     Value keywords = e->value("keywords");
     if(!keywords.isEmpty())
-        addKewords(keywords, note);
+        addTopic(keywords, note, graph);
 
-    Nepomuk::Resource empty;
+    Nepomuk::SimpleResource empty;
     if(e->contains(QLatin1String("zoterokey"))) {
-        addZoteroSyncDetails(note, empty, e);
+        addZoteroSyncDetails(note, empty, e, graph);
+    }
+
+    graph << note;
+}
+
+void BibTexToNepomukPipe::slotSaveToNepomukDone(KJob *job)
+{
+    if(job->error()) {
+        kDebug() << "Failed to store information in Nepomuk (" << job->errorString();
     }
 }
 
-void BibTexToNepomukPipe::createAttachmentContent(Entry *e)
+void BibTexToNepomukPipe::importAttachment(Entry *e, Nepomuk::SimpleResourceGraph &graph)
 {
-    kDebug() << "create attachment";
-
-    //create a new FileDataObject
-    Nepomuk::Resource attachment = Nepomuk::Resource();
+    Nepomuk::NFO::FileDataObject attachment;
 
     Value title = e->value("title");
-    addValue(PlainTextValue::text(title), attachment, NIE::title());
-
-    attachment.addType(NIE::DataObject());
-    attachment.addType(NFO::FileDataObject());
+    addValue(PlainTextValue::text(title), attachment, NIE::title() );
 
     if(e->contains(QLatin1String("zoteroAttachmentFile"))) {
 
@@ -424,133 +435,195 @@ void BibTexToNepomukPipe::createAttachmentContent(Entry *e)
 
     Value keywords = e->value("keywords");
     if(!keywords.isEmpty()) {
-        addKewords(keywords, attachment);
+        addTag(keywords, attachment, graph);
     }
 
-    Value accessdate = e->value("accessdate");
-    addValue(PlainTextValue::text(accessdate), attachment, NUAO::lastUsage());
+    QString accessdate = PlainTextValue::text(e->value("accessdate"));
+    QDateTime dateTime = QDateTime::fromString(accessdate, "yyyy-MM-ddTHH:mm:ss");
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM-dd"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "dd-MM-yyy"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "MM-yyyy"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy.MM.dd"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "dd.MM.yyy"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "MM.yyy"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy.MM"); }
+
+    if(dateTime.isValid()) {
+        QString newDate = dateTime.toString("yyyy-MM-ddTHH:mm:ss");
+
+        addValue(newDate, attachment, NUAO::lastUsage());
+    }
+    else {
+        kDebug() << "could not parse accessdate" << accessdate;
+    }
 
     Value note = e->value("note");
     addValue(PlainTextValue::text(note), attachment, NIE::comment());
 
-    Nepomuk::Resource empty;
+    Nepomuk::SimpleResource empty;
     if(e->contains(QLatin1String("zoterokey"))) {
-        addZoteroSyncDetails(attachment, empty, e);
+        addZoteroSyncDetails(attachment, empty, e, graph);
     }
 }
 
-QUrl BibTexToNepomukPipe::typeToUrl(const QString & entryType)
+void BibTexToNepomukPipe::addPublicationSubTypes(Nepomuk::NBIB::Publication &publication, Entry *entry)
 {
-    if(entryType == QLatin1String("article")) {
-        return NBIB::Article();
-    }
-    else if(entryType == QLatin1String("bachelorthesis")) {
-        return NBIB::BachelorThesis();
-    }
-    else if(entryType == QLatin1String("book")) {
-        return NBIB::Book();
-    }
-    else if(entryType == QLatin1String("inbook")) {
-        return  NBIB::Book();
-    }
-    else if(entryType == QLatin1String("booklet")) {
-        return NBIB::Booklet();
-    }
-    else if(entryType == QLatin1String("collection")) {
-        return NBIB::Collection();
-    }
-    else if(entryType == QLatin1String("incollection")) {
-        return NBIB::Book();
-    }
-    else if(entryType == QLatin1String("electronic")) {
-        return NBIB::Electronic();
-    }
-    else if(entryType == QLatin1String("inproceedings")) {
-        return NBIB::Article();
-    }
-    else if(entryType == QLatin1String("manual")) {
-        return NBIB::Manual();
-    }
-    else if(entryType == QLatin1String("mastersthesis")) {
-        return NBIB::MastersThesis();
-    }
-    else if(entryType == QLatin1String("phdthesis")) {
-        return NBIB::PhdThesis();
-    }
-    else if(entryType == QLatin1String("presentation")) {
-        return NBIB::Presentation();
-    }
-    else if(entryType == QLatin1String("proceedings")) {
-        return NBIB::Proceedings();
-    }
-    else if(entryType == QLatin1String("script")) {
-        return NBIB::Script();
-    }
-    else if(entryType == QLatin1String("manuscript")) {
-        return NBIB::Script();
-    }
-    else if(entryType == QLatin1String("techreport")) {
-        return NBIB::Techreport();
-    }
-    else if(entryType == QLatin1String("report")) {
-        return NBIB::Report();
-    }
-    else if(entryType == QLatin1String("thesis")) {
-        return NBIB::Thesis();
-    }
-    else if(entryType == QLatin1String("unpublished")) {
-        return NBIB::Unpublished();
-    }
-    else if(entryType == QLatin1String("patent")) {
-        return NBIB::Patent();
-    }
-    else if(entryType == QLatin1String("standard")) {
-        return NBIB::Standard();
-    }
-    else if(entryType == QLatin1String("statute")) {
-        return NBIB::Statute();
-    }
-    else if(entryType == QLatin1String("case")) {
-        return NBIB::LegalCaseDocument();
-    }
-    else if(entryType == QLatin1String("bill")) {
-        return NBIB::Bill();
-    }
-    else if(entryType == QLatin1String("encyclopediaarticle")) {
-        return NBIB::Article();
-    }
-    else if(entryType == QLatin1String("dictionaryentry") ||
-            entryType == QLatin1String("dictionary")) {
-        return NBIB::Dictionary();
-    }
-    else if(entryType == QLatin1String("forumpost")) {
-        return NBIB::ForumPost();
-    }
-    else if(entryType == QLatin1String("forum")) {
-        return NBIB::Forum();
+    QString entryType = entry->type().toLower();
+
+    //################################################################
+    //# Article and subtypes
+    //################################################################
+    if(entryType == QLatin1String("article") || entryType == QLatin1String("inproceedings") ||
+       entryType == QLatin1String("conference") || entryType == QLatin1String("encyclopediaarticle")) {
+        publication.addType(NBIB::Article());
     }
     else if(entryType == QLatin1String("blogpost")) {
-        return NBIB::BlogPost();
+        publication.addType(NBIB::Article());
+        publication.addType(NBIB::BlogPost());
     }
-    else if(entryType == QLatin1String("blog")) {
-        return NBIB::Blog();
+    else if(entryType == QLatin1String("forumpost")) {
+        publication.addType(NBIB::Article());
+        publication.addType(NBIB::ForumPost());
     }
     else if(entryType == QLatin1String("webpage")) {
-        return NBIB::Webpage();
+        publication.addType(NBIB::Article());
+        publication.addType(NBIB::Webpage());
+    }
+
+    //################################################################
+    //# Book and subtypes
+    //################################################################
+    else if(entryType == QLatin1String("book") || entryType == QLatin1String("inbook") || entryType == QLatin1String("incollection")) {
+        publication.addType(NBIB::Book());
+    }
+    else if(entryType == QLatin1String("dictionaryentry") || entryType == QLatin1String("dictionary")) {
+        publication.addType(NBIB::Book());
+        publication.addType(NBIB::Dictionary());
+    }
+    else if(entryType == QLatin1String("booklet")) {
+        publication.addType(NBIB::Booklet());
+    }
+
+    //################################################################
+    //# Collection and subtypes
+    //################################################################
+    else if(entryType == QLatin1String("collection")) {
+        publication.addType(NBIB::Collection());
+    }
+    else if(entryType == QLatin1String("proceedings")) {
+        publication.addType(NBIB::Collection());
+        publication.addType(NBIB::Proceedings());
+    }
+    else if(entryType == QLatin1String("forum")) {
+        publication.addType(NBIB::Collection());
+        publication.addType(NBIB::Forum());
+    }
+    else if(entryType == QLatin1String("blog")) {
+        publication.addType(NBIB::Collection());
+        publication.addType(NBIB::Blog());
     }
     else if(entryType == QLatin1String("website")) {
-        return NBIB::Website();
+        publication.addType(NBIB::Collection());
+        publication.addType(NBIB::Website());
+    }
+
+    //################################################################
+    //# Thesis and subtypes
+    //################################################################
+    else if(entryType == QLatin1String("thesis")) {
+        publication.addType(NBIB::Thesis());
+    }
+    else if(entryType == QLatin1String("bachelorthesis")) {
+        publication.addType(NBIB::Thesis());
+        publication.addType(NBIB::BachelorThesis());
+    }
+    else if(entryType == QLatin1String("mastersthesis")) {
+        publication.addType(NBIB::Thesis());
+        publication.addType(NBIB::MastersThesis());
+    }
+    else if(entryType == QLatin1String("phdthesis")) {
+        publication.addType(NBIB::Thesis());
+        publication.addType(NBIB::PhdThesis());
+    }
+
+    //################################################################
+    //# Report and subtypes
+    //################################################################
+    else if(entryType == QLatin1String("report")) {
+        publication.addType(NBIB::Report());
+    }
+    else if(entryType == QLatin1String("techreport")) {
+        publication.addType(NBIB::Report());
+        publication.addType(NBIB::Techreport());
+    }
+
+    //################################################################
+    //# LegalDocument and subtypes
+    //################################################################
+    else if(entryType == QLatin1String("legaldocument")) {
+        publication.addType(NBIB::LegalDocument());
+    }
+    else if(entryType == QLatin1String("legislation")) {
+        publication.addType(NBIB::LegalDocument());
+        publication.addType(NBIB::Legislation());
+    }
+    else if(entryType == QLatin1String("statute")) {
+        publication.addType(NBIB::LegalDocument());
+        publication.addType(NBIB::Legislation());
+        publication.addType(NBIB::Statute());
+    }
+    else if(entryType == QLatin1String("bill")) {
+        publication.addType(NBIB::LegalDocument());
+        publication.addType(NBIB::Legislation());
+        publication.addType(NBIB::Bill());
+    }
+    else if(entryType == QLatin1String("case")) {
+        publication.addType(NBIB::LegalDocument());
+    }
+    else if(entryType == QLatin1String("decision")) {
+        publication.addType(NBIB::LegalDocument());
+        publication.addType(NBIB::Decision());
+    }
+    else if(entryType == QLatin1String("brief")) {
+        publication.addType(NBIB::LegalDocument());
+        publication.addType(NBIB::Brief());
+    }
+
+    //################################################################
+    //# All types without further subtypes
+    //################################################################
+    else if(entryType == QLatin1String("electronic")) {
+        publication.addType(NBIB::Electronic());
+    }
+    else if(entryType == QLatin1String("manual")) {
+        publication.addType(NBIB::Manual());
+    }
+    else if(entryType == QLatin1String("presentation")) {
+        publication.addType(NBIB::Presentation());
+    }
+    else if(entryType == QLatin1String("script") || entryType == QLatin1String("manuscript")) {
+        publication.addType(NBIB::Script());
+    }
+    else if(entryType == QLatin1String("unpublished")) {
+        publication.addType(NBIB::Unpublished());
+    }
+    else if(entryType == QLatin1String("patent")) {
+        publication.addType(NBIB::Patent());
+    }
+    else if(entryType == QLatin1String("standard")) {
+        publication.addType(NBIB::Standard());
     }
     else if(entryType == QLatin1String("map")) {
-        return NBIB::Map();
+        publication.addType(NBIB::Map());
     }
     else if(entryType == QLatin1String("misc")) {
-        return NBIB::Publication();
+        // do nothing, stays Publication only
     }
+
+    // erro case
     else {
-        // same as @Misc
-        qWarning() << "BibTexToNepomukPipe::typeToUrl unknown type" << entryType;
-        return NBIB::Publication();
+        kWarning() << "try to import unknown bibliographic resource type" << entryType;
     }
 }
 
@@ -634,7 +707,7 @@ void BibTexToNepomukPipe::merge(Nepomuk::Resource syncResource, Entry *external,
 
     // update zotero sync details
     if(external->contains(QLatin1String("zoterokey"))) {
-        addZoteroSyncDetails(publication, reference, diffEntry );
+//        addZoteroSyncDetails(publication, reference, diffEntry );
     }
 
     if(external->type() == QLatin1String("note")) {
@@ -651,7 +724,7 @@ void BibTexToNepomukPipe::merge(Nepomuk::Resource syncResource, Entry *external,
     while (i.hasNext()) {
         i.next();
         kDebug() << "merge key" << i.key().toLower() << "from resource" << publication.genericLabel();
-        addContent(i.key().toLower(), i.value(), publication, reference, diffEntry->type());
+//        addContent(i.key().toLower(), i.value(), publication, referencegraph, , diffEntry->type());
     }
 }
 
@@ -676,7 +749,7 @@ void BibTexToNepomukPipe::mergeManual(Nepomuk::Resource syncResource, Entry *sel
 
     // update zotero sync details
     if(selectedDiff->contains(QLatin1String("zoterokey"))) {
-        addZoteroSyncDetails(publication, reference, selectedDiff );
+//        addZoteroSyncDetails(publication, reference, selectedDiff );
     }
 
     if(selectedDiff->type().toLower() == QLatin1String("note")) {
@@ -694,11 +767,11 @@ void BibTexToNepomukPipe::mergeManual(Nepomuk::Resource syncResource, Entry *sel
     while (i.hasNext()) {
         i.next();
         kDebug() << "merge key" << i.key().toLower() << "from resource" << publication.genericLabel();
-        addContent(i.key().toLower(), i.value(), publication, reference, selectedDiff->type());
+//        addContent(i.key().toLower(), i.value(), publication, reference, selectedDiff->type());
     }
 }
 
-void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType)
+void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph, const QString & originalEntryType)
 {
     //############################################
     // Simple set commands
@@ -773,7 +846,7 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
         addValueWithLookup(PlainTextValue::text(value), publication, NBIB::shortTitle());
     }
     else if(key == QLatin1String("type")) {
-        addValueWithLookup(PlainTextValue::text(value), publication, NBIB::type());
+        addValueWithLookup(PlainTextValue::text(value), publication, NBIB::publicationType());
     }
     else if(key == QLatin1String("applicationnumber")) {
         addValue(PlainTextValue::text(value), publication, NBIB::applicationNumber());
@@ -794,7 +867,25 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
         addValue(PlainTextValue::text(value), publication, NBIB::volume());
     }
     else if(key == QLatin1String("accessdate")) {
-        addValue(PlainTextValue::text(value), publication, NUAO::lastUsage());
+        QString accessdate = PlainTextValue::text(value);
+        QDateTime dateTime = QDateTime::fromString(accessdate, "yyyy-MM-ddTHH:mm:ss");
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM-dd"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "dd-MM-yyy"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "MM-yyyy"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy.MM.dd"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "dd.MM.yyy"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "MM.yyy"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy.MM"); }
+
+        if(dateTime.isValid()) {
+            QString newDate = dateTime.toString("yyyy-MM-ddTHH:mm:ss");
+
+            addValue(newDate, publication, NUAO::lastUsage());
+        }
+        else {
+            kDebug() << "could not parse accessdate" << accessdate;
+        }
     }
     else if(key == QLatin1String("date")) {
         addValue(PlainTextValue::text(value), publication, NBIB::publicationDate());
@@ -804,119 +895,113 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     // more advanced processing needed here
 
     else if(key == QLatin1String("author")) {
-        addAuthor(value, publication, reference, originalEntryType);
+        addAuthor(value, publication, reference, graph, originalEntryType);
     }
     else if(key == QLatin1String("bookauthor")) {
-        addBookAuthor(value, publication);
+        addBookAuthor(value, publication, graph);
     }
     else if(key == QLatin1String("contributor")) {
-        addContributor(value, publication);
+        addContributor(value, publication, graph);
     }
     else if(key == QLatin1String("translator")) {
-        addTranslator(value, publication);
+        addTranslator(value, publication, graph);
     }
     else if(key == QLatin1String("reviewedauthor")) {
-        addReviewedAuthor(value, publication);
+        addReviewedAuthor(value, publication, graph);
     }
     else if(key == QLatin1String("attorneyagent")) {
-        addContact(value, publication, NBIB::attorneyAgent(), NCO::PersonContact());
+        addContact(value, publication, graph, NBIB::attorneyAgent(), NCO::PersonContact());
     }
     else if(key == QLatin1String("counsel")) {
-        addContact(value, publication, NBIB::counsel(), NCO::PersonContact());
+        addContact(value, publication, graph, NBIB::counsel(), NCO::PersonContact());
     }
     else if(key == QLatin1String("cosponsor")) {
-        addContact(value, publication, NBIB::coSponsor(), NCO::PersonContact());
+        addContact(value, publication, graph, NBIB::coSponsor(), NCO::PersonContact());
     }
     else if(key == QLatin1String("commenter")) {
-        addContact(value, publication, NBIB::commenter(), NCO::PersonContact());
+        addContact(value, publication, graph, NBIB::commenter(), NCO::PersonContact());
     }
     else if(key == QLatin1String("serieseditor")) {
-        addSeriesEditor(value, publication);
+        addSeriesEditor(value, publication, graph);
     }
     else if(key == QLatin1String("booktitle")) {
-        addBooktitle(PlainTextValue::text(value), publication, originalEntryType);
+        addBooktitle(PlainTextValue::text(value), publication, graph, originalEntryType);
     }
     else if(key == QLatin1String("chapter")) {
-        addChapter(PlainTextValue::text(value), publication, reference);
+        addChapter(PlainTextValue::text(value), publication, reference, graph);
     }
     else if(key == QLatin1String("editor")) {
-        addEditor(value, publication);
+        addEditor(value, publication, graph);
     }
     else if(key == QLatin1String("institution")) {
         Value empty;
-        addPublisher(value, empty, publication);
+        addPublisher(value, empty, publication, graph);
     }
     else if(key == QLatin1String("issn")) {
-        addIssn(PlainTextValue::text(value), publication);
-    }
-    else if(key == QLatin1String("month")) {
-        addMonth(PlainTextValue::text(value), publication);
+        addIssn(PlainTextValue::text(value), publication, graph);
     }
     else if(key == QLatin1String("organization") ||
     key == QLatin1String("legislativebody") ) {
-        addOrganization(PlainTextValue::text(value), publication);
+        addOrganization(PlainTextValue::text(value), publication, graph);
     }
     else if(key == QLatin1String("code")) {
-        addCode(PlainTextValue::text(value), publication);
+        addCode(PlainTextValue::text(value), publication, graph);
     }
     else if(key == QLatin1String("codenumber")) {
-        addCodeNumber(PlainTextValue::text(value), publication);
+        addCodeNumber(PlainTextValue::text(value), publication, graph);
     }
     else if(key == QLatin1String("codevolume")) {
-        addCodeVolume(PlainTextValue::text(value), publication);
+        addCodeVolume(PlainTextValue::text(value), publication, graph);
     }
     else if(key == QLatin1String("reporter")) {
-        addReporter(PlainTextValue::text(value), publication);
+        addReporter(PlainTextValue::text(value), publication, graph);
     }
     else if(key == QLatin1String("reportervolume")) {
-        addReporterVolume(PlainTextValue::text(value), publication);
+        addReporterVolume(PlainTextValue::text(value), publication, graph);
     }
     else if(key == QLatin1String("publisher")) {
         Value empty;
-        addPublisher(value, empty, publication);
+        addPublisher(value, empty, publication, graph);
     }
     else if(key == QLatin1String("school")) {
         Value empty;
-        addPublisher(value, empty, publication);
+        addPublisher(value, empty, publication, graph);
     }
     else if(key == QLatin1String("series")) {
-        addSeries(PlainTextValue::text(value), publication);
+        addSeries(PlainTextValue::text(value), publication, graph);
     }
     else if(key == QLatin1String("conferencename") ||
-    key == QLatin1String("meetingname") ||
-    key == QLatin1String("event")) {
-        addEvent(PlainTextValue::text(value), publication);
+            key == QLatin1String("meetingname") ||
+            key == QLatin1String("event")) {
+        addEvent(PlainTextValue::text(value), publication, graph);
     }
     else if(key == QLatin1String("title")) {
-        addTitle(PlainTextValue::text(value), publication, reference, originalEntryType);
+        addTitle(PlainTextValue::text(value), publication, reference, graph, originalEntryType);
     }
     else if(key == QLatin1String("url") ||
-    key == QLatin1String("localfile") ||
-    key == QLatin1String("biburl") ||
-    key == QLatin1String("bibsource") ||
-    key == QLatin1String("ee")) {
-        addUrl(PlainTextValue::text(value), publication);
+            key == QLatin1String("localfile") ||
+            key == QLatin1String("biburl") ||
+            key == QLatin1String("bibsource") ||
+            key == QLatin1String("ee")) {
+        addUrl(PlainTextValue::text(value), publication, graph);
     }
     else if(key == QLatin1String("address")) {
         QString addressValue = PlainTextValue::text(value);
         if(addressValue.contains(QLatin1String("http:"))) {
-            addUrl(addressValue, publication);
+            addUrl(addressValue, publication, graph);
         }
         //ignore else case, as the address as a postal address is handled above when a publisher is available
     }
-    else if(key == QLatin1String("year")) {
-        addYear(PlainTextValue::text(value), publication);
-    }
     else if(key == QLatin1String("keywords")) {
-        addKewords(value, publication);
+        addTopic(value, publication, graph);
     }
     else if(key == QLatin1String("assignee")) {
-        addAssignee(value, publication);
+        addAssignee(value, publication, graph);
     }
     else if(key == QLatin1String("descriptor") ||
-    key == QLatin1String("classification") ||
-    key == QLatin1String("thesaurus") ||
-    key == QLatin1String("subject")) {
+            key == QLatin1String("classification") ||
+            key == QLatin1String("thesaurus") ||
+            key == QLatin1String("subject")) {
 
         Value keywordList;
         QString keywordString = PlainTextValue::text(value);
@@ -933,34 +1018,32 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
             keywordList.append(QSharedPointer<ValueItem>(k));
         }
 
-        addKewords(keywordList, publication);
+        addTopic(keywordList, publication, graph);
     }
     else {
         kDebug() << "unknown bibtex key ::" << key << PlainTextValue::text(value);
     }
 }
 
-void BibTexToNepomukPipe::addPublisher(const Value &publisherValue, const Value &addressValue, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addPublisher(const Value &publisherValue, const Value &addressValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
 {
-    if(m_replaceMode) {
-        publication.removeProperty(NCO::publisher());
-    }
+    QString addressString = PlainTextValue::text(addressValue).toUtf8();
+    addressString = m_macroLookup.value(addressString, addressString);
 
-    QString address = PlainTextValue::text(addressValue).toUtf8();
-    address = m_macroLookup.value(address, address);
-
-    // create the address object
-    Nepomuk::Resource addr(QUrl(), NCO::PostalAddress());
     //FIXME extendedAddress is not correct, but determining which part of the @p address is the street/location and so on is nearly impossible
-
-    if(!address.isEmpty())
-        addr.setProperty(NCO::extendedAddress(), address);
+    Nepomuk::NCO::PostalAddress postalAddress;
+    if(!addressString.isEmpty()) {
+        postalAddress.setExtendedAddress( addressString );
+        graph << postalAddress;
+    }
 
     foreach(QSharedPointer<ValueItem> publisherItem, publisherValue) {
         //transform KBibTex representation of the name into my own Name
         Name publisher;
+        bool personNotInstitution = false;
         Person *person = dynamic_cast<Person *>(publisherItem.data());
         if(person) {
+            personNotInstitution = true;
             publisher.first = person->firstName().toUtf8();
             publisher.last = person->lastName().toUtf8();
             publisher.suffix = person->suffix().toUtf8();
@@ -972,619 +1055,706 @@ void BibTexToNepomukPipe::addPublisher(const Value &publisherValue, const Value 
             publisher.full = m_macroLookup.value(publisher.full, publisher.full);
         }
 
-        //check if the publisher already exist in the database
-        Nepomuk::Resource p = m_allContacts.value(publisher.full, Nepomuk::Resource());
+        // create new publisher resource, duplicates will be merged by the DMS later on
+        if( personNotInstitution ) {
+            Nepomuk::NCO::PersonContact publisherResource;
+            publisherResource.setFullname( publisher.full );
+            publisherResource.setNameGiven( publisher.first );
+            publisherResource.setNameFamily( publisher.last );
+            QStringList suffixes;
+            suffixes << publisher.suffix;
+            publisherResource.setNameHonorificSuffixs( suffixes );
+            if(!addressString.isEmpty()) {
+                publisherResource.addPostalAddress( postalAddress.uri() );
+            }
 
-        if(!p.isValid()) {
-            // publisher could be a person or a organization, use Contact and let the user define it later on if he wishes
-            p = Nepomuk::Resource(QUrl(), NCO::Contact());
-
-            p.setProperty(NCO::fullname(), publisher.full);
-            if(!publisher.first.isEmpty())
-                p.setProperty(NCO::nameGiven(), publisher.first);
-            if(!publisher.last.isEmpty())
-                p.setProperty(NCO::nameFamily(), publisher.last);
-            if(!publisher.suffix.isEmpty())
-                p.setProperty(NCO::nameHonorificSuffix(), publisher.suffix);
-
-            m_allContacts.insert(publisher.full,p);
+            graph << publisherResource;
+            publication.addProperty(NCO::publisher(), publisherResource);
         }
+        else {
+            // So we didn't get a Person as publisher but instead a single name, might be organization or something else
+            Nepomuk::NCO::Contact publisherResource;
+            publisherResource.setFullname( publisher.full );
+            if(!addressString.isEmpty()) {
+                publisherResource.addPostalAddress( postalAddress.uri() );
+            }
 
-        Nepomuk::Resource existingAddr = p.property(NCO::hasPostalAddress()).toResource();
-        if(!existingAddr.isValid())
-            p.setProperty(NCO::hasPostalAddress(), addr);
-
-        publication.addProperty(NCO::publisher(), p);
+            graph << publisherResource;
+            publication.addProperty(NCO::publisher(), publisherResource);
+        }
     }
 }
 
-void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &volumeValue, const Value &numberValue, Nepomuk::Resource publication, QUrl seriesUrl, QUrl issueUrl)
+void BibTexToNepomukPipe::addJournal(const Value &journalValue, const Value &volumeValue, const Value &numberValue,
+                                     Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph, QUrl seriesUrl, QUrl issueUrl)
 {
-    QString journalName = PlainTextValue::text(journalValue).toUtf8();
-    journalName = m_macroLookup.value(journalName, journalName);
-    QString volume = PlainTextValue::text(volumeValue).toUtf8();
-    QString number = PlainTextValue::text(numberValue).toUtf8();
+    QString journalString = PlainTextValue::text(journalValue).toUtf8();
+    journalString = m_macroLookup.value(journalString, journalString);
+    QString volumeString = PlainTextValue::text(volumeValue).toUtf8();
+    QString numberString = PlainTextValue::text(numberValue).toUtf8();
 
     //find existing journal or create a new series of them
-    Nepomuk::Resource journalResource;
-    Nepomuk::Resource journalIssue;
+    Nepomuk::NBIB::Collection collection;
+    collection.addType( issueUrl );
+    Nepomuk::NBIB::Series series;
+    series.addType( seriesUrl );
 
-    //check if the publisher already exist in the database
-    journalResource = m_allSeries.value(journalName, Nepomuk::Resource());
+    // create the resources, the DMS will merge them later on together again
+    series.setProperty( NIE::title(), journalString );
 
-    if(!journalResource.isValid()) {
-        journalResource = Nepomuk::Resource(QUrl(), seriesUrl);
-        journalResource.addType(NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
-        journalResource.addType(NIE::InformationElement());
-        journalResource.setProperty(NIE::title(), journalName);
-        m_allSeries.insert(journalName, journalResource);
+    collection.setNumber( numberString );
+    collection.setProperty( NBIB::volume(), volumeString );
+
+    // the collection name should be created by the series name + collection number/volume
+    // we do this here so we get nicer results when we use genericLabel/prefLabel
+    QString issueName = journalString + ' ' + volumeString;
+    if(!numberString.isEmpty()) {
+        issueName += ' ' + i18n("Vol. %1",numberString);
     }
+    collection.setProperty( NIE::title(), issueName.trimmed() );
 
-    // now check if the journalIssue exists already
-    QList<Nepomuk::Resource> issues = journalResource.property(NBIB::seriesOf()).toResourceList();
+    // connect issue <-> journal
+    collection.setInSeries( series.uri() );
+    series.addSeriesOf( collection.uri() );
 
-    foreach(const Nepomuk::Resource & issue, issues) {
-        QString checkNumber = issue.property(NBIB::number()).toString();
-        QString checkVolume = issue.property(NBIB::volume()).toString();
-
-        if( checkNumber == number && checkVolume == volume) {
-            journalIssue = issue;
-            break;
-        }
-    }
-
-    //if we can't find an existing journal issue, create a new one
-    if(!journalIssue.isValid()) {
-        journalIssue = Nepomuk::Resource(QUrl(), issueUrl);
-        journalIssue.addType(NBIB::Collection());
-        journalIssue.addType(NBIB::Publication());
-        journalIssue.addType(NIE::InformationElement());
-        journalIssue.setProperty(NBIB::number(), number);
-        journalIssue.setProperty(NBIB::volume(), volume);
-        // duplicate title join journal and journalissue, helps to easily identify those two
-        // but is more like a better way to create a prefLabel / genericLabel
-        QString issueName = QString("%1 : %2 (%3)").arg(journalName).arg(volume).arg(number);
-        journalIssue.setProperty(NIE::title(), issueName);
-
-        // connect issue <-> journal
-        journalIssue.setProperty(NBIB::inSeries(), journalResource);
-        journalResource.addProperty(NBIB::seriesOf(), journalIssue);
-    }
-
-    // now connect the issue to the Publication/Collection
-    publication.setProperty(NBIB::collection(), journalIssue);
-    journalIssue.addProperty(NBIB::article(), publication);
+    // connect article <-> collection
+    publication.setProperty(NBIB::collection(), collection );
+    collection.addArticle( publication.uri() );
 
     if(m_projectThing.isValid()) {
-        journalIssue.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
-        journalResource.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
+        collection.addProperty( NAO::isRelated() , m_projectThing.uri());
+        series.addProperty( NAO::isRelated() , m_projectThing.uri());
     }
+
+    graph << collection << series;
 }
 
-void BibTexToNepomukPipe::addSpecialArticle(const Value &titleValue, Nepomuk::Resource article, QUrl collectionUrl)
+void BibTexToNepomukPipe::addSpecialArticle(const Value &titleValue, Nepomuk::NBIB::Publication &article, Nepomuk::SimpleResourceGraph &graph, QUrl collectionUrl)
 {
-    QString collectionName = PlainTextValue::text(titleValue).toUtf8();
-    collectionName = m_macroLookup.value(collectionName, collectionName);
+    QString collectionString = PlainTextValue::text(titleValue).toUtf8();
+    collectionString = m_macroLookup.value(collectionString, collectionString);
 
-    Nepomuk::Resource collectionResource;
+    Nepomuk::NBIB::Collection collection;
+    collection.addType( collectionUrl );
 
-    //check if the collection already exist in the database
-    collectionResource = m_allCollection.value(collectionName, Nepomuk::Resource());
+    // create the resources, the DMS will merge them later on together again
+    collection.setProperty( NIE::title(), collectionString );
 
-    if(!collectionResource.isValid()) {
-        collectionResource = Nepomuk::Resource(QUrl(), collectionUrl);
-        collectionResource.addType(NBIB::Collection());
-        collectionResource.addType(NBIB::Publication());
-        collectionResource.addType(NIE::InformationElement());
-        collectionResource.setProperty(NIE::title(), collectionName);
-        m_allCollection.insert(collectionName, collectionResource);
-    }
-
-    // now connect the issue to the Publication/Collection
-    article.setProperty(NBIB::collection(), collectionResource);
-    collectionResource.addProperty(NBIB::article(), article);
+    // connect article <-> collection
+    article.setProperty(NBIB::collection(), collection.uri() );
+    collection.addArticle( article.uri() );
 
     if(m_projectThing.isValid()) {
-        collectionResource.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
+        collection.addProperty( NAO::isRelated() , m_projectThing.uri());
     }
+
+    graph << collection;
 }
 
-void BibTexToNepomukPipe::addAuthor(const Value &contentValue, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType)
+void BibTexToNepomukPipe::addAuthor(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph, const QString & originalEntryType)
 {
     //in case of @incollection the author is used to identify who wrote the chapter not the complete book/collection
-    Nepomuk::Resource authorResource;
-
     if(originalEntryType == QLatin1String("incollection") ) {
-        Nepomuk::Resource chapter = reference.property(NBIB::referencedPart()).toResource();
 
-        if(!chapter.isValid()) {
-            chapter = Nepomuk::Resource(QUrl(), NBIB::Chapter());
-            reference.setProperty(NBIB::referencedPart(), chapter);
-            publication.addProperty(NBIB::documentPart(), chapter);
-            chapter.setProperty(NBIB::documentPartOf(), publication);
+        QUrl chapterUrl = reference.referencedPart();
+
+        // if no chapter resources existed up to now, create one and use it
+        if(!chapterUrl.isValid()) {
+            Nepomuk::NBIB::Chapter chapterResource;
+            chapterResource.addType(NIE::DataObject());
+            chapterResource.setProperty(NIE::title(), i18n("unknown chapter") );
+            chapterResource.setChapterNumber( 0 );
+            // the chapter needs a "unique identifier, otherwise we merge them with other chapters together";
+            chapterResource.setProperty(NAO::identifier(), QUuid::createUuid().toString());
+            chapterResource.setProperty(NIE::url(), QUuid::createUuid().toString());
+
+            // connect refrence <-> chapter <-> publication
+            chapterResource.setDocumentPartOf( publication.uri() );
+            publication.addDocumentPart( chapterResource.uri() );
+            publication.addProperty(NAO::hasSubResource(), chapterResource.uri() );
+            reference.setReferencedPart( chapterResource.uri() );
+
+            graph << chapterResource;
+
+            addContact(contentValue, chapterResource, graph, NCO::creator(), NCO::PersonContact());
         }
-        authorResource = chapter;
+        else {
+            addContact(contentValue, graph[chapterUrl], graph, NCO::creator(), NCO::PersonContact());
+        }
     }
     else {
-        authorResource = publication;
+        addContact(contentValue, publication, graph, NCO::creator(), NCO::PersonContact());
     }
-
-    addContact(contentValue, authorResource, NCO::creator(), NCO::PersonContact());
 }
 
-void BibTexToNepomukPipe::addBooktitle(const QString &content, Nepomuk::Resource publication, const QString & originalEntryType)
+void BibTexToNepomukPipe::addBooktitle(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph, const QString & originalEntryType)
 {
     QString utfContent = m_macroLookup.value(QString(content.toUtf8()), QString(content.toUtf8()));
 
     //two specialities occur here
     // I. "booktitle" means the title of a book, where "title" than means the title of the article in the book where the author fits to
-    // this is valid for any publication other than @InProceedings
-    // II. "booktitle" marks the title of the @proceedings from an @InProceedings or @Conference
+    // this is valid for any publication other than @InProceedings/@encyclopediaarticle
+    //
+    // II. "booktitle" marks the title of the @Proceedings/@Encyclopedia (Collection) from an @InProceedings/@encyclopediaarticle (Article)
 
     if(originalEntryType == QLatin1String("inproceedings")) {
-        //check if a resource @Proceedings with the name of content exist or create a new one
 
-        Nepomuk::Resource proceedingsResource = m_allProceedings.value(utfContent, Nepomuk::Resource());
+        //create a new collection resource, the DMS will merge if necessary
+        Nepomuk::NBIB::Collection collection;
 
-        if(!proceedingsResource.isValid()) {
-            if(originalEntryType == QLatin1String("inproceedings"))
-                proceedingsResource = Nepomuk::Resource(QUrl(), NBIB::Proceedings());
-            else if(originalEntryType == QLatin1String("encyclopediaarticle"))
-                proceedingsResource = Nepomuk::Resource(QUrl(), NBIB::Encyclopedia());
-
-            proceedingsResource.setProperty(NIE::title(), utfContent);
-            m_allProceedings.insert(utfContent, proceedingsResource);
+        if(originalEntryType == QLatin1String("inproceedings")) {
+            collection.addType( NBIB::Proceedings() );
+        }
+        else if(originalEntryType == QLatin1String("encyclopediaarticle")) {
+            collection.addType( NBIB::Encyclopedia() );
         }
 
-        //at this point we have a valid proceedings entry connect it to the publication
-        //The publication (@inproceedings) is an article while the @Proceedings is a collection
-        publication.setProperty(NBIB::collection(), proceedingsResource);
-        proceedingsResource.addProperty(NBIB::article(), publication);
+        collection.setProperty(NIE::title(), utfContent );
+
+        graph << collection;
+
+        // connect collection <-> article publication
+        publication.setProperty(NBIB::collection(), collection.uri() );
+        collection.addArticle( publication.uri() );
 
         if(m_projectThing.isValid()) {
-            proceedingsResource.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
+            collection.addProperty( NAO::isRelated() , m_projectThing.uri() );
         }
     }
     else {
+        // put booktitle as the main title of the publication
         publication.setProperty(NIE::title(), utfContent);
     }
 }
 
-void BibTexToNepomukPipe::addBookAuthor(const Value &contentValue, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addBookAuthor(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
 {
     // bookauthor is a Zotero key for the @incollection import.
     // add author to the publication (normal author in this case is related to the chapter)
-    Nepomuk::Resource authorResource = publication;
 
-    addContact(contentValue, authorResource, NCO::creator(), NCO::PersonContact());
+    addContact(contentValue, publication, graph, NCO::creator(), NCO::PersonContact());
 }
 
-void BibTexToNepomukPipe::addSeriesEditor(const Value &contentValue, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addSeriesEditor(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
 {
-    Nepomuk::Resource seriesResource = publication.property(NBIB::inSeries()).toResource();
+    QUrl seriesUrl = publication.inSeries();
 
-    if(!seriesResource.isValid()) {
-        seriesResource = Nepomuk::Resource(QUrl(), NBIB::Series());
+    if(!seriesUrl.isValid()) {
+        Nepomuk::NBIB::Series newSeries;
+
+        newSeries.addSeriesOf( publication.uri() );
+        publication.setInSeries( newSeries.uri() );
+
+        if(m_projectThing.isValid()) {
+            newSeries.addProperty( NAO::isRelated() , m_projectThing.uri() );
+        }
+
+        graph << newSeries;
+
+        addContact(contentValue, newSeries, graph, NBIB::editor(), NCO::PersonContact());
     }
-
-    addContact(contentValue, seriesResource, NBIB::editor(), NCO::PersonContact());
+    else {
+        addContact(contentValue, graph[seriesUrl], graph, NBIB::editor(), NCO::PersonContact());
+    }
 }
 
-void BibTexToNepomukPipe::addChapter(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference)
+void BibTexToNepomukPipe::addChapter(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph)
 {
+    QString utfContent = m_macroLookup.value(QString(content.toUtf8()), QString(content.toUtf8()));
+
     // If we import some thing we assume no reference already existied and we have a new one
     // thus referencedPart() is not valid
-    // if it is valid we assume this was already a Chapter rather than an generic nbib:DocumentPart
-    // if above is not true, we should throw an error message
-    Nepomuk::Resource chapterResource = reference.property(NBIB::referencedPart()).toResource();
+    // if it is valid we assume this was already a nbib:Cchapter rather than an generic nbib:DocumentPart
 
-    if(!chapterResource.isValid()) {
-        chapterResource = Nepomuk::Resource(QUrl(), NBIB::Chapter());
-        reference.setProperty(NBIB::referencedPart(), chapterResource);
-        publication.addProperty(NBIB::documentPart(), chapterResource);
-        chapterResource.setProperty(NBIB::documentPartOf(), publication);
+    QUrl chapterUrl = reference.referencedPart();
+
+    if(!chapterUrl.isValid()) {
+        Nepomuk::NBIB::Chapter chapterResource;
+        chapterResource.addType(NIE::DataObject());
+        chapterResource.setProperty( NIE::title(), i18n("unknown chapter") );
+        chapterResource.setChapterNumber( utfContent );
+        // the chapter needs a "unique identifier, otherwise we merge them with other chapters together";
+        chapterResource.setProperty(NAO::identifier(), QUuid::createUuid().toString());
+        chapterResource.setProperty(NIE::url(), QUuid::createUuid().toString());
+
+        // connect refrence <-> chapter <-> publication
+        chapterResource.setDocumentPartOf( publication.uri() );
+        publication.addDocumentPart( chapterResource.uri() );
+        publication.addProperty(NAO::hasSubResource(), chapterResource.uri() );
+        reference.setReferencedPart( chapterResource.uri() );
+
+        graph << chapterResource;
     }
     else {
-        if(!chapterResource.hasType(NBIB::Chapter())) {
-            qWarning() << "BibTexToNepomukPipe::addChapter tries to add a chapterNumber to a nbib:DocumentPart Resource that is not a nbib:Chapter";
-        }
+        graph[chapterUrl].setProperty(NBIB::chapterNumber(), utfContent);
     }
-
-    QString utfContent = m_macroLookup.value(QString(content.toUtf8()), QString(content.toUtf8()));
-    chapterResource.setProperty( NBIB::chapterNumber(), utfContent);
 }
 
-void BibTexToNepomukPipe::addEditor(const Value &contentValue, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addEditor(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
 {
-    //if we merge entries, we remove the old one first and add the new oney later on again
-    if(m_replaceMode) {
-        publication.removeProperty(NBIB::editor());
-    }
-
-    addContact(contentValue, publication, NBIB::editor(), NCO::PersonContact());
+    addContact(contentValue, publication, graph, NBIB::editor(), NCO::PersonContact());
 }
 
-void BibTexToNepomukPipe::addIssn(const QString &content, Nepomuk::Resource publication)
-{
-    QString utfContent = m_macroLookup.value(QString(content.toUtf8()), QString(content.toUtf8()));
-
-    //fetch already existing Series or create a new one
-    Nepomuk::Resource journalIssue = publication.property(NBIB::collection()).toResource();
-
-    if(!journalIssue.isValid()) {
-        kDebug() << "try to set ISSN but no journalissue available";
-        publication.setProperty(NBIB::issn(), utfContent);
-        return;
-    }
-
-    Nepomuk::Resource series = journalIssue.property(NBIB::inSeries()).toResource();
-
-    if(!series.isValid()) {
-        series = Nepomuk::Resource(QUrl(), NBIB::Journal());
-        series.addType(NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
-        series.addType(NIE::InformationElement());
-        series.addProperty(NBIB::seriesOf(), publication);
-        publication.setProperty(NBIB::inSeries(), series);
-    }
-
-    series.setProperty(NBIB::issn(), utfContent);
-
-    if(m_projectThing.isValid()) {
-        series.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
-    }
-}
-
-void BibTexToNepomukPipe::addMonth(const QString &content, Nepomuk::Resource publication)
-{
-    //fetch already existing publication or create a new one
-    QString date = publication.property(NBIB::publicationDate()).toString();
-    QString year = QString::number(0000);
-    QString month = QString::number(00);
-    QString day = QString::number(00);
-
-    if(!date.isEmpty()) {
-        QRegExp rx(QLatin1String("(\\d*)-(\\d*)-(\\d*)*"));
-        if (rx.indexIn(date) != -1) {
-            year = rx.cap(1);
-            month = rx.cap(2);
-            day = rx.cap(3);
-        }
-    }
-
-    QString contentMonth = content.toLower().toUtf8();
-    //transform bibtex month to numbers
-    if(contentMonth.contains(QLatin1String("jan"))) {
-        month = QString::number(1);
-    }
-    else if(contentMonth.contains(QLatin1String("feb"))) {
-        month = QString::number(2);
-    }
-    else if(contentMonth.contains(QLatin1String("mar"))) {
-        month = QString::number(3);
-    }
-    else if(contentMonth.contains(QLatin1String("apr"))) {
-        month = QString::number(4);
-    }
-    else if(contentMonth.contains(QLatin1String("may"))) {
-        month = QString::number(5);
-    }
-    else if(contentMonth.contains(QLatin1String("jun"))) {
-        month = QString::number(6);
-    }
-    else if(contentMonth.contains(QLatin1String("jul"))) {
-        month = QString::number(7);
-    }
-    else if(contentMonth.contains(QLatin1String("aug"))) {
-        month = QString::number(8);
-    }
-    else if(contentMonth.contains(QLatin1String("sep"))) {
-        month = QString::number(9);
-    }
-    else if(contentMonth.contains(QLatin1String("oct"))) {
-        month = QString::number(0);
-    }
-    else if(contentMonth.contains(QLatin1String("nov"))) {
-        month = QString::number(1);
-    }
-    else if(contentMonth.contains(QLatin1String("dec"))) {
-        month = QString::number(12);
-    }
-    else {
-        // assume the month was already a number
-        month = contentMonth;
-    }
-
-    if(year.size() != 4) {
-        year.prepend(QLatin1String("00"));
-    }
-    if(month.size() != 2) {
-        month.prepend(QLatin1String("0"));
-    }
-    if(day.size() != 2) {
-        day.prepend(QLatin1String("0"));
-    }
-
-    QString newDate = year + QLatin1String("-") + month + QLatin1String("-") + day + QLatin1String("T00:00:00");
-    publication.setProperty(NBIB::publicationDate(), newDate);
-}
-
-void BibTexToNepomukPipe::addOrganization(const QString &content, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addIssn(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
 {
     QString utfContent = m_macroLookup.value(QString(content.toUtf8()), QString(content.toUtf8()));
 
-    //check if the organization already exist in the database
-    Nepomuk::Resource organizationResource = m_allContacts.value(utfContent, Nepomuk::Resource());
+    QUrl seriesUrl;
+    if(publication.contains(RDF::type(), NBIB::Article())) {
+        if( publication.property(NBIB::collection()).isEmpty() ) {
+            kWarning() << "we added an article without any collection and try to set the ISSN";
+            Nepomuk::NBIB::Collection collection;
+            collection.setProperty(NIE::title(), i18n("unknown collection"));
 
-    if(!organizationResource.isValid()) {
-        organizationResource = Nepomuk::Resource(QUrl(), NCO::OrganizationContact());
-        organizationResource.setProperty(NCO::fullname(), utfContent);
+            Nepomuk::NBIB::Series series;
+            series.setProperty(NIE::title(), i18n("unknown series"));
 
-        m_allContacts.insert(utfContent, organizationResource);
-    }
+            // connect series <-> collection
+            collection.setInSeries( series.uri() );
+            series.addSeriesOf( collection.uri() );
 
-    if(publication.hasType(NBIB::Article())) {
-        Nepomuk::Resource proceedings = publication.property(NBIB::collection()).toResource();
-        if(!proceedings.isValid()) {
-            proceedings = Nepomuk::Resource(QUrl(), NBIB::Proceedings());
-            proceedings.addProperty(NBIB::article(), publication);
-            publication.setProperty(NBIB::collection(), proceedings);
+            // connect article <-> collection
+            publication.setProperty(NBIB::collection(), collection );
+            collection.addArticle( publication.uri() );
+
+            seriesUrl = series.uri();
+            graph << collection << series;
         }
-        proceedings.setProperty(NBIB::organization(), organizationResource);
+        else {
+            QUrl collectionUrl = publication.property(NBIB::collection()).first().toUrl();
+
+            if( !graph[collectionUrl].property(NBIB::inSeries()).isEmpty() ) {
+                seriesUrl = graph[collectionUrl].property(NBIB::inSeries()).first().toUrl();
+            }
+        }
     }
     else {
-        publication.setProperty(NBIB::organization(), organizationResource);
+        // for anything else than an article, we attach the ISSN to a series directly to the publication
+        seriesUrl = publication.inSeries();
+    }
+
+    if(!seriesUrl.isValid()) {
+        Nepomuk::NBIB::Series newSeries;
+        newSeries.addSeriesOf( publication.uri() );
+        publication.setInSeries( newSeries.uri() );
+        newSeries.setIssn( utfContent );
+
+        if(m_projectThing.isValid()) {
+            newSeries.addProperty( NAO::isRelated() , m_projectThing.uri() );
+        }
+
+        graph << newSeries;
+    }
+    else {
+        graph[seriesUrl].setProperty(NBIB::issn(), utfContent);
     }
 }
 
-void BibTexToNepomukPipe::addCode(const QString &content, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addOrganization(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
 {
-    Nepomuk::Resource codeOfLaw = Nepomuk::Resource(QUrl(), NBIB::CodeOfLaw());
+    QString utfContent = m_macroLookup.value(QString(content.toUtf8()), QString(content.toUtf8()));
+
+    Nepomuk::NCO::OrganizationContact organization;
+    organization.setFullname( utfContent );
+
+    if(publication.contains(RDF::type(), NBIB::Article())) {
+        // special case if the publication is an article, we assume the organization was responsible for the full collection
+        // organization of a proceedings/conference or respnsible for teh blog/forum etc
+
+        QUrl collectionUrl;
+        if( !publication.property(NBIB::collection()).isEmpty()) {
+            collectionUrl = publication.property(NBIB::collection()).first().toUrl();
+        }
+
+        if(!collectionUrl.isValid()) {
+            // create new proceedings resource, as non existed yet
+            Nepomuk::NBIB::Proceedings newProceedings;
+            newProceedings.addArticle( publication.uri() );
+            publication.setProperty(NBIB::collection(), newProceedings.uri() );
+
+            newProceedings.setOrganization( organization.uri() );
+
+            if(m_projectThing.isValid()) {
+                newProceedings.addProperty( NAO::isRelated() , m_projectThing.uri() );
+            }
+
+            graph << newProceedings;
+        }
+        else {
+            // add organization to previous created proceedings
+            graph[collectionUrl].setProperty(NBIB::organization(), organization );
+        }
+    }
+    else {
+        // publication seems to be proceedings already
+        publication.setProperty(NBIB::organization(), organization );
+    }
+
+    graph << organization;
+}
+
+void BibTexToNepomukPipe::addCode(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
+{
+    Nepomuk::NBIB::CodeOfLaw codeOfLaw;
     codeOfLaw.setProperty(NIE::title(), QString(content.toUtf8()));
-    publication.setProperty(NBIB::codeOfLaw(), codeOfLaw);
+
+    publication.setProperty(NBIB::codeOfLaw(), codeOfLaw.uri()  );
 
     if(m_projectThing.isValid()) {
-        codeOfLaw.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
+        codeOfLaw.addProperty( NAO::isRelated() , m_projectThing.uri() );
+    }
+
+    graph << codeOfLaw;
+}
+
+void BibTexToNepomukPipe::addCodeNumber(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
+{
+    QUrl codeOfLawUrl = Nepomuk::NBIB::Legislation(publication).codeOfLaw();
+
+    if(!codeOfLawUrl.isValid()) {
+        // create new code of law, seems none existed up to now
+        Nepomuk::NBIB::CodeOfLaw codeOfLaw;
+        codeOfLaw.setProperty(NIE::title(), QString(content.toUtf8()));
+
+        publication.setProperty(NBIB::codeOfLaw(), codeOfLaw.uri()  );
+        codeOfLaw.setProperty(NBIB::codeNumber(), QString(content.toUtf8()) );
+
+        if(m_projectThing.isValid()) {
+            codeOfLaw.addProperty( NAO::isRelated() , m_projectThing.uri() );
+        }
+
+        graph << codeOfLaw;
+    }
+    else {
+        // add to existing code
+        graph[codeOfLawUrl].setProperty(NBIB::codeNumber(), QString(content.toUtf8()) );
     }
 }
 
-void BibTexToNepomukPipe::addCodeNumber(const QString &content, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addCodeVolume(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
 {
-    Nepomuk::Resource codeOfLaw = publication.property(NBIB::codeOfLaw()).toResource();
-    codeOfLaw.setProperty(NBIB::codeNumber(), QString(content.toUtf8()));
+    QUrl codeOfLawUrl = Nepomuk::NBIB::Legislation(publication).codeOfLaw();
+
+    if(!codeOfLawUrl.isValid()) {
+        // create new code of law, seems none existed up to now
+        Nepomuk::NBIB::CodeOfLaw codeOfLaw;
+        codeOfLaw.setProperty(NIE::title(), QString(content.toUtf8()));
+
+        publication.setProperty(NBIB::codeOfLaw(), codeOfLaw.uri()  );
+        codeOfLaw.setProperty(NBIB::volume(), QString(content.toUtf8()) );
+
+        if(m_projectThing.isValid()) {
+            codeOfLaw.addProperty( NAO::isRelated() , m_projectThing.uri() );
+        }
+
+        graph << codeOfLaw;
+    }
+    else {
+        // add to existing code
+        Nepomuk::NBIB::Publication(graph[codeOfLawUrl]).setVolume( QString(content.toUtf8()) );
+    }
 }
 
-void BibTexToNepomukPipe::addCodeVolume(const QString &content, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addReporter(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
 {
-    Nepomuk::Resource codeOfLaw = publication.property(NBIB::codeOfLaw()).toResource();
-    codeOfLaw.setProperty(NBIB::volume(), QString(content.toUtf8()));
-}
-
-void BibTexToNepomukPipe::addReporter(const QString &content, Nepomuk::Resource publication)
-{
-    Nepomuk::Resource courtReporter = Nepomuk::Resource(QUrl(), NBIB::CourtReporter());
+    Nepomuk::NBIB::CourtReporter courtReporter;
     courtReporter.setProperty(NIE::title(), QString(content.toUtf8()));
-    publication.setProperty(NBIB::courtReporter(), courtReporter);
+    publication.setProperty(NBIB::courtReporter(), courtReporter.uri()  );
+
+    graph << courtReporter;
 
     if(m_projectThing.isValid()) {
-        courtReporter.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
+        courtReporter.addProperty( NAO::isRelated() , m_projectThing.uri() );
     }
 }
 
-void BibTexToNepomukPipe::addReporterVolume(const QString &content, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addReporterVolume(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
 {
-    Nepomuk::Resource courtReporter = publication.property(NBIB::courtReporter()).toResource();
-    courtReporter.setProperty(NBIB::volume(), QString(content.toUtf8()));
-}
+    QUrl courtReporterUrl;
+    if(!publication.property(NBIB::courtReporter()).isEmpty()) {
+        courtReporterUrl = publication.property(NBIB::courtReporter()).first().toUrl();
+    }
 
-void BibTexToNepomukPipe::addEvent(const QString &content, Nepomuk::Resource publication)
-{
-    //find existing pimo::Event with the same name
-    Nepomuk::Resource eventResource;
-    Nepomuk::Resource pimoEventResource = m_allPimoEvents.value(QString(content.toUtf8()), Nepomuk::Resource());
-    if(pimoEventResource.isValid()) {
-        eventResource = pimoEventResource;
+    if(!courtReporterUrl.isValid()) {
+        // create new ccourt reporter, seems none existed up to now
+
+        Nepomuk::NBIB::CourtReporter courtReporter;
+        publication.setProperty(NBIB::courtReporter(), courtReporter.uri() );
+        publication.setVolume( content.toUtf8() );
+
+        if(m_projectThing.isValid()) {
+            courtReporter.addProperty( NAO::isRelated() , m_projectThing.uri() );
+        }
+
+        graph << courtReporter;
     }
     else {
-        eventResource = Nepomuk::Resource(QUrl(), PIMO::Event());
-        eventResource.setProperty(NIE::title(), QString(content.toUtf8()));
-        m_allPimoEvents.insert( QString(content.toUtf8()), eventResource);
+        // add to existing court reporter
+        graph[courtReporterUrl].setProperty(NBIB::volume(), QString(content.toUtf8()) );
     }
+}
 
-    eventResource.addProperty(NBIB::eventPublication(), publication);
-    publication.setProperty(NBIB::event(), eventResource);
+void BibTexToNepomukPipe::addEvent(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
+{
+    Nepomuk::PIMO::Event event;
+
+    event.setProperty(NAO::prefLabel(), QString(content.toUtf8()));
+
+    event.addProperty(NBIB::eventPublication(), publication);
+    publication.addEvent( event.uri() );
 
     if(m_projectThing.isValid()) {
-        eventResource.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
+        event.addProperty( NAO::isRelated() , m_projectThing.uri() );
     }
+
+    graph << event;
 }
 
-void BibTexToNepomukPipe::addSeries(const QString &content, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addSeries(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
 {
-    QUrl seriesType;
-    if(publication.hasType(NBIB::Book()) ||
-    publication.hasType(NBIB::Booklet()) ) {
-        seriesType = NBIB::BookSeries();
-    }
-    else {
-        seriesType = NBIB::Series();
+    Nepomuk::NBIB::Series series;
+
+    if( publication.contains(RDF::type(), NBIB::Book()) || publication.contains(RDF::type(), NBIB::Booklet()) ) {
+        series.addType( NBIB::BookSeries() );
     }
 
-    //find existing series or create a new series of them
-    Nepomuk::Resource seriesResource;
     QString utfContent = m_macroLookup.value(QString(content.toUtf8()), QString(content.toUtf8()));
+    series.setProperty( NIE::title(), utfContent );
 
-    // check if a series with the same name already exist
-
-    seriesResource = m_allSeries.value(utfContent, Nepomuk::Resource());
-
-    if(!seriesResource.isValid()) {
-        seriesResource = Nepomuk::Resource(QUrl(), seriesType);
-        seriesResource.addType(NBIB::Series()); // seems to be a bug, not the full hierachry will be set otherwise
-        seriesResource.addType(NIE::InformationElement());
-        seriesResource.setProperty(NIE::title(), utfContent);
-        m_allSeries.insert(utfContent, seriesResource);
-    }
-
-    seriesResource.addProperty(NBIB::seriesOf(), publication);
-    publication.setProperty(NBIB::inSeries(), seriesResource);
+    series.addSeriesOf( publication.uri() );
+    publication.setInSeries( series.uri()  );
 
     if(m_projectThing.isValid()) {
-        seriesResource.addProperty( Soprano::Vocabulary::NAO::isRelated() , m_projectThing);
+        series.addProperty( NAO::isRelated() , m_projectThing.uri() );
     }
+
+    graph << series;
 }
 
-void BibTexToNepomukPipe::addTitle(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType)
+void BibTexToNepomukPipe::addTitle(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph, const QString & originalEntryType)
 {
     QString utfContent = m_macroLookup.value(QString(content.toUtf8()), QString(content.toUtf8()));
 
     // in the case of @InCollection title means title of the article in the book
     // while booktitle is the actual title of the book
-    if(originalEntryType == QLatin1String("incollection")) {
+    if(originalEntryType == QLatin1String("incollection") || originalEntryType == QLatin1String("dictionaryentry")) {
 
-        Nepomuk::Resource chapterResource = reference.property(NBIB::referencedPart()).toResource();
+        QUrl chapterUrl = reference.referencedPart();
 
-        if(!chapterResource.isValid()) {
-            chapterResource = Nepomuk::Resource(QUrl(), NBIB::Chapter());
-            reference.setProperty(NBIB::referencedPart(), chapterResource);
-            publication.addProperty(NBIB::documentPart(), chapterResource);
-            chapterResource.setProperty(NBIB::documentPartOf(), publication);
+        if(!chapterUrl.isValid()) {
+            Nepomuk::NBIB::Chapter chapter;
+            chapter.addType(NIE::DataObject());
+            chapter.setProperty( NIE::title(), utfContent);
+            // the chapter needs a "unique identifier, otherwise we merge them with other chapters together";
+            chapter.setProperty(NAO::identifier(), QUuid::createUuid().toString());
+            chapter.setProperty(NIE::url(), QUuid::createUuid().toString());
+
+            // connect reference <-> chapter <-> document
+            reference.setReferencedPart( chapter.uri() );
+            publication.addDocumentPart( chapter.uri() );
+            chapter.setDocumentPartOf( publication.uri() );
+            publication.addProperty(NAO::hasSubResource(), chapter.uri() );
+
+            graph << chapter;
         }
-
-        chapterResource.setProperty( NIE::title(), utfContent);
-    }
-    // for a dictionary entry the title is the name of the chapter
-    else if(originalEntryType == QLatin1String("dictionaryentry")) {
-
-        Nepomuk::Resource chapterResource = reference.property(NBIB::referencedPart()).toResource();
-
-        if(!chapterResource.isValid()) {
-            chapterResource = Nepomuk::Resource(QUrl(), NBIB::Chapter());
-            reference.setProperty(NBIB::referencedPart(), chapterResource);
-            publication.addProperty(NBIB::documentPart(), chapterResource);
-            chapterResource.setProperty(NBIB::documentPartOf(), publication);
+        else {
+            graph[chapterUrl].setProperty( NIE::title(), utfContent);
         }
-
-        chapterResource.setProperty( NIE::title(), utfContent);
     }
     else {
         publication.setProperty(NIE::title(), utfContent);
     }
 }
 
-void BibTexToNepomukPipe::addAssignee(const Value &contentValue, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addAssignee(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
 {
-    addContact(contentValue, publication, NBIB::assignee(), QUrl()); // let addContact decide is it should be PersonContact or plain contact
+    addContact(contentValue, publication, graph, NBIB::assignee(), QUrl());
 }
 
-void BibTexToNepomukPipe::addContributor(const Value &contentValue, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addContributor(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
 {
-    addContact(contentValue, publication, NBIB::contributor(), NCO::PersonContact());
+    addContact(contentValue, publication, graph, NBIB::contributor(), NCO::PersonContact());
 }
 
-void BibTexToNepomukPipe::addTranslator(const Value &contentValue, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addTranslator(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
 {
-    addContact(contentValue, publication, NBIB::translator(), NCO::PersonContact());
+    addContact(contentValue, publication, graph, NBIB::translator(), NCO::PersonContact());
 }
 
-void BibTexToNepomukPipe::addReviewedAuthor(const Value &contentValue, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addReviewedAuthor(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
 {
-    addContact(contentValue, publication, NBIB::reviewedAuthor(), NCO::PersonContact());
+    addContact(contentValue, publication, graph, NBIB::reviewedAuthor(), NCO::PersonContact());
 }
 
-void BibTexToNepomukPipe::addUrl(const QString &content, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addUrl(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
 {
-    // in merge mode we remove all urls and replace them by whatever we get in the current content
-    if(m_replaceMode) {
-        QList<Nepomuk::Resource> dataObjectList = publication.property(NBIB::isPublicationOf()).toResourceList();
-        foreach(Nepomuk::Resource r, dataObjectList) {
-            if(r.hasType( NFO::WebDataObject() ) ) {
-                publication.removeProperty( NBIB::isPublicationOf(), r);
-                r.removeProperty( NBIB::publishedAs(), publication);
-            }
-        }
+    //TODO differentiate between webpage and webseite
+    // TODO split webpages if necessary
+    QUrl url( QString(content.toUtf8()) );
+
+    QString protocol = url.scheme();
+
+    if(protocol.isEmpty()) {
+        kDebug() << "tried to add invalid url without protocol add http://";
+        url.setScheme(QLatin1String("http"));
+    }
+    else if(!protocol.contains(QLatin1String("http")) && !protocol.contains(QLatin1String("https")) &&
+            !protocol.contains(QLatin1String("ftp"))) {
+        kDebug() << "tried to add invalid url with unknown protocol" << protocol <<  "add http://";
+        url.setScheme(QLatin1String("http://") + protocol);
     }
 
-    // first check if the url is already attached to the publication
-    QList<Nepomuk::Resource> dataObjectList = publication.property(NBIB::isPublicationOf()).toResourceList();
-    foreach(const Nepomuk::Resource &r, dataObjectList) {
-        if(r.property(NIE::url()).toString() == QString(content.toUtf8())) {
-            kDebug() << "url already connected to publication" << QString(content.toUtf8());
-            return;
-        }
-    }
+    Nepomuk::NFO::Website website( url );
+    website.addType(NFO::WebDataObject());
 
-    Nepomuk::Resource dataObject(QString(content.toUtf8()));
-    dataObject.addType( NFO::Document() );
+    publication.addProperty(NIE::links(), website.uri() );
 
-    // first check if the given url points to a local file
-    KUrl url = KUrl(content);
-    if(!url.isLocalFile()) {
-        dataObject.addType( NFO::WebDataObject() );
+    graph << website;
+}
+
+void BibTexToNepomukPipe::addPublicationDate(const QString &fullDate, Nepomuk::NBIB::Publication &publication)
+{
+    // try to find out what format was used to specify the full date
+    QDateTime dateTime = QDateTime::fromString(fullDate, "yyyy-MM-ddTHH:mm:ss");
+
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "yyyy-MM-dd"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "dd-MM-yyy"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "yyyy-MM"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "MM-yyyy"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "yyyy.MM.dd"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "dd.MM.yyy"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "MM.yyy"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "yyyy.MM"); }
+
+    if(dateTime.isValid()) {
+        QString newDate = dateTime.toString("yyyy-MM-ddTHH:mm:ss");
+
+        publication.setProperty( NBIB::publicationDate(), newDate);
     }
     else {
-        // pure local file
-        dataObject.addType( NFO::FileDataObject() );
+        kDebug() << "could not parse publication date " << fullDate;
     }
-
-    dataObject.setProperty(NIE::url(), QString(content.toUtf8()));
-    dataObject.setProperty(NIE::title(), QString(content.toUtf8()));
-    QStringList identifier;
-    identifier.append(QString(content.toUtf8()));
-    dataObject.setIdentifiers(identifier);
-
-    kDebug() << "add URL to publication" << url;
-
-    publication.addProperty(NBIB::isPublicationOf(), dataObject);
-    dataObject.addProperty(NBIB::publishedAs(), publication);
 }
 
-void BibTexToNepomukPipe::addYear(const QString &content, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addPublicationDate(const QString &year, const QString &month, const QString &day, Nepomuk::NBIB::Publication &publication)
 {
-    //fetch already existing publication or create a new one
-    QString date = publication.property(NBIB::publicationDate()).toString();
-    QString year = QString::number(0000);
-    QString month = QString::number(00);
-    QString day = QString::number(00);
+    QString finalYear = year;
+    QString finalMonth = month;
+    QString finalDay = day;
 
-    if(!date.isEmpty()) {
-        QRegExp rx(QLatin1String("(\\d*)-(\\d*)-(\\d*)*"));
-        if (rx.indexIn(date) != -1) {
-            year = rx.cap(1);
-            month = rx.cap(2);
-            day = rx.cap(3);
+    if(finalYear.size() != 4) {
+        finalYear.prepend(QLatin1String("20")); // transforms '11 into 2011
+    }
+
+    if(finalMonth.isEmpty()) {
+        finalMonth = QLatin1String("01");
+    }
+    else {
+        bool monthIsInt;
+        finalMonth.toInt(&monthIsInt);
+        if(monthIsInt) {
+            finalMonth = month;
         }
+        else {
+            QString contentMonth = finalMonth.toLower().toUtf8();
+            //transform bibtex month to numbers
+            if(contentMonth.contains(QLatin1String("jan"))) {
+                contentMonth = QString::number(1);
+            }
+            else if(contentMonth.contains(QLatin1String("feb"))) {
+                contentMonth = QString::number(2);
+            }
+            else if(contentMonth.contains(QLatin1String("mar"))) {
+                contentMonth = QString::number(3);
+            }
+            else if(contentMonth.contains(QLatin1String("apr"))) {
+                contentMonth = QString::number(4);
+            }
+            else if(contentMonth.contains(QLatin1String("may"))) {
+                contentMonth = QString::number(5);
+            }
+            else if(contentMonth.contains(QLatin1String("jun"))) {
+                contentMonth = QString::number(6);
+            }
+            else if(contentMonth.contains(QLatin1String("jul"))) {
+                contentMonth = QString::number(7);
+            }
+            else if(contentMonth.contains(QLatin1String("aug"))) {
+                contentMonth = QString::number(8);
+            }
+            else if(contentMonth.contains(QLatin1String("sep"))) {
+                contentMonth = QString::number(9);
+            }
+            else if(contentMonth.contains(QLatin1String("oct"))) {
+                contentMonth = QString::number(10);
+            }
+            else if(contentMonth.contains(QLatin1String("nov"))) {
+                contentMonth = QString::number(11);
+            }
+            else if(contentMonth.contains(QLatin1String("dec"))) {
+                contentMonth = QString::number(12);
+            }
+            else {
+                contentMonth = QLatin1String("01");
+            }
+
+            finalMonth = contentMonth;
+        }
+
     }
 
-    if(year.size() != 4) {
-        year.prepend(QLatin1String("00"));
-    }
-    if(month.size() != 2) {
-        month.prepend(QLatin1String("0"));
-    }
-    if(day.size() != 2) {
-        day.prepend(QLatin1String("0"));
+    if(finalMonth.size() != 2) {
+        finalMonth = finalMonth.prepend(QLatin1String("0")); // transforms '1 into 01
     }
 
-    QString newDate = content.toUtf8().trimmed() + QLatin1String("-") + month + QLatin1String("-") + day + QLatin1String("T00:00:00");
-    publication.setProperty(NBIB::publicationDate(), newDate);
+    if(day.isEmpty()) {
+        finalDay = QLatin1String("01");
+    }
+    else if(day.size() == 1) {
+        finalDay.prepend(QLatin1String("0")); // transforms '1 into 01
+    }
+
+    QString newDate = finalYear + QLatin1String("-") + finalMonth + QLatin1String("-") + finalDay + QLatin1String("T00:00:00");
+
+    publication.setProperty( NBIB::publicationDate(), newDate);
 }
 
-void BibTexToNepomukPipe::addKewords(const Value &content, Nepomuk::Resource publication)
+void BibTexToNepomukPipe::addTag(const Value &content, Nepomuk::SimpleResource &resource, Nepomuk::SimpleResourceGraph &graph)
 {
-    // in case we merge, we remove all old keys and add only the new ones
-    if(m_replaceMode) {
-        publication.removeProperty(Soprano::Vocabulary::NAO::hasTag());
-    }
-
     foreach(QSharedPointer<ValueItem> vi, content) {
         Keyword *k = dynamic_cast<Keyword *>(vi.data());
-        Nepomuk::Tag tag(k->text().toUtf8());
-        tag.setLabel(k->text().toUtf8());
-        publication.addTag(tag);
+
+        //TODO does this need a change? works differentlyy than pimo:Topic creation, still works though...
+        Nepomuk::SimpleResource tagResource;
+        Nepomuk::NAO::Tag tag (&tagResource);
+
+        QUrl encodedIdent = QUrl( k->text() ); // creates html escaped identifier
+        tagResource.addProperty( NAO::identifier(), encodedIdent.toEncoded());
+        tag.addPrefLabel( k->text() );
+
+        graph << tagResource;
+        resource.addProperty( NAO::hasTag(), tagResource.uri());
     }
 }
 
-void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference, Entry *e)
+void BibTexToNepomukPipe::addTopic(const Value &content, Nepomuk::SimpleResource &resource, Nepomuk::SimpleResourceGraph &graph)
+{
+    foreach(QSharedPointer<ValueItem> vi, content) {
+        Keyword *k = dynamic_cast<Keyword *>(vi.data());
+
+        Nepomuk::PIMO::Topic topic;
+
+        QUrl encodedIdent = QUrl( k->text() ); // creates html escaped identifier
+        topic.addProperty( NAO::identifier(),encodedIdent.toEncoded() );
+        topic.setTagLabel(k->text());
+
+        graph << topic;
+        resource.addProperty( NAO::hasTopic(), topic.uri());
+    }
+}
+
+void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::SimpleResource &mainResource, Nepomuk::SimpleResource &referenceResource,
+                                               Entry *e, Nepomuk::SimpleResourceGraph &graph)
 {
     QString id = PlainTextValue::text(e->value(QLatin1String("zoterokey")));
     QString etag = PlainTextValue::text(e->value(QLatin1String("zoteroetag")));
@@ -1596,57 +1766,45 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Ne
     e->remove(QLatin1String("zoteroupdated"));
     e->remove(QLatin1String("zoteroparent"));
 
-    Nepomuk::Resource syncDetails;
+    Nepomuk::SYNC::ServerSyncData serverSyncData;
 
-    // if we merge, we try to find existing zotero details we can update first
-    if(m_replaceMode) {
-        QList<Nepomuk::Resource> syncList = publication.property(SYNC::serverSyncData()).toResourceList();
+    // first set an identifier, when the object already exist we merge them together
+    QString identifier = QLatin1String("zotero") + m_syncUserId + m_syncUrl + id;
+    QUrl encodedIdent = QUrl( identifier ); // creates html escaped identifier
+    serverSyncData.addProperty( NAO::identifier(),encodedIdent.toEncoded() );
 
-        foreach(const Nepomuk::Resource &r, syncList) {
-            if(r.property(SYNC::provider()).toString() != QString("zotero"))
-                continue;
-            if(r.property(SYNC::userId()).toString() != m_syncUserId)
-                continue;
-            if(r.property(SYNC::id()).toString() != id)
-                continue;
+    // now we set the new values
+    serverSyncData.setProvider( QLatin1String("zotero") );
+    serverSyncData.setUrl( m_syncUrl );
+    serverSyncData.setUserId( m_syncUserId );
+    serverSyncData.setId( id );
+    serverSyncData.setEtag( etag );
+    serverSyncData.setProperty( NUAO::lastModification(), updated);
 
-            syncDetails = r;
-            break;
-        }
-    }
-
-    if(!syncDetails.isValid()) {
-        kDebug() << "syncDetails is not valid create new detail resource";
-        syncDetails = Nepomuk::Resource();
-        syncDetails.addType( SYNC::ServerSyncData() );
-    }
-
-    syncDetails.setProperty(SYNC::provider(), QString("zotero"));
-    syncDetails.setProperty(SYNC::url(), m_syncUrl);
-    syncDetails.setProperty(SYNC::userId(), m_syncUserId);
-    syncDetails.setProperty(SYNC::id(), id);
-    syncDetails.setProperty(SYNC::etag(), etag);
-    syncDetails.setProperty(NUAO::lastModification(), updated);
-
+    // now depending on what kind of mainResource we have, we add another TypeClass
+    // helps to find the right data later on again and create the right links between Resource and syncData
     if(e->type() == QLatin1String("note")) {
-        syncDetails.setProperty(SYNC::syncDataType(), SYNC::Note());
-        syncDetails.setProperty(SYNC::note(), publication);
-        publication.setProperty(SYNC::serverSyncData(), syncDetails);
+        serverSyncData.setSyncDataType( SYNC::Note() );
+        serverSyncData.setNote( mainResource.uri() );
+        mainResource.setProperty(SYNC::serverSyncData(), serverSyncData.uri() );
     }
     else if(e->type() == QLatin1String("attachment")) {
-        syncDetails.setProperty(SYNC::syncDataType(), SYNC::Attachment());
-        syncDetails.setProperty(SYNC::attachment(), publication);
-        publication.setProperty(SYNC::serverSyncData(), syncDetails);
+        serverSyncData.setSyncDataType( SYNC::Attachment() );
+        serverSyncData.setAttachment( mainResource.uri() );
+        mainResource.setProperty(SYNC::serverSyncData(), serverSyncData.uri() );
     }
     else {
-        syncDetails.setProperty(SYNC::syncDataType(), SYNC::BibResource());
-        syncDetails.setProperty(NBIB::publication(), publication);
-        syncDetails.setProperty(NBIB::reference(), reference);
-        publication.setProperty(SYNC::serverSyncData(), syncDetails);
-        reference.setProperty(SYNC::serverSyncData(), syncDetails);
+        serverSyncData.setSyncDataType( SYNC::BibResource() );
+        serverSyncData.setProperty(NBIB::publication(),  mainResource.uri() );
+        mainResource.setProperty(SYNC::serverSyncData(), serverSyncData.uri() );
+
+        serverSyncData.setProperty(NBIB::reference(),  referenceResource.uri() );
+        referenceResource.setProperty(SYNC::serverSyncData(), serverSyncData.uri() );
     }
 
-    // check if the current item we added is a child oitem and need to be added to a parent too
+    graph << serverSyncData;
+
+    // check if the current item we added is a child item and need to be added to a parent too
     if( parentId.isEmpty() ) {
         return;
     }
@@ -1671,47 +1829,45 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::Resource publication, Ne
 
     QUrl syncDataType = parentSyncResource.property(SYNC::syncDataType()).toUrl();
 
-    if(syncDataType == SYNC::Attachment()) {
-        //ignore
+    if(syncDataType == SYNC::Attachment()) { //ignore
     }
-    else if(syncDataType == SYNC::Note()) {
-        //ignore
+    else if(syncDataType == SYNC::Note()) { //ignore
     }
     else if(syncDataType == SYNC::BibResource()) {
-        // here we ad the information that a note as related(a child) of the reference and the publication
-        // and that the attachment (nfo:FileDataObject) is the publicationOf publishedAs of the nbib:Publication
+        // here we ad the information that a note as related(a child) of the reference and the publication.
+        // and that the attachment (nfo:FileDataObject) is the publicationOf/publishedAs of the nbib:Publication
 
-        if( publication.hasType(PIMO::Note())) {
+        if( mainResource.contains(RDF::type(), PIMO::Note())) {
             Nepomuk::Resource parentPublication = parentSyncResource.property(NBIB::publication()).toResource();
-            parentPublication.addProperty( NAO::isRelated(), publication);
-            publication.addProperty( NAO::isRelated(), parentPublication);
+            parentPublication.addProperty( NAO::isRelated(), mainResource.uri());
+            mainResource.addProperty( NAO::isRelated(), parentPublication.uri());
 
             Nepomuk::Resource parentReference = parentSyncResource.property(NBIB::reference()).toResource();
-            parentReference.addProperty( NAO::isRelated(), publication);
-            publication.addProperty( NAO::isRelated(), parentReference);
+            parentReference.addProperty( NAO::isRelated(), mainResource.uri());
+            mainResource.addProperty( NAO::isRelated(), parentReference.uri());
         }
-        else if( publication.hasType(NFO::FileDataObject()) || publication.hasType(NFO::RemoteDataObject())) {
+        else if( mainResource.contains(RDF::type(), NFO::FileDataObject()) || mainResource.contains(RDF::type(), NFO::RemoteDataObject())) {
             Nepomuk::Resource parentPublication = parentSyncResource.property(NBIB::publication()).toResource();
-            parentPublication.addProperty( NBIB::isPublicationOf(), publication);  // here the "publication" is the actual file attachment
-            publication.addProperty( NBIB::publishedAs(), parentPublication);
+            parentPublication.addProperty( NBIB::isPublicationOf(), mainResource.uri());
+            mainResource.addProperty( NBIB::publishedAs(), parentPublication.uri());
         }
     }
 
     // this creates the link for the syncResources so we know how they are connected
-    syncDetails.setProperty(NAO::isRelated(), parentSyncResource); // connect child syncDetails to its parent syncDetails
+    // connect child syncDetails to its parent syncDetails
+    serverSyncData.setProperty(NAO::isRelated(), parentSyncResource.uri());
+
+    graph << serverSyncData;
 }
 
-void BibTexToNepomukPipe::addContact(const Value &contentValue, Nepomuk::Resource res, QUrl property, QUrl contactType )
+void BibTexToNepomukPipe::addContact(const Value &contentValue, Nepomuk::SimpleResource &resource, Nepomuk::SimpleResourceGraph &graph, QUrl contactProperty, QUrl contactType )
 {
-    //now if we update the nepomuk details, we remove all existing authors first and add only the authors from the new entry again
-    if(m_replaceMode) {
-        res.removeProperty(property);
-    }
-
     foreach(QSharedPointer<ValueItem> authorItem, contentValue) {
         //transform KBibTex representation of the name into my own Name
         Name author;
         Person *person = dynamic_cast<Person *>(authorItem.data());
+
+        bool personNotInstitution = false;
         if(person) {
             author.first = person->firstName().toUtf8();
             author.last = person->lastName().toUtf8();
@@ -1719,85 +1875,107 @@ void BibTexToNepomukPipe::addContact(const Value &contentValue, Nepomuk::Resourc
             author.full = author.first + QLatin1String(" ") + author.last + QLatin1String(" ") + author.suffix;
             author.full = author.full.trimmed();
 
-            if(!contactType.isValid())
-                contactType = NCO::PersonContact();
+            if(!contactType.isValid()) {
+                personNotInstitution = true;
+            }
         }
         else {
             author.full = PlainTextValue::text(*authorItem).toUtf8();
             author.full = m_macroLookup.value(author.full, author.full);
 
-            if(!contactType.isValid())
-                contactType = NCO::Contact();
+            if(!contactType.isValid()) {
+                personNotInstitution = false;
+            }
         }
 
-        //check if the author already exist in the database
-        Nepomuk::Resource contact = m_allContacts.value(author.full, Nepomuk::Resource());
+        // if we want to push the data into akonadi let akonadi handle everything
+        if(m_addressbook.isValid()) {
+            // first we search if there exist a contact with the same fullname in the nepomuk storage
+            // that is handlet by akonadi
+            QString query = "select DISTINCT ?r ?fullname where {"
+                            "?r a nco:Contact ."
+                            "?r a aneo:AkonadiDataObject ."
+                            "?r nco:fullname ?fullname . FILTER ( regex (?fullname, \""+ author.full + "\") )"
+                            "}";
 
-        if(!contact.isValid()) {
+            QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
 
-            if(m_addressbook.isValid()) {
-                kDebug() << "add author" << author.full << "to akonadi collection" << m_addressbook.name();
-                KABC::Addressee addr;
-                addr.setFamilyName( author.last );
-                addr.setGivenName( author.first );
-                addr.setSuffix( author.suffix );
-                addr.setName( author.full );
-                addr.setFormattedName( author.full );
+            if(!queryResult.isEmpty()) {
+                // take the already available object
+                Nepomuk::SimpleResource contact;
+                contact.setProperty(NIE::url(), queryResult.first().resource().property(NIE::url()).toString());
+                contact.setProperty(NCO::fullname(), queryResult.first().resource().property(NCO::fullname()).toString());
+                resource.addProperty(contactProperty, contact);
+                graph << contact;
+                return;
+            }
 
-                Akonadi::Item item;
-                item.setMimeType( KABC::Addressee::mimeType() );
-                item.setPayload<KABC::Addressee>( addr );
+            // if no contact with the same fullname exist that is managed by akonadi (aneo:AkonadiDataObject)
+            // we create a new contact
 
-                Akonadi::ItemCreateJob *job = new Akonadi::ItemCreateJob( item, m_addressbook );
+            kDebug() << "add author" << author.full << "to akonadi collection" << m_addressbook.name();
+            KABC::Addressee addr;
+            addr.setFamilyName( author.last );
+            addr.setGivenName( author.first );
+            addr.setSuffix( author.suffix );
+            addr.setName( author.full );
+            addr.setFormattedName( author.full );
 
-                if ( !job->exec() ) {
-                    kDebug() << "Error:" << job->errorString();
-                }
+            Akonadi::Item item;
+            item.setMimeType( KABC::Addressee::mimeType() );
+            item.setPayload<KABC::Addressee>( addr );
 
-                // akonadi saves its contacts with a specific nepomuk uri, we use it here to
-                // connect the resource to the publication
-                // akonadi will then always update this resource
-                contact = Nepomuk::Resource(job->item().url(), contactType);
-                contact.setProperty(NIE::url(), job->item().url());
+            Akonadi::ItemCreateJob *job = new Akonadi::ItemCreateJob( item, m_addressbook );
 
-                contact.setProperty(NCO::fullname(), author.full);
+            if ( !job->exec() ) {
+                kDebug() << "Error:" << job->errorString();
+            }
 
-                if(!author.first.isEmpty())
-                    contact.setProperty(NCO::nameGiven(), author.first);
-                if(!author.last.isEmpty())
-                    contact.setProperty(NCO::nameFamily(), author.last);
-                if(!author.suffix.isEmpty())
-                    contact.setProperty(NCO::nameHonorificSuffix(), author.suffix);
+            // akonadi saves its contacts with a specific nepomuk url, we create another one with the same url
+            // this the DMS will megre these resources. Akonadi will fill all necessary parts of the contact itself, as
+            // from now on changes are made via Akonadi not nepomuk
+            Nepomuk::ANEO::AkonadiDataObject contact;
+            contact.addType(NCO::Contact());
+            contact.setProperty(NIE::url(), job->item().url());
 
-                kDebug() << "akonadi/nepomuk id" << job->item().url() << contact.isValid() << contact.resourceUri();
+            graph << contact;
+            resource.addProperty(contactProperty, contact);
+        }
+        // ok we did not want to push the resource into akonadi
+        // create it the usual way
+        else {
+            // create new contact resource, duplicates will be merged by the DMS later on
+            if( personNotInstitution ) {
+                Nepomuk::NCO::PersonContact authorResource;
+                authorResource.setFullname( author.full );
+                authorResource.setNameGiven( author.first );
+                authorResource.setNameFamily( author.last );
+                QStringList suffixes;
+                suffixes << author.suffix;
+                authorResource.setNameHonorificSuffixs( suffixes );
+
+                resource.addProperty(contactProperty, authorResource);
+                graph << authorResource;
             }
             else {
-                contact = Nepomuk::Resource(QUrl(), contactType);
+                // So we didn't get a Person as contact but instead a single name, might be organization or something else
+                Nepomuk::NCO::Contact authorResource;
+                authorResource.setFullname( author.full );
 
-                contact.setProperty(NCO::fullname(), author.full);
-
-                if(!author.first.isEmpty())
-                    contact.setProperty(NCO::nameGiven(), author.first);
-                if(!author.last.isEmpty())
-                    contact.setProperty(NCO::nameFamily(), author.last);
-                if(!author.suffix.isEmpty())
-                    contact.setProperty(NCO::nameHonorificSuffix(), author.suffix);
+                resource.addProperty(contactProperty, authorResource);
+                graph << authorResource;
             }
-
-            m_allContacts.insert(author.full,contact);
         }
-
-        res.addProperty(property, contact);
-    }
+    } //end foreach
 }
 
-void BibTexToNepomukPipe::addValue(const QString &content, Nepomuk::Resource publication, QUrl property)
+void BibTexToNepomukPipe::addValue(const QString &content, Nepomuk::SimpleResource &resource, QUrl property)
 {
-    publication.setProperty(property, QString(content.toUtf8()));
+    resource.setProperty(property, QString(content.toUtf8()));
 }
 
-void BibTexToNepomukPipe::addValueWithLookup(const QString &content, Nepomuk::Resource publication, QUrl property)
+void BibTexToNepomukPipe::addValueWithLookup(const QString &content, Nepomuk::SimpleResource &resource, QUrl property)
 {
     QString utfContent = m_macroLookup.value(QString(content.toUtf8()), QString(content.toUtf8()));
-    publication.setProperty(property, utfContent);
+    resource.setProperty(property, utfContent);
 }

@@ -501,7 +501,7 @@ void PublicationWidget::setupWidget()
     ui->editRemoteObject->setMode(FileObjectEdit::Remote);
     ui->editRemoteObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
     ui->editWebObject->setMode(FileObjectEdit::Website);
-    ui->editWebObject->setPropertyUrl( Nepomuk::Vocabulary::NBIB::isPublicationOf() );
+    ui->editWebObject->setPropertyUrl( Nepomuk::Vocabulary::NIE::links() );
     ui->editKeywords->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
     ui->editKeywords->setPropertyUrl( Soprano::Vocabulary::NAO::hasTag() );
 
@@ -558,7 +558,7 @@ void PublicationWidget::setupWidget()
     ui->editHistory->setPropertyUrl( Nepomuk::Vocabulary::NBIB::history() );
     ui->editScale->setPropertyUrl( Nepomuk::Vocabulary::NBIB::mapScale() );
     ui->editHowPublished->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationMethod() );
-    ui->editType->setPropertyUrl( Nepomuk::Vocabulary::NBIB::type() );
+    ui->editType->setPropertyUrl( Nepomuk::Vocabulary::NBIB::publicationType() );
 
     // identification section
     ui->editArchive->setPropertyUrl( Nepomuk::Vocabulary::NBIB::archive() );

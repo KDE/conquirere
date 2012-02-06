@@ -46,7 +46,7 @@ void FileObjectEdit::setMode(Mode mode)
 
 void FileObjectEdit::setupLabel()
 {
-    QList<Nepomuk::Resource> dataObjectList = resource().property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResourceList();
+    QList<Nepomuk::Resource> dataObjectList = resource().property(propertyUrl()).toResourceList();
 
     kDebug() << resource().genericLabel() << "has " << dataObjectList.size() << "publications attached to it";
 
@@ -63,7 +63,8 @@ void FileObjectEdit::setupLabel()
             dataStringList.append(url);
             dataStringList.append(QLatin1String("; "));
         }
-        else if(m_mode == Website && nr.hasType(Nepomuk::Vocabulary::NFO::WebDataObject()) ) {
+        else if(m_mode == Website && (nr.hasType(Nepomuk::Vocabulary::NFO::WebDataObject()) ||
+                                      nr.hasType(Nepomuk::Vocabulary::NFO::Website()))) {
             dataStringList.append(url);
             dataStringList.append(QLatin1String("; "));
         }

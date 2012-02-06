@@ -150,8 +150,6 @@ void WriteToZotero::pushNewItems(File *items, const QString &collection)
         }
         QUrl pushUrl(pushString);
 
-        kDebug() << pushString;
-
         QNetworkRequest request(pushUrl);
         request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
         //request.setRawHeader("X-Zotero-Write-Token", etag);
@@ -185,9 +183,6 @@ void WriteToZotero::updateItem(QSharedPointer<Element> item)
     File *itemFile = new File;
     itemFile->append(item);
     QSharedPointer<Entry> entryPointer(entry);
-
-    kDebug() << pushUrl;
-    kDebug() << writeJsonContent(itemFile, true);
 
     startRequest(request, writeJsonContent(itemFile, true), QNetworkAccessManager::PutOperation, entryPointer);
 }

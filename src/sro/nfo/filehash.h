@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 namespace Nepomuk {
 namespace NFO {
@@ -35,35 +35,32 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashAlgorithm. 
-     * Name of the algorithm used to compute the hash value. Examples 
-     * might include CRC32, MD5, SHA, TTH etc. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashValue. 
+     * The actual value of the hash. 
      */
-    QString hAlgorithm() const {
+    QString hValue() const {
         QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashAlgorithm", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashAlgorithm", QUrl::StrictMode)).first().value<QString>();
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashValue", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashValue", QUrl::StrictMode)).first().value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashAlgorithm. 
-     * Name of the algorithm used to compute the hash value. Examples 
-     * might include CRC32, MD5, SHA, TTH etc. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashValue. 
+     * The actual value of the hash. 
      */
-    void setHAlgorithm(const QString& value) {
+    void setHValue(const QString& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashAlgorithm", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashValue", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashAlgorithm. 
-     * Name of the algorithm used to compute the hash value. Examples 
-     * might include CRC32, MD5, SHA, TTH etc. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashValue. 
+     * The actual value of the hash. 
      */
-    void addHAlgorithm(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashAlgorithm", QUrl::StrictMode), value);
+    void addHValue(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashValue", QUrl::StrictMode), value);
     }
 
     /**
@@ -96,61 +93,35 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
-     * Number of front channels. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashAlgorithm. 
+     * Name of the algorithm used to compute the hash value. Examples 
+     * might include CRC32, MD5, SHA, TTH etc. 
      */
-    qint64 frontChannels() const {
-        qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode)).first().value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
-     * Number of front channels. 
-     */
-    void setFrontChannels(const qint64& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
-     * Number of front channels. 
-     */
-    void addFrontChannels(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashValue. 
-     * The actual value of the hash. 
-     */
-    QString hValue() const {
+    QString hAlgorithm() const {
         QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashValue", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashValue", QUrl::StrictMode)).first().value<QString>();
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashAlgorithm", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashAlgorithm", QUrl::StrictMode)).first().value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashValue. 
-     * The actual value of the hash. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashAlgorithm. 
+     * Name of the algorithm used to compute the hash value. Examples 
+     * might include CRC32, MD5, SHA, TTH etc. 
      */
-    void setHValue(const QString& value) {
+    void setHAlgorithm(const QString& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashValue", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashAlgorithm", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashValue. 
-     * The actual value of the hash. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashAlgorithm. 
+     * Name of the algorithm used to compute the hash value. Examples 
+     * might include CRC32, MD5, SHA, TTH etc. 
      */
-    void addHValue(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashValue", QUrl::StrictMode), value);
+    void addHAlgorithm(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashAlgorithm", QUrl::StrictMode), value);
     }
 
     /**
@@ -209,6 +180,35 @@ public:
      */
     void addLfeChannels(const qint64& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
+     * Number of front channels. 
+     */
+    qint64 frontChannels() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
+     * Number of front channels. 
+     */
+    void setFrontChannels(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
+     * Number of front channels. 
+     */
+    void addFrontChannels(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode), value);
     }
 
 protected:

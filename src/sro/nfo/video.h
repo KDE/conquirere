@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 #include "nfo/visual.h"
 
@@ -32,35 +32,6 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Video", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameRate. 
-     * Amount of video frames per second. 
-     */
-    double frameRate() const {
-        double value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameRate", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameRate", QUrl::StrictMode)).first().value<double>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameRate. 
-     * Amount of video frames per second. 
-     */
-    void setFrameRate(const double& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameRate", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameRate. 
-     * Amount of video frames per second. 
-     */
-    void addFrameRate(const double& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameRate", QUrl::StrictMode), value);
     }
 
     /**
@@ -90,6 +61,35 @@ public:
      */
     void addFrameCount(const qint64& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameCount", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameRate. 
+     * Amount of video frames per second. 
+     */
+    double frameRate() const {
+        double value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameRate", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameRate", QUrl::StrictMode)).first().value<double>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameRate. 
+     * Amount of video frames per second. 
+     */
+    void setFrameRate(const double& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameRate", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameRate. 
+     * Amount of video frames per second. 
+     */
+    void addFrameRate(const double& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frameRate", QUrl::StrictMode), value);
     }
 
 protected:

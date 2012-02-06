@@ -22,6 +22,13 @@
 #include "nbib/nbib.h"
 
 #include <kbibtex/value.h>
+
+#include "dms-copy/simpleresourcegraph.h"
+#include "dms-copy/simpleresource.h"
+
+#include "sro/nbib/publication.h"
+#include "sro/nbib/reference.h"
+
 #include <Nepomuk/Resource>
 #include <Nepomuk/Thing>
 
@@ -32,6 +39,7 @@
 #include <QtCore/QMap>
 
 class Entry;
+class KJob;
 
 /**
   * @brief Pipes the content of a KBibTeX File to the Nepomuk storage
@@ -76,6 +84,9 @@ public:
       */
     void setProjectPimoThing(Nepomuk::Thing projectThing);
 
+private slots:
+    void slotSaveToNepomukDone(KJob *job);
+
 private:
     /**
       * Used to transform the KBibTeX Person ValueItem.
@@ -90,68 +101,54 @@ private:
         QString full;
     };
 
-    /**
-      * This imports a single Bibtex Entry
-      *
-      * @p e One BibTeX entry
-      */
-    void import(Entry *e);
+    void importNote(Entry *entry, Nepomuk::SimpleResourceGraph &graph);
+    void importAttachment(Entry *entry, Nepomuk::SimpleResourceGraph &graph);
+    void importBibResource(Entry *entry, Nepomuk::SimpleResourceGraph &graph);
+    void addPublicationSubTypes(Nepomuk::NBIB::Publication &publication, Entry *entry);
 
-    /**
-      * handle @note type to cretae pimo:Notes instead of the usual publication/references
-      */
-    void createNoteContent(Entry *e);
-    void createAttachmentContent(Entry *e);
-
-    QUrl typeToUrl(const QString & entryType);
-    void addContent(const QString &key, const Value &value, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
 
     /* Helping functions */
-    void addPublisher(const Value &publisherString, const Value &address, Nepomuk::Resource publication);
-    void addJournal(const Value &journal, const Value &volume, const Value &number, Nepomuk::Resource publication,
+    void addPublisher(const Value &publisherValue, const Value &addressValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+
+    void addJournal(const Value &journal, const Value &volume, const Value &number, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph,
                     QUrl seriesUrl = Nepomuk::Vocabulary::NBIB::Journal(),
                     QUrl issueUrl = Nepomuk::Vocabulary::NBIB::JournalIssue());
-    void addSpecialArticle(const Value &titleValue, Nepomuk::Resource article, QUrl collectionUrl = Nepomuk::Vocabulary::NBIB::Encyclopedia());
+    void addSpecialArticle(const Value &titleValue, Nepomuk::NBIB::Publication &article, Nepomuk::SimpleResourceGraph &graph, QUrl collectionUrl = Nepomuk::Vocabulary::NBIB::Encyclopedia());
+
+    void addContent(const QString &key, const Value &value, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph, const QString & originalEntryType);
 
 
 
-    /**
-      * @bug Akonadifeeder bug. item->url() can't be used to create a Resource anymore. It will result in a new resource with random URI and url to the akonadiitem
-      *      this results in duplication of the contacts which won't be updated correctly
-      */
-    void addAuthor(const Value &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
-    void addBooktitle(const QString &content, Nepomuk::Resource publication, const QString & originalEntryType);
-    void addBookAuthor(const Value &contentValue, Nepomuk::Resource publication);
-    void addSeriesEditor(const Value &contentValue, Nepomuk::Resource publication);
-    void addChapter(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference);
-    void addCrossref(const QString &content, Nepomuk::Resource publication);
+    void addAuthor(const Value &content, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph, const QString & originalEntryType);
+    void addBooktitle(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph, const QString & originalEntryType);
+    void addBookAuthor(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addSeriesEditor(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addChapter(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph);
+    void addEditor(const Value &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addIssn(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
 
-    /**
-      * @bug Akonadifeeder bug. item->url() can't be used to create a Resource anymore. It will result in a new resource with random URI and url to the akonadiitem
-      *      this results in duplication of the contacts which won't be updated correctly
-      */
-    void addEditor(const Value &content, Nepomuk::Resource publication);
-    void addIssn(const QString &content, Nepomuk::Resource publication);
-    void addMonth(const QString &content, Nepomuk::Resource publication);
-    void addOrganization(const QString &content, Nepomuk::Resource publication);
-    void addCode(const QString &content, Nepomuk::Resource publication);
-    void addCodeNumber(const QString &content, Nepomuk::Resource publication);
-    void addCodeVolume(const QString &content, Nepomuk::Resource publication);
-    void addReporter(const QString &content, Nepomuk::Resource publication);
-    void addReporterVolume(const QString &content, Nepomuk::Resource publication);
-    void addEvent(const QString &content, Nepomuk::Resource publication);
-    void addSeries(const QString &content, Nepomuk::Resource publication);
-    void addTitle(const QString &content, Nepomuk::Resource publication, Nepomuk::Resource reference, const QString & originalEntryType);
-    void addAssignee(const Value &contentValue, Nepomuk::Resource publication);
-    void addContributor(const Value &contentValue, Nepomuk::Resource publication);
-    void addTranslator(const Value &contentValue, Nepomuk::Resource publication);
-    void addReviewedAuthor(const Value &contentValue, Nepomuk::Resource publication);
+    void addOrganization(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addCode(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addCodeNumber(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addCodeVolume(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addReporter(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addReporterVolume(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addEvent(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addSeries(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addTitle(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph, const QString & originalEntryType);
+    void addAssignee(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addContributor(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addTranslator(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addReviewedAuthor(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
     /**
       * @bug replace NFO::Website() with NFO::WebDataObject() when available
       */
-    void addUrl(const QString &content, Nepomuk::Resource publication);
-    void addYear(const QString &content, Nepomuk::Resource publication);
-    void addKewords(const Value &content, Nepomuk::Resource publication);
+    void addUrl(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addPublicationDate(const QString &fullDate, Nepomuk::NBIB::Publication &publication);
+    void addPublicationDate(const QString &year, const QString &month, const QString &day, Nepomuk::NBIB::Publication &publication);
+
+    void addTag(const Value &content, Nepomuk::SimpleResource &resource, Nepomuk::SimpleResourceGraph &graph);
+    void addTopic(const Value &content, Nepomuk::SimpleResource &resource, Nepomuk::SimpleResourceGraph &graph);
 
     /**
       * writes teh zotero Snc details to the resource
@@ -159,28 +156,24 @@ private:
       * Also adds it as a nao:isRelated to the zoteroParent if the resource is a child note
       *
       */
-    void addZoteroSyncDetails(Nepomuk::Resource publication, Nepomuk::Resource reference, Entry *e);
+    void addZoteroSyncDetails(Nepomuk::SimpleResource &mainResource, Nepomuk::SimpleResource &referenceResource,
+                              Entry *e, Nepomuk::SimpleResourceGraph &graph);
 
     /**
       * creates the contact resource and push it to nepomuk if necessary
       */
-    void addContact(const Value &contentValue, Nepomuk::Resource res, QUrl property, QUrl contactType );
+    void addContact(const Value &contentValue, Nepomuk::SimpleResource &resource, Nepomuk::SimpleResourceGraph &graph, QUrl contactProperty, QUrl contactType );
 
     /**
       * simply sets the value
       */
-    void addValue(const QString &content, Nepomuk::Resource publication, QUrl property);
+    void addValue(const QString &content, Nepomuk::SimpleResource &resource, QUrl property);
 
     /**
       * Sets the value with bibtex macro lookup to replace certain abbreviations
       */
-    void addValueWithLookup(const QString &content, Nepomuk::Resource publication, QUrl property);
+    void addValueWithLookup(const QString &content, Nepomuk::SimpleResource &resource, QUrl property);
 
-    QMap<QString, Nepomuk::Resource> m_allContacts;
-    QMap<QString, Nepomuk::Resource> m_allProceedings;
-    QMap<QString, Nepomuk::Resource> m_allSeries;
-    QMap<QString, Nepomuk::Resource> m_allCollection;
-    QMap<QString, Nepomuk::Resource> m_allPimoEvents;
     QMap<QString, QString> m_macroLookup;
 
     Akonadi::Collection m_addressbook;

@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 #include "nbib/legaldocument.h"
 
@@ -32,6 +32,36 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.example.com/nbib#Legislation", QUrl::StrictMode));
         return *this;
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#coSponsor. The 
+     * co-sponsor [of a bill] 
+     */
+    QList<QUrl> coSponsors() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#coSponsor", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#coSponsor. The 
+     * co-sponsor [of a bill] 
+     */
+    void setCoSponsors(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#coSponsor", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#coSponsor. 
+     * The co-sponsor [of a bill] 
+     */
+    void addCoSponsor(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#coSponsor", QUrl::StrictMode), value);
     }
 
     /**
@@ -90,36 +120,6 @@ public:
      */
     void addCodeOfLaw(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#codeOfLaw", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#coSponsor. The 
-     * co-sponsor [of a bill] 
-     */
-    QList<QUrl> coSponsors() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#coSponsor", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#coSponsor. The 
-     * co-sponsor [of a bill] 
-     */
-    void setCoSponsors(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#coSponsor", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#coSponsor. 
-     * The co-sponsor [of a bill] 
-     */
-    void addCoSponsor(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#coSponsor", QUrl::StrictMode), value);
     }
 
 protected:

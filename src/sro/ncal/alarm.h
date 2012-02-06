@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 #include "ncal/unionofalarmeventfreebusytodo.h"
 #include "ncal/unionofalarmeventjournaltodo.h"

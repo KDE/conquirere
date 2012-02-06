@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 #include "nbib/series.h"
 
@@ -32,36 +32,6 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.example.com/nbib#BookSeries", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#seriesOf. The 
-     * book this series belongs to 
-     */
-    QList<QUrl> seriesOfs() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#seriesOf", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#seriesOf. The 
-     * book this series belongs to 
-     */
-    void setSeriesOfs(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#seriesOf", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#seriesOf. 
-     * The book this series belongs to 
-     */
-    void addSeriesOf(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#seriesOf", QUrl::StrictMode), value);
     }
 
 protected:

@@ -714,7 +714,7 @@ void ZoteroUpload::calculateProgress(int value)
 
     curProgress += (qreal)(100.0/m_syncSteps) * m_currentStep;
 
-    kDebug() << curProgress << m_currentStep << m_syncSteps;
+//    kDebug() << curProgress << m_currentStep << m_syncSteps;
 
     emit progress(curProgress);
 }

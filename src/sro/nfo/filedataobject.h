@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 namespace Nepomuk {
 namespace NFO {
@@ -132,32 +132,38 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
-     * Number of front channels. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize. 
+     * The size of the file in bytes. For compressed files it means the 
+     * size of the packed file, not of the contents. For folders it means 
+     * the aggregated size of all contained files and folders 
      */
-    qint64 frontChannels() const {
+    qint64 fileSize() const {
         qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode)).first().value<qint64>();
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize", QUrl::StrictMode)).first().value<qint64>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
-     * Number of front channels. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize. 
+     * The size of the file in bytes. For compressed files it means the 
+     * size of the packed file, not of the contents. For folders it means 
+     * the aggregated size of all contained files and folders 
      */
-    void setFrontChannels(const qint64& value) {
+    void setFileSize(const qint64& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
-     * Number of front channels. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize. 
+     * The size of the file in bytes. For compressed files it means the 
+     * size of the packed file, not of the contents. For folders it means 
+     * the aggregated size of all contained files and folders 
      */
-    void addFrontChannels(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode), value);
+    void addFileSize(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize", QUrl::StrictMode), value);
     }
 
     /**
@@ -245,6 +251,35 @@ public:
      */
     void addLfeChannels(const qint64& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
+     * Number of front channels. 
+     */
+    qint64 frontChannels() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
+     * Number of front channels. 
+     */
+    void setFrontChannels(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
+     * Number of front channels. 
+     */
+    void addFrontChannels(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode), value);
     }
 
     /**
@@ -349,41 +384,6 @@ public:
      */
     void addHash(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hasHash", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize. 
-     * The size of the file in bytes. For compressed files it means the 
-     * size of the packed file, not of the contents. For folders it means 
-     * the aggregated size of all contained files and folders 
-     */
-    qint64 fileSize() const {
-        qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize", QUrl::StrictMode)).first().value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize. 
-     * The size of the file in bytes. For compressed files it means the 
-     * size of the packed file, not of the contents. For folders it means 
-     * the aggregated size of all contained files and folders 
-     */
-    void setFileSize(const qint64& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize. 
-     * The size of the file in bytes. For compressed files it means the 
-     * size of the packed file, not of the contents. For folders it means 
-     * the aggregated size of all contained files and folders 
-     */
-    void addFileSize(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize", QUrl::StrictMode), value);
     }
 
     /**

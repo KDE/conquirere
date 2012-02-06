@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 #include "nbib/publication.h"
 
@@ -127,66 +127,6 @@ public:
     }
 
     /**
-     * Get property http://www.example.com/nbib#assignee. The 
-     * assignee of an patent 
-     */
-    QList<QUrl> assignees() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#assignee", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#assignee. The 
-     * assignee of an patent 
-     */
-    void setAssignees(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#assignee", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#assignee. 
-     * The assignee of an patent 
-     */
-    void addAssignee(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#assignee", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#legalStatus. 
-     * The legal status of this patent 
-     */
-    QStringList legalStatuses() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#legalStatus", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#legalStatus. 
-     * The legal status of this patent 
-     */
-    void setLegalStatuses(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#legalStatus", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#legalStatus. 
-     * The legal status of this patent 
-     */
-    void addLegalStatus(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#legalStatus", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.example.com/nbib#patentReferences. 
      * The references for this patent 
      */
@@ -217,6 +157,36 @@ public:
     }
 
     /**
+     * Get property http://www.example.com/nbib#assignee. The 
+     * assignee of an patent 
+     */
+    QList<QUrl> assignees() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#assignee", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#assignee. The 
+     * assignee of an patent 
+     */
+    void setAssignees(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#assignee", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#assignee. 
+     * The assignee of an patent 
+     */
+    void addAssignee(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#assignee", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.example.com/nbib#applicationNumber. 
      * The application number of a patent 
      */
@@ -243,6 +213,36 @@ public:
      */
     void addApplicationNumber(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#applicationNumber", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#legalStatus. 
+     * The legal status of this patent 
+     */
+    QStringList legalStatuses() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#legalStatus", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#legalStatus. 
+     * The legal status of this patent 
+     */
+    void setLegalStatuses(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#legalStatus", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#legalStatus. 
+     * The legal status of this patent 
+     */
+    void addLegalStatus(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#legalStatus", QUrl::StrictMode), value);
     }
 
 protected:

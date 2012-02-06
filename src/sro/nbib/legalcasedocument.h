@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 #include "nbib/legaldocument.h"
 
@@ -32,6 +32,38 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.example.com/nbib#LegalCaseDocument", QUrl::StrictMode));
         return *this;
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#courtReporter. 
+     * Links case document to the collection of legal cases it belongs 
+     * to. 
+     */
+    QUrl courtReporter() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#courtReporter", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#courtReporter", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#courtReporter. 
+     * Links case document to the collection of legal cases it belongs 
+     * to. 
+     */
+    void setCourtReporter(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#courtReporter", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#courtReporter. 
+     * Links case document to the collection of legal cases it belongs 
+     * to. 
+     */
+    void addCourtReporter(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#courtReporter", QUrl::StrictMode), value);
     }
 
 protected:

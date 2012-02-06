@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 #include "nco/role.h"
 
@@ -35,6 +35,41 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#Affiliation", QUrl::StrictMode));
         return *this;
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#org. 
+     * Name of an organization or a unit within an organization the 
+     * object represented by a Contact is associated with. An equivalent 
+     * of the 'ORG' property defined in RFC 2426 Sec. 3.5.5 
+     */
+    QUrl org() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#org", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#org", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#org. 
+     * Name of an organization or a unit within an organization the 
+     * object represented by a Contact is associated with. An equivalent 
+     * of the 'ORG' property defined in RFC 2426 Sec. 3.5.5 
+     */
+    void setOrg(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#org", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#org. 
+     * Name of an organization or a unit within an organization the 
+     * object represented by a Contact is associated with. An equivalent 
+     * of the 'ORG' property defined in RFC 2426 Sec. 3.5.5 
+     */
+    void addOrg(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#org", QUrl::StrictMode), value);
     }
 
     /**
@@ -73,41 +108,6 @@ public:
      */
     void addTitle(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#title", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#org. 
-     * Name of an organization or a unit within an organization the 
-     * object represented by a Contact is associated with. An equivalent 
-     * of the 'ORG' property defined in RFC 2426 Sec. 3.5.5 
-     */
-    QUrl org() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#org", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#org", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#org. 
-     * Name of an organization or a unit within an organization the 
-     * object represented by a Contact is associated with. An equivalent 
-     * of the 'ORG' property defined in RFC 2426 Sec. 3.5.5 
-     */
-    void setOrg(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#org", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#org. 
-     * Name of an organization or a unit within an organization the 
-     * object represented by a Contact is associated with. An equivalent 
-     * of the 'ORG' property defined in RFC 2426 Sec. 3.5.5 
-     */
-    void addOrg(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#org", QUrl::StrictMode), value);
     }
 
     /**

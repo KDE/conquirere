@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 #include "nbib/collection.h"
 
@@ -32,38 +32,6 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.example.com/nbib#Proceedings", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#organization. 
-     * The organization that held the conference where the proceedings 
-     * comes from 
-     */
-    QUrl organization() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#organization", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#organization", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#organization. 
-     * The organization that held the conference where the proceedings 
-     * comes from 
-     */
-    void setOrganization(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#organization", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#organization. 
-     * The organization that held the conference where the proceedings 
-     * comes from 
-     */
-    void addOrganization(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#organization", QUrl::StrictMode), value);
     }
 
 protected:

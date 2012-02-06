@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 #include "nfo/datacontainer.h"
 
@@ -101,36 +101,32 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid. 
-     * Universally unique identifier of the filesystem. In the future, 
-     * this property may have its parent changed to a more generic class. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#freeSpace. 
+     * Unoccupied storage space of the filesystem. 
      */
-    QStringList uuids() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid", QUrl::StrictMode)))
-            value << v.value<QString>();
+    qint64 freeSpace() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#freeSpace", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#freeSpace", QUrl::StrictMode)).first().value<qint64>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid. 
-     * Universally unique identifier of the filesystem. In the future, 
-     * this property may have its parent changed to a more generic class. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#freeSpace. 
+     * Unoccupied storage space of the filesystem. 
      */
-    void setUuids(const QStringList& value) {
+    void setFreeSpace(const qint64& value) {
         QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid", QUrl::StrictMode), values);
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#freeSpace", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid. 
-     * Universally unique identifier of the filesystem. In the future, 
-     * this property may have its parent changed to a more generic class. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#freeSpace. 
+     * Unoccupied storage space of the filesystem. 
      */
-    void addUuid(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid", QUrl::StrictMode), value);
+    void addFreeSpace(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#freeSpace", QUrl::StrictMode), value);
     }
 
     /**
@@ -163,32 +159,36 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#freeSpace. 
-     * Unoccupied storage space of the filesystem. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid. 
+     * Universally unique identifier of the filesystem. In the future, 
+     * this property may have its parent changed to a more generic class. 
      */
-    qint64 freeSpace() const {
-        qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#freeSpace", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#freeSpace", QUrl::StrictMode)).first().value<qint64>();
+    QStringList uuids() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid", QUrl::StrictMode)))
+            value << v.value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#freeSpace. 
-     * Unoccupied storage space of the filesystem. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid. 
+     * Universally unique identifier of the filesystem. In the future, 
+     * this property may have its parent changed to a more generic class. 
      */
-    void setFreeSpace(const qint64& value) {
+    void setUuids(const QStringList& value) {
         QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#freeSpace", QUrl::StrictMode), values);
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#freeSpace. 
-     * Unoccupied storage space of the filesystem. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid. 
+     * Universally unique identifier of the filesystem. In the future, 
+     * this property may have its parent changed to a more generic class. 
      */
-    void addFreeSpace(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#freeSpace", QUrl::StrictMode), value);
+    void addUuid(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid", QUrl::StrictMode), value);
     }
 
 protected:

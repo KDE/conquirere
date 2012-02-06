@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 #include "nco/contact.h"
 
@@ -251,39 +251,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hobby. 
-     * A hobby associated with a PersonContact. This property can 
-     * be used to express hobbies and interests. 
-     */
-    QStringList hobbys() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hobby", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hobby. 
-     * A hobby associated with a PersonContact. This property can 
-     * be used to express hobbies and interests. 
-     */
-    void setHobbys(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hobby", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hobby. 
-     * A hobby associated with a PersonContact. This property can 
-     * be used to express hobbies and interests. 
-     */
-    void addHobby(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hobby", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificSuffix. 
      * A suffix for the name of the Object represented by the given object. 
      * See documentation for the 'nameFamily' for details. 
@@ -314,6 +281,39 @@ public:
      */
     void addNameHonorificSuffix(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificSuffix", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hobby. 
+     * A hobby associated with a PersonContact. This property can 
+     * be used to express hobbies and interests. 
+     */
+    QStringList hobbys() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hobby", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hobby. 
+     * A hobby associated with a PersonContact. This property can 
+     * be used to express hobbies and interests. 
+     */
+    void setHobbys(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hobby", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hobby. 
+     * A hobby associated with a PersonContact. This property can 
+     * be used to express hobbies and interests. 
+     */
+    void addHobby(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hobby", QUrl::StrictMode), value);
     }
 
 protected:

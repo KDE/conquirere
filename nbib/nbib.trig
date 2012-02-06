@@ -498,15 +498,16 @@ nbib: {
 
    nbib:courtReporter
          a       rdf:Property ;
-         rdfs:domain nfo:LegalCaseDocument ;
+         rdfs:domain nbib:LegalCaseDocument ;
          rdfs:comment "Links case document to the collection of legal cases it belongs to." ;
          rdfs:label "courtReporter" ;
          rdfs:range nbib:CourtReporter ;
-         nrl:inverseProperty nbib:legalCase .
+         nrl:inverseProperty nbib:legalCase ;
+          nrl:maxCardinality 1 .
 
    nbib:legalCase
          a       rdf:Property ;
-         rdfs:domain nfo:CourtReporter ;
+         rdfs:domain nbib:CourtReporter ;
          rdfs:comment "Backlinks all legal cases from the court reporter it is from" ;
          rdfs:label "courtReporter" ;
          rdfs:range nbib:LegalCaseDocument ;
@@ -573,7 +574,7 @@ nbib: {
 
     nbib:edition
           a       rdf:Property ;
-          rdfs:domain nbib:Book, nbib:Manual ;
+          rdfs:domain nbib:Publication ;
           rdfs:comment "The edition of a book, long form (such as 'first' or 'second')." ;
           rdfs:label "Edition" ;
           rdfs:range xsd:string ;
@@ -774,8 +775,8 @@ nbib: {
 
     nbib:organization
           a       rdf:Property ;
-          rdfs:domain nbib:Proceedings ;
-          rdfs:comment "The organization that held the conference where the proceedings comes from" ;
+          rdfs:domain nbib:Publication ;
+          rdfs:comment "The organization that held the conference where the proceedings comes from or that is otherwise responsible for the publication" ;
           rdfs:label "Organization" ;
           rdfs:range nco:OrganizationContact ;
           nrl:inverseProperty nbib:conference ;
@@ -786,13 +787,16 @@ nbib: {
           rdfs:domain nbib:Publication ;
           rdfs:comment "The event this publication was shown, represented, published etc" ;
           rdfs:label "Event" ;
-          rdfs:range pimo:Event .
+          rdfs:range pimo:Event ;
+          nrl:inverseProperty nbib:eventPublication ;
+          nrl:maxCardinality 1 .
 
     nbib:eventPublication
           a       rdf:Property ;
           rdfs:domain pimo:Event ;
           rdfs:comment "the publications that fornm the result of an event" ;
           rdfs:label "Event Publications" ;
+          nrl:inverseProperty nbib:event ;
           rdfs:range nbib:Publication .
 
     nbib:pages
@@ -899,13 +903,13 @@ nbib: {
 
     nbib:seriesOf
           a       rdf:Property ;
-          rdfs:domain nbib:BookSeries ;
-          rdfs:comment "The book this series belongs to" ;
+          rdfs:domain nbib:Series ;
+          rdfs:comment "The publication this series belongs to" ;
           rdfs:label "seriesOf" ;
-          rdfs:range nbib:Book ;
+          rdfs:range nbib:Publication ;
           rdfs:subPropertyOf nie:hasLogicalPart .
 
-    nbib:type
+    nbib:publicationType
           a       rdf:Property ;
           rdfs:domain nbib:Publication ;
           rdfs:comment "The type of tech-report or other kind of Publication, for example, 'Research Note'." ;
@@ -935,7 +939,7 @@ nbib: {
           rdfs:domain nbib:Publication  ;
           rdfs:comment "The volume of a journal or multi-volume book." ;
           rdfs:label "Volume" ;
-          rdfs:range xsd:integer ;
+          rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
 }

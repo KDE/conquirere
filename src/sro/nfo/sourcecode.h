@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 #include "nfo/plaintextdocument.h"
 
@@ -32,6 +32,69 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#SourceCode", QUrl::StrictMode));
         return *this;
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesFunction. 
+     * A name of a function/method defined in the given source code 
+     * file. 
+     */
+    QStringList definesFunctions() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesFunction", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesFunction. 
+     * A name of a function/method defined in the given source code 
+     * file. 
+     */
+    void setDefinesFunctions(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesFunction", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesFunction. 
+     * A name of a function/method defined in the given source code 
+     * file. 
+     */
+    void addDefinesFunction(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesFunction", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesGlobalVariable. 
+     * Name of a global variable defined within the source code file. 
+     */
+    QStringList definesGlobalVariables() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesGlobalVariable", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesGlobalVariable. 
+     * Name of a global variable defined within the source code file. 
+     */
+    void setDefinesGlobalVariables(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesGlobalVariable", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesGlobalVariable. 
+     * Name of a global variable defined within the source code file. 
+     */
+    void addDefinesGlobalVariable(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesGlobalVariable", QUrl::StrictMode), value);
     }
 
     /**
@@ -101,36 +164,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesGlobalVariable. 
-     * Name of a global variable defined within the source code file. 
-     */
-    QStringList definesGlobalVariables() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesGlobalVariable", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesGlobalVariable. 
-     * Name of a global variable defined within the source code file. 
-     */
-    void setDefinesGlobalVariables(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesGlobalVariable", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesGlobalVariable. 
-     * Name of a global variable defined within the source code file. 
-     */
-    void addDefinesGlobalVariable(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesGlobalVariable", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#commentCharacterCount. 
      * The amount of character in comments i.e. characters ignored 
      * by the compiler/interpreter. 
@@ -160,39 +193,6 @@ public:
      */
     void addCommentCharacterCount(const qint64& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#commentCharacterCount", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesFunction. 
-     * A name of a function/method defined in the given source code 
-     * file. 
-     */
-    QStringList definesFunctions() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesFunction", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesFunction. 
-     * A name of a function/method defined in the given source code 
-     * file. 
-     */
-    void setDefinesFunctions(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesFunction", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesFunction. 
-     * A name of a function/method defined in the given source code 
-     * file. 
-     */
-    void addDefinesFunction(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#definesFunction", QUrl::StrictMode), value);
     }
 
 protected:

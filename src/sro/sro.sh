@@ -1,26 +1,28 @@
  
-nepomuk-simpleresource-rcgen /usr/share/ontology/nie/nie.trig
+python ./nepomuk-simpleresource-rcgen.py /usr/share/ontology/nie/nie.trig
 
-nepomuk-simpleresource-rcgen /usr/share/ontology/nie/nfo.trig
+python ./nepomuk-simpleresource-rcgen.py /usr/share/ontology/nie/nfo.trig
 
-nepomuk-simpleresource-rcgen /usr/share/ontology/nie/sync.trig
+python ./nepomuk-simpleresource-rcgen.py /usr/share/ontology/nie/sync.trig
 
-nepomuk-simpleresource-rcgen /usr/share/ontology/nie/nbib.trig
+python ./nepomuk-simpleresource-rcgen.py /usr/share/ontology/nie/nbib.trig
 
-nepomuk-simpleresource-rcgen /usr/share/ontology/nie/nco.trig
+python ./nepomuk-simpleresource-rcgen.py /usr/share/ontology/nie/nco.trig
 
-nepomuk-simpleresource-rcgen /usr/share/ontology/nie/nfo.trig
+python ./nepomuk-simpleresource-rcgen.py /usr/share/ontology/nie/nfo.trig
 
-nepomuk-simpleresource-rcgen /usr/share/ontology/nie/ncal.trig
+python ./nepomuk-simpleresource-rcgen.py /usr/share/ontology/nie/ncal.trig
 
-nepomuk-simpleresource-rcgen /usr/share/ontology/nie/nmo.trig
+python ./nepomuk-simpleresource-rcgen.py /usr/share/ontology/nie/nmo.trig
 
-nepomuk-simpleresource-rcgen /usr/share/ontology/nie/nmm.trig
+python ./nepomuk-simpleresource-rcgen.py /usr/share/ontology/nie/nmm.trig
 
-nepomuk-simpleresource-rcgen /usr/share/ontology/pimo/pimo.trig
+python ./nepomuk-simpleresource-rcgen.py /usr/share/ontology/pimo/pimo.trig
 
-nepomuk-simpleresource-rcgen /usr/share/ontology/nepomuk/nao.trig
+python ./nepomuk-simpleresource-rcgen.py /usr/share/ontology/nepomuk/nao.trig
 
-nepomuk-simpleresource-rcgen /usr/share/ontology/nepomuk/nuao.trig
+python ./nepomuk-simpleresource-rcgen.py /usr/share/ontology/nepomuk/nuao.trig
 
-nepomuk-simpleresource-rcgen /usr/share/ontology/kde/aneo.trig
+python ./nepomuk-simpleresource-rcgen.py /usr/share/ontology/kde/aneo.trig
+
+#python ./nepomuk-simpleresource-rcgen.py /usr/share/ontology/nepomuk/nao.trig

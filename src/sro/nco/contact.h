@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 #include "nco/role.h"
 
@@ -33,48 +33,6 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#Contact", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#representative. 
-     * An object that represent an object represented by this Contact. 
-     * Usually this property is used to link a Contact to an organization, 
-     * to a contact to the representative of this organization the 
-     * user directly interacts with. An equivalent for the 'AGENT' 
-     * property defined in RFC 2426 Sec. 3.5.4 
-     */
-    QList<QUrl> representatives() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#representative", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#representative. 
-     * An object that represent an object represented by this Contact. 
-     * Usually this property is used to link a Contact to an organization, 
-     * to a contact to the representative of this organization the 
-     * user directly interacts with. An equivalent for the 'AGENT' 
-     * property defined in RFC 2426 Sec. 3.5.4 
-     */
-    void setRepresentatives(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#representative", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#representative. 
-     * An object that represent an object represented by this Contact. 
-     * Usually this property is used to link a Contact to an organization, 
-     * to a contact to the representative of this organization the 
-     * user directly interacts with. An equivalent for the 'AGENT' 
-     * property defined in RFC 2426 Sec. 3.5.4 
-     */
-    void addRepresentative(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#representative", QUrl::StrictMode), value);
     }
 
     /**
@@ -214,70 +172,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#birthDate. 
-     * Birth date of the object represented by this Contact. An equivalent 
-     * of the 'BDAY' property as defined in RFC 2426 Sec. 3.1.5. 
-     */
-    QDate birthDate() const {
-        QDate value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#birthDate", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#birthDate", QUrl::StrictMode)).first().value<QDate>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#birthDate. 
-     * Birth date of the object represented by this Contact. An equivalent 
-     * of the 'BDAY' property as defined in RFC 2426 Sec. 3.1.5. 
-     */
-    void setBirthDate(const QDate& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#birthDate", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#birthDate. 
-     * Birth date of the object represented by this Contact. An equivalent 
-     * of the 'BDAY' property as defined in RFC 2426 Sec. 3.1.5. 
-     */
-    void addBirthDate(const QDate& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#birthDate", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasLocation. 
-     * Geographical location of the contact. Inspired by the 'GEO' 
-     * property specified in RFC 2426 Sec. 3.4.2 
-     */
-    QUrl location() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasLocation", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasLocation", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasLocation. 
-     * Geographical location of the contact. Inspired by the 'GEO' 
-     * property specified in RFC 2426 Sec. 3.4.2 
-     */
-    void setLocation(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasLocation", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasLocation. 
-     * Geographical location of the contact. Inspired by the 'GEO' 
-     * property specified in RFC 2426 Sec. 3.4.2 
-     */
-    void addLocation(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasLocation", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#photo. 
      * Photograph attached to a Contact. The DataObject referred 
      * to by this property is usually interpreted as an nfo:Image. 
@@ -347,6 +241,112 @@ public:
      */
     void addSound(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#sound", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasLocation. 
+     * Geographical location of the contact. Inspired by the 'GEO' 
+     * property specified in RFC 2426 Sec. 3.4.2 
+     */
+    QUrl location() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasLocation", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasLocation", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasLocation. 
+     * Geographical location of the contact. Inspired by the 'GEO' 
+     * property specified in RFC 2426 Sec. 3.4.2 
+     */
+    void setLocation(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasLocation", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasLocation. 
+     * Geographical location of the contact. Inspired by the 'GEO' 
+     * property specified in RFC 2426 Sec. 3.4.2 
+     */
+    void addLocation(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasLocation", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#representative. 
+     * An object that represent an object represented by this Contact. 
+     * Usually this property is used to link a Contact to an organization, 
+     * to a contact to the representative of this organization the 
+     * user directly interacts with. An equivalent for the 'AGENT' 
+     * property defined in RFC 2426 Sec. 3.5.4 
+     */
+    QList<QUrl> representatives() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#representative", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#representative. 
+     * An object that represent an object represented by this Contact. 
+     * Usually this property is used to link a Contact to an organization, 
+     * to a contact to the representative of this organization the 
+     * user directly interacts with. An equivalent for the 'AGENT' 
+     * property defined in RFC 2426 Sec. 3.5.4 
+     */
+    void setRepresentatives(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#representative", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#representative. 
+     * An object that represent an object represented by this Contact. 
+     * Usually this property is used to link a Contact to an organization, 
+     * to a contact to the representative of this organization the 
+     * user directly interacts with. An equivalent for the 'AGENT' 
+     * property defined in RFC 2426 Sec. 3.5.4 
+     */
+    void addRepresentative(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#representative", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#birthDate. 
+     * Birth date of the object represented by this Contact. An equivalent 
+     * of the 'BDAY' property as defined in RFC 2426 Sec. 3.1.5. 
+     */
+    QDate birthDate() const {
+        QDate value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#birthDate", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#birthDate", QUrl::StrictMode)).first().value<QDate>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#birthDate. 
+     * Birth date of the object represented by this Contact. An equivalent 
+     * of the 'BDAY' property as defined in RFC 2426 Sec. 3.1.5. 
+     */
+    void setBirthDate(const QDate& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#birthDate", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#birthDate. 
+     * Birth date of the object represented by this Contact. An equivalent 
+     * of the 'BDAY' property as defined in RFC 2426 Sec. 3.1.5. 
+     */
+    void addBirthDate(const QDate& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#birthDate", QUrl::StrictMode), value);
     }
 
     /**

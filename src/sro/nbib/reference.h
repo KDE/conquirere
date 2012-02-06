@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include "dms-copy/simpleresource.h"
 
 namespace Nepomuk {
 namespace NBIB {
@@ -32,35 +32,6 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.example.com/nbib#Reference", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#pages. Page numbers, 
-     * separated either by commas or double-hyphens. 
-     */
-    QString pages() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#pages", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#pages", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#pages. Page numbers, 
-     * separated either by commas or double-hyphens. 
-     */
-    void setPages(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#pages", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#pages. 
-     * Page numbers, separated either by commas or double-hyphens. 
-     */
-    void addPages(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#pages", QUrl::StrictMode), value);
     }
 
     /**
@@ -122,6 +93,35 @@ public:
      */
     void addReferencedPart(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#referencedPart", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#pages. Page numbers, 
+     * separated either by commas or double-hyphens. 
+     */
+    QString pages() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#pages", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#pages", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#pages. Page numbers, 
+     * separated either by commas or double-hyphens. 
+     */
+    void setPages(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#pages", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#pages. 
+     * Page numbers, separated either by commas or double-hyphens. 
+     */
+    void addPages(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#pages", QUrl::StrictMode), value);
     }
 
 protected:

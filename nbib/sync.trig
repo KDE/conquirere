@@ -130,17 +130,17 @@ sync: {
           rdfs:subClassOf rdfs:Resource .
 
     sync:Attachment
-          a       nbib:SyncDataType ;
+          a       sync:SyncDataType ;
           rdfs:comment "Sync data Attachment" ;
           rdfs:label "Attachment" .
 
     sync:Note
-          a       nbib:SyncDataType ;
+          a       sync:SyncDataType ;
           rdfs:comment "Sync data Note" ;
           rdfs:label "Note" .
 
     sync:BibResource
-          a       nbib:SyncDataType ;
+          a       sync:SyncDataType ;
           rdfs:comment "Sync data BibResource (Publication and/or Reference" ;
           rdfs:label "BibResource" .
 
