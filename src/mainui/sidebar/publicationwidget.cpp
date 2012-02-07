@@ -48,6 +48,7 @@
 #include <Nepomuk/Thing>
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk/Vocabulary/NFO>
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Vocabulary/NUAO>
 #include <Nepomuk/Vocabulary/PIMO>
@@ -119,6 +120,8 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
         emit hasReference(true);
     }
 
+    fillFileObjectWidget();
+
     BibEntryType entryType = BibEntryTypeFromUrl(m_publication);
 
     int index = ui->editEntryType->findData(entryType);
@@ -141,7 +144,6 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
    ui->editFilingDate->setResource(m_publication);
    ui->editPublisher->setResource(m_publication);
    ui->editOrganization->setResource(m_publication);
-   ui->editWebObject->setResource(m_publication);
    ui->editTags->setResource(m_publication);
    ui->editTopics->setResource(m_publication);
 
@@ -478,25 +480,78 @@ void PublicationWidget::discardContentChanges()
     ui->editAbstract->document()->setPlainText(abstract);
 }
 
+void PublicationWidget::fillFileObjectWidget()
+{
+    ui->fileListWidget->clear();
+
+    QList<Nepomuk::Resource> resources = m_publication.property(NBIB::isPublicationOf()).toResourceList();
+    resources.append( m_publication.property(NIE::links()).toResourceList() );
+
+    foreach(const Nepomuk::Resource &r, resources) {
+        QListWidgetItem *i = new QListWidgetItem(ui->fileListWidget);
+
+        QString showString;
+        QString icon;
+        if(r.hasType(NFO::RemoteDataObject())) {
+            KUrl url(r.property(NIE::url()).toString());
+            showString = url.prettyUrl(KUrl::RemoveTrailingSlash);
+
+            icon = QLatin1String("application-x-smb-server");
+        }
+        else if(r.hasType(NFO::WebDataObject()) || r.hasType(NFO::Website())) {
+            KUrl url(r.property(NIE::url()).toString());
+            showString = url.prettyUrl(KUrl::RemoveTrailingSlash);
+
+            icon = QLatin1String("applications-internet");
+        }
+        else {
+            showString = r.property(NFO::fileName()).toString();
+            if(showString.isEmpty()) {
+                KUrl url(r.property(NIE::url()).toString());
+                showString = url.prettyUrl(KUrl::RemoveTrailingSlash);
+            }
+            icon = QLatin1String("application-pdf"); // TODO create right icon from mimetype as retrieved by nepomuk
+        }
+
+        i->setIcon( KIcon(icon) );
+        i->setText(showString);
+        i->setData(Qt::UserRole, r.resourceUri());
+        ui->fileListWidget->addItem(i);
+    }
+}
+
 void PublicationWidget::fileObjectEdit()
 {
-
+    if(ui->fileListWidget->currentItem() == 0)
+        return;
 }
 
 void PublicationWidget::fileObjectAdd()
 {
-
-    if(ui->fileListWidget->count() == 0) {
-        ui->fileEdit->setEnabled(true);
-        ui->fileRemove->setEnabled(true);
-    }
 }
 
 void PublicationWidget::fileObjectRemove()
 {
-    if(ui->fileListWidget->count() == 0) {
-        ui->fileEdit->setEnabled(false);
-        ui->fileRemove->setEnabled(false);
+    QListWidgetItem *i = ui->fileListWidget->currentItem();
+    if(!i) { return; }
+
+    Nepomuk::Resource resource = Nepomuk::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
+    ui->fileListWidget->removeItemWidget(i);
+    delete i;
+
+    if(resource.hasType(NFO::Website())) {
+        QList<QUrl> resourceUris; resourceUris << m_publication.uri();
+        QVariantList value; value <<  resource.uri();
+        Nepomuk::removeProperty(resourceUris, NIE::links(), value);
+    }
+    else {
+        QList<QUrl> resourceUris; resourceUris << m_publication.uri();
+        QVariantList value; value <<  resource.uri();
+        Nepomuk::removeProperty(resourceUris, NBIB::isPublicationOf(), value);
+
+        resourceUris.clear(); resourceUris << resource.uri();
+        value.clear(); value <<  m_publication.uri();
+        Nepomuk::removeProperty(resourceUris, NBIB::publishedAs(), value);
     }
 }
 
@@ -632,7 +687,6 @@ void PublicationWidget::setupWidget()
     connect(ui->editDate, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editFilingDate, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editPublisher, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-    connect(ui->editWebObject, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editTags, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
     connect(ui->editTopics, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 

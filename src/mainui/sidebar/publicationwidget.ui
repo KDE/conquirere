@@ -29,16 +29,9 @@
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
         <layout class="QFormLayout" name="formLayout_3">
-         <item row="1" column="1">
-          <widget class="KComboBox" name="editEntryType">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::ExpandingFieldsGrow</enum>
+         </property>
          <item row="1" column="0">
           <widget class="QLabel" name="label_2">
            <property name="text">
@@ -49,8 +42,15 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
-          <widget class="StringEdit" name="editTitle"/>
+         <item row="1" column="1">
+          <widget class="KComboBox" name="editEntryType">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
          </item>
          <item row="2" column="0">
           <widget class="QLabel" name="labelTitle">
@@ -62,8 +62,8 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
-          <widget class="ContactEdit" name="editAuthors"/>
+         <item row="2" column="1">
+          <widget class="StringEdit" name="editTitle"/>
          </item>
          <item row="3" column="0">
           <widget class="QLabel" name="labelAuthors">
@@ -75,8 +75,8 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1">
-          <widget class="ContactEdit" name="editEditor"/>
+         <item row="3" column="1">
+          <widget class="ContactEdit" name="editAuthors"/>
          </item>
          <item row="4" column="0">
           <widget class="QLabel" name="labelEditors">
@@ -88,8 +88,8 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
-          <widget class="ContactEdit" name="editAssignee"/>
+         <item row="4" column="1">
+          <widget class="ContactEdit" name="editEditor"/>
          </item>
          <item row="5" column="0">
           <widget class="QLabel" name="label_3">
@@ -101,8 +101,8 @@
            </property>
           </widget>
          </item>
-         <item row="6" column="1">
-          <widget class="DateEdit" name="editDate"/>
+         <item row="5" column="1">
+          <widget class="ContactEdit" name="editAssignee"/>
          </item>
          <item row="6" column="0">
           <widget class="QLabel" name="labelPublicationDate">
@@ -114,8 +114,8 @@
            </property>
           </widget>
          </item>
-         <item row="7" column="1">
-          <widget class="DateEdit" name="editFilingDate"/>
+         <item row="6" column="1">
+          <widget class="DateEdit" name="editDate"/>
          </item>
          <item row="7" column="0">
           <widget class="QLabel" name="labelFillingDate">
@@ -127,8 +127,8 @@
            </property>
           </widget>
          </item>
-         <item row="8" column="1">
-          <widget class="ContactEdit" name="editPublisher"/>
+         <item row="7" column="1">
+          <widget class="DateEdit" name="editFilingDate"/>
          </item>
          <item row="8" column="0">
           <widget class="QLabel" name="labelPublisher">
@@ -140,8 +140,8 @@
            </property>
           </widget>
          </item>
-         <item row="9" column="1">
-          <widget class="OrganizationEdit" name="editOrganization"/>
+         <item row="8" column="1">
+          <widget class="ContactEdit" name="editPublisher"/>
          </item>
          <item row="9" column="0">
           <widget class="QLabel" name="labelOrganization">
@@ -153,20 +153,17 @@
            </property>
           </widget>
          </item>
-         <item row="10" column="1">
-          <widget class="WebsiteEdit" name="editWebObject"/>
+         <item row="9" column="1">
+          <widget class="OrganizationEdit" name="editOrganization"/>
          </item>
          <item row="10" column="0">
-          <widget class="QLabel" name="labelWebsite">
+          <widget class="QLabel" name="label_24">
            <property name="text">
-            <string>Website:</string>
-           </property>
-           <property name="buddy">
-            <cstring>editWebObject</cstring>
+            <string>Files:</string>
            </property>
           </widget>
          </item>
-         <item row="11" column="1">
+         <item row="10" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
             <widget class="KListWidget" name="fileListWidget">
@@ -196,7 +193,7 @@
               <number>-1</number>
              </property>
              <item>
-              <widget class="QPushButton" name="fileAdd">
+              <widget class="QPushButton" name="fileEdit">
                <property name="minimumSize">
                 <size>
                  <width>16</width>
@@ -221,7 +218,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="fileEdit">
+              <widget class="QPushButton" name="fileAdd">
                <property name="minimumSize">
                 <size>
                  <width>16</width>
@@ -275,16 +272,6 @@
           </layout>
          </item>
          <item row="11" column="0">
-          <widget class="QLabel" name="label_24">
-           <property name="text">
-            <string>Files:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="1">
-          <widget class="TagEdit" name="editTopics"/>
-         </item>
-         <item row="12" column="0">
           <widget class="QLabel" name="labelKeywords">
            <property name="text">
             <string>Topics:</string>
@@ -294,25 +281,28 @@
            </property>
           </widget>
          </item>
-         <item row="13" column="1">
-          <widget class="TagEdit" name="editTags"/>
+         <item row="11" column="1">
+          <widget class="TagEdit" name="editTopics"/>
          </item>
-         <item row="13" column="0">
+         <item row="12" column="0">
           <widget class="QLabel" name="label">
            <property name="text">
             <string>Tags:</string>
            </property>
           </widget>
          </item>
-         <item row="14" column="1">
-          <widget class="KRatingWidget" name="editRating"/>
+         <item row="12" column="1">
+          <widget class="TagEdit" name="editTags"/>
          </item>
-         <item row="14" column="0">
+         <item row="13" column="0">
           <widget class="QLabel" name="labelRating">
            <property name="text">
             <string>Rating:</string>
            </property>
           </widget>
+         </item>
+         <item row="13" column="1">
+          <widget class="KRatingWidget" name="editRating"/>
          </item>
         </layout>
        </item>
@@ -1042,11 +1032,6 @@
    <header>sidebar/listcitedsources.h</header>
    <container>1</container>
   </customwidget>
-  <customwidget>
-   <class>WebsiteEdit</class>
-   <extends>QLineEdit</extends>
-   <header>propertywidgets/websiteedit.h</header>
-  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
@@ -1207,22 +1192,6 @@
     <hint type="destinationlabel">
      <x>125</x>
      <y>288</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>editWebObject</sender>
-   <signal>widgetShown(bool)</signal>
-   <receiver>labelWebsite</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>309</x>
-     <y>377</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>125</x>
-     <y>377</y>
     </hint>
    </hints>
   </connection>

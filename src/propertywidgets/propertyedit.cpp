@@ -61,7 +61,7 @@ PropertyEdit::PropertyEdit(QWidget *parent)
     , m_bulkUpdateEnable(true)
 {
     m_label = new KSqueezedTextLabel();
-    m_label->setWordWrap(true);
+    m_label->setWordWrap(false);
     m_label->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     m_label->setTextElideMode(Qt::ElideMiddle);
 
@@ -71,6 +71,9 @@ PropertyEdit::PropertyEdit(QWidget *parent)
     connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
 
     m_detailView = new QToolButton();
+    m_detailView->setIconSize(QSize(16,16));
+    m_detailView->setMaximumSize(QSize(16,16));
+    m_detailView->setMinimumSize(QSize(16,16));
     m_detailView->setIcon(KIcon(QLatin1String("document-edit-verify")));
     connect(m_detailView, SIGNAL(clicked()), this, SLOT(detailEditRequested()));
 

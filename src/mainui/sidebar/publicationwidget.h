@@ -78,6 +78,7 @@ private slots:
     void acceptContentChanges();
     void discardContentChanges();
 
+    void fillFileObjectWidget();
     void fileObjectEdit();
     void fileObjectAdd();
     void fileObjectRemove();
