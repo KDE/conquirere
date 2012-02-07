@@ -85,11 +85,6 @@ public:
     Nepomuk::Resource resource();
 
     /**
-      * returns a list of resources for all propertys inserted into the edit widget
-      */
-    QList<Nepomuk::Resource> propertyResources();
-
-    /**
       * Returns the property url for this widget
       */
     QUrl propertyUrl();
@@ -196,6 +191,12 @@ public slots:
 
     void setBulkUpdateInProgress(bool inprogress);
 
+    /**
+      * updates the modelcache after the DMS changed the values
+      * @todo remove when resourcewatcher is working
+      */
+    void updateEditedCacheResource();
+
 protected:
     /**
       * Defines how the Nepomuk::Resource of the widget should be shown.
@@ -254,6 +255,11 @@ private slots:
 protected:
     KLineEdit *m_lineEdit;
     QCompleter *m_completer;
+    // chache the resource used for the asynchron change.
+    // otherwise if we switch to a different resource while the KJob
+    // hasn't finished jet, we add the tags to the wrong resource
+    //TODO remove when resourcewatcher is working ...
+    Nepomuk::Resource m_changedResource;
 
 private:
     void mousePressEvent ( QMouseEvent * event );

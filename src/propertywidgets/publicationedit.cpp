@@ -17,70 +17,100 @@
 
 #include "publicationedit.h"
 
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
+#include "dms-copy/simpleresourcegraph.h"
+#include "dms-copy/simpleresource.h"
+#include <KDE/KJob>
+#include "sro/nbib/publication.h"
+
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Variant>
 
-#include <QtGui/QStandardItemModel>
+#include <KDE/KDebug>
+
+using namespace Nepomuk::Vocabulary;
 
 PublicationEdit::PublicationEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
-    setPropertyUrl(Nepomuk::Vocabulary::NBIB::publication());
     setUseDetailDialog(true);
 }
 
 void PublicationEdit::setupLabel()
 {
-    Nepomuk::Resource publication = resource().property(propertyUrl()).toResource();
+    Nepomuk::Resource publication = resource().property( NBIB::publication() ).toResource();
 
-    QString title = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
+    QString title = publication.property( NIE::title() ).toString();
 
-    addPropertryEntry(title, publication.resourceUri().toString());
+    kDebug() << "set title" << title;
 
     setLabelText(title);
 }
 
-void PublicationEdit::updateResource(const QString & text)
+void PublicationEdit::updateResource(const QString & newPublicationTitle)
 {
-    // resource is a nbib:reference
-    Nepomuk::Resource currentPublication = resource().property( propertyUrl() ).toResource();
+    Nepomuk::Resource currentPublication = resource().property( NBIB::publication() ).toResource();
+    QString curentTitle = currentPublication.property(NIE::title()).toString();
 
-    if(text.isEmpty()) {
-        // remove the existing publication
-        resource().removeProperty( propertyUrl() );
-        // remove backlink too
-        currentPublication.removeProperty( Nepomuk::Vocabulary::NBIB::reference(), resource());
+    if(newPublicationTitle == curentTitle) {
+        return; // nothing changed
+    }
+
+    if(currentPublication.exists()) {
+        // remove the crosslink reference <-> publication
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QVariantList value; value << currentPublication.uri();
+        Nepomuk::removeProperty(resourceUris, NBIB::publication(), value);
+
+        resourceUris.clear(); resourceUris << currentPublication.uri();
+        value.clear(); value << resource().uri();
+        Nepomuk::removeProperty(resourceUris, NBIB::reference(), value);
+    }
+
+    if(newPublicationTitle.isEmpty()) {
         return;
     }
 
-    QUrl propUrl = propertyEntry(text);
-    Nepomuk::Resource selectedPublication = Nepomuk::Resource(propUrl);
+    // ok the user changed the text in the list
+    // let the DMS create a new Publication and merge it to the right place
+    Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::NBIB::Publication newPublication;
 
-    if(currentPublication.isValid()) {
-        if(selectedPublication.isValid()) {
-            //remove old links
-            resource().removeProperty( propertyUrl() );
-            currentPublication.removeProperty( Nepomuk::Vocabulary::NBIB::reference(), resource());
+    newPublication.setProperty(NIE::title(), newPublicationTitle.trimmed());
 
-            //add the new links
-            resource().addProperty( propertyUrl(), selectedPublication);
-            selectedPublication.addProperty(Nepomuk::Vocabulary::NBIB::reference(), resource());
-            return;
-        }
-        else {
-            //rename if no publication with the new name already exist
-            currentPublication.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-            return;
-        }
+    graph << newPublication;
+
+    m_editedResource = resource();
+    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
+            SIGNAL(result(KJob*)),this, SLOT(addPublication(KJob*)));
+}
+
+void PublicationEdit::addPublication(KJob *job)
+{
+    if( job->error() != 0) {
+        kDebug() << "could not create new publication" << job->errorString();
+        return;
     }
 
-    // if no current publication exist, but we found one with the new name, link to it
-    if(!selectedPublication.isValid()) {
-        selectedPublication = Nepomuk::Resource (propUrl, Nepomuk::Vocabulary::NBIB::Publication());
-        selectedPublication.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
+    Nepomuk::StoreResourcesJob *srj = dynamic_cast<Nepomuk::StoreResourcesJob *>(job);
+
+    // now get all the uris for the new publication
+    QList<QUrl> publicationUris;
+    QVariantList publicationValues;
+    foreach (QUrl uri, srj->mappings()) {
+         publicationUris << uri;
+         publicationValues << uri;
     }
 
-    resource().setProperty( propertyUrl(), selectedPublication);
-    selectedPublication.addProperty(Nepomuk::Vocabulary::NBIB::reference(), resource());
+    // add the crosslink reference <-> publicatio
+    QList<QUrl> resourceUris; resourceUris << m_editedResource.uri();
+    Nepomuk::setProperty(resourceUris, NBIB::publication(), publicationValues);
+
+    QVariantList value; value << m_editedResource.uri();
+    Nepomuk::addProperty(publicationUris, NBIB::reference(), value);
+
+    //TODO remove when resourcewatcher is working..
+    emit resourceCacheNeedsUpdate(m_editedResource);
 }

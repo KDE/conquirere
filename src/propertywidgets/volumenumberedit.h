@@ -20,8 +20,6 @@
 
 #include "propertyedit.h"
 
-class QStandardItemModel;
-
 /**
   * @brief Allows to edit the volume/number of either a @c nbib:JournalIssue or usual @c nbib:Publication
   *

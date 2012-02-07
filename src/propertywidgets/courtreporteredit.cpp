@@ -17,67 +17,98 @@
 
 #include "courtreporteredit.h"
 
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
+#include "dms-copy/simpleresourcegraph.h"
+#include "dms-copy/simpleresource.h"
+#include <KDE/KJob>
+#include "sro/nbib/courtreporter.h"
+
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Variant>
 
-#include <QtGui/QStandardItemModel>
-#include <QtCore/QUrl>
+#include <KDE/KDebug>
+
+using namespace Nepomuk::Vocabulary;
 
 CourtReporterEdit::CourtReporterEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
-    setPropertyUrl( Nepomuk::Vocabulary::NBIB::courtReporter() );
 }
 
 void CourtReporterEdit::setupLabel()
 {
     QString title;
-    Nepomuk::Resource courtReporter = resource().property(propertyUrl()).toResource();
-    title = courtReporter.property(Nepomuk::Vocabulary::NIE::title()).toString();
-
-    addPropertryEntry(title, courtReporter.resourceUri().toString());
+    Nepomuk::Resource courtReporter = resource().property(NBIB::courtReporter()).toResource();
+    title = courtReporter.property(NIE::title()).toString();
 
     setLabelText(title);
 }
 
-void CourtReporterEdit::updateResource(const QString & text)
+void CourtReporterEdit::updateResource(const QString & newCRTitle)
 {
-    Nepomuk::Resource currentCourtReporter = resource().property( propertyUrl() ).toResource();
-    if(text.isEmpty()) {
-        resource().removeProperty(propertyUrl());
-        currentCourtReporter.removeProperty( Nepomuk::Vocabulary::NBIB::legalCase() , resource());
+    Nepomuk::Resource currentCourtReporter = resource().property(NBIB::courtReporter()).toResource();
+
+    QString curentTitle = currentCourtReporter.property(NIE::title()).toString();
+
+    if(newCRTitle == curentTitle) {
+        return; // nothing changed
+    }
+
+    if(currentCourtReporter.exists()) {
+        // remove the crosslink CourtReporter <-> publication
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QVariantList value; value << currentCourtReporter.uri();
+        Nepomuk::removeProperty(resourceUris, NBIB::courtReporter(), value);
+
+        resourceUris.clear(); resourceUris << currentCourtReporter.uri();
+        value.clear(); value << resource().uri();
+        Nepomuk::removeProperty(resourceUris, NBIB::legalCase(), value);
+    }
+
+    if(newCRTitle.isEmpty()) {
         return;
     }
 
-    // try to find the propertyurl of an already existing organizatzion
-    QUrl propUrl = propertyEntry(text);
-    Nepomuk::Resource newCourtReporter = Nepomuk::Resource(propUrl);
+    // ok the user changed the text in the list
+    // let the DMS create a new event and merge it to the right place
+    Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::NBIB::CourtReporter newCourtReporter;
 
-    if(currentCourtReporter.isValid()) {
-        if(newCourtReporter.isValid()) {
-            currentCourtReporter.removeProperty( Nepomuk::Vocabulary::NBIB::legalCase() , resource());
+    newCourtReporter.setProperty(NIE::title(), newCRTitle.trimmed());
 
-            // change links
-            resource().setProperty( propertyUrl() , newCourtReporter);
-            newCourtReporter.addProperty( Nepomuk::Vocabulary::NBIB::legalCase() , resource());
-        }
-        else {
-            // rename
-            currentCourtReporter.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-        }
-        return;
-    }
+    graph << newCourtReporter;
 
-    // if no current courtReporter exist
-
-    if(!newCourtReporter.isValid()) {
-        newCourtReporter = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::CourtReporter());
-        newCourtReporter.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-    }
-
-    resource().setProperty( propertyUrl() , newCourtReporter);
-    newCourtReporter.addProperty( Nepomuk::Vocabulary::NBIB::legalCase() , resource());
+    m_editedResource = resource();
+    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
+            SIGNAL(result(KJob*)),this, SLOT(addCourtReporter(KJob*)));
 }
 
+void CourtReporterEdit::addCourtReporter(KJob *job)
+{
+    if( job->error() != 0) {
+        kDebug() << "could not create new event" << job->errorString();
+        return;
+    }
 
+    Nepomuk::StoreResourcesJob *srj = dynamic_cast<Nepomuk::StoreResourcesJob *>(job);
+
+    // now get all the uris for the new event
+    QList<QUrl> courtReporterUris;
+    QVariantList courtReporterValues;
+    foreach (QUrl uri, srj->mappings()) {
+         courtReporterUris << uri;
+         courtReporterValues << uri;
+    }
+
+    // add the crosslink reference <-> publicatio
+    QList<QUrl> resourceUris; resourceUris << m_editedResource.uri();
+    Nepomuk::setProperty(resourceUris, NBIB::courtReporter(), courtReporterValues);
+
+    QVariantList value; value << m_editedResource.uri();
+    Nepomuk::addProperty(courtReporterUris, NBIB::legalCase(), value);
+
+    //TODO remove when resourcewatcher is working..
+    emit resourceCacheNeedsUpdate(m_editedResource);
+}

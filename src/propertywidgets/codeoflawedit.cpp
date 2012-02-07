@@ -17,11 +17,20 @@
 
 #include "codeoflawedit.h"
 
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
+#include "dms-copy/simpleresourcegraph.h"
+#include "dms-copy/simpleresource.h"
+#include <KDE/KJob>
+#include "sro/nbib/codeoflaw.h"
+
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Variant>
 
-#include <QtGui/QStandardItemModel>
+#include <KDE/KDebug>
+
+using namespace Nepomuk::Vocabulary;
 
 CodeOfLawEdit::CodeOfLawEdit(QWidget *parent) :
     PropertyEdit(parent)
@@ -30,57 +39,76 @@ CodeOfLawEdit::CodeOfLawEdit(QWidget *parent) :
 
 void CodeOfLawEdit::setupLabel()
 {
-    Nepomuk::Resource publication = resource().property(Nepomuk::Vocabulary::NBIB::codeOfLaw()).toResource();
+    Nepomuk::Resource codeOfLaw = resource().property(NBIB::codeOfLaw()).toResource();
 
-    QString title = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
-
-    addPropertryEntry(title, publication.resourceUri().toString());
+    QString title = codeOfLaw.property(NIE::title()).toString();
 
     setLabelText(title);
 }
 
-void CodeOfLawEdit::updateResource(const QString & text)
+void CodeOfLawEdit::updateResource(const QString & newCodeOfLawTitle)
 {
-    Nepomuk::Resource currentCodeOfLaw = resource().property( Nepomuk::Vocabulary::NBIB::codeOfLaw() ).toResource();
+    Nepomuk::Resource currentCodeOfLaw = resource().property(NBIB::codeOfLaw()).toResource();
 
-    if(text.isEmpty()) {
-        resource().removeProperty( Nepomuk::Vocabulary::NBIB::codeOfLaw() );
-        // remove backlink too
-        currentCodeOfLaw.removeProperty( Nepomuk::Vocabulary::NBIB::legislation(), resource());
+    QString curentTitle = currentCodeOfLaw.property(NIE::title()).toString();
+
+    if(newCodeOfLawTitle == curentTitle) {
+        return; // nothing changed
+    }
+
+    if(currentCodeOfLaw.exists()) {
+        // remove the crosslink event <-> publication
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QVariantList value; value << currentCodeOfLaw.uri();
+        Nepomuk::removeProperty(resourceUris, NBIB::codeOfLaw(), value);
+
+        resourceUris.clear(); resourceUris << currentCodeOfLaw.uri();
+        value.clear(); value << resource().uri();
+        Nepomuk::removeProperty(resourceUris, NBIB::legislation(), value);
+    }
+
+    if(newCodeOfLawTitle.isEmpty()) {
         return;
     }
 
-    // add the selected publication
-    QUrl propUrl = propertyEntry(text);
-    Nepomuk::Resource newCodeOfLaw(propUrl);
+    // ok the user changed the text in the list
+    // let the DMS create a new event and merge it to the right place
+    Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::NBIB::CodeOfLaw newCodeOfLaw;
 
-    if(currentCodeOfLaw.isValid()) {
-        if(newCodeOfLaw.isValid()) {
-            // change link to new CodeOfLaw
-            resource().removeProperty( Nepomuk::Vocabulary::NBIB::codeOfLaw() );
-            currentCodeOfLaw.removeProperty( Nepomuk::Vocabulary::NBIB::legislation(), resource());
+    newCodeOfLaw.setProperty(NIE::title(), newCodeOfLawTitle.trimmed());
 
-            resource().setProperty( Nepomuk::Vocabulary::NBIB::codeOfLaw(), newCodeOfLaw);
-            newCodeOfLaw.addProperty( Nepomuk::Vocabulary::NBIB::legislation(), resource());
-        }
-        else {
-            //rename current CodeOflaw
-            currentCodeOfLaw.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-            currentCodeOfLaw.setLabel(text);
-        }
-        return;
-    }
+    graph << newCodeOfLaw;
 
-    // no current CodeOfLaw available
-
-    if(!newCodeOfLaw.isValid()) {
-        // create a new publication with the string text as title
-        newCodeOfLaw = Nepomuk::Resource(propUrl, Nepomuk::Vocabulary::NBIB::CodeOfLaw());
-        newCodeOfLaw.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-        newCodeOfLaw.setLabel(text);
-    }
-
-    resource().setProperty( Nepomuk::Vocabulary::NBIB::codeOfLaw(), newCodeOfLaw);
-    newCodeOfLaw.addProperty( Nepomuk::Vocabulary::NBIB::legislation(), resource());
+    m_editedResource = resource();
+    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
+            SIGNAL(result(KJob*)),this, SLOT(addCodeOfLaw(KJob*)));
 }
 
+void CodeOfLawEdit::addCodeOfLaw(KJob *job)
+{
+    if( job->error() != 0) {
+        kDebug() << "could not create new code of law" << job->errorString();
+        return;
+    }
+
+    Nepomuk::StoreResourcesJob *srj = dynamic_cast<Nepomuk::StoreResourcesJob *>(job);
+
+    // now get all the uris for the new event
+    QList<QUrl> codeOfLawUris;
+    QVariantList codeOfLawValues;
+    foreach (QUrl uri, srj->mappings()) {
+         codeOfLawUris << uri;
+         codeOfLawValues << uri;
+    }
+
+    // add the crosslink reference <-> publicatio
+    QList<QUrl> resourceUris; resourceUris << m_editedResource.uri();
+    Nepomuk::setProperty(resourceUris, NBIB::codeOfLaw(), codeOfLawValues);
+
+    QVariantList value; value << m_editedResource.uri();
+    Nepomuk::addProperty(codeOfLawUris, NBIB::legislation(), value);
+
+    //TODO remove when resourcewatcher is working..
+    emit resourceCacheNeedsUpdate(m_editedResource);
+}

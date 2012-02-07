@@ -184,7 +184,7 @@ void DocumentPreview::showUrl(int index)
         if(m_part) {
             m_part->openUrl(url);
 
-            kDebug() << "open url" << url << "with KPart" << partsName;
+//            kDebug() << "open url" << url << "with KPart" << partsName;
         }
         return;
     }
@@ -207,7 +207,7 @@ void DocumentPreview::showUrl(int index)
 
         m_part->openUrl(url);
 
-        kDebug() << "open url" << url << "with KPart" << partsName;
+//        kDebug() << "open url" << url << "with KPart" << partsName;
 
     } else {
         m_labelInvalid = new QLabel(i18n("Cannot create preview for\n%1\n\nNo part available.", urlInfo.fileName()), ui->kpartWidget);

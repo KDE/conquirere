@@ -21,63 +21,33 @@
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Variant>
 
-#include <QtGui/QStandardItemModel>
+using namespace Nepomuk::Vocabulary;
 
 ChapterEdit::ChapterEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
+    setDirectEdit(false);
+    setUseDetailDialog(true);
 }
 
 void ChapterEdit::setupLabel()
 {
-    Nepomuk::Resource chapter = resource().property(propertyUrl()).toResource();
+    Nepomuk::Resource chapter = resource().property(NBIB::referencedPart()).toResource();
+    // creates a string in the form
+    // "1. Introduction" or just "Introduction"
+    QString showString;
+    QString title = chapter.property(NIE::title()).toString();
+    QString number = chapter.property(NBIB::chapterNumber()).toString();
 
-    QString title = chapter.property(Nepomuk::Vocabulary::NIE::title()).toString();
+    showString.append(title);
 
-    addPropertryEntry(title, chapter.resourceUri().toString());
+    if(!number.isEmpty()) {
+        showString.prepend(number + QLatin1String(". "));
+    }
 
-    setLabelText(title);
+    setLabelText(showString);
 }
 
-void ChapterEdit::updateResource(const QString & text)
+void ChapterEdit::updateResource(const QString & newChapterTitle)
 {
-    Nepomuk::Resource currentChapter = resource().property(propertyUrl()).toResource();
-
-    if(text.isEmpty()) {
-        resource().removeProperty( propertyUrl(), currentChapter );
-        return;
-    }
-
-    // find existing chapter
-    QUrl propUrl = propertyEntry(text);
-    Nepomuk::Resource newChapter = Nepomuk::Resource(propUrl);
-
-    if(currentChapter.isValid()) {
-        if(newChapter.isValid()) {
-            // link to new chapter
-            resource().setProperty( propertyUrl(), newChapter);
-        }
-        else {
-            //rename current Chapter
-            currentChapter.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-        }
-        return;
-    }
-
-    // now current chapter available
-    if(!newChapter.isValid()) {
-        newChapter = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Chapter());
-        newChapter.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-    }
-
-    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
-        resource().setProperty( Nepomuk::Vocabulary::NBIB::referencedPart(), newChapter);
-    }
-
-    // connect the chapter to the book
-    Nepomuk::Resource bookResource = resource().property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-    if(bookResource.isValid()) {
-        bookResource.addProperty(Nepomuk::Vocabulary::NBIB::documentPart(), currentChapter);
-        currentChapter.setProperty(Nepomuk::Vocabulary::NBIB::documentPartOf(), bookResource);
-    }
 }

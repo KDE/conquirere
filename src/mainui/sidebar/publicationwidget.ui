@@ -154,7 +154,7 @@
           </widget>
          </item>
          <item row="10" column="1">
-          <widget class="FileObjectEdit" name="editWebObject"/>
+          <widget class="WebsiteEdit" name="editWebObject"/>
          </item>
          <item row="10" column="0">
           <widget class="QLabel" name="labelWebsite">
@@ -197,10 +197,16 @@
              </property>
              <item>
               <widget class="QPushButton" name="fileAdd">
+               <property name="minimumSize">
+                <size>
+                 <width>16</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="maximumSize">
                 <size>
-                 <width>22</width>
-                 <height>22</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
                <property name="text">
@@ -208,8 +214,8 @@
                </property>
                <property name="iconSize">
                 <size>
-                 <width>22</width>
-                 <height>22</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
               </widget>
@@ -218,14 +224,14 @@
               <widget class="QPushButton" name="fileEdit">
                <property name="minimumSize">
                 <size>
-                 <width>22</width>
-                 <height>22</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>22</width>
-                 <height>22</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
                <property name="text">
@@ -233,18 +239,24 @@
                </property>
                <property name="iconSize">
                 <size>
-                 <width>22</width>
-                 <height>22</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QPushButton" name="fileRemove">
+               <property name="minimumSize">
+                <size>
+                 <width>16</width>
+                 <height>16</height>
+                </size>
+               </property>
                <property name="maximumSize">
                 <size>
-                 <width>22</width>
-                 <height>22</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
                <property name="text">
@@ -252,8 +264,8 @@
                </property>
                <property name="iconSize">
                 <size>
-                 <width>22</width>
-                 <height>22</height>
+                 <width>16</width>
+                 <height>16</height>
                 </size>
                </property>
               </widget>
@@ -679,7 +691,7 @@
         </widget>
        </item>
        <item row="9" column="1">
-        <widget class="StringEdit" name="editLastAccessed"/>
+        <widget class="DateEdit" name="editLastAccessed"/>
        </item>
        <item row="10" column="0">
         <widget class="QLabel" name="labelLanguage">
@@ -984,15 +996,6 @@
    </slots>
   </customwidget>
   <customwidget>
-   <class>FileObjectEdit</class>
-   <extends>QLineEdit</extends>
-   <header>propertywidgets/fileobjectedit.h</header>
-   <slots>
-    <signal>widgetEnabled(bool)</signal>
-    <signal>widgetShown(bool)</signal>
-   </slots>
-  </customwidget>
-  <customwidget>
    <class>OrganizationEdit</class>
    <extends>QLineEdit</extends>
    <header>propertywidgets/organizationedit.h</header>
@@ -1038,6 +1041,11 @@
    <extends>QWidget</extends>
    <header>sidebar/listcitedsources.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>WebsiteEdit</class>
+   <extends>QLineEdit</extends>
+   <header>propertywidgets/websiteedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

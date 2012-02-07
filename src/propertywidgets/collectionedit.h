@@ -20,14 +20,11 @@
 
 #include "propertyedit.h"
 
-#include <QUrl>
-
-class QStandardItemModel;
+class KJob;
 
 /**
-  * @brief Edit the @c nbib:Collection  of an @c nbib:Article Publication
+  * @brief Edit the @c nbib:Collection of an @c nbib:Article Publication
   *
-  * @pre propertyUrl() must return a nbib:Collection type
   */
 class CollectionEdit : public PropertyEdit
 {
@@ -35,21 +32,24 @@ class CollectionEdit : public PropertyEdit
 public:
     explicit CollectionEdit(QWidget *parent = 0);
 
-protected:
+private slots:
+    void addCollection(KJob *job);
+
+private:
     /**
-      * Shows the @c nie:title of the collection connected to the nbib:Article
+      * Shows the @c nie:title of the collection connected to the @c nbib:Article
       */
     void setupLabel();
 
     /**
       * changes the @c nie:title
       */
-    virtual void updateResource( const QString & text );
+    void updateResource( const QString & text );
 
-private:
-    QUrl m_collectionType;  /**< saves which subclass of collection is used */
-    QUrl m_seriesType;      /**< saves which subclass of series is used */
-
+    // cache the resource used for the asynchron change.
+    // otherwise if we switch to a different resource while the KJob
+    // hasn't finished yet, we add the publication crosslinks to the wrong resource
+    Nepomuk::Resource m_editedResource;
 };
 
 #endif // COLLECTIONEDIT_H

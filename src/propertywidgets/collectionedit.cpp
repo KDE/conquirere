@@ -17,112 +17,100 @@
 
 #include "collectionedit.h"
 
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
+#include "dms-copy/simpleresourcegraph.h"
+#include "dms-copy/simpleresource.h"
+#include <KDE/KJob>
+#include "sro/nbib/series.h"
+#include "sro/nbib/collection.h"
+
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Variant>
 
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QInputDialog>
-#include <QtCore/QUrl>
+#include <KDE/KDebug>
+
+using namespace Nepomuk::Vocabulary;
 
 CollectionEdit::CollectionEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
-    setPropertyUrl( Nepomuk::Vocabulary::NBIB::collection() );
     setUseDetailDialog(true);
-
-    m_collectionType = Nepomuk::Vocabulary::NBIB::Collection();
-    m_seriesType =  Nepomuk::Vocabulary::NBIB::Series();
 }
 
 void CollectionEdit::setupLabel()
 {
-    //check if resource() is an publication with attached Issue collection
-    QString title;
+    Nepomuk::Resource collectionResource = resource().property( NBIB::collection() ).toResource();
 
-    Nepomuk::Resource collectionResource = resource().property( propertyUrl() ).toResource();
-    if(collectionResource.isValid()) {
-        Nepomuk::Resource seriesResource = collectionResource.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
-
-        // we show the name of the collection
-        // if it has no name we have a look at the series and show this name instead
-        // makes sense for Article with Issue as collection we like to show the Name of the Journal for example
-        title = collectionResource.property(Nepomuk::Vocabulary::NIE::title()).toString();
-        if(title.isEmpty()) {
-            title = seriesResource.property(Nepomuk::Vocabulary::NIE::title()).toString();
-        }
-
-        addPropertryEntry(title, collectionResource.resourceUri().toString());
-
-        m_collectionType = collectionResource.resourceType(); // saves which subclass of collection is used
-        m_seriesType = seriesResource.resourceType(); // saves which subclass of series is used
-    }
+    QString title = collectionResource.property(NIE::title()).toString();
 
     setLabelText(title);
 }
 
-void CollectionEdit::updateResource(const QString & text)
+void CollectionEdit::updateResource(const QString & newCollectionTitle)
 {
-    Nepomuk::Resource currentColection = resource().property( propertyUrl() ).toResource();
+    Nepomuk::Resource currentCollection = resource().property(NBIB::collection()).toResource();
 
-    if(text.isEmpty()) {
-        resource().removeProperty( propertyUrl() );
-        currentColection.removeProperty(Nepomuk::Vocabulary::NBIB::article(), resource());
+    QString curentTitle = currentCollection.property(NIE::title()).toString();
+
+    if(newCollectionTitle == curentTitle) {
+        return; // nothing changed
+    }
+
+    if(currentCollection.exists()) {
+        // remove the crosslink collection <-> article
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QVariantList value; value << currentCollection.uri();
+        Nepomuk::removeProperty(resourceUris, NBIB::collection(), value);
+
+        resourceUris.clear(); resourceUris << currentCollection.uri();
+        value.clear(); value << resource().uri();
+        Nepomuk::removeProperty(resourceUris, NBIB::article(), value);
+    }
+
+    if(newCollectionTitle.isEmpty()) {
         return;
     }
 
-    // ok text is not empty
-    // try to find the propertyurl of an already existing collection (issue)
-    QUrl propUrl = propertyEntry(text);
-    Nepomuk::Resource newCollection = Nepomuk::Resource(propUrl);
+    // ok the user changed the text in the list
+    // let the DMS create a new event and merge it to the right place
+    Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::NBIB::Collection newCollection;
 
-    if(currentColection.isValid()) {
-        if(newCollection.isValid()) {
-            //remove old links
-            resource().removeProperty( propertyUrl() );
-            currentColection.removeProperty(Nepomuk::Vocabulary::NBIB::article(), resource());
+    newCollection.setProperty(NIE::title(), newCollectionTitle.trimmed());
 
-            //add new collection
-            resource().setProperty( propertyUrl(), newCollection);
-            newCollection.addProperty(Nepomuk::Vocabulary::NBIB::article(), resource());
-        }
-        else {
-            // rename the current collection
-            currentColection.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-        }
-        return;
-    }
+    graph << newCollection;
 
-    // no currentCollection available
-
-    if(!newCollection.isValid()) {
-        // create a new collection with the string text as title
-        newCollection = Nepomuk::Resource(QUrl(), m_collectionType);
-        newCollection.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-        // any issue is also part of an series.
-        // only true for MagazinIssue, NewspaperIssue, JournalIssue
-        if( m_collectionType == Nepomuk::Vocabulary::NBIB::JournalIssue() ||
-               m_collectionType == Nepomuk::Vocabulary::NBIB::NewspaperIssue() ||
-               m_collectionType == Nepomuk::Vocabulary::NBIB::MagazinIssue() ) {
-
-            Nepomuk::Resource newSeries(QUrl(), m_seriesType);
-            newSeries.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-
-            // seems to be a bug, not the full hierachry will be set so create it ourself
-            if(m_seriesType != Nepomuk::Vocabulary::NBIB::Series()) {
-                newSeries.addType(Nepomuk::Vocabulary::NBIB::Series());
-            }
-            newSeries.addType(Nepomuk::Vocabulary::NIE::InformationElement());
-
-            // connect series and collection
-            newCollection.setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), newSeries);
-            newSeries.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), newCollection);
-        }
-
-    }
-
-    //connect article and collection
-    resource().addProperty( Nepomuk::Vocabulary::NBIB::collection(), newCollection);
-    newCollection.addProperty( Nepomuk::Vocabulary::NBIB::article(), resource());
+    m_editedResource = resource();
+    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
+            SIGNAL(result(KJob*)),this, SLOT(addCollection(KJob*)));
 }
 
+void CollectionEdit::addCollection(KJob *job)
+{
+    if( job->error() != 0) {
+        kDebug() << "could not create new collection" << job->errorString();
+        return;
+    }
+
+    Nepomuk::StoreResourcesJob *srj = dynamic_cast<Nepomuk::StoreResourcesJob *>(job);
+
+    // now get all the uris for the new collection
+    QList<QUrl> collectionUris;
+    QVariantList collectionValues;
+    foreach (QUrl uri, srj->mappings()) {
+         collectionUris << uri;
+         collectionValues << uri;
+    }
+
+    // add the crosslink collection <-> article
+    QList<QUrl> resourceUris; resourceUris << m_editedResource.uri();
+    Nepomuk::setProperty(resourceUris, NBIB::collection(), collectionValues);
+
+    QVariantList value; value << m_editedResource.uri();
+    Nepomuk::addProperty(collectionUris, NBIB::article(), value);
+
+    //TODO remove when resourcewatcher is working..
+    emit resourceCacheNeedsUpdate(m_editedResource);
+}

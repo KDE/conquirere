@@ -3,7 +3,6 @@ set(propertywidgets_LIB_SRCS
     chapteredit.cpp
     contactedit.cpp
     dateedit.cpp
-    fileobjectedit.cpp
     issnedit.cpp
     organizationedit.cpp
     propertyedit.cpp
@@ -17,6 +16,7 @@ set(propertywidgets_LIB_SRCS
     collectionedit.cpp
     codeoflawedit.cpp
     courtreporteredit.cpp
+    websiteedit.cpp
 )
 
 kde4_add_ui_files( propertywidgets_LIB_SRCS

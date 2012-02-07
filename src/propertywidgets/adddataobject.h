@@ -18,10 +18,10 @@
 #ifndef ADDDATAOBJECT_H
 #define ADDDATAOBJECT_H
 
-#include <QDialog>
-#include <QUrl>
+#include <QtGui/QDialog>
+#include <QtCore/QUrl>
 
-#include "fileobjectedit.h"
+#include <Nepomuk/Resource>
 
 namespace Ui {
     class AddDataObject;
@@ -40,10 +40,16 @@ class AddDataObject : public QDialog
     Q_OBJECT
 
 public:
+    enum Mode {
+        Local,   /**< add NFO::FileDataObject() */
+        Remote   /**< add NFO::RemoteDataObject() */,
+        Website  /**< add NFO::WebsiteDataObject() */
+    };
+
     explicit AddDataObject(QWidget *parent = 0);
     ~AddDataObject();
 
-    void setMode(FileObjectEdit::Mode mode);
+    void setMode(AddDataObject::Mode mode);
     void setResource(Nepomuk::Resource resource);
     void fillListWidget();
 
@@ -54,7 +60,7 @@ private slots:
 private:
     Ui::AddDataObject *ui;
 
-    FileObjectEdit::Mode m_mode;
+    AddDataObject::Mode m_mode;
     Nepomuk::Resource m_resource;
     QUrl m_propertyUrl;
     KUrlRequester * m_kurlrequester;

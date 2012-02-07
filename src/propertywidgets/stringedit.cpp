@@ -17,10 +17,9 @@
 
 #include "stringedit.h"
 
-#include <Nepomuk/Vocabulary/NCO>
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
 #include <Nepomuk/Variant>
-
-#include <QtGui/QStandardItemModel>
 
 StringEdit::StringEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -49,14 +48,6 @@ void StringEdit::setupLabel()
 
 void StringEdit::updateResource(const QString & text)
 {
-    // remove all existing string entries of this property
-    resource().removeProperty( propertyUrl() );
-
-    if(text.isEmpty()) {
-        emit resourceCacheNeedsUpdate(resource());
-        return;
-    }
-
     QStringList entryList;
     if(hasMultipleCardinality()) {
         entryList = text.split(QLatin1String(";"));
@@ -65,9 +56,13 @@ void StringEdit::updateResource(const QString & text)
         entryList.append(text);
     }
 
+    QVariantList value;
     foreach(const QString & s, entryList) {
-        resource().addProperty(propertyUrl(), s.trimmed());
+        value << s.trimmed();
     }
 
-    emit resourceCacheNeedsUpdate(resource());
+    QList<QUrl> resourceUris; resourceUris << resource().uri();
+    m_changedResource = resource();
+    connect(Nepomuk::setProperty(resourceUris, propertyUrl(), value),
+            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }

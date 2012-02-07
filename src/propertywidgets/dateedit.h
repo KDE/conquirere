@@ -25,12 +25,11 @@
 class QMenu;
 class QWidgetAction;
 class KDatePicker;
-class QStandardItemModel;
 
 /**
-  * @brief Edits the Publication date @c nbib:publicationDate() of an @c nbib:Publication
+  * @brief Edits the @c nbib:publicationDate or the @c nbib:accessDate of an @c nbib:Publication
   *
-  * The date is saved as @c "yyyy-MM-ddTHH:mm:ss"
+  * The date is saved as @c "yyyy-MM-ddTHH:mm:ssZ"
   */
 class DateEdit : public PropertyEdit
 {
@@ -39,16 +38,15 @@ public:
     DateEdit(QWidget *parent = 0);
     virtual ~DateEdit();
 
-protected:
-    void setupLabel();
-
-    virtual void updateResource( const QString & text );
-
 private slots:
     void detailEditRequested();
     void dateChanged(QDate date);
 
 private:
+    void setupLabel();
+
+    void updateResource( const QString & text );
+
     QMenu *m_dateMenu;
     QWidgetAction *m_datePickerAction;
     KDatePicker *m_datePicker;

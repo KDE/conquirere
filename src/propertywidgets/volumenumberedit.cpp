@@ -18,11 +18,11 @@
 #include "volumenumberedit.h"
 
 #include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
+
 #include "nbib.h"
 #include <Nepomuk/Resource>
 #include <Nepomuk/Variant>
-
-#include <QtGui/QStandardItemModel>
 
 using namespace Nepomuk::Vocabulary;
 
@@ -77,7 +77,7 @@ void VolumeNumberEdit::updateResource(const QString & text)
     // or it marks the volume/number of an JournalIssue or any other issue collection where an article was published in.
     // or the volume for the CodeOfLaw of an legislation
 
-    // check if the resource has a Collection attaced to it
+    // check if the resource has a Collection attached to it
     Nepomuk::Resource journalIssue = resource().property(NBIB::collection()).toResource();
     Nepomuk::Resource codeOfLaw = resource().property(NBIB::codeOfLaw()).toResource();
     Nepomuk::Resource courtReporter = resource().property(NBIB::courtReporter()).toResource();
@@ -102,5 +102,7 @@ void VolumeNumberEdit::updateResource(const QString & text)
     }
 
     QVariantList value; value << text;
-    Nepomuk::setProperty(resourceUris, propertyUrl(), value);
+    m_changedResource = resource();
+    connect(Nepomuk::setProperty(resourceUris, propertyUrl(), value),
+            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Jörg Ehrichs <joerg.ehichs@gmx.de>
+ * Copyright 2012 Jörg Ehrichs <joerg.ehrichs@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,23 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef STRINGEDIT_H
-#define STRINGEDIT_H
+#ifndef WEBSITEEDIT_H
+#define WEBSITEEDIT_H
 
 #include "propertyedit.h"
 
 /**
-  * @brief Very simple edit widget, interpretes all propertys as string
+  * @brief displayes the websites connected via @c nie:links
   */
-class StringEdit : public PropertyEdit
+class WebsiteEdit : public PropertyEdit
 {
+    Q_OBJECT
 public:
-    StringEdit(QWidget *parent = 0);
+    explicit WebsiteEdit(QWidget *parent = 0);
+
+private slots:
+    /**
+      * opens the file selection dialog AddDataObject
+      */
+    void showUrlSelection();
 
 private:
+    /**
+      * Simply shows the connected ISSN of the connected NBIB::Series object
+      */
     void setupLabel();
 
-    virtual void updateResource( const QString & text );
+    /**
+      * sets the ISSN to the string from the KLineEdit to the connected Series
+      */
+    void updateResource( const QString & text );
 };
 
-#endif // STRINGEDIT_H
+#endif // WEBSITEEDIT_H

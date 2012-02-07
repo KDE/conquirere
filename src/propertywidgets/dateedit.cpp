@@ -17,12 +17,16 @@
 
 #include "dateedit.h"
 
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
 #include "nbib.h"
 #include <Nepomuk/Variant>
 
 #include <KDE/KDatePicker>
 #include <KDE/KLineEdit>
 #include <KDE/KGlobalSettings>
+
+#include <KDE/KDebug>
 
 #include <QtGui/QMenu>
 #include <QtGui/QWidgetAction>
@@ -54,35 +58,31 @@ void DateEdit::setupLabel()
 {
     QString dateString = resource().property(propertyUrl()).toString();
 
-    //[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
-    QDateTime date = QDateTime::fromString(dateString, "yyyy-MM-ddTHH:mm:ss");
-    if(date.isValid())
+    if(dateString.isEmpty()) {
+        return;
+    }
+
+    //[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]Z
+    QDateTime date = QDateTime::fromString(dateString, "yyyy-MM-ddTHH:mm:ssZ");
+    if(date.isValid()) {
         setLabelText(date.toString("dd.MMM.yyyy"));
+    }
     else {
-        QString year;
-        QString month;
-        QString day;
-        QRegExp rx(QLatin1String("(\\d*)-(\\d*)-(\\d*)*"));
-        if (rx.indexIn(dateString) != -1) {
-            year = rx.cap(1);
-            month = rx.cap(2);
-            day = rx.cap(3);
-        }
-        if(month == QLatin1String("00"))
-            setLabelText(year);
-        else if(day == QLatin1String("00"))
-            setLabelText(year + QLatin1String("-") + month);
-        else
-            setLabelText(year + QLatin1String("-") + month + QLatin1String("-") + day);
+        kWarning() << "no valid date format in the nepomuk storage!" << propertyUrl() << dateString;
     }
 
 }
 
-void DateEdit::updateResource(const QString & text)
+void DateEdit::updateResource(const QString & newDateText)
 {
-    QDateTime date = QDateTime::fromString(text, "dd.MMM.yyyy");
+    QDateTime date = QDateTime::fromString(newDateText, "dd.MMM.yyyy");
 
-    resource().setProperty(propertyUrl(),date.toString("yyyy-MM-ddTHH:mm:ss"));
+
+    QList<QUrl> resourceUris; resourceUris << resource().uri();
+    QVariantList value; value << date.toString("yyyy-MM-ddTHH:mm:ssZ");
+    m_changedResource = resource();
+    connect(Nepomuk::setProperty(resourceUris, propertyUrl(), value),
+            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }
 
 void DateEdit::detailEditRequested()

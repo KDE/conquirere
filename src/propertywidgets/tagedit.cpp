@@ -55,34 +55,33 @@ void TagEdit::setupLabel()
     setLabelText(labelText);
 }
 
-void TagEdit::updateResource(const QString & text)
+void TagEdit::updateResource(const QString & newTagNames)
 {
-    QList<QUrl> resourceUris; resourceUris << resource().uri();
-    QList<QUrl> value; value << propertyUrl();
-    KJob *job = Nepomuk::removeProperties(resourceUris, value);
-    job->exec();
-
-    if(text.isEmpty()) { return; }
+    if(newTagNames.isEmpty()) {
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QList<QUrl> value; value << propertyUrl();
+        Nepomuk::removeProperties(resourceUris, value);
+        return;
+    }
 
     QStringList entryList;
     if(hasMultipleCardinality()) {
-        // for the contact we get a list of contact names divided by ;
-        // where each contact is also available as nepomuk:/res in the cache
-        // if not, a new contact with the full name of "string" will be created
-        entryList = text.split(QLatin1String(";"));
+        entryList = newTagNames.split(QLatin1String(";"));
     }
     else {
-        entryList.append(text);
+        entryList.append(newTagNames);
     }
 
     Nepomuk::SimpleResourceGraph graph;
     foreach(const QString & s, entryList) {
+        if(s.trimmed().isEmpty()) { continue; }
+
         if( propertyUrl() == NAO::hasTag()) {
             Nepomuk::SimpleResource tagResource;
             Nepomuk::NAO::Tag tag (&tagResource);
 
-            tagResource.addProperty( NAO::identifier(), QUrl::fromEncoded(s.toUtf8()) );
-            tag.addPrefLabel( s );
+            tagResource.addProperty( NAO::identifier(), QUrl::fromEncoded(s.trimmed().toUtf8()) );
+            tag.addPrefLabel( s.trimmed() );
 
             graph << tagResource;
         }
@@ -90,8 +89,8 @@ void TagEdit::updateResource(const QString & text)
 
             Nepomuk::PIMO::Topic topic;
 
-            topic.addProperty( NAO::identifier(), QUrl::fromEncoded(s.toUtf8()) );
-            topic.setTagLabel( s );
+            topic.addProperty( NAO::identifier(), QUrl::fromEncoded(s.trimmed().toUtf8()) );
+            topic.setTagLabel( s.trimmed() );
 
             graph << topic;
         }
@@ -100,18 +99,29 @@ void TagEdit::updateResource(const QString & text)
         }
     }
 
-    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties), SIGNAL(finished()),this, SLOT(addTags(KJob*)));
+    m_editedResource = resource();
+    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties), SIGNAL(result(KJob*)),this, SLOT(addTags(KJob*)));
 }
 
-void TagEdit::addTags(Nepomuk::StoreResourcesJob *job)
+void TagEdit::addTags(KJob *job)
 {
+    if( job->error() != 0) {
+        kDebug() << "could not create new tags" << job->errorString();
+        return;
+    }
+
+    Nepomuk::StoreResourcesJob *srj = dynamic_cast<Nepomuk::StoreResourcesJob *>(job);
+
     // now get all the uris for the new tags
     QVariantList tagUris;
-    foreach (QUrl uri, job->mappings()) {
+    foreach (QUrl uri, srj->mappings()) {
          tagUris << uri;
     }
 
-    QList<QUrl> resourceUris; resourceUris << resource().uri();
     // and attach all tags to the current Nepomuk resource
+    QList<QUrl> resourceUris; resourceUris << m_editedResource.uri();
     Nepomuk::setProperty(resourceUris, propertyUrl(), tagUris);
+
+    //TODO remove when resourcewatcher is working..
+    emit resourceCacheNeedsUpdate(m_editedResource);
 }

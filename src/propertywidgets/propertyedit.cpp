@@ -116,11 +116,7 @@ void PropertyEdit::setResource(Nepomuk::Resource & resource)
 {
     m_resource = resource;
 
-    // if we set the property before the resource
-    // it is now time to set the label the first time
-    if(m_propertyUrl.isValid()) {
-        setupLabel();
-    }
+    setupLabel();
 }
 
 Nepomuk::Resource PropertyEdit::resource()
@@ -178,6 +174,7 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
 {
     m_propertyUrl = propertyUrl;
 
+    /*
     //get the range of the property (so what we are allowed to enter)
     Nepomuk::Resource nr(m_propertyUrl);
     Nepomuk::Resource range = nr.property(QUrl(QLatin1String("http://www.w3.org/2000/01/rdf-schema#range"))).toResource();
@@ -210,17 +207,7 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
     }
 
     m_completer->setModel(sim);
-
-    // if we set the resource before the property
-    // it is now time to set the label the first time
-    if(m_resource.isValid()) {
-        setupLabel();
-    }
-}
-
-QList<Nepomuk::Resource> PropertyEdit::propertyResources()
-{
-    return resource().property(propertyUrl()).toResourceList();
+    */
 }
 
 QUrl PropertyEdit::propertyUrl()
@@ -466,12 +453,12 @@ void PropertyEdit::removeCompletionData(const QList<QUrl> &urls)
 void PropertyEdit::insertCompletionModel( const QList< Nepomuk::Query::Result > &entries, QStandardItemModel *completerModel)
 {
     QList<QStandardItem *> allnewItems;
-//    foreach(const Nepomuk::Query::Result & r, entries) {
+    foreach(const Nepomuk::Query::Result & r, entries) {
 //        QStandardItem *item = new QStandardItem(r.resource().genericLabel());
 //        item->setData(r.resource().resourceUri().toString().trimmed());
 
 //        allnewItems.append(item);
-//    }
+    }
 
     // ok this is a wired bug, if we insert new items after we added the first batch we need to use
     // appendRow rather that appendColumn otherwise it won't show up in the popup list
@@ -513,4 +500,11 @@ void PropertyEdit::completionModelProcessed()
 void PropertyEdit::startUpQueryFinished()
 {
     setBulkUpdateInProgress(false);
+}
+
+void PropertyEdit::updateEditedCacheResource()
+{
+    //TODO remove when resourcewatcher is working..
+    if(m_changedResource.exists())
+        emit resourceCacheNeedsUpdate(m_changedResource);
 }

@@ -26,7 +26,6 @@
 #include "mainui/librarymanager.h"
 
 #include "propertywidgets/contactedit.h"
-#include "propertywidgets/fileobjectedit.h"
 
 #include "referencewidget.h"
 #include "eventwidget.h"
@@ -479,6 +478,28 @@ void PublicationWidget::discardContentChanges()
     ui->editAbstract->document()->setPlainText(abstract);
 }
 
+void PublicationWidget::fileObjectEdit()
+{
+
+}
+
+void PublicationWidget::fileObjectAdd()
+{
+
+    if(ui->fileListWidget->count() == 0) {
+        ui->fileEdit->setEnabled(true);
+        ui->fileRemove->setEnabled(true);
+    }
+}
+
+void PublicationWidget::fileObjectRemove()
+{
+    if(ui->fileListWidget->count() == 0) {
+        ui->fileEdit->setEnabled(false);
+        ui->fileRemove->setEnabled(false);
+    }
+}
+
 void PublicationWidget::changeRating(int newRating)
 {
     if(newRating == m_publication.rating() ) {
@@ -507,6 +528,14 @@ void PublicationWidget::setupWidget()
 
     connect(ui->editEntryType, SIGNAL(currentIndexChanged(int)), this, SLOT(newBibEntryTypeSelected(int)));
 
+    ui->fileEdit->setIcon(KIcon("document-edit"));
+    ui->fileAdd->setIcon(KIcon("list-add"));
+    ui->fileRemove->setIcon(KIcon("list-remove"));
+
+    connect(ui->fileEdit, SIGNAL(clicked()), this, SLOT(fileObjectEdit()));
+    connect(ui->fileAdd, SIGNAL(clicked()), this, SLOT(fileObjectAdd()));
+    connect(ui->fileRemove, SIGNAL(clicked()), this, SLOT(fileObjectRemove()));
+
     // Basics section
     ui->editTitle->setPropertyUrl( NIE::title() );
     ui->editAuthors->setPropertyUrl( NCO::creator() );
@@ -521,8 +550,6 @@ void PublicationWidget::setupWidget()
     ui->editPublisher->setPropertyUrl( NCO::publisher() );
     ui->editPublisher->setUseDetailDialog(true);
     connect(ui->editPublisher, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
-    ui->editWebObject->setMode(FileObjectEdit::Website);
-    ui->editWebObject->setPropertyUrl( NIE::links() );
     ui->editTags->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
     ui->editTags->setPropertyUrl( NAO::hasTag() );
     ui->editTopics->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);

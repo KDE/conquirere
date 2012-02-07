@@ -48,12 +48,12 @@ AddDataObject::~AddDataObject()
     delete m_kurlrequester;
 }
 
-void AddDataObject::setMode(FileObjectEdit::Mode mode)
+void AddDataObject::setMode(AddDataObject::Mode mode)
 {
     m_mode = mode;
 
     switch(m_mode) {
-    case FileObjectEdit::Local: {
+    case Local: {
         ui->textlabel->setText(i18n("Select all files on the harddrive that represent this publication."));
         m_propertyUrl = Nepomuk::Vocabulary::NFO::FileDataObject();
         KEditListWidget::CustomEditor kurlrequester;
@@ -63,11 +63,11 @@ void AddDataObject::setMode(FileObjectEdit::Mode mode)
         ui->keditlistwidget->setCustomEditor(kurlrequester);
     }
         break;
-    case FileObjectEdit::Remote:
+    case Remote:
         ui->textlabel->setText(i18n("Add all remote locations that represent this publications."));
         m_propertyUrl = Nepomuk::Vocabulary::NFO::RemoteDataObject();
         break;
-    case FileObjectEdit::Website:
+    case Website:
         ui->textlabel->setText(i18n("Add all websites connected to this publication"));
         m_propertyUrl = Nepomuk::Vocabulary::NFO::Website();
         break;
@@ -86,16 +86,16 @@ void AddDataObject::fillListWidget()
     foreach( const Nepomuk::Resource & nr, dataObjectList) {
         QString url = nr.property( Nepomuk::Vocabulary::NIE::url() ).toString();
 
-        if(m_mode == FileObjectEdit::Remote && nr.hasType(Nepomuk::Vocabulary::NFO::RemoteDataObject())) {
+        if(m_mode == Remote && nr.hasType(Nepomuk::Vocabulary::NFO::RemoteDataObject())) {
             ui->keditlistwidget->insertItem(url);
             continue;
         }
-        else if(m_mode == FileObjectEdit::Local && nr.hasType(Nepomuk::Vocabulary::NFO::FileDataObject())
+        else if(m_mode == Local && nr.hasType(Nepomuk::Vocabulary::NFO::FileDataObject())
                 && !nr.hasType(Nepomuk::Vocabulary::NFO::RemoteDataObject())) {
             ui->keditlistwidget->insertItem(url);
             continue;
         }
-        else if(m_mode == FileObjectEdit::Website && nr.hasType(Nepomuk::Vocabulary::NFO::WebDataObject())) {
+        else if(m_mode == Website && nr.hasType(Nepomuk::Vocabulary::NFO::WebDataObject())) {
             ui->keditlistwidget->insertItem(url);
             continue;
         }
@@ -106,7 +106,7 @@ void AddDataObject::addItem(const QString & itemUrl)
 {
     Nepomuk::Resource dataObject;
 
-    if(m_mode == FileObjectEdit::Local) {
+    if(m_mode == Local) {
         // find the resource of the file
         KUrl url(QLatin1String("file://") + itemUrl);
         Nepomuk::File nf = Nepomuk::File(url);
@@ -124,11 +124,11 @@ void AddDataObject::addItem(const QString & itemUrl)
         // where no information is available
         m_nepomukDBus->call("org.kde.nepomuk.FileIndexer.indexFile", itemUrl);
     }
-    else if(m_mode == FileObjectEdit::Remote) {
+    else if(m_mode == Remote) {
         dataObject = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NFO::RemoteDataObject());
         dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), itemUrl);
     }
-    else if(m_mode == FileObjectEdit::Website) {
+    else if(m_mode == Website) {
         dataObject = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NFO::WebDataObject());
         dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), itemUrl);
     }
@@ -151,7 +151,7 @@ void AddDataObject::removeItem(const QString & text)
             m_resource.removeProperty( Nepomuk::Vocabulary::NBIB::isPublicationOf(), nr);
         }
         // if it is not a local nepomuk resource, delete the resource also
-        if(m_mode != FileObjectEdit::Local) {
+        if(m_mode != Local) {
             //nr.remove();
         }
     }

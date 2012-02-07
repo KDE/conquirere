@@ -20,11 +20,10 @@
 
 #include "propertyedit.h"
 
-class QStandardItemModel;
+class KJob;
 
 /**
   * @brief Used to Edit the @c nbib:CourtReporter of an nbib:Publication
-  *
   */
 class CourtReporterEdit : public PropertyEdit
 {
@@ -32,10 +31,18 @@ class CourtReporterEdit : public PropertyEdit
 public:
     explicit CourtReporterEdit(QWidget *parent = 0);
 
-protected:
+private slots:
+    void addCourtReporter(KJob *job);
+
+private:
     void setupLabel();
 
-    virtual void updateResource( const QString & text );
+    void updateResource( const QString & text );
+
+    // cache the resource used for the asynchron change.
+    // otherwise if we switch to a different resource while the KJob
+    // hasn't finished yet, we add the publication crosslinks to the wrong resource
+    Nepomuk::Resource m_editedResource;
 };
 
 #endif // COURTREPORTEREDIT_H

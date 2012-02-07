@@ -17,14 +17,21 @@
 
 #include "contactedit.h"
 
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
+#include "dms-copy/simpleresourcegraph.h"
+#include "dms-copy/simpleresource.h"
+#include <KDE/KJob>
+#include "sro/nco/contact.h"
+
 #include <Nepomuk/Vocabulary/NCO>
+#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Variant>
 
 #include <KDE/KDebug>
 
-#include <QAbstractItemModel>
-#include <QtGui/QStandardItemModel>
-#include <QtGui/QCompleter>
+using namespace Nepomuk::Vocabulary;
+using namespace Soprano::Vocabulary;
 
 ContactEdit::ContactEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -39,10 +46,8 @@ void ContactEdit::setupLabel()
         QList<Nepomuk::Resource> authorList = resource().property(propertyUrl()).toResourceList();
 
         foreach(const Nepomuk::Resource & r, authorList) {
-            QString fullname = r.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+            QString fullname = r.property(NCO::fullname()).toString();
             labelText.append(fullname.trimmed());
-            addPropertryEntry(fullname, r.resourceUri().toString());
-
             labelText.append(QLatin1String("; "));
         }
 
@@ -51,64 +56,67 @@ void ContactEdit::setupLabel()
     else {
         Nepomuk::Resource author = resource().property(propertyUrl()).toResource();
 
-        QString fullname = author.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
+        QString fullname = author.property(NCO::fullname()).toString();
         labelText.append(fullname.trimmed());
-        addPropertryEntry(fullname, author.resourceUri().toString());
     }
 
     setLabelText(labelText);
 }
 
-void ContactEdit::updateResource(const QString & text)
+void ContactEdit::updateResource(const QString & newContactNames)
 {
-    // remove all existing contacts
-    resource().removeProperty( propertyUrl() );
-
-    if(text.isEmpty())
+    if(newContactNames.isEmpty()) {
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QList<QUrl> value; value << propertyUrl();
+        Nepomuk::removeProperties(resourceUris, value);
         return;
+    }
 
     QStringList entryList;
     if(hasMultipleCardinality()) {
-        // for the contact we get a list of contact names divided by ;
-        // where each contact is also available as nepomuk:/res in the cache
-        // if not, a new contact with the full name of "string" will be created
-        entryList = text.split(QLatin1String(";"));
+        entryList = newContactNames.split(QLatin1String(";"));
     }
     else {
-        entryList.append(text);
+        entryList.append(newContactNames);
     }
 
+    Nepomuk::SimpleResourceGraph graph;
     foreach(const QString & s, entryList) {
+        if(s.trimmed().isEmpty()) { continue; }
 
-        if(s.trimmed().isEmpty())
-            continue;
+        Nepomuk::NCO::Contact contact;
 
-        // try to find the propertyurl of an already existing contact
-        QUrl propContactUrl = propertyEntry(s.trimmed());
-        if(propContactUrl.isValid()) {
-            Nepomuk::Resource contact = Nepomuk::Resource(propContactUrl);
-//            kDebug() << "add existing contact" << contact.genericLabel();
-            resource().addProperty( propertyUrl(), contact);
-        }
-        else {
-//            kDebug() << "try to find the name of the contact entered without completer in the completer model";
-            QStandardItemModel *sim = dynamic_cast<QStandardItemModel *>(m_completer->model());
-            if(sim) {
-                QList<QStandardItem *> siList = sim->findItems(s.trimmed());
-                if(!siList.isEmpty()) {
-//                    kDebug() << "found matching contacts" << siList.size() << "for contact" << s.trimmed();
-                    Nepomuk::Resource contact = Nepomuk::Resource(siList.first()->data(Qt::UserRole + 1).toUrl());
-//                    kDebug() << "add existing contact" << contact.genericLabel();
-                    resource().addProperty( propertyUrl(), contact);
-                    continue;
-                }
-            }
+        contact.addProperty( NCO::fullname(), s.trimmed() );
+        contact.addProperty( NAO::prefLabel(), s.trimmed() );
 
-//            kDebug() << "create new contact" << s.trimmed();
-            // create a new contact with the string s as fullname
-            Nepomuk::Resource newContact(propContactUrl, Nepomuk::Vocabulary::NCO::Contact());
-            newContact.setProperty(Nepomuk::Vocabulary::NCO::fullname(), s.trimmed());
-            resource().addProperty( propertyUrl(), newContact);
-        }
+        graph << contact;
     }
+
+    m_editedResource = resource();
+    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
+            SIGNAL(result(KJob*)),this, SLOT(addContact(KJob*)));
+
+}
+
+void ContactEdit::addContact(KJob *job)
+{
+    if( job->error() != 0) {
+        kDebug() << "could not create new contact" << job->errorString();
+        return;
+    }
+
+    Nepomuk::StoreResourcesJob *srj = dynamic_cast<Nepomuk::StoreResourcesJob *>(job);
+
+    // now get all the uris for the new contact
+    QVariantList contactUris;
+    foreach (QUrl uri, srj->mappings()) {
+         contactUris << uri;
+    }
+
+    // add the crosslink reference <-> publicatio
+    QList<QUrl> resourceUris; resourceUris << m_editedResource.uri();
+    Nepomuk::setProperty(resourceUris, propertyUrl(), contactUris);
+
+    //TODO remove when resourcewatcher is working..
+    emit resourceCacheNeedsUpdate(m_editedResource);
 }

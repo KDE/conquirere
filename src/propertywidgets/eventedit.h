@@ -20,10 +20,10 @@
 
 #include "propertyedit.h"
 
-class QStandardItemModel;
+class KJob;
 
 /**
-  * @brief Edits the @c nbib:event and @c nbib:eventPublication of an @c nbib:Publication
+  * @brief Edits the @c pimo:Event and adds the @c nbib:event and @c nbib:eventPublication connection to the @c nbib:Publication
   */
 class EventEdit : public PropertyEdit
 {
@@ -31,13 +31,23 @@ class EventEdit : public PropertyEdit
 public:
     explicit EventEdit(QWidget *parent = 0);
 
-protected:
+private slots:
+    void addEvent(KJob *job);
+
+private:
     /**
-      * Shows the @c nie:title of the @ nbib:event
+      * Shows the @c nao:prefLabel of the @ nbib:event
+      *
+      * fall back to @c nie:title
       */
     void setupLabel();
 
-    virtual void updateResource( const QString & text );
+    void updateResource( const QString & newEventTitle );
+
+    // cache the resource used for the asynchron change.
+    // otherwise if we switch to a different resource while the KJob
+    // hasn't finished yet, we add the publication crosslinks to the wrong resource
+    Nepomuk::Resource m_editedResource;
 };
 
 #endif // EVENTEDIT_H

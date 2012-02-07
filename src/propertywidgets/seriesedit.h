@@ -20,7 +20,7 @@
 
 #include "propertyedit.h"
 
-class QStandardItemModel;
+class KJob;
 
 /**
   * @brief Used to edit the @c nbib:Series of an nbib:Publication
@@ -34,23 +34,32 @@ class QStandardItemModel;
   */
 class SeriesEdit : public PropertyEdit
 {
+    Q_OBJECT
+
 public:
     SeriesEdit(QWidget *parent = 0);
 
-protected:
-    void setupLabel();
-
-    virtual void updateResource( const QString & text );
+private slots:
+    void addSeries(KJob *job);
 
 private:
+    void setupLabel();
+
+    void updateResource( const QString & text );
+
     /**
       * Intelligent function to determine what tpe of series will be right for the publication
       *
       * For example if the resource() is an nbib:JournalIssue the type must be nbib:Journal
       *
-      * @return correctNepomuk::Vocabulary::NBIB::*type*
+      * @return correct Nepomuk::Vocabulary::NBIB::*type*
       */
     QUrl findSeriesType();
+
+    // cache the resource used for the asynchron change.
+    // otherwise if we switch to a different resource while the KJob
+    // hasn't finished yet, we add the series crosslinks to the wrong resource
+    Nepomuk::Resource m_editedResource;
 };
 
 #endif // SERIESEDIT_H

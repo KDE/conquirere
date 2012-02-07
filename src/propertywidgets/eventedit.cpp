@@ -17,69 +17,112 @@
 
 #include "eventedit.h"
 
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
+#include "dms-copy/simpleresourcegraph.h"
+#include "dms-copy/simpleresource.h"
+#include <KDE/KJob>
+#include "sro/pimo/event.h"
+
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/PIMO>
+#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Variant>
 
-#include <QtGui/QStandardItemModel>
-#include <QtCore/QUrl>
+#include <KDE/KDebug>
+
+using namespace Nepomuk::Vocabulary;
+using namespace Soprano::Vocabulary;
 
 EventEdit::EventEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
-    setPropertyUrl(Nepomuk::Vocabulary::NBIB::event());
 }
 
 void EventEdit::setupLabel()
 {
+    Nepomuk::Resource event = resource().property(NBIB::event()).toResource();
+
     QString title;
-    Nepomuk::Resource event = resource().property(propertyUrl()).toResource();
-
-    title = event.property(Nepomuk::Vocabulary::NIE::title()).toString();
-
-    addPropertryEntry(title, event.resourceUri().toString());
+    title = event.property(NAO::prefLabel()).toString();
+    if(title.isEmpty()) {
+        title = event.property(NIE::title()).toString();
+    }
 
     setLabelText(title);
 }
 
-void EventEdit::updateResource(const QString & text)
+void EventEdit::updateResource(const QString & newEventTitle)
 {
-    Nepomuk::Resource currentEvent = resource().property(propertyUrl()).toResource();
+    Nepomuk::Resource currentEvent = resource().property(NBIB::event()).toResource();
 
-    if(text.isEmpty()) {
-        resource().removeProperty( propertyUrl() );
-        currentEvent.removeProperty(Nepomuk::Vocabulary::NBIB::eventPublication(), resource());
+    QString curentTitle;
+
+    curentTitle = currentEvent.property(NAO::prefLabel()).toString();
+    if(curentTitle.isEmpty()) {
+        curentTitle = currentEvent.property(NIE::title()).toString();
+    }
+
+    if(newEventTitle == curentTitle) {
+        return; // nothing changed
+    }
+
+    if(currentEvent.exists()) {
+        // remove the crosslink event <-> publication
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QVariantList value; value << currentEvent.uri();
+        Nepomuk::removeProperty(resourceUris, NBIB::event(), value);
+
+        resourceUris.clear(); resourceUris << currentEvent.uri();
+        value.clear(); value << resource().uri();
+        Nepomuk::removeProperty(resourceUris, NBIB::eventPublication(), value);
+    }
+
+    if(newEventTitle.isEmpty()) {
         return;
     }
 
-    // try to find the propertyurl of an already existing event
-    QUrl propUrl = propertyEntry(text);
-    Nepomuk::Resource newEvent = Nepomuk::Resource(propUrl);
+    // ok the user changed the text in the list
+    // let the DMS create a new event and merge it to the right place
+    Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::PIMO::Event newEvent;
+    newEvent.addType(NIE::InformationElement());
 
-    if(currentEvent.isValid()) {
-        if(newEvent.isValid()) {
-            // remove old link
-            resource().removeProperty( propertyUrl() );
-            currentEvent.removeProperty(Nepomuk::Vocabulary::NBIB::eventPublication(), resource());
+    newEvent.setProperty(NIE::title(), newEventTitle.trimmed());
+    newEvent.setProperty(NAO::prefLabel(), newEventTitle.trimmed());
 
-            // set link to new event
-            resource().setProperty( propertyUrl(), newEvent);
-            newEvent.addProperty(Nepomuk::Vocabulary::NBIB::eventPublication(), resource());
-        }
-        else {
-            //rename existing event
-            currentEvent.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
-        }
+    graph << newEvent;
+
+    m_editedResource = resource();
+    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
+            SIGNAL(result(KJob*)),this, SLOT(addEvent(KJob*)));
+}
+
+void EventEdit::addEvent(KJob *job)
+{
+    if( job->error() != 0) {
+        kDebug() << "could not create new event" << job->errorString();
         return;
     }
 
-    // no current event available, set to newEvent or create a new event
-    if(!newEvent.isValid()) {
-        newEvent = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::PIMO::Event());
-        newEvent.setProperty(Nepomuk::Vocabulary::NIE::title(), text);
+    Nepomuk::StoreResourcesJob *srj = dynamic_cast<Nepomuk::StoreResourcesJob *>(job);
+
+    // now get all the uris for the new event
+    QList<QUrl> eventUris;
+    QVariantList eventValues;
+    foreach (QUrl uri, srj->mappings()) {
+         eventUris << uri;
+         eventValues << uri;
     }
 
-    resource().setProperty( propertyUrl(), newEvent);
-    newEvent.addProperty(Nepomuk::Vocabulary::NBIB::eventPublication(), resource());
+    // add the crosslink reference <-> publicatio
+    QList<QUrl> resourceUris; resourceUris << m_editedResource.uri();
+    Nepomuk::setProperty(resourceUris, NBIB::event(), eventValues);
+
+    QVariantList value; value << m_editedResource.uri();
+    Nepomuk::addProperty(eventUris, NBIB::eventPublication(), value);
+
+    //TODO remove when resourcewatcher is working..
+    emit resourceCacheNeedsUpdate(m_editedResource);
 }

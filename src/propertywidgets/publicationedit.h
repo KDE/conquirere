@@ -20,22 +20,32 @@
 
 #include "propertyedit.h"
 
-class QStandardItemModel;
+class KJob;
 
 /**
   * @brief Used to edit the publication for a specific reference
   *
-  * Shows/edit the @c nie:title of the @c nbib:Publication
+  * Edits the @c nbib:publication to connect @c nbib:Publication to its Reference
+  * The label edits/shows the @c nie:title of the publication
   */
 class PublicationEdit : public PropertyEdit
 {
+    Q_OBJECT
 public:
     PublicationEdit(QWidget *parent = 0);
 
-protected:
+private slots:
+    void addPublication(KJob *job);
+
+private:
     void setupLabel();
 
-    virtual void updateResource( const QString & text );
+    void updateResource( const QString & newPublicationTitle );
+
+    // cache the resource used for the asynchron change.
+    // otherwise if we switch to a different resource while the KJob
+    // hasn't finished yet, we add the publication crosslinks to the wrong resource
+    Nepomuk::Resource m_editedResource;
 };
 
 #endif // PUBLICATIONEDIT_H

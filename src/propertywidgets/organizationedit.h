@@ -20,30 +20,44 @@
 
 #include "propertyedit.h"
 
-class QStandardItemModel;
+class KJob;
 
 /**
-  * @brief Changes the @c nbib:organization of a proceedings
+  * @brief Changes the @c nbib:organization of a @c nbib:Publication
   *
-  * @pre resource must be @c nbib:proceedings or @c nbib:article
+  * show/edit the @c nco:fullname of the @c nco:OrganizationContact
+  *
+  * Tries to be intelligent. if the resource is an @c nbib:Article the organization
+  * was attached to the @c nbib:Collection (Proceedings). For all other cases the
+  * organization is taken directly from the resource. Happens for the @c institution of an
+  * @c nbib:Thesis or the @c court for a @c nbib:LegalCaseDocument
   */
 class OrganizationEdit : public PropertyEdit
 {
+    Q_OBJECT
 public:
     OrganizationEdit(QWidget *parent = 0);
 
-protected:
+private slots:
+    void addOrganization(KJob *job);
+
+private:
     /**
-      * Shows the @c nco:fillname of the @ nco:OrganizationContact
+      * Shows the @c nco:fullname of the @ nco:OrganizationContact
       */
     void setupLabel();
 
     /**
-      * Removes any old organization connected to the proceedings and adds the new entered.
+      * Removes any old organization connected to the publication and adds the new entered.
       *
       * Already existing resources will be used if available, or a complete new created
       */
-    virtual void updateResource( const QString & text );
+    void updateResource( const QString & text );
+
+    // cache the resource used for the asynchron change.
+    // otherwise if we switch to a different resource while the KJob
+    // hasn't finished yet, we add the organization crosslinks to the wrong resource
+    Nepomuk::Resource m_editedResource;
 };
 
 #endif // ORGANIZATIONEDIT_H

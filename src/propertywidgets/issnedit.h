@@ -20,8 +20,6 @@
 
 #include "propertyedit.h"
 
-class QStandardItemModel;
-
 /**
   * @brief Allows to change the International Standard Serial Number for articles/journals
   *
@@ -29,19 +27,21 @@ class QStandardItemModel;
   */
 class IssnEdit : public PropertyEdit
 {
+    Q_OBJECT
+
 public:
     IssnEdit(QWidget *parent = 0);
 
-protected:
+private:
     /**
       * Simply shows the connected ISSN of the connected NBIB::Series object
       */
     void setupLabel();
 
     /**
-      * sets the ISSN t othe string from the KLineEdit to the connected Series
+      * sets the ISSN to the string from the KLineEdit to the connected Series
       */
-    virtual void updateResource( const QString & text );
+    void updateResource( const QString & text );
 };
 
 #endif // ISSNEDIT_H

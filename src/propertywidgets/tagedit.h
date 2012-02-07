@@ -20,13 +20,10 @@
 
 #include "propertyedit.h"
 
-namespace Nepomuk {
-class StoreResourcesJob;
-}
+class KJob;
 
 /**
   * @brief simple linedit to add/remove Tags @c nao:Tag or @c pimo:Topic to a resource
-  *
   */
 class TagEdit : public PropertyEdit
 {
@@ -35,11 +32,16 @@ public:
     explicit TagEdit(QWidget *parent = 0);
 
 private slots:
-    void addTags(Nepomuk::StoreResourcesJob *job);
+    void addTags(KJob *job);
 
-protected:
+private:
     void setupLabel();
     void updateResource( const QString & text );
+
+    // cache the resource used for the asynchron change.
+    // otherwise if we switch to a different resource while the KJob
+    // hasn't finished yet, we add the tags to the wrong resource
+    Nepomuk::Resource m_editedResource;
 };
 
 #endif // TAGEDIT_H

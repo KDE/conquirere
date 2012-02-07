@@ -156,9 +156,6 @@ QString ListPartsWidget::showChapterString(Nepomuk::Resource publication)
     QString showString;
     QString title = publication.property(NIE::title()).toString();
     QString number = publication.property(NBIB::chapterNumber()).toString();
-    if(number.isEmpty()) {
-        number = QLatin1String("?");
-    }
 
     showString.append(title);
     if(!number.isEmpty()) {

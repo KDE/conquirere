@@ -20,32 +20,26 @@
 
 #include "propertyedit.h"
 
-class QStandardItemModel;
-
 /**
   * @brief Used to add a chapter to a bibreference
   *
-  * @pre setResource must be a @c nbib:Reference
-  *
-  * @todo create completion model only for the currently set publication, rather than all chapters in nepomuk
+  * @pre the resource must be a @c nbib:Reference
   */
 class ChapterEdit : public PropertyEdit
 {
 public:
     ChapterEdit(QWidget *parent = 0);
 
-protected:
+private:
     /**
-      * Use @c nie:title of the @c nbib:Chapter
+      * Use @c nie:title and @c nbib:chapterNumber of the @c nbib:Chapter
       */
     void setupLabel();
 
     /**
-      * update the resource with the @p text from the edit field
-      *
-      * Interprete @p text as @c nie:title of the @c nbib:Chapter
+      * not allowed use external edit dialog
       */
-    virtual void updateResource( const QString & text );
+    void updateResource( const QString & text );
 };
 
 #endif // CHAPTEREDIT_H

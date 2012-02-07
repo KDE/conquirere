@@ -17,17 +17,24 @@
 
 #include "organizationedit.h"
 
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
+#include "dms-copy/simpleresourcegraph.h"
+#include "dms-copy/simpleresource.h"
+#include <KDE/KJob>
+#include "sro/nco/organizationcontact.h"
+
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NCO>
 #include <Nepomuk/Variant>
 
-#include <QtGui/QStandardItemModel>
-#include <QtCore/QUrl>
+#include <KDE/KDebug>
+
+using namespace Nepomuk::Vocabulary;
 
 OrganizationEdit::OrganizationEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
-    setPropertyUrl( Nepomuk::Vocabulary::NBIB::organization() );
 }
 
 void OrganizationEdit::setupLabel()
@@ -39,67 +46,96 @@ void OrganizationEdit::setupLabel()
 
     // I. the resource is an Article, means the organization is attached to the Collection
     // not the article itself
-    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Article())) {
-        Nepomuk::Resource collection = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
-        organization = collection.property(propertyUrl()).toResource();
+    if(resource().hasType(NBIB::Article())) {
+        Nepomuk::Resource collection = resource().property( NBIB::collection() ).toResource();
+        organization = collection.property( NBIB::organization() ).toResource();
     }
     // otherwise the organization is directly connected to the publication
     // institution for a thesis, court for a case, and so on
     else {
-        organization = resource().property(propertyUrl()).toResource();
+        organization = resource().property( NBIB::organization() ).toResource();
     }
 
-    title = organization.property(Nepomuk::Vocabulary::NCO::fullname()).toString();
-
-    addPropertryEntry(title, organization.resourceUri().toString());
+    title = organization.property( NCO::fullname() ).toString();
 
     setLabelText(title);
 }
 
 void OrganizationEdit::updateResource(const QString & text)
 {
-    // the publication is the resource where the organization is attached to
-    // it is the resource directly for most parts, but the Collection for an article
-    Nepomuk::Resource publication;
-    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Article())) {
-        publication = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+    Nepomuk::Resource currentOrganization;
+    // see above
+    if(resource().hasType(NBIB::Article())) {
+        Nepomuk::Resource collection = resource().property( NBIB::collection() ).toResource();
+        currentOrganization = collection.property( NBIB::organization() ).toResource();
     }
     else {
-        publication = resource();
+        currentOrganization = resource().property( NBIB::organization() ).toResource();
     }
 
-    // only remove organization if no text was specified
+    QString curentTitle = currentOrganization.property(NCO::fullname()).toString();
+
+    if(text == curentTitle) {
+        return; // nothing changed
+    }
+
+    if(currentOrganization.exists()) {
+        // remove the crosslink reference <-> publication
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QVariantList value; value << currentOrganization.uri();
+        Nepomuk::removeProperty(resourceUris, NBIB::organization(), value);
+    }
+
     if(text.isEmpty()) {
-        publication.removeProperty(propertyUrl());
         return;
     }
 
-    // else the text changed
-    Nepomuk::Resource currentOrganization = publication.property(propertyUrl()).toResource();;
+    // ok the user changed the text in the list
+    // let the DMS create a new Organization and merge it to the right place
+    Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::NCO::OrganizationContact newOrganization;
 
-    // try to find the propertyurl of an already existing organizatzion
-    QUrl propUrl = propertyEntry(text);
-    Nepomuk::Resource newOrganizatzion = Nepomuk::Resource(propUrl);
+    newOrganization.setProperty(NCO::fullname(), text.trimmed());
 
-    if(currentOrganization.isValid()) {
-        if(newOrganizatzion.isValid()) {
-            // switch to new organization
-            publication.setProperty( propertyUrl(), newOrganizatzion);
-        }
-        else {
-            // rename current organization
-            currentOrganization.setProperty(Nepomuk::Vocabulary::NCO::fullname(), text);
-        }
+    graph << newOrganization;
+
+    m_editedResource = resource();
+    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
+            SIGNAL(result(KJob*)),this, SLOT(addOrganization(KJob*)));
+}
+
+void OrganizationEdit::addOrganization(KJob *job)
+{
+    if( job->error() != 0) {
+        kDebug() << "could not create new oraganization" << job->errorString();
         return;
     }
 
-    // if no current organization can be found
-    // add existing organizatzion with the name of text
-    // or create a new one
-    if(!newOrganizatzion.isValid()) {
-        newOrganizatzion = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NCO::OrganizationContact());
-        newOrganizatzion.setProperty(Nepomuk::Vocabulary::NCO::fullname(), text);
+    Nepomuk::StoreResourcesJob *srj = dynamic_cast<Nepomuk::StoreResourcesJob *>(job);
+
+    // now get all the uris for the new tags
+    QList<QUrl> publicationUris;
+    QVariantList publicationValues;
+    foreach (QUrl uri, srj->mappings()) {
+         publicationUris << uri;
+         publicationValues << uri;
     }
 
-    publication.setProperty( propertyUrl(), newOrganizatzion);
+    Nepomuk::Resource resourceToAddOrg;
+    // see above
+    if(m_editedResource.hasType(NBIB::Article())) {
+        resourceToAddOrg = resource().property( NBIB::collection() ).toResource();
+    }
+    else {
+        resourceToAddOrg = m_editedResource;
+    }
+
+    // add the crosslink reference <-> publicatio
+    QList<QUrl> resourceUris; resourceUris << resourceToAddOrg.uri();
+    Nepomuk::setProperty(resourceUris, NBIB::organization(), publicationValues);
+
+    //TODO remove when resourcewatcher is working..
+    emit resourceCacheNeedsUpdate(m_editedResource);
+    if(m_editedResource != resourceToAddOrg)
+        emit resourceCacheNeedsUpdate(resourceToAddOrg);
 }

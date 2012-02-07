@@ -20,7 +20,7 @@
 
 #include "propertyedit.h"
 
-class QStandardItemModel;
+class KJob;
 
 /**
   * @brief Used to manipulate an @c nco:Contact property.
@@ -31,10 +31,15 @@ class QStandardItemModel;
   */
 class ContactEdit : public PropertyEdit
 {
+    Q_OBJECT
+
 public:
     ContactEdit(QWidget *parent = 0);
 
-protected:
+private slots:
+    void addContact(KJob *job);
+
+private:
     /**
       * Use nco::fullname of the @c nco::Contact
       */
@@ -45,7 +50,12 @@ protected:
       *
       * Interprete @p text as @c nco::fullname of the @c nco::Contact
       */
-    virtual void updateResource( const QString & text );
+    void updateResource( const QString & text );
+
+    // cache the resource used for the asynchron change.
+    // otherwise if we switch to a different resource while the KJob
+    // hasn't finished yet, we add the publication crosslinks to the wrong resource
+    Nepomuk::Resource m_editedResource;
 };
 
 #endif // CONTACTEDIT_H

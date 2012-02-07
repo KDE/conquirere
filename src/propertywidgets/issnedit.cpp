@@ -17,107 +17,158 @@
 
 #include "issnedit.h"
 
+#include "dms-copy/datamanagement.h"
+#include "dms-copy/storeresourcesjob.h"
+#include "dms-copy/simpleresourcegraph.h"
+#include "dms-copy/simpleresource.h"
+#include <KDE/KJob>
+#include "sro/nbib/series.h"
+#include "sro/nbib/collection.h"
+
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Variant>
+#include <KDE/KDebug>
 
-#include <QtGui/QStandardItemModel>
-#include <QtCore/QUrl>
+using namespace Nepomuk::Vocabulary;
 
 IssnEdit::IssnEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
-    setPropertyCardinality(UNIQUE_PROPERTY);
 }
 
 void IssnEdit::setupLabel()
 {
     Nepomuk::Resource series;
     Nepomuk::Resource issue;
-    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Article())) {
-        issue = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
-        series = issue.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    if(resource().hasType(NBIB::Article())) {
+        issue = resource().property(NBIB::collection()).toResource();
+        series = issue.property(NBIB::inSeries()).toResource();
     }
     else {
-        series = resource().property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+        series = resource().property(NBIB::inSeries()).toResource();
     }
 
     //get the connected journal for the publication
-    QString issn = series.property(Nepomuk::Vocabulary::NBIB::issn()).toString();
-
-    addPropertryEntry(issn, series.resourceUri().toString());
+    QString issn = series.property(NBIB::issn()).toString();
 
     setLabelText(issn);
 }
 
-void IssnEdit::updateResource(const QString & text)
+void IssnEdit::updateResource(const QString & newIssnString)
 {
+    // first get the right series resource where the issn will be attached to
     Nepomuk::Resource series;
-    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Article())) {
-        Nepomuk::Resource issue = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
-        series = issue.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+    Nepomuk::Resource issue;
+    if(resource().hasType(NBIB::Article())) {
+        issue = resource().property(NBIB::collection()).toResource();
+        series = issue.property(NBIB::inSeries()).toResource();
     }
     else {
-        series = resource().property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+        series = resource().property(NBIB::inSeries()).toResource();
     }
 
-    if(text.isEmpty()) {
-        series.removeProperty(Nepomuk::Vocabulary::NBIB::issn());
+    if( newIssnString == series.property(NBIB::issn()).toString()) {
         return;
     }
 
-    // else change the issn
-    if(series.isValid()) {
-        series.setProperty(Nepomuk::Vocabulary::NBIB::issn(), text);
-        return;
-    }
-
-    // series is not valid, as an issn can only be attached to a series, we create a series here
-    if(resource().hasType(Nepomuk::Vocabulary::NBIB::Article())) {
-        Nepomuk::Resource issue = resource().property(Nepomuk::Vocabulary::NBIB::collection()).toResource();
+    // if we added the ISSN to something where no series existed
+    // we need to create the right structure before we proceed
+    if(resource().hasType(NBIB::Article())) {
 
         // no collection available for the article, create one
-        if(!issue.isValid()) {
-            issue = Nepomuk::Resource(QUrl(), Nepomuk::Vocabulary::NBIB::Collection());
+        if(!issue.exists()) {
+            Nepomuk::SimpleResourceGraph graph;
+            Nepomuk::NBIB::Collection newCollection;
+            Nepomuk::NBIB::Series newSeries;
 
-            resource().setProperty(Nepomuk::Vocabulary::NBIB::collection(), issue);
-            issue.addProperty(Nepomuk::Vocabulary::NBIB::article(), resource());
+            newCollection.setProperty(NIE::title(), i18n("Unknown Collection"));
+            newSeries.setProperty(NIE::title(), i18n("Unknown Series"));
+
+            newCollection.setProperty(NBIB::inSeries(), newSeries.uri() );
+            newSeries.addSeriesOf( newCollection.uri() );
+
+            graph << newCollection << newSeries;
+
+            //blocking graph save
+            Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone );
+            if( !srj->exec() ) {
+                kWarning() << "could not create new issue and series" << srj->errorString();
+                return;
+            }
+
+            Nepomuk::Resource newCollectionResource = Nepomuk::Resource::fromResourceUri( srj->mappings().value( newCollection.uri() ) );
+            series = Nepomuk::Resource::fromResourceUri( srj->mappings().value( newSeries.uri() ) );
+
+            // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
+            QList<QUrl> resUri; resUri << resource().uri();
+            QVariantList value; value << newCollectionResource.uri();
+            Nepomuk::setProperty(resUri, NBIB::collection(), value);
+
+            resUri.clear(); resUri << newCollectionResource.uri();
+            value.clear(); value << resource().uri();
+            Nepomuk::addProperty(resUri, NBIB::article(), value);
         }
+        else if(!series.exists()) {
+            Nepomuk::SimpleResourceGraph graph;
+            Nepomuk::NBIB::Series newSeries;
 
-        series = issue.property(Nepomuk::Vocabulary::NBIB::inSeries()).toResource();
+            newSeries.setProperty(NIE::title(), i18n("Unknown Series"));
 
-        if(!series.isValid()) {
-            QUrl seriesUrl = Nepomuk::Vocabulary::NBIB::Series();
-            if(issue.hasType(Nepomuk::Vocabulary::NBIB::JournalIssue()))
-                seriesUrl = Nepomuk::Vocabulary::NBIB::Journal();
-            else if(issue.hasType(Nepomuk::Vocabulary::NBIB::MagazinIssue()))
-                seriesUrl = Nepomuk::Vocabulary::NBIB::Magazin();
-            else if(issue.hasType(Nepomuk::Vocabulary::NBIB::NewspaperIssue()))
-                seriesUrl = Nepomuk::Vocabulary::NBIB::Newspaper();
+            graph << newSeries;
 
-            series = Nepomuk::Resource(QUrl(), seriesUrl);
-            issue.setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), series);
-            series.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), issue);
+            //blocking graph save
+            Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone );
+            if( !srj->exec() ) {
+                kWarning() << "could not create new series" << srj->errorString();
+                return;
+            }
+
+            series = Nepomuk::Resource::fromResourceUri( srj->mappings().value( newSeries.uri() ) );
+
+            // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
+            QList<QUrl> resUri; resUri << issue.uri();
+            QVariantList value; value << series.uri();
+            Nepomuk::setProperty(resUri, NBIB::inSeries(), value);
+
+            resUri.clear(); resUri << series.uri();
+            value.clear(); value << issue.uri();
+            Nepomuk::addProperty(resUri, NBIB::seriesOf(), value);
         }
-
-        // now we have a valid series add the issn to it
-         series.setProperty(Nepomuk::Vocabulary::NBIB::issn(), text);
-         return;
     }
-    // if we operate on something else than a article
-    else {
-        if(!series.isValid()) {
-            QUrl seriesUrl = Nepomuk::Vocabulary::NBIB::Series();
-            if(resource().hasType(Nepomuk::Vocabulary::NBIB::Book()))
-                seriesUrl = Nepomuk::Vocabulary::NBIB::BookSeries();
+    // if we operate on something else than an article and have no series we create it too
+    else if(!series.exists()) {
+        Nepomuk::SimpleResourceGraph graph;
+        Nepomuk::NBIB::Series newSeries;
 
-            series = Nepomuk::Resource(QUrl(), seriesUrl);
-            resource().setProperty(Nepomuk::Vocabulary::NBIB::inSeries(), series);
-            series.addProperty(Nepomuk::Vocabulary::NBIB::seriesOf(), resource());
+        newSeries.setProperty(NIE::title(), i18n("Unknown Series"));
+
+        graph << newSeries;
+
+        //blocking graph save
+        Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone );
+        if( !srj->exec() ) {
+            kWarning() << "could not create new series" << srj->errorString();
+            return;
         }
 
-        // now we have a valid series add the issn to it
-         series.setProperty(Nepomuk::Vocabulary::NBIB::issn(), text);
-         return;
+        series = Nepomuk::Resource::fromResourceUri( srj->mappings().value( newSeries.uri() ) );
+
+        // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
+        QList<QUrl> resUri; resUri << resource().uri();
+        QVariantList value; value << series.uri();
+        Nepomuk::setProperty(resUri, NBIB::inSeries(), value);
+
+        resUri.clear(); resUri << series.uri();
+        value.clear(); value << resource().uri();
+        Nepomuk::addProperty(resUri, NBIB::seriesOf(), value);
     }
+
+    // now we have the valid seriws in the right connection add the issn to it
+    QList<QUrl> resourceUris; resourceUris << series.uri();
+    QVariantList value; value << newIssnString;
+    m_changedResource = resource();
+
+    connect(Nepomuk::setProperty(resourceUris, NBIB::issn(), value),
+            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }
