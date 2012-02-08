@@ -78,10 +78,6 @@ private slots:
     void acceptContentChanges();
     void discardContentChanges();
 
-    void fillFileObjectWidget();
-    void fileObjectEdit();
-    void fileObjectAdd();
-    void fileObjectRemove();
 
     void changeRating(int newRating);
     void editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl);

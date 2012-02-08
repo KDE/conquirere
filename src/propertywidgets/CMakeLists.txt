@@ -16,10 +16,14 @@ set(propertywidgets_LIB_SRCS
     collectionedit.cpp
     codeoflawedit.cpp
     courtreporteredit.cpp
+    fileobjectedit.cpp
+    fileobjecteditdialog.cpp
 )
 
 kde4_add_ui_files( propertywidgets_LIB_SRCS
                    adddataobject.ui
+                   fileobjectedit.ui
+                   fileobjecteditdialog.ui
 )
 
 kde4_add_library( propertywidgets STATIC ${propertywidgets_LIB_SRCS} )

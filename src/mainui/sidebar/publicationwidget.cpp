@@ -97,6 +97,7 @@ void PublicationWidget::setLibraryManager(LibraryManager *lm)
     ui->editCitedSources->setLibraryManager(lm);
     ui->listPartsWidget->setLibraryManager(lm);
     ui->editAnnot->setLibraryManager(lm);
+    ui->editFileObject->setLibraryManager(lm);
 }
 
 void PublicationWidget::setResource(Nepomuk::Resource & resource)
@@ -120,8 +121,6 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
         emit hasReference(true);
     }
 
-    fillFileObjectWidget();
-
     BibEntryType entryType = BibEntryTypeFromUrl(m_publication);
 
     int index = ui->editEntryType->findData(entryType);
@@ -144,6 +143,7 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
    ui->editFilingDate->setResource(m_publication);
    ui->editPublisher->setResource(m_publication);
    ui->editOrganization->setResource(m_publication);
+   ui->editFileObject->setResource(m_publication);
    ui->editTags->setResource(m_publication);
    ui->editTopics->setResource(m_publication);
 
@@ -480,80 +480,6 @@ void PublicationWidget::discardContentChanges()
     ui->editAbstract->document()->setPlainText(abstract);
 }
 
-void PublicationWidget::fillFileObjectWidget()
-{
-    ui->fileListWidget->clear();
-
-    QList<Nepomuk::Resource> resources = m_publication.property(NBIB::isPublicationOf()).toResourceList();
-    resources.append( m_publication.property(NIE::links()).toResourceList() );
-
-    foreach(const Nepomuk::Resource &r, resources) {
-        QListWidgetItem *i = new QListWidgetItem(ui->fileListWidget);
-
-        QString showString;
-        QString icon;
-        if(r.hasType(NFO::RemoteDataObject())) {
-            KUrl url(r.property(NIE::url()).toString());
-            showString = url.prettyUrl(KUrl::RemoveTrailingSlash);
-
-            icon = QLatin1String("application-x-smb-server");
-        }
-        else if(r.hasType(NFO::WebDataObject()) || r.hasType(NFO::Website())) {
-            KUrl url(r.property(NIE::url()).toString());
-            showString = url.prettyUrl(KUrl::RemoveTrailingSlash);
-
-            icon = QLatin1String("applications-internet");
-        }
-        else {
-            showString = r.property(NFO::fileName()).toString();
-            if(showString.isEmpty()) {
-                KUrl url(r.property(NIE::url()).toString());
-                showString = url.prettyUrl(KUrl::RemoveTrailingSlash);
-            }
-            icon = QLatin1String("application-pdf"); // TODO create right icon from mimetype as retrieved by nepomuk
-        }
-
-        i->setIcon( KIcon(icon) );
-        i->setText(showString);
-        i->setData(Qt::UserRole, r.resourceUri());
-        ui->fileListWidget->addItem(i);
-    }
-}
-
-void PublicationWidget::fileObjectEdit()
-{
-    if(ui->fileListWidget->currentItem() == 0)
-        return;
-}
-
-void PublicationWidget::fileObjectAdd()
-{
-}
-
-void PublicationWidget::fileObjectRemove()
-{
-    QListWidgetItem *i = ui->fileListWidget->currentItem();
-    if(!i) { return; }
-
-    Nepomuk::Resource resource = Nepomuk::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
-    ui->fileListWidget->removeItemWidget(i);
-    delete i;
-
-    if(resource.hasType(NFO::Website())) {
-        QList<QUrl> resourceUris; resourceUris << m_publication.uri();
-        QVariantList value; value <<  resource.uri();
-        Nepomuk::removeProperty(resourceUris, NIE::links(), value);
-    }
-    else {
-        QList<QUrl> resourceUris; resourceUris << m_publication.uri();
-        QVariantList value; value <<  resource.uri();
-        Nepomuk::removeProperty(resourceUris, NBIB::isPublicationOf(), value);
-
-        resourceUris.clear(); resourceUris << resource.uri();
-        value.clear(); value <<  m_publication.uri();
-        Nepomuk::removeProperty(resourceUris, NBIB::publishedAs(), value);
-    }
-}
 
 void PublicationWidget::changeRating(int newRating)
 {
@@ -582,14 +508,6 @@ void PublicationWidget::setupWidget()
     }
 
     connect(ui->editEntryType, SIGNAL(currentIndexChanged(int)), this, SLOT(newBibEntryTypeSelected(int)));
-
-    ui->fileEdit->setIcon(KIcon("document-edit"));
-    ui->fileAdd->setIcon(KIcon("list-add"));
-    ui->fileRemove->setIcon(KIcon("list-remove"));
-
-    connect(ui->fileEdit, SIGNAL(clicked()), this, SLOT(fileObjectEdit()));
-    connect(ui->fileAdd, SIGNAL(clicked()), this, SLOT(fileObjectAdd()));
-    connect(ui->fileRemove, SIGNAL(clicked()), this, SLOT(fileObjectRemove()));
 
     // Basics section
     ui->editTitle->setPropertyUrl( NIE::title() );

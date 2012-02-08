@@ -159,117 +159,12 @@
          <item row="10" column="0">
           <widget class="QLabel" name="label_24">
            <property name="text">
-            <string>Files:</string>
+            <string>Sources:</string>
            </property>
           </widget>
          </item>
          <item row="10" column="1">
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <widget class="KListWidget" name="fileListWidget">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>80</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>80</height>
-              </size>
-             </property>
-             <property name="showDropIndicator" stdset="0">
-              <bool>false</bool>
-             </property>
-             <property name="alternatingRowColors">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_4">
-             <property name="spacing">
-              <number>-1</number>
-             </property>
-             <item>
-              <widget class="QPushButton" name="fileEdit">
-               <property name="minimumSize">
-                <size>
-                 <width>16</width>
-                 <height>16</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16</width>
-                 <height>16</height>
-                </size>
-               </property>
-               <property name="text">
-                <string notr="true"/>
-               </property>
-               <property name="iconSize">
-                <size>
-                 <width>16</width>
-                 <height>16</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="fileAdd">
-               <property name="minimumSize">
-                <size>
-                 <width>16</width>
-                 <height>16</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16</width>
-                 <height>16</height>
-                </size>
-               </property>
-               <property name="text">
-                <string notr="true"/>
-               </property>
-               <property name="iconSize">
-                <size>
-                 <width>16</width>
-                 <height>16</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="fileRemove">
-               <property name="minimumSize">
-                <size>
-                 <width>16</width>
-                 <height>16</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16</width>
-                 <height>16</height>
-                </size>
-               </property>
-               <property name="text">
-                <string notr="true"/>
-               </property>
-               <property name="iconSize">
-                <size>
-                 <width>16</width>
-                 <height>16</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
+          <widget class="FileObjectEdit" name="editFileObject" native="true"/>
          </item>
          <item row="11" column="0">
           <widget class="QLabel" name="labelKeywords">
@@ -920,11 +815,6 @@
    <header>klineedit.h</header>
   </customwidget>
   <customwidget>
-   <class>KListWidget</class>
-   <extends>QListWidget</extends>
-   <header>klistwidget.h</header>
-  </customwidget>
-  <customwidget>
    <class>KRatingWidget</class>
    <extends>QFrame</extends>
    <header>kratingwidget.h</header>
@@ -1030,6 +920,12 @@
    <class>ListCitedSources</class>
    <extends>QWidget</extends>
    <header>sidebar/listcitedsources.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FileObjectEdit</class>
+   <extends>QWidget</extends>
+   <header>propertywidgets/fileobjectedit.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

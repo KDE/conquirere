@@ -2,9 +2,9 @@
 add_subdirectory( dms-copy )
 add_subdirectory( nbibio )
 add_subdirectory( core )
-add_subdirectory( propertywidgets )
 add_subdirectory( onlinestorage )
 add_subdirectory( mainui )
+add_subdirectory( propertywidgets )
 
 set(conquirere_SRCS
     main.cpp
