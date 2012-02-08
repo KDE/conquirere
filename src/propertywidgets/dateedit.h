@@ -41,8 +41,11 @@ public:
 private slots:
     void detailEditRequested();
     void dateChanged(QDate date);
+    void editingFinished();
+    void editingAborted();
 
 private:
+    virtual void mousePressEvent ( QMouseEvent * event );
     void setupLabel();
 
     void updateResource( const QString & text );

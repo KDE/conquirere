@@ -36,6 +36,8 @@ class QFocusEvent;
 class QToolButton;
 class QStandardItemModel;
 class QStandardItem;
+class QMouseEvent;
+class QKeyEvent;
 
 /**
   * @brief Helper class to easily manipulate Nepomuk data
@@ -235,9 +237,9 @@ protected:
       */
     QUrl propertyEntry(const QString &entryname);
 
-private slots:
-    void editingFinished();
-    void editingAborted();
+protected slots:
+    virtual void editingFinished();
+    virtual void editingAborted();
 
     void updateCompleter();
     void insertCompletion(const QModelIndex & index);
@@ -253,6 +255,8 @@ private slots:
     void startUpQueryFinished();
 
 protected:
+    virtual void mousePressEvent ( QMouseEvent * event );
+    KSqueezedTextLabel *m_label;
     KLineEdit *m_lineEdit;
     QCompleter *m_completer;
     // chache the resource used for the asynchron change.
@@ -262,10 +266,8 @@ protected:
     Nepomuk::Resource m_changedResource;
 
 private:
-    void mousePressEvent ( QMouseEvent * event );
     void keyPressEvent(QKeyEvent * e);
 
-    KSqueezedTextLabel *m_label;
     QToolButton *m_detailView;
     bool m_isListEdit;
     bool m_useDetailDialog;

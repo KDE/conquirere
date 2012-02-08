@@ -134,11 +134,6 @@ void PropertyEdit::setLabelText(const QString & text)
     emit textChanged(text);
 }
 
-QString PropertyEdit::labelText()
-{
-    return m_label->fullText();
-}
-
 void PropertyEdit::setPropertyCardinality(PropertyEdit::Cardinality cardinality)
 {
     if(cardinality == PropertyEdit::MULTIPLE_PROPERTY) {

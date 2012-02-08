@@ -25,17 +25,20 @@
 #include <KDE/KDatePicker>
 #include <KDE/KLineEdit>
 #include <KDE/KGlobalSettings>
+#include <KDE/KSqueezedTextLabel>
 
 #include <KDE/KDebug>
 
 #include <QtGui/QMenu>
 #include <QtGui/QWidgetAction>
 #include <QtCore/QDateTime>
+#include <QtGui/QCompleter>
+#include <QtGui/QAbstractItemView>
 
 DateEdit::DateEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
-    setDirectEdit(false);
+//    setDirectEdit(false);
     setUseDetailDialog(true);
 
     m_dateMenu = new QMenu(this);
@@ -70,19 +73,27 @@ void DateEdit::setupLabel()
     else {
         kWarning() << "no valid date format in the nepomuk storage!" << propertyUrl() << dateString;
     }
-
 }
 
 void DateEdit::updateResource(const QString & newDateText)
 {
-    QDateTime date = QDateTime::fromString(newDateText, "dd.MMM.yyyy");
-
-
     QList<QUrl> resourceUris; resourceUris << resource().uri();
-    QVariantList value; value << date.toString("yyyy-MM-ddTHH:mm:ssZ");
-    m_changedResource = resource();
-    connect(Nepomuk::setProperty(resourceUris, propertyUrl(), value),
-            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
+    QList<QUrl> propertyUris; propertyUris << propertyUrl();
+
+    if(newDateText.isEmpty()) {
+        connect(Nepomuk::removeProperties(resourceUris, propertyUris),
+                SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
+
+    }
+    else {
+        QDateTime date = QDateTime::fromString(newDateText, "dd.MMM.yyyy");
+
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QVariantList value; value << date.toString("yyyy-MM-ddTHH:mm:ssZ");
+        m_changedResource = resource();
+        connect(Nepomuk::setProperty(resourceUris, propertyUrl(), value),
+                SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
+    }
 }
 
 void DateEdit::detailEditRequested()
@@ -117,4 +128,56 @@ void DateEdit::dateChanged(QDate date)
 {
     setLabelText(date.toString("dd.MMM.yyyy"));
     updateResource(date.toString("dd.MMM.yyyy"));
+}
+void DateEdit::mousePressEvent ( QMouseEvent * e )
+{
+    QDateTime date = QDateTime::fromString(m_label->fullText(), "dd.MMM.yyyy");
+    QString dateEditString =date.toString("yyyy-MM-ddTHH:mm:ssZ");
+
+    if(m_label->isVisible()) {
+        m_lineEdit->setText(dateEditString);
+        m_label->hide();
+        m_lineEdit->show();
+        m_lineEdit->setFocus();
+    }
+    else {
+        if(dateEditString != m_lineEdit->text()) {
+            QDateTime date = QDateTime::fromString(m_lineEdit->text(), "yyyy-MM-ddTHH:mm:ssZ");
+            if(date.isValid()) {
+                setLabelText(date.toString("dd.MMM.yyyy"));
+            }
+        }
+        m_lineEdit->hide();
+        m_label->show();
+    }
+
+    QWidget::mousePressEvent(e);
+}
+
+void DateEdit::editingFinished()
+{
+    //don't switch to label view when enter is pressed for the completion
+    if(m_completer->popup()->isVisible() )
+        return;
+
+    QDateTime date = QDateTime::fromString(m_label->fullText(), "dd.MMM.yyyy");
+    QString dateEditString =date.toString("yyyy-MM-ddTHH:mm:ssZ");
+
+    if(dateEditString != m_lineEdit->text()) {
+        QDateTime date = QDateTime::fromString(m_lineEdit->text(), "yyyy-MM-ddTHH:mm:ssZ");
+        QString inputString = date.toString("dd.MMM.yyyy");
+        updateResource(inputString);
+        setLabelText(inputString);
+
+        emit resourceCacheNeedsUpdate(resource());
+    }
+
+    m_lineEdit->hide();
+    m_label->show();
+}
+
+void DateEdit::editingAborted()
+{
+    m_lineEdit->hide();
+    m_label->show();
 }
