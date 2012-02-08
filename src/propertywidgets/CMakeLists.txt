@@ -11,7 +11,6 @@ set(propertywidgets_LIB_SRCS
     stringedit.cpp
     tagedit.cpp
     volumenumberedit.cpp
-    adddataobject.cpp
     eventedit.cpp
     collectionedit.cpp
     codeoflawedit.cpp
@@ -21,7 +20,6 @@ set(propertywidgets_LIB_SRCS
 )
 
 kde4_add_ui_files( propertywidgets_LIB_SRCS
-                   adddataobject.ui
                    fileobjectedit.ui
                    fileobjecteditdialog.ui
 )
