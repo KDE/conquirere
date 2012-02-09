@@ -52,6 +52,7 @@ private:
     struct MergedResults {
         Nepomuk::Resource localSyncResource;
         QSharedPointer<Entry> localEntry;
+        Entry * originalServerEntry;
         Entry * serverChanges;
         Entry * mergedChanges;
     };

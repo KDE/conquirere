@@ -162,6 +162,7 @@ void ItemMergeDialog::setItemsToMerge(QList<SyncDetails> items)
 
         MergedResults mr;
         mr.localSyncResource = sd.syncResource;
+        mr.originalServerEntry = sd.externalResource;
         mr.serverChanges = BibTexToNepomukPipe::getDiff(publication, sd.externalResource, false, mr.localEntry);
         mr.mergedChanges = mr.serverChanges;
         m_mergeResults.append(mr);
@@ -250,12 +251,14 @@ void ItemMergeDialog::replaceSelection()
 
     int index = cb->currentIndex();
     QString key = cb->itemData(index).toString();
-    QString value = cb->currentText();
-    Value v;
-    v.append(QSharedPointer<ValueItem>(new PlainText(value) ));
 
-    kDebug() << "changed merge selection for key" << key << "to value" << value;
-    mr.mergedChanges->insert( key , v);
+    if(index == 0) { // stick to local
+        mr.mergedChanges->remove( key );
+    }
+    else { // select server changes
+        mr.mergedChanges->insert( key , mr.originalServerEntry->value(key)); // i need to take the entry from originalServerEntry because the entry from serverChanges
+                                                                             // got altered somehow and only has 1 of the several entries (so only 1 instead of 4 authors)
+    }
 }
 
 void ItemMergeDialog::showItem(int index)
@@ -305,20 +308,25 @@ void ItemMergeDialog::showItem(int index)
         if( i.key().startsWith(QLatin1String("zotero")))
             continue;
 
+        Value serverValue = i.value();
+
         // add server row
-        QLabel *valueLabel = new QLabel(PlainTextValue::text(i.value()));
+        QLabel *valueLabel = new QLabel( PlainTextValue::text(serverValue) );
         serverLayout->addRow(QLatin1String("<b>") + m_keyTranslate.value(i.key().toLower()) + QLatin1String(":</b>"), valueLabel);
 
         //add local row
         QComboBox *cb = new QComboBox;
         Value localValue = mr.localEntry->value(i.key());
         cb->addItem( PlainTextValue::text( localValue ), i.key() );
-        cb->addItem( PlainTextValue::text( i.value() ), i.key() );
+        cb->addItem( PlainTextValue::text( serverValue ), i.key() );
         localLayout->addRow(QLatin1String("<b>") + m_keyTranslate.value(i.key().toLower()) + QLatin1String(":</b>"), cb);
 
         connect(cb, SIGNAL(currentIndexChanged(int)), this, SLOT(replaceSelection()));
 
+        // automatically select localvalue as default
         mr.mergedChanges->insert( i.key() , localValue);
+
+        kDebug() << "insert key" << i.key() << "with" << PlainTextValue::text(i.value());
     }
 
     // complete server groupbox

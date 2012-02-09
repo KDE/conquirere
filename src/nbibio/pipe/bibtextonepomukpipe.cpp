@@ -1796,8 +1796,8 @@ void BibTexToNepomukPipe::addUrl(const QString &content, Nepomuk::NBIB::Publicat
     if(m_replaceMode) {
         kDebug() << "remove all urls from" << m_publicationToReplace;
         QList<QUrl> resourceUris; resourceUris << m_publicationToReplace.uri();
-        QList<QUrl> value; value << contactProperty;
-        KJob *job = Nepomuk::removeProperties(NIE::links(), value);
+        QList<QUrl> value; value << NIE::links();
+        KJob *job = Nepomuk::removeProperties(resourceUris, value);
         job->exec();
     }
 
@@ -1940,21 +1940,23 @@ void BibTexToNepomukPipe::addTag(const Value &content, Nepomuk::SimpleResource &
     if(m_replaceMode) {
         kDebug() << "remove all tags from" << m_publicationToReplace;
         QList<QUrl> resourceUris; resourceUris << m_publicationToReplace.uri();
-        QList<QUrl> value; value << contactProperty;
-        KJob *job = Nepomuk::removeProperties(NAO::hasTag(), value);
+        QList<QUrl> value; value << NAO::hasTag();
+        KJob *job = Nepomuk::removeProperties(resourceUris, value);
         job->exec();
     }
 
     foreach(QSharedPointer<ValueItem> vi, content) {
         Keyword *k = dynamic_cast<Keyword *>(vi.data());
+        if(!k) { continue; }
 
         //TODO does this need a change? works differently than pimo:Topic creation, still works though...
         // there exist 2 apis for the ontology class, one that uses pointers the other that uses references ...
         Nepomuk::SimpleResource tagResource;
         Nepomuk::NAO::Tag tag (&tagResource);
 
-        QUrl encodedIdent = QUrl( k->text() ); // creates html escaped identifier
-        tagResource.addProperty( NAO::identifier(), encodedIdent.toEncoded());
+        kDebug() << "add tag" << k->text();
+
+        tagResource.addProperty( NAO::identifier(), QUrl::fromEncoded(k->text().toUtf8()));
         tag.addPrefLabel( k->text() );
 
         graph << tagResource;
@@ -1967,18 +1969,20 @@ void BibTexToNepomukPipe::addTopic(const Value &content, Nepomuk::SimpleResource
     if(m_replaceMode) {
         kDebug() << "remove all topics from" << m_publicationToReplace;
         QList<QUrl> resourceUris; resourceUris << m_publicationToReplace.uri();
-        QList<QUrl> value; value << contactProperty;
-        KJob *job = Nepomuk::removeProperties(NAO::hasTopic(), value);
+        QList<QUrl> value; value << NAO::hasTopic();
+        KJob *job = Nepomuk::removeProperties(resourceUris, value);
         job->exec();
     }
 
     foreach(QSharedPointer<ValueItem> vi, content) {
         Keyword *k = dynamic_cast<Keyword *>(vi.data());
+        if(!k) { continue; }
+
+        kDebug() << "add topic" << k->text();
 
         Nepomuk::PIMO::Topic topic;
 
-        QUrl encodedIdent = QUrl( k->text() ); // creates html escaped identifier
-        topic.addProperty( NAO::identifier(),encodedIdent.toEncoded() );
+        topic.addProperty( NAO::identifier(), QUrl::fromEncoded(k->text().toUtf8()) );
         topic.setTagLabel(k->text());
 
         graph << topic;
@@ -2112,7 +2116,7 @@ void BibTexToNepomukPipe::addContact(const Value &contentValue, Nepomuk::SimpleR
 {
     if(m_replaceMode) {
         kDebug() << "remove all contacts from" << contactProperty;
-        QList<QUrl> resourceUris; resourceUris << resource.uri();
+        QList<QUrl> resourceUris; resourceUris << m_publicationToReplace.uri();
         QList<QUrl> value; value << contactProperty;
         KJob *job = Nepomuk::removeProperties(resourceUris, value);
         job->exec();
@@ -2143,6 +2147,8 @@ void BibTexToNepomukPipe::addContact(const Value &contentValue, Nepomuk::SimpleR
                 personNotInstitution = false;
             }
         }
+
+        kDebug() << "add new contact" << author.full;
 
         // if we want to push the data into akonadi let akonadi handle everything
         if(m_addressbook.isValid()) {
