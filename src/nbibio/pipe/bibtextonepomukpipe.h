@@ -145,7 +145,7 @@ private:
     void addReviewedAuthor(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
     /**
       * @bug split webpages by ',' or ';' if necessary
-      * @bug create nfo:RemoteDataObject or nfo:FileDataObject as nbib:published as if the url is not a webpage
+      * @bug create nfo:RemoteDataObject or nfo:FileDataObject as nbib:publishedAs if the url is not a webpage
       */
     void addUrl(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
     void addPublicationDate(const QString &fullDate, Nepomuk::NBIB::Publication &publication);
@@ -160,8 +160,7 @@ private:
       * Also adds it as a nao:isRelated to the zoteroParent if the resource is a child note
       *
       */
-    void addZoteroSyncDetails(Nepomuk::SimpleResource &mainResource, Nepomuk::SimpleResource &referenceResource,
-                              Entry *e, Nepomuk::SimpleResourceGraph &graph);
+    void addZoteroSyncDetails(Nepomuk::SimpleResource &mainResource, Nepomuk::SimpleResource &referenceResource,Entry *e, Nepomuk::SimpleResourceGraph &graph);
 
     /**
       * creates the contact resource and push it to nepomuk if necessary

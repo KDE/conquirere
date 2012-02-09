@@ -36,36 +36,6 @@ public:
     }
 
     /**
-     * Get property http://www.example.com/nbib#seriesOf. The 
-     * publication this series belongs to 
-     */
-    QList<QUrl> seriesOfs() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#seriesOf", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#seriesOf. The 
-     * publication this series belongs to 
-     */
-    void setSeriesOfs(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#seriesOf", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#seriesOf. 
-     * The publication this series belongs to 
-     */
-    void addSeriesOf(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#seriesOf", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.example.com/nbib#issn. The International 
      * Standard Serial Number. Used to identify a series of publications. 
      */
@@ -93,6 +63,36 @@ public:
      */
     void addIssn(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#issn", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#seriesOf. The 
+     * publication this series belongs to 
+     */
+    QList<QUrl> seriesOfs() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#seriesOf", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#seriesOf. The 
+     * publication this series belongs to 
+     */
+    void setSeriesOfs(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#seriesOf", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#seriesOf. 
+     * The publication this series belongs to 
+     */
+    void addSeriesOf(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#seriesOf", QUrl::StrictMode), value);
     }
 
 protected:

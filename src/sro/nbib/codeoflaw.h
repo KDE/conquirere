@@ -35,6 +35,35 @@ public:
     }
 
     /**
+     * Get property http://www.example.com/nbib#codeNumber. 
+     * The code number of an CodeOfLaw 
+     */
+    QString codeNumber() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#codeNumber", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#codeNumber", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#codeNumber. 
+     * The code number of an CodeOfLaw 
+     */
+    void setCodeNumber(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#codeNumber", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#codeNumber. 
+     * The code number of an CodeOfLaw 
+     */
+    void addCodeNumber(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#codeNumber", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.example.com/nbib#legislation. 
      * links to a legislation (Bill, Statute) in a Code of Law 
      */

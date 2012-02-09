@@ -97,10 +97,8 @@ private:
     void finishAndCleanUp();
     /**
       * like updateSyncDetailsToNepomuk() but creates new sync data from new downloaded files
-      *
-      * @return the newly created sync:ServerSyncData object
       */
-    Nepomuk::Resource writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated);
+    void writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated);
 
     /**
       * Does what is say. It find the entry in the Nepomuk storage that is used to sync data with the zotero storage

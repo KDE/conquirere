@@ -36,36 +36,6 @@ public:
     }
 
     /**
-     * Get property http://www.example.com/nbib#translator. 
-     * The translator of a Publication 
-     */
-    QList<QUrl> translators() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#translator", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#translator. 
-     * The translator of a Publication 
-     */
-    void setTranslators(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#translator", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#translator. 
-     * The translator of a Publication 
-     */
-    void addTranslator(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#translator", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.example.com/nbib#lccn. The Library 
      * of Congress Call Number. 
      */
@@ -95,90 +65,65 @@ public:
     }
 
     /**
-     * Get property http://www.example.com/nbib#archive. The 
-     * archive where the publication can be found, see also nbib::archivelocation 
+     * Get property http://www.example.com/nbib#event. The event 
+     * this publication was shown, represented, published etc 
      */
-    QString archive() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#archive", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#archive", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#archive. The 
-     * archive where the publication can be found, see also nbib::archivelocation 
-     */
-    void setArchive(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#archive", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#archive. 
-     * The archive where the publication can be found, see also nbib::archivelocation 
-     */
-    void addArchive(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#archive", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#volume. The volume 
-     * of a journal or multi-volume book. 
-     */
-    QString volume() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#volume", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#volume", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#volume. The volume 
-     * of a journal or multi-volume book. 
-     */
-    void setVolume(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#volume", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#volume. 
-     * The volume of a journal or multi-volume book. 
-     */
-    void addVolume(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#volume", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#documentStatus. 
-     * The status of the publication of a document. 
-     */
-    QUrl documentStatus() const {
+    QUrl event() const {
         QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#documentStatus", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#documentStatus", QUrl::StrictMode)).first().value<QUrl>();
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#event", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#event", QUrl::StrictMode)).first().value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.example.com/nbib#documentStatus. 
-     * The status of the publication of a document. 
+     * Set property http://www.example.com/nbib#event. The event 
+     * this publication was shown, represented, published etc 
      */
-    void setDocumentStatus(const QUrl& value) {
+    void setEvent(const QUrl& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#documentStatus", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#event", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.example.com/nbib#documentStatus. 
-     * The status of the publication of a document. 
+     * Add value to property http://www.example.com/nbib#event. 
+     * The event this publication was shown, represented, published 
+     * etc 
      */
-    void addDocumentStatus(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#documentStatus", QUrl::StrictMode), value);
+    void addEvent(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#event", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#publicationType. 
+     * The type of tech-report or other kind of Publication, for example, 
+     * 'Research Note'. 
+     */
+    QString publicationType() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#publicationType", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#publicationType", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#publicationType. 
+     * The type of tech-report or other kind of Publication, for example, 
+     * 'Research Note'. 
+     */
+    void setPublicationType(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#publicationType", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#publicationType. 
+     * The type of tech-report or other kind of Publication, for example, 
+     * 'Research Note'. 
+     */
+    void addPublicationType(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#publicationType", QUrl::StrictMode), value);
     }
 
     /**
@@ -208,6 +153,36 @@ public:
      */
     void addTranslationOf(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#translationOf", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#translator. 
+     * The translator of a Publication 
+     */
+    QList<QUrl> translators() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#translator", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#translator. 
+     * The translator of a Publication 
+     */
+    void setTranslators(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#translator", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#translator. 
+     * The translator of a Publication 
+     */
+    void addTranslator(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#translator", QUrl::StrictMode), value);
     }
 
     /**
@@ -454,33 +429,61 @@ public:
     }
 
     /**
-     * Get property http://www.example.com/nbib#event. The event 
-     * this publication was shown, represented, published etc 
+     * Get property http://www.example.com/nbib#archive. The 
+     * archive where the publication can be found, see also nbib::archivelocation 
      */
-    QUrl event() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#event", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#event", QUrl::StrictMode)).first().value<QUrl>();
+    QString archive() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#archive", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#archive", QUrl::StrictMode)).first().value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.example.com/nbib#event. The event 
-     * this publication was shown, represented, published etc 
+     * Set property http://www.example.com/nbib#archive. The 
+     * archive where the publication can be found, see also nbib::archivelocation 
      */
-    void setEvent(const QUrl& value) {
+    void setArchive(const QString& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#event", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#archive", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.example.com/nbib#event. 
-     * The event this publication was shown, represented, published 
-     * etc 
+     * Add value to property http://www.example.com/nbib#archive. 
+     * The archive where the publication can be found, see also nbib::archivelocation 
      */
-    void addEvent(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#event", QUrl::StrictMode), value);
+    void addArchive(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#archive", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#shortTitle. 
+     * The short version of the title 
+     */
+    QString shortTitle() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#shortTitle", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#shortTitle", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#shortTitle. 
+     * The short version of the title 
+     */
+    void setShortTitle(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#shortTitle", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#shortTitle. 
+     * The short version of the title 
+     */
+    void addShortTitle(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#shortTitle", QUrl::StrictMode), value);
     }
 
     /**
@@ -546,6 +549,38 @@ public:
     }
 
     /**
+     * Get property http://www.example.com/nbib#inSeries. The 
+     * series the publication was published in. (for example a series 
+     * of books, a series of lecture notes, a journal series 
+     */
+    QUrl inSeries() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#inSeries", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#inSeries", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#inSeries. The 
+     * series the publication was published in. (for example a series 
+     * of books, a series of lecture notes, a journal series 
+     */
+    void setInSeries(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#inSeries", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#inSeries. 
+     * The series the publication was published in. (for example a 
+     * series of books, a series of lecture notes, a journal series 
+     */
+    void addInSeries(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#inSeries", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.example.com/nbib#documentPart. 
      * Connects a publication to a part of it (for example a chapter 
      * or quoted passage) 
@@ -605,6 +640,35 @@ public:
      */
     void addNumberOfVolumes(const qint64& value) {
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#numberOfVolumes", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#volume. The volume 
+     * of a journal or multi-volume book. 
+     */
+    QString volume() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#volume", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#volume", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#volume. The volume 
+     * of a journal or multi-volume book. 
+     */
+    void setVolume(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#volume", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#volume. 
+     * The volume of a journal or multi-volume book. 
+     */
+    void addVolume(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#volume", QUrl::StrictMode), value);
     }
 
     /**
@@ -669,35 +733,32 @@ public:
     }
 
     /**
-     * Get property http://www.example.com/nbib#inSeries. The 
-     * series the publication was published in. (for example a series 
-     * of books, a series of lecture notes, a journal series 
+     * Get property http://www.example.com/nbib#documentStatus. 
+     * The status of the publication of a document. 
      */
-    QUrl inSeries() const {
+    QUrl documentStatus() const {
         QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#inSeries", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#inSeries", QUrl::StrictMode)).first().value<QUrl>();
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#documentStatus", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#documentStatus", QUrl::StrictMode)).first().value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.example.com/nbib#inSeries. The 
-     * series the publication was published in. (for example a series 
-     * of books, a series of lecture notes, a journal series 
+     * Set property http://www.example.com/nbib#documentStatus. 
+     * The status of the publication of a document. 
      */
-    void setInSeries(const QUrl& value) {
+    void setDocumentStatus(const QUrl& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#inSeries", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#documentStatus", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.example.com/nbib#inSeries. 
-     * The series the publication was published in. (for example a 
-     * series of books, a series of lecture notes, a journal series 
+     * Add value to property http://www.example.com/nbib#documentStatus. 
+     * The status of the publication of a document. 
      */
-    void addInSeries(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#inSeries", QUrl::StrictMode), value);
+    void addDocumentStatus(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#documentStatus", QUrl::StrictMode), value);
     }
 
     /**
@@ -788,67 +849,6 @@ public:
      */
     void addPubMed(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#pubMed", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#shortTitle. 
-     * The short version of the title 
-     */
-    QString shortTitle() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#shortTitle", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#shortTitle", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#shortTitle. 
-     * The short version of the title 
-     */
-    void setShortTitle(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#shortTitle", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#shortTitle. 
-     * The short version of the title 
-     */
-    void addShortTitle(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#shortTitle", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#publicationType. 
-     * The type of tech-report or other kind of Publication, for example, 
-     * 'Research Note'. 
-     */
-    QString publicationType() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#publicationType", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#publicationType", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#publicationType. 
-     * The type of tech-report or other kind of Publication, for example, 
-     * 'Research Note'. 
-     */
-    void setPublicationType(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#publicationType", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#publicationType. 
-     * The type of tech-report or other kind of Publication, for example, 
-     * 'Research Note'. 
-     */
-    void addPublicationType(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#publicationType", QUrl::StrictMode), value);
     }
 
 protected:

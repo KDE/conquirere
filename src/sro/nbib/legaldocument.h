@@ -65,35 +65,6 @@ public:
     }
 
     /**
-     * Get property http://www.example.com/nbib#arguedDate. 
-     * The date on which a legal case is argued before a court. 
-     */
-    QDateTime arguedDate() const {
-        QDateTime value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#arguedDate", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#arguedDate", QUrl::StrictMode)).first().value<QDateTime>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#arguedDate. 
-     * The date on which a legal case is argued before a court. 
-     */
-    void setArguedDate(const QDateTime& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#arguedDate", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#arguedDate. 
-     * The date on which a legal case is argued before a court. 
-     */
-    void addArguedDate(const QDateTime& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#arguedDate", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.example.com/nbib#counsel. The 
      * counsel related to a Legal document 
      */
@@ -121,6 +92,35 @@ public:
      */
     void addCounsel(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#counsel", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#arguedDate. 
+     * The date on which a legal case is argued before a court. 
+     */
+    QDateTime arguedDate() const {
+        QDateTime value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#arguedDate", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#arguedDate", QUrl::StrictMode)).first().value<QDateTime>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#arguedDate. 
+     * The date on which a legal case is argued before a court. 
+     */
+    void setArguedDate(const QDateTime& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#arguedDate", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#arguedDate. 
+     * The date on which a legal case is argued before a court. 
+     */
+    void addArguedDate(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#arguedDate", QUrl::StrictMode), value);
     }
 
 protected:

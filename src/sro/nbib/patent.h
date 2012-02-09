@@ -35,33 +35,35 @@ public:
     }
 
     /**
-     * Get property http://www.example.com/nbib#priorityNumbers. 
-     * The priority number of a patent 
+     * Get property http://www.example.com/nbib#filingDate. 
+     * The date when the patent was filed, the issue date is the same 
+     * as the publication date 
      */
-    QStringList priorityNumberses() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#priorityNumbers", QUrl::StrictMode)))
-            value << v.value<QString>();
+    QDateTime filingDate() const {
+        QDateTime value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode)).first().value<QDateTime>();
         return value;
     }
 
     /**
-     * Set property http://www.example.com/nbib#priorityNumbers. 
-     * The priority number of a patent 
+     * Set property http://www.example.com/nbib#filingDate. 
+     * The date when the patent was filed, the issue date is the same 
+     * as the publication date 
      */
-    void setPriorityNumberses(const QStringList& value) {
+    void setFilingDate(const QDateTime& value) {
         QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#priorityNumbers", QUrl::StrictMode), values);
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.example.com/nbib#priorityNumbers. 
-     * The priority number of a patent 
+     * Add value to property http://www.example.com/nbib#filingDate. 
+     * The date when the patent was filed, the issue date is the same 
+     * as the publication date 
      */
-    void addPriorityNumbers(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#priorityNumbers", QUrl::StrictMode), value);
+    void addFilingDate(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode), value);
     }
 
     /**
@@ -92,38 +94,6 @@ public:
      */
     void addAttorneyAgent(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#attorneyAgent", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#filingDate. 
-     * The date when the patent was filed, the issue date is the same 
-     * as the publication date 
-     */
-    QDateTime filingDate() const {
-        QDateTime value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode)).first().value<QDateTime>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#filingDate. 
-     * The date when the patent was filed, the issue date is the same 
-     * as the publication date 
-     */
-    void setFilingDate(const QDateTime& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#filingDate. 
-     * The date when the patent was filed, the issue date is the same 
-     * as the publication date 
-     */
-    void addFilingDate(const QDateTime& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode), value);
     }
 
     /**
@@ -213,6 +183,36 @@ public:
      */
     void addApplicationNumber(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#applicationNumber", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#priorityNumbers. 
+     * The priority number of a patent 
+     */
+    QStringList priorityNumberses() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#priorityNumbers", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#priorityNumbers. 
+     * The priority number of a patent 
+     */
+    void setPriorityNumberses(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#priorityNumbers", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#priorityNumbers. 
+     * The priority number of a patent 
+     */
+    void addPriorityNumbers(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#priorityNumbers", QUrl::StrictMode), value);
     }
 
     /**

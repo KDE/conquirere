@@ -40,7 +40,6 @@
 #include "sro/nbib/courtreporter.h"
 #include "sro/nbib/legalcasedocument.h"
 
-
 #include "sro/sync/serversyncdata.h"
 #include "sro/pimo/note.h"
 #include "sro/pimo/topic.h"
@@ -126,6 +125,7 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
 
         if(!entry) { continue; }
 
+
         Nepomuk::SimpleResourceGraph graph;
 
         // the crossref part means we fetch bibtex entries from other bibtex entries
@@ -145,13 +145,9 @@ void BibTexToNepomukPipe::pipeExport(File & bibEntries)
             importBibResource(entry, graph);
         }
 
-        // start the job
         Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph,Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties);
-//        connect(Nepomuk::storeResources(graph), SIGNAL(result(KJob*)), this, SLOT(slotSaveToNepomukDone(KJob*)));
         connect(srj, SIGNAL(result(KJob*)), this, SLOT(slotSaveToNepomukDone(KJob*)));
         srj->exec();
-
-        currentprogress += perFileProgress;
 
         emit progress(currentprogress);
     }
@@ -375,9 +371,9 @@ void BibTexToNepomukPipe::importBibResource(Entry *entry, Nepomuk::SimpleResourc
     graph << publication << reference;
 }
 
-
 void BibTexToNepomukPipe::importNote(Entry *e, Nepomuk::SimpleResourceGraph &graph)
 {
+    kDebug() << "import note " << PlainTextValue::text(e->value(QLatin1String("zoterotitle")));
     Nepomuk::PIMO::Note note;
     note.addType(NIE::InformationElement());
 
@@ -411,6 +407,7 @@ void BibTexToNepomukPipe::slotSaveToNepomukDone(KJob *job)
 void BibTexToNepomukPipe::importAttachment(Entry *e, Nepomuk::SimpleResourceGraph &graph)
 {
     Nepomuk::NFO::FileDataObject attachment;
+    attachment.addType(NFO::Document());
 
     Value title = e->value("title");
     addValue(PlainTextValue::text(title), attachment, NIE::title() );
@@ -460,6 +457,8 @@ void BibTexToNepomukPipe::importAttachment(Entry *e, Nepomuk::SimpleResourceGrap
 
     Value note = e->value("note");
     addValue(PlainTextValue::text(note), attachment, NIE::comment());
+
+    graph << attachment;
 
     Nepomuk::SimpleResource empty;
     if(e->contains(QLatin1String("zoterokey"))) {
@@ -580,13 +579,16 @@ void BibTexToNepomukPipe::addPublicationSubTypes(Nepomuk::NBIB::Publication &pub
     }
     else if(entryType == QLatin1String("case")) {
         publication.addType(NBIB::LegalDocument());
+        publication.addType(NBIB::LegalCaseDocument());
     }
     else if(entryType == QLatin1String("decision")) {
         publication.addType(NBIB::LegalDocument());
+        publication.addType(NBIB::LegalCaseDocument());
         publication.addType(NBIB::Decision());
     }
     else if(entryType == QLatin1String("brief")) {
         publication.addType(NBIB::LegalDocument());
+        publication.addType(NBIB::LegalCaseDocument());
         publication.addType(NBIB::Brief());
     }
 
@@ -1649,6 +1651,8 @@ void BibTexToNepomukPipe::addPublicationDate(const QString &fullDate, Nepomuk::N
     if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "dd.MM.yyy"); }
     if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "MM.yyy"); }
     if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "yyyy.MM"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "yyyy"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "yy"); }
 
     if(dateTime.isValid()) {
         QString newDate = dateTime.toString("yyyy-MM-ddTHH:mm:ss");
@@ -1792,11 +1796,12 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::SimpleResource &mainReso
     e->remove(QLatin1String("zoteroparent"));
 
     Nepomuk::SYNC::ServerSyncData serverSyncData;
+    serverSyncData.addType(NIE::DataObject());
 
     // first set an identifier, when the object already exist we merge them together
     QString identifier = QLatin1String("zotero") + m_syncUserId + m_syncUrl + id;
-    QUrl encodedIdent = QUrl( identifier ); // creates html escaped identifier
-    serverSyncData.addProperty( NAO::identifier(),encodedIdent.toEncoded() );
+    serverSyncData.addProperty( NAO::identifier(),QUrl::fromEncoded( identifier.toUtf8()) );
+    serverSyncData.setProperty(NIE::url(), QUrl::fromEncoded(identifier.toUtf8())); // we need the url to make this unique and not merge it wth something else
 
     // now we set the new values
     serverSyncData.setProvider( QLatin1String("zotero") );
@@ -1810,21 +1815,23 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::SimpleResource &mainReso
     // helps to find the right data later on again and create the right links between Resource and syncData
     if(e->type() == QLatin1String("note")) {
         serverSyncData.setSyncDataType( SYNC::Note() );
-        serverSyncData.setNote( mainResource.uri() );
+        serverSyncData.setProperty( SYNC::note(), mainResource );
         mainResource.setProperty(SYNC::serverSyncData(), serverSyncData.uri() );
     }
     else if(e->type() == QLatin1String("attachment")) {
         serverSyncData.setSyncDataType( SYNC::Attachment() );
-        serverSyncData.setAttachment( mainResource.uri() );
-        mainResource.setProperty(SYNC::serverSyncData(), serverSyncData.uri() );
+        serverSyncData.setProperty( SYNC::attachment(), mainResource );
+        mainResource.setProperty(SYNC::serverSyncData(), serverSyncData );
     }
     else {
         serverSyncData.setSyncDataType( SYNC::BibResource() );
         serverSyncData.setProperty(NBIB::publication(),  mainResource.uri() );
-        mainResource.setProperty(SYNC::serverSyncData(), serverSyncData.uri() );
+        mainResource.setProperty(SYNC::serverSyncData(), serverSyncData );
 
-        serverSyncData.setProperty(NBIB::reference(),  referenceResource.uri() );
-        referenceResource.setProperty(SYNC::serverSyncData(), serverSyncData.uri() );
+        if(referenceResource.isValid()) {
+            serverSyncData.setProperty(NBIB::reference(),  referenceResource.uri() );
+            referenceResource.setProperty(SYNC::serverSyncData(), serverSyncData );
+        }
     }
 
     graph << serverSyncData;
@@ -1850,43 +1857,51 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::SimpleResource &mainReso
         return;
     }
 
-    Nepomuk::Resource parentSyncResource = results.first().resource();
+    Nepomuk::Resource parentSyncResourceNepomuk = results.first().resource();
+    Nepomuk::SimpleResource parentSyncResource(results.first().resource().uri());
 
-    QUrl syncDataType = parentSyncResource.property(SYNC::syncDataType()).toUrl();
+    QUrl syncDataType = parentSyncResourceNepomuk.property(SYNC::syncDataType()).toUrl();
 
     if(syncDataType == SYNC::Attachment()) { //ignore
     }
     else if(syncDataType == SYNC::Note()) { //ignore
     }
     else if(syncDataType == SYNC::BibResource()) {
-        // here we ad the information that a note as related(a child) of the reference and the publication.
+        // here we add the information that a note as related(a child) of the reference and the publication.
         // and that the attachment (nfo:FileDataObject) is the publicationOf/publishedAs of the nbib:Publication
 
         if( mainResource.contains(RDF::type(), PIMO::Note())) {
-            Nepomuk::Resource parentPublication = parentSyncResource.property(NBIB::publication()).toResource();
+            Nepomuk::Resource parentPublicationxx = parentSyncResourceNepomuk.property(NBIB::publication()).toResource();
+            Nepomuk::SimpleResource parentPublication(parentPublicationxx.uri());
             parentPublication.addProperty( NAO::isRelated(), mainResource.uri());
             mainResource.addProperty( NAO::isRelated(), parentPublication.uri());
 
             parentPublication.addProperty( NAO::hasSubResource(), mainResource.uri()); //delete note when publication is deleted
 
-            Nepomuk::Resource parentReference = parentSyncResource.property(NBIB::reference()).toResource();
+            Nepomuk::Resource parentReferencexx = parentSyncResourceNepomuk.property(NBIB::reference()).toResource();
+            Nepomuk::SimpleResource parentReference(parentReferencexx.uri());
             parentReference.addProperty( NAO::isRelated(), mainResource.uri());
             mainResource.addProperty( NAO::isRelated(), parentReference.uri());
+            graph << parentReference << parentPublication;
         }
         else if( mainResource.contains(RDF::type(), NFO::FileDataObject()) || mainResource.contains(RDF::type(), NFO::RemoteDataObject())) {
-            Nepomuk::Resource parentPublication = parentSyncResource.property(NBIB::publication()).toResource();
+            Nepomuk::Resource parentPublicationxx = parentSyncResourceNepomuk.property(NBIB::publication()).toResource();
+            Nepomuk::SimpleResource parentPublication(parentPublicationxx.uri());
             parentPublication.addProperty( NBIB::isPublicationOf(), mainResource.uri());
             mainResource.addProperty( NBIB::publishedAs(), parentPublication.uri());
 
             parentPublication.addProperty( NAO::hasSubResource(), mainResource.uri()); // delete file when publication is deleted
+            graph << parentPublication;
         }
     }
 
     // this creates the link for the syncResources so we know how they are connected
     // connect child syncDetails to its parent syncDetails
-    serverSyncData.setProperty(NAO::isRelated(), parentSyncResource.uri());
+    serverSyncData.setProperty(NAO::isRelated(), parentSyncResource );
+    parentSyncResource.setProperty( SYNC::provider(), QLatin1String("zotero")); // we need to add some kind of property, or the resource is invalid
 
-    graph << serverSyncData;
+    graph << serverSyncData << parentSyncResource;
+
 }
 
 void BibTexToNepomukPipe::addContact(const Value &contentValue, Nepomuk::SimpleResource &resource, Nepomuk::SimpleResourceGraph &graph, QUrl contactProperty, QUrl contactType )

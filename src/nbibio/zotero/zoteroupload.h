@@ -86,10 +86,8 @@ private slots:
 private:
     /**
       * like updateSyncDetailsToNepomuk() but creates new sync data from new downloaded files
-      *
-      * @return the newly created sync:ServerSyncData object
       */
-    Nepomuk::Resource writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated);
+    void writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated);
 
 private:
     bool m_cancel;
