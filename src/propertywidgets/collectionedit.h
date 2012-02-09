@@ -32,9 +32,6 @@ class CollectionEdit : public PropertyEdit
 public:
     explicit CollectionEdit(QWidget *parent = 0);
 
-private slots:
-    void addCollection(KJob *job);
-
 private:
     /**
       * Shows the @c nie:title of the collection connected to the @c nbib:Article
@@ -45,11 +42,6 @@ private:
       * changes the @c nie:title
       */
     void updateResource( const QString & text );
-
-    // cache the resource used for the asynchron change.
-    // otherwise if we switch to a different resource while the KJob
-    // hasn't finished yet, we add the publication crosslinks to the wrong resource
-    Nepomuk::Resource m_editedResource;
 };
 
 #endif // COLLECTIONEDIT_H

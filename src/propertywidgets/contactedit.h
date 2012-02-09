@@ -36,9 +36,6 @@ class ContactEdit : public PropertyEdit
 public:
     ContactEdit(QWidget *parent = 0);
 
-private slots:
-    void addContact(KJob *job);
-
 private:
     /**
       * Use nco::fullname of the @c nco::Contact
@@ -51,11 +48,6 @@ private:
       * Interprete @p text as @c nco::fullname of the @c nco::Contact
       */
     void updateResource( const QString & text );
-
-    // cache the resource used for the asynchron change.
-    // otherwise if we switch to a different resource while the KJob
-    // hasn't finished yet, we add the publication crosslinks to the wrong resource
-    Nepomuk::Resource m_editedResource;
 };
 
 #endif // CONTACTEDIT_H

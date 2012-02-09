@@ -39,9 +39,6 @@ class SeriesEdit : public PropertyEdit
 public:
     SeriesEdit(QWidget *parent = 0);
 
-private slots:
-    void addSeries(KJob *job);
-
 private:
     void setupLabel();
 
@@ -55,11 +52,6 @@ private:
       * @return correct Nepomuk::Vocabulary::NBIB::*type*
       */
     QUrl findSeriesType();
-
-    // cache the resource used for the asynchron change.
-    // otherwise if we switch to a different resource while the KJob
-    // hasn't finished yet, we add the series crosslinks to the wrong resource
-    Nepomuk::Resource m_editedResource;
 };
 
 #endif // SERIESEDIT_H

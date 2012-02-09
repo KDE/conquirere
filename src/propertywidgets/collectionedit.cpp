@@ -24,12 +24,15 @@
 #include <KDE/KJob>
 #include "sro/nbib/series.h"
 #include "sro/nbib/collection.h"
+#include "sro/nbib/article.h"
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk/Vocabulary/NUAO>
 #include <Nepomuk/Variant>
 
 #include <KDE/KDebug>
+#include <QtCore/QDateTime>
 
 using namespace Nepomuk::Vocabulary;
 
@@ -76,41 +79,22 @@ void CollectionEdit::updateResource(const QString & newCollectionTitle)
     // ok the user changed the text in the list
     // let the DMS create a new event and merge it to the right place
     Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::SimpleResource articleRes(resource().uri());
+    Nepomuk::NBIB::Article article(articleRes);
+    //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
+    QDateTime datetime = QDateTime::currentDateTimeUtc();
+    articleRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+
     Nepomuk::NBIB::Collection newCollection;
 
     newCollection.setProperty(NIE::title(), newCollectionTitle.trimmed());
 
-    graph << newCollection;
+    newCollection.addArticle( article.uri() );
+    article.setCollection( newCollection.uri() );
 
-    m_editedResource = resource();
+    graph << newCollection << article;
+
+    m_changedResource = resource();
     connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
-            SIGNAL(result(KJob*)),this, SLOT(addCollection(KJob*)));
-}
-
-void CollectionEdit::addCollection(KJob *job)
-{
-    if( job->error() != 0) {
-        kDebug() << "could not create new collection" << job->errorString();
-        return;
-    }
-
-    Nepomuk::StoreResourcesJob *srj = dynamic_cast<Nepomuk::StoreResourcesJob *>(job);
-
-    // now get all the uris for the new collection
-    QList<QUrl> collectionUris;
-    QVariantList collectionValues;
-    foreach (QUrl uri, srj->mappings()) {
-         collectionUris << uri;
-         collectionValues << uri;
-    }
-
-    // add the crosslink collection <-> article
-    QList<QUrl> resourceUris; resourceUris << m_editedResource.uri();
-    Nepomuk::setProperty(resourceUris, NBIB::collection(), collectionValues);
-
-    QVariantList value; value << m_editedResource.uri();
-    Nepomuk::addProperty(collectionUris, NBIB::article(), value);
-
-    //TODO remove when resourcewatcher is working..
-    emit resourceCacheNeedsUpdate(m_editedResource);
+            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }

@@ -157,7 +157,7 @@ void ItemMergeDialog::setItemsToMerge(QList<SyncDetails> items)
             publication = sd.syncResource.property(SYNC::attachment()).toResource();
         }
         else {
-            publication = sd.syncResource.property(NBIB::reference()).toResource();
+            publication = sd.syncResource.property(SYNC::reference()).toResource();
         }
 
         MergedResults mr;
@@ -280,8 +280,8 @@ void ItemMergeDialog::showItem(int index)
         ui->itemIcon->setPixmap(KIcon("application-pdf").pixmap(22,22));
     }
     else {
-        publication = mr.localSyncResource.property(NBIB::publication()).toResource();
-        reference = mr.localSyncResource.property(NBIB::reference()).toResource();
+        publication = mr.localSyncResource.property(SYNC::publication()).toResource();
+        reference = mr.localSyncResource.property(SYNC::reference()).toResource();
         BibEntryType bet = BibEntryTypeFromUrl(publication);
         ui->itemIcon->setPixmap(KIcon(BibEntryTypeIcon.at(bet)).pixmap(22,22));
     }

@@ -102,7 +102,7 @@ sync: {
           a       rdf:Property ;
           rdfs:domain sync:ServerSyncData ;
           rdfs:comment "Links to the document that is ment to be an attachment for another sync entry. In zotero they have a unique etag/id too to identify changes" ;
-          rdfs:label "Attachment" ;
+          rdfs:label "Sync Attachment" ;
           rdfs:range nfo:Document ;
           nrl:cardinality 1 ;
           nrl:maxCardinality 1 .
@@ -111,8 +111,26 @@ sync: {
           a       rdf:Property ;
           rdfs:domain sync:ServerSyncData ;
           rdfs:comment "Links to the note that is ment to be an attachment for another sync entry. In zotero they have a unique etag/id too to identify changes" ;
-          rdfs:label "Note" ;
+          rdfs:label "Sync Note" ;
           rdfs:range pimo:Note ;
+          nrl:cardinality 1 ;
+          nrl:maxCardinality 1 .
+
+    sync:publication
+          a       rdf:Property ;
+          rdfs:domain sync:ServerSyncData ;
+          rdfs:comment "Links to the Publication that this sync data represents" ;
+          rdfs:label "Sync Publication" ;
+          rdfs:range nbib:Publication ;
+          nrl:cardinality 1 ;
+          nrl:maxCardinality 1 .
+
+    sync:reference
+          a       rdf:Property ;
+          rdfs:domain sync:ServerSyncData ;
+          rdfs:comment "Links to the reference that this sync data represents" ;
+          rdfs:label "Sync Reference" ;
+          rdfs:range nbib:Reference ;
           nrl:cardinality 1 ;
           nrl:maxCardinality 1 .
 
@@ -165,13 +183,6 @@ sync: {
           rdfs:comment "adds the server sync data to the publication" ;
           rdfs:label "serverSyncData connection" ;
           rdfs:range sync:ServerSyncData .
-
-#
-# To connect the nbib:reference or nbib:publication to the sync data
-# as inverse property use
-# + nbib:publication
-# + nbib:reference
-#
 }
 
 <http://www.example.com/sync_metadata#>

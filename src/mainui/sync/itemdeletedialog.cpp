@@ -91,7 +91,7 @@ void ItemDeleteDialog::localDeleteDetails(QList<SyncDetails> items)
             type = i18n("Attachment");
         }
         else {
-            deletedResource = sd.syncResource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+            deletedResource = sd.syncResource.property(Nepomuk::Vocabulary::SYNC::publication()).toResource();
             type = i18n("Reference");
         }
 

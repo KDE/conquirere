@@ -35,35 +35,32 @@ public:
     }
 
     /**
-     * Get property http://www.example.com/nbib#referencedPart. 
-     * The specific part of the document of a reference. Used to reference 
-     * a chapter or quote a small portion of a publication 
+     * Get property http://www.example.com/nbib#citeKey. Used 
+     * to identify the reference. 
      */
-    QUrl referencedPart() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#referencedPart", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#referencedPart", QUrl::StrictMode)).first().value<QUrl>();
+    QString citeKey() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#citeKey", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#citeKey", QUrl::StrictMode)).first().value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.example.com/nbib#referencedPart. 
-     * The specific part of the document of a reference. Used to reference 
-     * a chapter or quote a small portion of a publication 
+     * Set property http://www.example.com/nbib#citeKey. Used 
+     * to identify the reference. 
      */
-    void setReferencedPart(const QUrl& value) {
+    void setCiteKey(const QString& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#referencedPart", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#citeKey", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.example.com/nbib#referencedPart. 
-     * The specific part of the document of a reference. Used to reference 
-     * a chapter or quote a small portion of a publication 
+     * Add value to property http://www.example.com/nbib#citeKey. 
+     * Used to identify the reference. 
      */
-    void addReferencedPart(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#referencedPart", QUrl::StrictMode), value);
+    void addCiteKey(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#citeKey", QUrl::StrictMode), value);
     }
 
     /**
@@ -96,32 +93,64 @@ public:
     }
 
     /**
-     * Get property http://www.example.com/nbib#citeKey. Used 
-     * to identify the reference. 
+     * Get property http://www.example.com/nbib#referencedPart. 
+     * The specific part of the document of a reference. Used to reference 
+     * a chapter or quote a small portion of a publication 
      */
-    QString citeKey() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#citeKey", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#citeKey", QUrl::StrictMode)).first().value<QString>();
+    QUrl referencedPart() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#referencedPart", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#referencedPart", QUrl::StrictMode)).first().value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.example.com/nbib#citeKey. Used 
-     * to identify the reference. 
+     * Set property http://www.example.com/nbib#referencedPart. 
+     * The specific part of the document of a reference. Used to reference 
+     * a chapter or quote a small portion of a publication 
      */
-    void setCiteKey(const QString& value) {
+    void setReferencedPart(const QUrl& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#citeKey", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#referencedPart", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.example.com/nbib#citeKey. 
-     * Used to identify the reference. 
+     * Add value to property http://www.example.com/nbib#referencedPart. 
+     * The specific part of the document of a reference. Used to reference 
+     * a chapter or quote a small portion of a publication 
      */
-    void addCiteKey(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#citeKey", QUrl::StrictMode), value);
+    void addReferencedPart(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#referencedPart", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#publication. 
+     * The publication used for this reference 
+     */
+    QUrl publication() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#publication", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#publication", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#publication. 
+     * The publication used for this reference 
+     */
+    void setPublication(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#publication", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#publication. 
+     * The publication used for this reference 
+     */
+    void addPublication(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#publication", QUrl::StrictMode), value);
     }
 
 protected:

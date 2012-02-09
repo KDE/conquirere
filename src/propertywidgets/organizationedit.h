@@ -38,9 +38,6 @@ class OrganizationEdit : public PropertyEdit
 public:
     OrganizationEdit(QWidget *parent = 0);
 
-private slots:
-    void addOrganization(KJob *job);
-
 private:
     /**
       * Shows the @c nco:fullname of the @ nco:OrganizationContact
@@ -53,11 +50,6 @@ private:
       * Already existing resources will be used if available, or a complete new created
       */
     void updateResource( const QString & text );
-
-    // cache the resource used for the asynchron change.
-    // otherwise if we switch to a different resource while the KJob
-    // hasn't finished yet, we add the organization crosslinks to the wrong resource
-    Nepomuk::Resource m_editedResource;
 };
 
 #endif // ORGANIZATIONEDIT_H

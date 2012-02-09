@@ -23,12 +23,15 @@
 #include "dms-copy/simpleresource.h"
 #include <KDE/KJob>
 #include "sro/nco/organizationcontact.h"
+#include "sro/nbib/publication.h"
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NCO>
+#include <Nepomuk/Vocabulary/NUAO>
 #include <Nepomuk/Variant>
 
 #include <KDE/KDebug>
+#include <QtCore/QDateTime>
 
 using namespace Nepomuk::Vocabulary;
 
@@ -93,49 +96,20 @@ void OrganizationEdit::updateResource(const QString & text)
     // ok the user changed the text in the list
     // let the DMS create a new Organization and merge it to the right place
     Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::SimpleResource publicationRes(resource().uri());
+    Nepomuk::NBIB::Publication publication(publicationRes);
+    //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
+    QDateTime datetime = QDateTime::currentDateTimeUtc();
+    publicationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+
     Nepomuk::NCO::OrganizationContact newOrganization;
 
     newOrganization.setProperty(NCO::fullname(), text.trimmed());
+    publication.setOrganization( newOrganization.uri() );
 
-    graph << newOrganization;
+    graph << newOrganization << publication;
 
-    m_editedResource = resource();
+    m_changedResource = resource();
     connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
-            SIGNAL(result(KJob*)),this, SLOT(addOrganization(KJob*)));
-}
-
-void OrganizationEdit::addOrganization(KJob *job)
-{
-    if( job->error() != 0) {
-        kDebug() << "could not create new oraganization" << job->errorString();
-        return;
-    }
-
-    Nepomuk::StoreResourcesJob *srj = dynamic_cast<Nepomuk::StoreResourcesJob *>(job);
-
-    // now get all the uris for the new tags
-    QList<QUrl> publicationUris;
-    QVariantList publicationValues;
-    foreach (QUrl uri, srj->mappings()) {
-         publicationUris << uri;
-         publicationValues << uri;
-    }
-
-    Nepomuk::Resource resourceToAddOrg;
-    // see above
-    if(m_editedResource.hasType(NBIB::Article())) {
-        resourceToAddOrg = resource().property( NBIB::collection() ).toResource();
-    }
-    else {
-        resourceToAddOrg = m_editedResource;
-    }
-
-    // add the crosslink reference <-> publicatio
-    QList<QUrl> resourceUris; resourceUris << resourceToAddOrg.uri();
-    Nepomuk::setProperty(resourceUris, NBIB::organization(), publicationValues);
-
-    //TODO remove when resourcewatcher is working..
-    emit resourceCacheNeedsUpdate(m_editedResource);
-    if(m_editedResource != resourceToAddOrg)
-        emit resourceCacheNeedsUpdate(resourceToAddOrg);
+            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }

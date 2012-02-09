@@ -23,12 +23,15 @@
 #include "dms-copy/simpleresource.h"
 #include <KDE/KJob>
 #include "sro/nco/contact.h"
+#include "sro/nbib/publication.h"
 
 #include <Nepomuk/Vocabulary/NCO>
 #include <Soprano/Vocabulary/NAO>
+#include <Nepomuk/Vocabulary/NUAO>
 #include <Nepomuk/Variant>
 
 #include <KDE/KDebug>
+#include <QtCore/QDateTime>
 
 using namespace Nepomuk::Vocabulary;
 using namespace Soprano::Vocabulary;
@@ -81,6 +84,13 @@ void ContactEdit::updateResource(const QString & newContactNames)
     }
 
     Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::SimpleResource publicationRes(resource().uri());
+    Nepomuk::NBIB::Publication publication(publicationRes);
+    //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
+    QDateTime datetime = QDateTime::currentDateTimeUtc();
+    publicationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+
+    QVariantList contactUris;
     foreach(const QString & s, entryList) {
         if(s.trimmed().isEmpty()) { continue; }
 
@@ -90,33 +100,14 @@ void ContactEdit::updateResource(const QString & newContactNames)
         contact.addProperty( NAO::prefLabel(), s.trimmed() );
 
         graph << contact;
+        contactUris << contact.uri();
     }
 
-    m_editedResource = resource();
+    publication.setProperty(propertyUrl(), contactUris);
+    graph << publication;
+
+    m_changedResource = resource();
     connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
-            SIGNAL(result(KJob*)),this, SLOT(addContact(KJob*)));
+            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 
-}
-
-void ContactEdit::addContact(KJob *job)
-{
-    if( job->error() != 0) {
-        kDebug() << "could not create new contact" << job->errorString();
-        return;
-    }
-
-    Nepomuk::StoreResourcesJob *srj = dynamic_cast<Nepomuk::StoreResourcesJob *>(job);
-
-    // now get all the uris for the new contact
-    QVariantList contactUris;
-    foreach (QUrl uri, srj->mappings()) {
-         contactUris << uri;
-    }
-
-    // add the crosslink reference <-> publicatio
-    QList<QUrl> resourceUris; resourceUris << m_editedResource.uri();
-    Nepomuk::setProperty(resourceUris, propertyUrl(), contactUris);
-
-    //TODO remove when resourcewatcher is working..
-    emit resourceCacheNeedsUpdate(m_editedResource);
 }

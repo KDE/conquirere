@@ -35,6 +35,10 @@
 #include "dms-copy/storeresourcesjob.h"
 #include <KDE/KJob>
 #include "sro/sync/serversyncdata.h"
+#include "sro/nbib/publication.h"
+#include "sro/nbib/reference.h"
+#include "sro/pimo/note.h"
+#include "sro/nfo/document.h"
 
 #include "nbib.h"
 #include "sync.h"
@@ -469,7 +473,7 @@ void ZoteroDownload::deleteLocalFiles(bool deleteThem)
                 deleteFileFromDisk = true;
             }
             else {
-                mainResource = sd.syncResource.property( NBIB::publication() ).toResource();
+                mainResource = sd.syncResource.property( SYNC::publication() ).toResource();
             }
 
             if(m_libraryToSyncWith->libraryType() == Library_Project) {
@@ -494,7 +498,8 @@ void ZoteroDownload::deleteLocalFiles(bool deleteThem)
                 }
             }
 
-            sd.syncResource.remove();
+            QList<QUrl> resUri; resUri << sd.syncResource.uri();
+            Nepomuk::removeResources(resUri);
         }
         else {
             if(m_libraryToSyncWith->libraryType() == Library_System) {
@@ -510,13 +515,19 @@ void ZoteroDownload::deleteLocalFiles(bool deleteThem)
                     mainResource = sd.syncResource.property( SYNC::attachment() ).toResource();
                 }
                 else {
-                    mainResource = sd.syncResource.property( NBIB::publication() ).toResource();
-                    reference = sd.syncResource.property( NBIB::reference()).toResource();
+                    mainResource = sd.syncResource.property( SYNC::publication() ).toResource();
+                    reference = sd.syncResource.property( SYNC::reference()).toResource();
                 }
 
-                mainResource.removeProperty( SYNC::serverSyncData());
-                reference.removeProperty( SYNC::serverSyncData());
-                sd.syncResource.remove();
+                QList<QUrl> mrUri; mrUri << mainResource.uri();
+                QVariantList ssdValue; ssdValue << sd.syncResource.uri();
+                Nepomuk::removeProperty(mrUri,SYNC::serverSyncData(), ssdValue);
+
+                QList<QUrl> refUri; refUri << reference.uri();
+                Nepomuk::removeProperty(refUri,SYNC::serverSyncData(), ssdValue);
+
+                QList<QUrl> resUri; resUri << sd.syncResource.uri();
+                Nepomuk::removeResources(resUri);
             }
             // in the case of an project library next time we upload, all items will be added again to the right group
         }
@@ -583,73 +594,72 @@ void ZoteroDownload::writeNewSyncDetailsToNepomuk(Entry *localData, const QStrin
     // Now theck where this sync data belongs to
     if(localData->type() == QLatin1String("note")) {
         serverSyncData.setSyncDataType( SYNC::Note() );
+
+        QString noteResourceUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-note-uri")));
+        Nepomuk::SimpleResource noteRes( noteResourceUri );
+        Nepomuk::PIMO::Note note(noteRes);
+        //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
+        QDateTime datetime = QDateTime::currentDateTimeUtc();
+        noteRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+
+        note.setProperty( SYNC::serverSyncData(), serverSyncData.uri() );
+        serverSyncData.setNote( note.uri() );
+
+        graph << note;
     }
     else if(localData->type() == QLatin1String("attachment")) {
         serverSyncData.setSyncDataType( SYNC::Attachment() );
+
+        QString attachmentResourceUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-note-uri")));
+        Nepomuk::SimpleResource attachmentRes( attachmentResourceUri );
+        Nepomuk::NFO::Document attachment(attachmentRes);
+        //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
+        QDateTime datetime = QDateTime::currentDateTimeUtc();
+        attachmentRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+
+        attachment.setProperty( SYNC::serverSyncData(), serverSyncData.uri() );
+        serverSyncData.setAttachment( attachment.uri() );
+
+        graph << attachment;
     }
     else { //BibReference
         serverSyncData.setSyncDataType( SYNC::BibResource() );
+
+        QString pubUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-publication-uri")));
+
+        Nepomuk::SimpleResource publicationRes( pubUri );
+        Nepomuk::NBIB::Publication publication(publicationRes);
+        //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
+        QDateTime datetime = QDateTime::currentDateTimeUtc();
+        publicationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+
+        publication.setProperty( SYNC::serverSyncData(), serverSyncData.uri() );
+        serverSyncData.setPublication( publication.uri() );
+
+        graph << publication;
+
+        QString refUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-reference-uri")));
+        if(!refUri.isEmpty()) {
+            Nepomuk::SimpleResource referenceRes( refUri );
+            Nepomuk::NBIB::Reference reference(referenceRes);
+            //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
+            QDateTime datetime = QDateTime::currentDateTimeUtc();
+            referenceRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+
+            reference.setProperty( SYNC::serverSyncData(), serverSyncData.uri() );
+            serverSyncData.setPublication( reference.uri() );
+
+            graph << reference;
+        }
     }
 
     graph << serverSyncData;
+
     //blocking graph save
     Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone);
     if( !srj->exec() ) {
         kWarning() << "could not new ServerSyncData" << srj->errorString();
         return;
-    }
-
-    // get the serverSyncData resource from the return job mappings
-    QUrl serverSyncDataResourceUri = srj->mappings().value( serverSyncData.uri() );
-    QList<QUrl> ssdUri; ssdUri << serverSyncDataResourceUri;
-    QVariantList ssdValue; ssdValue << serverSyncDataResourceUri;
-
-    // now connect it to theexisting data
-    if(localData->type() == QLatin1String("note")) {
-        QString noteResourceUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-note-uri")));
-        Nepomuk::Resource note = Nepomuk::Resource::fromResourceUri(KUrl(noteResourceUri));
-
-        if(!note.exists()) {
-            kWarning() << "Try to add syncDetails to non existent pimo:Note" << noteResourceUri;
-        }
-
-        QList<QUrl> noteUri; noteUri << note.uri();
-        QVariantList noteValue; noteValue << note.uri();
-        Nepomuk::setProperty(ssdUri, SYNC::note(), noteValue);
-        Nepomuk::setProperty(noteUri, SYNC::serverSyncData(), ssdValue);
-    }
-    else if(localData->type() == QLatin1String("attachment")) {
-        QString attachmentResourceUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-attachment-uri")));
-        Nepomuk::Resource attachment = Nepomuk::Resource::fromResourceUri(KUrl(attachmentResourceUri));
-
-        if(!attachment.exists()) {
-            kWarning() << "Try to add syncDetails to non existent attachment" << attachmentResourceUri;
-        }
-
-        QList<QUrl> attachmentUri; attachmentUri << attachment.uri();
-        QVariantList attachmentValue; attachmentValue << attachment.uri();
-        Nepomuk::setProperty(ssdUri, SYNC::attachment(), attachmentValue);
-        Nepomuk::setProperty(attachmentUri, SYNC::serverSyncData(), ssdValue);
-    }
-    else { //BibReference
-        QString pubUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-publication-uri")));
-        QString refUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-reference-uri")));
-        Nepomuk::Resource publication = Nepomuk::Resource::fromResourceUri(KUrl(pubUri));
-        Nepomuk::Resource reference = Nepomuk::Resource::fromResourceUri(KUrl(refUri));
-
-        QList<QUrl> publicationUri; publicationUri << publication.uri();
-        QVariantList publicationValue; publicationValue << publication.uri();
-
-        Nepomuk::setProperty(ssdUri, NBIB::publication(), publicationValue);
-        Nepomuk::setProperty(publicationUri, SYNC::serverSyncData(), ssdValue);
-
-        if(reference.isValid()) {
-            QList<QUrl> referenceUri; referenceUri << reference.uri();
-            QVariantList referenceValue; referenceValue << reference.uri();
-
-            Nepomuk::setProperty(ssdUri, NBIB::reference(), referenceValue);
-            Nepomuk::setProperty(referenceUri, SYNC::serverSyncData(), ssdValue);
-        }
     }
 }
 
@@ -771,8 +781,8 @@ void ZoteroDownload::findDuplicates(QList<Nepomuk::Resource> &existingItems)
             QUrl resourceType = syncResource.property(SYNC::syncDataType()).toUrl();
 
             if(resourceType == SYNC::BibResource()) {
-                Nepomuk::Resource publication = syncResource.property( NBIB::publication()).toResource();
-                Nepomuk::Resource reference = syncResource.property( NBIB::reference()).toResource();
+                Nepomuk::Resource publication = syncResource.property( SYNC::publication()).toResource();
+                Nepomuk::Resource reference = syncResource.property( SYNC::reference()).toResource();
                 if(reference.isValid() && publication.isValid()) {
                     addToExisting.append(publication);
                     addToExisting.append(reference);

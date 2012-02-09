@@ -23,12 +23,15 @@
 #include "dms-copy/simpleresource.h"
 #include <KDE/KJob>
 #include "sro/nbib/codeoflaw.h"
+#include "sro/nbib/legislation.h"
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk/Vocabulary/NUAO>
 #include <Nepomuk/Variant>
 
 #include <KDE/KDebug>
+#include <QtCore/QDateTime>
 
 using namespace Nepomuk::Vocabulary;
 
@@ -74,41 +77,22 @@ void CodeOfLawEdit::updateResource(const QString & newCodeOfLawTitle)
     // ok the user changed the text in the list
     // let the DMS create a new event and merge it to the right place
     Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::SimpleResource legislationRes(resource().uri());
+    Nepomuk::NBIB::Legislation legislation(legislationRes);
+    //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
+    QDateTime datetime = QDateTime::currentDateTimeUtc();
+    legislationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+
     Nepomuk::NBIB::CodeOfLaw newCodeOfLaw;
 
     newCodeOfLaw.setProperty(NIE::title(), newCodeOfLawTitle.trimmed());
 
-    graph << newCodeOfLaw;
+    newCodeOfLaw.addLegislation( legislation.uri() );
+    legislation.setCodeOfLaw( newCodeOfLaw.uri() );
 
-    m_editedResource = resource();
+    graph << newCodeOfLaw << legislation;
+
+    m_changedResource = resource();
     connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
-            SIGNAL(result(KJob*)),this, SLOT(addCodeOfLaw(KJob*)));
-}
-
-void CodeOfLawEdit::addCodeOfLaw(KJob *job)
-{
-    if( job->error() != 0) {
-        kDebug() << "could not create new code of law" << job->errorString();
-        return;
-    }
-
-    Nepomuk::StoreResourcesJob *srj = dynamic_cast<Nepomuk::StoreResourcesJob *>(job);
-
-    // now get all the uris for the new event
-    QList<QUrl> codeOfLawUris;
-    QVariantList codeOfLawValues;
-    foreach (QUrl uri, srj->mappings()) {
-         codeOfLawUris << uri;
-         codeOfLawValues << uri;
-    }
-
-    // add the crosslink reference <-> publicatio
-    QList<QUrl> resourceUris; resourceUris << m_editedResource.uri();
-    Nepomuk::setProperty(resourceUris, NBIB::codeOfLaw(), codeOfLawValues);
-
-    QVariantList value; value << m_editedResource.uri();
-    Nepomuk::addProperty(codeOfLawUris, NBIB::legislation(), value);
-
-    //TODO remove when resourcewatcher is working..
-    emit resourceCacheNeedsUpdate(m_editedResource);
+            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }

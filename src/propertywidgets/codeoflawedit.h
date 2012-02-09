@@ -31,9 +31,6 @@ class CodeOfLawEdit : public PropertyEdit
 public:
     explicit CodeOfLawEdit(QWidget *parent = 0);
 
-private slots:
-    void addCodeOfLaw(KJob *job);
-
 private:
     /**
       * Use @c nie:title of the @c nbib:codeOfLaw
@@ -41,11 +38,6 @@ private:
     void setupLabel();
 
     void updateResource( const QString & text );
-
-    // cache the resource used for the asynchron change.
-    // otherwise if we switch to a different resource while the KJob
-    // hasn't finished yet, we add the publication crosslinks to the wrong resource
-    Nepomuk::Resource m_editedResource;
 };
 
 #endif // CODEOFLAWEDIT_H

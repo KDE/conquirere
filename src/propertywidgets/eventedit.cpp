@@ -23,14 +23,17 @@
 #include "dms-copy/simpleresource.h"
 #include <KDE/KJob>
 #include "sro/pimo/event.h"
+#include "sro/nbib/publication.h"
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
+#include <Nepomuk/Vocabulary/NUAO>
 #include <Nepomuk/Variant>
 
 #include <KDE/KDebug>
+#include <QtCore/QDateTime>
 
 using namespace Nepomuk::Vocabulary;
 using namespace Soprano::Vocabulary;
@@ -86,43 +89,25 @@ void EventEdit::updateResource(const QString & newEventTitle)
     // ok the user changed the text in the list
     // let the DMS create a new event and merge it to the right place
     Nepomuk::SimpleResourceGraph graph;
+
+    Nepomuk::SimpleResource publicationRes(resource().uri());
+    Nepomuk::NBIB::Publication publication(publicationRes);
+    //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
+    QDateTime datetime = QDateTime::currentDateTimeUtc();
+    publicationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+
     Nepomuk::PIMO::Event newEvent;
     newEvent.addType(NIE::InformationElement());
 
     newEvent.setProperty(NIE::title(), newEventTitle.trimmed());
     newEvent.setProperty(NAO::prefLabel(), newEventTitle.trimmed());
 
-    graph << newEvent;
+    newEvent.addProperty( NBIB::eventPublication(), publication );
+    publication.setEvent( newEvent.uri() );
 
-    m_editedResource = resource();
+    graph << newEvent << publication;
+
+    m_changedResource = resource();
     connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
-            SIGNAL(result(KJob*)),this, SLOT(addEvent(KJob*)));
-}
-
-void EventEdit::addEvent(KJob *job)
-{
-    if( job->error() != 0) {
-        kDebug() << "could not create new event" << job->errorString();
-        return;
-    }
-
-    Nepomuk::StoreResourcesJob *srj = dynamic_cast<Nepomuk::StoreResourcesJob *>(job);
-
-    // now get all the uris for the new event
-    QList<QUrl> eventUris;
-    QVariantList eventValues;
-    foreach (QUrl uri, srj->mappings()) {
-         eventUris << uri;
-         eventValues << uri;
-    }
-
-    // add the crosslink reference <-> publicatio
-    QList<QUrl> resourceUris; resourceUris << m_editedResource.uri();
-    Nepomuk::setProperty(resourceUris, NBIB::event(), eventValues);
-
-    QVariantList value; value << m_editedResource.uri();
-    Nepomuk::addProperty(eventUris, NBIB::eventPublication(), value);
-
-    //TODO remove when resourcewatcher is working..
-    emit resourceCacheNeedsUpdate(m_editedResource);
+            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }

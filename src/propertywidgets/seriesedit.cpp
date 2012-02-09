@@ -23,12 +23,15 @@
 #include "dms-copy/simpleresource.h"
 #include <KDE/KJob>
 #include "sro/nbib/series.h"
+#include "sro/nbib/publication.h"
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk/Vocabulary/NUAO>
 #include <Nepomuk/Variant>
 
 #include <KDE/KDebug>
+#include <QtCore/QDateTime>
 
 using namespace Nepomuk::Vocabulary;
 
@@ -75,6 +78,12 @@ void SeriesEdit::updateResource(const QString & text)
     // ok the user changed the text in the list
     // let the DMS create a new Series and merge it to the right place
     Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::SimpleResource publicationRes(resource().uri());
+    Nepomuk::NBIB::Publication publication(publicationRes);
+    //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
+    QDateTime datetime = QDateTime::currentDateTimeUtc();
+    publicationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+
     Nepomuk::NBIB::Series newSeries;
     QUrl subType = findSeriesType();
     if(!subType.isEmpty()) {
@@ -82,11 +91,14 @@ void SeriesEdit::updateResource(const QString & text)
     }
 
     newSeries.setProperty(NIE::title(), text.trimmed());
+    newSeries.addSeriesOf( publication.uri() );
+    publication.setInSeries( newSeries.uri() );
 
-    graph << newSeries;
+    graph << newSeries << publication;
 
-    m_editedResource = resource();
-    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties), SIGNAL(result(KJob*)),this, SLOT(addSeries(KJob*)));
+    m_changedResource = resource();
+    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
+            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }
 
 QUrl SeriesEdit::findSeriesType()
@@ -106,32 +118,4 @@ QUrl SeriesEdit::findSeriesType()
     }
 
     return subType;
-}
-
-void SeriesEdit::addSeries(KJob *job)
-{
-    if( job->error() != 0) {
-        kDebug() << "could not create new series" << job->errorString();
-        return;
-    }
-
-    Nepomuk::StoreResourcesJob *srj = dynamic_cast<Nepomuk::StoreResourcesJob *>(job);
-
-    // now get all the uris for the new tags
-    QList<QUrl> seriesUris;
-    QVariantList seriesValues;
-    foreach (QUrl uri, srj->mappings()) {
-         seriesUris << uri;
-         seriesValues << uri;
-    }
-
-    // add the crosslink series <-> resource
-    QList<QUrl> resourceUris; resourceUris << m_editedResource.uri();
-    Nepomuk::setProperty(resourceUris, NBIB::inSeries(), seriesValues);
-
-    QVariantList value; value << m_editedResource.uri();
-    Nepomuk::addProperty(seriesUris, NBIB::seriesOf(), value);
-
-    //TODO remove when resourcewatcher is working..
-    emit resourceCacheNeedsUpdate(m_editedResource);
 }

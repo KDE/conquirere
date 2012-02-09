@@ -23,12 +23,15 @@
 #include "dms-copy/simpleresource.h"
 #include <KDE/KJob>
 #include "sro/nbib/publication.h"
+#include "sro/nbib/reference.h"
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk/Vocabulary/NUAO>
 #include <Nepomuk/Variant>
 
 #include <KDE/KDebug>
+#include <QtCore/QDateTime>
 
 using namespace Nepomuk::Vocabulary;
 
@@ -76,41 +79,21 @@ void PublicationEdit::updateResource(const QString & newPublicationTitle)
     // ok the user changed the text in the list
     // let the DMS create a new Publication and merge it to the right place
     Nepomuk::SimpleResourceGraph graph;
+    Nepomuk::SimpleResource referenceRes(resource().uri());
+    Nepomuk::NBIB::Reference reference(referenceRes);
+    //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
+    QDateTime datetime = QDateTime::currentDateTimeUtc();
+    referenceRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+
     Nepomuk::NBIB::Publication newPublication;
 
     newPublication.setProperty(NIE::title(), newPublicationTitle.trimmed());
+    reference.setPublication( newPublication.uri() );
+    newPublication.addReference( reference.uri() );
 
-    graph << newPublication;
+    graph << newPublication << reference;
 
-    m_editedResource = resource();
+    m_changedResource = resource();
     connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
-            SIGNAL(result(KJob*)),this, SLOT(addPublication(KJob*)));
-}
-
-void PublicationEdit::addPublication(KJob *job)
-{
-    if( job->error() != 0) {
-        kDebug() << "could not create new publication" << job->errorString();
-        return;
-    }
-
-    Nepomuk::StoreResourcesJob *srj = dynamic_cast<Nepomuk::StoreResourcesJob *>(job);
-
-    // now get all the uris for the new publication
-    QList<QUrl> publicationUris;
-    QVariantList publicationValues;
-    foreach (QUrl uri, srj->mappings()) {
-         publicationUris << uri;
-         publicationValues << uri;
-    }
-
-    // add the crosslink reference <-> publicatio
-    QList<QUrl> resourceUris; resourceUris << m_editedResource.uri();
-    Nepomuk::setProperty(resourceUris, NBIB::publication(), publicationValues);
-
-    QVariantList value; value << m_editedResource.uri();
-    Nepomuk::addProperty(publicationUris, NBIB::reference(), value);
-
-    //TODO remove when resourcewatcher is working..
-    emit resourceCacheNeedsUpdate(m_editedResource);
+            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }

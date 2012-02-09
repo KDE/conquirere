@@ -105,6 +105,7 @@ private:
     void importAttachment(Entry *entry, Nepomuk::SimpleResourceGraph &graph);
     void importBibResource(Entry *entry, Nepomuk::SimpleResourceGraph &graph);
     void addPublicationSubTypes(Nepomuk::NBIB::Publication &publication, Entry *entry);
+    void handleSpecialCases(Entry *entry, Nepomuk::SimpleResourceGraph &graph, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference);
 
 
     /* Helping functions */
@@ -124,10 +125,8 @@ private:
 
     void addAuthor(const Value &content, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph, const QString & originalEntryType);
     void addBooktitle(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph, const QString & originalEntryType);
-    void addBookAuthor(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
     void addSeriesEditor(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
     void addChapter(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph);
-    void addEditor(const Value &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
     void addIssn(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
 
     void addOrganization(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
@@ -139,10 +138,6 @@ private:
     void addEvent(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
     void addSeries(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
     void addTitle(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph, const QString & originalEntryType);
-    void addAssignee(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
-    void addContributor(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
-    void addTranslator(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
-    void addReviewedAuthor(const Value &contentValue, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
     /**
       * @bug split webpages by ',' or ';' if necessary
       * @bug create nfo:RemoteDataObject or nfo:FileDataObject as nbib:publishedAs if the url is not a webpage
@@ -186,6 +181,8 @@ private:
     QString m_syncUserId;
 
     bool m_replaceMode; /**< replace the content of the current publication with the content in the bibfile */
+    Nepomuk::Resource m_publicationToReplace;
+    Nepomuk::Resource m_referenceToReplace;
 };
 
 #endif // BIBTEXTONEPOMUKPIPE_H

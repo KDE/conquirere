@@ -31,18 +31,10 @@ class CourtReporterEdit : public PropertyEdit
 public:
     explicit CourtReporterEdit(QWidget *parent = 0);
 
-private slots:
-    void addCourtReporter(KJob *job);
-
 private:
     void setupLabel();
 
     void updateResource( const QString & text );
-
-    // cache the resource used for the asynchron change.
-    // otherwise if we switch to a different resource while the KJob
-    // hasn't finished yet, we add the publication crosslinks to the wrong resource
-    Nepomuk::Resource m_editedResource;
 };
 
 #endif // COURTREPORTEREDIT_H

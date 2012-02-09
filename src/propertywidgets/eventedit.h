@@ -31,9 +31,6 @@ class EventEdit : public PropertyEdit
 public:
     explicit EventEdit(QWidget *parent = 0);
 
-private slots:
-    void addEvent(KJob *job);
-
 private:
     /**
       * Shows the @c nao:prefLabel of the @ nbib:event
@@ -43,11 +40,6 @@ private:
     void setupLabel();
 
     void updateResource( const QString & newEventTitle );
-
-    // cache the resource used for the asynchron change.
-    // otherwise if we switch to a different resource while the KJob
-    // hasn't finished yet, we add the publication crosslinks to the wrong resource
-    Nepomuk::Resource m_editedResource;
 };
 
 #endif // EVENTEDIT_H

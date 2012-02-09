@@ -548,9 +548,9 @@ nbib: {
 
     nbib:codeNumber
           a       rdf:Property ;
-          rdfs:domain nbib:Legislation ;
-          rdfs:comment "The code number of an legislation" ;
-          rdfs:label "Legislation Code number" ;
+          rdfs:domain nbib:CodeOfLaw ;
+          rdfs:comment "The code number of an CodeOfLaw" ;
+          rdfs:label "CodeOfLaw number" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
 
@@ -673,7 +673,7 @@ nbib: {
 
     nbib:reference
           a       rdf:Property ;
-          rdfs:domain nie:InformationElement ;
+          rdfs:domain nbib:Publication ;
           rdfs:comment "All references of a publication. Used to quickly get all different references (different quotes, chapters etc)" ;
           rdfs:label "reference" ;
           nrl:inverseProperty nbib:publication ;
@@ -688,7 +688,7 @@ nbib: {
 
     nbib:publication
           a       rdf:Property ;
-          rdfs:domain nie:InformationElement ;
+          rdfs:domain nbib:Reference ;
           rdfs:comment "The publication used for this reference" ;
           rdfs:label "publication" ;
           nrl:inverseProperty nbib:reference ;
