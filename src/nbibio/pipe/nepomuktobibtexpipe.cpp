@@ -471,29 +471,24 @@ void NepomukToBibTexPipe::setTitle(Entry *e, Nepomuk::Resource publication, Nepo
 
 void NepomukToBibTexPipe::setChapter(Entry *e, Nepomuk::Resource reference)
 {
-    QString chapterName;
     Nepomuk::Resource chapter = reference.property(NBIB::referencedPart()).toResource();
+
     QString chapterNumber = chapter.property(NBIB::chapterNumber()).toString();
+    QString chapterName = chapter.property(NIE::title()).toString();
 
-    // handle special case where "title=" is name of the chapter and "booktitle=" is the name of the book
-    // thus "chapter=" is just chapter number not connection of both
-    if(e->type() == QLatin1String("Incollection")) {
-        chapterName = chapterNumber;
-    }
-    else {
-        QString chapterTitle = chapter.property(NIE::title()).toString();
-        if(!chapterNumber.isEmpty() && !chapterTitle.isEmpty()) {
-            chapterName.prepend(QLatin1String(" : "));
-        }
-
-        chapterName.prepend(chapterNumber);
-        chapterName.append(chapterTitle);
+    if( chapterNumber.isEmpty() ) {
+        chapterNumber = chapterName;
     }
 
+    if(!chapterNumber.isEmpty()) {
+        Value v;
+        v.append(QSharedPointer<ValueItem>(new PlainText(chapterNumber)));
+        e->insert(QLatin1String("chapter"), v);
+    }
     if(!chapterName.isEmpty()) {
         Value v;
         v.append(QSharedPointer<ValueItem>(new PlainText(chapterName)));
-        e->insert(Entry::ftChapter, v);
+        e->insert(QLatin1String("chaptername"), v);
     }
 
     // now if the chapter has authors attached, add then as "author=" instead of the
@@ -672,47 +667,50 @@ void NepomukToBibTexPipe::setOrganization(Entry *e, Nepomuk::Resource publicatio
 
 void NepomukToBibTexPipe::setUrl(Entry *e, Nepomuk::Resource publication)
 {
-    QList<Nepomuk::Resource> objectList = publication.property(NBIB::isPublicationOf()).toResourceList();
+    QList<Nepomuk::Resource> linksList = publication.property(NIE::links()).toResourceList();
 
-    QString urlList;
-    QString fileList;
-    QString remoteList;
-    foreach(const Nepomuk::Resource &dataObjects, objectList) {
-        if(dataObjects.hasType(NFO::WebDataObject()) ) {
-            QUrl url = dataObjects.property(NIE::url()).toUrl();
-            urlList.append(url.toString());
-            urlList.append(QLatin1String(", "));
+    int i=0;
+    foreach(const Nepomuk::Resource &links, linksList) {
+        QString url = links.property(NIE::url()).toString();
+        Value v;
+        v.append(QSharedPointer<ValueItem>(new PlainText(url)));
+
+        QString key = QLatin1String("url");
+        if(i!=0) {
+            key.append( QLatin1String("-") + QString::number(i));
         }
-        else if(dataObjects.hasType(NFO::RemoteDataObject()) ) {
-            QUrl url = dataObjects.property(NIE::url()).toUrl();
-            remoteList.append(url.toString());
-            remoteList.append(QLatin1String(", "));
-        }
-        else if(dataObjects.hasType(NFO::FileDataObject()) ) {
-            QUrl url = dataObjects.property(NIE::url()).toUrl();
-            fileList.append(url.toString());
-            fileList.append(QLatin1String(", "));
-        }
+        e->insert(key, v);
+        i++;
     }
 
-    urlList.chop(2);
-    fileList.chop(2);
-    remoteList.chop(2);
+    QList<Nepomuk::Resource> fileList = publication.property(NBIB::isPublicationOf()).toResourceList();
 
-    if(!urlList.isEmpty()) {
+    int l=0;
+    int r=0;
+    foreach(const Nepomuk::Resource &dataObjects, fileList) {
+
+        QString url = dataObjects.property(NIE::url()).toString();
         Value v;
-        v.append(QSharedPointer<ValueItem>(new PlainText(urlList)));
-        e->insert(Entry::ftUrl, v);
-    }
-    if(!fileList.isEmpty()) {
-        Value v;
-        v.append(QSharedPointer<ValueItem>(new PlainText(fileList)));
-        e->insert(QLatin1String("localfile"), v);
-    }
-    if(!remoteList.isEmpty()) {
-        Value v;
-        v.append(QSharedPointer<ValueItem>(new PlainText(remoteList)));
-        e->insert(QLatin1String("remotefile"), v);
+        v.append(QSharedPointer<ValueItem>(new PlainText(url)));
+
+        QString key;
+
+        if(dataObjects.hasType(NFO::RemoteDataObject()) ) {
+            key = QLatin1String("remotefile");
+            if(r!=0) {
+                key.append( QLatin1String("-") + QString::number(r));
+            }
+            r++;
+        }
+        else {
+            key = QLatin1String("localfile");
+            if(l!=0) {
+                key.append( QLatin1String("-") + QString::number(r));
+            }
+            l++;
+        }
+
+        e->insert(key, v);
     }
 }
 
@@ -789,6 +787,9 @@ void NepomukToBibTexPipe::setEvent(Entry *e, Nepomuk::Resource publication)
     }
 
     QString string = event.property(NIE::title()).toString();
+    if(string.isEmpty()) {
+        string = event.property(NAO::prefLabel()).toString();
+    }
 
     if(!string.isEmpty()) {
         Value v;
@@ -881,21 +882,22 @@ void NepomukToBibTexPipe::setNote(Entry *e, Nepomuk::Resource publication)
         if( !r.hasType( PIMO::Note() ) ) { continue; }
 
         if(i == 0) {
-            setValue(e, publication, NIE::htmlContent(), QLatin1String("note"));
+            setValue(e, r, NIE::plainTextContent(), QLatin1String("note"));
         }
         else {
             QString noteKey = QLatin1String("note-") + QString::number(i);
-            setValue(e, publication, NIE::htmlContent(), noteKey);
+            setValue(e, r, NIE::plainTextContent(), noteKey);
         }
+        i++;
     }
 }
 
 void NepomukToBibTexPipe::setKewords(Entry *e, Nepomuk::Resource publication)
 {
-    QList<Nepomuk::Tag> tags = publication.tags();
+    QList<Nepomuk::Resource> tags = publication.property(NAO::hasTopic()).toResourceList();
 
     Value v;
-    foreach(const Nepomuk::Tag & tag, tags) {
+    foreach(const Nepomuk::Resource & tag, tags) {
         Keyword *p = new Keyword(tag.genericLabel());
         v.append(QSharedPointer<ValueItem>(p));
     }
@@ -1026,7 +1028,7 @@ void NepomukToBibTexPipe::setContact(Entry *e, Nepomuk::Resource publication, QU
             QString suffix = a.property(NCO::nameHonorificSuffix()).toString();
 
             if(firstName.isEmpty() || lastName.isEmpty()) {
-                kDebug() << "could not split firstname / lastname component, try to find it automatically fro mthe fullname";
+                kDebug() << "could not split firstname / lastname component, try to find it automatically from the fullname";
                 QString fullname = a.property(NCO::fullname()).toString();
 
                 // assume fullname as "LastName, Firstname"

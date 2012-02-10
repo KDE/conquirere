@@ -243,7 +243,23 @@ void BibtexNepomukTest::importExportTest()
 
                     Value importedValue = entryImport->value(i.key());
                     Value exportedValue = entryExport->value(i.key());
-                    if(PlainTextValue::text(importedValue) != PlainTextValue::text(exportedValue)) {
+
+                    // some special cases with person/keywords, as alue contains multiple valueitems where the order is not equal
+                    if(i.key() == QString("keywords") || i.key() == QString("author") || i.key() == QString("editor")) {
+                        foreach(QSharedPointer<ValueItem> vi, importedValue) {
+                            if(!exportedValue.containsPattern( PlainTextValue::text(*vi.data()) )) {
+                                qWarning() << entryImport->id() << " || Local key " << i.key() << "-> "<< PlainTextValue::text(importedValue) << " |#| not equal nepomuk exported |#|" << PlainTextValue::text(exportedValue);
+                                compareTestFailed = true;
+                            }
+                        }
+                    }
+                    else if( i.key() == QString("date") || i.key() == QString("accessdate") || i.key() == QString("filingdate") ) {
+                        if(!PlainTextValue::text(exportedValue).contains(PlainTextValue::text(importedValue))) {
+                            qWarning() << entryImport->id() << " || Local key " << i.key() << "-> "<< PlainTextValue::text(importedValue) << " |#| not equal nepomuk exported |#|" << PlainTextValue::text(exportedValue);
+                            compareTestFailed = true;
+                        }
+                    }
+                    else if(PlainTextValue::text(importedValue).toLower() != PlainTextValue::text(exportedValue).toLower()) {
                         qWarning() << entryImport->id() << " || Local key " << i.key() << "-> "<< PlainTextValue::text(importedValue) << " |#| not equal nepomuk exported |#|" << PlainTextValue::text(exportedValue);
                         compareTestFailed = true;
                     }

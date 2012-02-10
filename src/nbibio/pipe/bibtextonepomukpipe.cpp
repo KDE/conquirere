@@ -273,6 +273,7 @@ void BibTexToNepomukPipe::importAttachment(Entry *e, Nepomuk::SimpleResourceGrap
 
     QString accessdate = PlainTextValue::text(e->value("accessdate"));
     QDateTime dateTime = QDateTime::fromString(accessdate, "yyyy-MM-ddTHH:mm:ss");
+
     if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM-dd"); }
     if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "dd-MM-yyy"); }
     if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM"); }
@@ -281,6 +282,8 @@ void BibTexToNepomukPipe::importAttachment(Entry *e, Nepomuk::SimpleResourceGrap
     if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "dd.MM.yyy"); }
     if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "MM.yyy"); }
     if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy.MM"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy"); }
+    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yy"); }
 
     if(dateTime.isValid()) {
         QString newDate = dateTime.toString("yyyy-MM-ddTHH:mm:ss");
@@ -895,14 +898,10 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
         addValue(PlainTextValue::text(value), publication, NBIB::patentReferences());
     }
     else if(key == QLatin1String("filingdate")) {
-        addValue(PlainTextValue::text(value), publication, NBIB::filingDate());
-    }
-    else if(key == QLatin1String("volume")) {
-        addValue(PlainTextValue::text(value), publication, NBIB::volume());
-    }
-    else if(key == QLatin1String("accessdate")) {
         QString accessdate = PlainTextValue::text(value);
         QDateTime dateTime = QDateTime::fromString(accessdate, "yyyy-MM-ddTHH:mm:ss");
+
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM-ddTHH:mm:ssZ"); }
         if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM-dd"); }
         if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "dd-MM-yyy"); }
         if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM"); }
@@ -911,6 +910,36 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
         if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "dd.MM.yyy"); }
         if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "MM.yyy"); }
         if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy.MM"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yy"); }
+
+        if(dateTime.isValid()) {
+            QString newDate = dateTime.toString("yyyy-MM-ddTHH:mm:ss");
+
+            addValue(newDate, publication, NBIB::filingDate());
+        }
+        else {
+            kDebug() << "could not parse accessdate" << accessdate;
+        }
+    }
+    else if(key == QLatin1String("volume")) {
+        addValue(PlainTextValue::text(value), publication, NBIB::volume());
+    }
+    else if(key == QLatin1String("accessdate")) {
+        QString accessdate = PlainTextValue::text(value);
+        QDateTime dateTime = QDateTime::fromString(accessdate, "yyyy-MM-ddTHH:mm:ss");
+
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM-ddTHH:mm:ssZ"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM-dd"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "dd-MM-yyy"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "MM-yyyy"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy.MM.dd"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "dd.MM.yyy"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "MM.yyy"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy.MM"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy"); }
+        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yy"); }
 
         if(dateTime.isValid()) {
             QString newDate = dateTime.toString("yyyy-MM-ddTHH:mm:ss");
@@ -963,6 +992,9 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     }
     else if(key == QLatin1String("chapter")) {
         addChapter(PlainTextValue::text(value), publication, reference, graph);
+    }
+    else if(key == QLatin1String("chaptername")) {
+        addChapterName(PlainTextValue::text(value), publication, reference, graph);
     }
     else if(key == QLatin1String("editor")) {
         addContact(value, publication, graph, NBIB::editor(), NCO::PersonContact());
@@ -1299,7 +1331,7 @@ void BibTexToNepomukPipe::addAuthor(const Value &contentValue, Nepomuk::NBIB::Pu
 
             graph << chapterResource;
 
-            addContact(contentValue, chapterResource, graph, NCO::creator(), NCO::PersonContact());
+            addContact(contentValue, graph[chapterResource.uri()], graph, NCO::creator(), NCO::PersonContact());
         }
         else {
             addContact(contentValue, graph[chapterUrl], graph, NCO::creator(), NCO::PersonContact());
@@ -1443,10 +1475,53 @@ void BibTexToNepomukPipe::addChapter(const QString &content, Nepomuk::NBIB::Publ
         publication.addProperty(NAO::hasSubResource(), chapterResource.uri() ); //delete chapter when publication is removed
         reference.setReferencedPart( chapterResource.uri() );
 
-        graph << chapterResource;
+        graph << chapterResource << reference;
     }
     else {
         graph[chapterUrl].setProperty(NBIB::chapterNumber(), utfContent);
+    }
+}
+
+void BibTexToNepomukPipe::addChapterName(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph)
+{
+    QString utfContent = m_macroLookup.value(QString(content.toUtf8()), QString(content.toUtf8()));
+
+    QUrl chapterUrl;
+
+    if(m_replaceMode) {
+        Nepomuk::Resource chapter = m_referenceToReplace.property( NBIB::referencedPart()).toResource();
+        Nepomuk::NBIB::Chapter chapterResource(chapter.uri());
+
+        graph << chapterResource;
+        chapterUrl = chapterResource.uri();
+    }
+    else {
+        chapterUrl = reference.referencedPart();
+    }
+
+    // If we import some thing we assume no reference already existed and we have a new one
+    // thus referencedPart() is not valid
+    // if it is valid we assume this was already a nbib:Chapter rather than an generic nbib:DocumentPart
+
+    if(!chapterUrl.isValid()) {
+        Nepomuk::NBIB::Chapter chapterResource;
+        chapterResource.addType(NIE::DataObject());
+        chapterResource.setProperty( NIE::title(), utfContent );
+        // the chapter needs a "unique identifier, otherwise we merge them with other chapters together";
+        chapterResource.setProperty(NAO::identifier(), QUuid::createUuid().toString());
+        chapterResource.setProperty(NIE::url(), QUuid::createUuid().toString());
+
+        // connect refrence <-> chapter <-> publication
+        chapterResource.setDocumentPartOf( publication.uri() );
+        publication.addDocumentPart( chapterResource.uri() );
+        publication.addProperty(NAO::hasSubResource(), chapterResource.uri() ); //delete chapter when publication is removed
+        reference.setReferencedPart( chapterResource.uri() );
+
+        graph << chapterResource;
+    }
+    else {
+        graph[chapterUrl].setProperty(NIE::title(), utfContent);
+        graph << graph[chapterUrl];
     }
 }
 
@@ -1696,7 +1771,7 @@ void BibTexToNepomukPipe::addCodeVolume(const QString &content, Nepomuk::NBIB::P
     }
     else {
         // add to existing code
-        Nepomuk::NBIB::Publication(graph[codeOfLawUrl]).setVolume( QString(content.toUtf8()) );
+        graph[codeOfLawUrl].setProperty(NBIB::volume(), QString(content.toUtf8()) );
     }
 }
 
@@ -1907,8 +1982,8 @@ void BibTexToNepomukPipe::addWebsite(const QString &content, Nepomuk::NBIB::Publ
         url.setScheme(QLatin1String("http"));
     }
 
-    if( url.scheme().startsWith("http")) {
-        Nepomuk::NFO::Website website( url );
+    if( url.scheme().startsWith("http") && url.isValid()) {
+        Nepomuk::NFO::Website website ( url );
         website.addType(NFO::WebDataObject());
 
         publication.addProperty(NIE::links(), website.uri() );
@@ -2087,10 +2162,8 @@ void BibTexToNepomukPipe::addTag(const Value &content, Nepomuk::SimpleResource &
         Nepomuk::SimpleResource tagResource;
         Nepomuk::NAO::Tag tag (&tagResource);
 
-        kDebug() << "add tag" << k->text();
-
-        tagResource.addProperty( NAO::identifier(), QUrl::fromEncoded(k->text().toUtf8()));
         tag.addPrefLabel( k->text() );
+        tagResource.addProperty( NAO::identifier(), QUrl::fromEncoded(k->text().toUtf8()));
 
         graph << tagResource;
         resource.addProperty( NAO::hasTag(), tagResource.uri());
@@ -2111,12 +2184,10 @@ void BibTexToNepomukPipe::addTopic(const Value &content, Nepomuk::SimpleResource
         Keyword *k = dynamic_cast<Keyword *>(vi.data());
         if(!k) { continue; }
 
-        kDebug() << "add topic" << k->text();
-
         Nepomuk::PIMO::Topic topic;
 
-        topic.addProperty( NAO::identifier(), QUrl::fromEncoded(k->text().toUtf8()) );
         topic.setTagLabel(k->text());
+        topic.addProperty( NAO::identifier(), QUrl::fromEncoded(k->text().toUtf8()) );
 
         graph << topic;
         resource.addProperty( NAO::hasTopic(), topic.uri());
@@ -2260,7 +2331,7 @@ void BibTexToNepomukPipe::addContact(const Value &contentValue, Nepomuk::SimpleR
         Name author;
         Person *person = dynamic_cast<Person *>(authorItem.data());
 
-        bool personNotInstitution = false;
+        bool personNotInstitution = true;
         if(person) {
             author.first = person->firstName().toUtf8();
             author.last = person->lastName().toUtf8();
