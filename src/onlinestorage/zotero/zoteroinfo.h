@@ -50,6 +50,8 @@ public:
     ReadFromStorage *readHandle() { return rfs; }
     SyncStorage *syncHandle() { return ss; }
 
+    QStringList defaultKeysFor(const QString &key);
+
 private:
     WriteToStorage *wts;
     ReadFromStorage *rfs;

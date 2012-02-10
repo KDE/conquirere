@@ -43,6 +43,8 @@ public:
     virtual WriteToStorage *writeHandle() = 0;
     virtual ReadFromStorage *readHandle() = 0;
     virtual SyncStorage *syncHandle() = 0;
+
+    virtual QStringList defaultKeysFor(const QString &key) { return QStringList(); }
 };
 
 #endif // STORAGEINFO_H

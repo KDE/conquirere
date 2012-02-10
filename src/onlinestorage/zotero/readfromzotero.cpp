@@ -17,6 +17,8 @@
 
 #include "readfromzotero.h"
 
+#include "zoteroinfo.h"
+
 #include <kbibtex/entry.h>
 
 #include <QtNetwork/QNetworkReply>
@@ -438,6 +440,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
         return;
     }
 
+    QString zoteroType;
     QMapIterator<QString, QVariant> i(result);
     while (i.hasNext()) {
         i.next();
@@ -465,6 +468,7 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
 
         else if(i.key() == QLatin1String("itemType")) {
             QString text = i.value().toString().toLower();
+            zoteroType = text;
 
             if(text == QLatin1String("booksection")) {
                 e->setType(QLatin1String("incollection")); // as inbook/incollection is part of a book with its own name
@@ -564,14 +568,27 @@ void ReadFromZotero::readJsonContentBibTeX(Entry *e, const QString &content)
         else {
             QString text = i.value().toString();
 
-            if(text.isEmpty())
+            if(text.isEmpty()) {
                 continue;
+            }
             PlainText *ptValue = new PlainText(text);
             Value valueList;
             valueList.append(QSharedPointer<ValueItem>(ptValue));
             // here either the transformed key name from the lookup table is used
             // or if nothing is found the key from zotero is used
             e->insert(m_zoteroToBibTeX.value(i.key(), i.key()).toLower(), valueList);
+        }
+    }
+
+    // now fill the entry with empty values for any key that was not downloaded but is supported by the server
+    // these entries must be removed from a local storage then if we merge it with an existing entry
+    ZoteroInfo *zi = new ZoteroInfo;
+    QStringList defaultkeys = zi->defaultKeysFor(zoteroType);
+
+    foreach(const QString &key, defaultkeys) {
+        if(!e->contains(key)) {
+            Value value;
+            e->insert(key, value);
         }
     }
 }

@@ -884,19 +884,19 @@ QStringList WriteToZotero::creatorTypeForZoteroMapping(const QString &type)
         creatorTypes << QLatin1String("programmer") <<  QLatin1String("contributor");
     }
     else if(type.toLower() == QLatin1String("conferencepaper")) {
-        creatorTypes << QLatin1String("author") <<  QLatin1String("contributor") <<  QLatin1String("editor") <<  QLatin1String("seriesEditor") <<  QLatin1String("translator");
+        creatorTypes << QLatin1String("author") <<  QLatin1String("editor") <<  QLatin1String("contributor") <<  QLatin1String("seriesEditor") <<  QLatin1String("translator");
     }
     else if(type.toLower() == QLatin1String("dictionaryentry")) {
-        creatorTypes << QLatin1String("author") <<  QLatin1String("contributor") <<  QLatin1String("editor") <<  QLatin1String("seriesEditor") <<  QLatin1String("translator");
+        creatorTypes << QLatin1String("author") <<  QLatin1String("editor") <<  QLatin1String("contributor") <<  QLatin1String("seriesEditor") <<  QLatin1String("translator");
     }
     else if(type.toLower() == QLatin1String("document")) {
-        creatorTypes << QLatin1String("author") <<  QLatin1String("contributor") <<  QLatin1String("editor") <<  QLatin1String("reviewedAuthor") <<  QLatin1String("translator");
+        creatorTypes << QLatin1String("author") <<  QLatin1String("editor") <<  QLatin1String("contributor") <<  QLatin1String("reviewedAuthor") <<  QLatin1String("translator");
     }
     else if(type.toLower() == QLatin1String("email")) {
         creatorTypes << QLatin1String("author") <<  QLatin1String("contributor") <<  QLatin1String("recipient");
     }
     else if(type.toLower() == QLatin1String("encyclopediaarticle")) {
-        creatorTypes << QLatin1String("author") <<  QLatin1String("contributor") <<  QLatin1String("editor") <<  QLatin1String("seriesEditor") <<  QLatin1String("translator");
+        creatorTypes << QLatin1String("author") <<  QLatin1String("editor") <<  QLatin1String("contributor") <<  QLatin1String("seriesEditor") <<  QLatin1String("translator");
     }
     else if(type.toLower() == QLatin1String("film")) {
         creatorTypes << QLatin1String("director") <<  QLatin1String("contributor") <<  QLatin1String("producer") <<  QLatin1String("scriptwriter");
@@ -914,7 +914,7 @@ QStringList WriteToZotero::creatorTypeForZoteroMapping(const QString &type)
         creatorTypes << QLatin1String("interviewee") <<  QLatin1String("contributor") <<  QLatin1String("interviewer") <<  QLatin1String("translator");
     }
     else if(type.toLower() == QLatin1String("journalarticle")) {
-        creatorTypes << QLatin1String("author") <<  QLatin1String("contributor") <<  QLatin1String("editor") <<  QLatin1String("reviewedAuthor") <<  QLatin1String("translator");
+        creatorTypes << QLatin1String("author") <<  QLatin1String("editor") <<  QLatin1String("contributor") <<  QLatin1String("reviewedAuthor") <<  QLatin1String("translator");
     }
     else if(type.toLower() == QLatin1String("letter")) {
         creatorTypes << QLatin1String("author") <<  QLatin1String("contributor") <<  QLatin1String("recipient");
@@ -1019,8 +1019,7 @@ QStringList WriteToZotero::bibtexCreatorZoteroMapping(const QString &type)
     else if(type.toLower() == QLatin1String("forumpost")) {
         creatorTypes << QLatin1String("author");
     }
-    else if(type.toLower() == QLatin1String("hearing")) {
-        //creatorTypes << QLatin1String("contributor") <<  QLatin1String("contributor");
+    else if(type.toLower() == QLatin1String("hearing")) {// no author or editor
     }
     else if(type.toLower() == QLatin1String("instantmessage")) {
         creatorTypes << QLatin1String("author");
@@ -2123,7 +2122,7 @@ QVariantMap WriteToZotero::createNoteJson(Entry *e)
     jsonMap.insert(QLatin1String("itemType"),QLatin1String("note"));
 
     jsonMap.insert(QLatin1String("note"), PlainTextValue::text(e->value(QLatin1String("note"))));
-    jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("newspaperArticle")));
+    jsonMap.insert(QLatin1String("creators"),createCreatorsJson(e, QLatin1String("note")));
     jsonMap.insert(QLatin1String("tags"),createTagsJson(e));
 
     return jsonMap;

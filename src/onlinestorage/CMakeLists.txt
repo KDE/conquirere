@@ -12,6 +12,7 @@ set(onlinestorage_LIB_SRCS
     zotero/readfromzotero.cpp
     zotero/writetozotero.cpp
     zotero/synczotero.cpp
+    zotero/zoteroinfo.cpp
 
     kbibtexfile/readfromfile.cpp
     kbibtexfile/writetofile.cpp
