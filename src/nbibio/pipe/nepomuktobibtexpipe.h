@@ -94,6 +94,7 @@ private:
     void setReporter(Entry *e, Nepomuk::Resource publication);
     void setReporterVolume(Entry *e, Nepomuk::Resource publication);
     void setAssignee(Entry *e, Nepomuk::Resource publication);
+    void setNote(Entry *e, Nepomuk::Resource publication);
     void setKewords(Entry *e, Nepomuk::Resource publication);
     void setArticleType(Entry *e, Nepomuk::Resource publication);
 

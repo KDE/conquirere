@@ -46,6 +46,7 @@
 #include "sro/nao/tag.h"
 #include "sro/nfo/filedataobject.h"
 #include "sro/nfo/website.h"
+#include "sro/nfo/document.h"
 #include "sro/nco/postaladdress.h"
 #include "sro/nco/personcontact.h"
 #include "sro/nco/contact.h"
@@ -1011,17 +1012,19 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     else if(key == QLatin1String("title")) {
         addTitle(PlainTextValue::text(value), publication, reference, graph, originalEntryType);
     }
-    else if(key == QLatin1String("url") ||
-            key == QLatin1String("localfile") ||
+    else if(key == QLatin1String("url")) {
+        addWebsite(PlainTextValue::text(value), publication, graph);
+    }
+    else if(key == QLatin1String("localfile") ||
             key == QLatin1String("biburl") ||
             key == QLatin1String("bibsource") ||
             key == QLatin1String("ee")) {
-        addUrl(PlainTextValue::text(value), publication, graph);
+        addFileUrl(PlainTextValue::text(value), publication, graph);
     }
     else if(key == QLatin1String("address")) {
         QString addressValue = PlainTextValue::text(value);
         if(addressValue.contains(QLatin1String("http:"))) {
-            addUrl(addressValue, publication, graph);
+            addWebsite(addressValue, publication, graph);
         }
         //ignore else case, as the address as a postal address is handled above when a publisher is available
     }
@@ -1883,7 +1886,7 @@ void BibTexToNepomukPipe::addTitle(const QString &content, Nepomuk::NBIB::Public
     }
 }
 
-void BibTexToNepomukPipe::addUrl(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
+void BibTexToNepomukPipe::addWebsite(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
 {
     if(m_replaceMode) {
         kDebug() << "remove all urls from" << m_publicationToReplace;
@@ -1895,28 +1898,60 @@ void BibTexToNepomukPipe::addUrl(const QString &content, Nepomuk::NBIB::Publicat
 
     //TODO differentiate between webpage and webseite
     // TODO split webpages if necessary
-    QUrl url( QString(content.toUtf8()) );
+    KUrl url( QString(content.toUtf8()) );
 
     QString protocol = url.scheme();
 
     if(protocol.isEmpty()) {
-        kDebug() << "tried to add invalid url without protocol add http://";
+        kDebug() << "tried to add invalid website without protocol. Add http:// for " << content;
         url.setScheme(QLatin1String("http"));
     }
-    else if(!protocol.contains(QLatin1String("http")) && !protocol.contains(QLatin1String("https")) &&
-            !protocol.contains(QLatin1String("ftp"))) {
-        kDebug() << "tried to add invalid url with unknown protocol" << protocol <<  "add http://";
-        url.setScheme(QLatin1String("http://") + protocol);
+
+    if( url.scheme().startsWith("http")) {
+        Nepomuk::NFO::Website website( url );
+        website.addType(NFO::WebDataObject());
+
+        publication.addProperty(NIE::links(), website.uri() );
+
+        graph << website;
+
     }
-
-    Nepomuk::NFO::Website website( url );
-    website.addType(NFO::WebDataObject());
-
-    publication.addProperty(NIE::links(), website.uri() );
-
-    graph << website;
+    else if( url.scheme().startsWith("file") || url.scheme().startsWith("/home")  || url.scheme().startsWith("~")) {
+        addFileUrl(content, publication, graph);
+    }
 }
 
+void BibTexToNepomukPipe::addFileUrl(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph)
+{
+    KUrl url( QString(content.toUtf8()) );
+
+    if( url.isLocalFile() ) {
+        Nepomuk::NFO::Document localFile( url );
+        localFile.addType(NFO::FileDataObject());
+
+        publication.addProperty(NBIB::isPublicationOf(), localFile.uri() );
+        localFile.addProperty(NBIB::publishedAs(), publication.uri() );
+
+        graph << localFile;
+    }
+    else {
+        QString protocol = url.scheme();
+
+        if(protocol.isEmpty()) {
+            kDebug() << "tried to add invalid remote ur without protocol. Add http:// for " << content;
+            url.setScheme(QLatin1String("http"));
+        }
+
+        Nepomuk::NFO::Document remoteFile( url );
+        remoteFile.addType(NFO::FileDataObject());
+        remoteFile.addType(NFO::RemoteDataObject());
+
+        publication.addProperty(NBIB::isPublicationOf(), remoteFile.uri() );
+        remoteFile.addProperty(NBIB::publishedAs(), publication.uri() );
+
+        graph << remoteFile;
+    }
+}
 void BibTexToNepomukPipe::addPublicationDate(const QString &fullDate, Nepomuk::NBIB::Publication &publication)
 {
     if(m_replaceMode && fullDate.isEmpty()) {

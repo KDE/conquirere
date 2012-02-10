@@ -279,6 +279,7 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
     setReporterVolume(e, publication);
     setArticleType(e, publication);
     setAssignee(e, publication);
+    setNote(e,publication);
 
     setValue(e, publication, NBIB::edition(), QLatin1String("edition"));
     setValue(e, publication, NBIB::volume(), Entry::ftVolume);
@@ -295,8 +296,6 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
     setValue(e, publication, NBIB::pubMed(), QLatin1String("pubmed"));
     setValue(e, publication, NBIB::doi(), QLatin1String("doi"));
     setValue(e, publication, NBIB::abstract(), QLatin1String("abstract"));
-    setValue(e, publication, NIE::description(), QLatin1String("note"));
-    setValue(e, publication, NIE::comment(), QLatin1String("annote"));
     setValue(e, publication, NIE::language(), QLatin1String("language"));
     setValue(e, reference, NBIB::pages(), QLatin1String("pages"));
     setValue(e, publication, NBIB::priorityNumbers(), QLatin1String("prioritynumbers"));
@@ -870,6 +869,24 @@ void NepomukToBibTexPipe::setAssignee(Entry *e, Nepomuk::Resource publication)
 
     if(!v.isEmpty()) {
         e->insert(QLatin1String("assignee"), v);
+    }
+}
+
+void NepomukToBibTexPipe::setNote(Entry *e, Nepomuk::Resource publication)
+{
+    QList<Nepomuk::Resource> resourceList = publication.property(NAO::isRelated()).toResourceList();
+
+    int i=0;
+    foreach(const Nepomuk::Resource & r, resourceList) {
+        if( !r.hasType( PIMO::Note() ) ) { continue; }
+
+        if(i == 0) {
+            setValue(e, publication, NIE::htmlContent(), QLatin1String("note"));
+        }
+        else {
+            QString noteKey = QLatin1String("note-") + QString::number(i);
+            setValue(e, publication, NIE::htmlContent(), noteKey);
+        }
     }
 }
 

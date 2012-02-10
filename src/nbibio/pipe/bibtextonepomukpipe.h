@@ -140,9 +140,9 @@ private:
     void addTitle(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::NBIB::Reference &reference, Nepomuk::SimpleResourceGraph &graph, const QString & originalEntryType);
     /**
       * @bug split webpages by ',' or ';' if necessary
-      * @bug create nfo:RemoteDataObject or nfo:FileDataObject as nbib:publishedAs if the url is not a webpage
       */
-    void addUrl(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addWebsite(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
+    void addFileUrl(const QString &content, Nepomuk::NBIB::Publication &publication, Nepomuk::SimpleResourceGraph &graph);
     void addPublicationDate(const QString &fullDate, Nepomuk::NBIB::Publication &publication);
     void addPublicationDate(const QString &year, const QString &month, const QString &day, Nepomuk::NBIB::Publication &publication);
 
