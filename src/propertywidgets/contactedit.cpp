@@ -17,6 +17,8 @@
 
 #include "contactedit.h"
 
+#include "kmultiitemedit.h"
+
 #include "dms-copy/datamanagement.h"
 #include "dms-copy/storeresourcesjob.h"
 #include "dms-copy/simpleresourcegraph.h"
@@ -39,6 +41,7 @@ using namespace Soprano::Vocabulary;
 ContactEdit::ContactEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
+    m_lineEdit->setNepomukCompleterLabel( NCO::fullname() );
 }
 
 void ContactEdit::setupLabel()

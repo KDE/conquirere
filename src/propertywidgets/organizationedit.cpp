@@ -17,6 +17,8 @@
 
 #include "organizationedit.h"
 
+#include "kmultiitemedit.h"
+
 #include "dms-copy/datamanagement.h"
 #include "dms-copy/storeresourcesjob.h"
 #include "dms-copy/simpleresourcegraph.h"
@@ -38,6 +40,8 @@ using namespace Nepomuk::Vocabulary;
 OrganizationEdit::OrganizationEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
+    m_lineEdit->setNepomukCompleterRange( NCO::OrganizationContact() );
+    m_lineEdit->setNepomukCompleterLabel( NCO::fullname() );
 }
 
 void OrganizationEdit::setupLabel()

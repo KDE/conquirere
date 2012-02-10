@@ -1,5 +1,7 @@
 
 set(propertywidgets_LIB_SRCS
+    kmultiitemedit.cpp
+
     chapteredit.cpp
     contactedit.cpp
     dateedit.cpp

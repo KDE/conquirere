@@ -17,6 +17,8 @@
 
 #include "seriesedit.h"
 
+#include "kmultiitemedit.h"
+
 #include "dms-copy/datamanagement.h"
 #include "dms-copy/storeresourcesjob.h"
 #include "dms-copy/simpleresourcegraph.h"
@@ -39,13 +41,15 @@ SeriesEdit::SeriesEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
     setPropertyUrl(NBIB::inSeries());
+
+    m_lineEdit->setNepomukCompleterRange( NBIB::Series() );
+    m_lineEdit->setNepomukCompleterLabel( NIE::title() );
 }
 
 void SeriesEdit::setupLabel()
 {
     Nepomuk::Resource seriesResource = resource().property( NBIB::inSeries() ).toResource();
     QString title = seriesResource.property(NIE::title()).toString();
-    addPropertryEntry(title, seriesResource.resourceUri().toString());
 
     setLabelText(title);
 }

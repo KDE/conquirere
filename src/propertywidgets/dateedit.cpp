@@ -17,6 +17,8 @@
 
 #include "dateedit.h"
 
+#include "kmultiitemedit.h"
+
 #include "dms-copy/datamanagement.h"
 #include "dms-copy/storeresourcesjob.h"
 #include "nbib.h"
@@ -157,8 +159,6 @@ void DateEdit::mousePressEvent ( QMouseEvent * e )
 void DateEdit::editingFinished()
 {
     //don't switch to label view when enter is pressed for the completion
-    if(m_completer->popup()->isVisible() )
-        return;
 
     QDateTime date = QDateTime::fromString(m_label->fullText(), "dd.MMM.yyyy");
     QString dateEditString =date.toString("yyyy-MM-ddTHH:mm:ssZ");

@@ -17,6 +17,8 @@
 
 #include "tagedit.h"
 
+#include "kmultiitemedit.h"
+
 #include "dms-copy/datamanagement.h"
 #include "dms-copy/storeresourcesjob.h"
 #include "dms-copy/simpleresourcegraph.h"
@@ -26,16 +28,32 @@
 #include "sro/pimo/topic.h"
 
 #include <Soprano/Vocabulary/NAO>
+#include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Variant>
 #include <KDE/KDebug>
 
 #include <QtCore/QUrl>
 
 using namespace Soprano::Vocabulary;
+using namespace Nepomuk::Vocabulary;
 
 TagEdit::TagEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
+}
+
+void TagEdit::setPropertyUrl(const QUrl & m_propertyUrl)
+{
+    PropertyEdit::setPropertyUrl(m_propertyUrl);
+
+    if(m_propertyUrl == NAO::hasTag()) {
+        m_lineEdit->setNepomukCompleterLabel( NAO::prefLabel());
+        m_lineEdit->setNepomukCompleterRange( NAO::Tag() );
+    }
+    else if(m_propertyUrl == NAO::hasTopic()) {
+        m_lineEdit->setNepomukCompleterLabel( PIMO::tagLabel());
+        m_lineEdit->setNepomukCompleterRange( PIMO::Topic() );
+    }
 }
 
 void TagEdit::setupLabel()

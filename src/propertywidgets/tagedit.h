@@ -31,6 +31,8 @@ class TagEdit : public PropertyEdit
 public:
     explicit TagEdit(QWidget *parent = 0);
 
+    void setPropertyUrl(const QUrl & m_propertyUrl);
+
 private slots:
     void addTags(KJob *job);
 

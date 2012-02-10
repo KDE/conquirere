@@ -28,7 +28,7 @@
 #include <QtCore/QUrl>
 #include <QtCore/QFutureWatcher>
 
-class KLineEdit;
+class KMultiItemEdit;
 class KSqueezedTextLabel;
 class QCompleter;
 class QAbstractItemModel;
@@ -108,7 +108,7 @@ public:
     /**
       * Sets the property of the resource that should be changed
       */
-    void setPropertyUrl(const QUrl & m_propertyUrl);
+    virtual void setPropertyUrl(const QUrl & m_propertyUrl);
 
     /**
       * If @p useIt is true a small toolbutton is shown next to the QLabel
@@ -191,8 +191,6 @@ public slots:
 
     void setVisible(bool visible);
 
-    void setBulkUpdateInProgress(bool inprogress);
-
     /**
       * updates the modelcache after the DMS changed the values
       * @todo remove when resourcewatcher is working
@@ -219,46 +217,15 @@ protected:
       */
     virtual void updateResource(const QString & text) = 0;
 
-    /**
-      * Updates the ItemModel for the QCompleter based on the result @p entries from nepomuk
-      */
-    virtual void insertCompletionModel( const QList< Nepomuk::Query::Result > &entries, QStandardItemModel *completerModel);
-    virtual void removeCompletionModel( const QList<QUrl> &urls, QStandardItemModel *completerModel);
-
-    /**
-      * Saves the Nepomuk::Resource URI for an entry displayed in the Label.
-      *
-      * Helps to easily lookup existing resources inserted by hand or via the QCompleter
-      */
-    void addPropertryEntry(const QString &entryname,const QUrl & propertyUrl);
-
-    /**
-      * Returns the cached resource uri of the string entry
-      */
-    QUrl propertyEntry(const QString &entryname);
-
 protected slots:
     virtual void editingFinished();
     virtual void editingAborted();
 
-    void updateCompleter();
-    void insertCompletion(const QModelIndex & index);
-
-    /**
-      * Fills the completer with the query results from the m_queryClient
-      *
-      * @see insertCompletionModel
-      */
-    void addCompletionData(const QList< Nepomuk::Query::Result > &entries);
-    void removeCompletionData(const QList<QUrl> &urls);
-    void completionModelProcessed();
-    void startUpQueryFinished();
-
 protected:
     virtual void mousePressEvent ( QMouseEvent * event );
     KSqueezedTextLabel *m_label;
-    KLineEdit *m_lineEdit;
-    QCompleter *m_completer;
+    KMultiItemEdit *m_lineEdit;
+
     // chache the resource used for the asynchron change.
     // otherwise if we switch to a different resource while the KJob
     // hasn't finished jet, we add the tags to the wrong resource
@@ -275,18 +242,6 @@ private:
 
     Nepomuk::Resource m_resource;
     QUrl m_propertyUrl;
-    QHash<QString, QUrl> m_listCache; /**< caches the label text with its nepomuk uri to easily retrieve the resource */
-
-    QUrl m_range;
-    Nepomuk::Query::QueryServiceClient *m_queryClient;
-
-    // Nepomuk does not like when we "hammer" on a huge bunch of result querys for each single result in parallel via threads.
-    // especially on startup this will sometimes crash with ***double free or incorrupt data*
-    // Thus on startup and when we import large data sets, we enable the bulkupdate
-    // this caches all single results returned from the queryclient and only if we finished (either when the queryclient throw the
-    // finishedListing signal or if we say the import is done via setBulkUpdateInProgress(false) we progress all data at once
-    bool m_bulkUpdateEnable;
-    QList< Nepomuk::Query::Result > m_bulkCache;
 };
 
 #endif // PROPERTYEDIT_H

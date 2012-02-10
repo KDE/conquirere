@@ -17,6 +17,8 @@
 
 #include "publicationedit.h"
 
+#include "kmultiitemedit.h"
+
 #include "dms-copy/datamanagement.h"
 #include "dms-copy/storeresourcesjob.h"
 #include "dms-copy/simpleresourcegraph.h"
@@ -39,6 +41,9 @@ PublicationEdit::PublicationEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
     setUseDetailDialog(true);
+
+    m_lineEdit->setNepomukCompleterLabel( NIE::title() );
+    m_lineEdit->setNepomukCompleterRange( NBIB::Publication() );
 }
 
 void PublicationEdit::setupLabel()
@@ -46,8 +51,6 @@ void PublicationEdit::setupLabel()
     Nepomuk::Resource publication = resource().property( NBIB::publication() ).toResource();
 
     QString title = publication.property( NIE::title() ).toString();
-
-    kDebug() << "set title" << title;
 
     setLabelText(title);
 }
