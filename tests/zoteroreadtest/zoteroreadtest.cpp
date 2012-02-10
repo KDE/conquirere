@@ -143,10 +143,11 @@ void ZoteroReadTest::readZoteroTest()
     //######################################################################################
 
     QFETCH(QString, zoteroKey);
+    qDebug() << "start fetching key" << zoteroKey;
     rfz->fetchItem(zoteroKey, unitTestCollection );
 
     qRegisterMetaType<File>("File");
-    QSignalSpy spy(rfz, SIGNAL(itemsInfo(File)));
+    QSignalSpy spy(rfz, SIGNAL(finished()));
     while (spy.count() == 0) {
         QTest::qWait(200);
     }
