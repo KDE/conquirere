@@ -17,11 +17,17 @@
 
 #include "tagcloud.h"
 
-#include <Nepomuk/Tag>
+#include "nbib.h"
+#include <Nepomuk/Variant>
+#include <Nepomuk/Vocabulary/PIMO>
+#include <Soprano/Vocabulary/NAO>
 
 #include <QtCore/QThread>
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QTimer>
+
+using namespace Nepomuk::Vocabulary;
+using namespace Soprano::Vocabulary;
 
 TagCloud::TagCloud(QObject *parent)
     : QObject(parent)
@@ -38,6 +44,7 @@ TagCloud::~TagCloud()
 
 void TagCloud::addResource(const Nepomuk::Resource &resource)
 {
+    if(resource.hasType(NBIB::Publication()))
     m_resourceList.append(resource);
     updateTagCloud();
 }
@@ -108,12 +115,13 @@ QList<QPair<int, QString> > TagCloud::createTagCloud(QList<Nepomuk::Resource> re
     QMap<QString, int> cloudMap;
     foreach(const Nepomuk::Resource &r, resourceList) {
 
-        QList<Nepomuk::Tag> tagList = r.tags();
+        QList<Nepomuk::Resource> tagList = r.property(NAO::hasTopic()).toResourceList();
 
-        foreach(const Nepomuk::Tag &t, tagList) {
-            int count = cloudMap.value(t.label(), 0);
+        foreach(const Nepomuk::Resource &t, tagList) {
+            QString topicLabel = t.property(PIMO::tagLabel()).toString();
+            int count = cloudMap.value(topicLabel, 0);
             count ++;
-            cloudMap.insert(t.label(), count);
+            cloudMap.insert(topicLabel, count);
         }
     }
 

@@ -146,7 +146,7 @@ void WelcomeWidget::updateTagCloud()
         tagCloud.append(QString::number(p.first));
         tagCloud.append(QLatin1String("), "));
         l++;
-        if(l>20)
+        if(l>10) // show max 10 tags
             break;
     }
     tagCloud.chop(2);
