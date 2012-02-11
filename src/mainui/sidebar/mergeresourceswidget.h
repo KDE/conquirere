@@ -18,16 +18,19 @@
 #ifndef MERGERESOURCESWIDGET_H
 #define MERGERESOURCESWIDGET_H
 
+#include "sidebarcomponent.h"
+
 #include <Nepomuk/Resource>
 
 #include <QtGui/QWidget>
 #include <QtCore/QList>
 
+class QDBusInterface;
 namespace Ui {
     class MergeResourcesWidget;
 }
 
-class MergeResourcesWidget : public QWidget
+class MergeResourcesWidget : public SidebarComponent
 {
     Q_OBJECT
 
@@ -40,12 +43,36 @@ public:
       */
     void setResources(QList<Nepomuk::Resource> resourcelist);
 
+    // not used, but required for the SidebarComponent
+    Nepomuk::Resource resource();
+
+public slots:
+    // not used, but required for the SidebarComponent
+    void setResource(Nepomuk::Resource & resource);
+    void newButtonClicked();
+    void deleteButtonClicked();
+
 private slots:
+    // Resource management
+    void addToProject();
+    void addToSelectedProject();
+    void removeFromProject();
+    void removeFromSelectedProject();
     void merge();
+    void removeFromSystem();
+    // export management
+    void bibtexToClipboard();
+    void citekeyToClipboard();
+    void sendToLyXKile();
+    void exportToFile();
+    // metadata management
+    void reindexFiles();
+    void fetchMetaData();
 
 private:
     Ui::MergeResourcesWidget *ui;
     QList<Nepomuk::Resource> m_resourceList;
+    QDBusInterface *m_nepomukDBus;
 };
 
 #endif // MERGERESOURCESWIDGET_H

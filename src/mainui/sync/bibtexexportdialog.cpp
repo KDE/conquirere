@@ -42,18 +42,10 @@
 #include <QtCore/QThread>
 #include <QtCore/QtConcurrentRun>
 
-#include <QtCore/QDebug>
+#include <KDE/KDebug>
 
-QStringList concurrentExport(NBibExporter *exporter, const QString &fileName, Nepomuk::Query::Query query)
+QStringList concurrentExport(NBibExporter *exporter, const QString &fileName, QList<Nepomuk::Resource> resources)
 {
-    QList<Nepomuk::Resource> resources;
-
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
-
-    foreach(const Nepomuk::Query::Result & r, queryResult) {
-        resources.append(r.resource());
-    }
-
     QStringList errorLog;
     exporter->toFile(fileName, resources, &errorLog);
 
@@ -73,6 +65,10 @@ BibTexExportDialog::BibTexExportDialog(QWidget *parent)
     ui->setupUi(this);
 
     ui->dataSelection->addItem( i18n("System Library") );
+
+    m_queryClient = new Nepomuk::Query::QueryServiceClient();
+    connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addToExportList(QList<Nepomuk::Query::Result>)));
+    connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(queryFinished()));
 }
 
 void BibTexExportDialog::setInitialFileType(NBibExporterFile::FileType selectedFileType)
@@ -107,6 +103,12 @@ void BibTexExportDialog::setExportLibrary(Library* l)
     ui->dataSelection->setCurrentIndex(selectLib);
 }
 
+void BibTexExportDialog::setResourceList(QList<Nepomuk::Resource> exportList)
+{
+        m_exportList = exportList;
+        ui->groupBox_2->setVisible(false);
+}
+
 BibTexExportDialog::~BibTexExportDialog()
 {
     delete ui;
@@ -123,9 +125,7 @@ void BibTexExportDialog::accept()
         return;
     }
 
-    QString filename = ui->folder->text();
-
-    m_progress = new KProgressDialog(this, i18n("Export BibTeX"), QLatin1String("Abort import"));
+    m_progress = new KProgressDialog(this, i18n("Export BibTeX"), QLatin1String("Fetch data"));
     m_progress->progressBar()->setRange(0,100);
     m_progress->setWindowModality(Qt::WindowModal);
     m_progress->show();
@@ -133,38 +133,60 @@ void BibTexExportDialog::accept()
 
     m_selectedFileType = NBibExporterFile::FileType(ui->selectedFileType->currentIndex());
     m_exporter = new NBibExporterFile;
-    m_exporter->setFileType(m_selectedFileType);
 
+    m_exporter->setFileType(m_selectedFileType);
     connect(m_exporter, SIGNAL(progress(int)), m_progress->progressBar(), SLOT(setValue(int)));
-    connect(m_progress, SIGNAL(canceled()), m_exporter, SLOT(cancel()));
 
     // create query to fetch all used resources for the export
-    Nepomuk::Query::AndTerm andTerm;
-    andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Reference() ) );
+    if(m_exportList.isEmpty()) {
+        Nepomuk::Query::AndTerm andTerm;
+        andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Reference() ) );
 
-    if(!ui->onlyReferences->isChecked()) {
-        andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Publication() ) );
+        if(!ui->onlyReferences->isChecked()) {
+            andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Publication() ) );
+        }
+
+        int curIndex = ui->dataSelection->currentIndex();
+        if(curIndex > 0) {
+            QUrl projectToExport = ui->dataSelection->itemData(curIndex).toUrl();
+            Nepomuk::Thing projectThing = Nepomuk::Thing(projectToExport);
+
+            andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
+                                                                Nepomuk::Query::ResourceTerm( projectThing )));
+        }
+
+        Nepomuk::Query::Query query( andTerm );
+        m_queryClient->query(query);
     }
-
-    int curIndex = ui->dataSelection->currentIndex();
-    if(curIndex > 0) {
-        QUrl projectToExport = ui->dataSelection->itemData(curIndex).toUrl();
-        Nepomuk::Thing projectThing = Nepomuk::Thing(projectToExport);
-
-        andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
-                                                            Nepomuk::Query::ResourceTerm( projectThing )));
+    else {
+        queryFinished();
     }
-
-    Nepomuk::Query::Query query( andTerm );
-
-    QFuture<QStringList> future = QtConcurrent::run(concurrentExport, m_exporter, filename, query);
-
-    m_futureWatcher = new QFutureWatcher<QStringList>();
-    m_futureWatcher->setFuture(future);
-    connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(exportFinished()));
 }
 
 void BibTexExportDialog::exportFinished()
 {
     close();
+}
+
+void BibTexExportDialog::addToExportList( const QList< Nepomuk::Query::Result > &entries )
+{
+    kDebug() << "addToExportList";
+    foreach(Nepomuk::Query::Result r, entries) {
+        m_exportList << r.resource();
+    }
+}
+
+void BibTexExportDialog::queryFinished()
+{
+    kDebug() << "query finished";
+    m_queryClient->close();
+    m_progress->progressBar()->setValue(50);
+    m_progress->setLabelText(i18n("export data"));
+
+    QString filename = ui->folder->text();
+    QFuture<QStringList> future = QtConcurrent::run(concurrentExport, m_exporter, filename, m_exportList);
+
+    m_futureWatcher = new QFutureWatcher<QStringList>();
+    m_futureWatcher->setFuture(future);
+    connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(exportFinished()));
 }

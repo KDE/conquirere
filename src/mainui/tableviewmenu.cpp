@@ -177,7 +177,7 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
     // # add to project menu
     QMenu addToProject;
     addToProject.setTitle(i18n("Add to Project"));
-    addToProject.setIcon(KIcon(QLatin1String("list-add")));
+    addToProject.setIcon(KIcon(QLatin1String("insert-link")));
     menu.addMenu(&addToProject);
 
     QList<Library*> openLibList = m_libraryManager->openProjects();
@@ -199,7 +199,7 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
     // # remove from project menu
     QMenu removeFromProject;
     removeFromProject.setTitle(i18n("Remove from Project"));
-    removeFromProject.setIcon(KIcon(QLatin1String("list-remove")));
+    removeFromProject.setIcon(KIcon(QLatin1String("remove-link")));
     menu.addMenu(&removeFromProject);
 
     // fill al list of all project this file is in

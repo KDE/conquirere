@@ -128,13 +128,13 @@ public:
       *
       * @p res the used Nepomuk::Resource
       */
-    void addResource(Nepomuk::Resource & res);
+    void addResource(const Nepomuk::Resource & res);
 
     /**
       * removes the pimo::isRelated elation again and also adds the sync data to the syncprovider
       * ini files so we know we need to remove it from the online storage too.
       */
-    void removeResource(Nepomuk::Resource & res);
+    void removeResource(const Nepomuk::Resource & res);
 
     /**
       * Deletes the resource and also any subresources
@@ -142,7 +142,7 @@ public:
       * Also detects if this removed the only @c article in a @c collection or only @c publication in a @c series
       * and removes them too.
       */
-    void deleteResource(Nepomuk::Resource & resource);
+    void deleteResource(const Nepomuk::Resource & resource);
 
     /**
       * Updates all cached list data

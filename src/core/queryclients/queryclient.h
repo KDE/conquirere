@@ -86,9 +86,6 @@ private slots:
     void resourceTypeAdded (const Nepomuk::Resource &res, const Nepomuk::Types::Class &type);
     void resourceTypeRemoved (const Nepomuk::Resource &res, const Nepomuk::Types::Class &type);
 
-
-
-
     void addToCache( const QList< Nepomuk::Query::Result > &entries ) const;
     void resultCount(int number) const;
 

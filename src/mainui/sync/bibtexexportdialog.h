@@ -20,6 +20,8 @@
 
 #include <QtGui/QDialog>
 #include <QtCore/QFutureWatcher>
+#include <Nepomuk/Query/Result>
+#include <Nepomuk/Query/QueryServiceClient>
 
 #include "nbibio/nbibexporterfile.h"
 
@@ -46,10 +48,13 @@ public:
 
     void setLibraryManager(LibraryManager *lm);
     void setExportLibrary(Library* l);
+    void setResourceList(QList<Nepomuk::Resource> exportList);
 
 private slots:
     void accept();
     void exportFinished();
+    void addToExportList( const QList< Nepomuk::Query::Result > &entries );
+    void queryFinished();
 
 private:
     Ui::BibTexExportDialog *ui;
@@ -57,8 +62,10 @@ private:
     NBibExporterFile::FileType m_selectedFileType;
     LibraryManager *m_libraryManager;
     Library* m_importLibrary;
+    QList<Nepomuk::Resource> m_exportList;
     NBibExporterFile *m_exporter;
     KProgressDialog *m_progress;
+    Nepomuk::Query::QueryServiceClient *m_queryClient;
     QFutureWatcher<QStringList> *m_futureWatcher;
 };
 

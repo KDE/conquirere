@@ -280,7 +280,7 @@ void Library::deleteLibrary()
             SIGNAL(result(KJob*)), this, SLOT(nepomukDMSfinishedInfo(KJob*)));
 }
 
-void Library::addResource(Nepomuk::Resource & res)
+void Library::addResource(const Nepomuk::Resource & res)
 {
     if(m_libraryType == Library_System) {
         kWarning() << "can't add resources to system library";
@@ -315,7 +315,7 @@ void Library::addResource(Nepomuk::Resource & res)
     Nepomuk::setProperty(projectUrisToAddPublication, Soprano::Vocabulary::NAO::isRelated(), publicationValues);
 }
 
-void Library::removeResource(Nepomuk::Resource & res)
+void Library::removeResource(const Nepomuk::Resource & res)
 {
     Q_ASSERT_X( m_libraryType == Library_Project, "removeResource", "can't remove resources from system library");
 
@@ -332,7 +332,7 @@ void Library::removeResource(Nepomuk::Resource & res)
     Nepomuk::removeProperty(resourceUris, NAO::isRelated(), propertyUris);
 }
 
-void Library::deleteResource(Nepomuk::Resource & resource )
+void Library::deleteResource(const Nepomuk::Resource & resource )
 {
     QList<QUrl> removeResourcesUris;
     removeResourcesUris << resource.uri();

@@ -55,6 +55,9 @@
 #include <QtGui/QStackedLayout>
 #include <QtGui/QMenu>
 
+using namespace Soprano::Vocabulary;
+using namespace Nepomuk::Vocabulary;
+
 SidebarWidget::SidebarWidget(QWidget *parent)
     : QDockWidget(parent)
     , ui(new Ui::DockWidget)
@@ -77,11 +80,11 @@ void SidebarWidget::setResource(Nepomuk::Resource & resource)
 
     // if we selected several entries beforehand and now just 1
     // go back to the original widget that displays the info
-    if(m_stackedLayout->currentWidget() == m_mergeWidget) {
-        m_stackedLayout->setCurrentWidget(m_currentWidget);
+    if(m_currentWidget == m_mergeWidget) {
+        findResourceSelection(resource);
     }
 
-    // check with widget mus tbe shown based on the resource type
+    // check with widget must be shown based on the resource type
     if(m_searchResultVisible) {
         findResourceSelection(resource);
     }
@@ -108,6 +111,24 @@ void SidebarWidget::setMultipleResources(QList<Nepomuk::Resource> resourcelist)
 {
     m_stackedLayout->setCurrentWidget(m_mergeWidget);
     m_mergeWidget->setResources(resourcelist);
+    m_currentWidget = m_mergeWidget;
+
+    ui->titleLabel->setText(i18nc("Header for the multiple resource selection widget","Resource Management"));
+
+    ui->addPublication->setVisible(false);
+    ui->removePublication->setVisible(false);
+    ui->addReference->setVisible(false);
+    ui->removeReference->setVisible(false);
+    ui->findPdf->setVisible(false);
+    ui->lineFindPdf->setVisible(false);
+    ui->newButton->setVisible(false);
+    ui->deleteButton->setVisible(false);
+    ui->linkAddButton->setVisible(false);
+    ui->linkRemoveButton->setVisible(false);
+
+    ui->line_2->setVisible(false);
+    ui->linePublication->setVisible(false);
+    ui->lineFindPdf->setVisible(false);
 }
 
 void SidebarWidget::newButtonClicked()
@@ -151,8 +172,7 @@ void SidebarWidget::addToSelectedProject()
 {
     QAction *a = qobject_cast<QAction *>(sender());
 
-    if(!a)
-        return;
+    if(!a) { return; }
 
     QUrl pimoThing = a->data().toUrl();
 
@@ -170,13 +190,15 @@ void SidebarWidget::removeFromProject()
     QList<QAction*> actionCollection;
     QMenu addToProjects;
 
-    QList<Nepomuk::Resource> relatedList = m_curResource.property(Soprano::Vocabulary::NAO::isRelated()).toResourceList();
+    QList<Nepomuk::Resource> relatedList = m_curResource.property(NAO::isRelated()).toResourceList();
 
     if(relatedList.isEmpty()) {
         addToProjects.addAction(i18n("not related to any project"));
     }
     else {
         foreach(const Nepomuk::Resource &r, relatedList) {
+            if(!r.hasType(PIMO::Project())) { continue; }
+
             QAction *a = new QAction(r.genericLabel(), this);
             a->setData(r.resourceUri());
             connect(a, SIGNAL(triggered(bool)),this, SLOT(removeFromSelectedProject()));
@@ -252,12 +274,12 @@ void SidebarWidget::findPdf()
             haveLocalfile = false;
         }
         else {
-            Nepomuk::Resource dataObject(QUrl(), Nepomuk::Vocabulary::NFO::FileDataObject());
-            dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), newLocalFile);
+            Nepomuk::Resource dataObject(QUrl(), NFO::FileDataObject());
+            dataObject.setProperty(NIE::url(), newLocalFile);
             // connect new dataobject to resource
-            m_curResource.addProperty( Nepomuk::Vocabulary::NBIB::isPublicationOf(), dataObject);
+            m_curResource.addProperty( NBIB::isPublicationOf(), dataObject);
             //and the backreference
-            dataObject.setProperty(Nepomuk::Vocabulary::NBIB::publishedAs(), m_curResource);
+            dataObject.setProperty(NBIB::publishedAs(), m_curResource);
         }
     }
 
@@ -278,12 +300,12 @@ void SidebarWidget::findPdf()
             haveUrlfile = false;
         }
         else {
-            Nepomuk::Resource dataObject(QUrl(), Nepomuk::Vocabulary::NFO::RemoteDataObject());
-            dataObject.setProperty(Nepomuk::Vocabulary::NIE::url(), newurlFile);
+            Nepomuk::Resource dataObject(QUrl(), NFO::RemoteDataObject());
+            dataObject.setProperty(NIE::url(), newurlFile);
             // connect new dataobject to resource
-            m_curResource.addProperty( Nepomuk::Vocabulary::NBIB::isPublicationOf(), dataObject);
+            m_curResource.addProperty( NBIB::isPublicationOf(), dataObject);
             //and the backreference
-            dataObject.setProperty(Nepomuk::Vocabulary::NBIB::publishedAs(), m_curResource);
+            dataObject.setProperty(NBIB::publishedAs(), m_curResource);
         }
     }
 }
@@ -301,6 +323,7 @@ void SidebarWidget::setLibraryManager(LibraryManager* lm)
     m_eventWidget->setLibraryManager(m_libraryManager);
     m_seriesWidget->setLibraryManager(m_libraryManager);
     m_mailWidget->setLibraryManager(m_libraryManager);
+    m_mergeWidget->setLibraryManager(m_libraryManager);
 
     connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), m_libraryManager, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 }
@@ -334,6 +357,13 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
     ui->lineFindPdf->setVisible(false);
     ui->newButton->setToolTip(QString());
     ui->deleteButton->setToolTip(QString());
+    ui->newButton->setVisible(true);
+    ui->deleteButton->setVisible(true);
+    ui->linkAddButton->setVisible(true);
+    ui->linkRemoveButton->setVisible(true);
+    ui->line_2->setVisible(true);
+    ui->linePublication->setVisible(true);
+    ui->lineFindPdf->setVisible(true);
 
     disconnect(ui->addPublication, SIGNAL(clicked()) );
     disconnect(ui->removePublication, SIGNAL(clicked()) );
@@ -454,28 +484,28 @@ void SidebarWidget::findResourceSelection(Nepomuk::Resource & resource)
     if(!resource.isValid()) {
         selection = Resource_SearchResults;
     }
-    else if(resource.hasType(Nepomuk::Vocabulary::NBIB::Publication())) {
+    else if(resource.hasType(NBIB::Publication())) {
        selection = Resource_Publication;
     }
-    else if(resource.hasType(Nepomuk::Vocabulary::NBIB::Series())) {
+    else if(resource.hasType(NBIB::Series())) {
         selection = Resource_Series;
     }
-    else if(resource.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
+    else if(resource.hasType(NBIB::Reference())) {
         selection = Resource_Reference;
     }
-    else if(resource.hasType(Nepomuk::Vocabulary::PIMO::Note())) {
+    else if(resource.hasType(PIMO::Note())) {
         selection = Resource_Note;
     }
-    else if(resource.hasType(Nepomuk::Vocabulary::NMO::Email())) {
+    else if(resource.hasType(NMO::Email())) {
         selection = Resource_Mail;
     }
-    else if(resource.hasType(Nepomuk::Vocabulary::NFO::Website())) {
+    else if(resource.hasType(NFO::Website())) {
         selection = Resource_Website;
     }
-    else if(resource.hasType(Nepomuk::Vocabulary::NFO::Bookmark())) {
+    else if(resource.hasType(NFO::Bookmark())) {
         selection = Resource_Website;
     }
-    else if(resource.hasType(Nepomuk::Vocabulary::PIMO::Event())) {
+    else if(resource.hasType(PIMO::Event())) {
         selection = Resource_Event;
     }
     else {
