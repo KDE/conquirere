@@ -40,6 +40,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QProgressBar>
 #include <QtGui/QLabel>
+#include <QtCore/QPointer>
 
 #include <QtCore/QThread>
 
@@ -216,10 +217,10 @@ void ProgressPage::initializePage()
 
 void ProgressPage::popLocalDeletionQuestion(QList<SyncDetails> items)
 {
-    ItemDeleteDialog idd(ItemDeleteDialog::LocalDelete);
+    QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::LocalDelete);
 
-    idd.setItems(items);
-    int ret = idd.exec();
+    idd->setItems(items);
+    int ret = idd->exec();
 
     if(ret == QDialog::Accepted) {
         emit deleteLocalFiles(true);
@@ -227,14 +228,16 @@ void ProgressPage::popLocalDeletionQuestion(QList<SyncDetails> items)
     else {
         emit deleteLocalFiles(false);
     }
+
+    delete idd;
 }
 
 void ProgressPage::popServerDeletionQuestion(QList<SyncDetails> items)
 {
-    ItemDeleteDialog idd(ItemDeleteDialog::ServerDelete);
+    QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::ServerDelete);
 
-    idd.setItems(items);
-    int ret = idd.exec();
+    idd->setItems(items);
+    int ret = idd->exec();
 
     if(ret == QDialog::Accepted) {
         emit deleteServerFiles(true);
@@ -242,14 +245,16 @@ void ProgressPage::popServerDeletionQuestion(QList<SyncDetails> items)
     else {
         emit deleteServerFiles(false);
     }
+
+    delete idd;
 }
 
 void ProgressPage::popGroupRemovalQuestion(QList<SyncDetails> items)
 {
-    ItemDeleteDialog idd(ItemDeleteDialog::ServerGroupRemoval);
+    QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::ServerGroupRemoval);
 
-    idd.setItems(items);
-    int ret = idd.exec();
+    idd->setItems(items);
+    int ret = idd->exec();
 
     if(ret == QDialog::Accepted) {
         emit removeGroupFiles(true);
@@ -257,6 +262,8 @@ void ProgressPage::popGroupRemovalQuestion(QList<SyncDetails> items)
     else {
         emit removeGroupFiles(false);
     }
+
+    delete idd;
 }
 
 

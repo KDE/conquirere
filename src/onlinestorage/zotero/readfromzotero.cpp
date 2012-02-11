@@ -192,7 +192,7 @@ void ReadFromZotero::fetchCollection(const QString &collection )
 void ReadFromZotero::requestFinished()
 {
     int nextFetchLimit = 50;
-    int nextFetchStart = -1; // if it stays -1 we know we catched all follow up request and can stop now
+    int nextFetchStart = -1; // if it stays -1 we know we caught all follow up request and can stop now
 
     // clear local cache unless this is a follow up from a bigger request
     if(!m_fetchIncomplete) {
@@ -241,7 +241,7 @@ void ReadFromZotero::requestFinished()
             }
         }
 
-        // parse the entry content (all item informations wee actually wanted)
+        // parse the entry content (all item information we actually wanted)
         else if(xmlReader.name() == QLatin1String("entry")) {
             switch(requestType()) {
             case Items:

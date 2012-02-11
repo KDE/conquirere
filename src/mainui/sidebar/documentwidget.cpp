@@ -133,13 +133,13 @@ void DocumentWidget::setPublication()
     if(ret == QDialog::Accepted) {
         Nepomuk::Resource publication = lpd->selectedPublication();
 
-        QList<QUrl> resUri; resUri << m_document.uri();
-        QVariantList value; value << publication.uri();
+        QList<QUrl> resUri; resUri << m_document.resourceUri();
+        QVariantList value; value << publication.resourceUri();
         KJob *job1 = Nepomuk::addProperty(resUri, NBIB::publishedAs(), value);
         job1->exec(); //blocking call...
 
-        resUri.clear(); resUri << publication.uri();
-        value.clear(); value << m_document.uri();
+        resUri.clear(); resUri << publication.resourceUri();
+        value.clear(); value << m_document.resourceUri();
         KJob *job2 = Nepomuk::addProperty(resUri, NBIB::isPublicationOf(), value);
         job2->exec(); //blocking call...
 
@@ -154,13 +154,13 @@ void DocumentWidget::removePublication()
     Nepomuk::Resource publication = m_document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
 
 
-    QList<QUrl> resourceUris; resourceUris << m_document.uri();
-    QVariantList value; value << publication.uri();
+    QList<QUrl> resourceUris; resourceUris << m_document.resourceUri();
+    QVariantList value; value << publication.resourceUri();
     KJob *job1 = Nepomuk::removeProperty(resourceUris, NBIB::publishedAs(), value);
     job1->exec(); //blocking call...
 
-    resourceUris.clear(); resourceUris << publication.uri();
-    value.clear(); value << m_document.uri();
+    resourceUris.clear(); resourceUris << publication.resourceUri();
+    value.clear(); value << m_document.resourceUri();
     KJob *job2 = Nepomuk::removeProperty(resourceUris, NBIB::isPublicationOf(), value);
     job2->exec(); //blocking call...
 

@@ -30,9 +30,9 @@
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Nepomuk/Variant>
-#include <KDE/KDebug>
 
-#include <QtCore/QUrl>
+#include <KDE/KUrl>
+#include <KDE/KDebug>
 
 using namespace Soprano::Vocabulary;
 using namespace Nepomuk::Vocabulary;
@@ -98,7 +98,7 @@ void TagEdit::updateResource(const QString & newTagNames)
             Nepomuk::SimpleResource tagResource;
             Nepomuk::NAO::Tag tag (&tagResource);
 
-            tagResource.addProperty( NAO::identifier(), QUrl::fromEncoded(s.trimmed().toUtf8()) );
+            tagResource.addProperty( NAO::identifier(), KUrl::fromEncoded(s.trimmed().toUtf8()) );
             tag.addPrefLabel( s.trimmed() );
 
             graph << tagResource;
@@ -107,7 +107,7 @@ void TagEdit::updateResource(const QString & newTagNames)
 
             Nepomuk::PIMO::Topic topic;
 
-            topic.addProperty( NAO::identifier(), QUrl::fromEncoded(s.trimmed().toUtf8()) );
+            topic.addProperty( NAO::identifier(), KUrl::fromEncoded(s.trimmed().toUtf8()) );
             topic.setTagLabel( s.trimmed() );
 
             graph << topic;
@@ -132,7 +132,7 @@ void TagEdit::addTags(KJob *job)
 
     // now get all the uris for the new tags
     QVariantList tagUris;
-    foreach (QUrl uri, srj->mappings()) {
+    foreach (const QUrl &uri, srj->mappings()) {
          tagUris << uri;
     }
 

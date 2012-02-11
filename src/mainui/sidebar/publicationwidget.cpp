@@ -270,6 +270,7 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
         case BibType_LegalCaseDocument:
         case BibType_Presentation:
         case BibType_Unpublished:
+        case BibType_Map:
         case BibType_Manual:
         case Max_BibTypes:
             break;
@@ -398,8 +399,8 @@ void PublicationWidget::addReference()
     rw->newButtonClicked();
     Nepomuk::Resource tmpReference = rw->resource();
 
-    QList<QUrl> resourceUris; resourceUris << tmpReference.uri();
-    QVariantList value; value << m_publication.uri();
+    QList<QUrl> resourceUris; resourceUris << tmpReference.resourceUri();
+    QVariantList value; value << m_publication.resourceUri();
     KJob *job = Nepomuk::setProperty(resourceUris, NBIB::publication(), value);
     job->exec(); //blocking to ensure resource is fully updated
 
@@ -410,8 +411,8 @@ void PublicationWidget::addReference()
     int ret = showRefWidget->exec();
 
     if(ret == KDialog::Accepted) {
-        QList<QUrl> resourceUris; resourceUris << m_publication.uri();
-        QVariantList value; value <<  tmpReference.uri();
+        QList<QUrl> resourceUris; resourceUris << m_publication.resourceUri();
+        QVariantList value; value <<  tmpReference.resourceUri();
         KJob *job = Nepomuk::setProperty(resourceUris, NBIB::reference(), value);
         job->exec(); //blocking to ensure resource is fully updated
 
@@ -449,7 +450,7 @@ void PublicationWidget::removeFromSelectedReference()
 
     if(!a) { return; }
 
-    QList<QUrl> resourceUris; resourceUris << m_publication.uri();
+    QList<QUrl> resourceUris; resourceUris << m_publication.resourceUri();
     QVariantList value; value << a->data().toString();
     KJob *job = Nepomuk::removeProperty(resourceUris, NBIB::reference(), value);
     job->exec(); // blocking wait till resource is updated
@@ -468,7 +469,7 @@ void PublicationWidget::removeFromSelectedReference()
 
 void PublicationWidget::acceptContentChanges()
 {
-    QList<QUrl> resourceUris; resourceUris << m_publication.uri();
+    QList<QUrl> resourceUris; resourceUris << m_publication.resourceUri();
     QVariantList value; value <<  ui->editAbstract->document()->toPlainText();
     Nepomuk::setProperty(resourceUris, NBIB::abstract(), value);
 }
@@ -486,7 +487,7 @@ void PublicationWidget::changeRating(int newRating)
         return;
     }
 
-    QList<QUrl> resourceUris; resourceUris << m_publication.uri();
+    QList<QUrl> resourceUris; resourceUris << m_publication.resourceUri();
     QVariantList rating; rating <<  newRating;
     KJob *job = Nepomuk::setProperty(resourceUris, Soprano::Vocabulary::NAO::numericRating(), rating);
     job->exec(); // blocking wait ...
@@ -744,7 +745,7 @@ kDebug() << propertyUrl;
             // switch from ncal:Event to pimo:Event
             QString eventTitle = selectedPart.property(NIE::title()).toString();
             QList<Nepomuk::Tag> ncalTags = selectedPart.tags();
-            QList<QUrl> resourceUris; resourceUris << selectedPart.uri();
+            QList<QUrl> resourceUris; resourceUris << selectedPart.resourceUri();
             QVariantList value; value << eventTitle;
 
             selectedPart = selectedPart.pimoThing();
@@ -759,8 +760,8 @@ kDebug() << propertyUrl;
         }
 
         // add forward link
-        QList<QUrl> resourceUris; resourceUris << resource.uri();
-        QVariantList value; value << selectedPart.uri();
+        QList<QUrl> resourceUris; resourceUris << resource.resourceUri();
+        QVariantList value; value << selectedPart.resourceUri();
         KJob *job = Nepomuk::setProperty(resourceUris, propertyUrl, value);
         job->exec(); //blocking to ensure we udate the resource
 
@@ -783,8 +784,8 @@ kDebug() << propertyUrl;
         }
 
         // add backward link
-        resourceUris.clear(); resourceUris << selectedPart.uri();
-        value.clear(); value << resource.uri();
+        resourceUris.clear(); resourceUris << selectedPart.resourceUri();
+        value.clear(); value << resource.resourceUri();
         KJob *job2 = Nepomuk::setProperty(resourceUris, backwardLink, value);
         job2->exec(); //blocking to ensure we udate the resource
 

@@ -31,7 +31,7 @@ class BackgroundSync;
 /**
   * @brief Manager to hold all Library instances used in the system
   *
-  * Used to interact with and retrieve all opend Libraries
+  * Used to interact with and retrieve all opened Libraries
   */
 class LibraryManager : public QObject
 {

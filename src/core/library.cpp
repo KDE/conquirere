@@ -187,7 +187,7 @@ QString Library::createIniFile(Nepomuk::Thing & pimoProject, const QString & pat
         kWarning() << "could not create project ini resource file" << srj->errorString();
     }
     else {
-        kDebug() << "save successfull" << srj->mappings();
+        kDebug() << "save successful" << srj->mappings();
         // get the resource from the return job mappings
         pimoProject.addProperty( PIMO::groundingOccurrence(), srj->mappings().value( iniFileSimpleResource.uri() ) );
     }
@@ -263,20 +263,20 @@ LibraryType Library::libraryType() const
 void Library::deleteLibrary()
 {
    QList<Nepomuk::Resource> gos = m_projectSettings->projectThing().groundingOccurrences();
+   QList<QUrl> uris;
 
     // delete all groundingOccurences, in our case this should be only the .ini files
-    foreach(Nepomuk::Resource r, gos) {
+    foreach(const Nepomuk::Resource &r, gos) {
         Nepomuk::File iniFile = r;
         KIO::DeleteJob *dj = KIO::del(iniFile.url(), KIO::HideProgressInfo);
         dj->exec();
         delete dj;
-        r.remove();
+        uris << r.resourceUri();
     }
 
-    QList<QUrl> projectUris;
-    projectUris << m_projectSettings->projectThing().uri() << m_projectSettings->projectTag().uri();
+    uris << m_projectSettings->projectThing().uri() << m_projectSettings->projectTag().uri();
 
-    connect(Nepomuk::removeResources( projectUris, Nepomuk::RemoveSubResoures ),
+    connect(Nepomuk::removeResources( uris, Nepomuk::RemoveSubResoures ),
             SIGNAL(result(KJob*)), this, SLOT(nepomukDMSfinishedInfo(KJob*)));
 }
 

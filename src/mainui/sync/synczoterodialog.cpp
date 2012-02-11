@@ -37,11 +37,12 @@
 #include <QtCore/QThread>
 #include <KDE/KMessageBox>
 #include <KDE/KDialog>
+#include <KDE/KDebug>
 
 #include <Akonadi/CollectionFetchJob>
 #include <Akonadi/CollectionFetchScope>
 
-#include <QtCore/QDebug>
+#include <QtCore/QPointer>
 
 SyncZoteroDialog::SyncZoteroDialog(QWidget *parent)
     : KDialog(parent)
@@ -148,10 +149,10 @@ void SyncZoteroDialog::slotButtonClicked(int button)
 
 void SyncZoteroDialog::popLocalDeletionQuestion(QList<SyncDetails> items)
 {
-    ItemDeleteDialog idd(ItemDeleteDialog::LocalDelete);
+    QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::LocalDelete);
 
-    idd.setItems(items);
-    int ret = idd.exec();
+    idd->setItems(items);
+    int ret = idd->exec();
 
     if(ret == QDialog::Accepted) {
         emit deleteLocalFiles(true);
@@ -159,14 +160,16 @@ void SyncZoteroDialog::popLocalDeletionQuestion(QList<SyncDetails> items)
     else {
         emit deleteLocalFiles(false);
     }
+
+    delete idd;
 }
 
 void SyncZoteroDialog::popServerDeletionQuestion(QList<SyncDetails> items)
 {
-    ItemDeleteDialog idd(ItemDeleteDialog::ServerDelete);
+    QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::ServerDelete);
 
-    idd.setItems(items);
-    int ret = idd.exec();
+    idd->setItems(items);
+    int ret = idd->exec();
 
     if(ret == QDialog::Accepted) {
         emit deleteServerFiles(true);
@@ -174,14 +177,16 @@ void SyncZoteroDialog::popServerDeletionQuestion(QList<SyncDetails> items)
     else {
         emit deleteServerFiles(false);
     }
+
+    delete idd;
 }
 
 void SyncZoteroDialog::popGroupRemovalQuestion(QList<SyncDetails> items)
 {
-    ItemDeleteDialog idd(ItemDeleteDialog::ServerGroupRemoval);
+    QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::ServerGroupRemoval);
 
-    idd.setItems(items);
-    int ret = idd.exec();
+    idd->setItems(items);
+    int ret = idd->exec();
 
     if(ret == QDialog::Accepted) {
         emit removeGroupFiles(true);
@@ -189,6 +194,8 @@ void SyncZoteroDialog::popGroupRemovalQuestion(QList<SyncDetails> items)
     else {
         emit removeGroupFiles(false);
     }
+
+    delete idd;
 }
 
 void SyncZoteroDialog::popMergeDialog(QList<SyncDetails> items)

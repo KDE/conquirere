@@ -240,7 +240,7 @@ void FileObjectEditDialog::typeChanged(int newType)
     QVariantList fileObjectValue; fileObjectValue << m_fileObject.uri();
     QVariantList typeValue;
 
-    foreach(QUrl url, currentTypes) {
+    foreach(const QUrl &url, currentTypes) {
         typeValue << url;
     }
 

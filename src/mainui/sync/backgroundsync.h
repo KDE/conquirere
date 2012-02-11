@@ -29,7 +29,7 @@ class NBibSync;
 class QThread;
 
 /**
-  * @brief Coordinates the syncronization with all availabe provider specified in the .ini file or on localrequest via a direct call to startSync()
+  * @brief Coordinates the synchronization with all availabe provider specified in the .ini file or on localrequest via a direct call to startSync()
   *
   * The sync is done in an additional QThread in the background so while all data is imported to Nepomuk or
   * exported and uploaded to the provider the gui thread will not freeze.

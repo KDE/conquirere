@@ -62,12 +62,18 @@ using namespace Soprano::Vocabulary;
 ZoteroDownload::ZoteroDownload(QObject *parent)
     : QObject(parent)
     , m_cancel(false)
+    , m_syncSteps(0)
+    , m_currentStep(0)
     , m_attachmentMode(false)
     , m_systemLibrary(0)
     , m_libraryToSyncWith(0)
     , m_rfz(0)
     , m_bibCache(0)
+    , m_newEntries(0)
     , m_corruptedUploads(0)
+    , m_newEntriesToDownload(0)
+    , m_downloadReply(0)
+    , m_attachmentFile(0)
 {
     qRegisterMetaType<KIO::filesize_t>("KIO::filesize_t");
     m_nepomukDBus = new QDBusInterface( "org.kde.nepomuk.services.nepomukfileindexer", "/nepomukfileindexer" );
@@ -203,7 +209,7 @@ void ZoteroDownload::readDownloadSyncAfterDelete()
 
     // if we operate on a library project add the is related part to all existingItems
     if(m_libraryToSyncWith->libraryType() == Library_Project) {
-        foreach(Nepomuk::Resource r, existingItems) {
+        foreach(const Nepomuk::Resource &r, existingItems) {
             m_libraryToSyncWith->addResource(r);
         }
     }
@@ -275,7 +281,7 @@ void ZoteroDownload::downloadNextAttachment()
     QString remoteUrlString = PlainTextValue::text(entry->value(QLatin1String("zoteroAttachmentFile")) );
     remoteUrlString.append(QLatin1String("?key=") + m_psd.pwd );
 
-    QUrl remoteUrl = QUrl( remoteUrlString );
+    KUrl remoteUrl = KUrl( remoteUrlString );
 
     QString localStoragePath = m_psd.localStoragePath + QLatin1String("/zotero/") + m_psd.userName;
     QString tmpFile = localStoragePath + QLatin1String("/") + PlainTextValue::text(entry->value(QLatin1String("title")));
@@ -432,7 +438,7 @@ void ZoteroDownload::startAttachmentDownload()
     m_rfz->setSearchFilter(QLatin1String("&itemType=attachment")); // so we fetch only attachments nothing else
 
     connect(m_rfz, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
-    emit progressStatus(i18n("fetch zotero attachment infos"));
+    emit progressStatus(i18n("fetch zotero attachment information"));
     calculateProgress(0);
 
     if(m_cancel) { finishAndCleanUp(); }
@@ -454,7 +460,7 @@ void ZoteroDownload::deleteLocalFiles(bool deleteThem)
     calculateProgress(0);
 
     // now go through all entries the user wants to be removed
-    foreach(SyncDetails sd, m_tmpUserDeleteRequest) {
+    foreach(const SyncDetails &sd, m_tmpUserDeleteRequest) {
 
         if(m_cancel) { return; }
 
@@ -498,7 +504,7 @@ void ZoteroDownload::deleteLocalFiles(bool deleteThem)
                 }
             }
 
-            QList<QUrl> resUri; resUri << sd.syncResource.uri();
+            QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
             Nepomuk::removeResources(resUri);
         }
         else {

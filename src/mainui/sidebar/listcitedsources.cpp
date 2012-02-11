@@ -154,8 +154,8 @@ void ListCitedSources::addReference()
         Nepomuk::Resource publication = selectedReference.property(NBIB::publication()).toResource();
 
         // add crosslink via nepomuk DMS
-        QList<QUrl> resUri; resUri << m_resource.uri();
-        QVariantList value; value << selectedReference.uri();
+        QList<QUrl> resUri; resUri << m_resource.resourceUri();
+        QVariantList value; value << selectedReference.resourceUri();
         Nepomuk::addProperty(resUri, NBIB::citedReference(), value);
 
         QListWidgetItem *i = new QListWidgetItem();
@@ -194,8 +194,8 @@ void ListCitedSources::removeReference()
     delete i;
 
     // add crosslink via nepomuk DMS
-    QList<QUrl> resUri; resUri << m_resource.uri();
-    QVariantList value; value << removedReference.uri();
+    QList<QUrl> resUri; resUri << m_resource.resourceUri();
+    QVariantList value; value << removedReference.resourceUri();
     Nepomuk::removeProperty(resUri, NBIB::citedReference(), value);
 
     ui->listWidget->setCurrentRow(0);

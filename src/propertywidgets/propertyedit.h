@@ -61,7 +61,7 @@ class QKeyEvent;
   * Furthermore if @p hasMultipleCardinality() returns true the user can split each
   * new entry with a ";" and the completer ofers new selection from this start on
   *
-  * @todo in the long run the QCompleter should be replaced by a direct query to nepomuk everytime we enter something
+  * @todo in the long run the QCompleter should be replaced by a direct query to nepomuk every time we enter something
   *       like it is done with KRunner. When done, another way to get the nepomuk resource for a string entered (contact name for example)
   *       should be found, so we do not create duplicate entries when not the completer is used but the correct name is inserted
   *       directly.

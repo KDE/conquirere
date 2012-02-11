@@ -33,7 +33,6 @@ AppearanceSettings::AppearanceSettings(QWidget *parent)
     setupGui();
     resetSettings();
 
-    connect(ui->rbBelow, SIGNAL(toggled(bool)), this, SIGNAL(contentChanged()));
     connect(ui->hiddenSelector, SIGNAL(added(QListWidgetItem*)), this, SIGNAL(contentChanged()));
     connect(ui->hiddenSelector, SIGNAL(removed(QListWidgetItem*)), this, SIGNAL(contentChanged()));
 }
@@ -46,14 +45,6 @@ AppearanceSettings::~AppearanceSettings()
 void AppearanceSettings::resetSettings()
 {
     // view part
-    if(ConqSettings::documentPosition() == ConqSettings::EnumDocumentPosition::middle) {
-        ui->rbBelow->setChecked(true);
-        ui->rbNextTo->setChecked(false);
-    }
-    else if(ConqSettings::documentPosition() == ConqSettings::EnumDocumentPosition::independant) {
-        ui->rbBelow->setChecked(false);
-        ui->rbNextTo->setChecked(true);
-    }
 
     // categories part
     for(int i=0; i < Max_SeriesTypes; i++) {
@@ -91,13 +82,6 @@ void AppearanceSettings::resetSettings()
 
 void AppearanceSettings::applySettings()
 {
-    if(ui->rbBelow->isChecked()) {
-        ConqSettings::setDocumentPosition( ConqSettings::EnumDocumentPosition::middle );
-    }
-    else if(ui->rbNextTo->isChecked()) {
-        ConqSettings::setDocumentPosition( ConqSettings::EnumDocumentPosition::independant );
-    }
-
     QList<int> hiddenSeries;
     QList<int> hiddenPublications;
 

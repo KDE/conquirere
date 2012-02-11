@@ -171,7 +171,7 @@ void BibTexExportDialog::exportFinished()
 void BibTexExportDialog::addToExportList( const QList< Nepomuk::Query::Result > &entries )
 {
     kDebug() << "addToExportList";
-    foreach(Nepomuk::Query::Result r, entries) {
+    foreach(const Nepomuk::Query::Result &r, entries) {
         m_exportList << r.resource();
     }
 }

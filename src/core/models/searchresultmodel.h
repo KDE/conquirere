@@ -122,7 +122,7 @@ private:
     QString translateEntryType(const Nepomuk::Resource & resource) const;
 
     /**
-      * Generates an Icon for the mimetype of the entry that is beeing displayed
+      * Generates an Icon for the mimetype of the entry that is being displayed
       *
       * @todo find better icons based on mimetype from nepomuk or the url extension rather than using a fixed generic icon
       */

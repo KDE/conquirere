@@ -65,7 +65,7 @@ public:
       * Or for all file attachments : &itemType=attachment
       *
       * After we did the usual fetchItems() th egetFile returns a bibfile with
-      * the necessary informations for the notes/files and most importantly the parent it belongs to.
+      * the necessary information for the notes/files and most importantly the parent it belongs to.
       */
     void setSearchFilter(const QString &filter);
 

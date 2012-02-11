@@ -163,13 +163,13 @@ void ReferenceWidget::showPublicationList(Nepomuk::Resource & reference, const Q
         Nepomuk::Resource selectedPublication = lpd->selectedPublication();
 
         // do the crosslinking via DMS
-        QList<QUrl> resUri; resUri << reference.uri();
-        QVariantList value; value << selectedPublication.uri();
+        QList<QUrl> resUri; resUri << reference.resourceUri();
+        QVariantList value; value << selectedPublication.resourceUri();
         KJob* job1 = Nepomuk::setProperty(resUri, NBIB::publication(), value);
         job1->exec(); // blocking wait so we are sure we updated the resource
 
-        resUri.clear(); resUri << selectedPublication.uri();
-        value.clear(); value << reference.uri();
+        resUri.clear(); resUri << selectedPublication.resourceUri();
+        value.clear(); value << reference.resourceUri();
         KJob* job2 = Nepomuk::addProperty(resUri, NBIB::reference(), value);
         job2->exec(); // blocking wait so we are sure we updated the resource
         Nepomuk::addProperty(resUri, NAO::hasSubResource(), value);
@@ -198,8 +198,8 @@ void ReferenceWidget::showChapterList()
         Nepomuk::Resource selectedPart = lpw->selectedPart();
 
         // do the crosslinking via DMS
-        QList<QUrl> resUri; resUri << m_reference.uri();
-        QVariantList value; value << selectedPart.uri();
+        QList<QUrl> resUri; resUri << m_reference.resourceUri();
+        QVariantList value; value << selectedPart.resourceUri();
         KJob* job1 = Nepomuk::setProperty(resUri, NBIB::referencedPart(), value);
         job1->exec(); // blocking wait so we are sure we updated the resource
 
@@ -207,7 +207,7 @@ void ReferenceWidget::showChapterList()
         QString pageEnd = selectedPart.property(NBIB::pageEnd() ).toString();
         QString pages = pageStart + QLatin1String("-") + pageEnd;
 
-        resUri.clear(); resUri << m_reference.uri();
+        resUri.clear(); resUri << m_reference.resourceUri();
         value.clear(); value << pages;
         KJob* job2 = Nepomuk::setProperty(resUri, NBIB::pages(), value);
         job2->exec(); // blocking wait so we are sure we updated the resource

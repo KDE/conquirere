@@ -1991,7 +1991,7 @@ void BibTexToNepomukPipe::addWebsite(const QString &content, Nepomuk::NBIB::Publ
         graph << website;
 
     }
-    else if( url.scheme().startsWith("file") || url.scheme().startsWith("/home")  || url.scheme().startsWith("~")) {
+    else if( url.scheme().startsWith("file") || url.scheme().startsWith("/home")  || url.scheme().startsWith('~')) {
         addFileUrl(content, publication, graph);
     }
 }
@@ -2163,7 +2163,7 @@ void BibTexToNepomukPipe::addTag(const Value &content, Nepomuk::SimpleResource &
         Nepomuk::NAO::Tag tag (&tagResource);
 
         tag.addPrefLabel( k->text() );
-        tagResource.addProperty( NAO::identifier(), QUrl::fromEncoded(k->text().toUtf8()));
+        tagResource.addProperty( NAO::identifier(), KUrl::fromEncoded(k->text().toUtf8()));
 
         graph << tagResource;
         resource.addProperty( NAO::hasTag(), tagResource.uri());
@@ -2187,7 +2187,7 @@ void BibTexToNepomukPipe::addTopic(const Value &content, Nepomuk::SimpleResource
         Nepomuk::PIMO::Topic topic;
 
         topic.setTagLabel(k->text());
-        topic.addProperty( NAO::identifier(), QUrl::fromEncoded(k->text().toUtf8()) );
+        topic.addProperty( NAO::identifier(), KUrl::fromEncoded(k->text().toUtf8()) );
 
         graph << topic;
         resource.addProperty( NAO::hasTopic(), topic.uri());
@@ -2212,8 +2212,8 @@ void BibTexToNepomukPipe::addZoteroSyncDetails(Nepomuk::SimpleResource &mainReso
 
     // first set an identifier, when the object already exist we merge them together
     QString identifier = QLatin1String("zotero") + m_syncUserId + m_syncUrl + id;
-    serverSyncData.addProperty( NAO::identifier(),QUrl::fromEncoded( identifier.toUtf8()) );
-    serverSyncData.setProperty(NIE::url(), QUrl::fromEncoded(identifier.toUtf8())); // we need the url to make this unique and not merge it wth something else
+    serverSyncData.addProperty( NAO::identifier(), KUrl::fromEncoded( identifier.toUtf8()) );
+    serverSyncData.setProperty(NIE::url(), KUrl::fromEncoded(identifier.toUtf8())); // we need the url to make this unique and not merge it wth something else
 
     // now we set the new values
     serverSyncData.setProvider( QLatin1String("zotero") );

@@ -79,7 +79,7 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
         else {
             //we have a publication and no idea what reference to use with it
             // we will extract as many information as possible anyway
-            // or we try to export pimo:Note or some attachment infos
+            // or we try to export pimo:Note or some attachment information
             publication = resource;
         }
 

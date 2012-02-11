@@ -179,11 +179,11 @@ void ContactDialog::addNepomukContact()
         Nepomuk::Resource contactResource = Nepomuk::Resource::fromResourceUri( srj->mappings().value( contact.uri() ) );
 
         // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
-        QList<QUrl> resUri; resUri << m_resource.uri();
-        QVariantList value; value << contactResource.uri();
+        QList<QUrl> resUri; resUri << m_resource.resourceUri();
+        QVariantList value; value << contactResource.resourceUri();
         Nepomuk::addProperty(resUri, m_propertyUrl, value);
 
-        kDebug() << "add resource" << contactResource << contactResource.uri() << "to publication";
+        kDebug() << "add resource" << contactResource << contactResource.resourceUri() << "to publication";
 
         // and add it to the listwidget
         QListWidgetItem *i = new QListWidgetItem;
@@ -234,15 +234,15 @@ void ContactDialog::contactStored( const Akonadi::Item& item)
     Nepomuk::Resource contactResource = Nepomuk::Resource::fromResourceUri( srj->mappings().value( contact.uri() ) );
 
     // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
-    QList<QUrl> resUri; resUri << m_resource.uri();
-    QVariantList value; value << contactResource.uri();
+    QList<QUrl> resUri; resUri << m_resource.resourceUri();
+    QVariantList value; value << contactResource.resourceUri();
     Nepomuk::addProperty(resUri, m_propertyUrl, value);
 
     // and add it to the listwidget
     QListWidgetItem *i = new QListWidgetItem;
     i->setText( contactFullname );
     i->setData(AKONADI_URL, item.url().toEncoded());
-    i->setData(NEPOMUK_RESOURCE, contactResource.uri());
+    i->setData(NEPOMUK_RESOURCE, contactResource.resourceUri());
     i->setIcon(KIcon("view-pim-contacts"));
     ui->klistwidget->addItem(i);
 
@@ -277,7 +277,7 @@ void ContactDialog::removeItem()
 
     QUrl contactUri = i->data(NEPOMUK_RESOURCE).toUrl();
 
-    QList<QUrl> resourceUris; resourceUris << m_resource.uri();
+    QList<QUrl> resourceUris; resourceUris << m_resource.resourceUri();
     QVariantList value; value << contactUri;
     Nepomuk::removeProperty(resourceUris, m_propertyUrl, value);
 
@@ -354,7 +354,7 @@ void ContactDialog::pushContactToAkonadi()
             qDebug() << "Error:" << job->errorString();
         }
 
-        QList<QUrl> resUri; resUri << contactRes.uri();
+        QList<QUrl> resUri; resUri << contactRes.resourceUri();
         QVariantList value; value << job->item().url();
         Nepomuk::setProperty(resUri, NIE::url(), value);
 

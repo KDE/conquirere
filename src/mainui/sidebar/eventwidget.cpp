@@ -153,15 +153,15 @@ void EventWidget::deleteButtonClicked()
 {
     QList<Nepomuk::Resource> pubList = m_eventThing.property(NBIB::eventPublication()).toResourceList();
     QList<QUrl> resUri;
-    QVariantList value; value << m_eventThing.uri();
-    foreach(Nepomuk::Resource r, pubList) {
-        resUri << r.uri();
+    QVariantList value; value << m_eventThing.resourceUri();
+    foreach(const Nepomuk::Resource &r, pubList) {
+        resUri << r.resourceUri();
     }
 
     KJob *job1 = Nepomuk::addProperty(resUri, NBIB::event(), value);
     job1->exec(); // blocking wait ...
 
-    foreach(Nepomuk::Resource r, pubList) {
+    foreach(const Nepomuk::Resource &r, pubList) {
         emit resourceCacheNeedsUpdate(r);
     }
 
@@ -177,7 +177,7 @@ void EventWidget::changeRating(int newRating)
         return;
     }
 
-    QList<QUrl> resourceUris; resourceUris << m_eventThing.uri();
+    QList<QUrl> resourceUris; resourceUris << m_eventThing.resourceUri();
     QVariantList rating; rating <<  newRating;
     KJob *job = Nepomuk::setProperty(resourceUris, NAO::numericRating(), rating);
 

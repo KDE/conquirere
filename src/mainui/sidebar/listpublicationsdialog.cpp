@@ -144,6 +144,8 @@ void ListPublicationsDialog::setListMode(ResourceSelection selection, BibEntryTy
         ui->createNew->setEnabled(false);
         // nothing ... shouldn't happen anyway
         break;
+    case Max_ResourceTypes:
+        break;
     }
 }
 
@@ -351,7 +353,7 @@ void ListPublicationsDialog::createNew()
 {
     QPointer<KDialog> createNewWidget = new KDialog(this);
 
-    SidebarComponent *sbcWidget;
+    SidebarComponent *sbcWidget = 0;
 
     switch(m_selection) {
     //case Resource_Media:
@@ -376,7 +378,9 @@ void ListPublicationsDialog::createNew()
     case Resource_Document:
     case Resource_Mail:
     case Resource_SearchResults:
+    case Resource_Media:
     case Resource_Library:
+    case Max_ResourceTypes:
         // nothing ... shouldn't happen anyway
         break;
     }

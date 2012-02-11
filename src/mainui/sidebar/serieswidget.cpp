@@ -209,7 +209,7 @@ void SeriesWidget::changeRating(int newRating)
         return;
     }
 
-    QList<QUrl> resourceUris; resourceUris << m_series.uri();
+    QList<QUrl> resourceUris; resourceUris << m_series.resourceUri();
     QVariantList rating; rating <<  newRating;
     KJob *job = Nepomuk::setProperty(resourceUris, Soprano::Vocabulary::NAO::numericRating(), rating);
 

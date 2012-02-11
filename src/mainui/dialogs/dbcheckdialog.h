@@ -31,7 +31,7 @@ namespace Ui {
   * @brief debugging dialog to remove some nepomuk data
   *
   * This will be removed once the program will not create data it can't remove anymore or create othewise data
-  * that will unecessary after some other data is removed.
+  * that will be left over after some other data is removed.
   *
   * @li Like keeping a reference to a deleted publication
   * @li Keeping the Chapter(DocumentPart) after the publication is deleted

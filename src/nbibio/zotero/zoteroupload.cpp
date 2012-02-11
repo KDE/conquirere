@@ -73,6 +73,8 @@ ZoteroUpload::ZoteroUpload(QObject *parent)
     , m_systemLibrary(0)
     , m_libraryToSyncWith(0)
     , m_wtz(0)
+    , m_uploadBibCache(0)
+    , m_corruptedUploads(0)
 {
 }
 
@@ -350,7 +352,7 @@ void ZoteroUpload::removeFilesFromGroup()
 
     }
 
-    query += "}";
+    query += '}';
 
     QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
 
@@ -382,12 +384,12 @@ void ZoteroUpload::removeFilesFromGroup(bool removeThem)
     if(removeThem) {
 
         QStringList idsToBeRemoved;
-        foreach(SyncDetails sd, m_tmpUserDeleteRequest) {
+        foreach(const SyncDetails &sd, m_tmpUserDeleteRequest) {
 
             if(m_cancel) { cleanupAfterUpload(); return; }
 
             idsToBeRemoved.append( sd.syncResource.property(  SYNC::id() ).toString() );
-            QList<QUrl> resUri; resUri << sd.syncResource.uri();
+            QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
             Nepomuk::removeResources(resUri);
         }
 
@@ -397,10 +399,10 @@ void ZoteroUpload::removeFilesFromGroup(bool removeThem)
     else {
         // do not remove from server, but remove sync:ServerSyncData objects locally file will be downloaded again next time
 
-        foreach(SyncDetails sd, m_tmpUserDeleteRequest) {
+        foreach(const SyncDetails &sd, m_tmpUserDeleteRequest) {
             if(m_cancel) { cleanupAfterUpload(); return; }
 
-            QList<QUrl> resUri; resUri << sd.syncResource.uri();
+            QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
             Nepomuk::removeResources(resUri);
         }
 
@@ -484,7 +486,7 @@ void ZoteroUpload::removeFilesFromZotero(bool removeThem)
 {
     if(removeThem) {
         QList<QPair<QString, QString> > idsToBeRemoved;
-        foreach(SyncDetails sd, m_tmpUserDeleteRequest) {
+        foreach(const SyncDetails &sd, m_tmpUserDeleteRequest) {
             Nepomuk::Resource syncRes = sd.syncResource;
             QPair<QString, QString> item;
             item.first = syncRes.property(  SYNC::id() ).toString();
@@ -492,7 +494,7 @@ void ZoteroUpload::removeFilesFromZotero(bool removeThem)
             idsToBeRemoved.append(item);
             m_syncDataToBeRemoved.append(syncRes);
 
-            QList<QUrl> resUri; resUri << sd.syncResource.uri();
+            QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
             Nepomuk::removeResources(resUri);
         }
 
@@ -501,10 +503,10 @@ void ZoteroUpload::removeFilesFromZotero(bool removeThem)
     }
     else {
         // do not remove from server, but remove sync:ServerSyncData objects locally file will be downloaded again next time
-        foreach(SyncDetails sd, m_tmpUserDeleteRequest) {
+        foreach(const SyncDetails &sd, m_tmpUserDeleteRequest) {
             if(m_cancel) { cleanupAfterUpload(); return; }
 
-            QList<QUrl> resUri; resUri << sd.syncResource.uri();
+            QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
             Nepomuk::removeResources(resUri);
         }
 
@@ -516,10 +518,14 @@ void ZoteroUpload::cleanupAfterUpload()
 {
     calculateProgress(100);
 
+    QList<QUrl> uris;
     kDebug() << "cleanup and start attachment upload";
-    foreach(Nepomuk::Resource r, m_syncDataToBeRemoved) {
-        r.remove();
+    foreach(const Nepomuk::Resource &r, m_syncDataToBeRemoved) {
+        uris << r.resourceUri();
     }
+
+    Nepomuk::removeResources( uris, Nepomuk::RemoveSubResoures );
+
     m_syncDataToBeRemoved.clear();
     m_tmpUserDeleteRequest.clear();
     delete m_uploadBibCache;

@@ -55,6 +55,7 @@
 #include <Nepomuk/Variant>
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Vocabulary/PIMO>
+#include <KDE/KStatusBar>
 #include <KDE/KDebug>
 
 #include <QtGui/QLayout>
@@ -491,6 +492,8 @@ void MainWindow::setupActions()
     KStandardAction::quit(kapp, SLOT(quit()),actionCollection());
 
     setupGUI(Default, KStandardDirs::locate("appdata",QLatin1String("conquirereui.rc")));
+
+    statusBar()->hide();
 }
 
 void MainWindow::setupMainWindow()

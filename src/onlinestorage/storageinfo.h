@@ -44,7 +44,7 @@ public:
     virtual ReadFromStorage *readHandle() = 0;
     virtual SyncStorage *syncHandle() = 0;
 
-    virtual QStringList defaultKeysFor(const QString &key) { return QStringList(); }
+    virtual QStringList defaultKeysFor(const QString &key) { Q_UNUSED(key); return QStringList(); }
 };
 
 #endif // STORAGEINFO_H

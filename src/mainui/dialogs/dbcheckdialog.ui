@@ -82,7 +82,7 @@
      <item row="2" column="2">
       <widget class="KPushButton" name="checkAll">
        <property name="toolTip">
-        <string>Lists all publication data created from this program so the Nepomuk database can be cleaned completly.</string>
+        <string>Lists all publication data created from this program so the Nepomuk database can be cleaned completely.</string>
        </property>
        <property name="text">
         <string>Clear Database</string>

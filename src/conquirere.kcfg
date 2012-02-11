@@ -7,14 +7,6 @@
   <kcfgfile name="conquirererc"/>
 
   <group name="Appearance">
-    <entry name="DocumentPosition" type="Enum">
-      <label>Enable Background Sync.</label>
-      <choices>
-        <choice name="middle"/>
-        <choice name="independant"/>
-      </choices>
-      <default>middle</default>
-    </entry>
     <entry name="HiddenNbibSeries" type="IntList">
       <label>Hidden Nbib Series.</label>
       <default></default>

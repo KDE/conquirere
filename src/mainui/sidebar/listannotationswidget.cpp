@@ -146,16 +146,16 @@ void ListAnnotationsWidget::addAnnotation()
     Nepomuk::Resource note = nw->resource();
     if(ret == KDialog::Accepted) {
         // create the nao relations and declare it a subresource
-        QList<QUrl> resUri; resUri << m_resource.uri();
-        QVariantList value; value << note.uri();
+        QList<QUrl> resUri; resUri << m_resource.resourceUri();
+        QVariantList value; value << note.resourceUri();
         Nepomuk::addProperty(resUri, NAO::isRelated(), value);
 
-        resUri.clear(); resUri << note.uri();
-        value.clear(); value << m_resource.uri();
+        resUri.clear(); resUri << note.resourceUri();
+        value.clear(); value << m_resource.resourceUri();
         Nepomuk::addProperty(resUri, NAO::isRelated(), value);
 
-        resUri.clear(); resUri << m_resource.uri();
-        value.clear(); value << note.uri();
+        resUri.clear(); resUri << m_resource.resourceUri();
+        value.clear(); value << note.resourceUri();
         Nepomuk::addProperty(resUri, NAO::hasSubResource(), value);
 
         QListWidgetItem *i = new QListWidgetItem();

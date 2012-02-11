@@ -34,10 +34,10 @@
 #include <Nepomuk/Vocabulary/NIE>
 
 #include <KDE/KIcon>
+#include <KDE/KComboBox>
 #include <KDE/KDebug>
 
 #include <QtGui/QScrollArea>
-#include <QtGui/QComboBox>
 #include <QtGui/QFormLayout>
 
 using namespace Nepomuk::Vocabulary;
@@ -47,8 +47,8 @@ ItemMergeDialog::ItemMergeDialog(QWidget *parent)
     , ui(new Ui::ItemMergeDialog)
     , m_libraryToSyncWith(0)
     , m_currentItem(0)
-    , m_localScrollArea(0)
     , m_serverScrollArea(0)
+    , m_localScrollArea(0)
 {
     ui->setupUi(this);
 
@@ -245,7 +245,7 @@ void ItemMergeDialog::finish()
 
 void ItemMergeDialog::replaceSelection()
 {
-    QComboBox *cb = qobject_cast<QComboBox*>(sender());
+    KComboBox *cb = qobject_cast<KComboBox*>(sender());
 
     MergedResults mr = m_mergeResults.at(m_currentItem);
 
@@ -315,7 +315,7 @@ void ItemMergeDialog::showItem(int index)
         serverLayout->addRow(QLatin1String("<b>") + m_keyTranslate.value(i.key().toLower()) + QLatin1String(":</b>"), valueLabel);
 
         //add local row
-        QComboBox *cb = new QComboBox;
+        KComboBox *cb = new KComboBox;
         Value localValue = mr.localEntry->value(i.key());
         cb->addItem( PlainTextValue::text( localValue ), i.key() );
         cb->addItem( PlainTextValue::text( serverValue ), i.key() );

@@ -24,7 +24,6 @@
 #include "mainui/sync/itemmergedialog.h"
 
 #include "onlinestorage/storageinfo.h"
-#include "onlinestorage/storageinfo.h"
 
 #include "nbibio/zotero/synczoteronepomuk.h"
 #include "nbibio/synckbibtexfile.h"
@@ -34,9 +33,11 @@
 #include <KDE/KDebug>
 
 #include <QtCore/QThread>
+#include <QtCore/QPointer>
 
 BackgroundSync::BackgroundSync(QObject *parent)
     : QObject(parent)
+    , m_libraryManager(0)
     , m_libraryToSync(0)
     , m_syncThread(0)
     , m_syncNepomuk(0)
@@ -153,10 +154,10 @@ void BackgroundSync::startSync(const ProviderSyncDetails &psd)
 
 void BackgroundSync::popLocalDeletionQuestion(QList<SyncDetails> items)
 {
-    ItemDeleteDialog idd(ItemDeleteDialog::LocalDelete);
+    QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::LocalDelete);
 
-    idd.setItems(items);
-    int ret = idd.exec();
+    idd->setItems(items);
+    int ret = idd->exec();
 
     if(ret == QDialog::Accepted) {
         emit deleteLocalFiles(true);
@@ -164,14 +165,16 @@ void BackgroundSync::popLocalDeletionQuestion(QList<SyncDetails> items)
     else {
         emit deleteLocalFiles(false);
     }
+
+    delete idd;
 }
 
 void BackgroundSync::popServerDeletionQuestion(QList<SyncDetails> items)
 {
-    ItemDeleteDialog idd(ItemDeleteDialog::ServerDelete);
+    QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::ServerDelete);
 
-    idd.setItems(items);
-    int ret = idd.exec();
+    idd->setItems(items);
+    int ret = idd->exec();
 
     if(ret == QDialog::Accepted) {
         emit deleteServerFiles(true);
@@ -179,14 +182,16 @@ void BackgroundSync::popServerDeletionQuestion(QList<SyncDetails> items)
     else {
         emit deleteServerFiles(false);
     }
+
+    delete idd;
 }
 
 void BackgroundSync::popGroupRemovalQuestion(QList<SyncDetails> items)
 {
-    ItemDeleteDialog idd(ItemDeleteDialog::ServerGroupRemoval);
+    QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::ServerGroupRemoval);
 
-    idd.setItems(items);
-    int ret = idd.exec();
+    idd->setItems(items);
+    int ret = idd->exec();
 
     if(ret == QDialog::Accepted) {
         emit removeGroupFiles(true);
@@ -194,6 +199,8 @@ void BackgroundSync::popGroupRemovalQuestion(QList<SyncDetails> items)
     else {
         emit removeGroupFiles(false);
     }
+
+    delete idd;
 }
 
 void BackgroundSync::popMergeDialog(QList<SyncDetails> items)
@@ -273,7 +280,7 @@ bool BackgroundSync::findPasswordInKWallet(ProviderSyncDetails &psd)
     }
     else {
         kDebug() << "todo ask user to provide passowrd";
-        psd.pwd = QString();
+        psd.pwd.clear();
 
         delete m_wallet;
         return false;

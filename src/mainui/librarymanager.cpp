@@ -37,6 +37,7 @@ LibraryManager::LibraryManager(QObject *parent)
     : QObject(parent)
     , m_systemLibrary(0)
     , m_currentUsedLibrary(0)
+    , m_backgroundSyncManager(0)
 {
 }
 

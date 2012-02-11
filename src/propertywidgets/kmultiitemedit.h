@@ -32,6 +32,9 @@ public:
     void setNepomukCompleterRange(KUrl classRange);
     void setNepomukCompleterLabel(KUrl label);
 
+public slots:
+    void setCompletedText( const QString& t, bool marked );
+
 protected slots:
     void makeCompletion (const QString &substring);
     void addToCompleterList( const QList< Nepomuk::Query::Result > &entries );
@@ -44,7 +47,6 @@ private slots:
     void queryFinished();
 
 private:
-    void setCompletedText( const QString& t, bool marked );
     QString currentSubstring() const;
 
     KUrl m_range;
