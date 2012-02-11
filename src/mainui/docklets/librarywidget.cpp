@@ -20,6 +20,7 @@
 
 #include "mainui/librarymanager.h"
 #include "mainui/settings/projectsettingsdialog.h"
+#include "mainui/docklets/searchwidget.h"
 
 #include "core/library.h"
 #include "core/projectsettings.h"
@@ -38,7 +39,7 @@
 #include <QtCore/QVariant>
 
 LibraryWidget::LibraryWidget(QWidget *parent)
-    : QDockWidget(parent)
+    : QWidget(parent)
     , ui(new Ui::LibraryWidget)
 {
     ui->setupUi(this);
@@ -57,6 +58,11 @@ void LibraryWidget::setLibraryManager(LibraryManager *lm)
 
     connect(lm, SIGNAL(libraryAdded(Library*)), this, SLOT(addLibrary(Library*)));
     connect(lm, SIGNAL(libraryRemoved(QUrl)), this, SLOT(closeLibrary(QUrl)));
+}
+
+SearchResultModel* LibraryWidget::searchResultModel()
+{
+    return ui->searchWidget->searchResultModel();
 }
 
 void LibraryWidget::addLibrary(Library *p)
@@ -272,6 +278,8 @@ void LibraryWidget::setupUi()
     ui->treeWidget->addTopLevelItem(root);
 
     root->setText(0, i18n("Search Results"));
+
+    connect(ui->searchWidget, SIGNAL(newSearchStarted()), this, SIGNAL(showSearchResults()));
 }
 
 void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)

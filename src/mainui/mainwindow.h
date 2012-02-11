@@ -30,6 +30,8 @@ class SidebarWidget;
 class DocumentPreview;
 class SearchWidget;
 class KProgressDialog;
+class QVBoxLayout;
+class QSplitter;
 
 class MainWindow : public KParts::MainWindow
 {
@@ -72,6 +74,10 @@ public slots:
       */
     void showSearchResults();
 
+    void viewFullModeCache();
+    void viewDocumentModeCache();
+    void viewProjectModeCache();
+
 private slots:
     void openLibrary(Library *l);
     void closeLibrary(const QUrl &projectThingUrl);
@@ -94,8 +100,10 @@ private:
     LibraryManager *m_libraryManager;
     QMap<QUrl, QWidget *> m_libraryList; /**< holds the welcome widget for each opened library */
 
-    QMainWindow *m_centerWindow;
-    ResourceTableWidget *m_mainView;
+    QSplitter *m_mainSplitter;
+    QSplitter *m_middleSplitter;
+    QVBoxLayout *m_centralLayout;
+    ResourceTableWidget *m_tableWidget;
     LibraryWidget *m_libraryWidget;
     SidebarWidget *m_sidebarWidget;
     DocumentPreview *m_documentPreview;

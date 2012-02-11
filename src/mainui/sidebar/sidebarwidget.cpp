@@ -59,7 +59,7 @@ using namespace Soprano::Vocabulary;
 using namespace Nepomuk::Vocabulary;
 
 SidebarWidget::SidebarWidget(QWidget *parent)
-    : QDockWidget(parent)
+    : QWidget(parent)
     , ui(new Ui::DockWidget)
     , m_searchResultVisible(false)
     , m_currentWidget(0)

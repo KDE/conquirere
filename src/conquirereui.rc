@@ -31,36 +31,36 @@
 
     <Menu name="view">
       <text>View</text>
+      <Action name="view_full_mode" />
+      <Action name="view_document_mode" />
+      <Action name="view_project_mode" />
+      <Separator/>
       <Action name="update_list_cache" />
       <Merge/>
     </Menu>
 
     <Menu name="settings">
-    <Menu name="toggle"><text>Toggle Docks</text>
-      <Action name="toggle_library" />
-      <Action name="toggle_sidebar" />
-      <Action name="toggle_docpreview" />
-      <Action name="toggle_search" />
-    </Menu>
       <Action name="open_settings" append="show_merge" />
       <Merge/>
     </Menu>
   </MenuBar>
- 
-  <ToolBar name="projectToolBar">
-    <text>project Toolbar</text>
+  
+  <ToolBar name="projectToolBar" >
+    <text>Project Toolbar</text>
       <Action name="new_project" />
       <Action name="load_project" />
-      <Action name="delete_project" />
       <Action name="close_project" />
+      <Action name="delete_project" />
       <Separator/>
       <Action name="db_background_sync" />
-      <Separator/>
-  </ToolBar>
-  
-  <ToolBar name="mainToolBar" >
-    <text>Main Toolbar</text>
       <Merge/>
+  </ToolBar>
+ 
+  <ToolBar name="viewToolBar">
+    <text>View Toolbar</text>
+      <Action name="view_full_mode" />
+      <Action name="view_document_mode" />
+      <Action name="view_project_mode" />
   </ToolBar>
  
 </gui> 

@@ -22,7 +22,7 @@
 
 #include <Nepomuk/Resource>
 
-#include <QtGui/QDockWidget>
+#include <QtGui/QWidget>
 
 namespace Ui {
     class DockWidget;
@@ -47,7 +47,7 @@ class LibraryInfoWidget;
   *
   * @see SidebarComponent
   */
-class SidebarWidget : public QDockWidget
+class SidebarWidget : public QWidget
 {
     Q_OBJECT
 public:

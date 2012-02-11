@@ -21,7 +21,7 @@
 #include <Nepomuk/Resource>
 #include <KParts/MainWindow>
 
-#include <QtGui/QDockWidget>
+#include <QtGui/QWidget>
 
 namespace Ui {
     class DocumentPreview;
@@ -37,7 +37,7 @@ class QLabel;
   * @brief Dockwidget to show the right KPart for a specific publication/document url
   *
   */
-class DocumentPreview : public QDockWidget
+class DocumentPreview : public QWidget
 {
     Q_OBJECT
 
@@ -50,14 +50,12 @@ public slots:
     void clear();
     void showUrl(int index);
     void openExternally();
-    void toggled(bool status);
 
 signals:
     void activateKPart(KParts::Part *part);
 
 protected:
-    void hideEvent ( QHideEvent * event );
-    void showEvent ( QShowEvent * event );
+    void resizeEvent ( QResizeEvent * event );
 
 private:
     Ui::DocumentPreview *ui;

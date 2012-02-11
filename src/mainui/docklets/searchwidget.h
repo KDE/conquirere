@@ -22,7 +22,7 @@
 
 #include <Nepomuk/Query/Result>
 
-#include <QtGui/QDockWidget>
+#include <QtGui/QWidget>
 #include <QtCore/QMap>
 #include <QtCore/QSet>
 
@@ -45,7 +45,7 @@ class QListWidgetItem;
   * @brief Dockwidget to set some search options and allow the user to search Nepomuk and KBibTeX online engines
   *
   */
-class SearchWidget : public QDockWidget
+class SearchWidget : public QWidget
 {
     Q_OBJECT
 

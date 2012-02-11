@@ -58,6 +58,7 @@
 #include <KDE/KDebug>
 
 #include <QtGui/QLayout>
+#include <QtGui/QSplitter>
 
 
 MainWindow::MainWindow(QWidget *parent)
@@ -78,10 +79,10 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    delete m_libraryWidget;
-    delete m_mainView;
-    delete m_sidebarWidget;
-    delete m_searchWidget;
+//    delete m_libraryWidget;
+//    delete m_tableWidget;
+//    delete m_sidebarWidget;
+//    delete m_searchWidget;
     //delete m_documentPreview // done in queryExit()
 
 //    qDeleteAll(m_libraryList); not working ...
@@ -92,7 +93,6 @@ MainWindow::~MainWindow()
      }
 
      delete m_libraryManager;
-     delete m_centerWindow;
 }
 
 void MainWindow::createLibrary()
@@ -233,7 +233,7 @@ void MainWindow::switchView(ResourceSelection selection, BibEntryType filter, Li
 {
     // This case means we show the Welcome widget for the selected library
     if(selection == Resource_Library) {
-        m_mainView->hide();
+        m_tableWidget->hide();
 
         //hide all welcome widgets in case we switch from one library to another
         foreach (QWidget *w, m_libraryList)
@@ -251,13 +251,13 @@ void MainWindow::switchView(ResourceSelection selection, BibEntryType filter, Li
     // This shows the normal table view with all the data
     // the contend is based on teh users selection from te hgiven values of this function
     else {
-        m_mainView->show();
+        m_tableWidget->show();
 
         //hide all welcome widgets
         foreach (QWidget *w, m_libraryList)
              w->hide();
 
-        m_mainView->switchView(selection, filter, selectedLibrary);
+        m_tableWidget->switchView(selection, filter, selectedLibrary);
     }
 
     m_libraryManager->setCurrentUsedLibrary(selectedLibrary);
@@ -265,16 +265,43 @@ void MainWindow::switchView(ResourceSelection selection, BibEntryType filter, Li
 
 void MainWindow::showSearchResults()
 {
-    m_mainView->show();
+    m_tableWidget->show();
 
     //hide all welcome widgets
     foreach (QWidget *w, m_libraryList)
          w->hide();
 
-    m_mainView->showSearchResult();
+    m_tableWidget->showSearchResult();
     m_sidebarWidget->showSearchResults();
 
     m_libraryManager->setCurrentUsedLibrary(m_libraryManager->systemLibrary());
+}
+
+void MainWindow::viewFullModeCache()
+{
+    QList<int> fullMain; fullMain << 10 << 5000 << 10;
+    m_mainSplitter->setSizes(fullMain);
+
+    QList<int> fullMiddle; fullMiddle << 100 << 30;
+    m_middleSplitter->setSizes(fullMiddle);
+}
+
+void MainWindow::viewDocumentModeCache()
+{
+    QList<int> fullMain; fullMain << 0 << 5000 << 10;
+    m_mainSplitter->setSizes(fullMain);
+
+    QList<int> fullMiddle; fullMiddle << 0 << 10;
+    m_middleSplitter->setSizes(fullMiddle);
+}
+
+void MainWindow::viewProjectModeCache()
+{
+    QList<int> fullMain; fullMain << 10 << 5000 << 10;
+    m_mainSplitter->setSizes(fullMain);
+
+    QList<int> fullMiddle; fullMiddle << 100 << 0;
+    m_middleSplitter->setSizes(fullMiddle);
 }
 
 void MainWindow::openLibrary(Library *l)
@@ -282,7 +309,7 @@ void MainWindow::openLibrary(Library *l)
     // create a welcome widget for the library
     WelcomeWidget *ww = new WelcomeWidget(l);
     ww->hide();
-    m_centerWindow->centralWidget()->layout()->addWidget(ww);
+    m_centralLayout->addWidget(ww);
     m_libraryList.insert(l->settings()->projectThing().resourceUri(), ww);
 
     if(!m_libraryManager->openProjects().isEmpty()) {
@@ -375,7 +402,7 @@ void MainWindow::setupActions()
 
     KAction* removeProjectAction = new KAction(this);
     removeProjectAction->setText(i18n("&Delete Project"));
-    removeProjectAction->setIcon(KIcon(QLatin1String("document-close")));
+    removeProjectAction->setIcon(KIcon(QLatin1String("edit-delete-shred")));
     removeProjectAction->setEnabled(false);
     actionCollection()->addAction(QLatin1String("delete_project"), removeProjectAction);
     connect(removeProjectAction, SIGNAL(triggered(bool)),this, SLOT(deleteLibrarySelection()));
@@ -436,17 +463,30 @@ void MainWindow::setupActions()
     actionCollection()->addAction(QLatin1String("update_list_cache"), updateListCache);
     connect(updateListCache, SIGNAL(triggered(bool)),m_libraryManager, SLOT(updateListCache()));
 
+    KAction* viewFullModeCache = new KAction(this);
+    viewFullModeCache->setText(i18n("View Full Mode"));
+    viewFullModeCache->setIcon(KIcon(QLatin1String("view-choose")));
+    actionCollection()->addAction(QLatin1String("view_full_mode"), viewFullModeCache);
+    connect(viewFullModeCache, SIGNAL(triggered(bool)),this, SLOT(viewFullModeCache()));
+
+    KAction* viewDocumentModeCache = new KAction(this);
+    viewDocumentModeCache->setText(i18n("View Document Mode"));
+    viewDocumentModeCache->setIcon(KIcon(QLatin1String("view-table-of-contents-ltr")));
+    actionCollection()->addAction(QLatin1String("view_document_mode"), viewDocumentModeCache);
+    connect(viewDocumentModeCache, SIGNAL(triggered(bool)),this, SLOT(viewDocumentModeCache()));
+
+    KAction* viewProjectModeCache = new KAction(this);
+    viewProjectModeCache->setText(i18n("View Project Mode"));
+    viewProjectModeCache->setIcon(KIcon(QLatin1String("view-media-playlist")));
+    actionCollection()->addAction(QLatin1String("view_project_mode"), viewProjectModeCache);
+    connect(viewProjectModeCache, SIGNAL(triggered(bool)),this, SLOT(viewProjectModeCache()));
+
     // settings action
     KAction* openSettings = new KAction(this);
     openSettings->setText(i18n("Configure Conquirere"));
     openSettings->setIcon(KIcon(QLatin1String("configure")));
     actionCollection()->addAction(QLatin1String("open_settings"), openSettings);
     connect(openSettings, SIGNAL(triggered(bool)),this, SLOT(showConqSettings()));
-
-    actionCollection()->addAction(QLatin1String("toggle_library"), m_libraryWidget->toggleViewAction());
-    actionCollection()->addAction(QLatin1String("toggle_sidebar"), m_sidebarWidget->toggleViewAction());
-    actionCollection()->addAction(QLatin1String("toggle_docpreview"), m_documentPreview->toggleViewAction());
-    actionCollection()->addAction(QLatin1String("toggle_search"), m_searchWidget->toggleViewAction());
 
     KStandardAction::quit(kapp, SLOT(quit()),actionCollection());
 
@@ -467,74 +507,74 @@ void MainWindow::setupMainWindow()
     ConqSettings::setHiddenNbibSeries( ConqSettings::hiddenNbibSeriesOnRestart() );
     ConqSettings::self()->writeConfig();
 
-    if(ConqSettings::documentPosition() == ConqSettings::EnumDocumentPosition::middle) {
-        // create second mainwindow that holds the document preview
-        // this way the bottum doc widget will not take up all the space but is
-        // limited by the left/right doc
-        m_centerWindow = new QMainWindow(this);
-        m_centerWindow->setWindowFlags(Qt::Widget);
-        QWidget *nw = new QWidget();
-        QVBoxLayout *mainLayout = new QVBoxLayout();
-        nw->setLayout(mainLayout);
-        m_centerWindow->setCentralWidget(nw);
-        setCentralWidget(m_centerWindow);
+    // create widget centralWidget
+    QWidget *nw = new QWidget(this);
+    nw->setLayout(new QVBoxLayout(nw));
+    setCentralWidget(nw);
 
-        // the main table view
-        m_mainView = new ResourceTableWidget();
-        m_mainView->hide();
-        m_mainView->setLibraryManager(m_libraryManager);
-        mainLayout->addWidget(m_mainView);
+    m_mainSplitter = new QSplitter(nw);
+    nw->layout()->addWidget(m_mainSplitter);
 
-        //add panel for the document preview
-        m_documentPreview = new DocumentPreview();
-        m_centerWindow->addDockWidget(Qt::BottomDockWidgetArea, m_documentPreview);
-
-    }
-    else if(ConqSettings::documentPosition() == ConqSettings::EnumDocumentPosition::independant) {
-        m_centerWindow = this;
-        QWidget *nw = new QWidget();
-        QVBoxLayout *mainLayout = new QVBoxLayout();
-        nw->setLayout(mainLayout);
-        m_centerWindow->setCentralWidget(nw);
-
-        // the main table view
-        m_mainView = new ResourceTableWidget();
-        m_mainView->hide();
-        m_mainView->setLibraryManager(m_libraryManager);
-        mainLayout->addWidget(m_mainView);
-
-        //add panel for the document preview
-        m_documentPreview = new DocumentPreview();
-        m_centerWindow->addDockWidget(Qt::RightDockWidgetArea, m_documentPreview);
-    }
-
-    // the left project bar
+    // the left project bar (left side)
     m_libraryWidget = new LibraryWidget;
     m_libraryWidget->setLibraryManager(m_libraryManager);
-    addDockWidget(Qt::LeftDockWidgetArea, m_libraryWidget);
     connect(m_libraryWidget, SIGNAL(showSearchResults()), this, SLOT(showSearchResults()));
+    m_mainSplitter->addWidget( m_libraryWidget );
 
-    //add panel for the document info
+    // create widget for the middle section
+    QWidget *middleSection = new QWidget();
+    middleSection->setLayout(new QVBoxLayout(middleSection));
+    m_mainSplitter->addWidget( middleSection );
+
+    //add panel for the document info (right side)
     m_sidebarWidget = new SidebarWidget;
     m_sidebarWidget->setLibraryManager(m_libraryManager);
-    addDockWidget(Qt::RightDockWidgetArea, m_sidebarWidget);
+    m_mainSplitter->addWidget( m_sidebarWidget );
 
-    // the search widget
-    m_searchWidget = new SearchWidget(this);
-    addDockWidget(Qt::LeftDockWidgetArea, m_searchWidget);
-    m_mainView->setSearchResultModel(m_searchWidget->searchResultModel());
-    connect(m_searchWidget, SIGNAL(newSearchStarted()), this, SLOT(showSearchResults()));
+    // now add another  splitter for the middle section
+    // top row a widget that changes between welcome widget and table vie
+    // below the document view
+
+    m_middleSplitter = new QSplitter(middleSection);
+    m_middleSplitter->setOrientation(Qt::Vertical);
+    middleSection->layout()->addWidget( m_middleSplitter );
+
+    // the widget for the table/welcome widget change
+    QWidget *central = new QWidget();
+    m_centralLayout = new QVBoxLayout(central);
+    central->setLayout(m_centralLayout);
+    m_middleSplitter->addWidget( central );
+
+    // the main table view
+    m_tableWidget = new ResourceTableWidget();
+    m_tableWidget->hide();
+    m_tableWidget->setLibraryManager(m_libraryManager);
+    m_tableWidget->setSearchResultModel(m_libraryWidget->searchResultModel());
+    m_centralLayout->addWidget(m_tableWidget);
+
+    m_documentPreview = new DocumentPreview();
+    m_middleSplitter->addWidget(m_documentPreview);
+
+    // set some default sizes so the resourcetable/welcome widget is maximised
+    m_mainSplitter->setStretchFactor(0,1);
+    m_mainSplitter->setStretchFactor(1,100);
+    m_mainSplitter->setStretchFactor(2,1);
+    m_middleSplitter->setStretchFactor(0,100);
+    m_middleSplitter->setStretchFactor(1,20);
+    QList<int> hideDocPreviewSizes; hideDocPreviewSizes << 100 << 0;
+    m_middleSplitter->setSizes(hideDocPreviewSizes);
+
 
     connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,BibEntryType,Library*)),
             m_sidebarWidget, SLOT(newSelection(ResourceSelection,BibEntryType,Library*)));
 
-    connect(m_mainView, SIGNAL(selectedResource(Nepomuk::Resource&)),
+    connect(m_tableWidget, SIGNAL(selectedResource(Nepomuk::Resource&)),
             m_sidebarWidget, SLOT(setResource(Nepomuk::Resource&)));
 
-    connect(m_mainView, SIGNAL(selectedMultipleResources(QList<Nepomuk::Resource>)),
+    connect(m_tableWidget, SIGNAL(selectedMultipleResources(QList<Nepomuk::Resource>)),
             m_sidebarWidget, SLOT(setMultipleResources(QList<Nepomuk::Resource>)));
 
-    connect(m_mainView, SIGNAL(selectedResource(Nepomuk::Resource&)),
+    connect(m_tableWidget, SIGNAL(selectedResource(Nepomuk::Resource&)),
             m_documentPreview, SLOT(setResource(Nepomuk::Resource&)));
 
     connect(m_documentPreview, SIGNAL(activateKPart(KParts::Part*)),

@@ -20,12 +20,13 @@
 
 #include "globals.h"
 
-#include <QtGui/QDockWidget>
+#include <QtGui/QWidget>
 #include <QtCore/QList>
 
 class LibraryManager;
 class Library;
 class QLibraryTreeWidgetItem;
+class SearchResultModel;
 
 namespace Ui {
     class LibraryWidget;
@@ -34,7 +35,7 @@ namespace Ui {
 /**
   * @brief Dockwidget to show a treewidget with all libraries and its content
   */
-class LibraryWidget : public QDockWidget
+class LibraryWidget : public QWidget
 {
     Q_OBJECT
 
@@ -43,6 +44,7 @@ public:
     ~LibraryWidget();
 
     void setLibraryManager(LibraryManager *lm);
+    SearchResultModel* searchResultModel();
 
 signals:
     void newSelection(ResourceSelection selection, BibEntryType filter, Library *p);

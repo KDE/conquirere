@@ -37,7 +37,7 @@
 #include <KDE/KDebug>
 
 DocumentPreview::DocumentPreview(QWidget *parent)
-    : QDockWidget(parent)
+    : QWidget(parent)
     , ui(new Ui::DocumentPreview)
     , m_visible(true)
 {
@@ -45,7 +45,6 @@ DocumentPreview::DocumentPreview(QWidget *parent)
     ui->openButton->setIcon(KIcon(QLatin1String("document-open")));
 
     connect(ui->urlSelector, SIGNAL(currentIndexChanged(int)),this, SLOT(showUrl(int)));
-    connect(this, SIGNAL(visibilityChanged(bool)), this, SLOT(toggled(bool)));
 
     m_labelNone = 0;
     m_labelInvalid = 0;
@@ -222,27 +221,21 @@ void DocumentPreview::openExternally() {
     QDesktopServices::openUrl(url);
 }
 
-void DocumentPreview::hideEvent ( QHideEvent * event )
+void DocumentPreview::resizeEvent ( QResizeEvent * event )
 {
-//    kDebug() << "visibility changed";
-//    m_lastPartsName.clear();
-    emit activateKPart(0);
+    if( event->size().height() == event->oldSize().height()) {
+        return;
+    }
 
-//    delete m_part;
-//    m_part = 0;
-//    delete m_labelNone;
-//    m_labelNone = 0;
-//    delete m_labelInvalid;
-//    m_labelInvalid = 0;
+    m_visible = event->size().height() != 0;
+
+    if(m_visible && event->oldSize().height() == 0) {
+        showUrl(0);
+        emit activateKPart(m_part);
+    }
+
+    if(!m_visible) {
+        emit activateKPart(0);
+    }
 }
 
-void DocumentPreview::showEvent ( QShowEvent * event )
-{
-    showUrl(0);
-}
-
-void DocumentPreview::toggled(bool status)
-{
-//    kDebug() << "visibility changed" << status;
-    m_visible = status;
-}

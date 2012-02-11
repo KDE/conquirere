@@ -70,7 +70,7 @@ enum SearchSource {
 };
 
 SearchWidget::SearchWidget(QWidget *parent)
-    : QDockWidget(parent)
+    : QWidget(parent)
     , ui(new Ui::SearchWidget)
     , m_actionOpenHomepage(0)
     , m_queryClient(0)
