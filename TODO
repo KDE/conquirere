@@ -6,20 +6,6 @@ Here are some bigger TODO's that should be addressed sooner or later.
 
 http://www.openarchives.org/
 
-
-
-######################################
-# Live Nepomuk completer
-
-Currently the auto completion wastes a lot of resources by creating huge lookup table for
-all valid resources of a specific type. This leads to ~12+ query clients that observe
-changes in the nepomuk storage to update the completer and fails horrible when a resource 
-is renamed.
-
-Solution: Create a new KCompleter or KLineEdit that does a live sparql search (like the krunner does)
-
-
-
 ######################################
 # support more online storages
 
@@ -54,15 +40,6 @@ Parse pdf documents and find more information
 * auto-magically find the right publication information on the internet/nepomuk when we just have the pdf
 * keyword extraction for any documents
 * ...
-
-
-
-######################################
-# Nepomuk DMS integration
-
-switch from the plain Nepomuk::Resource approach to the SimpleResource and SimpleResourceGraph 
-this helps to avoid duplicates and so on
-
 
 
 ######################################
