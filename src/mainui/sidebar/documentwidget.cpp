@@ -147,12 +147,13 @@ void DocumentWidget::setPublication()
         emit resourceCacheNeedsUpdate(m_document);
         emit resourceCacheNeedsUpdate(publication);
     }
+
+    delete lpd;
 }
 
 void DocumentWidget::removePublication()
 {
     Nepomuk::Resource publication = m_document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
-
 
     QList<QUrl> resourceUris; resourceUris << m_document.resourceUri();
     QVariantList value; value << publication.resourceUri();
