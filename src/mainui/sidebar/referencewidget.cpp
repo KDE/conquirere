@@ -64,6 +64,7 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     ui->setupUi(this);
 
     //set propertyURL of the edit elements
+    ui->publicationEdit->setPropertyUrl( NBIB::publication() );
     ui->citeKeyEdit->setPropertyUrl( NBIB::citeKey() );
     ui->citeKeyEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
     ui->pagesEdit->setPropertyUrl( NBIB::pages() );
