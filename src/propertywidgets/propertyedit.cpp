@@ -202,13 +202,9 @@ void PropertyEdit::keyPressEvent(QKeyEvent * e)
 
 void PropertyEdit::editingFinished()
 {
-//    clearCompleterData();
-    //don't switch to label view when enter is pressed for the completion
-//    if(m_completer->popup()->isVisible() )
-//        return;
-
     if(m_label->fullText() != m_lineEdit->text()) {
         QString inputString = QLatin1String(m_lineEdit->text().toUtf8());
+        inputString = inputString.trimmed();
         updateResource(inputString);
         setLabelText(m_lineEdit->text());
 
