@@ -193,9 +193,6 @@ void KMultiItemEdit::startCompleterSearch()
 
         m_queryClient->sparqlQuery( query );
     }
-    else if(m_range.isEmpty()) {
-        kDebug() << "no range available to start the query";
-    }
 }
 
 void KMultiItemEdit::clearCompleterData()

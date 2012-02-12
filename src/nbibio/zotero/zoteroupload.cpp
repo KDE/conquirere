@@ -58,9 +58,6 @@
 #include <Nepomuk/Query/Result>
 #include <Nepomuk/Query/QueryParser>
 
-//DEBUG
-#include <kbibtex/fileexporterbibtex.h>
-
 using namespace Nepomuk::Vocabulary;
 using namespace Soprano::Vocabulary;
 
@@ -453,7 +450,7 @@ void ZoteroUpload::removeFilesFromZotero()
                     "UNION"
                     "{"
                         "?r sync:syncDataType sync:BibResource ."
-                        "Optional {?r nbib:reference ?reference . } FILTER (!bound(?reference) )"
+                        "Optional {?r sync:reference ?reference . } FILTER (!bound(?reference) )"
                     "}"
                     "}";
 
@@ -524,7 +521,9 @@ void ZoteroUpload::cleanupAfterUpload()
         uris << r.resourceUri();
     }
 
-    Nepomuk::removeResources( uris, Nepomuk::RemoveSubResoures );
+    if(!uris.isEmpty()) {
+        Nepomuk::removeResources( uris, Nepomuk::RemoveSubResoures );
+    }
 
     m_syncDataToBeRemoved.clear();
     m_tmpUserDeleteRequest.clear();

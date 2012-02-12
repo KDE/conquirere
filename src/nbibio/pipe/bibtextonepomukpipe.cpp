@@ -196,7 +196,8 @@ void BibTexToNepomukPipe::importBibResource(Entry *entry, Nepomuk::SimpleResourc
     QMapIterator<QString, Value> i(*entry);
     while (i.hasNext()) {
         i.next();
-        addContent(i.key().toLower(), i.value(), publication, reference, graph, entry->type(), entry->id());
+        if(!i.value().isEmpty())
+            addContent(i.key().toLower(), i.value(), publication, reference, graph, entry->type(), entry->id());
     }
 
     if(m_projectThing.isValid()) {
@@ -220,6 +221,9 @@ void BibTexToNepomukPipe::importNote(Entry *e, Nepomuk::SimpleResourceGraph &gra
     content.setHtml( PlainTextValue::text(e->value(QLatin1String("note"))).simplified() );
     note.setProperty( NIE::plainTextContent(), content.toPlainText());
     note.setProperty( NIE::htmlContent(), content.toHtml());
+
+    if(content.isEmpty()) // ignore empty notes
+        return;
 
     Value keywords = e->value("keywords");
     if(!keywords.isEmpty())

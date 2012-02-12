@@ -909,6 +909,7 @@ void NepomukToBibTexPipe::setKewords(Entry *e, Nepomuk::Resource publication)
 
 void NepomukToBibTexPipe::setSyncDetails(Entry *e, Nepomuk::Resource publication)
 {
+    kDebug() << "search for sync details" << publication.genericLabel();
     QList<Nepomuk::Resource> sycList = publication.property(SYNC::serverSyncData()).toResourceList();
 
     QUrl syncDataType;
@@ -936,8 +937,12 @@ void NepomukToBibTexPipe::setSyncDetails(Entry *e, Nepomuk::Resource publication
         // this step is necessary to find the right sync detail resource when we double type.
         // As we might have Attachment and bibresource on the same nepomukresource (double typed)
         if(r.property(SYNC::syncDataType()).toUrl() != syncDataType) {
+            kDebug() << "wrong data type";
             continue;
         }
+
+
+        kDebug() << "found right sync details" << publication.genericLabel();
 
         //now we have the right object, write down sync details
         QString etag = r.property(SYNC::etag()).toString();

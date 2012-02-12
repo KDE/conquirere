@@ -84,7 +84,7 @@ ReadFromZotero::ReadFromZotero(QObject *parent)
     m_zoteroToBibTeX["dateEnacted"] = QLatin1String("date");
     m_zoteroToBibTeX["firstPage"] = QLatin1String("pages");
     m_zoteroToBibTeX["issueDate"] = QLatin1String("date");
-    m_zoteroToBibTeX["extra"] = QLatin1String("note");
+//    m_zoteroToBibTeX["extra"] = QLatin1String("note"); // extra is not a note but additional key=value entries
     m_zoteroToBibTeX["meetingName"] = QLatin1String("event");
     m_zoteroToBibTeX["conferenceName"] = QLatin1String("event");
     m_zoteroToBibTeX["mapType"] = QLatin1String("type");
