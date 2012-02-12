@@ -86,11 +86,19 @@ QVariantList BookmarkQuery::createDisplayData(const Nepomuk::Resource & res) con
             break;
         }
         case Column_Date: {
-            QString dateSting = res.property(Nepomuk::Vocabulary::NIE::contentLastModified()).toString();
-            if(dateSting.isEmpty()) {
-                dateSting = res.property(Nepomuk::Vocabulary::NIE::contentLastModified()).toString();
+            QString dateString = res.property(Nepomuk::Vocabulary::NIE::contentLastModified()).toString();
+            if(dateString.isEmpty()) {
+                dateString = res.property(Nepomuk::Vocabulary::NIE::contentLastModified()).toString();
             }
-            newEntry = dateSting;
+            dateString.remove('Z');
+
+            QDateTime date = QDateTime::fromString(dateString, Qt::ISODate);
+            if(date.isValid()) {
+                newEntry = date.toString("dd.MM.yyyy");
+            }
+            else {
+                newEntry = dateString;
+            }
             break;
         }
         case Column_Tags: {

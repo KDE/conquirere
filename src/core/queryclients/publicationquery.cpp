@@ -120,9 +120,16 @@ QVariantList PublicationQuery::createDisplayData(const Nepomuk::Resource & res) 
             break;
         }
         case Column_Date: {
-            QString dateSting = res.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
+            QString dateString = res.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
 
-            newEntry = dateSting;
+            QDateTime date = QDateTime::fromString(dateString, Qt::ISODate);
+            if(date.isValid()) {
+                newEntry = date.toString("dd.MM.yyyy");
+            }
+            else {
+                newEntry = dateString;
+            }
+
             break;
         }
         case Column_Editor: {

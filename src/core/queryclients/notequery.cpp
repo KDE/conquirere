@@ -88,11 +88,18 @@ QVariantList NoteQuery::createDisplayData(const Nepomuk::Resource & res) const
         case Column_Date: {
             Nepomuk::Resource note = res.property(Nepomuk::Vocabulary::PIMO::groundingOccurrence()).toResource();
 
-            QString dateSting = note.property(Soprano::Vocabulary::NAO::lastModified()).toString();
-            if(dateSting.isEmpty()) {
-                dateSting = res.property(Soprano::Vocabulary::NAO::created()).toString();
+            QString dateString = note.property(Soprano::Vocabulary::NAO::lastModified()).toString();
+            if(dateString.isEmpty()) {
+                dateString = res.property(Soprano::Vocabulary::NAO::created()).toString();
             }
-            newEntry = dateSting;
+
+            QDateTime date = QDateTime::fromString(dateString, Qt::ISODate);
+            if(date.isValid()) {
+                newEntry = date.toString("dd.MM.yyyy hh:mm:ss");
+            }
+            else {
+                newEntry = dateString;
+            }
             break;
         }
         case Column_Tags: {

@@ -237,6 +237,10 @@ void PropertyEdit::setVisible(bool visible)
 void PropertyEdit::updateEditedCacheResource()
 {
     //TODO remove when resourcewatcher is working..
-    if(m_changedResource.exists())
+    if(m_changedResource.exists()) {
         emit resourceCacheNeedsUpdate(m_changedResource);
+    }
+    else {
+        emit resourceCacheNeedsUpdate(resource());
+    }
 }

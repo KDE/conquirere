@@ -131,9 +131,16 @@ QVariantList EventQuery::createDisplayData(const Nepomuk::Resource & res) const
             break;
         }
         case Column_Date: {
-            QString dateSting = event.property(Nepomuk::Vocabulary::PIMO::dtstart()).toString();
+            QString dateString = event.property(Nepomuk::Vocabulary::PIMO::dtstart()).toString();
+            dateString.remove('Z');
 
-            newEntry = dateSting;
+            QDateTime date = QDateTime::fromString(dateString, Qt::ISODate);
+            if(date.isValid()) {
+                newEntry = date.toString("dd.MM.yyyy");
+            }
+            else {
+                newEntry = dateString;
+            }
             break;
         }
         case Column_StarRate: {

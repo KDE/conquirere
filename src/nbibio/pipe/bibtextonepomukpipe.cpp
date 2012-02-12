@@ -276,7 +276,7 @@ void BibTexToNepomukPipe::importAttachment(Entry *e, Nepomuk::SimpleResourceGrap
     }
 
     QString accessdate = PlainTextValue::text(e->value("accessdate"));
-    QDateTime dateTime = QDateTime::fromString(accessdate, "yyyy-MM-ddTHH:mm:ss");
+    QDateTime dateTime = QDateTime::fromString(accessdate, Qt::ISODate);
 
     if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM-dd"); }
     if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "dd-MM-yyy"); }
@@ -290,7 +290,7 @@ void BibTexToNepomukPipe::importAttachment(Entry *e, Nepomuk::SimpleResourceGrap
     if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yy"); }
 
     if(dateTime.isValid()) {
-        QString newDate = dateTime.toString("yyyy-MM-ddTHH:mm:ss");
+        QString newDate = dateTime.toString(Qt::ISODate);
 
         addValue(newDate, attachment, NUAO::lastUsage());
     }
@@ -779,8 +779,8 @@ void BibTexToNepomukPipe::mergeManual(Nepomuk::Resource syncResource, Entry *sel
 
     //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
     QDateTime datetime = QDateTime::currentDateTimeUtc();
-    srPublication.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
-    srReference.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+    srPublication.setProperty( NUAO::lastModification(), datetime.toString(Qt::ISODate));
+    srReference.setProperty( NUAO::lastModification(), datetime.toString(Qt::ISODate));
 
 
     kDebug() << "#########################################################################";
@@ -903,9 +903,8 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     }
     else if(key == QLatin1String("filingdate")) {
         QString accessdate = PlainTextValue::text(value);
-        QDateTime dateTime = QDateTime::fromString(accessdate, "yyyy-MM-ddTHH:mm:ss");
+        QDateTime dateTime = QDateTime::fromString(accessdate, Qt::ISODate);
 
-        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM-ddTHH:mm:ssZ"); }
         if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM-dd"); }
         if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "dd-MM-yyy"); }
         if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM"); }
@@ -918,7 +917,7 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
         if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yy"); }
 
         if(dateTime.isValid()) {
-            QString newDate = dateTime.toString("yyyy-MM-ddTHH:mm:ss");
+            QString newDate = dateTime.toString(Qt::ISODate);
 
             addValue(newDate, publication, NBIB::filingDate());
         }
@@ -931,9 +930,8 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     }
     else if(key == QLatin1String("accessdate")) {
         QString accessdate = PlainTextValue::text(value);
-        QDateTime dateTime = QDateTime::fromString(accessdate, "yyyy-MM-ddTHH:mm:ss");
+        QDateTime dateTime = QDateTime::fromString(accessdate, Qt::ISODate);
 
-        if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM-ddTHH:mm:ssZ"); }
         if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM-dd"); }
         if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "dd-MM-yyy"); }
         if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yyyy-MM"); }
@@ -946,7 +944,7 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
         if(!dateTime.isValid()) { dateTime = QDateTime::fromString(accessdate, "yy"); }
 
         if(dateTime.isValid()) {
-            QString newDate = dateTime.toString("yyyy-MM-ddTHH:mm:ss");
+            QString newDate = dateTime.toString(Qt::ISODate);
 
             addValue(newDate, publication, NUAO::lastUsage());
         }
@@ -2040,9 +2038,8 @@ void BibTexToNepomukPipe::addPublicationDate(const QString &fullDate, Nepomuk::N
     }
 
     // try to find out what format was used to specify the full date
-    QDateTime dateTime = QDateTime::fromString(fullDate, "yyyy-MM-ddTHH:mm:ssZ");
+    QDateTime dateTime = QDateTime::fromString(fullDate, Qt::ISODate);
 
-    if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "yyyy-MM-ddTHH:mm:ss"); }
     if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "yyyy-MM-dd"); }
     if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "dd-MM-yyy"); }
     if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "yyyy-MM"); }
@@ -2055,7 +2052,7 @@ void BibTexToNepomukPipe::addPublicationDate(const QString &fullDate, Nepomuk::N
     if(!dateTime.isValid()) { dateTime = QDateTime::fromString(fullDate, "yy"); }
 
     if(dateTime.isValid()) {
-        QString newDate = dateTime.toString("yyyy-MM-ddTHH:mm:ss");
+        QString newDate = dateTime.toString(Qt::ISODate);
 
         publication.setProperty( NBIB::publicationDate(), newDate);
     }

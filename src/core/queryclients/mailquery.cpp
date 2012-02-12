@@ -94,10 +94,18 @@ QVariantList MailQuery::createDisplayData(const Nepomuk::Resource & res) const
         case Column_Date: {
             QString dateString = res.property(Nepomuk::Vocabulary::NMO::receivedDate()).toString();
 
-            if(dateString.isEmpty())
+            if(dateString.isEmpty()) {
                 dateString = res.property(Nepomuk::Vocabulary::NMO::sentDate()).toString();
+            }
+            dateString.remove('Z');
 
-            newEntry = dateString;
+            QDateTime date = QDateTime::fromString(dateString, Qt::ISODate);
+            if(date.isValid()) {
+                newEntry = date.toString("dd.MM.yyyy");
+            }
+            else {
+                newEntry = dateString;
+            }
             break;
         }
         case Column_Tags: {

@@ -64,11 +64,12 @@ void DateEdit::setupLabel()
     QString dateString = resource().property(propertyUrl()).toString();
 
     if(dateString.isEmpty()) {
+        setLabelText("");
         return;
     }
 
     //[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]Z
-    QDateTime date = QDateTime::fromString(dateString, "yyyy-MM-ddTHH:mm:ssZ");
+    QDateTime date = QDateTime::fromString(dateString, Qt::ISODate);
     if(date.isValid()) {
         setLabelText(date.toString("dd.MMM.yyyy"));
     }
@@ -91,7 +92,7 @@ void DateEdit::updateResource(const QString & newDateText)
         QDateTime date = QDateTime::fromString(newDateText, "dd.MMM.yyyy");
 
         QList<QUrl> resourceUris; resourceUris << resource().uri();
-        QVariantList value; value << date.toString("yyyy-MM-ddTHH:mm:ssZ");
+        QVariantList value; value << date.toString(Qt::ISODate);
         m_changedResource = resource();
         connect(Nepomuk::setProperty(resourceUris, propertyUrl(), value),
                 SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
@@ -134,7 +135,7 @@ void DateEdit::dateChanged(QDate date)
 void DateEdit::mousePressEvent ( QMouseEvent * e )
 {
     QDateTime date = QDateTime::fromString(m_label->fullText(), "dd.MMM.yyyy");
-    QString dateEditString =date.toString("yyyy-MM-ddTHH:mm:ssZ");
+    QString dateEditString =date.toString(Qt::ISODate);
 
     if(m_label->isVisible()) {
         m_lineEdit->setText(dateEditString);
@@ -144,7 +145,7 @@ void DateEdit::mousePressEvent ( QMouseEvent * e )
     }
     else {
         if(dateEditString != m_lineEdit->text()) {
-            QDateTime date = QDateTime::fromString(m_lineEdit->text(), "yyyy-MM-ddTHH:mm:ssZ");
+            QDateTime date = QDateTime::fromString(m_lineEdit->text(), Qt::ISODate);
             if(date.isValid()) {
                 setLabelText(date.toString("dd.MMM.yyyy"));
             }
@@ -161,10 +162,10 @@ void DateEdit::editingFinished()
     //don't switch to label view when enter is pressed for the completion
 
     QDateTime date = QDateTime::fromString(m_label->fullText(), "dd.MMM.yyyy");
-    QString dateEditString =date.toString("yyyy-MM-ddTHH:mm:ssZ");
+    QString dateEditString =date.toString(Qt::ISODate);
 
     if(dateEditString != m_lineEdit->text()) {
-        QDateTime date = QDateTime::fromString(m_lineEdit->text(), "yyyy-MM-ddTHH:mm:ssZ");
+        QDateTime date = QDateTime::fromString(m_lineEdit->text(), Qt::ISODate);
         QString inputString = date.toString("dd.MMM.yyyy");
         updateResource(inputString);
         setLabelText(inputString);
