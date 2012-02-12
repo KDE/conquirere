@@ -62,6 +62,9 @@ DocumentPreview::~DocumentPreview()
 void DocumentPreview::setResource(Nepomuk::Resource & resource)
 {
     ui->urlSelector->clear();
+    if(m_part) {
+        m_part->closeUrl();
+    }
 
     if(resource.isValid()) {
         QList<Nepomuk::Resource> fileList;
@@ -69,9 +72,11 @@ void DocumentPreview::setResource(Nepomuk::Resource & resource)
         if(resource.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
             Nepomuk::Resource publication = resource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
             fileList = publication.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResourceList();
+            fileList.append( publication.property(Nepomuk::Vocabulary::NIE::links()).toResourceList() );
         }
         else if(resource.hasType(Nepomuk::Vocabulary::NBIB::Publication())) {
             fileList = resource.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResourceList();
+            fileList.append( resource.property(Nepomuk::Vocabulary::NIE::links()).toResourceList() );
         }
         else {
             fileList.append(resource);
@@ -110,6 +115,7 @@ void DocumentPreview::setResource(Nepomuk::Resource & resource)
                 icon = KIcon(mimeTypePtr->iconName());
             }
 
+            kDebug() << "add item " << url.url() << "with mimetype" << mimetype;
             ui->urlSelector->addItem(icon,url.url(),QVariant(mimetype));
         }
 
