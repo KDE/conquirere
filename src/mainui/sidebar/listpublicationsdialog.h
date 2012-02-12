@@ -62,6 +62,12 @@ public:
       */
     void keyPressEvent(QKeyEvent * e);
 
+signals:
+    /**
+      * @todo remove when resource watcher is working
+      */
+    void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
+
 private slots:
     void applyFilter();
     void changeLibrary();

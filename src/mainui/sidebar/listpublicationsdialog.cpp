@@ -97,6 +97,8 @@ void ListPublicationsDialog::setLibraryManager(LibraryManager *lm)
 {
     m_libraryManager = lm;
 
+    connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), m_libraryManager, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+
     showLibraryModel(lm->systemLibrary());
 
     foreach(Library *l, lm->openProjects()) {
@@ -395,6 +397,7 @@ void ListPublicationsDialog::createNew()
 
     if(ret == KDialog::Ok || ret == KDialog::Accepted) {
         ui->tableView->selectRow(ui->tableView->model()->rowCount());
+        emit resourceCacheNeedsUpdate( sbcWidget->resource() );
     }
     else {
         // remove resource and anything that only depends on it again
