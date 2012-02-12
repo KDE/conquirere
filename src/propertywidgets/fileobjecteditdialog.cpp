@@ -141,8 +141,6 @@ void FileObjectEditDialog::saveAndMergeUrlChange()
         return;
     }
 
-    kDebug() << "update and merge urls" << newUrl << existingUrl;
-
     if(!newUrl.isEmpty()) {
         QString query = "Select DISTINCT ?r where {"
                         "?r nie:url ?url . FILTER ( regex(?url, \"^" + newUrl + "$\"))"

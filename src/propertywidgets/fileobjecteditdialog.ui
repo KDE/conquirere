@@ -73,9 +73,15 @@
        <item row="2" column="1">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QLabel" name="editUrl">
+          <widget class="KSqueezedTextLabel" name="editUrl">
            <property name="text">
             <string notr="true"/>
+           </property>
+           <property name="openExternalLinks">
+            <bool>true</bool>
+           </property>
+           <property name="textInteractionFlags">
+            <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
            </property>
           </widget>
          </item>
@@ -168,6 +174,11 @@
    <extends>QTabWidget</extends>
    <header>ktabwidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>KSqueezedTextLabel</class>
+   <extends>QLabel</extends>
+   <header>ksqueezedtextlabel.h</header>
   </customwidget>
   <customwidget>
    <class>StringEdit</class>

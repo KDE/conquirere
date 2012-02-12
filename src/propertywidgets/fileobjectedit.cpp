@@ -110,11 +110,20 @@ void FileObjectEdit::fileObjectAdd()
     foed->setPublication(m_publication);
     foed->createNewResource();
 
-    foed->exec();
+    int ret = foed->exec();
+
+    if(ret == QDialog::Rejected) {
+        // remove crosslink, but do not delete the resource
+        QList<QUrl> publication; publication << m_publication.resourceUri();
+        QVariantList uris; uris << foed->resource().resourceUri();
+        Nepomuk::removeProperty( publication, NIE::links(), uris );
+        Nepomuk::removeProperty( publication, NBIB::isPublicationOf(), uris );
+        return;
+    }
 
     QListWidgetItem *i = new QListWidgetItem(ui->fileListWidget);
 
-    Nepomuk::Resource changedSource = foed->resource().uri();
+    Nepomuk::Resource changedSource = foed->resource();
 
     addItemInfo(i, changedSource);
 
