@@ -27,7 +27,7 @@ kde4_add_ui_files( onlinestorage_LIB_SRCS
 kde4_add_library( onlinestorage STATIC ${onlinestorage_LIB_SRCS} )
 
 target_link_libraries(onlinestorage
-                      qjson
+                      ${QJSON_LIBRARIES}
                       ${KDE4_KDEUI_LIBS}
                       ${KDE4_KDECORE_LIBS} )
 

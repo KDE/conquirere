@@ -45,10 +45,11 @@ target_link_libraries(conquirere
         #nepomukdatamanagement
 
 #include kbibtex
-        kbibtexio
-        kbibtexnetworking
-        kbibtexgui
-        kbibtexproc
+        ${KBIBTEX_LIBRARIES}
+        #kbibtexio
+        #kbibtexnetworking
+        #kbibtexgui
+        #kbibtexproc
 )
 
 install(TARGETS conquirere DESTINATION ${BIN_INSTALL_DIR})

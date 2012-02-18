@@ -38,10 +38,11 @@ ADD_DEPENDENCIES(core nbibio)
 
 target_link_libraries(core
 #include kbibtex
-        kbibtexio
-        kbibtexnetworking
-        kbibtexgui
-        kbibtexproc
+        ${KBIBTEX_LIBRARIES}
+        #kbibtexio
+        #kbibtexnetworking
+        #kbibtexgui
+        #kbibtexproc
 )
 
 install( TARGETS core ${INSTALL_TARGETS_DEFAULT_ARGS} )
