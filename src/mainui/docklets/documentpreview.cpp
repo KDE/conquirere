@@ -88,7 +88,9 @@ void DocumentPreview::setResource(Nepomuk::Resource & resource)
             KIcon icon;
             QString mimetype;
 
-            if( r.hasType(Nepomuk::Vocabulary::NFO::Website()) || r.hasType(Nepomuk::Vocabulary::NFO::WebDataObject())) {
+            if( r.hasType(Nepomuk::Vocabulary::NFO::Website()) || r.hasType(Nepomuk::Vocabulary::NFO::WebDataObject())
+                || url.scheme() == QLatin1String("http")) {
+
                 QString favIcon = KMimeType::favIconForUrl(url);
                 if(favIcon.isEmpty()) {
                     favIcon = QLatin1String("text-html");
@@ -208,6 +210,7 @@ void DocumentPreview::showUrl(int index)
 
     if (m_part) {
         m_part->setProgressInfoEnabled(true);
+        m_part->showProgressInfo(true);
         ui->kpartWidget->layout()->addWidget(m_part->widget());
         emit activateKPart(m_part);
 

@@ -167,7 +167,8 @@ void FileObjectEdit::addItemInfo(QListWidgetItem *i, const Nepomuk::Resource &re
     QString showString = url.prettyUrl(KUrl::RemoveTrailingSlash);
 
 
-    if( resource.hasType(Nepomuk::Vocabulary::NFO::Website()) || resource.hasType(Nepomuk::Vocabulary::NFO::WebDataObject())) {
+    if( resource.hasType(Nepomuk::Vocabulary::NFO::Website()) || resource.hasType(Nepomuk::Vocabulary::NFO::WebDataObject())
+        || url.scheme() == QLatin1String("http")) {
         icon = KMimeType::favIconForUrl(url);
         if(icon.isEmpty()) {
             icon = QLatin1String("text-html");
