@@ -270,7 +270,7 @@ void FileObjectEditDialog::openUrlSelectionDialog()
 
     if( ui->editType->currentIndex() == 2) {
         selectedUrl = KInputDialog::getText(i18n("Enter website url"),i18n("Please enter the url of the webseite you want to add"),
-                                    ui->editUrl->text());
+                                    ui->editUrl->fullText());
     }
     else {
         KUrl url = KFileDialog::getOpenUrl();
