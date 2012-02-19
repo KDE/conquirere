@@ -84,42 +84,36 @@ void DocumentPreview::setResource(Nepomuk::Resource & resource)
 
         // add all DataObjects to the preview
         foreach(const Nepomuk::Resource & r, fileList) {
-            KIcon icon;
             KUrl url = KUrl(r.property(Nepomuk::Vocabulary::NIE::url()).toString());
+            KIcon icon;
             QString mimetype;
 
-            if(r.hasType(Nepomuk::Vocabulary::NFO::RemoteDataObject())) {
-
-            }
-            else if(r.hasType(Nepomuk::Vocabulary::NFO::Website())) {
-                icon = KIcon("text-html");
-                mimetype = QLatin1String("text/html");
-            }
-            else if(r.hasType(Nepomuk::Vocabulary::NFO::FileDataObject())) {
-                mimetype = r.property(Nepomuk::Vocabulary::NIE::mimeType()).toString();
-
-                icon = KIcon(mimetype);
-            }
-
-            if(mimetype.isEmpty()) {
-                qWarning() << "Nepomuk does not have any mimetype data for " << r.genericLabel();
-
-                int accuracy = 0;
-                KMimeType::Ptr mimeTypePtr = KMimeType::findByUrl(url, 0, url.isLocalFile(), true, &accuracy);
-                if (accuracy < 50) {
-                    kDebug() << "discarding mime type " << mimeTypePtr->name() << ", trying filename ";
-                    mimeTypePtr = KMimeType::findByPath(url.fileName(), 0, true, &accuracy);
+            if( r.hasType(Nepomuk::Vocabulary::NFO::Website()) || r.hasType(Nepomuk::Vocabulary::NFO::WebDataObject())) {
+                QString favIcon = KMimeType::favIconForUrl(url);
+                if(favIcon.isEmpty()) {
+                    favIcon = QLatin1String("text-html");
                 }
 
-                mimetype = mimeTypePtr->name();
+                icon = KIcon(favIcon);
+                mimetype = QLatin1String("text/html");
+            }
+            else {
+                KMimeType::Ptr mimeTypePtr = KMimeType::findByUrl(url);
+
                 icon = KIcon(mimeTypePtr->iconName());
+                mimetype = mimeTypePtr->name();
             }
 
-            kDebug() << "add item " << url.url() << "with mimetype" << mimetype;
             ui->urlSelector->addItem(icon,url.url(),QVariant(mimetype));
         }
 
         // add the DOI if available as preview
+
+        // check if an url with a doi was already attached via the usual url stuff
+        if( ui->urlSelector->findText(QLatin1String("dx.doi.org"), Qt::MatchContains ) != -1) {
+            return;
+        }
+
         QString doi;
         if(resource.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
             Nepomuk::Resource publication = resource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
@@ -134,9 +128,16 @@ void DocumentPreview::setResource(Nepomuk::Resource & resource)
                 doi = QLatin1String("http://dx.doi.org/") + doi;
             }
 
-            KIcon icon = KIcon("text-html");
-            QString mimetype = QLatin1String("text/html");
             KUrl url (doi);
+            KIcon icon;
+            QString mimetype = QLatin1String("text/html");
+
+            QString favIcon = KMimeType::favIconForUrl(url);
+            if(favIcon.isEmpty()) {
+                favIcon = QLatin1String("text-html");
+            }
+
+            icon = KIcon(favIcon);
             ui->urlSelector->addItem(icon,url.url(),QVariant(mimetype));
         }
     }

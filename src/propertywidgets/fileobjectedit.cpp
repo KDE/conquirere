@@ -27,6 +27,7 @@
 #include <Nepomuk/Vocabulary/NFO>
 #include <Nepomuk/Variant>
 
+#include <KDE/KMimeType>
 #include <KDE/KDebug>
 
 #include <QtCore/QPointer>
@@ -164,13 +165,18 @@ void FileObjectEdit::addItemInfo(QListWidgetItem *i, const Nepomuk::Resource &re
     QString icon;
     KUrl url(resource.property(NIE::url()).toString());
     QString showString = url.prettyUrl(KUrl::RemoveTrailingSlash);
-    if(resource.hasType(NFO::RemoteDataObject())) {
-        icon = QLatin1String("application-x-smb-server");
-    }
-    else if(resource.hasType(NFO::WebDataObject()) || resource.hasType(NFO::Website())) {
-        icon = QLatin1String("applications-internet");
+
+
+    if( resource.hasType(Nepomuk::Vocabulary::NFO::Website()) || resource.hasType(Nepomuk::Vocabulary::NFO::WebDataObject())) {
+        icon = KMimeType::favIconForUrl(url);
+        if(icon.isEmpty()) {
+            icon = QLatin1String("text-html");
+        }
     }
     else {
+        KMimeType::Ptr mimeTypePtr = KMimeType::findByUrl(url);
+        icon = mimeTypePtr->iconName();
+
         QString name = resource.property(NFO::fileName()).toString();
         if(!name.isEmpty()) {
             showString = name;
@@ -178,7 +184,6 @@ void FileObjectEdit::addItemInfo(QListWidgetItem *i, const Nepomuk::Resource &re
         if(showString.isEmpty()) {
             showString = resource.property(NIE::title()).toString();
         }
-        icon = QLatin1String("application-pdf"); //TODO create right icon from mimetype as retrieved by nepomuk
     }
 
     i->setIcon( KIcon(icon) );

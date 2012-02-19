@@ -31,6 +31,7 @@
 
 #include <KDE/KGlobalSettings>
 #include <KDE/KStandardDirs>
+#include <KDE/KMimeType>
 
 #include <QtGui/QFont>
 #include <QtCore/QBuffer>
@@ -284,6 +285,14 @@ QVariantList SearchResultModel::createDisplayData(const Nepomuk::Query::Result &
                     dateString = res.property(Nepomuk::Vocabulary::NIE::contentCreated()).toString();
             }
 
+            QDateTime date = QDateTime::fromString(dateString, Qt::ISODate);
+            if(date.isValid()) {
+                newEntry = date.toString("dd.MM.yyyy");
+            }
+            else {
+                newEntry = dateString;
+            }
+
             newEntry = dateString;
             break;
         }
@@ -520,16 +529,20 @@ KIcon SearchResultModel::iconizeEntryType(const Nepomuk::Resource & resource) co
         return KIcon(BibEntryTypeIcon.at(type));
     }
     if(resource.hasType(Nepomuk::Vocabulary::NFO::Document())) {
-        return KIcon(QLatin1String("application-pdf"));
+        KUrl path = resource.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+        return KIcon(KMimeType::iconNameForUrl(path));
     }
     if(resource.hasType(Nepomuk::Vocabulary::NFO::Audio())) {
-        return KIcon(QLatin1String("audio-x-generic"));
+        KUrl path = resource.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+        return KIcon(KMimeType::iconNameForUrl(path));
     }
     if(resource.hasType(Nepomuk::Vocabulary::NFO::Video())) {
-        return KIcon(QLatin1String("video-x-genericd"));
+        KUrl path = resource.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+        return KIcon(KMimeType::iconNameForUrl(path));
     }
     if(resource.hasType(Nepomuk::Vocabulary::NFO::Image())) {
-        return KIcon(QLatin1String("image-x-generiic"));
+        KUrl path = resource.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+        return KIcon(KMimeType::iconNameForUrl(path));
     }
     if(resource.hasType(Nepomuk::Vocabulary::NMO::Message())) {
         return KIcon(QLatin1String("internet-mail"));
@@ -538,7 +551,12 @@ KIcon SearchResultModel::iconizeEntryType(const Nepomuk::Resource & resource) co
         return KIcon(QLatin1String("knotes"));
     }
     if(resource.hasType(Nepomuk::Vocabulary::NFO::Website())) {
-        return KIcon(QLatin1String("text-html"));
+        KUrl path = resource.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+        QString iconName = KMimeType::favIconForUrl(path);
+        if(iconName.isEmpty()) {
+            iconName = QLatin1String("text-html");
+        }
+        return KIcon(iconName);
     }
 
     return KIcon(QLatin1String("unknown"));
