@@ -29,6 +29,7 @@
 #include <Nepomuk/Query/OrTerm>
 #include <Nepomuk/Query/ResourceTypeTerm>
 #include <Nepomuk/Query/ComparisonTerm>
+#include <Nepomuk/Query/NegationTerm>
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/PIMO>
@@ -49,7 +50,13 @@ void DocumentQuery::startFetchData()
     Nepomuk::Query::OrTerm mainOrTerm;
     Nepomuk::Query::AndTerm andTerm;
 
-    andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::PaginatedTextDocument() ) );
+    Nepomuk::Query::OrTerm subOrTerm;
+    subOrTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::PaginatedTextDocument() ) );
+    subOrTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Presentation() ) );
+    subOrTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::MindMap() ) );
+    subOrTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Spreadsheet() ) );
+
+    andTerm.addSubTerm(subOrTerm);
 
     if(m_library->libraryType() == Library_Project) {
         Nepomuk::Query::OrTerm orTerm;
@@ -71,8 +78,10 @@ void DocumentQuery::startFetchData()
 
     mainOrTerm.addSubTerm(andTerm);
 
+
     // build the query
     Nepomuk::Query::Query query( mainOrTerm );
+    qDebug() << query.toSparqlQuery();
     m_queryClient->query(query);
 }
 
