@@ -209,9 +209,13 @@ void DocumentPreview::showUrl(int index)
     m_part = serivcePtr->createInstance<KParts::ReadOnlyPart>(0);
 
     if (m_part) {
+        KParts::BrowserExtension * be = m_part->browserExtension();
+        connect(be, SIGNAL(openUrlRequestDelayed(KUrl,KParts::OpenUrlArguments,KParts::BrowserArguments)),
+                this, SLOT(openUrlRequestDelayed(KUrl,KParts::OpenUrlArguments,KParts::BrowserArguments)));
         m_part->setProgressInfoEnabled(true);
         m_part->showProgressInfo(true);
         ui->kpartWidget->layout()->addWidget(m_part->widget());
+
         emit activateKPart(m_part);
 
         m_part->openUrl(url);
@@ -229,6 +233,11 @@ void DocumentPreview::showUrl(int index)
 void DocumentPreview::openExternally() {
     KUrl url(ui->urlSelector->currentText());
     QDesktopServices::openUrl(url);
+}
+
+void DocumentPreview::openUrlRequestDelayed (const KUrl &url, const KParts::OpenUrlArguments &arguments, const KParts::BrowserArguments &browserArguments)
+{
+    m_part->openUrl(url);
 }
 
 void DocumentPreview::resizeEvent ( QResizeEvent * event )

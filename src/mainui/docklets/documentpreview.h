@@ -20,6 +20,7 @@
 
 #include <Nepomuk/Resource>
 #include <KParts/MainWindow>
+#include <KParts/BrowserExtension>
 
 #include <QtGui/QWidget>
 
@@ -53,6 +54,9 @@ public slots:
 
 signals:
     void activateKPart(KParts::Part *part);
+
+private slots:
+    void openUrlRequestDelayed (const KUrl &url, const KParts::OpenUrlArguments &arguments, const KParts::BrowserArguments &browserArguments);
 
 protected:
     void resizeEvent ( QResizeEvent * event );
