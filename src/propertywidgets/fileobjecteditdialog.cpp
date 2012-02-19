@@ -135,7 +135,7 @@ Nepomuk::Resource FileObjectEditDialog::resource()
 
 void FileObjectEditDialog::saveAndMergeUrlChange()
 {
-    QString newUrl = ui->editUrl->text();
+    QString newUrl = ui->editUrl->fullText();
     QString existingUrl = m_fileObject.property(NIE::url()).toString();
     if(newUrl == existingUrl) {
         return;
@@ -160,11 +160,11 @@ void FileObjectEditDialog::saveAndMergeUrlChange()
             setResource(queryResult.first().resource());
         }
         else {
-            m_fileObject.setProperty(NIE::url(), newUrl);
+            kDebug() << "set url to " << newUrl;
+            QList<QUrl> fileObjectUri; fileObjectUri << m_fileObject.uri();
+            QVariantList fileObjectValue; fileObjectValue << newUrl;
+            Nepomuk::setProperty(fileObjectUri, NIE::url(), fileObjectValue);
         }
-    }
-    else {
-        m_fileObject.removeProperty(NIE::url());
     }
 }
 
