@@ -81,7 +81,6 @@ void DocumentQuery::startFetchData()
 
     // build the query
     Nepomuk::Query::Query query( mainOrTerm );
-    qDebug() << query.toSparqlQuery();
     m_queryClient->query(query);
 }
 
