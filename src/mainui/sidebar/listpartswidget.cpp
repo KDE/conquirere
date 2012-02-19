@@ -91,21 +91,25 @@ void ListPartsWidget::setResource(Nepomuk::Resource resource)
         m_partType = Collection;
         ui->labelTitel->setText(i18n("List of articles:"));
         resourceList = m_resource.property(NBIB::article()).toResourceList();
+        ui->removePart->setVisible(true);
     }
     else if(m_resource.hasType(NBIB::Series())) {
         m_partType = Series;
         ui->labelTitel->setText(i18n("List of Publications:"));
         resourceList = m_resource.property(NBIB::seriesOf()).toResourceList();
+        ui->removePart->setVisible(true);
     }
     else if(m_resource.hasType(PIMO::Event()) ) {
         m_partType = Publication;
         ui->labelTitel->setText(i18n("List of Publications:"));
         resourceList = m_resource.property(NBIB::eventPublication()).toResourceList();
+        ui->removePart->setVisible(true);
     }
     else {
         m_partType = Chapter;
         ui->labelTitel->setText(i18n("List of chapters:"));
         resourceList = m_resource.property(NBIB::documentPart()).toResourceList();
+        ui->removePart->setVisible(false);
     }
 
     // fill the list widget
@@ -141,10 +145,12 @@ void ListPartsWidget::setResource(Nepomuk::Resource resource)
     if(ui->listWidget->count() == 0) {
         ui->editPart->setEnabled(false);
         ui->removePart->setEnabled(false);
+        ui->deletePart->setEnabled(false);
     }
     else {
         ui->editPart->setEnabled(true);
         ui->removePart->setEnabled(true);
+        ui->deletePart->setEnabled(false);
     }
 }
 
