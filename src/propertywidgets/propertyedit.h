@@ -46,7 +46,6 @@ class QKeyEvent;
   *
   * The idea is that subclasses simply have to implement
   * setupLabel()
-  * createCompletionModel()
   * updateResource()
   *
   * This class offers than the possibility to show a simple QLabel
@@ -55,16 +54,17 @@ class QKeyEvent;
   *
   * When the user clicks on the label, a QLineEdit field is shown instead.
   * The user can directly manipulate the data there. In addition nepomuk is
-  * querried in the background to fill the content of a QCompleter object.
+  * querried with a simple sparql search to alow autocompletions
+  *
+  * Only the name as one would enter directly into the lineedit is shown and will be
+  * inserted on selection. This could be the nco:fullname for contacts or nie:title for other
+  * resources. When the user saves his choices a new resoruce is created for this selecten and based
+  * on same name/resource type merged thanks to the nepomuk DMS
   *
   * The user will be offered a list of already available resources to select from.
   * Furthermore if @p hasMultipleCardinality() returns true the user can split each
   * new entry with a ";" and the completer ofers new selection from this start on
   *
-  * @todo in the long run the QCompleter should be replaced by a direct query to nepomuk every time we enter something
-  *       like it is done with KRunner. When done, another way to get the nepomuk resource for a string entered (contact name for example)
-  *       should be found, so we do not create duplicate entries when not the completer is used but the correct name is inserted
-  *       directly.
   */
 class PropertyEdit : public QWidget
 {
