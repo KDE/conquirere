@@ -60,6 +60,7 @@ public slots:
 private slots:
     void showPublicationList(Nepomuk::Resource & resource, const QUrl & propertyUrl);
     void showChapterList();
+    void showCiteKeySuggetion();
 
     /**
       * enables/disables the widgets if a valid publication is set or not
