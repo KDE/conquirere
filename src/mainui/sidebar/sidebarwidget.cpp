@@ -39,6 +39,7 @@
 #include "nbibio/pipe/nepomuktobibtexpipe.h"
 
 #include <kbibtex/findpdfui.h>
+#include <nepomukmetadataextraction/fetcherdialog.h>
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Variant>
@@ -54,6 +55,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QStackedLayout>
 #include <QtGui/QMenu>
+#include <QtCore/QPointer>
 
 using namespace Soprano::Vocabulary;
 using namespace Nepomuk::Vocabulary;
@@ -310,6 +312,32 @@ void SidebarWidget::findPdf()
     }
 }
 
+
+void SidebarWidget::fetchMetaData()
+{
+    if(!m_curResource.exists())
+        return;
+
+    QPointer<FetcherDialog> fd = new FetcherDialog;
+
+    fd->setForceUpdate(true);
+
+    if(m_currentWidget == m_documentWidget) {
+        KUrl url( m_curResource.property(NIE::url()).toString() );
+
+        kDebug() << "find meta data for file" << url;
+
+        fd->setInitialPathOrFile( url );
+    }
+    else {
+        kDebug() << "muh...";
+    }
+
+    fd->exec();
+
+    delete fd;
+}
+
 void SidebarWidget::setLibraryManager(LibraryManager* lm)
 {
     m_libraryManager = lm;
@@ -355,6 +383,7 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
     ui->removeReference->setVisible(false);
     ui->findPdf->setVisible(false);
     ui->lineFindPdf->setVisible(false);
+    ui->fetchMetaData->setVisible(false);
     ui->newButton->setToolTip(QString());
     ui->deleteButton->setToolTip(QString());
     ui->newButton->setVisible(true);
@@ -363,7 +392,7 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
     ui->linkRemoveButton->setVisible(true);
     ui->line_2->setVisible(true);
     ui->linePublication->setVisible(true);
-    ui->lineFindPdf->setVisible(true);
+    ui->lineFindPdf->setVisible(false);
 
     disconnect(ui->addPublication, SIGNAL(clicked()) );
     disconnect(ui->removePublication, SIGNAL(clicked()) );
@@ -388,6 +417,8 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         ui->removePublication->setVisible(true);
         ui->newButton->setToolTip(i18n("New document details"));
         ui->deleteButton->setToolTip(i18n("Delete document"));
+        ui->lineFindPdf->setVisible(true);
+        ui->fetchMetaData->setVisible(true);
 
         connect(ui->addPublication, SIGNAL(clicked()), m_documentWidget, SLOT(setPublication()));
         connect(ui->removePublication, SIGNAL(clicked()), m_documentWidget, SLOT(removePublication()));
@@ -440,6 +471,7 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         ui->deleteButton->setToolTip(i18n("Delete publication"));
         ui->findPdf->setVisible(true);
         ui->lineFindPdf->setVisible(true);
+        ui->fetchMetaData->setVisible(true);
 
         connect(ui->addReference, SIGNAL(clicked()), m_publicationWidget, SLOT(addReference()));
         connect(ui->removeReference, SIGNAL(clicked()), m_publicationWidget, SLOT(removeReference()));
@@ -552,8 +584,12 @@ void SidebarWidget::setupUi()
     ui->removeReference->setVisible(false);
 
     ui->findPdf->setIcon(KIcon(QLatin1String("application-pdf")));
-    ui->findPdf->setEnabled(false);
+    ui->findPdf->setEnabled(true);
     ui->findPdf->setVisible(false);
+
+    ui->fetchMetaData->setIcon(KIcon(QLatin1String("nepomuk")));
+    ui->fetchMetaData->setEnabled(true);
+    ui->fetchMetaData->setVisible(false);
     ui->lineFindPdf->setVisible(false);
 
     // add stacked layout and all useable widget

@@ -44,6 +44,31 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="fetchMetaData">
+       <property name="minimumSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="text">
+        <string notr="true"/>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="findPdf">
        <property name="minimumSize">
         <size>
@@ -346,8 +371,8 @@
    <slot>deleteButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>380</x>
-     <y>49</y>
+     <x>383</x>
+     <y>26</y>
     </hint>
     <hint type="destinationlabel">
      <x>387</x>
@@ -362,8 +387,8 @@
    <slot>newButtonClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>354</x>
-     <y>49</y>
+     <x>357</x>
+     <y>26</y>
     </hint>
     <hint type="destinationlabel">
      <x>292</x>
@@ -378,8 +403,8 @@
    <slot>addToProject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>286</x>
-     <y>38</y>
+     <x>298</x>
+     <y>26</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -394,8 +419,8 @@
    <slot>removeFromProject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>314</x>
-     <y>40</y>
+     <x>324</x>
+     <y>26</y>
     </hint>
     <hint type="destinationlabel">
      <x>312</x>
@@ -410,12 +435,28 @@
    <slot>findPdf()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>147</x>
-     <y>41</y>
+     <x>154</x>
+     <y>26</y>
     </hint>
     <hint type="destinationlabel">
      <x>126</x>
      <y>11</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>fetchMetaData</sender>
+   <signal>clicked()</signal>
+   <receiver>DockWidget</receiver>
+   <slot>fetchMetaData()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>111</x>
+     <y>21</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>96</x>
+     <y>28</y>
     </hint>
    </hints>
   </connection>
@@ -427,5 +468,6 @@
   <slot>addToProject()</slot>
   <slot>removeFromProject()</slot>
   <slot>findPdf()</slot>
+  <slot>fetchMetaData()</slot>
  </slots>
 </ui>

@@ -102,6 +102,8 @@ kde4_add_library( mainui STATIC ${mainui_LIB_SRCS} )
 ADD_DEPENDENCIES(mainui nbibio)
 
 target_link_libraries(mainui
+        nepomukmetadataextractor
+
 # include static libs from conquirere
         ontology
         core

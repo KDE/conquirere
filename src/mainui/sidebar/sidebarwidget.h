@@ -110,6 +110,7 @@ public slots:
     void removeFromSelectedProject();
 
     void findPdf();
+    void fetchMetaData();
 
     void setLibraryManager(LibraryManager* lm);
 
