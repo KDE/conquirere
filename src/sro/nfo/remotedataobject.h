@@ -24,11 +24,11 @@ class RemoteDataObject : public virtual NFO::FileDataObject
 {
 public:
     RemoteDataObject(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NFO::FileDataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#RemoteDataObject", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::DataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#RemoteDataObject", QUrl::StrictMode)), NFO::FileDataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#RemoteDataObject", QUrl::StrictMode)) {
     }
 
     RemoteDataObject(const SimpleResource& res)
-      : SimpleResource(res), NFO::FileDataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#RemoteDataObject", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::DataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#RemoteDataObject", QUrl::StrictMode)), NFO::FileDataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#RemoteDataObject", QUrl::StrictMode)) {
     }
 
     RemoteDataObject& operator=(const SimpleResource& res) {
@@ -39,10 +39,10 @@ public:
 
 protected:
     RemoteDataObject(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NFO::FileDataObject(uri, type) {
+      : SimpleResource(uri), NIE::DataObject(uri, type), NFO::FileDataObject(uri, type) {
     }
     RemoteDataObject(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NFO::FileDataObject(res, type) {
+      : SimpleResource(res), NIE::DataObject(res, type), NFO::FileDataObject(res, type) {
     }
 };
 }

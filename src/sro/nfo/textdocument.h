@@ -21,46 +21,17 @@ class TextDocument : public virtual NFO::Document
 {
 public:
     TextDocument(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NFO::Document(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#TextDocument", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#TextDocument", QUrl::StrictMode)), NFO::Document(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#TextDocument", QUrl::StrictMode)) {
     }
 
     TextDocument(const SimpleResource& res)
-      : SimpleResource(res), NFO::Document(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#TextDocument", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#TextDocument", QUrl::StrictMode)), NFO::Document(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#TextDocument", QUrl::StrictMode)) {
     }
 
     TextDocument& operator=(const SimpleResource& res) {
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#TextDocument", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount. 
-     * The amount of characters in the document. 
-     */
-    qint64 characterCount() const {
-        qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount", QUrl::StrictMode)).first().value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount. 
-     * The amount of characters in the document. 
-     */
-    void setCharacterCount(const qint64& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount. 
-     * The amount of characters in the document. 
-     */
-    void addCharacterCount(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount", QUrl::StrictMode), value);
     }
 
     /**
@@ -121,12 +92,41 @@ public:
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#wordCount", QUrl::StrictMode), value);
     }
 
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount. 
+     * The amount of characters in the document. 
+     */
+    qint64 characterCount() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount. 
+     * The amount of characters in the document. 
+     */
+    void setCharacterCount(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount. 
+     * The amount of characters in the document. 
+     */
+    void addCharacterCount(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount", QUrl::StrictMode), value);
+    }
+
 protected:
     TextDocument(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NFO::Document(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NFO::Document(uri, type) {
     }
     TextDocument(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NFO::Document(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NFO::Document(res, type) {
     }
 };
 }

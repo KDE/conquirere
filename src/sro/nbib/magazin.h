@@ -22,11 +22,11 @@ class Magazin : public virtual NBIB::Series
 {
 public:
     Magazin(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NBIB::Series(uri, QUrl::fromEncoded("http://www.example.com/nbib#Magazin", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#Magazin", QUrl::StrictMode)), NBIB::Series(uri, QUrl::fromEncoded("http://www.example.com/nbib#Magazin", QUrl::StrictMode)) {
     }
 
     Magazin(const SimpleResource& res)
-      : SimpleResource(res), NBIB::Series(res, QUrl::fromEncoded("http://www.example.com/nbib#Magazin", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#Magazin", QUrl::StrictMode)), NBIB::Series(res, QUrl::fromEncoded("http://www.example.com/nbib#Magazin", QUrl::StrictMode)) {
     }
 
     Magazin& operator=(const SimpleResource& res) {
@@ -37,10 +37,10 @@ public:
 
 protected:
     Magazin(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NBIB::Series(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NBIB::Series(uri, type) {
     }
     Magazin(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NBIB::Series(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NBIB::Series(res, type) {
     }
 };
 }

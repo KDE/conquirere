@@ -21,11 +21,11 @@ class OrganizationContact : public virtual NCO::Contact
 {
 public:
     OrganizationContact(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NCO::Role(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#OrganizationContact", QUrl::StrictMode)), NCO::Contact(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#OrganizationContact", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#OrganizationContact", QUrl::StrictMode)), NCO::Role(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#OrganizationContact", QUrl::StrictMode)), NCO::Contact(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#OrganizationContact", QUrl::StrictMode)) {
     }
 
     OrganizationContact(const SimpleResource& res)
-      : SimpleResource(res), NCO::Role(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#OrganizationContact", QUrl::StrictMode)), NCO::Contact(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#OrganizationContact", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#OrganizationContact", QUrl::StrictMode)), NCO::Role(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#OrganizationContact", QUrl::StrictMode)), NCO::Contact(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#OrganizationContact", QUrl::StrictMode)) {
     }
 
     OrganizationContact& operator=(const SimpleResource& res) {
@@ -69,10 +69,10 @@ public:
 
 protected:
     OrganizationContact(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NCO::Role(uri, type), NCO::Contact(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NCO::Role(uri, type), NCO::Contact(uri, type) {
     }
     OrganizationContact(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NCO::Role(res, type), NCO::Contact(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NCO::Role(res, type), NCO::Contact(res, type) {
     }
 };
 }

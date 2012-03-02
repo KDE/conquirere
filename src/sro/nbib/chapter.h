@@ -21,46 +21,17 @@ class Chapter : public virtual NBIB::DocumentPart
 {
 public:
     Chapter(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NBIB::DocumentPart(uri, QUrl::fromEncoded("http://www.example.com/nbib#Chapter", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#Chapter", QUrl::StrictMode)), NBIB::DocumentPart(uri, QUrl::fromEncoded("http://www.example.com/nbib#Chapter", QUrl::StrictMode)) {
     }
 
     Chapter(const SimpleResource& res)
-      : SimpleResource(res), NBIB::DocumentPart(res, QUrl::fromEncoded("http://www.example.com/nbib#Chapter", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#Chapter", QUrl::StrictMode)), NBIB::DocumentPart(res, QUrl::fromEncoded("http://www.example.com/nbib#Chapter", QUrl::StrictMode)) {
     }
 
     Chapter& operator=(const SimpleResource& res) {
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.example.com/nbib#Chapter", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#chapterNumber. 
-     * The number of the Chapter for example 1.2, II etc 
-     */
-    QString chapterNumber() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#chapterNumber", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#chapterNumber", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#chapterNumber. 
-     * The number of the Chapter for example 1.2, II etc 
-     */
-    void setChapterNumber(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#chapterNumber", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#chapterNumber. 
-     * The number of the Chapter for example 1.2, II etc 
-     */
-    void addChapterNumber(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#chapterNumber", QUrl::StrictMode), value);
     }
 
     /**
@@ -121,12 +92,41 @@ public:
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#pageStart", QUrl::StrictMode), value);
     }
 
+    /**
+     * Get property http://www.example.com/nbib#chapterNumber. 
+     * The number of the Chapter for example 1.2, II etc 
+     */
+    QString chapterNumber() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#chapterNumber", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#chapterNumber", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#chapterNumber. 
+     * The number of the Chapter for example 1.2, II etc 
+     */
+    void setChapterNumber(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#chapterNumber", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#chapterNumber. 
+     * The number of the Chapter for example 1.2, II etc 
+     */
+    void addChapterNumber(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#chapterNumber", QUrl::StrictMode), value);
+    }
+
 protected:
     Chapter(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NBIB::DocumentPart(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NBIB::DocumentPart(uri, type) {
     }
     Chapter(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NBIB::DocumentPart(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NBIB::DocumentPart(res, type) {
     }
 };
 }

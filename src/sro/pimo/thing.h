@@ -36,54 +36,168 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#occurrence. 
-     * The subject Thing is represented also in the object resource. 
-     * All facts added to the object resource are valid for the subject 
-     * thing. The subject is the canonical represtation of the object. 
-     * In particual, this implies when (?object ?p ?v) -> (?subject 
-     * ?p ?v) and (?s ?p ?object) -> (?s ?p ?subject). The class of the 
-     * object is not defined, but should be compatible with the class 
-     * of the subject. Occurrence relations can be inferred through 
-     * same identifiers or referencingOccurrence relations. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#objectProperty. 
+     * The object of statements is another Thing. Users should be able 
+     * to edit statements defined with this property. Abstract super-property. 
      */
-    QList<QUrl> occurrences() const {
+    QList<QUrl> objectPropertys() const {
         QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#occurrence", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#objectProperty", QUrl::StrictMode)))
             value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#occurrence. 
-     * The subject Thing is represented also in the object resource. 
-     * All facts added to the object resource are valid for the subject 
-     * thing. The subject is the canonical represtation of the object. 
-     * In particual, this implies when (?object ?p ?v) -> (?subject 
-     * ?p ?v) and (?s ?p ?object) -> (?s ?p ?subject). The class of the 
-     * object is not defined, but should be compatible with the class 
-     * of the subject. Occurrence relations can be inferred through 
-     * same identifiers or referencingOccurrence relations. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#objectProperty. 
+     * The object of statements is another Thing. Users should be able 
+     * to edit statements defined with this property. Abstract super-property. 
      */
-    void setOccurrences(const QList<QUrl>& value) {
+    void setObjectPropertys(const QList<QUrl>& value) {
         QVariantList values;
         foreach(const QUrl& v, value)
             values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#occurrence", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#objectProperty", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#occurrence. 
-     * The subject Thing is represented also in the object resource. 
-     * All facts added to the object resource are valid for the subject 
-     * thing. The subject is the canonical represtation of the object. 
-     * In particual, this implies when (?object ?p ?v) -> (?subject 
-     * ?p ?v) and (?s ?p ?object) -> (?s ?p ?subject). The class of the 
-     * object is not defined, but should be compatible with the class 
-     * of the subject. Occurrence relations can be inferred through 
-     * same identifiers or referencingOccurrence relations. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#objectProperty. 
+     * The object of statements is another Thing. Users should be able 
+     * to edit statements defined with this property. Abstract super-property. 
      */
-    void addOccurrence(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#occurrence", QUrl::StrictMode), value);
+    void addObjectProperty(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#objectProperty", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingOccurrence. 
+     * The subject Thing represents the entity that is described in 
+     * the object InformationElement. The subject Thing is the canonical, 
+     * unique representation in the personal information model for 
+     * the entity described in the object. Multiple InformationElements 
+     * can be the grounding occurrence of the same Thing, one InformationElement 
+     * can be the groundingOccurrence of only one Thing. 
+     */
+    QList<QUrl> groundingOccurrences() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingOccurrence", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingOccurrence. 
+     * The subject Thing represents the entity that is described in 
+     * the object InformationElement. The subject Thing is the canonical, 
+     * unique representation in the personal information model for 
+     * the entity described in the object. Multiple InformationElements 
+     * can be the grounding occurrence of the same Thing, one InformationElement 
+     * can be the groundingOccurrence of only one Thing. 
+     */
+    void setGroundingOccurrences(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingOccurrence", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingOccurrence. 
+     * The subject Thing represents the entity that is described in 
+     * the object InformationElement. The subject Thing is the canonical, 
+     * unique representation in the personal information model for 
+     * the entity described in the object. Multiple InformationElements 
+     * can be the grounding occurrence of the same Thing, one InformationElement 
+     * can be the groundingOccurrence of only one Thing. 
+     */
+    void addGroundingOccurrence(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingOccurrence", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#referencingOccurrence. 
+     * The subject thing is described in the object document. Ideally, 
+     * the document is public and its primary topic is the thing. Although 
+     * this property is not inverse-functional (because the Occurrences 
+     * are not canonical elements of a formal ontology) this property 
+     * allows to use public documents, such as wikipedia pages, as 
+     * indicators identity. The more formal hasOtherRepresentation 
+     * property can be used when an ontology about the subject exists. 
+     */
+    QList<QUrl> referencingOccurrences() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#referencingOccurrence", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#referencingOccurrence. 
+     * The subject thing is described in the object document. Ideally, 
+     * the document is public and its primary topic is the thing. Although 
+     * this property is not inverse-functional (because the Occurrences 
+     * are not canonical elements of a formal ontology) this property 
+     * allows to use public documents, such as wikipedia pages, as 
+     * indicators identity. The more formal hasOtherRepresentation 
+     * property can be used when an ontology about the subject exists. 
+     */
+    void setReferencingOccurrences(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#referencingOccurrence", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#referencingOccurrence. 
+     * The subject thing is described in the object document. Ideally, 
+     * the document is public and its primary topic is the thing. Although 
+     * this property is not inverse-functional (because the Occurrences 
+     * are not canonical elements of a formal ontology) this property 
+     * allows to use public documents, such as wikipedia pages, as 
+     * indicators identity. The more formal hasOtherRepresentation 
+     * property can be used when an ontology about the subject exists. 
+     */
+    void addReferencingOccurrence(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#referencingOccurrence", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasPart. 
+     * The object is part of the subject. Like a page is part of a book 
+     * or an engine is part of a car. You can make sub-properties of this 
+     * to reflect more detailed relations. The semantics of this relations 
+     * is the same as skos:narrowerPartitive 
+     */
+    QList<QUrl> parts() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasPart", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasPart. 
+     * The object is part of the subject. Like a page is part of a book 
+     * or an engine is part of a car. You can make sub-properties of this 
+     * to reflect more detailed relations. The semantics of this relations 
+     * is the same as skos:narrowerPartitive 
+     */
+    void setParts(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasPart", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasPart. 
+     * The object is part of the subject. Like a page is part of a book 
+     * or an engine is part of a car. You can make sub-properties of this 
+     * to reflect more detailed relations. The semantics of this relations 
+     * is the same as skos:narrowerPartitive 
+     */
+    void addPart(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasPart", QUrl::StrictMode), value);
     }
 
     /**
@@ -210,45 +324,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasPart. 
-     * The object is part of the subject. Like a page is part of a book 
-     * or an engine is part of a car. You can make sub-properties of this 
-     * to reflect more detailed relations. The semantics of this relations 
-     * is the same as skos:narrowerPartitive 
-     */
-    QList<QUrl> parts() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasPart", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasPart. 
-     * The object is part of the subject. Like a page is part of a book 
-     * or an engine is part of a car. You can make sub-properties of this 
-     * to reflect more detailed relations. The semantics of this relations 
-     * is the same as skos:narrowerPartitive 
-     */
-    void setParts(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasPart", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasPart. 
-     * The object is part of the subject. Like a page is part of a book 
-     * or an engine is part of a car. You can make sub-properties of this 
-     * to reflect more detailed relations. The semantics of this relations 
-     * is the same as skos:narrowerPartitive 
-     */
-    void addPart(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasPart", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasOtherRepresentation. 
      * hasOtherRepresentation points from a Thing in your PIMO to 
      * a thing in an ontology that represents the same real world thing. 
@@ -354,129 +429,54 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#objectProperty. 
-     * The object of statements is another Thing. Users should be able 
-     * to edit statements defined with this property. Abstract super-property. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#occurrence. 
+     * The subject Thing is represented also in the object resource. 
+     * All facts added to the object resource are valid for the subject 
+     * thing. The subject is the canonical represtation of the object. 
+     * In particual, this implies when (?object ?p ?v) -> (?subject 
+     * ?p ?v) and (?s ?p ?object) -> (?s ?p ?subject). The class of the 
+     * object is not defined, but should be compatible with the class 
+     * of the subject. Occurrence relations can be inferred through 
+     * same identifiers or referencingOccurrence relations. 
      */
-    QList<QUrl> objectPropertys() const {
+    QList<QUrl> occurrences() const {
         QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#objectProperty", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#occurrence", QUrl::StrictMode)))
             value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#objectProperty. 
-     * The object of statements is another Thing. Users should be able 
-     * to edit statements defined with this property. Abstract super-property. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#occurrence. 
+     * The subject Thing is represented also in the object resource. 
+     * All facts added to the object resource are valid for the subject 
+     * thing. The subject is the canonical represtation of the object. 
+     * In particual, this implies when (?object ?p ?v) -> (?subject 
+     * ?p ?v) and (?s ?p ?object) -> (?s ?p ?subject). The class of the 
+     * object is not defined, but should be compatible with the class 
+     * of the subject. Occurrence relations can be inferred through 
+     * same identifiers or referencingOccurrence relations. 
      */
-    void setObjectPropertys(const QList<QUrl>& value) {
+    void setOccurrences(const QList<QUrl>& value) {
         QVariantList values;
         foreach(const QUrl& v, value)
             values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#objectProperty", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#occurrence", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#objectProperty. 
-     * The object of statements is another Thing. Users should be able 
-     * to edit statements defined with this property. Abstract super-property. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#occurrence. 
+     * The subject Thing is represented also in the object resource. 
+     * All facts added to the object resource are valid for the subject 
+     * thing. The subject is the canonical represtation of the object. 
+     * In particual, this implies when (?object ?p ?v) -> (?subject 
+     * ?p ?v) and (?s ?p ?object) -> (?s ?p ?subject). The class of the 
+     * object is not defined, but should be compatible with the class 
+     * of the subject. Occurrence relations can be inferred through 
+     * same identifiers or referencingOccurrence relations. 
      */
-    void addObjectProperty(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#objectProperty", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#referencingOccurrence. 
-     * The subject thing is described in the object document. Ideally, 
-     * the document is public and its primary topic is the thing. Although 
-     * this property is not inverse-functional (because the Occurrences 
-     * are not canonical elements of a formal ontology) this property 
-     * allows to use public documents, such as wikipedia pages, as 
-     * indicators identity. The more formal hasOtherRepresentation 
-     * property can be used when an ontology about the subject exists. 
-     */
-    QList<QUrl> referencingOccurrences() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#referencingOccurrence", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#referencingOccurrence. 
-     * The subject thing is described in the object document. Ideally, 
-     * the document is public and its primary topic is the thing. Although 
-     * this property is not inverse-functional (because the Occurrences 
-     * are not canonical elements of a formal ontology) this property 
-     * allows to use public documents, such as wikipedia pages, as 
-     * indicators identity. The more formal hasOtherRepresentation 
-     * property can be used when an ontology about the subject exists. 
-     */
-    void setReferencingOccurrences(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#referencingOccurrence", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#referencingOccurrence. 
-     * The subject thing is described in the object document. Ideally, 
-     * the document is public and its primary topic is the thing. Although 
-     * this property is not inverse-functional (because the Occurrences 
-     * are not canonical elements of a formal ontology) this property 
-     * allows to use public documents, such as wikipedia pages, as 
-     * indicators identity. The more formal hasOtherRepresentation 
-     * property can be used when an ontology about the subject exists. 
-     */
-    void addReferencingOccurrence(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#referencingOccurrence", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingOccurrence. 
-     * The subject Thing represents the entity that is described in 
-     * the object InformationElement. The subject Thing is the canonical, 
-     * unique representation in the personal information model for 
-     * the entity described in the object. Multiple InformationElements 
-     * can be the grounding occurrence of the same Thing, one InformationElement 
-     * can be the groundingOccurrence of only one Thing. 
-     */
-    QList<QUrl> groundingOccurrences() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingOccurrence", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingOccurrence. 
-     * The subject Thing represents the entity that is described in 
-     * the object InformationElement. The subject Thing is the canonical, 
-     * unique representation in the personal information model for 
-     * the entity described in the object. Multiple InformationElements 
-     * can be the grounding occurrence of the same Thing, one InformationElement 
-     * can be the groundingOccurrence of only one Thing. 
-     */
-    void setGroundingOccurrences(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingOccurrence", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingOccurrence. 
-     * The subject Thing represents the entity that is described in 
-     * the object InformationElement. The subject Thing is the canonical, 
-     * unique representation in the personal information model for 
-     * the entity described in the object. Multiple InformationElements 
-     * can be the grounding occurrence of the same Thing, one InformationElement 
-     * can be the groundingOccurrence of only one Thing. 
-     */
-    void addGroundingOccurrence(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingOccurrence", QUrl::StrictMode), value);
+    void addOccurrence(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#occurrence", QUrl::StrictMode), value);
     }
 
 protected:

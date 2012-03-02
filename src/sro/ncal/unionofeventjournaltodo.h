@@ -35,213 +35,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToChild. 
-     * The property is used to represent a relationship or reference 
-     * between one calendar component and another. Inspired by RFC 
-     * 2445 sec. 4.8.4.5. Originally this property had a RELTYPE parameter. 
-     * It has been decided to introduce three different properties 
-     * to express the values of that parameter. This property expresses 
-     * the RELATED-TO property with RELTYPE=CHILD parameter. 
-     */
-    QStringList relatedToChilds() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToChild", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToChild. 
-     * The property is used to represent a relationship or reference 
-     * between one calendar component and another. Inspired by RFC 
-     * 2445 sec. 4.8.4.5. Originally this property had a RELTYPE parameter. 
-     * It has been decided to introduce three different properties 
-     * to express the values of that parameter. This property expresses 
-     * the RELATED-TO property with RELTYPE=CHILD parameter. 
-     */
-    void setRelatedToChilds(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToChild", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToChild. 
-     * The property is used to represent a relationship or reference 
-     * between one calendar component and another. Inspired by RFC 
-     * 2445 sec. 4.8.4.5. Originally this property had a RELTYPE parameter. 
-     * It has been decided to introduce three different properties 
-     * to express the values of that parameter. This property expresses 
-     * the RELATED-TO property with RELTYPE=CHILD parameter. 
-     */
-    void addRelatedToChild(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToChild", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToParent. 
-     * The property is used to represent a relationship or reference 
-     * between one calendar component and another. Inspired by RFC 
-     * 2445 sec. 4.8.4.5. Originally this property had a RELTYPE parameter. 
-     * It has been decided that it is more natural to introduce three 
-     * different properties to express the values of that parameter. 
-     * This property expresses the RELATED-TO property with no RELTYPE 
-     * parameter (the default value is PARENT), or with explicit RELTYPE=PARENT 
-     * parameter. 
-     */
-    QStringList relatedToParents() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToParent", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToParent. 
-     * The property is used to represent a relationship or reference 
-     * between one calendar component and another. Inspired by RFC 
-     * 2445 sec. 4.8.4.5. Originally this property had a RELTYPE parameter. 
-     * It has been decided that it is more natural to introduce three 
-     * different properties to express the values of that parameter. 
-     * This property expresses the RELATED-TO property with no RELTYPE 
-     * parameter (the default value is PARENT), or with explicit RELTYPE=PARENT 
-     * parameter. 
-     */
-    void setRelatedToParents(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToParent", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToParent. 
-     * The property is used to represent a relationship or reference 
-     * between one calendar component and another. Inspired by RFC 
-     * 2445 sec. 4.8.4.5. Originally this property had a RELTYPE parameter. 
-     * It has been decided that it is more natural to introduce three 
-     * different properties to express the values of that parameter. 
-     * This property expresses the RELATED-TO property with no RELTYPE 
-     * parameter (the default value is PARENT), or with explicit RELTYPE=PARENT 
-     * parameter. 
-     */
-    void addRelatedToParent(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToParent", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exrule. 
-     * This property defines a rule or repeating pattern for an exception 
-     * to a recurrence set. Inspired by RFC 2445 sec. 4.8.5.2. 
-     */
-    QList<QUrl> exrules() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exrule", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exrule. 
-     * This property defines a rule or repeating pattern for an exception 
-     * to a recurrence set. Inspired by RFC 2445 sec. 4.8.5.2. 
-     */
-    void setExrules(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exrule", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exrule. 
-     * This property defines a rule or repeating pattern for an exception 
-     * to a recurrence set. Inspired by RFC 2445 sec. 4.8.5.2. 
-     */
-    void addExrule(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exrule", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#ncalRelation. 
-     * A common superproperty for all types of ncal relations. It is 
-     * not to be used directly. 
-     */
-    QStringList ncalRelations() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#ncalRelation", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#ncalRelation. 
-     * A common superproperty for all types of ncal relations. It is 
-     * not to be used directly. 
-     */
-    void setNcalRelations(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#ncalRelation", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#ncalRelation. 
-     * A common superproperty for all types of ncal relations. It is 
-     * not to be used directly. 
-     */
-    void addNcalRelation(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#ncalRelation", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#categories. 
-     * Categories for a calendar component. Inspired by RFC 2445 sec 
-     * 4.8.1.2 with the following reservations: The LANGUAGE parameter 
-     * has been discarded. Please use xml:lang literals to express 
-     * multiple languages. This property can specify multiple comma-separated 
-     * categories. The order of categories doesn't matter. Please 
-     * use a separate triple for each category. 
-     */
-    QStringList categorieses() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#categories", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#categories. 
-     * Categories for a calendar component. Inspired by RFC 2445 sec 
-     * 4.8.1.2 with the following reservations: The LANGUAGE parameter 
-     * has been discarded. Please use xml:lang literals to express 
-     * multiple languages. This property can specify multiple comma-separated 
-     * categories. The order of categories doesn't matter. Please 
-     * use a separate triple for each category. 
-     */
-    void setCategorieses(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#categories", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#categories. 
-     * Categories for a calendar component. Inspired by RFC 2445 sec 
-     * 4.8.1.2 with the following reservations: The LANGUAGE parameter 
-     * has been discarded. Please use xml:lang literals to express 
-     * multiple languages. This property can specify multiple comma-separated 
-     * categories. The order of categories doesn't matter. Please 
-     * use a separate triple for each category. 
-     */
-    void addCategories(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#categories", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#created. 
      * This property specifies the date and time that the calendar 
      * information was created by the calendar user agent in the calendar 
@@ -336,6 +129,90 @@ public:
     }
 
     /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exrule. 
+     * This property defines a rule or repeating pattern for an exception 
+     * to a recurrence set. Inspired by RFC 2445 sec. 4.8.5.2. 
+     */
+    QList<QUrl> exrules() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exrule", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exrule. 
+     * This property defines a rule or repeating pattern for an exception 
+     * to a recurrence set. Inspired by RFC 2445 sec. 4.8.5.2. 
+     */
+    void setExrules(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exrule", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exrule. 
+     * This property defines a rule or repeating pattern for an exception 
+     * to a recurrence set. Inspired by RFC 2445 sec. 4.8.5.2. 
+     */
+    void addExrule(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exrule", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToParent. 
+     * The property is used to represent a relationship or reference 
+     * between one calendar component and another. Inspired by RFC 
+     * 2445 sec. 4.8.4.5. Originally this property had a RELTYPE parameter. 
+     * It has been decided that it is more natural to introduce three 
+     * different properties to express the values of that parameter. 
+     * This property expresses the RELATED-TO property with no RELTYPE 
+     * parameter (the default value is PARENT), or with explicit RELTYPE=PARENT 
+     * parameter. 
+     */
+    QStringList relatedToParents() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToParent", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToParent. 
+     * The property is used to represent a relationship or reference 
+     * between one calendar component and another. Inspired by RFC 
+     * 2445 sec. 4.8.4.5. Originally this property had a RELTYPE parameter. 
+     * It has been decided that it is more natural to introduce three 
+     * different properties to express the values of that parameter. 
+     * This property expresses the RELATED-TO property with no RELTYPE 
+     * parameter (the default value is PARENT), or with explicit RELTYPE=PARENT 
+     * parameter. 
+     */
+    void setRelatedToParents(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToParent", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToParent. 
+     * The property is used to represent a relationship or reference 
+     * between one calendar component and another. Inspired by RFC 
+     * 2445 sec. 4.8.4.5. Originally this property had a RELTYPE parameter. 
+     * It has been decided that it is more natural to introduce three 
+     * different properties to express the values of that parameter. 
+     * This property expresses the RELATED-TO property with no RELTYPE 
+     * parameter (the default value is PARENT), or with explicit RELTYPE=PARENT 
+     * parameter. 
+     */
+    void addRelatedToParent(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToParent", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToSibling. 
      * The property is used to represent a relationship or reference 
      * between one calendar component and another. Inspired by RFC 
@@ -381,6 +258,129 @@ public:
      */
     void addRelatedToSibling(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToSibling", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#ncalRelation. 
+     * A common superproperty for all types of ncal relations. It is 
+     * not to be used directly. 
+     */
+    QStringList ncalRelations() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#ncalRelation", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#ncalRelation. 
+     * A common superproperty for all types of ncal relations. It is 
+     * not to be used directly. 
+     */
+    void setNcalRelations(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#ncalRelation", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#ncalRelation. 
+     * A common superproperty for all types of ncal relations. It is 
+     * not to be used directly. 
+     */
+    void addNcalRelation(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#ncalRelation", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToChild. 
+     * The property is used to represent a relationship or reference 
+     * between one calendar component and another. Inspired by RFC 
+     * 2445 sec. 4.8.4.5. Originally this property had a RELTYPE parameter. 
+     * It has been decided to introduce three different properties 
+     * to express the values of that parameter. This property expresses 
+     * the RELATED-TO property with RELTYPE=CHILD parameter. 
+     */
+    QStringList relatedToChilds() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToChild", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToChild. 
+     * The property is used to represent a relationship or reference 
+     * between one calendar component and another. Inspired by RFC 
+     * 2445 sec. 4.8.4.5. Originally this property had a RELTYPE parameter. 
+     * It has been decided to introduce three different properties 
+     * to express the values of that parameter. This property expresses 
+     * the RELATED-TO property with RELTYPE=CHILD parameter. 
+     */
+    void setRelatedToChilds(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToChild", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToChild. 
+     * The property is used to represent a relationship or reference 
+     * between one calendar component and another. Inspired by RFC 
+     * 2445 sec. 4.8.4.5. Originally this property had a RELTYPE parameter. 
+     * It has been decided to introduce three different properties 
+     * to express the values of that parameter. This property expresses 
+     * the RELATED-TO property with RELTYPE=CHILD parameter. 
+     */
+    void addRelatedToChild(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#relatedToChild", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#categories. 
+     * Categories for a calendar component. Inspired by RFC 2445 sec 
+     * 4.8.1.2 with the following reservations: The LANGUAGE parameter 
+     * has been discarded. Please use xml:lang literals to express 
+     * multiple languages. This property can specify multiple comma-separated 
+     * categories. The order of categories doesn't matter. Please 
+     * use a separate triple for each category. 
+     */
+    QStringList categorieses() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#categories", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#categories. 
+     * Categories for a calendar component. Inspired by RFC 2445 sec 
+     * 4.8.1.2 with the following reservations: The LANGUAGE parameter 
+     * has been discarded. Please use xml:lang literals to express 
+     * multiple languages. This property can specify multiple comma-separated 
+     * categories. The order of categories doesn't matter. Please 
+     * use a separate triple for each category. 
+     */
+    void setCategorieses(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#categories", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#categories. 
+     * Categories for a calendar component. Inspired by RFC 2445 sec 
+     * 4.8.1.2 with the following reservations: The LANGUAGE parameter 
+     * has been discarded. Please use xml:lang literals to express 
+     * multiple languages. This property can specify multiple comma-separated 
+     * categories. The order of categories doesn't matter. Please 
+     * use a separate triple for each category. 
+     */
+    void addCategories(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#categories", QUrl::StrictMode), value);
     }
 
     /**

@@ -22,11 +22,11 @@ class PaginatedTextDocument : public virtual NFO::TextDocument
 {
 public:
     PaginatedTextDocument(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NFO::Document(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PaginatedTextDocument", QUrl::StrictMode)), NFO::TextDocument(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PaginatedTextDocument", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PaginatedTextDocument", QUrl::StrictMode)), NFO::Document(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PaginatedTextDocument", QUrl::StrictMode)), NFO::TextDocument(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PaginatedTextDocument", QUrl::StrictMode)) {
     }
 
     PaginatedTextDocument(const SimpleResource& res)
-      : SimpleResource(res), NFO::Document(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PaginatedTextDocument", QUrl::StrictMode)), NFO::TextDocument(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PaginatedTextDocument", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PaginatedTextDocument", QUrl::StrictMode)), NFO::Document(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PaginatedTextDocument", QUrl::StrictMode)), NFO::TextDocument(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PaginatedTextDocument", QUrl::StrictMode)) {
     }
 
     PaginatedTextDocument& operator=(const SimpleResource& res) {
@@ -66,10 +66,10 @@ public:
 
 protected:
     PaginatedTextDocument(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NFO::Document(uri, type), NFO::TextDocument(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NFO::Document(uri, type), NFO::TextDocument(uri, type) {
     }
     PaginatedTextDocument(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NFO::Document(res, type), NFO::TextDocument(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NFO::Document(res, type), NFO::TextDocument(res, type) {
     }
 };
 }

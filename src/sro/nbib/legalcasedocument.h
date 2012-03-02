@@ -21,11 +21,11 @@ class LegalCaseDocument : public virtual NBIB::LegalDocument
 {
 public:
     LegalCaseDocument(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#LegalCaseDocument", QUrl::StrictMode)), NBIB::LegalDocument(uri, QUrl::fromEncoded("http://www.example.com/nbib#LegalCaseDocument", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#LegalCaseDocument", QUrl::StrictMode)), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#LegalCaseDocument", QUrl::StrictMode)), NBIB::LegalDocument(uri, QUrl::fromEncoded("http://www.example.com/nbib#LegalCaseDocument", QUrl::StrictMode)) {
     }
 
     LegalCaseDocument(const SimpleResource& res)
-      : SimpleResource(res), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#LegalCaseDocument", QUrl::StrictMode)), NBIB::LegalDocument(res, QUrl::fromEncoded("http://www.example.com/nbib#LegalCaseDocument", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#LegalCaseDocument", QUrl::StrictMode)), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#LegalCaseDocument", QUrl::StrictMode)), NBIB::LegalDocument(res, QUrl::fromEncoded("http://www.example.com/nbib#LegalCaseDocument", QUrl::StrictMode)) {
     }
 
     LegalCaseDocument& operator=(const SimpleResource& res) {
@@ -68,10 +68,10 @@ public:
 
 protected:
     LegalCaseDocument(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NBIB::Publication(uri, type), NBIB::LegalDocument(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NBIB::Publication(uri, type), NBIB::LegalDocument(uri, type) {
     }
     LegalCaseDocument(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NBIB::Publication(res, type), NBIB::LegalDocument(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NBIB::Publication(res, type), NBIB::LegalDocument(res, type) {
     }
 };
 }

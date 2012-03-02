@@ -10,23 +10,23 @@
 
 #include "dms-copy/simpleresource.h"
 
+#include "nie/dataobject.h"
+
 namespace Nepomuk {
 namespace NCO {
 /**
  * An entity occuring on a contact list (usually interpreted as 
  * an nco:Contact) 
  */
-class ContactListDataObject : public virtual Nepomuk::SimpleResource
+class ContactListDataObject : public virtual NIE::DataObject
 {
 public:
     ContactListDataObject(const QUrl& uri = QUrl())
-      : SimpleResource(uri) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#ContactListDataObject", QUrl::StrictMode));
+      : SimpleResource(uri), NIE::DataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#ContactListDataObject", QUrl::StrictMode)) {
     }
 
     ContactListDataObject(const SimpleResource& res)
-      : SimpleResource(res) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#ContactListDataObject", QUrl::StrictMode));
+      : SimpleResource(res), NIE::DataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#ContactListDataObject", QUrl::StrictMode)) {
     }
 
     ContactListDataObject& operator=(const SimpleResource& res) {
@@ -37,12 +37,10 @@ public:
 
 protected:
     ContactListDataObject(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri) {
-        addType(type);
+      : SimpleResource(uri), NIE::DataObject(uri, type) {
     }
     ContactListDataObject(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res) {
-        addType(type);
+      : SimpleResource(res), NIE::DataObject(res, type) {
     }
 };
 }

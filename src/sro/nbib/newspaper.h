@@ -22,11 +22,11 @@ class Newspaper : public virtual NBIB::Series
 {
 public:
     Newspaper(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NBIB::Series(uri, QUrl::fromEncoded("http://www.example.com/nbib#Newspaper", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#Newspaper", QUrl::StrictMode)), NBIB::Series(uri, QUrl::fromEncoded("http://www.example.com/nbib#Newspaper", QUrl::StrictMode)) {
     }
 
     Newspaper(const SimpleResource& res)
-      : SimpleResource(res), NBIB::Series(res, QUrl::fromEncoded("http://www.example.com/nbib#Newspaper", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#Newspaper", QUrl::StrictMode)), NBIB::Series(res, QUrl::fromEncoded("http://www.example.com/nbib#Newspaper", QUrl::StrictMode)) {
     }
 
     Newspaper& operator=(const SimpleResource& res) {
@@ -37,10 +37,10 @@ public:
 
 protected:
     Newspaper(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NBIB::Series(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NBIB::Series(uri, type) {
     }
     Newspaper(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NBIB::Series(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NBIB::Series(res, type) {
     }
 };
 }

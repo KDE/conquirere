@@ -22,11 +22,11 @@ class Booklet : public virtual NBIB::Publication
 {
 public:
     Booklet(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#Booklet", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#Booklet", QUrl::StrictMode)), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#Booklet", QUrl::StrictMode)) {
     }
 
     Booklet(const SimpleResource& res)
-      : SimpleResource(res), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#Booklet", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#Booklet", QUrl::StrictMode)), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#Booklet", QUrl::StrictMode)) {
     }
 
     Booklet& operator=(const SimpleResource& res) {
@@ -37,10 +37,10 @@ public:
 
 protected:
     Booklet(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NBIB::Publication(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NBIB::Publication(uri, type) {
     }
     Booklet(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NBIB::Publication(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NBIB::Publication(res, type) {
     }
 };
 }

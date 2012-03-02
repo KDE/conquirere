@@ -10,6 +10,7 @@
 
 #include "dms-copy/simpleresource.h"
 
+#include "nie/informationelement.h"
 #include "nco/role.h"
 
 namespace Nepomuk {
@@ -18,15 +19,15 @@ namespace NCO {
  * A Contact. A piece of data that can provide means to identify 
  * or communicate with an entity. 
  */
-class Contact : public virtual NCO::Role
+class Contact : public virtual NIE::InformationElement, public virtual NCO::Role
 {
 public:
     Contact(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NCO::Role(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#Contact", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#Contact", QUrl::StrictMode)), NCO::Role(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#Contact", QUrl::StrictMode)) {
     }
 
     Contact(const SimpleResource& res)
-      : SimpleResource(res), NCO::Role(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#Contact", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#Contact", QUrl::StrictMode)), NCO::Role(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#Contact", QUrl::StrictMode)) {
     }
 
     Contact& operator=(const SimpleResource& res) {
@@ -36,76 +37,36 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#fullname. 
-     * To specify the formatted text corresponding to the name of the 
-     * object the Contact represents. An equivalent of the FN property 
-     * as defined in RFC 2426 Sec. 3.1.1. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#key. 
+     * An encryption key attached to a contact. Inspired by the KEY 
+     * property defined in RFC 2426 sec. 3.7.2 
      */
-    QString fullname() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#fullname", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#fullname", QUrl::StrictMode)).first().value<QString>();
+    QList<QUrl> keys() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#key", QUrl::StrictMode)))
+            value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#fullname. 
-     * To specify the formatted text corresponding to the name of the 
-     * object the Contact represents. An equivalent of the FN property 
-     * as defined in RFC 2426 Sec. 3.1.1. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#key. 
+     * An encryption key attached to a contact. Inspired by the KEY 
+     * property defined in RFC 2426 sec. 3.7.2 
      */
-    void setFullname(const QString& value) {
+    void setKeys(const QList<QUrl>& value) {
         QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#fullname", QUrl::StrictMode), values);
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#key", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#fullname. 
-     * To specify the formatted text corresponding to the name of the 
-     * object the Contact represents. An equivalent of the FN property 
-     * as defined in RFC 2426 Sec. 3.1.1. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#key. 
+     * An encryption key attached to a contact. Inspired by the KEY 
+     * property defined in RFC 2426 sec. 3.7.2 
      */
-    void addFullname(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#fullname", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#contactUID. 
-     * A value that represents a globally unique identifier corresponding 
-     * to the individual or resource associated with the Contact. 
-     * An equivalent of the 'UID' property defined in RFC 2426 Sec. 
-     * 3.6.7 
-     */
-    QString contactUID() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#contactUID", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#contactUID", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#contactUID. 
-     * A value that represents a globally unique identifier corresponding 
-     * to the individual or resource associated with the Contact. 
-     * An equivalent of the 'UID' property defined in RFC 2426 Sec. 
-     * 3.6.7 
-     */
-    void setContactUID(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#contactUID", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#contactUID. 
-     * A value that represents a globally unique identifier corresponding 
-     * to the individual or resource associated with the Contact. 
-     * An equivalent of the 'UID' property defined in RFC 2426 Sec. 
-     * 3.6.7 
-     */
-    void addContactUID(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#contactUID", QUrl::StrictMode), value);
+    void addKey(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#key", QUrl::StrictMode), value);
     }
 
     /**
@@ -142,72 +103,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#belongsToGroup. 
-     * Links a Contact with a ContactGroup it belongs to. 
-     */
-    QList<QUrl> belongsToGroups() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#belongsToGroup", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#belongsToGroup. 
-     * Links a Contact with a ContactGroup it belongs to. 
-     */
-    void setBelongsToGroups(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#belongsToGroup", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#belongsToGroup. 
-     * Links a Contact with a ContactGroup it belongs to. 
-     */
-    void addBelongsToGroup(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#belongsToGroup", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#photo. 
-     * Photograph attached to a Contact. The DataObject referred 
-     * to by this property is usually interpreted as an nfo:Image. 
-     * Inspired by the PHOTO property defined in RFC 2426 sec. 3.1.4 
-     */
-    QList<QUrl> photos() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#photo", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#photo. 
-     * Photograph attached to a Contact. The DataObject referred 
-     * to by this property is usually interpreted as an nfo:Image. 
-     * Inspired by the PHOTO property defined in RFC 2426 sec. 3.1.4 
-     */
-    void setPhotos(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#photo", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#photo. 
-     * Photograph attached to a Contact. The DataObject referred 
-     * to by this property is usually interpreted as an nfo:Image. 
-     * Inspired by the PHOTO property defined in RFC 2426 sec. 3.1.4 
-     */
-    void addPhoto(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#photo", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#sound. 
      * Sound clip attached to a Contact. The DataObject referred to 
      * by this property is usually interpreted as an nfo:Audio. Inspired 
@@ -241,6 +136,42 @@ public:
      */
     void addSound(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#sound", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nickname. 
+     * A nickname of the Object represented by this Contact. This is 
+     * an equivalent of the 'NICKNAME' property as defined in RFC 2426 
+     * Sec. 3.1.3. 
+     */
+    QStringList nicknames() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nickname", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nickname. 
+     * A nickname of the Object represented by this Contact. This is 
+     * an equivalent of the 'NICKNAME' property as defined in RFC 2426 
+     * Sec. 3.1.3. 
+     */
+    void setNicknames(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nickname", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nickname. 
+     * A nickname of the Object represented by this Contact. This is 
+     * an equivalent of the 'NICKNAME' property as defined in RFC 2426 
+     * Sec. 3.1.3. 
+     */
+    void addNickname(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nickname", QUrl::StrictMode), value);
     }
 
     /**
@@ -318,6 +249,44 @@ public:
     }
 
     /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#contactUID. 
+     * A value that represents a globally unique identifier corresponding 
+     * to the individual or resource associated with the Contact. 
+     * An equivalent of the 'UID' property defined in RFC 2426 Sec. 
+     * 3.6.7 
+     */
+    QString contactUID() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#contactUID", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#contactUID", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#contactUID. 
+     * A value that represents a globally unique identifier corresponding 
+     * to the individual or resource associated with the Contact. 
+     * An equivalent of the 'UID' property defined in RFC 2426 Sec. 
+     * 3.6.7 
+     */
+    void setContactUID(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#contactUID", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#contactUID. 
+     * A value that represents a globally unique identifier corresponding 
+     * to the individual or resource associated with the Contact. 
+     * An equivalent of the 'UID' property defined in RFC 2426 Sec. 
+     * 3.6.7 
+     */
+    void addContactUID(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#contactUID", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#birthDate. 
      * Birth date of the object represented by this Contact. An equivalent 
      * of the 'BDAY' property as defined in RFC 2426 Sec. 3.1.5. 
@@ -350,80 +319,112 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#key. 
-     * An encryption key attached to a contact. Inspired by the KEY 
-     * property defined in RFC 2426 sec. 3.7.2 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#belongsToGroup. 
+     * Links a Contact with a ContactGroup it belongs to. 
      */
-    QList<QUrl> keys() const {
+    QList<QUrl> belongsToGroups() const {
         QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#key", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#belongsToGroup", QUrl::StrictMode)))
             value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#key. 
-     * An encryption key attached to a contact. Inspired by the KEY 
-     * property defined in RFC 2426 sec. 3.7.2 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#belongsToGroup. 
+     * Links a Contact with a ContactGroup it belongs to. 
      */
-    void setKeys(const QList<QUrl>& value) {
+    void setBelongsToGroups(const QList<QUrl>& value) {
         QVariantList values;
         foreach(const QUrl& v, value)
             values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#key", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#belongsToGroup", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#key. 
-     * An encryption key attached to a contact. Inspired by the KEY 
-     * property defined in RFC 2426 sec. 3.7.2 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#belongsToGroup. 
+     * Links a Contact with a ContactGroup it belongs to. 
      */
-    void addKey(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#key", QUrl::StrictMode), value);
+    void addBelongsToGroup(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#belongsToGroup", QUrl::StrictMode), value);
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nickname. 
-     * A nickname of the Object represented by this Contact. This is 
-     * an equivalent of the 'NICKNAME' property as defined in RFC 2426 
-     * Sec. 3.1.3. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#photo. 
+     * Photograph attached to a Contact. The DataObject referred 
+     * to by this property is usually interpreted as an nfo:Image. 
+     * Inspired by the PHOTO property defined in RFC 2426 sec. 3.1.4 
      */
-    QStringList nicknames() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nickname", QUrl::StrictMode)))
-            value << v.value<QString>();
+    QList<QUrl> photos() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#photo", QUrl::StrictMode)))
+            value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nickname. 
-     * A nickname of the Object represented by this Contact. This is 
-     * an equivalent of the 'NICKNAME' property as defined in RFC 2426 
-     * Sec. 3.1.3. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#photo. 
+     * Photograph attached to a Contact. The DataObject referred 
+     * to by this property is usually interpreted as an nfo:Image. 
+     * Inspired by the PHOTO property defined in RFC 2426 sec. 3.1.4 
      */
-    void setNicknames(const QStringList& value) {
+    void setPhotos(const QList<QUrl>& value) {
         QVariantList values;
-        foreach(const QString& v, value)
+        foreach(const QUrl& v, value)
             values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nickname", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#photo", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nickname. 
-     * A nickname of the Object represented by this Contact. This is 
-     * an equivalent of the 'NICKNAME' property as defined in RFC 2426 
-     * Sec. 3.1.3. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#photo. 
+     * Photograph attached to a Contact. The DataObject referred 
+     * to by this property is usually interpreted as an nfo:Image. 
+     * Inspired by the PHOTO property defined in RFC 2426 sec. 3.1.4 
      */
-    void addNickname(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nickname", QUrl::StrictMode), value);
+    void addPhoto(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#photo", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#fullname. 
+     * To specify the formatted text corresponding to the name of the 
+     * object the Contact represents. An equivalent of the FN property 
+     * as defined in RFC 2426 Sec. 3.1.1. 
+     */
+    QString fullname() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#fullname", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#fullname", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#fullname. 
+     * To specify the formatted text corresponding to the name of the 
+     * object the Contact represents. An equivalent of the FN property 
+     * as defined in RFC 2426 Sec. 3.1.1. 
+     */
+    void setFullname(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#fullname", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#fullname. 
+     * To specify the formatted text corresponding to the name of the 
+     * object the Contact represents. An equivalent of the FN property 
+     * as defined in RFC 2426 Sec. 3.1.1. 
+     */
+    void addFullname(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#fullname", QUrl::StrictMode), value);
     }
 
 protected:
     Contact(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NCO::Role(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NCO::Role(uri, type) {
     }
     Contact(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NCO::Role(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NCO::Role(res, type) {
     }
 };
 }

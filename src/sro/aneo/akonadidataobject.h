@@ -10,23 +10,23 @@
 
 #include "dms-copy/simpleresource.h"
 
+#include "nie/dataobject.h"
+
 namespace Nepomuk {
 namespace ANEO {
 /**
  * used to identify akonadi entities (items and collections) 
  * created by the akonadi-nepomuk feeders 
  */
-class AkonadiDataObject : public virtual Nepomuk::SimpleResource
+class AkonadiDataObject : public virtual NIE::DataObject
 {
 public:
     AkonadiDataObject(const QUrl& uri = QUrl())
-      : SimpleResource(uri) {
-        addType(QUrl::fromEncoded("http://akonadi-project.org/ontologies/aneo#AkonadiDataObject", QUrl::StrictMode));
+      : SimpleResource(uri), NIE::DataObject(uri, QUrl::fromEncoded("http://akonadi-project.org/ontologies/aneo#AkonadiDataObject", QUrl::StrictMode)) {
     }
 
     AkonadiDataObject(const SimpleResource& res)
-      : SimpleResource(res) {
-        addType(QUrl::fromEncoded("http://akonadi-project.org/ontologies/aneo#AkonadiDataObject", QUrl::StrictMode));
+      : SimpleResource(res), NIE::DataObject(res, QUrl::fromEncoded("http://akonadi-project.org/ontologies/aneo#AkonadiDataObject", QUrl::StrictMode)) {
     }
 
     AkonadiDataObject& operator=(const SimpleResource& res) {
@@ -69,12 +69,10 @@ public:
 
 protected:
     AkonadiDataObject(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri) {
-        addType(type);
+      : SimpleResource(uri), NIE::DataObject(uri, type) {
     }
     AkonadiDataObject(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res) {
-        addType(type);
+      : SimpleResource(res), NIE::DataObject(res, type) {
     }
 };
 }

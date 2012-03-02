@@ -21,11 +21,11 @@ class Archive : public virtual NFO::DataContainer
 {
 public:
     Archive(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NFO::DataContainer(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Archive", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Archive", QUrl::StrictMode)), NFO::DataContainer(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Archive", QUrl::StrictMode)) {
     }
 
     Archive(const SimpleResource& res)
-      : SimpleResource(res), NFO::DataContainer(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Archive", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Archive", QUrl::StrictMode)), NFO::DataContainer(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Archive", QUrl::StrictMode)) {
     }
 
     Archive& operator=(const SimpleResource& res) {
@@ -65,10 +65,10 @@ public:
 
 protected:
     Archive(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NFO::DataContainer(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NFO::DataContainer(uri, type) {
     }
     Archive(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NFO::DataContainer(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NFO::DataContainer(res, type) {
     }
 };
 }

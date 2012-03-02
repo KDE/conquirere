@@ -10,23 +10,23 @@
 
 #include "dms-copy/simpleresource.h"
 
+#include "nie/dataobject.h"
+
 namespace Nepomuk {
 namespace NMO {
 /**
  * An entity encountered in a mailbox. Most common interpretations 
  * for such an entity include Message or Folder 
  */
-class MailboxDataObject : public virtual Nepomuk::SimpleResource
+class MailboxDataObject : public virtual NIE::DataObject
 {
 public:
     MailboxDataObject(const QUrl& uri = QUrl())
-      : SimpleResource(uri) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#MailboxDataObject", QUrl::StrictMode));
+      : SimpleResource(uri), NIE::DataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#MailboxDataObject", QUrl::StrictMode)) {
     }
 
     MailboxDataObject(const SimpleResource& res)
-      : SimpleResource(res) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#MailboxDataObject", QUrl::StrictMode));
+      : SimpleResource(res), NIE::DataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#MailboxDataObject", QUrl::StrictMode)) {
     }
 
     MailboxDataObject& operator=(const SimpleResource& res) {
@@ -37,12 +37,10 @@ public:
 
 protected:
     MailboxDataObject(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri) {
-        addType(type);
+      : SimpleResource(uri), NIE::DataObject(uri, type) {
     }
     MailboxDataObject(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res) {
-        addType(type);
+      : SimpleResource(res), NIE::DataObject(res, type) {
     }
 };
 }

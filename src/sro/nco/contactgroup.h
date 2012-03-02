@@ -10,6 +10,8 @@
 
 #include "dms-copy/simpleresource.h"
 
+#include "nie/informationelement.h"
+
 namespace Nepomuk {
 namespace NCO {
 /**
@@ -17,17 +19,15 @@ namespace NCO {
  * or on a contact list of an IM application. One contact can belong 
  * to many groups. 
  */
-class ContactGroup : public virtual Nepomuk::SimpleResource
+class ContactGroup : public virtual NIE::InformationElement
 {
 public:
     ContactGroup(const QUrl& uri = QUrl())
-      : SimpleResource(uri) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#ContactGroup", QUrl::StrictMode));
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#ContactGroup", QUrl::StrictMode)) {
     }
 
     ContactGroup(const SimpleResource& res)
-      : SimpleResource(res) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#ContactGroup", QUrl::StrictMode));
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#ContactGroup", QUrl::StrictMode)) {
     }
 
     ContactGroup& operator=(const SimpleResource& res) {
@@ -73,12 +73,10 @@ public:
 
 protected:
     ContactGroup(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri) {
-        addType(type);
+      : SimpleResource(uri), NIE::InformationElement(uri, type) {
     }
     ContactGroup(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res) {
-        addType(type);
+      : SimpleResource(res), NIE::InformationElement(res, type) {
     }
 };
 }

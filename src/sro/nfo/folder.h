@@ -22,11 +22,11 @@ class Folder : public virtual NFO::DataContainer
 {
 public:
     Folder(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NFO::DataContainer(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Folder", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Folder", QUrl::StrictMode)), NFO::DataContainer(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Folder", QUrl::StrictMode)) {
     }
 
     Folder(const SimpleResource& res)
-      : SimpleResource(res), NFO::DataContainer(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Folder", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Folder", QUrl::StrictMode)), NFO::DataContainer(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Folder", QUrl::StrictMode)) {
     }
 
     Folder& operator=(const SimpleResource& res) {
@@ -37,10 +37,10 @@ public:
 
 protected:
     Folder(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NFO::DataContainer(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NFO::DataContainer(uri, type) {
     }
     Folder(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NFO::DataContainer(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NFO::DataContainer(res, type) {
     }
 };
 }

@@ -21,11 +21,11 @@ class Application : public virtual NFO::Software
 {
 public:
     Application(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NFO::Software(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Application", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Application", QUrl::StrictMode)), NFO::Software(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Application", QUrl::StrictMode)) {
     }
 
     Application(const SimpleResource& res)
-      : SimpleResource(res), NFO::Software(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Application", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Application", QUrl::StrictMode)), NFO::Software(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Application", QUrl::StrictMode)) {
     }
 
     Application& operator=(const SimpleResource& res) {
@@ -36,10 +36,10 @@ public:
 
 protected:
     Application(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NFO::Software(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NFO::Software(uri, type) {
     }
     Application(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NFO::Software(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NFO::Software(res, type) {
     }
 };
 }

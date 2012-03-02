@@ -71,42 +71,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#descriptionAltRep. 
-     * Alternate representation of the calendar entity description. 
-     * Introduced to cover the ALTREP parameter of the DESCRIPTION 
-     * property. See documentation of ncal:description for details. 
-     */
-    QList<QUrl> descriptionAltReps() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#descriptionAltRep", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#descriptionAltRep. 
-     * Alternate representation of the calendar entity description. 
-     * Introduced to cover the ALTREP parameter of the DESCRIPTION 
-     * property. See documentation of ncal:description for details. 
-     */
-    void setDescriptionAltReps(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#descriptionAltRep", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#descriptionAltRep. 
-     * Alternate representation of the calendar entity description. 
-     * Introduced to cover the ALTREP parameter of the DESCRIPTION 
-     * property. See documentation of ncal:description for details. 
-     */
-    void addDescriptionAltRep(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#descriptionAltRep", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#description. 
      * A more complete description of the calendar component, than 
      * that provided by the ncal:summary property.Inspired by RFC 
@@ -191,6 +155,42 @@ public:
      */
     void addSummary(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#summary", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#descriptionAltRep. 
+     * Alternate representation of the calendar entity description. 
+     * Introduced to cover the ALTREP parameter of the DESCRIPTION 
+     * property. See documentation of ncal:description for details. 
+     */
+    QList<QUrl> descriptionAltReps() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#descriptionAltRep", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#descriptionAltRep. 
+     * Alternate representation of the calendar entity description. 
+     * Introduced to cover the ALTREP parameter of the DESCRIPTION 
+     * property. See documentation of ncal:description for details. 
+     */
+    void setDescriptionAltReps(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#descriptionAltRep", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#descriptionAltRep. 
+     * Alternate representation of the calendar entity description. 
+     * Introduced to cover the ALTREP parameter of the DESCRIPTION 
+     * property. See documentation of ncal:description for details. 
+     */
+    void addDescriptionAltRep(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#descriptionAltRep", QUrl::StrictMode), value);
     }
 
     /**

@@ -35,41 +35,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url. 
-     * This property defines a Uniform Resource Locator (URL) associated 
-     * with the iCalendar object. Inspired by the RFC 2445 sec. 4.8.4.6. 
-     * Original range had been specified as URI. 
-     */
-    QUrl url() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url. 
-     * This property defines a Uniform Resource Locator (URL) associated 
-     * with the iCalendar object. Inspired by the RFC 2445 sec. 4.8.4.6. 
-     * Original range had been specified as URI. 
-     */
-    void setUrl(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url. 
-     * This property defines a Uniform Resource Locator (URL) associated 
-     * with the iCalendar object. Inspired by the RFC 2445 sec. 4.8.4.6. 
-     * Original range had been specified as URI. 
-     */
-    void addUrl(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#contactAltRep. 
      * Alternate representation of the contact property. Introduced 
      * to cover the ALTREP parameter of the CONTACT property. See documentation 
@@ -106,35 +71,38 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid. 
-     * This property defines the persistent, globally unique identifier 
-     * for the calendar component. Inspired by the RFC 2445 sec 4.8.4.7 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#dtstamp. 
+     * The property indicates the date/time that the instance of the 
+     * iCalendar object was created. Inspired by RFC 2445 sec. 4.8.7.1. 
+     * Note that the RFC allows ONLY UTC values for this property. 
      */
-    QString uid() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid", QUrl::StrictMode)).first().value<QString>();
+    QDateTime dtstamp() const {
+        QDateTime value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#dtstamp", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#dtstamp", QUrl::StrictMode)).first().value<QDateTime>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid. 
-     * This property defines the persistent, globally unique identifier 
-     * for the calendar component. Inspired by the RFC 2445 sec 4.8.4.7 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#dtstamp. 
+     * The property indicates the date/time that the instance of the 
+     * iCalendar object was created. Inspired by RFC 2445 sec. 4.8.7.1. 
+     * Note that the RFC allows ONLY UTC values for this property. 
      */
-    void setUid(const QString& value) {
+    void setDtstamp(const QDateTime& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#dtstamp", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid. 
-     * This property defines the persistent, globally unique identifier 
-     * for the calendar component. Inspired by the RFC 2445 sec 4.8.4.7 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#dtstamp. 
+     * The property indicates the date/time that the instance of the 
+     * iCalendar object was created. Inspired by RFC 2445 sec. 4.8.7.1. 
+     * Note that the RFC allows ONLY UTC values for this property. 
      */
-    void addUid(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid", QUrl::StrictMode), value);
+    void addDtstamp(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#dtstamp", QUrl::StrictMode), value);
     }
 
     /**
@@ -189,38 +157,38 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#dtstamp. 
-     * The property indicates the date/time that the instance of the 
-     * iCalendar object was created. Inspired by RFC 2445 sec. 4.8.7.1. 
-     * Note that the RFC allows ONLY UTC values for this property. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url. 
+     * This property defines a Uniform Resource Locator (URL) associated 
+     * with the iCalendar object. Inspired by the RFC 2445 sec. 4.8.4.6. 
+     * Original range had been specified as URI. 
      */
-    QDateTime dtstamp() const {
-        QDateTime value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#dtstamp", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#dtstamp", QUrl::StrictMode)).first().value<QDateTime>();
+    QUrl url() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url", QUrl::StrictMode)).first().value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#dtstamp. 
-     * The property indicates the date/time that the instance of the 
-     * iCalendar object was created. Inspired by RFC 2445 sec. 4.8.7.1. 
-     * Note that the RFC allows ONLY UTC values for this property. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url. 
+     * This property defines a Uniform Resource Locator (URL) associated 
+     * with the iCalendar object. Inspired by the RFC 2445 sec. 4.8.4.6. 
+     * Original range had been specified as URI. 
      */
-    void setDtstamp(const QDateTime& value) {
+    void setUrl(const QUrl& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#dtstamp", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#dtstamp. 
-     * The property indicates the date/time that the instance of the 
-     * iCalendar object was created. Inspired by RFC 2445 sec. 4.8.7.1. 
-     * Note that the RFC allows ONLY UTC values for this property. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url. 
+     * This property defines a Uniform Resource Locator (URL) associated 
+     * with the iCalendar object. Inspired by the RFC 2445 sec. 4.8.4.6. 
+     * Original range had been specified as URI. 
      */
-    void addDtstamp(const QDateTime& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#dtstamp", QUrl::StrictMode), value);
+    void addUrl(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url", QUrl::StrictMode), value);
     }
 
     /**
@@ -313,6 +281,38 @@ public:
      */
     void addContact(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#contact", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid. 
+     * This property defines the persistent, globally unique identifier 
+     * for the calendar component. Inspired by the RFC 2445 sec 4.8.4.7 
+     */
+    QString uid() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid. 
+     * This property defines the persistent, globally unique identifier 
+     * for the calendar component. Inspired by the RFC 2445 sec 4.8.4.7 
+     */
+    void setUid(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid. 
+     * This property defines the persistent, globally unique identifier 
+     * for the calendar component. Inspired by the RFC 2445 sec 4.8.4.7 
+     */
+    void addUid(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid", QUrl::StrictMode), value);
     }
 
 protected:

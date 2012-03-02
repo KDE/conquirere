@@ -39,39 +39,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#createdPimo. 
-     * The creator of the Personal Information Model. The human being 
-     * whose mental models are represented in the PIMO. 
-     */
-    QList<QUrl> createdPimos() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#createdPimo", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#createdPimo. 
-     * The creator of the Personal Information Model. The human being 
-     * whose mental models are represented in the PIMO. 
-     */
-    void setCreatedPimos(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#createdPimo", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#createdPimo. 
-     * The creator of the Personal Information Model. The human being 
-     * whose mental models are represented in the PIMO. 
-     */
-    void addCreatedPimo(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#createdPimo", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isOrganizationMemberOf. 
      * The subject person or organozation (Agent) is member of the 
      * object organization. 
@@ -102,6 +69,39 @@ public:
      */
     void addIsOrganizationMemberOf(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isOrganizationMemberOf", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#createdPimo. 
+     * The creator of the Personal Information Model. The human being 
+     * whose mental models are represented in the PIMO. 
+     */
+    QList<QUrl> createdPimos() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#createdPimo", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#createdPimo. 
+     * The creator of the Personal Information Model. The human being 
+     * whose mental models are represented in the PIMO. 
+     */
+    void setCreatedPimos(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#createdPimo", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#createdPimo. 
+     * The creator of the Personal Information Model. The human being 
+     * whose mental models are represented in the PIMO. 
+     */
+    void addCreatedPimo(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#createdPimo", QUrl::StrictMode), value);
     }
 
 protected:

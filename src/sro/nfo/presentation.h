@@ -22,11 +22,11 @@ class Presentation : public virtual NFO::Document
 {
 public:
     Presentation(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NFO::Document(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Presentation", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Presentation", QUrl::StrictMode)), NFO::Document(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Presentation", QUrl::StrictMode)) {
     }
 
     Presentation(const SimpleResource& res)
-      : SimpleResource(res), NFO::Document(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Presentation", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Presentation", QUrl::StrictMode)), NFO::Document(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Presentation", QUrl::StrictMode)) {
     }
 
     Presentation& operator=(const SimpleResource& res) {
@@ -37,10 +37,10 @@ public:
 
 protected:
     Presentation(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NFO::Document(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NFO::Document(uri, type) {
     }
     Presentation(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NFO::Document(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NFO::Document(res, type) {
     }
 };
 }

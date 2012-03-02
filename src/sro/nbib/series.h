@@ -10,59 +10,29 @@
 
 #include "dms-copy/simpleresource.h"
 
+#include "nie/informationelement.h"
+
 namespace Nepomuk {
 namespace NBIB {
 /**
  * Superclass to represent a series of some published data. (Book 
  * Series, Journal with several issues etc) 
  */
-class Series : public virtual Nepomuk::SimpleResource
+class Series : public virtual NIE::InformationElement
 {
 public:
     Series(const QUrl& uri = QUrl())
-      : SimpleResource(uri) {
-        addType(QUrl::fromEncoded("http://www.example.com/nbib#Series", QUrl::StrictMode));
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#Series", QUrl::StrictMode)) {
     }
 
     Series(const SimpleResource& res)
-      : SimpleResource(res) {
-        addType(QUrl::fromEncoded("http://www.example.com/nbib#Series", QUrl::StrictMode));
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#Series", QUrl::StrictMode)) {
     }
 
     Series& operator=(const SimpleResource& res) {
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.example.com/nbib#Series", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#issn. The International 
-     * Standard Serial Number. Used to identify a series of publications. 
-     */
-    QString issn() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#issn", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#issn", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#issn. The International 
-     * Standard Serial Number. Used to identify a series of publications. 
-     */
-    void setIssn(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#issn", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#issn. 
-     * The International Standard Serial Number. Used to identify 
-     * a series of publications. 
-     */
-    void addIssn(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#issn", QUrl::StrictMode), value);
     }
 
     /**
@@ -95,14 +65,42 @@ public:
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#seriesOf", QUrl::StrictMode), value);
     }
 
+    /**
+     * Get property http://www.example.com/nbib#issn. The International 
+     * Standard Serial Number. Used to identify a series of publications. 
+     */
+    QString issn() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#issn", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#issn", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#issn. The International 
+     * Standard Serial Number. Used to identify a series of publications. 
+     */
+    void setIssn(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#issn", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#issn. 
+     * The International Standard Serial Number. Used to identify 
+     * a series of publications. 
+     */
+    void addIssn(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#issn", QUrl::StrictMode), value);
+    }
+
 protected:
     Series(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri) {
-        addType(type);
+      : SimpleResource(uri), NIE::InformationElement(uri, type) {
     }
     Series(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res) {
-        addType(type);
+      : SimpleResource(res), NIE::InformationElement(res, type) {
     }
 };
 }

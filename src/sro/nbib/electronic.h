@@ -21,11 +21,11 @@ class Electronic : public virtual NBIB::Publication
 {
 public:
     Electronic(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#Electronic", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#Electronic", QUrl::StrictMode)), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#Electronic", QUrl::StrictMode)) {
     }
 
     Electronic(const SimpleResource& res)
-      : SimpleResource(res), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#Electronic", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#Electronic", QUrl::StrictMode)), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#Electronic", QUrl::StrictMode)) {
     }
 
     Electronic& operator=(const SimpleResource& res) {
@@ -36,10 +36,10 @@ public:
 
 protected:
     Electronic(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NBIB::Publication(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NBIB::Publication(uri, type) {
     }
     Electronic(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NBIB::Publication(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NBIB::Publication(res, type) {
     }
 };
 }

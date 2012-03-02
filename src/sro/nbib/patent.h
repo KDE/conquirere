@@ -21,79 +21,17 @@ class Patent : public virtual NBIB::Publication
 {
 public:
     Patent(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#Patent", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#Patent", QUrl::StrictMode)), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#Patent", QUrl::StrictMode)) {
     }
 
     Patent(const SimpleResource& res)
-      : SimpleResource(res), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#Patent", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#Patent", QUrl::StrictMode)), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#Patent", QUrl::StrictMode)) {
     }
 
     Patent& operator=(const SimpleResource& res) {
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.example.com/nbib#Patent", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#filingDate. 
-     * The date when the patent was filed, the issue date is the same 
-     * as the publication date 
-     */
-    QDateTime filingDate() const {
-        QDateTime value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode)).first().value<QDateTime>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#filingDate. 
-     * The date when the patent was filed, the issue date is the same 
-     * as the publication date 
-     */
-    void setFilingDate(const QDateTime& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#filingDate. 
-     * The date when the patent was filed, the issue date is the same 
-     * as the publication date 
-     */
-    void addFilingDate(const QDateTime& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#attorneyAgent. 
-     * A attorney agent related to a patent 
-     */
-    QList<QUrl> attorneyAgents() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#attorneyAgent", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#attorneyAgent. 
-     * A attorney agent related to a patent 
-     */
-    void setAttorneyAgents(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#attorneyAgent", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#attorneyAgent. 
-     * A attorney agent related to a patent 
-     */
-    void addAttorneyAgent(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#attorneyAgent", QUrl::StrictMode), value);
     }
 
     /**
@@ -154,6 +92,68 @@ public:
      */
     void addAssignee(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#assignee", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#attorneyAgent. 
+     * A attorney agent related to a patent 
+     */
+    QList<QUrl> attorneyAgents() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#attorneyAgent", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#attorneyAgent. 
+     * A attorney agent related to a patent 
+     */
+    void setAttorneyAgents(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#attorneyAgent", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#attorneyAgent. 
+     * A attorney agent related to a patent 
+     */
+    void addAttorneyAgent(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#attorneyAgent", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#filingDate. 
+     * The date when the patent was filed, the issue date is the same 
+     * as the publication date 
+     */
+    QDateTime filingDate() const {
+        QDateTime value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode)).first().value<QDateTime>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#filingDate. 
+     * The date when the patent was filed, the issue date is the same 
+     * as the publication date 
+     */
+    void setFilingDate(const QDateTime& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#filingDate. 
+     * The date when the patent was filed, the issue date is the same 
+     * as the publication date 
+     */
+    void addFilingDate(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode), value);
     }
 
     /**
@@ -247,10 +247,10 @@ public:
 
 protected:
     Patent(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NBIB::Publication(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NBIB::Publication(uri, type) {
     }
     Patent(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NBIB::Publication(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NBIB::Publication(res, type) {
     }
 };
 }

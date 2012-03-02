@@ -21,11 +21,11 @@ class ArchiveItem : public virtual NFO::EmbeddedFileDataObject
 {
 public:
     ArchiveItem(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NFO::FileDataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#ArchiveItem", QUrl::StrictMode)), NFO::EmbeddedFileDataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#ArchiveItem", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::DataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#ArchiveItem", QUrl::StrictMode)), NFO::FileDataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#ArchiveItem", QUrl::StrictMode)), NFO::EmbeddedFileDataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#ArchiveItem", QUrl::StrictMode)) {
     }
 
     ArchiveItem(const SimpleResource& res)
-      : SimpleResource(res), NFO::FileDataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#ArchiveItem", QUrl::StrictMode)), NFO::EmbeddedFileDataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#ArchiveItem", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::DataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#ArchiveItem", QUrl::StrictMode)), NFO::FileDataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#ArchiveItem", QUrl::StrictMode)), NFO::EmbeddedFileDataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#ArchiveItem", QUrl::StrictMode)) {
     }
 
     ArchiveItem& operator=(const SimpleResource& res) {
@@ -65,10 +65,10 @@ public:
 
 protected:
     ArchiveItem(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NFO::FileDataObject(uri, type), NFO::EmbeddedFileDataObject(uri, type) {
+      : SimpleResource(uri), NIE::DataObject(uri, type), NFO::FileDataObject(uri, type), NFO::EmbeddedFileDataObject(uri, type) {
     }
     ArchiveItem(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NFO::FileDataObject(res, type), NFO::EmbeddedFileDataObject(res, type) {
+      : SimpleResource(res), NIE::DataObject(res, type), NFO::FileDataObject(res, type), NFO::EmbeddedFileDataObject(res, type) {
     }
 };
 }

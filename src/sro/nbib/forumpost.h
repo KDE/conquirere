@@ -21,11 +21,11 @@ class ForumPost : public virtual NBIB::Article
 {
 public:
     ForumPost(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#ForumPost", QUrl::StrictMode)), NBIB::Article(uri, QUrl::fromEncoded("http://www.example.com/nbib#ForumPost", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#ForumPost", QUrl::StrictMode)), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#ForumPost", QUrl::StrictMode)), NBIB::Article(uri, QUrl::fromEncoded("http://www.example.com/nbib#ForumPost", QUrl::StrictMode)) {
     }
 
     ForumPost(const SimpleResource& res)
-      : SimpleResource(res), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#ForumPost", QUrl::StrictMode)), NBIB::Article(res, QUrl::fromEncoded("http://www.example.com/nbib#ForumPost", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#ForumPost", QUrl::StrictMode)), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#ForumPost", QUrl::StrictMode)), NBIB::Article(res, QUrl::fromEncoded("http://www.example.com/nbib#ForumPost", QUrl::StrictMode)) {
     }
 
     ForumPost& operator=(const SimpleResource& res) {
@@ -36,10 +36,10 @@ public:
 
 protected:
     ForumPost(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NBIB::Publication(uri, type), NBIB::Article(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NBIB::Publication(uri, type), NBIB::Article(uri, type) {
     }
     ForumPost(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NBIB::Publication(res, type), NBIB::Article(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NBIB::Publication(res, type), NBIB::Article(res, type) {
     }
 };
 }

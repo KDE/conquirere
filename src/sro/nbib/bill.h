@@ -21,11 +21,11 @@ class Bill : public virtual NBIB::Legislation
 {
 public:
     Bill(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#Bill", QUrl::StrictMode)), NBIB::LegalDocument(uri, QUrl::fromEncoded("http://www.example.com/nbib#Bill", QUrl::StrictMode)), NBIB::Legislation(uri, QUrl::fromEncoded("http://www.example.com/nbib#Bill", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#Bill", QUrl::StrictMode)), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#Bill", QUrl::StrictMode)), NBIB::LegalDocument(uri, QUrl::fromEncoded("http://www.example.com/nbib#Bill", QUrl::StrictMode)), NBIB::Legislation(uri, QUrl::fromEncoded("http://www.example.com/nbib#Bill", QUrl::StrictMode)) {
     }
 
     Bill(const SimpleResource& res)
-      : SimpleResource(res), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#Bill", QUrl::StrictMode)), NBIB::LegalDocument(res, QUrl::fromEncoded("http://www.example.com/nbib#Bill", QUrl::StrictMode)), NBIB::Legislation(res, QUrl::fromEncoded("http://www.example.com/nbib#Bill", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#Bill", QUrl::StrictMode)), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#Bill", QUrl::StrictMode)), NBIB::LegalDocument(res, QUrl::fromEncoded("http://www.example.com/nbib#Bill", QUrl::StrictMode)), NBIB::Legislation(res, QUrl::fromEncoded("http://www.example.com/nbib#Bill", QUrl::StrictMode)) {
     }
 
     Bill& operator=(const SimpleResource& res) {
@@ -36,10 +36,10 @@ public:
 
 protected:
     Bill(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NBIB::Publication(uri, type), NBIB::LegalDocument(uri, type), NBIB::Legislation(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NBIB::Publication(uri, type), NBIB::LegalDocument(uri, type), NBIB::Legislation(uri, type) {
     }
     Bill(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NBIB::Publication(res, type), NBIB::LegalDocument(res, type), NBIB::Legislation(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NBIB::Publication(res, type), NBIB::LegalDocument(res, type), NBIB::Legislation(res, type) {
     }
 };
 }

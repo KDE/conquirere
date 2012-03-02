@@ -74,38 +74,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#periodBegin. 
-     * Beginng of a period. Inspired by the first part of a structured 
-     * value of the PERIOD datatype specified in RFC 2445 sec. 4.3.9 
-     */
-    QDateTime periodBegin() const {
-        QDateTime value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#periodBegin", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#periodBegin", QUrl::StrictMode)).first().value<QDateTime>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#periodBegin. 
-     * Beginng of a period. Inspired by the first part of a structured 
-     * value of the PERIOD datatype specified in RFC 2445 sec. 4.3.9 
-     */
-    void setPeriodBegin(const QDateTime& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#periodBegin", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#periodBegin. 
-     * Beginng of a period. Inspired by the first part of a structured 
-     * value of the PERIOD datatype specified in RFC 2445 sec. 4.3.9 
-     */
-    void addPeriodBegin(const QDateTime& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#periodBegin", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#periodDuration. 
      * Duration of a period of time. Inspired by the second part of a 
      * structured value of the PERIOD datatype specified in RFC 2445 
@@ -144,6 +112,38 @@ public:
      */
     void addPeriodDuration(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#periodDuration", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#periodBegin. 
+     * Beginng of a period. Inspired by the first part of a structured 
+     * value of the PERIOD datatype specified in RFC 2445 sec. 4.3.9 
+     */
+    QDateTime periodBegin() const {
+        QDateTime value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#periodBegin", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#periodBegin", QUrl::StrictMode)).first().value<QDateTime>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#periodBegin. 
+     * Beginng of a period. Inspired by the first part of a structured 
+     * value of the PERIOD datatype specified in RFC 2445 sec. 4.3.9 
+     */
+    void setPeriodBegin(const QDateTime& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#periodBegin", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#periodBegin. 
+     * Beginng of a period. Inspired by the first part of a structured 
+     * value of the PERIOD datatype specified in RFC 2445 sec. 4.3.9 
+     */
+    void addPeriodBegin(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#periodBegin", QUrl::StrictMode), value);
     }
 
 protected:
