@@ -10,6 +10,8 @@
 
 #include "dms-copy/simpleresource.h"
 
+#include "nie/dataobject.h"
+
 namespace Nepomuk {
 namespace NCAL {
 /**
@@ -17,17 +19,15 @@ namespace NCAL {
  * as one of the calendar entity types (e.g. Event, Journal, Todo 
  * etc.) 
  */
-class CalendarDataObject : public virtual Nepomuk::SimpleResource
+class CalendarDataObject : public virtual NIE::DataObject
 {
 public:
     CalendarDataObject(const QUrl& uri = QUrl())
-      : SimpleResource(uri) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#CalendarDataObject", QUrl::StrictMode));
+      : SimpleResource(uri), NIE::DataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#CalendarDataObject", QUrl::StrictMode)) {
     }
 
     CalendarDataObject(const SimpleResource& res)
-      : SimpleResource(res) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#CalendarDataObject", QUrl::StrictMode));
+      : SimpleResource(res), NIE::DataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#CalendarDataObject", QUrl::StrictMode)) {
     }
 
     CalendarDataObject& operator=(const SimpleResource& res) {
@@ -38,12 +38,10 @@ public:
 
 protected:
     CalendarDataObject(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri) {
-        addType(type);
+      : SimpleResource(uri), NIE::DataObject(uri, type) {
     }
     CalendarDataObject(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res) {
-        addType(type);
+      : SimpleResource(res), NIE::DataObject(res, type) {
     }
 };
 }

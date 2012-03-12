@@ -36,102 +36,32 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#streetAddress. 
-     * The streed address. Inspired by the third part of the value of 
-     * the 'ADR' property as defined in RFC 2426, sec. 3.2.1 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#addressLocation. 
+     * The geographical location of a postal address. 
      */
-    QString streetAddress() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#streetAddress", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#streetAddress", QUrl::StrictMode)).first().value<QString>();
+    QUrl addressLocation() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#addressLocation", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#addressLocation", QUrl::StrictMode)).first().value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#streetAddress. 
-     * The streed address. Inspired by the third part of the value of 
-     * the 'ADR' property as defined in RFC 2426, sec. 3.2.1 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#addressLocation. 
+     * The geographical location of a postal address. 
      */
-    void setStreetAddress(const QString& value) {
+    void setAddressLocation(const QUrl& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#streetAddress", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#addressLocation", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#streetAddress. 
-     * The streed address. Inspired by the third part of the value of 
-     * the 'ADR' property as defined in RFC 2426, sec. 3.2.1 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#addressLocation. 
+     * The geographical location of a postal address. 
      */
-    void addStreetAddress(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#streetAddress", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#locality. 
-     * Locality or City. Inspired by the fourth part of the value of 
-     * the 'ADR' property as defined in RFC 2426, sec. 3.2.1 
-     */
-    QString locality() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#locality", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#locality", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#locality. 
-     * Locality or City. Inspired by the fourth part of the value of 
-     * the 'ADR' property as defined in RFC 2426, sec. 3.2.1 
-     */
-    void setLocality(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#locality", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#locality. 
-     * Locality or City. Inspired by the fourth part of the value of 
-     * the 'ADR' property as defined in RFC 2426, sec. 3.2.1 
-     */
-    void addLocality(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#locality", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#country. 
-     * A part of an address specyfing the country. Inspired by the seventh 
-     * part of the value of the 'ADR' property as defined in RFC 2426, 
-     * sec. 3.2.1 
-     */
-    QString country() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#country", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#country", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#country. 
-     * A part of an address specyfing the country. Inspired by the seventh 
-     * part of the value of the 'ADR' property as defined in RFC 2426, 
-     * sec. 3.2.1 
-     */
-    void setCountry(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#country", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#country. 
-     * A part of an address specyfing the country. Inspired by the seventh 
-     * part of the value of the 'ADR' property as defined in RFC 2426, 
-     * sec. 3.2.1 
-     */
-    void addCountry(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#country", QUrl::StrictMode), value);
+    void addAddressLocation(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#addressLocation", QUrl::StrictMode), value);
     }
 
     /**
@@ -199,6 +129,102 @@ public:
     }
 
     /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#region. 
+     * Region. Inspired by the fifth part of the value of the 'ADR' property 
+     * as defined in RFC 2426, sec. 3.2.1 
+     */
+    QString region() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#region", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#region", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#region. 
+     * Region. Inspired by the fifth part of the value of the 'ADR' property 
+     * as defined in RFC 2426, sec. 3.2.1 
+     */
+    void setRegion(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#region", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#region. 
+     * Region. Inspired by the fifth part of the value of the 'ADR' property 
+     * as defined in RFC 2426, sec. 3.2.1 
+     */
+    void addRegion(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#region", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#locality. 
+     * Locality or City. Inspired by the fourth part of the value of 
+     * the 'ADR' property as defined in RFC 2426, sec. 3.2.1 
+     */
+    QString locality() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#locality", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#locality", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#locality. 
+     * Locality or City. Inspired by the fourth part of the value of 
+     * the 'ADR' property as defined in RFC 2426, sec. 3.2.1 
+     */
+    void setLocality(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#locality", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#locality. 
+     * Locality or City. Inspired by the fourth part of the value of 
+     * the 'ADR' property as defined in RFC 2426, sec. 3.2.1 
+     */
+    void addLocality(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#locality", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#streetAddress. 
+     * The streed address. Inspired by the third part of the value of 
+     * the 'ADR' property as defined in RFC 2426, sec. 3.2.1 
+     */
+    QString streetAddress() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#streetAddress", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#streetAddress", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#streetAddress. 
+     * The streed address. Inspired by the third part of the value of 
+     * the 'ADR' property as defined in RFC 2426, sec. 3.2.1 
+     */
+    void setStreetAddress(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#streetAddress", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#streetAddress. 
+     * The streed address. Inspired by the third part of the value of 
+     * the 'ADR' property as defined in RFC 2426, sec. 3.2.1 
+     */
+    void addStreetAddress(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#streetAddress", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#extendedAddress. 
      * An extended part of an address. This field might be used to express 
      * parts of an address that aren't include in the name of the Contact 
@@ -249,64 +275,38 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#addressLocation. 
-     * The geographical location of a postal address. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#country. 
+     * A part of an address specyfing the country. Inspired by the seventh 
+     * part of the value of the 'ADR' property as defined in RFC 2426, 
+     * sec. 3.2.1 
      */
-    QUrl addressLocation() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#addressLocation", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#addressLocation", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#addressLocation. 
-     * The geographical location of a postal address. 
-     */
-    void setAddressLocation(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#addressLocation", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#addressLocation. 
-     * The geographical location of a postal address. 
-     */
-    void addAddressLocation(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#addressLocation", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#region. 
-     * Region. Inspired by the fifth part of the value of the 'ADR' property 
-     * as defined in RFC 2426, sec. 3.2.1 
-     */
-    QString region() const {
+    QString country() const {
         QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#region", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#region", QUrl::StrictMode)).first().value<QString>();
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#country", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#country", QUrl::StrictMode)).first().value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#region. 
-     * Region. Inspired by the fifth part of the value of the 'ADR' property 
-     * as defined in RFC 2426, sec. 3.2.1 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#country. 
+     * A part of an address specyfing the country. Inspired by the seventh 
+     * part of the value of the 'ADR' property as defined in RFC 2426, 
+     * sec. 3.2.1 
      */
-    void setRegion(const QString& value) {
+    void setCountry(const QString& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#region", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#country", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#region. 
-     * Region. Inspired by the fifth part of the value of the 'ADR' property 
-     * as defined in RFC 2426, sec. 3.2.1 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#country. 
+     * A part of an address specyfing the country. Inspired by the seventh 
+     * part of the value of the 'ADR' property as defined in RFC 2426, 
+     * sec. 3.2.1 
      */
-    void addRegion(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#region", QUrl::StrictMode), value);
+    void addCountry(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#country", QUrl::StrictMode), value);
     }
 
 protected:

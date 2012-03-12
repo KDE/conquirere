@@ -40,39 +40,36 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#locatedWithin. 
-     * The subject location is contained within the object location. 
-     * For example, a room is located within a building or a city is located 
-     * within a country. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#containsLocation. 
+     * The subject location contains the object location. For example, 
+     * a building contains a room or a country contains a city. 
      */
-    QList<QUrl> locatedWithins() const {
+    QList<QUrl> containsLocations() const {
         QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#locatedWithin", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#containsLocation", QUrl::StrictMode)))
             value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#locatedWithin. 
-     * The subject location is contained within the object location. 
-     * For example, a room is located within a building or a city is located 
-     * within a country. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#containsLocation. 
+     * The subject location contains the object location. For example, 
+     * a building contains a room or a country contains a city. 
      */
-    void setLocatedWithins(const QList<QUrl>& value) {
+    void setContainsLocations(const QList<QUrl>& value) {
         QVariantList values;
         foreach(const QUrl& v, value)
             values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#locatedWithin", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#containsLocation", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#locatedWithin. 
-     * The subject location is contained within the object location. 
-     * For example, a room is located within a building or a city is located 
-     * within a country. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#containsLocation. 
+     * The subject location contains the object location. For example, 
+     * a building contains a room or a country contains a city. 
      */
-    void addLocatedWithin(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#locatedWithin", QUrl::StrictMode), value);
+    void addContainsLocation(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#containsLocation", QUrl::StrictMode), value);
     }
 
     /**
@@ -106,36 +103,39 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#containsLocation. 
-     * The subject location contains the object location. For example, 
-     * a building contains a room or a country contains a city. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#locatedWithin. 
+     * The subject location is contained within the object location. 
+     * For example, a room is located within a building or a city is located 
+     * within a country. 
      */
-    QList<QUrl> containsLocations() const {
+    QList<QUrl> locatedWithins() const {
         QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#containsLocation", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#locatedWithin", QUrl::StrictMode)))
             value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#containsLocation. 
-     * The subject location contains the object location. For example, 
-     * a building contains a room or a country contains a city. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#locatedWithin. 
+     * The subject location is contained within the object location. 
+     * For example, a room is located within a building or a city is located 
+     * within a country. 
      */
-    void setContainsLocations(const QList<QUrl>& value) {
+    void setLocatedWithins(const QList<QUrl>& value) {
         QVariantList values;
         foreach(const QUrl& v, value)
             values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#containsLocation", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#locatedWithin", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#containsLocation. 
-     * The subject location contains the object location. For example, 
-     * a building contains a room or a country contains a city. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#locatedWithin. 
+     * The subject location is contained within the object location. 
+     * For example, a room is located within a building or a city is located 
+     * within a country. 
      */
-    void addContainsLocation(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#containsLocation", QUrl::StrictMode), value);
+    void addLocatedWithin(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#locatedWithin", QUrl::StrictMode), value);
     }
 
 protected:

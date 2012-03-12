@@ -21,11 +21,11 @@ class Legislation : public virtual NBIB::LegalDocument
 {
 public:
     Legislation(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#Legislation", QUrl::StrictMode)), NBIB::LegalDocument(uri, QUrl::fromEncoded("http://www.example.com/nbib#Legislation", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#Legislation", QUrl::StrictMode)), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#Legislation", QUrl::StrictMode)), NBIB::LegalDocument(uri, QUrl::fromEncoded("http://www.example.com/nbib#Legislation", QUrl::StrictMode)) {
     }
 
     Legislation(const SimpleResource& res)
-      : SimpleResource(res), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#Legislation", QUrl::StrictMode)), NBIB::LegalDocument(res, QUrl::fromEncoded("http://www.example.com/nbib#Legislation", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#Legislation", QUrl::StrictMode)), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#Legislation", QUrl::StrictMode)), NBIB::LegalDocument(res, QUrl::fromEncoded("http://www.example.com/nbib#Legislation", QUrl::StrictMode)) {
     }
 
     Legislation& operator=(const SimpleResource& res) {
@@ -95,10 +95,10 @@ public:
 
 protected:
     Legislation(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NBIB::Publication(uri, type), NBIB::LegalDocument(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NBIB::Publication(uri, type), NBIB::LegalDocument(uri, type) {
     }
     Legislation(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NBIB::Publication(res, type), NBIB::LegalDocument(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NBIB::Publication(res, type), NBIB::LegalDocument(res, type) {
     }
 };
 }

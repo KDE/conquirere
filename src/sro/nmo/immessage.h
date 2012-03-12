@@ -21,11 +21,11 @@ class IMMessage : public virtual NMO::Message
 {
 public:
     IMMessage(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NMO::Message(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#IMMessage", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#IMMessage", QUrl::StrictMode)), NMO::Message(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#IMMessage", QUrl::StrictMode)) {
     }
 
     IMMessage(const SimpleResource& res)
-      : SimpleResource(res), NMO::Message(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#IMMessage", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#IMMessage", QUrl::StrictMode)), NMO::Message(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#IMMessage", QUrl::StrictMode)) {
     }
 
     IMMessage& operator=(const SimpleResource& res) {
@@ -36,10 +36,10 @@ public:
 
 protected:
     IMMessage(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NMO::Message(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NMO::Message(uri, type) {
     }
     IMMessage(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NMO::Message(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NMO::Message(res, type) {
     }
 };
 }

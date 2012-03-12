@@ -70,6 +70,38 @@ public:
     }
 
     /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#date. 
+     * Date an instance of NcalDateTime refers to. It was conceived 
+     * to express values in DATE datatype specified in RFC 2445 4.3.4 
+     */
+    QDate date() const {
+        QDate value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#date", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#date", QUrl::StrictMode)).first().value<QDate>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#date. 
+     * Date an instance of NcalDateTime refers to. It was conceived 
+     * to express values in DATE datatype specified in RFC 2445 4.3.4 
+     */
+    void setDate(const QDate& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#date", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#date. 
+     * Date an instance of NcalDateTime refers to. It was conceived 
+     * to express values in DATE datatype specified in RFC 2445 4.3.4 
+     */
+    void addDate(const QDate& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#date", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#dateTime. 
      * Representation of a date an instance of NcalDateTime actually 
      * refers to. It's purpose is to express values in DATE-TIME datatype, 
@@ -102,38 +134,6 @@ public:
      */
     void addDateTime(const QDateTime& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#dateTime", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#date. 
-     * Date an instance of NcalDateTime refers to. It was conceived 
-     * to express values in DATE datatype specified in RFC 2445 4.3.4 
-     */
-    QDate date() const {
-        QDate value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#date", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#date", QUrl::StrictMode)).first().value<QDate>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#date. 
-     * Date an instance of NcalDateTime refers to. It was conceived 
-     * to express values in DATE datatype specified in RFC 2445 4.3.4 
-     */
-    void setDate(const QDate& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#date", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#date. 
-     * Date an instance of NcalDateTime refers to. It was conceived 
-     * to express values in DATE datatype specified in RFC 2445 4.3.4 
-     */
-    void addDate(const QDate& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#date", QUrl::StrictMode), value);
     }
 
 protected:

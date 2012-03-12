@@ -10,58 +10,29 @@
 
 #include "dms-copy/simpleresource.h"
 
+#include "nfo/audio.h"
+
 namespace Nepomuk {
 namespace NMM {
 /**
  * Used to assign music-specific properties such a BPM to video 
  * and audio 
  */
-class MusicPiece : public virtual Nepomuk::SimpleResource
+class MusicPiece : public virtual NFO::Audio
 {
 public:
     MusicPiece(const QUrl& uri = QUrl())
-      : SimpleResource(uri) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#MusicPiece", QUrl::StrictMode));
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#MusicPiece", QUrl::StrictMode)), NFO::Media(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#MusicPiece", QUrl::StrictMode)), NFO::Audio(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#MusicPiece", QUrl::StrictMode)) {
     }
 
     MusicPiece(const SimpleResource& res)
-      : SimpleResource(res) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#MusicPiece", QUrl::StrictMode));
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#MusicPiece", QUrl::StrictMode)), NFO::Media(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#MusicPiece", QUrl::StrictMode)), NFO::Audio(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#MusicPiece", QUrl::StrictMode)) {
     }
 
     MusicPiece& operator=(const SimpleResource& res) {
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#MusicPiece", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicAlbum. 
-     * Album the music belongs to 
-     */
-    QUrl musicAlbum() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicAlbum", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicAlbum", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicAlbum. 
-     * Album the music belongs to 
-     */
-    void setMusicAlbum(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicAlbum", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicAlbum. 
-     * Album the music belongs to 
-     */
-    void addMusicAlbum(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicAlbum", QUrl::StrictMode), value);
     }
 
     /**
@@ -94,122 +65,32 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#composer. 
-     * Composer 
+     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicAlbum. 
+     * Album the music belongs to 
      */
-    QList<QUrl> composers() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#composer", QUrl::StrictMode)))
-            value << v.value<QUrl>();
+    QUrl musicAlbum() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicAlbum", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicAlbum", QUrl::StrictMode)).first().value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#composer. 
-     * Composer 
+     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicAlbum. 
+     * Album the music belongs to 
      */
-    void setComposers(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#composer", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#composer. 
-     * Composer 
-     */
-    void addComposer(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#composer", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#lyricist. 
-     * Lyricist 
-     */
-    QList<QUrl> lyricists() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#lyricist", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#lyricist. 
-     * Lyricist 
-     */
-    void setLyricists(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#lyricist", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#lyricist. 
-     * Lyricist 
-     */
-    void addLyricist(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#lyricist", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#beatsPerMinute. 
-     * beats per minute 
-     */
-    QList<qint64> beatsPerMinutes() const {
-        QList<qint64> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#beatsPerMinute", QUrl::StrictMode)))
-            value << v.value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#beatsPerMinute. 
-     * beats per minute 
-     */
-    void setBeatsPerMinutes(const QList<qint64>& value) {
-        QVariantList values;
-        foreach(const qint64& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#beatsPerMinute", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#beatsPerMinute. 
-     * beats per minute 
-     */
-    void addBeatsPerMinute(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#beatsPerMinute", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzTrackID. 
-     * MusicBrainz track ID 
-     */
-    qint64 musicBrainzTrackID() const {
-        qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzTrackID", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzTrackID", QUrl::StrictMode)).first().value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzTrackID. 
-     * MusicBrainz track ID 
-     */
-    void setMusicBrainzTrackID(const qint64& value) {
+    void setMusicAlbum(const QUrl& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzTrackID", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicAlbum", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzTrackID. 
-     * MusicBrainz track ID 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicAlbum. 
+     * Album the music belongs to 
      */
-    void addMusicBrainzTrackID(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzTrackID", QUrl::StrictMode), value);
+    void addMusicAlbum(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicAlbum", QUrl::StrictMode), value);
     }
 
     /**
@@ -243,32 +124,62 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackPeakGain. 
-     * ReplayGain track peak gain 
+     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackGain. 
+     * ReplayGain track gain 
      */
-    double trackPeakGain() const {
+    double trackGain() const {
         double value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackPeakGain", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackPeakGain", QUrl::StrictMode)).first().value<double>();
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackGain", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackGain", QUrl::StrictMode)).first().value<double>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackPeakGain. 
-     * ReplayGain track peak gain 
+     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackGain. 
+     * ReplayGain track gain 
      */
-    void setTrackPeakGain(const double& value) {
+    void setTrackGain(const double& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackPeakGain", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackGain", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackPeakGain. 
-     * ReplayGain track peak gain 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackGain. 
+     * ReplayGain track gain 
      */
-    void addTrackPeakGain(const double& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackPeakGain", QUrl::StrictMode), value);
+    void addTrackGain(const double& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackGain", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#lyricist. 
+     * Lyricist 
+     */
+    QList<QUrl> lyricists() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#lyricist", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#lyricist. 
+     * Lyricist 
+     */
+    void setLyricists(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#lyricist", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#lyricist. 
+     * Lyricist 
+     */
+    void addLyricist(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#lyricist", QUrl::StrictMode), value);
     }
 
     /**
@@ -301,42 +212,129 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackGain. 
-     * ReplayGain track gain 
+     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzTrackID. 
+     * MusicBrainz track ID 
      */
-    double trackGain() const {
-        double value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackGain", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackGain", QUrl::StrictMode)).first().value<double>();
+    qint64 musicBrainzTrackID() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzTrackID", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzTrackID", QUrl::StrictMode)).first().value<qint64>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackGain. 
-     * ReplayGain track gain 
+     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzTrackID. 
+     * MusicBrainz track ID 
      */
-    void setTrackGain(const double& value) {
+    void setMusicBrainzTrackID(const qint64& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackGain", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzTrackID", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackGain. 
-     * ReplayGain track gain 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzTrackID. 
+     * MusicBrainz track ID 
      */
-    void addTrackGain(const double& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackGain", QUrl::StrictMode), value);
+    void addMusicBrainzTrackID(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzTrackID", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackPeakGain. 
+     * ReplayGain track peak gain 
+     */
+    double trackPeakGain() const {
+        double value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackPeakGain", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackPeakGain", QUrl::StrictMode)).first().value<double>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackPeakGain. 
+     * ReplayGain track peak gain 
+     */
+    void setTrackPeakGain(const double& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackPeakGain", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackPeakGain. 
+     * ReplayGain track peak gain 
+     */
+    void addTrackPeakGain(const double& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#trackPeakGain", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#composer. 
+     * Composer 
+     */
+    QList<QUrl> composers() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#composer", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#composer. 
+     * Composer 
+     */
+    void setComposers(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#composer", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#composer. 
+     * Composer 
+     */
+    void addComposer(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#composer", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#beatsPerMinute. 
+     * beats per minute 
+     */
+    QList<qint64> beatsPerMinutes() const {
+        QList<qint64> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#beatsPerMinute", QUrl::StrictMode)))
+            value << v.value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#beatsPerMinute. 
+     * beats per minute 
+     */
+    void setBeatsPerMinutes(const QList<qint64>& value) {
+        QVariantList values;
+        foreach(const qint64& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#beatsPerMinute", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#beatsPerMinute. 
+     * beats per minute 
+     */
+    void addBeatsPerMinute(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#beatsPerMinute", QUrl::StrictMode), value);
     }
 
 protected:
     MusicPiece(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri) {
-        addType(type);
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NFO::Media(uri, type), NFO::Audio(uri, type) {
     }
     MusicPiece(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res) {
-        addType(type);
+      : SimpleResource(res), NIE::InformationElement(res, type), NFO::Media(res, type), NFO::Audio(res, type) {
     }
 };
 }

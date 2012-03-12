@@ -10,23 +10,23 @@
 
 #include "dms-copy/simpleresource.h"
 
+#include "nfo/medialist.h"
+
 namespace Nepomuk {
 namespace NMM {
 /**
  * The music album as provided by the publisher. Not to be confused 
  * with media lists or collections. 
  */
-class MusicAlbum : public virtual Nepomuk::SimpleResource
+class MusicAlbum : public virtual NFO::MediaList
 {
 public:
     MusicAlbum(const QUrl& uri = QUrl())
-      : SimpleResource(uri) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#MusicAlbum", QUrl::StrictMode));
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#MusicAlbum", QUrl::StrictMode)), NFO::MediaList(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#MusicAlbum", QUrl::StrictMode)) {
     }
 
     MusicAlbum(const SimpleResource& res)
-      : SimpleResource(res) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#MusicAlbum", QUrl::StrictMode));
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#MusicAlbum", QUrl::StrictMode)), NFO::MediaList(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#MusicAlbum", QUrl::StrictMode)) {
     }
 
     MusicAlbum& operator=(const SimpleResource& res) {
@@ -36,32 +36,61 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#albumGain. 
-     * ReplayGain album(audiophile) gain 
+     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzAlbumID. 
+     * MusicBrainz album ID 
      */
-    double albumGain() const {
-        double value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#albumGain", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#albumGain", QUrl::StrictMode)).first().value<double>();
+    QString musicBrainzAlbumID() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzAlbumID", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzAlbumID", QUrl::StrictMode)).first().value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#albumGain. 
-     * ReplayGain album(audiophile) gain 
+     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzAlbumID. 
+     * MusicBrainz album ID 
      */
-    void setAlbumGain(const double& value) {
+    void setMusicBrainzAlbumID(const QString& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#albumGain", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzAlbumID", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#albumGain. 
-     * ReplayGain album(audiophile) gain 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzAlbumID. 
+     * MusicBrainz album ID 
      */
-    void addAlbumGain(const double& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#albumGain", QUrl::StrictMode), value);
+    void addMusicBrainzAlbumID(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzAlbumID", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#setSize. 
+     * The number of parts in the set. 
+     */
+    qint64 setSize() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#setSize", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#setSize", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#setSize. 
+     * The number of parts in the set. 
+     */
+    void setSetSize(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#setSize", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#setSize. 
+     * The number of parts in the set. 
+     */
+    void addSetSize(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#setSize", QUrl::StrictMode), value);
     }
 
     /**
@@ -98,6 +127,35 @@ public:
      */
     void addMusicCDIdentifier(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicCDIdentifier", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#albumGain. 
+     * ReplayGain album(audiophile) gain 
+     */
+    double albumGain() const {
+        double value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#albumGain", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#albumGain", QUrl::StrictMode)).first().value<double>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#albumGain. 
+     * ReplayGain album(audiophile) gain 
+     */
+    void setAlbumGain(const double& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#albumGain", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#albumGain. 
+     * ReplayGain album(audiophile) gain 
+     */
+    void addAlbumGain(const double& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#albumGain", QUrl::StrictMode), value);
     }
 
     /**
@@ -159,64 +217,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#setSize. 
-     * The number of parts in the set. 
-     */
-    qint64 setSize() const {
-        qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#setSize", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#setSize", QUrl::StrictMode)).first().value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#setSize. 
-     * The number of parts in the set. 
-     */
-    void setSetSize(const qint64& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#setSize", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#setSize. 
-     * The number of parts in the set. 
-     */
-    void addSetSize(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#setSize", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzAlbumID. 
-     * MusicBrainz album ID 
-     */
-    QString musicBrainzAlbumID() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzAlbumID", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzAlbumID", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzAlbumID. 
-     * MusicBrainz album ID 
-     */
-    void setMusicBrainzAlbumID(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzAlbumID", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzAlbumID. 
-     * MusicBrainz album ID 
-     */
-    void addMusicBrainzAlbumID(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#musicBrainzAlbumID", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2009/02/19/nmm#albumPeakGain. 
      * ReplayGain album(audiophile) peak gain 
      */
@@ -247,12 +247,10 @@ public:
 
 protected:
     MusicAlbum(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri) {
-        addType(type);
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NFO::MediaList(uri, type) {
     }
     MusicAlbum(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res) {
-        addType(type);
+      : SimpleResource(res), NIE::InformationElement(res, type), NFO::MediaList(res, type) {
     }
 };
 }

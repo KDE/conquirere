@@ -23,11 +23,11 @@ class Report : public virtual NBIB::Publication
 {
 public:
     Report(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#Report", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#Report", QUrl::StrictMode)), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#Report", QUrl::StrictMode)) {
     }
 
     Report(const SimpleResource& res)
-      : SimpleResource(res), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#Report", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#Report", QUrl::StrictMode)), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#Report", QUrl::StrictMode)) {
     }
 
     Report& operator=(const SimpleResource& res) {
@@ -38,10 +38,10 @@ public:
 
 protected:
     Report(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NBIB::Publication(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NBIB::Publication(uri, type) {
     }
     Report(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NBIB::Publication(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NBIB::Publication(res, type) {
     }
 };
 }

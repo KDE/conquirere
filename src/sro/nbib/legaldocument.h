@@ -22,11 +22,11 @@ class LegalDocument : public virtual NBIB::Publication
 {
 public:
     LegalDocument(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#LegalDocument", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#LegalDocument", QUrl::StrictMode)), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#LegalDocument", QUrl::StrictMode)) {
     }
 
     LegalDocument(const SimpleResource& res)
-      : SimpleResource(res), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#LegalDocument", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#LegalDocument", QUrl::StrictMode)), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#LegalDocument", QUrl::StrictMode)) {
     }
 
     LegalDocument& operator=(const SimpleResource& res) {
@@ -65,6 +65,35 @@ public:
     }
 
     /**
+     * Get property http://www.example.com/nbib#arguedDate. 
+     * The date on which a legal case is argued before a court. 
+     */
+    QDateTime arguedDate() const {
+        QDateTime value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#arguedDate", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#arguedDate", QUrl::StrictMode)).first().value<QDateTime>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#arguedDate. 
+     * The date on which a legal case is argued before a court. 
+     */
+    void setArguedDate(const QDateTime& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#arguedDate", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#arguedDate. 
+     * The date on which a legal case is argued before a court. 
+     */
+    void addArguedDate(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#arguedDate", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.example.com/nbib#counsel. The 
      * counsel related to a Legal document 
      */
@@ -94,41 +123,12 @@ public:
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#counsel", QUrl::StrictMode), value);
     }
 
-    /**
-     * Get property http://www.example.com/nbib#arguedDate. 
-     * The date on which a legal case is argued before a court. 
-     */
-    QDateTime arguedDate() const {
-        QDateTime value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#arguedDate", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#arguedDate", QUrl::StrictMode)).first().value<QDateTime>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#arguedDate. 
-     * The date on which a legal case is argued before a court. 
-     */
-    void setArguedDate(const QDateTime& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#arguedDate", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#arguedDate. 
-     * The date on which a legal case is argued before a court. 
-     */
-    void addArguedDate(const QDateTime& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#arguedDate", QUrl::StrictMode), value);
-    }
-
 protected:
     LegalDocument(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NBIB::Publication(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NBIB::Publication(uri, type) {
     }
     LegalDocument(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NBIB::Publication(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NBIB::Publication(res, type) {
     }
 };
 }

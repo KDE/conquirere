@@ -10,86 +10,28 @@
 
 #include "dms-copy/simpleresource.h"
 
+#include "nie/informationelement.h"
+
 namespace Nepomuk {
 namespace NBIB {
 /**
  * A bibliographic reference 
  */
-class Reference : public virtual Nepomuk::SimpleResource
+class Reference : public virtual NIE::InformationElement
 {
 public:
     Reference(const QUrl& uri = QUrl())
-      : SimpleResource(uri) {
-        addType(QUrl::fromEncoded("http://www.example.com/nbib#Reference", QUrl::StrictMode));
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#Reference", QUrl::StrictMode)) {
     }
 
     Reference(const SimpleResource& res)
-      : SimpleResource(res) {
-        addType(QUrl::fromEncoded("http://www.example.com/nbib#Reference", QUrl::StrictMode));
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#Reference", QUrl::StrictMode)) {
     }
 
     Reference& operator=(const SimpleResource& res) {
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.example.com/nbib#Reference", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#citeKey. Used 
-     * to identify the reference. 
-     */
-    QString citeKey() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#citeKey", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#citeKey", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#citeKey. Used 
-     * to identify the reference. 
-     */
-    void setCiteKey(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#citeKey", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#citeKey. 
-     * Used to identify the reference. 
-     */
-    void addCiteKey(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#citeKey", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#pages. Page numbers, 
-     * separated either by commas or double-hyphens. 
-     */
-    QString pages() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#pages", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#pages", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#pages. Page numbers, 
-     * separated either by commas or double-hyphens. 
-     */
-    void setPages(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#pages", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#pages. 
-     * Page numbers, separated either by commas or double-hyphens. 
-     */
-    void addPages(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#pages", QUrl::StrictMode), value);
     }
 
     /**
@@ -153,14 +95,70 @@ public:
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#publication", QUrl::StrictMode), value);
     }
 
+    /**
+     * Get property http://www.example.com/nbib#citeKey. Used 
+     * to identify the reference. 
+     */
+    QString citeKey() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#citeKey", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#citeKey", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#citeKey. Used 
+     * to identify the reference. 
+     */
+    void setCiteKey(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#citeKey", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#citeKey. 
+     * Used to identify the reference. 
+     */
+    void addCiteKey(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#citeKey", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#pages. Page numbers, 
+     * separated either by commas or double-hyphens. 
+     */
+    QString pages() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#pages", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#pages", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#pages. Page numbers, 
+     * separated either by commas or double-hyphens. 
+     */
+    void setPages(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#pages", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#pages. 
+     * Page numbers, separated either by commas or double-hyphens. 
+     */
+    void addPages(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#pages", QUrl::StrictMode), value);
+    }
+
 protected:
     Reference(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri) {
-        addType(type);
+      : SimpleResource(uri), NIE::InformationElement(uri, type) {
     }
     Reference(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res) {
-        addType(type);
+      : SimpleResource(res), NIE::InformationElement(res, type) {
     }
 };
 }

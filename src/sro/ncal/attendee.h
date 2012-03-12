@@ -37,48 +37,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#role. 
-     * To specify the participation role for the calendar user specified 
-     * by the property. Inspired by the RFC 2445 sec. 4.2.16. Originally 
-     * this property had a limited vocabulary for values. The terms 
-     * of that vocabulary have been expressed as instances of the AttendeeRole 
-     * class. 
-     */
-    QList<QUrl> roles() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#role", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#role. 
-     * To specify the participation role for the calendar user specified 
-     * by the property. Inspired by the RFC 2445 sec. 4.2.16. Originally 
-     * this property had a limited vocabulary for values. The terms 
-     * of that vocabulary have been expressed as instances of the AttendeeRole 
-     * class. 
-     */
-    void setRoles(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#role", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#role. 
-     * To specify the participation role for the calendar user specified 
-     * by the property. Inspired by the RFC 2445 sec. 4.2.16. Originally 
-     * this property had a limited vocabulary for values. The terms 
-     * of that vocabulary have been expressed as instances of the AttendeeRole 
-     * class. 
-     */
-    void addRole(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#role", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#rsvp. 
      * To specify whether there is an expectation of a favor of a reply 
      * from the calendar user specified by the property value. Inspired 
@@ -114,45 +72,45 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedFrom. 
-     * To specify the calendar users that have delegated their participation 
-     * to the calendar user specified by the property. Inspired by 
-     * RFC 2445 sec. 4.2.4. Originally the value type for this property 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedTo. 
+     * To specify the calendar users to whom the calendar user specified 
+     * by the property has delegated participation. Inspired by RFC 
+     * 2445 sec. 4.2.5. Originally the value type for this parameter 
      * was CAL-ADDRESS. This has been expressed as nco:Contact to 
      * promote integration between NCAL and NCO. 
      */
-    QList<QUrl> delegatedFroms() const {
+    QList<QUrl> delegatedTos() const {
         QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedFrom", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedTo", QUrl::StrictMode)))
             value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedFrom. 
-     * To specify the calendar users that have delegated their participation 
-     * to the calendar user specified by the property. Inspired by 
-     * RFC 2445 sec. 4.2.4. Originally the value type for this property 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedTo. 
+     * To specify the calendar users to whom the calendar user specified 
+     * by the property has delegated participation. Inspired by RFC 
+     * 2445 sec. 4.2.5. Originally the value type for this parameter 
      * was CAL-ADDRESS. This has been expressed as nco:Contact to 
      * promote integration between NCAL and NCO. 
      */
-    void setDelegatedFroms(const QList<QUrl>& value) {
+    void setDelegatedTos(const QList<QUrl>& value) {
         QVariantList values;
         foreach(const QUrl& v, value)
             values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedFrom", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedTo", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedFrom. 
-     * To specify the calendar users that have delegated their participation 
-     * to the calendar user specified by the property. Inspired by 
-     * RFC 2445 sec. 4.2.4. Originally the value type for this property 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedTo. 
+     * To specify the calendar users to whom the calendar user specified 
+     * by the property has delegated participation. Inspired by RFC 
+     * 2445 sec. 4.2.5. Originally the value type for this parameter 
      * was CAL-ADDRESS. This has been expressed as nco:Contact to 
      * promote integration between NCAL and NCO. 
      */
-    void addDelegatedFrom(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedFrom", QUrl::StrictMode), value);
+    void addDelegatedTo(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedTo", QUrl::StrictMode), value);
     }
 
     /**
@@ -243,6 +201,90 @@ public:
     }
 
     /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedFrom. 
+     * To specify the calendar users that have delegated their participation 
+     * to the calendar user specified by the property. Inspired by 
+     * RFC 2445 sec. 4.2.4. Originally the value type for this property 
+     * was CAL-ADDRESS. This has been expressed as nco:Contact to 
+     * promote integration between NCAL and NCO. 
+     */
+    QList<QUrl> delegatedFroms() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedFrom", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedFrom. 
+     * To specify the calendar users that have delegated their participation 
+     * to the calendar user specified by the property. Inspired by 
+     * RFC 2445 sec. 4.2.4. Originally the value type for this property 
+     * was CAL-ADDRESS. This has been expressed as nco:Contact to 
+     * promote integration between NCAL and NCO. 
+     */
+    void setDelegatedFroms(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedFrom", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedFrom. 
+     * To specify the calendar users that have delegated their participation 
+     * to the calendar user specified by the property. Inspired by 
+     * RFC 2445 sec. 4.2.4. Originally the value type for this property 
+     * was CAL-ADDRESS. This has been expressed as nco:Contact to 
+     * promote integration between NCAL and NCO. 
+     */
+    void addDelegatedFrom(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedFrom", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#role. 
+     * To specify the participation role for the calendar user specified 
+     * by the property. Inspired by the RFC 2445 sec. 4.2.16. Originally 
+     * this property had a limited vocabulary for values. The terms 
+     * of that vocabulary have been expressed as instances of the AttendeeRole 
+     * class. 
+     */
+    QList<QUrl> roles() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#role", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#role. 
+     * To specify the participation role for the calendar user specified 
+     * by the property. Inspired by the RFC 2445 sec. 4.2.16. Originally 
+     * this property had a limited vocabulary for values. The terms 
+     * of that vocabulary have been expressed as instances of the AttendeeRole 
+     * class. 
+     */
+    void setRoles(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#role", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#role. 
+     * To specify the participation role for the calendar user specified 
+     * by the property. Inspired by the RFC 2445 sec. 4.2.16. Originally 
+     * this property had a limited vocabulary for values. The terms 
+     * of that vocabulary have been expressed as instances of the AttendeeRole 
+     * class. 
+     */
+    void addRole(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#role", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#partstat. 
      * To specify the participation status for the calendar user specified 
      * by the property. Inspired by RFC 2445 sec. 4.2.12. Originally 
@@ -294,48 +336,6 @@ public:
      */
     void addPartstat(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#partstat", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedTo. 
-     * To specify the calendar users to whom the calendar user specified 
-     * by the property has delegated participation. Inspired by RFC 
-     * 2445 sec. 4.2.5. Originally the value type for this parameter 
-     * was CAL-ADDRESS. This has been expressed as nco:Contact to 
-     * promote integration between NCAL and NCO. 
-     */
-    QList<QUrl> delegatedTos() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedTo", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedTo. 
-     * To specify the calendar users to whom the calendar user specified 
-     * by the property has delegated participation. Inspired by RFC 
-     * 2445 sec. 4.2.5. Originally the value type for this parameter 
-     * was CAL-ADDRESS. This has been expressed as nco:Contact to 
-     * promote integration between NCAL and NCO. 
-     */
-    void setDelegatedTos(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedTo", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedTo. 
-     * To specify the calendar users to whom the calendar user specified 
-     * by the property has delegated participation. Inspired by RFC 
-     * 2445 sec. 4.2.5. Originally the value type for this parameter 
-     * was CAL-ADDRESS. This has been expressed as nco:Contact to 
-     * promote integration between NCAL and NCO. 
-     */
-    void addDelegatedTo(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#delegatedTo", QUrl::StrictMode), value);
     }
 
 protected:

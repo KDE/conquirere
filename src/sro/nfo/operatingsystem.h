@@ -21,11 +21,11 @@ class OperatingSystem : public virtual NFO::Software
 {
 public:
     OperatingSystem(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NFO::Software(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#OperatingSystem", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#OperatingSystem", QUrl::StrictMode)), NFO::Software(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#OperatingSystem", QUrl::StrictMode)) {
     }
 
     OperatingSystem(const SimpleResource& res)
-      : SimpleResource(res), NFO::Software(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#OperatingSystem", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#OperatingSystem", QUrl::StrictMode)), NFO::Software(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#OperatingSystem", QUrl::StrictMode)) {
     }
 
     OperatingSystem& operator=(const SimpleResource& res) {
@@ -36,10 +36,10 @@ public:
 
 protected:
     OperatingSystem(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NFO::Software(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NFO::Software(uri, type) {
     }
     OperatingSystem(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NFO::Software(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NFO::Software(res, type) {
     }
 };
 }

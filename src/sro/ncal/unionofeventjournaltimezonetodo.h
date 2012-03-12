@@ -35,39 +35,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate. 
-     * This property defines the list of date/time exceptions for 
-     * a recurring calendar component. Inspired by RFC 2445 sec. 4.8.5.1 
-     */
-    QList<QUrl> exdates() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate. 
-     * This property defines the list of date/time exceptions for 
-     * a recurring calendar component. Inspired by RFC 2445 sec. 4.8.5.1 
-     */
-    void setExdates(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate. 
-     * This property defines the list of date/time exceptions for 
-     * a recurring calendar component. Inspired by RFC 2445 sec. 4.8.5.1 
-     */
-    void addExdate(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#lastModified. 
      * The property specifies the date and time that the information 
      * associated with the calendar component was last revised in 
@@ -109,6 +76,39 @@ public:
      */
     void addLastModified(const QDateTime& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#lastModified", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate. 
+     * This property defines the list of date/time exceptions for 
+     * a recurring calendar component. Inspired by RFC 2445 sec. 4.8.5.1 
+     */
+    QList<QUrl> exdates() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate. 
+     * This property defines the list of date/time exceptions for 
+     * a recurring calendar component. Inspired by RFC 2445 sec. 4.8.5.1 
+     */
+    void setExdates(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate. 
+     * This property defines the list of date/time exceptions for 
+     * a recurring calendar component. Inspired by RFC 2445 sec. 4.8.5.1 
+     */
+    void addExdate(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate", QUrl::StrictMode), value);
     }
 
     /**

@@ -35,6 +35,36 @@ public:
         return *this;
     }
 
+    /**
+     * Get property http://www.example.com/nbib#eventPublication. 
+     * the publications that fornm the result of an event 
+     */
+    QList<QUrl> eventPublications() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#eventPublication", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#eventPublication. 
+     * the publications that fornm the result of an event 
+     */
+    void setEventPublications(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#eventPublication", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#eventPublication. 
+     * the publications that fornm the result of an event 
+     */
+    void addEventPublication(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#eventPublication", QUrl::StrictMode), value);
+    }
+
 protected:
     Event(const QUrl& uri, const QUrl& type)
       : SimpleResource(uri), PIMO::ClassOrThingOrPropertyOrAssociation(uri, type), PIMO::ClassOrThing(uri, type), PIMO::Thing(uri, type), PIMO::ProcessConcept(uri, type) {

@@ -21,11 +21,11 @@ class Quote : public virtual NBIB::DocumentPart
 {
 public:
     Quote(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NBIB::DocumentPart(uri, QUrl::fromEncoded("http://www.example.com/nbib#Quote", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#Quote", QUrl::StrictMode)), NBIB::DocumentPart(uri, QUrl::fromEncoded("http://www.example.com/nbib#Quote", QUrl::StrictMode)) {
     }
 
     Quote(const SimpleResource& res)
-      : SimpleResource(res), NBIB::DocumentPart(res, QUrl::fromEncoded("http://www.example.com/nbib#Quote", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#Quote", QUrl::StrictMode)), NBIB::DocumentPart(res, QUrl::fromEncoded("http://www.example.com/nbib#Quote", QUrl::StrictMode)) {
     }
 
     Quote& operator=(const SimpleResource& res) {
@@ -36,10 +36,10 @@ public:
 
 protected:
     Quote(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NBIB::DocumentPart(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NBIB::DocumentPart(uri, type) {
     }
     Quote(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NBIB::DocumentPart(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NBIB::DocumentPart(res, type) {
     }
 };
 }

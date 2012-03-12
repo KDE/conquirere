@@ -88,7 +88,7 @@ void DocumentPreview::setResource(Nepomuk::Resource & resource)
             KIcon icon;
             QString mimetype;
 
-            if( r.hasType(Nepomuk::Vocabulary::NFO::Website()) || r.hasType(Nepomuk::Vocabulary::NFO::WebDataObject())
+            if( r.hasType(Nepomuk::Vocabulary::NFO::Website())// || r.hasType(Nepomuk::Vocabulary::NFO::WebDataObject())
                 || url.scheme() == QLatin1String("http")) {
 
                 QString favIcon = KMimeType::favIconForUrl(url);

@@ -10,22 +10,22 @@
 
 #include "dms-copy/simpleresource.h"
 
+#include "nie/informationelement.h"
+
 namespace Nepomuk {
 namespace NMO {
 /**
  * A mailbox - container for MailboxDataObjects. 
  */
-class Mailbox : public virtual Nepomuk::SimpleResource
+class Mailbox : public virtual NIE::InformationElement
 {
 public:
     Mailbox(const QUrl& uri = QUrl())
-      : SimpleResource(uri) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#Mailbox", QUrl::StrictMode));
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#Mailbox", QUrl::StrictMode)) {
     }
 
     Mailbox(const SimpleResource& res)
-      : SimpleResource(res) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#Mailbox", QUrl::StrictMode));
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#Mailbox", QUrl::StrictMode)) {
     }
 
     Mailbox& operator=(const SimpleResource& res) {
@@ -36,12 +36,10 @@ public:
 
 protected:
     Mailbox(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri) {
-        addType(type);
+      : SimpleResource(uri), NIE::InformationElement(uri, type) {
     }
     Mailbox(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res) {
-        addType(type);
+      : SimpleResource(res), NIE::InformationElement(res, type) {
     }
 };
 }

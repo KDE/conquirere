@@ -21,11 +21,11 @@ class HtmlDocument : public virtual NFO::PlainTextDocument
 {
 public:
     HtmlDocument(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NFO::Document(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#HtmlDocument", QUrl::StrictMode)), NFO::TextDocument(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#HtmlDocument", QUrl::StrictMode)), NFO::PlainTextDocument(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#HtmlDocument", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#HtmlDocument", QUrl::StrictMode)), NFO::Document(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#HtmlDocument", QUrl::StrictMode)), NFO::TextDocument(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#HtmlDocument", QUrl::StrictMode)), NFO::PlainTextDocument(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#HtmlDocument", QUrl::StrictMode)) {
     }
 
     HtmlDocument(const SimpleResource& res)
-      : SimpleResource(res), NFO::Document(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#HtmlDocument", QUrl::StrictMode)), NFO::TextDocument(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#HtmlDocument", QUrl::StrictMode)), NFO::PlainTextDocument(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#HtmlDocument", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#HtmlDocument", QUrl::StrictMode)), NFO::Document(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#HtmlDocument", QUrl::StrictMode)), NFO::TextDocument(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#HtmlDocument", QUrl::StrictMode)), NFO::PlainTextDocument(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#HtmlDocument", QUrl::StrictMode)) {
     }
 
     HtmlDocument& operator=(const SimpleResource& res) {
@@ -36,10 +36,10 @@ public:
 
 protected:
     HtmlDocument(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NFO::Document(uri, type), NFO::TextDocument(uri, type), NFO::PlainTextDocument(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NFO::Document(uri, type), NFO::TextDocument(uri, type), NFO::PlainTextDocument(uri, type) {
     }
     HtmlDocument(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NFO::Document(res, type), NFO::TextDocument(res, type), NFO::PlainTextDocument(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NFO::Document(res, type), NFO::TextDocument(res, type), NFO::PlainTextDocument(res, type) {
     }
 };
 }

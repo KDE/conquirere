@@ -10,22 +10,22 @@
 
 #include "dms-copy/simpleresource.h"
 
+#include "nie/informationelement.h"
+
 namespace Nepomuk {
 namespace NMO {
 /**
  * A MIME entity, as defined in RFC2045, Section 2.4. 
  */
-class MimeEntity : public virtual Nepomuk::SimpleResource
+class MimeEntity : public virtual NIE::InformationElement
 {
 public:
     MimeEntity(const QUrl& uri = QUrl())
-      : SimpleResource(uri) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#MimeEntity", QUrl::StrictMode));
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#MimeEntity", QUrl::StrictMode)) {
     }
 
     MimeEntity(const SimpleResource& res)
-      : SimpleResource(res) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#MimeEntity", QUrl::StrictMode));
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#MimeEntity", QUrl::StrictMode)) {
     }
 
     MimeEntity& operator=(const SimpleResource& res) {
@@ -36,12 +36,10 @@ public:
 
 protected:
     MimeEntity(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri) {
-        addType(type);
+      : SimpleResource(uri), NIE::InformationElement(uri, type) {
     }
     MimeEntity(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res) {
-        addType(type);
+      : SimpleResource(res), NIE::InformationElement(res, type) {
     }
 };
 }

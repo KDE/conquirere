@@ -23,11 +23,11 @@ class DeletedResource : public virtual NFO::FileDataObject
 {
 public:
     DeletedResource(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NFO::FileDataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#DeletedResource", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::DataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#DeletedResource", QUrl::StrictMode)), NFO::FileDataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#DeletedResource", QUrl::StrictMode)) {
     }
 
     DeletedResource(const SimpleResource& res)
-      : SimpleResource(res), NFO::FileDataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#DeletedResource", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::DataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#DeletedResource", QUrl::StrictMode)), NFO::FileDataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#DeletedResource", QUrl::StrictMode)) {
     }
 
     DeletedResource& operator=(const SimpleResource& res) {
@@ -96,10 +96,10 @@ public:
 
 protected:
     DeletedResource(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NFO::FileDataObject(uri, type) {
+      : SimpleResource(uri), NIE::DataObject(uri, type), NFO::FileDataObject(uri, type) {
     }
     DeletedResource(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NFO::FileDataObject(res, type) {
+      : SimpleResource(res), NIE::DataObject(res, type), NFO::FileDataObject(res, type) {
     }
 };
 }

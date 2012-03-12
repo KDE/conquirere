@@ -22,11 +22,11 @@ class Decision : public virtual NBIB::LegalCaseDocument
 {
 public:
     Decision(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#Decision", QUrl::StrictMode)), NBIB::LegalDocument(uri, QUrl::fromEncoded("http://www.example.com/nbib#Decision", QUrl::StrictMode)), NBIB::LegalCaseDocument(uri, QUrl::fromEncoded("http://www.example.com/nbib#Decision", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#Decision", QUrl::StrictMode)), NBIB::Publication(uri, QUrl::fromEncoded("http://www.example.com/nbib#Decision", QUrl::StrictMode)), NBIB::LegalDocument(uri, QUrl::fromEncoded("http://www.example.com/nbib#Decision", QUrl::StrictMode)), NBIB::LegalCaseDocument(uri, QUrl::fromEncoded("http://www.example.com/nbib#Decision", QUrl::StrictMode)) {
     }
 
     Decision(const SimpleResource& res)
-      : SimpleResource(res), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#Decision", QUrl::StrictMode)), NBIB::LegalDocument(res, QUrl::fromEncoded("http://www.example.com/nbib#Decision", QUrl::StrictMode)), NBIB::LegalCaseDocument(res, QUrl::fromEncoded("http://www.example.com/nbib#Decision", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#Decision", QUrl::StrictMode)), NBIB::Publication(res, QUrl::fromEncoded("http://www.example.com/nbib#Decision", QUrl::StrictMode)), NBIB::LegalDocument(res, QUrl::fromEncoded("http://www.example.com/nbib#Decision", QUrl::StrictMode)), NBIB::LegalCaseDocument(res, QUrl::fromEncoded("http://www.example.com/nbib#Decision", QUrl::StrictMode)) {
     }
 
     Decision& operator=(const SimpleResource& res) {
@@ -67,10 +67,10 @@ public:
 
 protected:
     Decision(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NBIB::Publication(uri, type), NBIB::LegalDocument(uri, type), NBIB::LegalCaseDocument(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NBIB::Publication(uri, type), NBIB::LegalDocument(uri, type), NBIB::LegalCaseDocument(uri, type) {
     }
     Decision(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NBIB::Publication(res, type), NBIB::LegalDocument(res, type), NBIB::LegalCaseDocument(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NBIB::Publication(res, type), NBIB::LegalDocument(res, type), NBIB::LegalCaseDocument(res, type) {
     }
 };
 }

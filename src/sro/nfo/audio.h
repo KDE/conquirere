@@ -21,11 +21,11 @@ class Audio : public virtual NFO::Media
 {
 public:
     Audio(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NFO::Media(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Audio", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Audio", QUrl::StrictMode)), NFO::Media(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Audio", QUrl::StrictMode)) {
     }
 
     Audio(const SimpleResource& res)
-      : SimpleResource(res), NFO::Media(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Audio", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Audio", QUrl::StrictMode)), NFO::Media(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Audio", QUrl::StrictMode)) {
     }
 
     Audio& operator=(const SimpleResource& res) {
@@ -35,32 +35,32 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleCount. 
-     * The amount of samples in an audio clip. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleRate. 
+     * The amount of audio samples per second. 
      */
-    qint64 sampleCount() const {
-        qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleCount", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleCount", QUrl::StrictMode)).first().value<qint64>();
+    double sampleRate() const {
+        double value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleRate", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleRate", QUrl::StrictMode)).first().value<double>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleCount. 
-     * The amount of samples in an audio clip. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleRate. 
+     * The amount of audio samples per second. 
      */
-    void setSampleCount(const qint64& value) {
+    void setSampleRate(const double& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleCount", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleRate", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleCount. 
-     * The amount of samples in an audio clip. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleRate. 
+     * The amount of audio samples per second. 
      */
-    void addSampleCount(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleCount", QUrl::StrictMode), value);
+    void addSampleRate(const double& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleRate", QUrl::StrictMode), value);
     }
 
     /**
@@ -128,40 +128,40 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleRate. 
-     * The amount of audio samples per second. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleCount. 
+     * The amount of samples in an audio clip. 
      */
-    double sampleRate() const {
-        double value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleRate", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleRate", QUrl::StrictMode)).first().value<double>();
+    qint64 sampleCount() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleCount", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleCount", QUrl::StrictMode)).first().value<qint64>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleRate. 
-     * The amount of audio samples per second. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleCount. 
+     * The amount of samples in an audio clip. 
      */
-    void setSampleRate(const double& value) {
+    void setSampleCount(const qint64& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleRate", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleCount", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleRate. 
-     * The amount of audio samples per second. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleCount. 
+     * The amount of samples in an audio clip. 
      */
-    void addSampleRate(const double& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleRate", QUrl::StrictMode), value);
+    void addSampleCount(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sampleCount", QUrl::StrictMode), value);
     }
 
 protected:
     Audio(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NFO::Media(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NFO::Media(uri, type) {
     }
     Audio(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NFO::Media(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NFO::Media(res, type) {
     }
 };
 }

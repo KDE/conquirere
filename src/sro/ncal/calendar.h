@@ -10,6 +10,8 @@
 
 #include "dms-copy/simpleresource.h"
 
+#include "nie/informationelement.h"
+
 namespace Nepomuk {
 namespace NCAL {
 /**
@@ -17,90 +19,21 @@ namespace NCAL {
  * VCALENDAR component defined in RFC 2445 sec. 4.4, but it may 
  * just as well be used to represent any kind of Calendar. 
  */
-class Calendar : public virtual Nepomuk::SimpleResource
+class Calendar : public virtual NIE::InformationElement
 {
 public:
     Calendar(const QUrl& uri = QUrl())
-      : SimpleResource(uri) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Calendar", QUrl::StrictMode));
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Calendar", QUrl::StrictMode)) {
     }
 
     Calendar(const SimpleResource& res)
-      : SimpleResource(res) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Calendar", QUrl::StrictMode));
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Calendar", QUrl::StrictMode)) {
     }
 
     Calendar& operator=(const SimpleResource& res) {
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Calendar", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#calscale. 
-     * This property defines the calendar scale used for the calendar 
-     * information specified in the iCalendar object. Defined in 
-     * RFC 2445 sec. 4.7.1 
-     */
-    QUrl calscale() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#calscale", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#calscale", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#calscale. 
-     * This property defines the calendar scale used for the calendar 
-     * information specified in the iCalendar object. Defined in 
-     * RFC 2445 sec. 4.7.1 
-     */
-    void setCalscale(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#calscale", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#calscale. 
-     * This property defines the calendar scale used for the calendar 
-     * information specified in the iCalendar object. Defined in 
-     * RFC 2445 sec. 4.7.1 
-     */
-    void addCalscale(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#calscale", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#method. 
-     * This property defines the iCalendar object method associated 
-     * with the calendar object. Defined in RFC 2445 sec. 4.7.2 
-     */
-    QString method() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#method", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#method", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#method. 
-     * This property defines the iCalendar object method associated 
-     * with the calendar object. Defined in RFC 2445 sec. 4.7.2 
-     */
-    void setMethod(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#method", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#method. 
-     * This property defines the iCalendar object method associated 
-     * with the calendar object. Defined in RFC 2445 sec. 4.7.2 
-     */
-    void addMethod(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#method", QUrl::StrictMode), value);
     }
 
     /**
@@ -179,6 +112,38 @@ public:
     }
 
     /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#method. 
+     * This property defines the iCalendar object method associated 
+     * with the calendar object. Defined in RFC 2445 sec. 4.7.2 
+     */
+    QString method() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#method", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#method", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#method. 
+     * This property defines the iCalendar object method associated 
+     * with the calendar object. Defined in RFC 2445 sec. 4.7.2 
+     */
+    void setMethod(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#method", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#method. 
+     * This property defines the iCalendar object method associated 
+     * with the calendar object. Defined in RFC 2445 sec. 4.7.2 
+     */
+    void addMethod(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#method", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#prodid. 
      * This property specifies the identifier for the product that 
      * created the iCalendar object. Defined in RFC 2445 sec. 4.7.2 
@@ -211,14 +176,47 @@ public:
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#prodid", QUrl::StrictMode), value);
     }
 
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#calscale. 
+     * This property defines the calendar scale used for the calendar 
+     * information specified in the iCalendar object. Defined in 
+     * RFC 2445 sec. 4.7.1 
+     */
+    QUrl calscale() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#calscale", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#calscale", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#calscale. 
+     * This property defines the calendar scale used for the calendar 
+     * information specified in the iCalendar object. Defined in 
+     * RFC 2445 sec. 4.7.1 
+     */
+    void setCalscale(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#calscale", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#calscale. 
+     * This property defines the calendar scale used for the calendar 
+     * information specified in the iCalendar object. Defined in 
+     * RFC 2445 sec. 4.7.1 
+     */
+    void addCalscale(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#calscale", QUrl::StrictMode), value);
+    }
+
 protected:
     Calendar(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri) {
-        addType(type);
+      : SimpleResource(uri), NIE::InformationElement(uri, type) {
     }
     Calendar(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res) {
-        addType(type);
+      : SimpleResource(res), NIE::InformationElement(res, type) {
     }
 };
 }

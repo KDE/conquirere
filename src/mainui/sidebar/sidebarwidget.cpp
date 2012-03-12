@@ -59,6 +59,7 @@
 
 using namespace Soprano::Vocabulary;
 using namespace Nepomuk::Vocabulary;
+using namespace NepomukMetaDataExtractor::Dialog;
 
 SidebarWidget::SidebarWidget(QWidget *parent)
     : QWidget(parent)

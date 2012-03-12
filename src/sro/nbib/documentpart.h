@@ -10,6 +10,8 @@
 
 #include "dms-copy/simpleresource.h"
 
+#include "nie/informationelement.h"
+
 namespace Nepomuk {
 namespace NBIB {
 /**
@@ -17,17 +19,15 @@ namespace NBIB {
  * These don't have to be available as real file extracts but can 
  * also be linked to a real file, if available 
  */
-class DocumentPart : public virtual Nepomuk::SimpleResource
+class DocumentPart : public virtual NIE::InformationElement
 {
 public:
     DocumentPart(const QUrl& uri = QUrl())
-      : SimpleResource(uri) {
-        addType(QUrl::fromEncoded("http://www.example.com/nbib#DocumentPart", QUrl::StrictMode));
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.example.com/nbib#DocumentPart", QUrl::StrictMode)) {
     }
 
     DocumentPart(const SimpleResource& res)
-      : SimpleResource(res) {
-        addType(QUrl::fromEncoded("http://www.example.com/nbib#DocumentPart", QUrl::StrictMode));
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.example.com/nbib#DocumentPart", QUrl::StrictMode)) {
     }
 
     DocumentPart& operator=(const SimpleResource& res) {
@@ -67,12 +67,10 @@ public:
 
 protected:
     DocumentPart(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri) {
-        addType(type);
+      : SimpleResource(uri), NIE::InformationElement(uri, type) {
     }
     DocumentPart(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res) {
-        addType(type);
+      : SimpleResource(res), NIE::InformationElement(res, type) {
     }
 };
 }

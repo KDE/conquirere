@@ -22,11 +22,11 @@ class PlainTextDocument : public virtual NFO::TextDocument
 {
 public:
     PlainTextDocument(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NFO::Document(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PlainTextDocument", QUrl::StrictMode)), NFO::TextDocument(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PlainTextDocument", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PlainTextDocument", QUrl::StrictMode)), NFO::Document(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PlainTextDocument", QUrl::StrictMode)), NFO::TextDocument(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PlainTextDocument", QUrl::StrictMode)) {
     }
 
     PlainTextDocument(const SimpleResource& res)
-      : SimpleResource(res), NFO::Document(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PlainTextDocument", QUrl::StrictMode)), NFO::TextDocument(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PlainTextDocument", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PlainTextDocument", QUrl::StrictMode)), NFO::Document(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PlainTextDocument", QUrl::StrictMode)), NFO::TextDocument(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#PlainTextDocument", QUrl::StrictMode)) {
     }
 
     PlainTextDocument& operator=(const SimpleResource& res) {
@@ -37,10 +37,10 @@ public:
 
 protected:
     PlainTextDocument(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NFO::Document(uri, type), NFO::TextDocument(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NFO::Document(uri, type), NFO::TextDocument(uri, type) {
     }
     PlainTextDocument(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NFO::Document(res, type), NFO::TextDocument(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NFO::Document(res, type), NFO::TextDocument(res, type) {
     }
 };
 }

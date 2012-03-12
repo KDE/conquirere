@@ -24,11 +24,11 @@ class EmbeddedFileDataObject : public virtual NFO::FileDataObject
 {
 public:
     EmbeddedFileDataObject(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NFO::FileDataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#EmbeddedFileDataObject", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::DataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#EmbeddedFileDataObject", QUrl::StrictMode)), NFO::FileDataObject(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#EmbeddedFileDataObject", QUrl::StrictMode)) {
     }
 
     EmbeddedFileDataObject(const SimpleResource& res)
-      : SimpleResource(res), NFO::FileDataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#EmbeddedFileDataObject", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::DataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#EmbeddedFileDataObject", QUrl::StrictMode)), NFO::FileDataObject(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#EmbeddedFileDataObject", QUrl::StrictMode)) {
     }
 
     EmbeddedFileDataObject& operator=(const SimpleResource& res) {
@@ -71,10 +71,10 @@ public:
 
 protected:
     EmbeddedFileDataObject(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NFO::FileDataObject(uri, type) {
+      : SimpleResource(uri), NIE::DataObject(uri, type), NFO::FileDataObject(uri, type) {
     }
     EmbeddedFileDataObject(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NFO::FileDataObject(res, type) {
+      : SimpleResource(res), NIE::DataObject(res, type), NFO::FileDataObject(res, type) {
     }
 };
 }

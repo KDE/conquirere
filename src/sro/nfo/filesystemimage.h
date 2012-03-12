@@ -24,11 +24,11 @@ class FilesystemImage : public virtual NFO::Filesystem
 {
 public:
     FilesystemImage(const QUrl& uri = QUrl())
-      : SimpleResource(uri), NFO::DataContainer(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FilesystemImage", QUrl::StrictMode)), NFO::Filesystem(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FilesystemImage", QUrl::StrictMode)) {
+      : SimpleResource(uri), NIE::InformationElement(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FilesystemImage", QUrl::StrictMode)), NFO::DataContainer(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FilesystemImage", QUrl::StrictMode)), NFO::Filesystem(uri, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FilesystemImage", QUrl::StrictMode)) {
     }
 
     FilesystemImage(const SimpleResource& res)
-      : SimpleResource(res), NFO::DataContainer(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FilesystemImage", QUrl::StrictMode)), NFO::Filesystem(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FilesystemImage", QUrl::StrictMode)) {
+      : SimpleResource(res), NIE::InformationElement(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FilesystemImage", QUrl::StrictMode)), NFO::DataContainer(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FilesystemImage", QUrl::StrictMode)), NFO::Filesystem(res, QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FilesystemImage", QUrl::StrictMode)) {
     }
 
     FilesystemImage& operator=(const SimpleResource& res) {
@@ -39,10 +39,10 @@ public:
 
 protected:
     FilesystemImage(const QUrl& uri, const QUrl& type)
-      : SimpleResource(uri), NFO::DataContainer(uri, type), NFO::Filesystem(uri, type) {
+      : SimpleResource(uri), NIE::InformationElement(uri, type), NFO::DataContainer(uri, type), NFO::Filesystem(uri, type) {
     }
     FilesystemImage(const SimpleResource& res, const QUrl& type)
-      : SimpleResource(res), NFO::DataContainer(res, type), NFO::Filesystem(res, type) {
+      : SimpleResource(res), NIE::InformationElement(res, type), NFO::DataContainer(res, type), NFO::Filesystem(res, type) {
     }
 };
 }
