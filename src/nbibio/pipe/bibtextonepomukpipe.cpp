@@ -1986,7 +1986,7 @@ void BibTexToNepomukPipe::addWebsite(const QString &content, Nepomuk::NBIB::Publ
 
     if( url.scheme().startsWith("http") && url.isValid()) {
         Nepomuk::NFO::Website website ( url );
-        website.addType(NFO::WebDataObject());
+        //website.addType(NFO::WebDataObject());
 
         publication.addProperty(NIE::links(), website.uri() );
 

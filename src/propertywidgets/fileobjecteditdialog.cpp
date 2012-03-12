@@ -88,7 +88,7 @@ void FileObjectEditDialog::setResource(Nepomuk::Resource r)
     ui->editUrl->setText( m_fileObject.property(NIE::url()).toString() );
 
     ui->editType->blockSignals(true);
-    if( m_fileObject.hasType(NFO::WebDataObject()) || m_fileObject.hasType(NFO::Website())) {
+    if( m_fileObject.hasType(NFO::Website())) {
         ui->editType->setCurrentIndex(2);
     }
     else if( m_fileObject.hasType(NFO::RemoteDataObject())) {
@@ -104,7 +104,7 @@ void FileObjectEditDialog::createNewResource()
 {
     Nepomuk::SimpleResourceGraph graph;
     Nepomuk::NFO::Website newWebsite;
-    newWebsite.addType(NFO::WebDataObject());
+    //newWebsite.addType(NFO::WebDataObject());
     newWebsite.addType(NIE::InformationElement());
 
     newWebsite.setProperty( NIE::title(), i18n("New Website"));
@@ -185,7 +185,7 @@ void FileObjectEditDialog::typeChanged(int newType)
         }
 
         currentTypes.removeAll(NFO::Website());
-        currentTypes.removeAll(NFO::WebDataObject());
+        //currentTypes.removeAll(NFO::WebDataObject());
         currentTypes.removeAll(NFO::RemoteDataObject());
 
         if(!currentTypes.contains( NFO::FileDataObject() )) {
@@ -202,7 +202,7 @@ void FileObjectEditDialog::typeChanged(int newType)
         }
 
         currentTypes.removeAll(NFO::Website());
-        currentTypes.removeAll(NFO::WebDataObject());
+        //currentTypes.removeAll(NFO::WebDataObject());
 
         if(!currentTypes.contains( NFO::FileDataObject() )) {
             currentTypes.append( NFO::FileDataObject() );
@@ -224,9 +224,9 @@ void FileObjectEditDialog::typeChanged(int newType)
         currentTypes.removeAll(NFO::FileDataObject());
         currentTypes.removeAll(NFO::RemoteDataObject());
 
-        if(!currentTypes.contains( NFO::WebDataObject() )) {
-            currentTypes.append( NFO::WebDataObject() );
-        }
+//        if(!currentTypes.contains( NFO::WebDataObject() )) {
+//            currentTypes.append( NFO::WebDataObject() );
+//        }
         if(!currentTypes.contains( NFO::Website() )) {
             currentTypes.append( NFO::Website() );
         }

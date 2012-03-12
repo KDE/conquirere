@@ -39,7 +39,7 @@
 #include "nbibio/pipe/nepomuktobibtexpipe.h"
 
 #include <kbibtex/findpdfui.h>
-#include <nepomukmetadataextraction/fetcherdialog.h>
+#include <nepomukmetadataextractor/fetcherdialog.h>
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Variant>
@@ -59,6 +59,7 @@
 
 using namespace Soprano::Vocabulary;
 using namespace Nepomuk::Vocabulary;
+using namespace NepomukMetaDataExtractor::Dialog;
 
 SidebarWidget::SidebarWidget(QWidget *parent)
     : QWidget(parent)
