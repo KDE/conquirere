@@ -19,6 +19,7 @@ find_package(Nepomuk REQUIRED)
 find_package(QJSON REQUIRED)
 #set(KBIBTEX_MIN_VERSION "0.6.0")
 find_package(KBibTeX REQUIRED)
+find_package(NepomukMetadataExtractor REQUIRED)
 
 include (NepomukAddOntologyClasses)
 include (KDE4Defaults)
@@ -35,6 +36,7 @@ include_directories (
                      ${NEPOMUK_INCLUDE_DIR}
                      ${NEPOMUKEXTRAS_INCLUDE_DIR}
                      ${KBIBTEX_INCLUDE_DIRS}
+                     ${NEPOMUK_METADATA_EXTRACTOR_INCLUDE_DIRS}
 
                      ${CMAKE_SOURCE_DIR}
                      ${CMAKE_SOURCE_DIR}/src

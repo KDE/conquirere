@@ -50,6 +50,8 @@ target_link_libraries(conquirere
         #kbibtexnetworking
         #kbibtexgui
         #kbibtexproc
+
+        ${NEPOMUK_METADATA_EXTRACTOR_LIBS}
 )
 
 install(TARGETS conquirere DESTINATION ${BIN_INSTALL_DIR})
