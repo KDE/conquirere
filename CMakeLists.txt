@@ -1,5 +1,3 @@
-
-
 cmake_minimum_required(VERSION 2.6)
 
 project(conquirere)
@@ -36,7 +34,7 @@ include_directories (
                      ${KDEPIMLIBS_INCLUDE_DIRS}
                      ${NEPOMUK_INCLUDE_DIR}
                      ${NEPOMUKEXTRAS_INCLUDE_DIR}
-                     ${KBIBTEX_INCLUDE_DIR}
+                     ${KBIBTEX_INCLUDE_DIRS}
 
                      ${CMAKE_SOURCE_DIR}
                      ${CMAKE_SOURCE_DIR}/src
