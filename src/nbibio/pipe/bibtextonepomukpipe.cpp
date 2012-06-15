@@ -1052,6 +1052,7 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
     else if(key == QLatin1String("localfile") ||
             key == QLatin1String("biburl") ||
             key == QLatin1String("bibsource") ||
+            key == QLatin1String("file") ||
             key == QLatin1String("ee")) {
         addFileUrl(PlainTextValue::text(value), publication, graph);
     }
@@ -1062,7 +1063,7 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
         }
         //ignore else case, as the address as a postal address is handled above when a publisher is available
     }
-    else if(key == QLatin1String("keywords")) {
+    else if(key == QLatin1String("keywords") || key == QLatin1String("keyword")) {
         addTopic(value, publication, graph);
     }
     else if(key == QLatin1String("assignee")) {
@@ -1090,7 +1091,9 @@ void BibTexToNepomukPipe::addContent(const QString &key, const Value &value, Nep
 
         addTopic(keywordList, publication, graph);
     }
-    else if(key.startsWith(QLatin1String("note")) || key.startsWith(QLatin1String("annote"))) {
+    else if(key.startsWith(QLatin1String("note")) ||
+            key.startsWith(QLatin1String("annote")) ||
+            key.startsWith(QLatin1String("review"))) {
         QString title = citeKey + ": " + key;
         addNote( PlainTextValue::text(value), title, publication, graph);
     }
