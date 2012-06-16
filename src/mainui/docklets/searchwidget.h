@@ -60,6 +60,10 @@ signals:
     void searchResult(SearchResultEntry newEntry);
 
 private slots:
+    void sourceChanged(int selection);
+    void fetchProjects();
+    void fillProjectList( const QList< Nepomuk::Query::Result > &entries );
+
     void openHomepage();
     void enginesListCurrentChanged(QListWidgetItem *current);
     void itemCheckChanged(QListWidgetItem* item);
@@ -85,6 +89,7 @@ private:
     KAction *m_actionOpenHomepage;
 
     Nepomuk::Query::QueryServiceClient *m_queryClient;
+    Nepomuk::Query::QueryServiceClient *m_projectQueryClient;
     bool m_nepomukSearchInProgress;
 
     QMap<QListWidgetItem*, OnlineSearchAbstract*> m_itemToOnlineSearch;

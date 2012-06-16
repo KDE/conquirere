@@ -42,8 +42,10 @@
 #include <Nepomuk/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk/Resource>
+#include <Nepomuk/Variant>
 #include <Nepomuk/Query/QueryServiceClient>
 #include <Nepomuk/Query/ResourceTypeTerm>
+#include <Nepomuk/Query/ResourceTerm>
 #include <Nepomuk/Query/LiteralTerm>
 #include <Nepomuk/Query/ComparisonTerm>
 #include <Nepomuk/Query/AndTerm>
@@ -87,11 +89,18 @@ SearchWidget::SearchWidget(QWidget *parent)
     connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(foundNepomukEntry(QList<Nepomuk::Query::Result>)));
     connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(nepomukQueryFinished()));
 
+    m_projectQueryClient = new Nepomuk::Query::QueryServiceClient();
+    connect(m_projectQueryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(fillProjectList(QList<Nepomuk::Query::Result>)));
+
     loadSettings();
 
     connect(ui->editAuthor, SIGNAL(returnPressed()), this, SLOT(startSearch()));
     connect(ui->editContent, SIGNAL(returnPressed()), this, SLOT(startSearch()));
     connect(ui->editTitle, SIGNAL(returnPressed()), this, SLOT(startSearch()));
+
+    connect(ui->selectSource, SIGNAL(currentIndexChanged(int)), SLOT(sourceChanged(int)));
+
+    fetchProjects();
 }
 
 SearchWidget::~SearchWidget()
@@ -101,6 +110,8 @@ SearchWidget::~SearchWidget()
     delete ui;
     m_queryClient->close();
     delete m_queryClient;
+    m_projectQueryClient->close();
+    delete m_projectQueryClient;
     delete m_actionOpenHomepage;
 
     qDeleteAll(m_itemToOnlineSearch);
@@ -110,6 +121,49 @@ SearchWidget::~SearchWidget()
 SearchResultModel* SearchWidget::searchResultModel()
 {
     return m_searchResultModel;
+}
+
+
+void SearchWidget::sourceChanged(int selection)
+{
+    if( selection == 2) { // web only
+        ui->labelLibrary->setEnabled(false);
+        ui->editLibrary->setEnabled(false);
+    }
+    else {
+         // only fetch new projects when we di not have a list already
+        // but fetch them always if we select aeverywhere or nepomuk only
+        // so we can update when new projects are created in between
+        // basically a Nepomuk Resource watcher would be cleaner, but maybe over the top
+        if(!ui->labelLibrary->isEnabled()) {
+            fetchProjects();
+        }
+
+        ui->labelLibrary->setEnabled(true);
+        ui->editLibrary->setEnabled(true);
+    }
+}
+
+void SearchWidget::fetchProjects()
+{
+    m_projectQueryClient->close();
+    ui->editLibrary->clear();
+
+    ui->editLibrary->addItem(i18n("Full Library"));
+
+    QString query = "select DISTINCT ?r where { "
+                     "?r a pimo:Project ."
+                     "}";
+
+     m_projectQueryClient->sparqlQuery( query );
+}
+
+void SearchWidget::fillProjectList( const QList< Nepomuk::Query::Result > &entries )
+{
+    foreach(const Nepomuk::Query::Result &r, entries) {
+        ui->editLibrary->addItem(r.resource().property(Soprano::Vocabulary::NAO::prefLabel()).toString(),
+                                 r.resource().resourceUri());
+    }
 }
 
 void SearchWidget::openHomepage()
@@ -219,6 +273,16 @@ void SearchWidget::startSearch()
         if(ui->cbWebpage->isChecked()) {
             orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Website() ) );
             orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Bookmark() ) );
+        }
+
+        if(ui->editLibrary->currentIndex() != 0) {
+            Nepomuk::Resource project = Nepomuk::Resource::fromResourceUri( ui->editLibrary->itemData(ui->editLibrary->currentIndex()).toString());
+            Nepomuk::Query::OrTerm orTerm;
+            orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
+                                                               Nepomuk::Query::ResourceTerm( project )));
+            orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
+                                                               Nepomuk::Query::ResourceTerm( project )));
+            andTerm.addSubTerm(orTerm);
         }
 
         andTerm.addSubTerm(orTerm);
@@ -362,6 +426,7 @@ void SearchWidget::loadSettings()
 
     int searchMode = searchSettingsGroup.readEntry( QLatin1String("searchMode"), 0 );
     ui->selectSource->setCurrentIndex(searchMode);
+    sourceChanged(searchMode);
 
     bool audioChecked = searchSettingsGroup.readEntry( QLatin1String("findAudio"), true );
     ui->cbAudio->setChecked(audioChecked);
