@@ -52,6 +52,8 @@ ListAnnotationsWidget::ListAnnotationsWidget(QWidget *parent)
     connect(ui->editPart, SIGNAL(clicked()), this, SLOT(editAnnotation()));
     connect(ui->addPart, SIGNAL(clicked()), this, SLOT(addAnnotation()));
     connect(ui->removePart, SIGNAL(clicked()), this, SLOT(removeAnnotation()));
+
+    connect(ui->listWidget, SIGNAL(itemSelectionChanged()), this, SLOT(selectionChanged()));
 }
 
 ListAnnotationsWidget::~ListAnnotationsWidget()
@@ -211,4 +213,14 @@ void ListAnnotationsWidget::removeAnnotation()
         ui->removePart->setEnabled(true);
         ui->listWidget->setCurrentRow(0);
     }
+}
+
+void ListAnnotationsWidget::selectionChanged()
+{
+    QListWidgetItem *i = ui->listWidget->currentItem();
+    if(!i) { return; }
+
+    Nepomuk::Resource note = Nepomuk::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
+
+    emit selectedAnnotation(note);
 }

@@ -86,6 +86,7 @@ PublicationWidget::PublicationWidget(QWidget *parent)
 
 PublicationWidget::~PublicationWidget()
 {
+    saveAnnotationContent();
     delete ui;
 }
 
@@ -127,6 +128,9 @@ void PublicationWidget::setResource(Nepomuk::Resource & resource)
 
     QString abstract = m_publication.property(NBIB::abstract()).toString();
     ui->editAbstract->document()->setPlainText(abstract);
+
+    saveAnnotationContent(); // save previous annotation content, to be save here
+    ui->editAnnotText->document()->clear();
 
     ui->editRating->setRating(m_publication.rating());
 
@@ -480,6 +484,34 @@ void PublicationWidget::discardContentChanges()
     ui->editAbstract->document()->setPlainText(abstract);
 }
 
+void PublicationWidget::newAnnotationSelected(Nepomuk::Resource & noteResource)
+{
+    saveAnnotationContent();
+
+    m_currentAnnotation = noteResource;
+    QString content = noteResource.property(NIE::htmlContent()).toString();
+    if(content.isEmpty()) {
+        content = noteResource.property(NIE::plainTextContent()).toString();
+    }
+
+    ui->editAnnotText->document()->setHtml(content);
+}
+
+void PublicationWidget::saveAnnotationContent()
+{
+    if(!m_currentAnnotation.isValid())
+        return;
+
+    QList<QUrl> resUri; resUri << m_currentAnnotation.resourceUri();
+
+    QVariantList value; value << ui->editAnnotText->document()->toPlainText();
+    Nepomuk::setProperty(resUri, NIE::plainTextContent(), value);
+
+    value.clear(); value << ui->editAnnotText->document()->toHtml();
+    Nepomuk::setProperty(resUri, NIE::htmlContent(), value);
+
+    emit resourceCacheNeedsUpdate(m_currentAnnotation);
+}
 
 void PublicationWidget::changeRating(int newRating)
 {
@@ -489,8 +521,7 @@ void PublicationWidget::changeRating(int newRating)
 
     QList<QUrl> resourceUris; resourceUris << m_publication.resourceUri();
     QVariantList rating; rating <<  newRating;
-    KJob *job = Nepomuk::setProperty(resourceUris, Soprano::Vocabulary::NAO::numericRating(), rating);
-    job->exec(); // blocking wait ...
+    Nepomuk::setProperty(resourceUris, Soprano::Vocabulary::NAO::numericRating(), rating);
 
     subResourceUpdated(m_publication);
 }
@@ -652,6 +683,8 @@ void PublicationWidget::setupWidget()
     connect(ui->listPartsWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editCitedSources, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
     connect(ui->editAnnot, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated(Nepomuk::Resource)));
+
+    connect(ui->editAnnot, SIGNAL(selectedAnnotation(Nepomuk::Resource&)), this, SLOT(newAnnotationSelected(Nepomuk::Resource&)));
 }
 
 void PublicationWidget::editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl)

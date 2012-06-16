@@ -78,6 +78,14 @@ private slots:
     void acceptContentChanges();
     void discardContentChanges();
 
+    /**
+      * called when a new annotation was selected in the listwidget
+      *
+      * shows the content of the note in the edit box
+      */
+    void newAnnotationSelected(Nepomuk::Resource & noteResource);
+    void saveAnnotationContent();
+
 
     void changeRating(int newRating);
     void editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl);
@@ -107,6 +115,7 @@ private:
     void layoutCase();
 
     Nepomuk::Resource m_publication;
+    Nepomuk::Resource m_currentAnnotation; /**< the current opened annotation. Necessary so we can save them automatically*/
 
     Ui::PublicationWidget *ui;
 };

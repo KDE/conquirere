@@ -54,6 +54,14 @@ signals:
       */
     void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
 
+    /**
+      * Emits the resource of the note the user has selected
+      *
+      * Used to update the KRichText field that displays the content of the note
+      * @see PublicationWidget
+      */
+    void selectedAnnotation(Nepomuk::Resource &resource);
+
 private slots:
     /**
       * called when the user clicks the edit button
@@ -69,6 +77,13 @@ private slots:
       * called when the user clicks the remove button
       */
     void removeAnnotation();
+
+    /**
+      * called when a new note was selected in the list view
+      *
+      * emits the selectedAnnotation() signal with the current selected nepomuk resource
+      */
+    void selectionChanged();
 
 private:
     Ui::ListAnnotationsWidget *ui;

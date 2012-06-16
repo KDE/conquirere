@@ -16,6 +16,12 @@
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <widget class="QTabWidget" name="tabWidget">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -23,6 +29,12 @@
       <bool>true</bool>
      </property>
      <widget class="QWidget" name="tab">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <attribute name="title">
        <string>Basics</string>
       </attribute>
@@ -204,6 +216,12 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <attribute name="title">
        <string>Extra</string>
       </attribute>
@@ -444,6 +462,12 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_6">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <attribute name="title">
        <string>Other</string>
       </attribute>
@@ -594,6 +618,12 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_3">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <attribute name="title">
        <string>Identification</string>
       </attribute>
@@ -731,6 +761,12 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_5">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <attribute name="title">
        <string>Content</string>
       </attribute>
@@ -758,9 +794,18 @@
        <item>
         <widget class="ListPartsWidget" name="listPartsWidget" native="true"/>
        </item>
+       <item>
+        <widget class="ListCitedSources" name="editCitedSources" native="true"/>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_4">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <attribute name="title">
        <string>Note</string>
       </attribute>
@@ -779,10 +824,26 @@
         </widget>
        </item>
        <item>
-        <widget class="ListAnnotationsWidget" name="editAnnot" native="true"/>
-       </item>
-       <item>
-        <widget class="ListCitedSources" name="editCitedSources" native="true"/>
+        <widget class="QSplitter" name="splitter">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <widget class="ListAnnotationsWidget" name="editAnnot" native="true"/>
+         <widget class="KRichTextEdit" name="editAnnotText">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="textInteractionFlags">
+           <set>Qt::TextEditorInteraction</set>
+          </property>
+          <property name="checkSpellingEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -805,6 +866,11 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>KRichTextEdit</class>
+   <extends>KTextEdit</extends>
+   <header>krichtextedit.h</header>
+  </customwidget>
+  <customwidget>
    <class>KComboBox</class>
    <extends>QComboBox</extends>
    <header>kcombobox.h</header>
@@ -813,6 +879,11 @@
    <class>KLineEdit</class>
    <extends>QLineEdit</extends>
    <header>klineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>ktextedit.h</header>
   </customwidget>
   <customwidget>
    <class>KRatingWidget</class>
