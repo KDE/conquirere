@@ -54,7 +54,7 @@ public:
     void setSearchResultModel(SearchResultModel* srm);
 
 signals:
-    void selectedResource(Nepomuk::Resource & nr);
+    void selectedResource(Nepomuk::Resource & nr, bool);
     void selectedMultipleResources(QList<Nepomuk::Resource> resourceList);
 
 public slots:

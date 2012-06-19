@@ -64,6 +64,13 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
     QList<QAction *> actionCollection; //we throw all temp actions into it and delete them again after execution
 
     // ###########################################################
+    // # add  file open in tab menu
+    QAction *openInTab = new QAction(KIcon(QLatin1String("tab-new-background.png")), i18n("Open in Tab"), this);
+    connect(openInTab, SIGNAL(triggered(bool)),this, SLOT(openInTab()));
+    menu.addAction(openInTab);
+    actionCollection.append(openInTab);
+
+    // ###########################################################
     // # add  file open menu
     QMenu openExternal;
     openExternal.setTitle(i18n("open external"));
@@ -434,4 +441,9 @@ void TableViewMenu::sendToKileLyX()
         resourcelist.append(m_nepomukResource);
         klp.pipeExport(resourcelist);
     }
+}
+
+void TableViewMenu::openInTab()
+{
+    emit openResourceInTab(m_nepomukResource, true);
 }

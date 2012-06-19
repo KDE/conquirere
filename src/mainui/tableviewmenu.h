@@ -40,6 +40,9 @@ public:
     void showBibTeXEntryMenu(QSharedPointer<Entry> entry);
     void setLibraryManager(LibraryManager *lm);
 
+    signals:
+    void openResourceInTab(Nepomuk::Resource &resource, bool);
+
 public slots:
     void addSelectedToProject();
     void removeSelectedFromProject();
@@ -50,6 +53,7 @@ public slots:
     void exportBibTexReference();
     void exportCiteKey();
     void sendToKileLyX();
+    void openInTab();
 
 private:
     LibraryManager *m_libraryManager;

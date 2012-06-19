@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Jörg Ehrichs <joerg.ehrichs@gmx.de>
+ * Copyright 2012 Jörg Ehrichs <joerg.ehrichs@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,9 +19,6 @@
 #define DOCUMENTPREVIEW_H
 
 #include <Nepomuk/Resource>
-#include <KParts/MainWindow>
-#include <KParts/BrowserExtension>
-
 #include <QtGui/QWidget>
 
 namespace Ui {
@@ -30,14 +27,10 @@ namespace Ui {
 
 namespace KParts {
     class Part;
-    class ReadOnlyPart;
 }
-class QLabel;
 
-/**
-  * @brief Dockwidget to show the right KPart for a specific publication/document url
-  *
-  */
+class DocumentPreviewTab;
+
 class DocumentPreview : public QWidget
 {
     Q_OBJECT
@@ -46,29 +39,22 @@ public:
     explicit DocumentPreview(QWidget *parent = 0);
     ~DocumentPreview();
 
+signals:
+    void activeDocumentChanged(Nepomuk::Resource & resource);
+
 public slots:
-    void setResource(Nepomuk::Resource & resource);
+    void setResource(Nepomuk::Resource & resource, bool inNewTab = false);
     void clear();
-    void showUrl(int index);
-    void openExternally();
+
+private slots:
+    void closeRequest( QWidget * documentTab);
+    void currentIndexChanged(int index);
 
 signals:
     void activateKPart(KParts::Part *part);
 
-private slots:
-    void openUrlRequestDelayed (const KUrl &url, const KParts::OpenUrlArguments &arguments, const KParts::BrowserArguments &browserArguments);
-
-protected:
-    void resizeEvent ( QResizeEvent * event );
-
 private:
     Ui::DocumentPreview *ui;
-    Nepomuk::Resource m_resource;
-    KParts::ReadOnlyPart* m_part;
-    QString m_lastPartsName;
-    QLabel *m_labelInvalid;
-    QLabel *m_labelNone;
-    bool m_visible;
 };
 
 #endif // DOCUMENTPREVIEW_H

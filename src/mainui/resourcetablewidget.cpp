@@ -268,7 +268,7 @@ void ResourceTableWidget::selectedResource( const QItemSelection & selected, con
 
     if(selectedIndex.isEmpty()) {
         Nepomuk::Resource empty;
-        emit selectedResource(empty);
+        emit selectedResource(empty,false);
     }
     else if(selectedIndex.size() > 1) {
         QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
@@ -301,17 +301,17 @@ void ResourceTableWidget::selectedResource( const QItemSelection & selected, con
 
         if(rm) {
             Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(selectedIndex.first()));
-            emit selectedResource(nr);
+            emit selectedResource(nr,false);
         }
         else {
             SearchResultModel *srm = qobject_cast<SearchResultModel *>(sfpm->sourceModel());
             if(srm) {
                 Nepomuk::Resource nr = srm->nepomukResourceAt(sfpm->mapToSource(selectedIndex.first()));
-                emit selectedResource(nr);
+                emit selectedResource(nr,false);
             }
             else {
                 Nepomuk::Resource empty;
-                emit selectedResource(empty);
+                emit selectedResource(empty,false);
             }
         }
     }
@@ -363,6 +363,7 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
     }
 
     TableViewMenu tvm;
+    connect(&tvm, SIGNAL(openResourceInTab(Nepomuk::Resource&, bool)), this, SIGNAL(selectedResource(Nepomuk::Resource&, bool)));
     tvm.setLibraryManager(m_libraryManager);
 
     if(nepomukRescource.isValid()) {

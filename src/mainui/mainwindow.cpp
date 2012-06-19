@@ -571,14 +571,17 @@ void MainWindow::setupMainWindow()
     connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,BibEntryType,Library*)),
             m_sidebarWidget, SLOT(newSelection(ResourceSelection,BibEntryType,Library*)));
 
-    connect(m_tableWidget, SIGNAL(selectedResource(Nepomuk::Resource&)),
+    connect(m_tableWidget, SIGNAL(selectedResource(Nepomuk::Resource&, bool)),
             m_sidebarWidget, SLOT(setResource(Nepomuk::Resource&)));
 
     connect(m_tableWidget, SIGNAL(selectedMultipleResources(QList<Nepomuk::Resource>)),
             m_sidebarWidget, SLOT(setMultipleResources(QList<Nepomuk::Resource>)));
 
-    connect(m_tableWidget, SIGNAL(selectedResource(Nepomuk::Resource&)),
-            m_documentPreview, SLOT(setResource(Nepomuk::Resource&)));
+    connect(m_tableWidget, SIGNAL(selectedResource(Nepomuk::Resource&, bool)),
+            m_documentPreview, SLOT(setResource(Nepomuk::Resource&, bool)));
+
+    connect(m_documentPreview, SIGNAL(activeDocumentChanged(Nepomuk::Resource&)),
+            m_sidebarWidget, SLOT(setResource(Nepomuk::Resource&)));
 
     connect(m_documentPreview, SIGNAL(activateKPart(KParts::Part*)),
             this, SLOT(connectKPartGui(KParts::Part*)));
