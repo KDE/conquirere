@@ -18,6 +18,7 @@
 #include "mailmodel.h"
 
 #include "../queryclients/mailquery.h"
+#include "nbibio/conquirere.h"
 
 #include <QtCore/QModelIndex>
 
@@ -35,8 +36,9 @@ MailModel::MailModel(QObject *parent)
 
 MailModel::~MailModel()
 {
-    // ignored for now, new threaded loading seems to be fast enough
-    //saveCache();
+    if(ConqSettings::cacheOnStartUp()) {
+        saveCache();
+    }
 }
 
 int MailModel::columnCount(const QModelIndex &parent) const

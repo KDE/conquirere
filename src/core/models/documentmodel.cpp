@@ -18,6 +18,7 @@
 #include "documentmodel.h"
 
 #include "../queryclients/documentquery.h"
+#include "nbibio/conquirere.h"
 
 #include <KDE/KIcon>
 
@@ -37,8 +38,9 @@ DocumentModel::DocumentModel(QObject *parent)
 
 DocumentModel::~DocumentModel()
 {
-    // ignored for now, new threaded loading seems to be fast enough
-    //saveCache();
+    if(ConqSettings::cacheOnStartUp()) {
+        saveCache();
+    }
 }
 
 int DocumentModel::columnCount(const QModelIndex &parent) const

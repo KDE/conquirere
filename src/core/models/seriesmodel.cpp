@@ -18,6 +18,7 @@
 #include "seriesmodel.h"
 
 #include "../queryclients/seriesquery.h"
+#include "nbibio/conquirere.h"
 
 #include <QModelIndex>
 
@@ -35,8 +36,9 @@ SeriesModel::SeriesModel(QObject *parent)
 
 SeriesModel::~SeriesModel()
 {
-    // ignored for now, new threaded loading seems to be fast enough
-    //saveCache();
+    if(ConqSettings::cacheOnStartUp()) {
+        saveCache();
+    }
 }
 
 int SeriesModel::columnCount(const QModelIndex &parent) const

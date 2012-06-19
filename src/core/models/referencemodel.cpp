@@ -18,6 +18,7 @@
 #include "referencemodel.h"
 
 #include "../queryclients/referencequery.h"
+#include "nbibio/conquirere.h"
 
 #include <KDE/KIcon>
 
@@ -37,8 +38,9 @@ ReferenceModel::ReferenceModel(QObject *parent)
 
 ReferenceModel::~ReferenceModel()
 {
-    // ignored for now, new threaded loading seems to be fast enough
-    //saveCache();
+    if(ConqSettings::cacheOnStartUp()) {
+        saveCache();
+    }
 }
 
 int ReferenceModel::columnCount(const QModelIndex &parent) const

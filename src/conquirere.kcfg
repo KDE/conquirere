@@ -23,6 +23,10 @@
       <label>Hidden Nbib Publications On Restart.</label>
       <default></default>
     </entry>
+    <entry name="CacheOnStartUp" type="Bool">
+      <label>Use a cache to speed up startup loading time of a large nepomuk database</label>
+      <default>true</default>
+    </entry>
   </group>
   
   <group name="Background-Sync">

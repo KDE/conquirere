@@ -18,6 +18,7 @@
 #include "publicationmodel.h"
 
 #include "../queryclients/publicationquery.h"
+#include "nbibio/conquirere.h"
 
 #include <KDE/KIcon>
 
@@ -37,8 +38,9 @@ PublicationModel::PublicationModel(QObject *parent)
 
 PublicationModel::~PublicationModel()
 {
-    // ignored for now, new threaded loading seems to be fast enough
-    //saveCache();
+    if(ConqSettings::cacheOnStartUp()) {
+        saveCache();
+    }
 }
 
 int PublicationModel::columnCount(const QModelIndex &parent) const

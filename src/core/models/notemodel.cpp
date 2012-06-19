@@ -18,6 +18,7 @@
 #include "notemodel.h"
 
 #include "../queryclients/notequery.h"
+#include "nbibio/conquirere.h"
 
 #include <QtCore/QModelIndex>
 
@@ -35,8 +36,9 @@ NoteModel::NoteModel(QObject *parent)
 
 NoteModel::~NoteModel()
 {
-    // ignored for now, new threaded loading seems to be fast enough
-    //saveCache();
+    if(ConqSettings::cacheOnStartUp()) {
+        saveCache();
+    }
 }
 
 int NoteModel::columnCount(const QModelIndex &parent) const

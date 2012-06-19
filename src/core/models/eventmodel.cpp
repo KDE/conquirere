@@ -18,6 +18,7 @@
 #include "eventmodel.h"
 
 #include "../queryclients/eventquery.h"
+#include "nbibio/conquirere.h"
 
 #include <QModelIndex>
 
@@ -35,8 +36,9 @@ EventModel::EventModel(QObject *parent)
 
 EventModel::~EventModel()
 {
-    // ignored for now, new threaded loading seems to be fast enough
-    //saveCache();
+    if(ConqSettings::cacheOnStartUp()) {
+        saveCache();
+    }
 }
 
 int EventModel::columnCount(const QModelIndex &parent) const

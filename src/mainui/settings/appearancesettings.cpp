@@ -45,6 +45,7 @@ AppearanceSettings::~AppearanceSettings()
 void AppearanceSettings::resetSettings()
 {
     // view part
+   ui->cb_startupCache->setChecked( ConqSettings::cacheOnStartUp() );
 
     // categories part
     for(int i=0; i < Max_SeriesTypes; i++) {
@@ -98,6 +99,8 @@ void AppearanceSettings::applySettings()
 
     ConqSettings::setHiddenNbibSeriesOnRestart(hiddenSeries);
     ConqSettings::setHiddenNbibPublicationsOnRestart(hiddenPublications);
+
+    ConqSettings::setCacheOnStartUp(ui->cb_startupCache->isChecked());
 
     ConqSettings::self()->writeConfig();
 }

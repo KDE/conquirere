@@ -18,6 +18,7 @@
 #include "bookmarkmodel.h"
 
 #include "../queryclients/bookmarkquery.h"
+#include "nbibio/conquirere.h"
 
 #include <QtCore/QModelIndex>
 
@@ -35,8 +36,9 @@ BookmarkModel::BookmarkModel(QObject *parent)
 
 BookmarkModel::~BookmarkModel()
 {
-    // ignored for now, new threaded loading seems to be fast enough
-    //saveCache();
+    if(ConqSettings::cacheOnStartUp()) {
+        saveCache();
+    }
 }
 
 int BookmarkModel::columnCount(const QModelIndex &parent) const

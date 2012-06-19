@@ -19,6 +19,7 @@
 
 #include "../library.h"
 #include "../projectsettings.h"
+#include "nbibio/conquirere.h"
 
 #include <KDE/KStandardDirs>
 
@@ -113,8 +114,9 @@ void NepomukModel::startFetchData()
 {
     Q_ASSERT(m_queryClient);
 
-    // ignored for now, new threaded loading seems to be fast enough
-    //loadCache();
+    if(ConqSettings::cacheOnStartUp()) {
+        loadCache();
+    }
 
     emit queryStarted();
 }
