@@ -25,7 +25,7 @@
     </entry>
     <entry name="CacheOnStartUp" type="Bool">
       <label>Use a cache to speed up startup loading time of a large nepomuk database</label>
-      <default>true</default>
+      <default>false</default>
     </entry>
   </group>
   
