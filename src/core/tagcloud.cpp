@@ -34,7 +34,7 @@ TagCloud::TagCloud(QObject *parent)
     , m_futureWatcher(0)
 {
     m_missingUpdate = false;
-    m_pauseUpdates = false;
+    m_pauseUpdates = true;
 }
 
 TagCloud::~TagCloud()
@@ -44,9 +44,10 @@ TagCloud::~TagCloud()
 
 void TagCloud::addResource(const Nepomuk::Resource &resource)
 {
-    if(resource.hasType(NBIB::Publication()))
-    m_resourceList.append(resource);
-    updateTagCloud();
+    if(resource.hasType(NBIB::Publication())) {
+        m_resourceList.append(resource);
+        updateTagCloud();
+    }
 }
 
 void TagCloud::updateResource(const Nepomuk::Resource &resource)
