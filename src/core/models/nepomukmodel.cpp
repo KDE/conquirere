@@ -90,7 +90,6 @@ void NepomukModel::setLibrary(Library *library)
     m_queryClient->setLibrary(m_library);
 
     connect(m_library, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), m_queryClient, SLOT(resourceChanged(Nepomuk::Resource)));
-    m_queryClient->start();
 }
 
 Nepomuk::Resource NepomukModel::documentResource(const QModelIndex &selection)
@@ -117,6 +116,8 @@ void NepomukModel::startFetchData()
     if(ConqSettings::cacheOnStartUp()) {
         loadCache();
     }
+
+    m_queryClient->start();
 
     emit queryStarted();
 }
@@ -157,6 +158,7 @@ void NepomukModel::saveCache()
 
 void NepomukModel::loadCache()
 {
+    qDebug() << "loadCache :: " << id();
     QString cacheName = QString("%1_%2").arg(m_library->settings()->name()).arg(id());
     QString cachePath = KStandardDirs::locateLocal("appdata", cacheName);
 
@@ -193,6 +195,7 @@ void NepomukModel::loadCache()
     }
 
     addCacheData(cachedEntries);
+    qDebug() << "loadCache finished :: " << id();
 }
 
 void NepomukModel::updateCacheData()
