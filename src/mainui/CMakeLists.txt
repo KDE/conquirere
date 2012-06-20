@@ -14,6 +14,7 @@ set(mainui_LIB_SRCS
     docklets/librarywidget.cpp
     docklets/projecttreedelegate.cpp
     docklets/documentpreview.cpp
+    docklets/documentpreviewtab.cpp
     docklets/qlibrarytreewidgetitem.cpp
     docklets/searchwidget.cpp
 
@@ -64,6 +65,7 @@ kde4_add_ui_files( mainui_LIB_SRCS
 
                    docklets/librarywidget.ui
                    docklets/documentpreview.ui
+                   docklets/documentpreviewtab.ui
                    docklets/searchwidget.ui
 
                    settings/projectgeneralsettings.ui
