@@ -580,6 +580,9 @@ void MainWindow::setupMainWindow()
     connect(m_tableWidget, SIGNAL(selectedResource(Nepomuk::Resource&, bool)),
             m_documentPreview, SLOT(setResource(Nepomuk::Resource&, bool)));
 
+    connect(m_sidebarWidget, SIGNAL(openDocument(Nepomuk::Resource&,bool)),
+            m_documentPreview, SLOT(setResource(Nepomuk::Resource&, bool)));
+
     connect(m_documentPreview, SIGNAL(activeDocumentChanged(Nepomuk::Resource&)),
             m_sidebarWidget, SLOT(setResource(Nepomuk::Resource&)));
 

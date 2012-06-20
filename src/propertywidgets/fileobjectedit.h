@@ -40,11 +40,15 @@ public:
     void setLibraryManager(LibraryManager *lm);
     void setResource(Nepomuk::Resource & resource);
 
+signals:
+    void openDocument(Nepomuk::Resource & resource, bool inTab);
+
 private slots:
     void fillFileObjectWidget();
     void fileObjectEdit();
     void fileObjectAdd();
     void fileObjectRemove();
+    void doubleClicked(QListWidgetItem* item,QPoint point);
 
 private:
     void addItemInfo(QListWidgetItem *i, const Nepomuk::Resource &resource);

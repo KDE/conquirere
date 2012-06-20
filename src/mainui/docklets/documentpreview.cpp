@@ -56,8 +56,6 @@ void DocumentPreview::setResource(Nepomuk::Resource & resource, bool inNewTab)
         ui->ktabwidget->setTabBarHidden( false );
 
         newTab->setResource( resource );
-
-        newTab->showUrl(0,true);
     }
     else {
         DocumentPreviewTab *newTab = qobject_cast<DocumentPreviewTab *>(ui->ktabwidget->widget(0));

@@ -72,7 +72,15 @@ void DocumentPreviewTab::setResource(Nepomuk::Resource & resource)
         m_part->closeUrl();
     }
 
+    QString specificUrl;
     if(resource.isValid()) {
+
+        specificUrl = resource.property(Nepomuk::Vocabulary::NIE::url()).toString();
+        if(!specificUrl.isEmpty()) {
+            resource = resource.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
+            m_resource = resource;
+        }
+
         QList<Nepomuk::Resource> fileList;
 
         if(resource.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
@@ -148,6 +156,14 @@ void DocumentPreviewTab::setResource(Nepomuk::Resource & resource)
             icon = KIcon(favIcon);
             ui->urlSelector->addItem(icon,url.url(),QVariant(mimetype));
         }
+    }
+
+    if(!specificUrl.isEmpty()) {
+
+        showUrl( ui->urlSelector->findText(specificUrl,Qt::MatchContains) ,true);
+    }
+    else {
+        showUrl(0,true);
     }
 }
 

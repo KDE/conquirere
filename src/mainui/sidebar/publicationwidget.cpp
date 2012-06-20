@@ -539,6 +539,7 @@ void PublicationWidget::setupWidget()
     }
 
     connect(ui->editEntryType, SIGNAL(currentIndexChanged(int)), this, SLOT(newBibEntryTypeSelected(int)));
+    connect(ui->editFileObject, SIGNAL(openDocument(Nepomuk::Resource&,bool)), this, SIGNAL(openDocument(Nepomuk::Resource&,bool)));
 
     // Basics section
     ui->editTitle->setPropertyUrl( NIE::title() );

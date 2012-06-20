@@ -610,9 +610,11 @@ void SidebarWidget::setupUi()
     m_stackedLayout->addWidget(m_documentWidget);
     connect(m_documentWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
 
-    m_publicationWidget = new PublicationWidget(this);
-    m_stackedLayout->addWidget(m_publicationWidget);
-    connect(m_publicationWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    PublicationWidget * pw = new PublicationWidget(this);
+    m_stackedLayout->addWidget(pw);
+    connect(pw, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(pw, SIGNAL(openDocument(Nepomuk::Resource&,bool)), this, SIGNAL(openDocument(Nepomuk::Resource&,bool)));
+    m_publicationWidget = pw;
 
     m_referenceWidget = new ReferenceWidget(this);
     m_stackedLayout->addWidget(m_referenceWidget);

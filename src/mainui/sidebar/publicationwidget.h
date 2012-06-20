@@ -60,6 +60,8 @@ public slots:
 signals:
     void hasReference(bool reference);
 
+    void openDocument(Nepomuk::Resource & resource, bool inTab);
+
 private slots:
     /**
       * @todo check how the chain of all types are assigned to a resource

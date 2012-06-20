@@ -47,6 +47,8 @@ FileObjectEdit::FileObjectEdit(QWidget *parent) :
     connect(ui->fileEdit, SIGNAL(clicked()), this, SLOT(fileObjectEdit()));
     connect(ui->fileAdd, SIGNAL(clicked()), this, SLOT(fileObjectAdd()));
     connect(ui->fileRemove, SIGNAL(clicked()), this, SLOT(fileObjectRemove()));
+
+    connect(ui->fileListWidget, SIGNAL(doubleClicked(QListWidgetItem*,QPoint)), this, SLOT(doubleClicked(QListWidgetItem*,QPoint)));
 }
 
 FileObjectEdit::~FileObjectEdit()
@@ -158,6 +160,19 @@ void FileObjectEdit::fileObjectRemove()
         value.clear(); value <<  m_publication.uri();
         Nepomuk::removeProperty(resourceUris, NBIB::publishedAs(), value);
     }
+}
+
+void FileObjectEdit::doubleClicked(QListWidgetItem* item, QPoint point)
+{
+    Q_UNUSED(point);
+
+
+    QListWidgetItem *i = ui->fileListWidget->currentItem();
+    if(!i) { return; }
+
+    Nepomuk::Resource resource = Nepomuk::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
+
+    emit openDocument(resource, true);
 }
 
 void FileObjectEdit::addItemInfo(QListWidgetItem *i, const Nepomuk::Resource &resource)

@@ -137,6 +137,8 @@ signals:
       */
     void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
 
+    void openDocument(Nepomuk::Resource & resource, bool inTab);
+
 private:
     void setupUi();
 
