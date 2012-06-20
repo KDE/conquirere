@@ -67,6 +67,7 @@ public slots:
 private slots:
     void tableContextMenu(const QPoint & pos);
     void headerContextMenu(const QPoint &pos);
+    void mouseDoubleClickEvent ( QModelIndex index );
     void changeHeaderSectionVisibility();
     void sectionResized( int logicalIndex, int oldSize, int newSize );
 

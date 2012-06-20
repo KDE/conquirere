@@ -57,6 +57,8 @@ ResourceTableWidget::ResourceTableWidget(QWidget *parent)
     , m_searchResultModel(0)
 {
     setupWidget();
+
+    setMouseTracking(true);
 }
 
 ResourceTableWidget::~ResourceTableWidget()
@@ -398,6 +400,36 @@ void ResourceTableWidget::headerContextMenu(const QPoint &pos)
     menu.exec(mapToGlobal(pos));
 }
 
+void ResourceTableWidget::mouseDoubleClickEvent ( QModelIndex index )
+{
+    QItemSelectionModel *sm = m_documentView->selectionModel();
+    if(!sm) { return; }
+
+    QModelIndexList selectedIndex = sm->selectedRows();
+    if(selectedIndex.isEmpty()) { return; }
+
+    Nepomuk::Resource nepomukRescource;
+
+    QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
+    NepomukModel *nm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
+
+    if(nm) {
+        nepomukRescource = nm->documentResource(sfpm->mapToSource(index));
+    }
+    else {
+        SearchResultModel *srm = qobject_cast<SearchResultModel *>(sfpm->sourceModel());
+        if(srm) {
+            nepomukRescource = srm->nepomukResourceAt(sfpm->mapToSource(selectedIndex.first()));
+        }
+        else {
+            kDebug() << "ResourceTableWidget::tableContextMenu no model found";
+            return;
+        }
+    }
+
+    emit selectedResource(nepomukRescource, true);
+}
+
 void ResourceTableWidget::changeHeaderSectionVisibility()
 {
     QAction *a = qobject_cast<QAction *>(sender());
@@ -480,6 +512,8 @@ void ResourceTableWidget::setupWidget()
 
     connect(m_documentView, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(tableContextMenu(QPoint)));
+
+    connect(m_documentView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(mouseDoubleClickEvent(QModelIndex)));
 
     QHeaderView *hvHorizontal = m_documentView->horizontalHeader();
     hvHorizontal->setContextMenuPolicy(Qt::CustomContextMenu);
