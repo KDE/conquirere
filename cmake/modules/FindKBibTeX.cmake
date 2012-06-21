@@ -42,8 +42,17 @@ find_library(
 find_path(
     KBIBTEX_INCLUDE_DIRS
     NAMES kbibtexio_export.h
-    HINTS ${KDE4_INCLUDE_DIR} ${INCLUDE_INSTALL_DIR}
+    HINTS ${KDE4_INCLUDE_DIR} ${INCLUDE_INSTALL_DIR} ${INCLUDE_INSTALL_DIR}
 )
+
+# added because on my system the above statement can't find the includes in its usual subdirectory
+if(NOT KBIBTEX_INCLUDE_DIRS)
+    find_path(
+        KBIBTEX_INCLUDE_DIRS
+        NAMES kbibtex/kbibtexio_export.h
+        HINTS ${KDE4_INCLUDE_DIR} ${INCLUDE_INSTALL_DIR}
+    )
+endif(NOT KBIBTEX_INCLUDE_DIRS)
 
 if (KBIBTEXIO_LIBRARY AND KBIBTEXGUI_LIBRARY AND KBIBTEXNETWORKING_LIBRARY AND KBIBTEXPROC_LIBRARY AND KBIBTEX_INCLUDE_DIRS)
     set(KBIBTEX_FOUND TRUE)

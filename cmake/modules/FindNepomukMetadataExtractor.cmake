@@ -27,6 +27,15 @@ find_path(
     HINTS ${KDE4_INCLUDE_DIR} ${INCLUDE_INSTALL_DIR}
 )
 
+# added because on my system the above statement can't find the includes in its usual subdirectory
+if(NOT NEPOMUK_METADATA_EXTRACTOR_INCLUDE_DIRS)
+    find_path(
+        NEPOMUK_METADATA_EXTRACTOR_INCLUDE_DIRS
+        NAMES nepomukmetadataextractor/nepomukmetadataextractor_export.h
+        HINTS ${KDE4_INCLUDE_DIR} ${INCLUDE_INSTALL_DIR}
+    )
+endif(NOT NEPOMUK_METADATA_EXTRACTOR_INCLUDE_DIRS)
+
 if (NEPOMUK_METADATA_EXTRACTOR_INCLUDE_DIRS AND NEPOMUK_METADATA_EXTRACTOR_LIB )
     # in cache already
     set(NEPOMUK_METADATA_EXTRACTOR_FOUND TRUE)

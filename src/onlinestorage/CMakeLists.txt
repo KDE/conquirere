@@ -27,6 +27,7 @@ kde4_add_ui_files( onlinestorage_LIB_SRCS
 kde4_add_library( onlinestorage STATIC ${onlinestorage_LIB_SRCS} )
 
 target_link_libraries(onlinestorage
+                      ${QJSON_LIBRARIES} # added because the macro seems to exist with upper and lowercase depending on the distribution
                       ${qjson_LIBRARIES}
                       ${KDE4_KDEUI_LIBS}
                       ${KDE4_KDECORE_LIBS} )
