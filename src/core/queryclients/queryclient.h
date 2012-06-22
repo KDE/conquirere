@@ -18,7 +18,8 @@
 #ifndef QUERYCLIENT_H
 #define QUERYCLIENT_H
 
-#include <QThread>
+#include <QtCore/QThread>
+#include <QtCore/QDateTime>
 
 #include <Nepomuk/Resource>
 #include <Nepomuk/Query/QueryServiceClient>
@@ -35,12 +36,14 @@ struct CachedRowEntry {
     QVariantList displayColums;
     QVariantList decorationColums;
     Nepomuk::Resource resource;
+    QDateTime timestamp;
 };
 
 Q_DECLARE_METATYPE(CachedRowEntry)
 Q_DECLARE_METATYPE(QList<CachedRowEntry>)
 
 class Library;
+class NepomukModel;
 
 /**
   * @brief Abstract base class for any nepomuk query client.
@@ -58,6 +61,7 @@ public:
     virtual ~QueryClient();
 
     void setLibrary(Library *selectedLibrary);
+    void setModel(NepomukModel *nm);
     void run();
 
 public slots:
@@ -99,6 +103,7 @@ protected:
     virtual QVariantList createDecorationData(const Nepomuk::Resource & res) const = 0;
 
     Library *m_library;
+    NepomukModel *m_model;
     Nepomuk::Query::QueryServiceClient *m_queryClient;
     Nepomuk::ResourceWatcher *m_resourceWatcher;
     bool m_startupQuery;

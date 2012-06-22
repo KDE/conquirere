@@ -69,13 +69,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     setupMainWindow();
     setupActions();
-
-    //create the system library
-    Library *l = new Library();
-    l->loadSystemLibrary();
-    m_libraryManager->addSystemLibrary(l);
-
-    m_sidebarWidget->newSelection(Resource_Library, Max_BibTypes, l);
+    setupLibrary();
 }
 
 MainWindow::~MainWindow()
@@ -591,4 +585,14 @@ void MainWindow::setupMainWindow()
 
     connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,BibEntryType,Library*)),
             this, SLOT(switchView(ResourceSelection,BibEntryType,Library*)));
+}
+
+void MainWindow::setupLibrary()
+{
+    //create the system library
+    Library *l = new Library();
+    l->loadSystemLibrary();
+    m_libraryManager->addSystemLibrary(l);
+
+    m_sidebarWidget->newSelection(Resource_Library, Max_BibTypes, l);
 }

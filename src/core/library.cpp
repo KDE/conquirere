@@ -20,6 +20,8 @@
 #include "tagcloud.h"
 #include "dirwatcher.h"
 
+#include "nbibio/conquirere.h"
+
 #include "onlinestorage/storageinfo.h"
 #include "onlinestorage/storageglobals.h"
 #include "onlinestorage/zotero/zoteroinfo.h"
@@ -486,12 +488,21 @@ void Library::setupModels()
         connectModelToTagCloud(MediaModel);
         */
     }
+
+    if(ConqSettings::cacheOnStartUp()) {
+        documentModel->loadCache();
+        referencesModel->loadCache();
+        publicationModel->loadCache();
+        seriesModel->loadCache();
+        noteModel->loadCache();
+        eventModel->loadCache();
+    }
 }
 
 void Library::connectModelToTagCloud(NepomukModel *model)
 {
-    connect(model, SIGNAL(resourceAdded(Nepomuk::Resource)), m_tagCloud, SLOT(addResource(Nepomuk::Resource)));
-    connect(model, SIGNAL(resourceRemoved(QUrl)), m_tagCloud, SLOT(removeResource(QUrl)));
-    connect(model, SIGNAL(resourceUpdated(Nepomuk::Resource)), m_tagCloud, SLOT(updateResource(Nepomuk::Resource)));
-    connect(model, SIGNAL(queryFinished()), this, SLOT(finishedInitialImport()));
+//    connect(model, SIGNAL(resourceAdded(Nepomuk::Resource)), m_tagCloud, SLOT(addResource(Nepomuk::Resource)));
+//    connect(model, SIGNAL(resourceRemoved(QUrl)), m_tagCloud, SLOT(removeResource(QUrl)));
+//    connect(model, SIGNAL(resourceUpdated(Nepomuk::Resource)), m_tagCloud, SLOT(updateResource(Nepomuk::Resource)));
+//    connect(model, SIGNAL(queryFinished()), this, SLOT(finishedInitialImport()));
 }

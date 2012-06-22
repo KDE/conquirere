@@ -26,6 +26,9 @@
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
 
+#include <Soprano/Vocabulary/NAO>
+#include <Nepomuk/Variant>
+
 NepomukModel::NepomukModel(QObject *parent)
     : QAbstractTableModel(parent)
     , m_library(0)
@@ -78,6 +81,32 @@ QVariant NepomukModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
+bool NepomukModel::cacheEntryNeedsUpdate(const Nepomuk::Resource & resource) const
+{
+    if( !m_lookupCache.contains(resource.resourceUri().toString()) )
+        return true;
+
+    // here we need to check if the current timestamp of the cache entry is
+    // newer than the timestamp of the nepomuk entry (and some of its subentries)
+    // if the nepomuk data is newer, we need to update the data
+
+
+    int cacheEntry = m_lookupCache.value(resource.resourceUri().toString());
+    QDateTime cacheTimestamp = m_modelCacheData.at(cacheEntry).timestamp;
+
+    // TODO also check against connected resources, like publishedAs, reference and so on.
+    // all resources which are shown in the table model
+    QDateTime dbTimestamp = resource.property( Soprano::Vocabulary::NAO::lastModified() ).toDateTime();
+
+    if(cacheTimestamp >= dbTimestamp) {
+        return false;
+    }
+    else {
+//        qDebug() << "Cache needs update :: " << resource.genericLabel();
+        return true;
+    }
+}
+
 QList<int> NepomukModel::fixedWithSections() const
 {
     QList<int> emptylist;
@@ -113,10 +142,6 @@ void NepomukModel::startFetchData()
 {
     Q_ASSERT(m_queryClient);
 
-    if(ConqSettings::cacheOnStartUp()) {
-        loadCache();
-    }
-
     m_queryClient->start();
 
     emit queryStarted();
@@ -151,7 +176,8 @@ void NepomukModel::saveCache()
             out << v.toString() << "|#|";
         }
         out << "\n";
-        out << cre.resource.resourceUri().toString() << "\n";
+        //DEBUG save the timestampg when the entry was actually inserted into the program?
+        out << cre.resource.resourceUri().toString() << "|#|" << QDateTime::currentDateTime().toString() << "\n";
     }
     file.close();
 }
@@ -185,8 +211,9 @@ void NepomukModel::loadCache()
                 cre.decorationColums.append(col);
             }
         }
-        QString resUri = in.readLine();
-        cre.resource = Nepomuk::Resource(resUri);
+        QStringList resInfo = in.readLine().split(QLatin1String("|#|"));
+        cre.resource = Nepomuk::Resource::fromResourceUri(resInfo.first());
+        cre.timestamp = QDateTime::fromString( resInfo.last() );
 
         // don't add entries which are removed already
         if(cre.resource.isValid()) {

@@ -26,6 +26,7 @@ BookmarkModel::BookmarkModel(QObject *parent)
     : NepomukModel(parent)
 {
     m_queryClient = new BookmarkQuery();
+    m_queryClient->setModel(this);
 
     connect(m_queryClient, SIGNAL(newCacheEntries(QList<CachedRowEntry>)), this, SLOT(addCacheData(QList<CachedRowEntry>)));
     connect(m_queryClient, SIGNAL(updateCacheEntries(QList<CachedRowEntry>)), this, SLOT(updateCacheData(QList<CachedRowEntry>)));

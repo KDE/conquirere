@@ -55,6 +55,8 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
 
+    bool cacheEntryNeedsUpdate(const Nepomuk::Resource & resource) const;
+
     /**
       * @return the default width for a table section if the user didn't changed it.
       */
@@ -97,7 +99,7 @@ public slots:
       * saves the content of the table to disk
       *
       * Can be used to speed up the startup time of the program when very large
-      * data sets are used. Currently disabled
+      * data sets are used.
       *
       * @see loadCache
       */
@@ -107,7 +109,7 @@ public slots:
       * load the saved content of the table from disk
       *
       * Can be used to speed up the startup time of the program when very large
-      * data sets are used. Currently disabled
+      * data sets are used.
       *
       * @see saveCache
       */

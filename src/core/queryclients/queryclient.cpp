@@ -19,6 +19,7 @@
 
 #include "nbibio/conquirere.h"
 #include "globals.h"
+#include "../models/nepomukmodel.h"
 
 #include "nbib.h"
 #include <Nepomuk/Vocabulary/NCAL>
@@ -26,6 +27,8 @@
 #include <Nepomuk/Vocabulary/NIE>
 #include <Nepomuk/Variant>
 #include <Nepomuk/Thing>
+
+#include<valgrind/callgrind.h>
 
 QueryClient::QueryClient(QObject *parent)
     :QThread(parent)
@@ -48,6 +51,11 @@ void QueryClient::setLibrary(Library *selectedLibrary)
     m_library = selectedLibrary;
 }
 
+void QueryClient::setModel(NepomukModel *nm)
+{
+    m_model = nm;
+}
+
 void QueryClient::stopFetchData()
 {
     m_queryClient->close();
@@ -62,24 +70,24 @@ void QueryClient::run()
     connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(initalQueryFinished()));
     connect(m_queryClient, SIGNAL(resultCount(int)), this, SLOT(resultCount(int)));
 
-    m_resourceWatcher = new Nepomuk::ResourceWatcher(this);
-    m_resourceWatcher->addProperty(Nepomuk::Vocabulary::NIE::title());
-//    m_resourceWatcher->addProperty(Nepomuk::Vocabulary::NBIB::publishedAs());
-//    m_resourceWatcher->addProperty(Nepomuk::Vocabulary::NBIB::isPublicationOf());
-    //    m_resourceWatcher->addProperty(Soprano::Vocabulary::NAO::isRelated());
+//    m_resourceWatcher = new Nepomuk::ResourceWatcher(this);
+//    m_resourceWatcher->addProperty(Nepomuk::Vocabulary::NIE::title());
+////    m_resourceWatcher->addProperty(Nepomuk::Vocabulary::NBIB::publishedAs());
+////    m_resourceWatcher->addProperty(Nepomuk::Vocabulary::NBIB::isPublicationOf());
+//    //    m_resourceWatcher->addProperty(Soprano::Vocabulary::NAO::isRelated());
 
-    connect(m_resourceWatcher, SIGNAL(propertyAdded(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)), this, SLOT(propertyAdded(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)));
-    connect(m_resourceWatcher, SIGNAL(propertyChanged(Nepomuk::Resource,Nepomuk::Types::Property,QVariantList,QVariantList)), this, SLOT(propertyChanged(Nepomuk::Resource,Nepomuk::Types::Property,QVariantList,QVariantList)));
-    connect(m_resourceWatcher, SIGNAL(propertyRemoved(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)), this, SLOT(propertyRemoved(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)));
-    connect(m_resourceWatcher, SIGNAL(resourceTypeAdded(Nepomuk::Resource,Nepomuk::Types::Class)), this, SLOT(resourceTypeAdded(Nepomuk::Resource,Nepomuk::Types::Class)));
-    connect(m_resourceWatcher, SIGNAL(resourceTypeRemoved(Nepomuk::Resource,Nepomuk::Types::Class)), this, SLOT(resourceTypeRemoved(Nepomuk::Resource,Nepomuk::Types::Class)));
+//    connect(m_resourceWatcher, SIGNAL(propertyAdded(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)), this, SLOT(propertyAdded(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)));
+//    connect(m_resourceWatcher, SIGNAL(propertyChanged(Nepomuk::Resource,Nepomuk::Types::Property,QVariantList,QVariantList)), this, SLOT(propertyChanged(Nepomuk::Resource,Nepomuk::Types::Property,QVariantList,QVariantList)));
+//    connect(m_resourceWatcher, SIGNAL(propertyRemoved(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)), this, SLOT(propertyRemoved(Nepomuk::Resource,Nepomuk::Types::Property,QVariant)));
+//    connect(m_resourceWatcher, SIGNAL(resourceTypeAdded(Nepomuk::Resource,Nepomuk::Types::Class)), this, SLOT(resourceTypeAdded(Nepomuk::Resource,Nepomuk::Types::Class)));
+//    connect(m_resourceWatcher, SIGNAL(resourceTypeRemoved(Nepomuk::Resource,Nepomuk::Types::Class)), this, SLOT(resourceTypeRemoved(Nepomuk::Resource,Nepomuk::Types::Class)));
 
 
     startFetchData();
     exec();
 
-    m_resourceWatcher->stop();
-    delete m_resourceWatcher;
+//    m_resourceWatcher->stop();
+//    delete m_resourceWatcher;
     m_resourceWatcher = 0;
     m_queryClient->close();
     delete m_queryClient;
@@ -133,6 +141,10 @@ void QueryClient::addToCache( const QList< Nepomuk::Query::Result > &entries ) c
     foreach(const Nepomuk::Query::Result &nqr, entries) {
         Nepomuk::Resource r = nqr.resource();
 
+        if ( !m_model->cacheEntryNeedsUpdate(r) ) {
+            continue;
+        }
+
         //TODO Event workaround as we search for pimo:Event and NCAl:Event we end up
         // with duplicates. here we ignore all ncal:Events when a pimo:event exist for it
         if(r.hasType(Nepomuk::Vocabulary::NCAL::Event())) {
@@ -150,13 +162,14 @@ void QueryClient::addToCache( const QList< Nepomuk::Query::Result > &entries ) c
             }
         }
 
-        m_resourceWatcher->addResource(r);
+////        m_resourceWatcher->addResource(r);
 
         QList<CachedRowEntry> newCache;
         CachedRowEntry cre;
         cre.displayColums = createDisplayData(r);
         cre.decorationColums = createDecorationData(r);
         cre.resource = r;
+        cre.timestamp = QDateTime::currentDateTime();
         newCache.append(cre);
 
         // we do not send all found cache results at once (like commented below)
