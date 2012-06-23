@@ -61,6 +61,14 @@ public:
       * @p bibEntries File is a list of all Entry elements which form a bibtex entry
       */
     void pipeExport(File & bibEntries);
+
+    /**
+      * Does the piping action for local bibtex files
+      *
+      * @p bibEntries File is a list of all Entry elements which form a bibtex entry
+      * @p importFile is used to resolve relative paths of local files
+      */
+    void pipeExport(File & bibEntries, const KUrl& importFile);
     void merge(Nepomuk::Resource syncResource, Entry *external, bool keepLocal);
     void mergeManual(Nepomuk::Resource syncResource, Entry *selectedDiff);
 
@@ -184,6 +192,8 @@ private:
     bool m_replaceMode; /**< replace the content of the current publication with the content in the bibfile */
     Nepomuk::Resource m_publicationToReplace;
     Nepomuk::Resource m_referenceToReplace;
+
+    KUrl m_bibtexImportFile;
 };
 
 #endif // BIBTEXTONEPOMUKPIPE_H

@@ -126,6 +126,7 @@ bool NBibImporterBibTex::readBibFile(const QString & filename, QStringList *erro
     connect(importer, SIGNAL(progress(int,int)), this, SLOT(calculateImportProgress(int,int)));
 
     m_importedEntries = importer->load(&bibFile);
+    m_importFile = KUrl::fromLocalFile(filename);
 
     delete importer;
 
@@ -177,7 +178,7 @@ bool NBibImporterBibTex::pipeToNepomuk(QStringList *errorLog)
     importer->setAkonadiAddressbook(m_addressbook);
     importer->setProjectPimoThing(m_projectThing);
     importer->setErrorLog(errorLog);
-    importer->pipeExport(*m_importedEntries);
+    importer->pipeExport(*m_importedEntries, m_importFile);
 
     delete importer;
 

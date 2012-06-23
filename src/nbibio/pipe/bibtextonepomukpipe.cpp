@@ -81,6 +81,7 @@
 #include <QtCore/QSharedPointer>
 #include <QtGui/QTextDocument>
 #include <QtCore/QUuid>
+#include <QFileInfo>
 
 using namespace Nepomuk::Vocabulary;
 using namespace Soprano::Vocabulary;
@@ -97,10 +98,17 @@ BibTexToNepomukPipe::~BibTexToNepomukPipe()
 
 void BibTexToNepomukPipe::pipeExport(File & bibEntries)
 {
+    pipeExport(bibEntries, KUrl());
+}
+
+void BibTexToNepomukPipe::pipeExport(File & bibEntries, const KUrl& importFile)
+{
     emit progress(0);
 
-    //create the collection used for importing
+    // set working bibtex file, needed to resolve relative paths
+    m_bibtexImportFile = importFile;
 
+    //create the collection used for importing
     int maxValue = bibEntries.size();
     qreal perFileProgress = (100.0/(qreal)maxValue);
     qreal currentprogress = 0.0;
@@ -2005,6 +2013,19 @@ void BibTexToNepomukPipe::addFileUrl(const QString &content, Nepomuk::NBIB::Publ
 {
     KUrl url( QString(content.toUtf8()) );
 
+    // try conversion to absolute path and use if it exists
+    if (url.isRelative() && m_bibtexImportFile.isLocalFile()) {
+        KUrl absolutePath = KUrl::fromLocalFile(
+            m_bibtexImportFile.directory(KUrl::IgnoreTrailingSlash)+"/"+url.url()
+        );
+        QFileInfo absoluteUrlTest = QFileInfo(absolutePath.toLocalFile());
+        if (absoluteUrlTest.exists()) {
+            kDebug() << "convert relative path to absolute: " << absolutePath.toLocalFile();
+            url = absolutePath;
+        }
+    }
+
+    // use local file
     if( url.isLocalFile() ) {
         Nepomuk::NFO::Document localFile( url );
         localFile.addType(NFO::FileDataObject());
@@ -2013,25 +2034,27 @@ void BibTexToNepomukPipe::addFileUrl(const QString &content, Nepomuk::NBIB::Publ
         localFile.addProperty(NBIB::publishedAs(), publication.uri() );
 
         graph << localFile;
+        return;
     }
-    else {
-        QString protocol = url.scheme();
 
-        if(protocol.isEmpty()) {
-            kDebug() << "tried to add invalid remote ur without protocol. Add http:// for " << content;
-            url.setScheme(QLatin1String("http"));
-        }
-
-        Nepomuk::NFO::Document remoteFile( url );
-        remoteFile.addType(NFO::FileDataObject());
-        remoteFile.addType(NFO::RemoteDataObject());
-
-        publication.addProperty(NBIB::isPublicationOf(), remoteFile.uri() );
-        remoteFile.addProperty(NBIB::publishedAs(), publication.uri() );
-
-        graph << remoteFile;
+    // set http prefix for unresolvable relative files
+    // at this point local files are processed
+    if (url.scheme().isEmpty()){
+        kDebug() << "tried to add invalid remote url without protocol. Add http:// for " << content;
+        url.setScheme(QLatin1String("http"));
     }
+
+    // else
+    Nepomuk::NFO::Document remoteFile( url );
+    remoteFile.addType(NFO::FileDataObject());
+    remoteFile.addType(NFO::RemoteDataObject());
+
+    publication.addProperty(NBIB::isPublicationOf(), remoteFile.uri() );
+    remoteFile.addProperty(NBIB::publishedAs(), publication.uri() );
+
+    graph << remoteFile;
 }
+
 void BibTexToNepomukPipe::addPublicationDate(const QString &fullDate, Nepomuk::NBIB::Publication &publication)
 {
     if(m_replaceMode && fullDate.isEmpty()) {

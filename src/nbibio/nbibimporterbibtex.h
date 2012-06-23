@@ -118,7 +118,7 @@ public:
 
     /**
       * The main importer that takes the read input from readBibFile() and puts it into the nepomuk storage
-      *
+      * @p importFile is the file from which bibliography is imported (used to resolve relative paths)
       * @p errorLog pointer to the errors
       */
     bool pipeToNepomuk(QStringList *errorLog = NULL);
@@ -135,6 +135,7 @@ private slots:
 
 private:
     File *m_importedEntries;
+    KUrl m_importFile;
     bool m_findDuplicates;
     NBibImporterBibTex::FileType m_selectedFileType;
     QList<EntryClique*> m_cliques;
