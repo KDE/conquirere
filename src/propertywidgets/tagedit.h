@@ -43,7 +43,7 @@ private:
     // cache the resource used for the asynchron change.
     // otherwise if we switch to a different resource while the KJob
     // hasn't finished yet, we add the tags to the wrong resource
-    Nepomuk::Resource m_editedResource;
+    Nepomuk2::Resource m_editedResource;
 };
 
 #endif // TAGEDIT_H

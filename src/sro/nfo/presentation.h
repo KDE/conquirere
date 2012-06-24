@@ -8,11 +8,11 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
 #include "nfo/document.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NFO {
 /**
  * A Presentation made by some presentation software (Corel Presentations, 

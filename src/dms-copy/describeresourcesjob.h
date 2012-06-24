@@ -38,7 +38,7 @@ class SimpleResourceGraph;
 /**
  * \class DescribeResourcesJob describeresourcesjob.h Nepomuk/DescribeResourcesJob
  *
- * \brief Job returned by Nepomuk::describeResources().
+ * \brief Job returned by Nepomuk2::describeResources().
  *
  * Access the result through the resources() method in the slot connected
  * to the KJOb::result() signal.
@@ -76,8 +76,8 @@ private:
     class Private;
     Private* const d;
 
-    friend Nepomuk::DescribeResourcesJob* Nepomuk::describeResources(const QList<QUrl>&,
-                                                                     Nepomuk::DescribeResourcesFlags,
+    friend Nepomuk2::DescribeResourcesJob* Nepomuk2::describeResources(const QList<QUrl>&,
+                                                                     Nepomuk2::DescribeResourcesFlags,
                                                                      const QList<QUrl>&);
 };
 }

@@ -19,9 +19,9 @@
 #include "ui_documentpreviewtab.h"
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NFO>
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Vocabulary/NFO>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KUrl>
 #include <KDE/KMimeType>
@@ -59,12 +59,12 @@ DocumentPreviewTab::~DocumentPreviewTab()
     delete ui;
 }
 
-Nepomuk::Resource &DocumentPreviewTab::resource()
+Nepomuk2::Resource &DocumentPreviewTab::resource()
 {
     return m_resource;
 }
 
-void DocumentPreviewTab::setResource(Nepomuk::Resource & resource)
+void DocumentPreviewTab::setResource(Nepomuk2::Resource & resource)
 {
     m_resource = resource;
     ui->urlSelector->clear();
@@ -75,34 +75,34 @@ void DocumentPreviewTab::setResource(Nepomuk::Resource & resource)
     QString specificUrl;
     if(resource.isValid()) {
 
-        specificUrl = resource.property(Nepomuk::Vocabulary::NIE::url()).toString();
+        specificUrl = resource.property(Nepomuk2::Vocabulary::NIE::url()).toString();
         if(!specificUrl.isEmpty()) {
-            resource = resource.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
+            resource = resource.property(Nepomuk2::Vocabulary::NBIB::publishedAs()).toResource();
             m_resource = resource;
         }
 
-        QList<Nepomuk::Resource> fileList;
+        QList<Nepomuk2::Resource> fileList;
 
-        if(resource.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
-            Nepomuk::Resource publication = resource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-            fileList = publication.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResourceList();
-            fileList.append( publication.property(Nepomuk::Vocabulary::NIE::links()).toResourceList() );
+        if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Reference())) {
+            Nepomuk2::Resource publication = resource.property(Nepomuk2::Vocabulary::NBIB::publication()).toResource();
+            fileList = publication.property(Nepomuk2::Vocabulary::NBIB::isPublicationOf()).toResourceList();
+            fileList.append( publication.property(Nepomuk2::Vocabulary::NIE::links()).toResourceList() );
         }
-        else if(resource.hasType(Nepomuk::Vocabulary::NBIB::Publication())) {
-            fileList = resource.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResourceList();
-            fileList.append( resource.property(Nepomuk::Vocabulary::NIE::links()).toResourceList() );
+        else if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Publication())) {
+            fileList = resource.property(Nepomuk2::Vocabulary::NBIB::isPublicationOf()).toResourceList();
+            fileList.append( resource.property(Nepomuk2::Vocabulary::NIE::links()).toResourceList() );
         }
         else {
             fileList.append(resource);
         }
 
         // add all DataObjects to the preview
-        foreach(const Nepomuk::Resource & r, fileList) {
-            KUrl url = KUrl(r.property(Nepomuk::Vocabulary::NIE::url()).toString());
+        foreach(const Nepomuk2::Resource & r, fileList) {
+            KUrl url = KUrl(r.property(Nepomuk2::Vocabulary::NIE::url()).toString());
             KIcon icon;
             QString mimetype;
 
-            if( r.hasType(Nepomuk::Vocabulary::NFO::Website())// || r.hasType(Nepomuk::Vocabulary::NFO::WebDataObject())
+            if( r.hasType(Nepomuk2::Vocabulary::NFO::Website())// || r.hasType(Nepomuk2::Vocabulary::NFO::WebDataObject())
                 || url.scheme() == QLatin1String("http")) {
 
                 QString favIcon = KMimeType::favIconForUrl(url);
@@ -131,12 +131,12 @@ void DocumentPreviewTab::setResource(Nepomuk::Resource & resource)
         }
 
         QString doi;
-        if(resource.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
-            Nepomuk::Resource publication = resource.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-            doi = publication.property(Nepomuk::Vocabulary::NBIB::doi()).toString();
+        if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Reference())) {
+            Nepomuk2::Resource publication = resource.property(Nepomuk2::Vocabulary::NBIB::publication()).toResource();
+            doi = publication.property(Nepomuk2::Vocabulary::NBIB::doi()).toString();
         }
-        else if(resource.hasType(Nepomuk::Vocabulary::NBIB::Publication())) {
-            doi = resource.property(Nepomuk::Vocabulary::NBIB::doi()).toString();
+        else if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Publication())) {
+            doi = resource.property(Nepomuk2::Vocabulary::NBIB::doi()).toString();
         }
 
         if(!doi.isEmpty()) {
@@ -169,7 +169,7 @@ void DocumentPreviewTab::setResource(Nepomuk::Resource & resource)
 
 void DocumentPreviewTab::clear()
 {
-    Nepomuk::Resource empty;
+    Nepomuk2::Resource empty;
     setResource(empty);
 }
 

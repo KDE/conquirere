@@ -8,9 +8,9 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NFO {
 /**
  * A single node in the list of media files contained within an MediaList 
@@ -22,7 +22,7 @@ namespace NFO {
  * points at another MediaFileListEntr. At the end of the list 
  * there is a link to rdf:nil. 
  */
-class MediaFileListEntry : public virtual Nepomuk::SimpleResource
+class MediaFileListEntry : public virtual Nepomuk2::SimpleResource
 {
 public:
     MediaFileListEntry(const QUrl& uri = QUrl())

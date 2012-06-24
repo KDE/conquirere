@@ -17,23 +17,24 @@
 
 #include "codeoflawedit.h"
 
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/storeresourcesjob.h"
-#include "dms-copy/simpleresourcegraph.h"
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+#include <Nepomuk2/SimpleResourceGraph>
+#include <Nepomuk2/SimpleResource>
+
 #include <KDE/KJob>
 #include "sro/nbib/codeoflaw.h"
 #include "sro/nbib/legislation.h"
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/NUAO>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NUAO>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KDebug>
 #include <QtCore/QDateTime>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 
 CodeOfLawEdit::CodeOfLawEdit(QWidget *parent) :
     PropertyEdit(parent)
@@ -42,7 +43,7 @@ CodeOfLawEdit::CodeOfLawEdit(QWidget *parent) :
 
 void CodeOfLawEdit::setupLabel()
 {
-    Nepomuk::Resource codeOfLaw = resource().property(NBIB::codeOfLaw()).toResource();
+    Nepomuk2::Resource codeOfLaw = resource().property(NBIB::codeOfLaw()).toResource();
 
     QString title = codeOfLaw.property(NIE::title()).toString();
 
@@ -51,7 +52,7 @@ void CodeOfLawEdit::setupLabel()
 
 void CodeOfLawEdit::updateResource(const QString & newCodeOfLawTitle)
 {
-    Nepomuk::Resource currentCodeOfLaw = resource().property(NBIB::codeOfLaw()).toResource();
+    Nepomuk2::Resource currentCodeOfLaw = resource().property(NBIB::codeOfLaw()).toResource();
 
     QString curentTitle = currentCodeOfLaw.property(NIE::title()).toString();
 
@@ -61,13 +62,13 @@ void CodeOfLawEdit::updateResource(const QString & newCodeOfLawTitle)
 
     if(currentCodeOfLaw.exists()) {
         // remove the crosslink event <-> publication
-        QList<QUrl> resourceUris; resourceUris << resource().uri();
-        QVariantList value; value << currentCodeOfLaw.uri();
-        Nepomuk::removeProperty(resourceUris, NBIB::codeOfLaw(), value);
+        QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
+        QVariantList value; value << currentCodeOfLaw.resourceUri();
+        Nepomuk2::removeProperty(resourceUris, NBIB::codeOfLaw(), value);
 
-        resourceUris.clear(); resourceUris << currentCodeOfLaw.uri();
-        value.clear(); value << resource().uri();
-        Nepomuk::removeProperty(resourceUris, NBIB::legislation(), value);
+        resourceUris.clear(); resourceUris << currentCodeOfLaw.resourceUri();
+        value.clear(); value << resource().resourceUri();
+        Nepomuk2::removeProperty(resourceUris, NBIB::legislation(), value);
     }
 
     if(newCodeOfLawTitle.isEmpty()) {
@@ -76,14 +77,14 @@ void CodeOfLawEdit::updateResource(const QString & newCodeOfLawTitle)
 
     // ok the user changed the text in the list
     // let the DMS create a new event and merge it to the right place
-    Nepomuk::SimpleResourceGraph graph;
-    Nepomuk::SimpleResource legislationRes(resource().uri());
-    Nepomuk::NBIB::Legislation legislation(legislationRes);
+    Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::SimpleResource legislationRes(resource().resourceUri());
+    Nepomuk2::NBIB::Legislation legislation(legislationRes);
     //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
     QDateTime datetime = QDateTime::currentDateTimeUtc();
     legislationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
 
-    Nepomuk::NBIB::CodeOfLaw newCodeOfLaw;
+    Nepomuk2::NBIB::CodeOfLaw newCodeOfLaw;
 
     newCodeOfLaw.setProperty(NIE::title(), newCodeOfLawTitle.trimmed());
 
@@ -93,6 +94,6 @@ void CodeOfLawEdit::updateResource(const QString & newCodeOfLawTitle)
     graph << newCodeOfLaw << legislation;
 
     m_changedResource = resource();
-    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
+    connect(Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties),
             SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }

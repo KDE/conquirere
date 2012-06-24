@@ -8,15 +8,15 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCO {
 /**
  * The status type of an IMAccount. Based on the Connection_Presence_Type 
  * enumeration of the Telepathy project: http://telepathy.freedesktop.org/spec/Connection_Interface_Simple_Presence.html#Enum:Connection_Presence_Type 
  */
-class IMStatusType : public virtual Nepomuk::SimpleResource
+class IMStatusType : public virtual Nepomuk2::SimpleResource
 {
 public:
     IMStatusType(const QUrl& uri = QUrl())

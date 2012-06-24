@@ -8,11 +8,11 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
 #include "nco/voicephonenumber.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCO {
 /**
  * A Video telephone number. A class inspired by the TYPE=video 

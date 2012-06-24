@@ -8,14 +8,14 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NMO {
 /**
  * An arbitrary message header. 
  */
-class MessageHeader : public virtual Nepomuk::SimpleResource
+class MessageHeader : public virtual Nepomuk2::SimpleResource
 {
 public:
     MessageHeader(const QUrl& uri = QUrl())

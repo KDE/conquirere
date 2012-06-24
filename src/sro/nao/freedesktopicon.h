@@ -12,7 +12,7 @@
 
 #include "nao/symbol.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NAO {
 /**
  * Represents a desktop icon as defined in the FreeDesktop Icon 

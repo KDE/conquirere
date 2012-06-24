@@ -20,19 +20,19 @@
 
 #include "fileobjecteditdialog.h"
 
-#include "dms-copy/datamanagement.h"
+#include <Nepomuk2/DataManagement>
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/NFO>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NFO>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KMimeType>
 #include <KDE/KDebug>
 
 #include <QtCore/QPointer>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 
 FileObjectEdit::FileObjectEdit(QWidget *parent) :
     QWidget(parent),
@@ -61,7 +61,7 @@ void FileObjectEdit::setLibraryManager(LibraryManager *lm)
     m_libraryManager = lm;
 }
 
-void FileObjectEdit::setResource(Nepomuk::Resource & resource)
+void FileObjectEdit::setResource(Nepomuk2::Resource & resource)
 {
     m_publication = resource;
     fillFileObjectWidget();
@@ -71,10 +71,10 @@ void FileObjectEdit::fillFileObjectWidget()
 {
     ui->fileListWidget->clear();
 
-    QList<Nepomuk::Resource> resources = m_publication.property(NBIB::isPublicationOf()).toResourceList();
+    QList<Nepomuk2::Resource> resources = m_publication.property(NBIB::isPublicationOf()).toResourceList();
     resources.append( m_publication.property(NIE::links()).toResourceList() );
 
-    foreach(const Nepomuk::Resource &r, resources) {
+    foreach(const Nepomuk2::Resource &r, resources) {
         QListWidgetItem *i = new QListWidgetItem(ui->fileListWidget);
 
         addItemInfo(i, r);
@@ -88,7 +88,7 @@ void FileObjectEdit::fileObjectEdit()
     QListWidgetItem *i = ui->fileListWidget->currentItem();
     if(!i) { return; }
 
-    Nepomuk::Resource resource = Nepomuk::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
+    Nepomuk2::Resource resource = Nepomuk2::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
 
     QPointer<FileObjectEditDialog> foed = new FileObjectEditDialog(this);
 
@@ -98,7 +98,7 @@ void FileObjectEdit::fileObjectEdit()
 
     foed->exec();
 
-    Nepomuk::Resource changedSource = foed->resource();
+    Nepomuk2::Resource changedSource = foed->resource();
 
     addItemInfo(i, changedSource);
 
@@ -119,14 +119,14 @@ void FileObjectEdit::fileObjectAdd()
         // remove crosslink, but do not delete the resource
         QList<QUrl> publication; publication << m_publication.resourceUri();
         QVariantList uris; uris << foed->resource().resourceUri();
-        Nepomuk::removeProperty( publication, NIE::links(), uris );
-        Nepomuk::removeProperty( publication, NBIB::isPublicationOf(), uris );
+        Nepomuk2::removeProperty( publication, NIE::links(), uris );
+        Nepomuk2::removeProperty( publication, NBIB::isPublicationOf(), uris );
         return;
     }
 
     QListWidgetItem *i = new QListWidgetItem(ui->fileListWidget);
 
-    Nepomuk::Resource changedSource = foed->resource();
+    Nepomuk2::Resource changedSource = foed->resource();
 
     addItemInfo(i, changedSource);
 
@@ -142,23 +142,23 @@ void FileObjectEdit::fileObjectRemove()
     QListWidgetItem *i = ui->fileListWidget->currentItem();
     if(!i) { return; }
 
-    Nepomuk::Resource resource = Nepomuk::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
+    Nepomuk2::Resource resource = Nepomuk2::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
     ui->fileListWidget->removeItemWidget(i);
     delete i;
 
     if(resource.hasType(NFO::Website())) {
-        QList<QUrl> resourceUris; resourceUris << m_publication.uri();
-        QVariantList value; value <<  resource.uri();
-        Nepomuk::removeProperty(resourceUris, NIE::links(), value);
+        QList<QUrl> resourceUris; resourceUris << m_publication.resourceUri();
+        QVariantList value; value <<  resource.resourceUri();
+        Nepomuk2::removeProperty(resourceUris, NIE::links(), value);
     }
     else {
-        QList<QUrl> resourceUris; resourceUris << m_publication.uri();
-        QVariantList value; value <<  resource.uri();
-        Nepomuk::removeProperty(resourceUris, NBIB::isPublicationOf(), value);
+        QList<QUrl> resourceUris; resourceUris << m_publication.resourceUri();
+        QVariantList value; value <<  resource.resourceUri();
+        Nepomuk2::removeProperty(resourceUris, NBIB::isPublicationOf(), value);
 
-        resourceUris.clear(); resourceUris << resource.uri();
-        value.clear(); value <<  m_publication.uri();
-        Nepomuk::removeProperty(resourceUris, NBIB::publishedAs(), value);
+        resourceUris.clear(); resourceUris << resource.resourceUri();
+        value.clear(); value <<  m_publication.resourceUri();
+        Nepomuk2::removeProperty(resourceUris, NBIB::publishedAs(), value);
     }
 }
 
@@ -170,19 +170,19 @@ void FileObjectEdit::doubleClicked(QListWidgetItem* item, QPoint point)
     QListWidgetItem *i = ui->fileListWidget->currentItem();
     if(!i) { return; }
 
-    Nepomuk::Resource resource = Nepomuk::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
+    Nepomuk2::Resource resource = Nepomuk2::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
 
     emit openDocument(resource, true);
 }
 
-void FileObjectEdit::addItemInfo(QListWidgetItem *i, const Nepomuk::Resource &resource)
+void FileObjectEdit::addItemInfo(QListWidgetItem *i, const Nepomuk2::Resource &resource)
 {
     QString icon;
     KUrl url(resource.property(NIE::url()).toString());
     QString showString = url.prettyUrl(KUrl::RemoveTrailingSlash);
 
 
-    if( resource.hasType(Nepomuk::Vocabulary::NFO::Website()) // || resource.hasType(Nepomuk::Vocabulary::NFO::WebDataObject())
+    if( resource.hasType(Nepomuk2::Vocabulary::NFO::Website()) // || resource.hasType(Nepomuk2::Vocabulary::NFO::WebDataObject())
         || url.scheme() == QLatin1String("http")) {
         icon = KMimeType::favIconForUrl(url);
         if(icon.isEmpty()) {

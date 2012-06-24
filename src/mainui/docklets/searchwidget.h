@@ -20,7 +20,8 @@
 
 #include "core/models/searchresultmodel.h"
 
-#include <Nepomuk/Query/Result>
+#include <Nepomuk2/Query/Result>
+#include <Nepomuk2/Query/QueryServiceClient>
 
 #include <QtGui/QWidget>
 #include <QtCore/QMap>
@@ -30,7 +31,7 @@ namespace Ui {
     class SearchWidget;
 }
 
-namespace Nepomuk {
+namespace Nepomuk2 {
     namespace Query {
         class QueryServiceClient;
     }
@@ -62,7 +63,7 @@ signals:
 private slots:
     void sourceChanged(int selection);
     void fetchProjects();
-    void fillProjectList( const QList< Nepomuk::Query::Result > &entries );
+    void fillProjectList( const QList< Nepomuk2::Query::Result > &entries );
 
     void openHomepage();
     void enginesListCurrentChanged(QListWidgetItem *current);
@@ -70,7 +71,7 @@ private slots:
 
     void startSearch();
     void foundOnlineEntry(QSharedPointer<Entry> newEntry);
-    void foundNepomukEntry(QList<Nepomuk::Query::Result> newEntry);
+    void foundNepomukEntry(QList<Nepomuk2::Query::Result> newEntry);
 
     void nepomukQueryFinished();
     void websearchStopped(int resultCode);
@@ -88,8 +89,8 @@ private:
     Ui::SearchWidget *ui;
     KAction *m_actionOpenHomepage;
 
-    Nepomuk::Query::QueryServiceClient *m_queryClient;
-    Nepomuk::Query::QueryServiceClient *m_projectQueryClient;
+    Nepomuk2::Query::QueryServiceClient *m_queryClient;
+    Nepomuk2::Query::QueryServiceClient *m_projectQueryClient;
     bool m_nepomukSearchInProgress;
 
     QMap<QListWidgetItem*, OnlineSearchAbstract*> m_itemToOnlineSearch;

@@ -22,20 +22,20 @@
 
 #include "nbib.h"
 #include "sync.h"
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/NFO>
-#include <Nepomuk/Vocabulary/NCO>
-#include <Nepomuk/Vocabulary/NUAO>
-#include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NFO>
+#include <Nepomuk2/Vocabulary/NCO>
+#include <Nepomuk2/Vocabulary/NUAO>
+#include <Nepomuk2/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Variant>
-#include <Nepomuk/Tag>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Tag>
 
 #include <KDE/KDebug>
 
 #include <QtCore/QSharedPointer>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
 NepomukToBibTexPipe::NepomukToBibTexPipe()
@@ -51,7 +51,7 @@ NepomukToBibTexPipe::~NepomukToBibTexPipe()
 //    m_bibtexFile = 0;
 }
 
-void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
+void NepomukToBibTexPipe::pipeExport(QList<Nepomuk2::Resource> resources)
 {
     delete m_bibtexFile;
     m_bibtexFile = new File;
@@ -62,13 +62,13 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk::Resource> resources)
     m_percentPerResource = (qreal)resources.size() / 100.0;
 
     int i = 0;
-    foreach(const Nepomuk::Resource & resource, resources) {
+    foreach(const Nepomuk2::Resource & resource, resources) {
         int curProgress = i * m_percentPerResource;
         emit progress(curProgress);
         i++;
 
-        Nepomuk::Resource reference;
-        Nepomuk::Resource publication;
+        Nepomuk2::Resource reference;
+        Nepomuk2::Resource publication;
 
         // first check if we operate on a Reference or a Publication
         if(resource.hasType( NBIB::Reference() )) {
@@ -152,13 +152,13 @@ void NepomukToBibTexPipe::useStrictTypes(bool strict)
     m_strict = strict;
 }
 
-QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepomuk::Resource publication)
+QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk2::Resource reference, Nepomuk2::Resource publication)
 {
     QString type;
 
     if(publication.hasType(NBIB::Dictionary())) {
         QString pages = reference.property(NBIB::pages()).toString();
-        Nepomuk::Resource chapter = reference.property(NBIB::referencedPart()).toResource();
+        Nepomuk2::Resource chapter = reference.property(NBIB::referencedPart()).toResource();
         if(!pages.isEmpty() || chapter.isValid()) {
             type = QLatin1String("DictionaryEntry");
         }
@@ -169,8 +169,8 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
     // handle general book/collections then
     else if(publication.hasType(NBIB::Book())) {
         QString pages = reference.property(NBIB::pages()).toString();
-        Nepomuk::Resource chapter = reference.property(NBIB::referencedPart()).toResource();
-        Nepomuk::Resource chapterAuthor = chapter.property(NCO::creator()).toResource();
+        Nepomuk2::Resource chapter = reference.property(NBIB::referencedPart()).toResource();
+        Nepomuk2::Resource chapterAuthor = chapter.property(NCO::creator()).toResource();
 
         // so we have a @book if no chapter or or pages are specified
         // and a @InBook if they are
@@ -184,7 +184,7 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
             }
         }
         else {
-            Nepomuk::Resource typeResource(publication.resourceType());
+            Nepomuk2::Resource typeResource(publication.resourceType());
             type = typeResource.genericLabel();
         }
     }
@@ -205,7 +205,7 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
     }
     // handle special articles
     else if(publication.hasType(NBIB::Article())) {
-        Nepomuk::Resource collection = publication.property(NBIB::collection()).toResource();
+        Nepomuk2::Resource collection = publication.property(NBIB::collection()).toResource();
         if(collection.hasType(NBIB::Proceedings())) {
             type = QLatin1String("Inproceedings"); //article in some proceedings paper
         }
@@ -222,10 +222,10 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
     }
     // all other cases
     else {
-        Nepomuk::Resource typeResource(publication.resourceType());
+        Nepomuk2::Resource typeResource(publication.resourceType());
         type = typeResource.genericLabel();
 
-        Nepomuk::Resource typeResource2(NBIB::Publication());
+        Nepomuk2::Resource typeResource2(NBIB::Publication());
         if(type == typeResource2.genericLabel()) {
             type = QLatin1String("Misc");
         }
@@ -239,7 +239,7 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk::Resource reference, Nepo
     return type;
 }
 
-void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk2::Resource reference, Nepomuk2::Resource publication)
 {
     setTitle(e, publication, reference);
     setChapter(e, reference);
@@ -316,7 +316,7 @@ void NepomukToBibTexPipe::collectContent(Entry *e, Nepomuk::Resource reference, 
     setSyncDetails(e, publication);
 }
 
-void NepomukToBibTexPipe::collectNoteContent(Entry *e, Nepomuk::Resource note)
+void NepomukToBibTexPipe::collectNoteContent(Entry *e, Nepomuk2::Resource note)
 {
     setValue(e, note, NIE::plainTextContent(), QLatin1String("note"));
     setKewords(e, note);
@@ -329,13 +329,13 @@ void NepomukToBibTexPipe::collectNoteContent(Entry *e, Nepomuk::Resource note)
         return;
     }
 
-    QList<Nepomuk::Resource> parents = note.property(NAO::isRelated()).toResourceList();
+    QList<Nepomuk2::Resource> parents = note.property(NAO::isRelated()).toResourceList();
 
-    foreach( const Nepomuk::Resource &r, parents) {
-        QList<Nepomuk::Resource> sycList = r.property(SYNC::serverSyncData()).toResourceList();
+    foreach( const Nepomuk2::Resource &r, parents) {
+        QList<Nepomuk2::Resource> sycList = r.property(SYNC::serverSyncData()).toResourceList();
 
         // only add the sync details from the right storage
-        foreach(const Nepomuk::Resource &parentSync, sycList) {
+        foreach(const Nepomuk2::Resource &parentSync, sycList) {
             if(parentSync.property(SYNC::provider()).toString() != QString("zotero")) { //TODO make this possible for others too
                 continue;
             }
@@ -358,7 +358,7 @@ void NepomukToBibTexPipe::collectNoteContent(Entry *e, Nepomuk::Resource note)
     }
 }
 
-void NepomukToBibTexPipe::collectAttachmentContent(Entry *e, Nepomuk::Resource attachment)
+void NepomukToBibTexPipe::collectAttachmentContent(Entry *e, Nepomuk2::Resource attachment)
 {
     kDebug() << "collectAttachmentContent";
     setValue(e, attachment, NIE::title(), QLatin1String("title"));
@@ -406,13 +406,13 @@ void NepomukToBibTexPipe::collectAttachmentContent(Entry *e, Nepomuk::Resource a
         return;
     }
 
-    QList<Nepomuk::Resource> parents = attachment.property(NBIB::publishedAs()).toResourceList();
+    QList<Nepomuk2::Resource> parents = attachment.property(NBIB::publishedAs()).toResourceList();
 
-    foreach( const Nepomuk::Resource &r, parents) {
-        QList<Nepomuk::Resource> sycList = r.property(SYNC::serverSyncData()).toResourceList();
+    foreach( const Nepomuk2::Resource &r, parents) {
+        QList<Nepomuk2::Resource> sycList = r.property(SYNC::serverSyncData()).toResourceList();
 
         // only add the sync details from the right storage
-        foreach(const Nepomuk::Resource &parentSync, sycList) {
+        foreach(const Nepomuk2::Resource &parentSync, sycList) {
             if(parentSync.property(SYNC::provider()).toString() != QString("zotero")) { //TODO make this possible for others too
                 continue;
             }
@@ -435,7 +435,7 @@ void NepomukToBibTexPipe::collectAttachmentContent(Entry *e, Nepomuk::Resource a
     }
 }
 
-void NepomukToBibTexPipe::setTitle(Entry *e, Nepomuk::Resource publication, Nepomuk::Resource reference)
+void NepomukToBibTexPipe::setTitle(Entry *e, Nepomuk2::Resource publication, Nepomuk2::Resource reference)
 {
     QString title;
     QString booktitle;
@@ -444,14 +444,14 @@ void NepomukToBibTexPipe::setTitle(Entry *e, Nepomuk::Resource publication, Nepo
     if(e->type() == QLatin1String("Incollection") || e->type() == QLatin1String("DictionaryEntry")) {
         booktitle = publication.property(NIE::title()).toString();
 
-        Nepomuk::Resource chapter = reference.property(NBIB::referencedPart()).toResource();
+        Nepomuk2::Resource chapter = reference.property(NBIB::referencedPart()).toResource();
         title = chapter.property(NIE::title()).toString();
     }
     else {
         title = publication.property(NIE::title()).toString();
 
         if(publication.hasType(NBIB::Article())) {
-            Nepomuk::Resource collection = publication.property(NBIB::collection()).toResource();
+            Nepomuk2::Resource collection = publication.property(NBIB::collection()).toResource();
             booktitle = collection.property(NIE::title()).toString();
         }
     }
@@ -469,9 +469,9 @@ void NepomukToBibTexPipe::setTitle(Entry *e, Nepomuk::Resource publication, Nepo
     }
 }
 
-void NepomukToBibTexPipe::setChapter(Entry *e, Nepomuk::Resource reference)
+void NepomukToBibTexPipe::setChapter(Entry *e, Nepomuk2::Resource reference)
 {
-    Nepomuk::Resource chapter = reference.property(NBIB::referencedPart()).toResource();
+    Nepomuk2::Resource chapter = reference.property(NBIB::referencedPart()).toResource();
 
     QString chapterNumber = chapter.property(NBIB::chapterNumber()).toString();
     QString chapterName = chapter.property(NIE::title()).toString();
@@ -495,11 +495,11 @@ void NepomukToBibTexPipe::setChapter(Entry *e, Nepomuk::Resource reference)
     // authors from the publication. This is the case for InCollection
     // the publication authors will be added as "bookauthor=" later on
 
-    QList<Nepomuk::Resource> authors = chapter.property(NCO::creator()).toResourceList();
+    QList<Nepomuk2::Resource> authors = chapter.property(NCO::creator()).toResourceList();
 
     Value v;
     if(!authors.isEmpty()) {
-        foreach(const Nepomuk::Resource & a, authors) {
+        foreach(const Nepomuk2::Resource & a, authors) {
             QString firstName = a.property(NCO::nameGiven()).toString();
             QString lastName = a.property(NCO::nameFamily()).toString();
             QString suffix = a.property(NCO::nameHonorificSuffix()).toString();
@@ -516,18 +516,18 @@ void NepomukToBibTexPipe::setChapter(Entry *e, Nepomuk::Resource reference)
     }
 }
 
-void NepomukToBibTexPipe::setSeriesEditors(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setSeriesEditors(Entry *e, Nepomuk2::Resource publication)
 {
-    Nepomuk::Resource series =  publication.property(NBIB::inSeries()).toResource();
+    Nepomuk2::Resource series =  publication.property(NBIB::inSeries()).toResource();
     if(!series.isValid()) {
-        Nepomuk::Resource collection =  publication.property(NBIB::collection()).toResource();
+        Nepomuk2::Resource collection =  publication.property(NBIB::collection()).toResource();
         series =  collection.property(NBIB::inSeries()).toResource();
     }
 
     setContact(e, series, NBIB::editor(), QLatin1String("seriesEditor"));
 }
 
-void NepomukToBibTexPipe::setPublicationDate(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setPublicationDate(Entry *e, Nepomuk2::Resource publication)
 {
     QString pdString = publication.property(NBIB::publicationDate()).toString();
 
@@ -602,10 +602,10 @@ void NepomukToBibTexPipe::setPublicationDate(Entry *e, Nepomuk::Resource publica
     }
 }
 
-void NepomukToBibTexPipe::setPublisher(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setPublisher(Entry *e, Nepomuk2::Resource publication)
 {
     QString publisherEntry = QLatin1String("publisher");
-    QList<Nepomuk::Resource> publisher = publication.property(NCO::publisher()).toResourceList();
+    QList<Nepomuk2::Resource> publisher = publication.property(NCO::publisher()).toResourceList();
 
     if(publication.hasType(NBIB::Thesis())) {
         publisherEntry = QLatin1String("school");
@@ -617,13 +617,13 @@ void NepomukToBibTexPipe::setPublisher(Entry *e, Nepomuk::Resource publication)
     QString names;
     QString address;
     if(!publisher.isEmpty()) {
-        foreach(const Nepomuk::Resource & p, publisher) {
+        foreach(const Nepomuk2::Resource & p, publisher) {
             //TODO don't rely only on fullname of NCO::Contact
             names.append(p.property(NCO::fullname()).toString());
             names.append(QLatin1String(" and "));
 
 
-            Nepomuk::Resource existingAddr = p.property(NCO::hasPostalAddress()).toResource();
+            Nepomuk2::Resource existingAddr = p.property(NCO::hasPostalAddress()).toResource();
             if(existingAddr.isValid())
                 address.append(existingAddr.property(NCO::extendedAddress()).toString());
         }
@@ -643,11 +643,11 @@ void NepomukToBibTexPipe::setPublisher(Entry *e, Nepomuk::Resource publication)
     }
 }
 
-void NepomukToBibTexPipe::setOrganization(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setOrganization(Entry *e, Nepomuk2::Resource publication)
 {
-    Nepomuk::Resource org;
+    Nepomuk2::Resource org;
     if(publication.hasType(NBIB::Article())) {
-        Nepomuk::Resource collectionResource = publication.property(NBIB::collection()).toResource();
+        Nepomuk2::Resource collectionResource = publication.property(NBIB::collection()).toResource();
         if(collectionResource.hasType(NBIB::Proceedings())) {
             org = collectionResource.property(NBIB::organization()).toResource();
         }
@@ -665,12 +665,12 @@ void NepomukToBibTexPipe::setOrganization(Entry *e, Nepomuk::Resource publicatio
     }
 }
 
-void NepomukToBibTexPipe::setUrl(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setUrl(Entry *e, Nepomuk2::Resource publication)
 {
-    QList<Nepomuk::Resource> linksList = publication.property(NIE::links()).toResourceList();
+    QList<Nepomuk2::Resource> linksList = publication.property(NIE::links()).toResourceList();
 
     int i=0;
-    foreach(const Nepomuk::Resource &links, linksList) {
+    foreach(const Nepomuk2::Resource &links, linksList) {
         QString url = links.property(NIE::url()).toString();
         Value v;
         v.append(QSharedPointer<ValueItem>(new PlainText(url)));
@@ -683,11 +683,11 @@ void NepomukToBibTexPipe::setUrl(Entry *e, Nepomuk::Resource publication)
         i++;
     }
 
-    QList<Nepomuk::Resource> fileList = publication.property(NBIB::isPublicationOf()).toResourceList();
+    QList<Nepomuk2::Resource> fileList = publication.property(NBIB::isPublicationOf()).toResourceList();
 
     int l=0;
     int r=0;
-    foreach(const Nepomuk::Resource &dataObjects, fileList) {
+    foreach(const Nepomuk2::Resource &dataObjects, fileList) {
 
         QString url = dataObjects.property(NIE::url()).toString();
         Value v;
@@ -714,9 +714,9 @@ void NepomukToBibTexPipe::setUrl(Entry *e, Nepomuk::Resource publication)
     }
 }
 
-void NepomukToBibTexPipe::setSeries(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setSeries(Entry *e, Nepomuk2::Resource publication)
 {
-    Nepomuk::Resource series = publication.property(NBIB::inSeries()).toResource();
+    Nepomuk2::Resource series = publication.property(NBIB::inSeries()).toResource();
     QString string = series.property(NIE::title()).toString();
 
     if(!string.isEmpty()) {
@@ -726,9 +726,9 @@ void NepomukToBibTexPipe::setSeries(Entry *e, Nepomuk::Resource publication)
     }
 }
 
-void NepomukToBibTexPipe::setJournal(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setJournal(Entry *e, Nepomuk2::Resource publication)
 {
-    Nepomuk::Resource journalIssue = publication.property(NBIB::collection()).toResource();
+    Nepomuk2::Resource journalIssue = publication.property(NBIB::collection()).toResource();
 
     if(!journalIssue.isValid()) {
         return; // no journal available for his resource
@@ -738,7 +738,7 @@ void NepomukToBibTexPipe::setJournal(Entry *e, Nepomuk::Resource publication)
     QString journalNumber = journalIssue.property(NBIB::number()).toString(); //Issue number
     QString journalVolume = journalIssue.property(NBIB::volume()).toString();
 
-    Nepomuk::Resource journal = journalIssue.property(NBIB::inSeries()).toResource();
+    Nepomuk2::Resource journal = journalIssue.property(NBIB::inSeries()).toResource();
     QString journalName = journal.property(NIE::title()).toString();;
 
     if(!journalNumber.isEmpty()) {
@@ -758,15 +758,15 @@ void NepomukToBibTexPipe::setJournal(Entry *e, Nepomuk::Resource publication)
     }
 }
 
-void NepomukToBibTexPipe::setISSN(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setISSN(Entry *e, Nepomuk2::Resource publication)
 {
-    Nepomuk::Resource series = publication.property(NBIB::inSeries()).toResource();
+    Nepomuk2::Resource series = publication.property(NBIB::inSeries()).toResource();
     QString issnString = series.property(NBIB::issn()).toString();
 
     // handles article of a collection in a series which has the issn attached
     if(issnString.isEmpty()) {
-        Nepomuk::Resource collection = publication.property(NBIB::collection()).toResource();
-        Nepomuk::Resource series2 = collection.property(NBIB::inSeries()).toResource();
+        Nepomuk2::Resource collection = publication.property(NBIB::collection()).toResource();
+        Nepomuk2::Resource series2 = collection.property(NBIB::inSeries()).toResource();
         issnString = series2.property(NBIB::issn()).toString();
     }
 
@@ -777,12 +777,12 @@ void NepomukToBibTexPipe::setISSN(Entry *e, Nepomuk::Resource publication)
     }
 }
 
-void NepomukToBibTexPipe::setEvent(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setEvent(Entry *e, Nepomuk2::Resource publication)
 {
-    Nepomuk::Resource event = publication.property(NBIB::event()).toResource();
+    Nepomuk2::Resource event = publication.property(NBIB::event()).toResource();
 
     if(!event.isValid()) {
-        Nepomuk::Resource collection = publication.property(NBIB::collection()).toResource();
+        Nepomuk2::Resource collection = publication.property(NBIB::collection()).toResource();
         event = collection.property(NBIB::event()).toResource();
     }
 
@@ -798,44 +798,44 @@ void NepomukToBibTexPipe::setEvent(Entry *e, Nepomuk::Resource publication)
     }
 }
 
-void NepomukToBibTexPipe::setCode(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setCode(Entry *e, Nepomuk2::Resource publication)
 {
-    Nepomuk::Resource codeOfLaw = publication.property(NBIB::codeOfLaw()).toResource();
+    Nepomuk2::Resource codeOfLaw = publication.property(NBIB::codeOfLaw()).toResource();
 
     setValue(e, codeOfLaw, NIE::title(), QLatin1String("code"));
 }
 
-void NepomukToBibTexPipe::setCodeNumber(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setCodeNumber(Entry *e, Nepomuk2::Resource publication)
 {
-    Nepomuk::Resource codeOfLaw = publication.property(NBIB::codeOfLaw()).toResource();
+    Nepomuk2::Resource codeOfLaw = publication.property(NBIB::codeOfLaw()).toResource();
 
     setValue(e, codeOfLaw, NBIB::codeNumber(), QLatin1String("codenumber"));
 }
 
-void NepomukToBibTexPipe::setCodeVolume(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setCodeVolume(Entry *e, Nepomuk2::Resource publication)
 {
-    Nepomuk::Resource codeOfLaw = publication.property(NBIB::codeOfLaw()).toResource();
+    Nepomuk2::Resource codeOfLaw = publication.property(NBIB::codeOfLaw()).toResource();
 
     setValue(e, codeOfLaw, NBIB::volume(), QLatin1String("codevolume"));
 }
 
-void NepomukToBibTexPipe::setReporter(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setReporter(Entry *e, Nepomuk2::Resource publication)
 {
-    Nepomuk::Resource courtReporter = publication.property(NBIB::courtReporter()).toResource();
+    Nepomuk2::Resource courtReporter = publication.property(NBIB::courtReporter()).toResource();
 
     setValue(e, courtReporter, NIE::title(), QLatin1String("reporter"));
 }
 
-void NepomukToBibTexPipe::setReporterVolume(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setReporterVolume(Entry *e, Nepomuk2::Resource publication)
 {
-    Nepomuk::Resource courtReporter = publication.property(NBIB::courtReporter()).toResource();
+    Nepomuk2::Resource courtReporter = publication.property(NBIB::courtReporter()).toResource();
 
     setValue(e, courtReporter, NBIB::volume(), QLatin1String("reportervolume"));
 }
 
-void NepomukToBibTexPipe::setAssignee(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setAssignee(Entry *e, Nepomuk2::Resource publication)
 {
-    Nepomuk::Resource assignee = publication.property(NBIB::assignee()).toResource();
+    Nepomuk2::Resource assignee = publication.property(NBIB::assignee()).toResource();
 
     Value v;
     if(assignee.hasType(NCO::PersonContact())) {
@@ -873,12 +873,12 @@ void NepomukToBibTexPipe::setAssignee(Entry *e, Nepomuk::Resource publication)
     }
 }
 
-void NepomukToBibTexPipe::setNote(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setNote(Entry *e, Nepomuk2::Resource publication)
 {
-    QList<Nepomuk::Resource> resourceList = publication.property(NAO::isRelated()).toResourceList();
+    QList<Nepomuk2::Resource> resourceList = publication.property(NAO::isRelated()).toResourceList();
 
     int i=0;
-    foreach(const Nepomuk::Resource & r, resourceList) {
+    foreach(const Nepomuk2::Resource & r, resourceList) {
         if( !r.hasType( PIMO::Note() ) ) { continue; }
 
         if(i == 0) {
@@ -892,12 +892,12 @@ void NepomukToBibTexPipe::setNote(Entry *e, Nepomuk::Resource publication)
     }
 }
 
-void NepomukToBibTexPipe::setKewords(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setKewords(Entry *e, Nepomuk2::Resource publication)
 {
-    QList<Nepomuk::Resource> tags = publication.property(NAO::hasTopic()).toResourceList();
+    QList<Nepomuk2::Resource> tags = publication.property(NAO::hasTopic()).toResourceList();
 
     Value v;
-    foreach(const Nepomuk::Resource & tag, tags) {
+    foreach(const Nepomuk2::Resource & tag, tags) {
         Keyword *p = new Keyword(tag.genericLabel());
         v.append(QSharedPointer<ValueItem>(p));
     }
@@ -907,10 +907,10 @@ void NepomukToBibTexPipe::setKewords(Entry *e, Nepomuk::Resource publication)
     }
 }
 
-void NepomukToBibTexPipe::setSyncDetails(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setSyncDetails(Entry *e, Nepomuk2::Resource publication)
 {
     kDebug() << "search for sync details" << publication.genericLabel();
-    QList<Nepomuk::Resource> sycList = publication.property(SYNC::serverSyncData()).toResourceList();
+    QList<Nepomuk2::Resource> sycList = publication.property(SYNC::serverSyncData()).toResourceList();
 
     QUrl syncDataType;
     if(publication.hasType(PIMO::Note())) {
@@ -924,7 +924,7 @@ void NepomukToBibTexPipe::setSyncDetails(Entry *e, Nepomuk::Resource publication
     }
 
     // only add the sync details the the right storage
-    foreach(const Nepomuk::Resource &r, sycList) {
+    foreach(const Nepomuk2::Resource &r, sycList) {
         if(r.property(SYNC::provider()).toString() != QString("zotero")) { //TODO make this possible for others too
             continue;
         }
@@ -975,11 +975,11 @@ void NepomukToBibTexPipe::addNepomukUries(bool addThem)
     m_addNepomukUris = addThem;
 }
 
-void NepomukToBibTexPipe::setArticleType(Entry *e, Nepomuk::Resource publication)
+void NepomukToBibTexPipe::setArticleType(Entry *e, Nepomuk2::Resource publication)
 {
     if(publication.hasType(NBIB::Article())) {
         QString articleType;
-        Nepomuk::Resource collection = publication.property(NBIB::collection()).toResource();
+        Nepomuk2::Resource collection = publication.property(NBIB::collection()).toResource();
         if(collection.hasType(NBIB::JournalIssue())) {
             articleType = QLatin1String("journal"); //article in some proceedings paper
         }
@@ -1010,7 +1010,7 @@ void NepomukToBibTexPipe::setArticleType(Entry *e, Nepomuk::Resource publication
     }
 }
 
-void NepomukToBibTexPipe::setValue(Entry *e, Nepomuk::Resource publication, QUrl property, const QString &bibkey)
+void NepomukToBibTexPipe::setValue(Entry *e, Nepomuk2::Resource publication, QUrl property, const QString &bibkey)
 {
     QString string = publication.property(property).toString();
 
@@ -1021,13 +1021,13 @@ void NepomukToBibTexPipe::setValue(Entry *e, Nepomuk::Resource publication, QUrl
     }
 }
 
-void NepomukToBibTexPipe::setContact(Entry *e, Nepomuk::Resource publication, QUrl property, const QString &bibkey)
+void NepomukToBibTexPipe::setContact(Entry *e, Nepomuk2::Resource publication, QUrl property, const QString &bibkey)
 {
-    QList<Nepomuk::Resource> authors = publication.property(property).toResourceList();
+    QList<Nepomuk2::Resource> authors = publication.property(property).toResourceList();
 
     Value v;
     if(!authors.isEmpty()) {
-        foreach(const Nepomuk::Resource & a, authors) {
+        foreach(const Nepomuk2::Resource & a, authors) {
             QString firstName = a.property(NCO::nameGiven()).toString();
             QString lastName = a.property(NCO::nameFamily()).toString();
             QString suffix = a.property(NCO::nameHonorificSuffix()).toString();

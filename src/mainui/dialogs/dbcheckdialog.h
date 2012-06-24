@@ -20,8 +20,8 @@
 
 #include <QtGui/QDialog>
 
-#include <Nepomuk/Query/QueryServiceClient>
-#include <Nepomuk/Query/Result>
+#include <Nepomuk2/Query/QueryServiceClient>
+#include <Nepomuk2/Query/Result>
 
 namespace Ui {
     class DbCheckDialog;
@@ -60,15 +60,15 @@ private slots:
       */
     void checkAll();
 
-    void addToList( const QList< Nepomuk::Query::Result > &entries );
+    void addToList( const QList< Nepomuk2::Query::Result > &entries );
     void queryFinished();
     void removeData();
 
 private:
     Ui::DbCheckDialog *ui;
 
-    Nepomuk::Query::QueryServiceClient *m_queryClient;
-    QList<Nepomuk::Resource> m_toBeDeleted;
+    Nepomuk2::Query::QueryServiceClient *m_queryClient;
+    QList<Nepomuk2::Resource> m_toBeDeleted;
 };
 
 #endif // DBCHECKDIALOG_H

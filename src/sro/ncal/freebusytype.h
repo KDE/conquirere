@@ -8,16 +8,16 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * Type of a Freebusy indication. This class has been introduced 
  * to serve as a limited set of values for the ncal:fbtype property. 
  * See the documentation of ncal:fbtype for details. 
  */
-class FreebusyType : public virtual Nepomuk::SimpleResource
+class FreebusyType : public virtual Nepomuk2::SimpleResource
 {
 public:
     FreebusyType(const QUrl& uri = QUrl())

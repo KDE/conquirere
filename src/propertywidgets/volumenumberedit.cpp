@@ -17,14 +17,14 @@
 
 #include "volumenumberedit.h"
 
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/storeresourcesjob.h"
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
 
 #include "nbib.h"
-#include <Nepomuk/Resource>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Resource>
+#include <Nepomuk2/Variant>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 
 VolumeNumberEdit::VolumeNumberEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -36,7 +36,7 @@ void VolumeNumberEdit::setupLabel()
     QString string;
 
     // three different cases must be checked here
-    Nepomuk::Resource issueResource;
+    Nepomuk2::Resource issueResource;
 
     // I. resource() is an article, with an attached Collection, from a Series
     if(resource().hasType(NBIB::Article())) {
@@ -78,31 +78,31 @@ void VolumeNumberEdit::updateResource(const QString & text)
     // or the volume for the CodeOfLaw of an legislation
 
     // check if the resource has a Collection attached to it
-    Nepomuk::Resource journalIssue = resource().property(NBIB::collection()).toResource();
-    Nepomuk::Resource codeOfLaw = resource().property(NBIB::codeOfLaw()).toResource();
-    Nepomuk::Resource courtReporter = resource().property(NBIB::courtReporter()).toResource();
+    Nepomuk2::Resource journalIssue = resource().property(NBIB::collection()).toResource();
+    Nepomuk2::Resource codeOfLaw = resource().property(NBIB::codeOfLaw()).toResource();
+    Nepomuk2::Resource courtReporter = resource().property(NBIB::courtReporter()).toResource();
 
     QList<QUrl> resourceUris;
     if(journalIssue.isValid()) {
         // in this case attach volume/number to the issue rather than the publication from resource()
-        resourceUris << journalIssue.uri();
+        resourceUris << journalIssue.resourceUri();
     }
     else if(codeOfLaw.isValid() && propertyUrl() == NBIB::volume()) {
         // in this case attach volume to the issue rather than the publication from resource()
         // the number is the bill number for the Legislation
-        resourceUris << codeOfLaw.uri();
+        resourceUris << codeOfLaw.resourceUri();
     }
     else if(courtReporter.isValid() && propertyUrl() == NBIB::volume()) {
         // in this case attach volume to the issue rather than the publication from resource()
         // the number is the docket number for the LegalCaseDocument
-        resourceUris << courtReporter.uri();
+        resourceUris << courtReporter.resourceUri();
     }
     else {
-        resourceUris << resource().uri();
+        resourceUris << resource().resourceUri();
     }
 
     QVariantList value; value << text;
     m_changedResource = resource();
-    connect(Nepomuk::setProperty(resourceUris, propertyUrl(), value),
+    connect(Nepomuk2::setProperty(resourceUris, propertyUrl(), value),
             SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }

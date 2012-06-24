@@ -29,7 +29,7 @@
 
 #include <Soprano/Global>
 
-#include <nepomuk/nepomuk_export.h>
+#include <Nepomuk/nepomuk_export.h>
 
 class KJob;
 class KUrl;
@@ -129,7 +129,7 @@ namespace Nepomuk {
      * -# The second, also rather trivial way to identify a resource is through its nie:url. This can be a local file URL or an
      * http URL or anything else as decribed in \ref nepomuk_dms_resource_uris.
      * -# The last, most interesting way to identify a resource is through its properties and relations. This is what
-     * storeResources() does in Nepomuk::IdentifyNew mode.
+     * storeResources() does in Nepomuk2::IdentifyNew mode.
      *
      * In general all properties with a literal range are considered identifying. This includes properties like nao:prefLabel,
      * nie:title, nco:fullname, and so on. All properties with a non-literal range are considered non-identifying. However,
@@ -333,7 +333,7 @@ namespace Nepomuk {
      * \param component The calling component. Typically this is left to the default.
      */
     NEPOMUK_EXPORT KJob* removeResources(const QList<QUrl>& resources,
-                                                         Nepomuk::RemovalFlags flags = Nepomuk::NoRemovalFlags,
+                                                         Nepomuk2::RemovalFlags flags = Nepomuk2::NoRemovalFlags,
                                                          const KComponentData& component = KGlobal::mainComponent());
     //@}
 
@@ -405,7 +405,7 @@ namespace Nepomuk {
      * removed.
      */
     NEPOMUK_EXPORT KJob* removeDataByApplication(const QList<QUrl>& resources,
-                                                                 Nepomuk::RemovalFlags flags = Nepomuk::NoRemovalFlags,
+                                                                 Nepomuk2::RemovalFlags flags = Nepomuk2::NoRemovalFlags,
                                                                  const KComponentData& component = KGlobal::mainComponent());
 
     /**
@@ -418,7 +418,7 @@ namespace Nepomuk {
      * is left untouched. Essential properties like \a nie:url are only removed if the entire resource is
      * removed.
      */
-    NEPOMUK_EXPORT KJob* removeDataByApplication(Nepomuk::RemovalFlags flags = Nepomuk::NoRemovalFlags,
+    NEPOMUK_EXPORT KJob* removeDataByApplication(Nepomuk2::RemovalFlags flags = Nepomuk2::NoRemovalFlags,
                                                                  const KComponentData& component = KGlobal::mainComponent());
 
     /**
@@ -456,9 +456,9 @@ namespace Nepomuk {
      *
      * See \ref nepomuk_dms_resource_identification for details on how resources are identified.
      */
-    NEPOMUK_EXPORT StoreResourcesJob* storeResources(const Nepomuk::SimpleResourceGraph& resources,
-                                                     Nepomuk::StoreIdentificationMode identificationMode = Nepomuk::IdentifyNew,
-                                                     Nepomuk::StoreResourcesFlags flags = Nepomuk::NoStoreResourcesFlags,
+    NEPOMUK_EXPORT StoreResourcesJob* storeResources(const Nepomuk2::SimpleResourceGraph& resources,
+                                                     Nepomuk2::StoreIdentificationMode identificationMode = Nepomuk2::IdentifyNew,
+                                                     Nepomuk2::StoreResourcesFlags flags = Nepomuk2::NoStoreResourcesFlags,
                                                      const QHash<QUrl, QVariant>& additionalMetadata = QHash<QUrl, QVariant>(),
                                                      const KComponentData& component = KGlobal::mainComponent());
 
@@ -532,8 +532,8 @@ namespace Nepomuk {
     //@}
 }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Nepomuk::RemovalFlags)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Nepomuk::StoreResourcesFlags)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Nepomuk::DescribeResourcesFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Nepomuk2::RemovalFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Nepomuk2::StoreResourcesFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Nepomuk2::DescribeResourcesFlags)
 
 #endif

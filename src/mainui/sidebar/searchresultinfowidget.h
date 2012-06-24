@@ -20,7 +20,7 @@
 
 #include "sidebarcomponent.h"
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 namespace Ui {
     class SearchResultInfoWidget;
@@ -34,9 +34,9 @@ public:
     explicit SearchResultInfoWidget(QWidget *parent = 0);
     ~SearchResultInfoWidget();
 
-    Nepomuk::Resource resource();
+    Nepomuk2::Resource resource();
 
-    void setResource(Nepomuk::Resource & resource);
+    void setResource(Nepomuk2::Resource & resource);
     void newButtonClicked();
     void deleteButtonClicked();
 

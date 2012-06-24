@@ -8,11 +8,11 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
 #include "pimo/association.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace PIMO {
 /**
  * A person takes a certain role in a given context. The role can 

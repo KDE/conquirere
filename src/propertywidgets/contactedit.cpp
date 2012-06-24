@@ -19,23 +19,24 @@
 
 #include "kmultiitemedit.h"
 
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/storeresourcesjob.h"
-#include "dms-copy/simpleresourcegraph.h"
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+#include <Nepomuk2/SimpleResourceGraph>
+#include <Nepomuk2/SimpleResource>
+
 #include <KDE/KJob>
 #include "sro/nco/contact.h"
 #include "sro/nbib/publication.h"
 
-#include <Nepomuk/Vocabulary/NCO>
+#include <Nepomuk2/Vocabulary/NCO>
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Vocabulary/NUAO>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Vocabulary/NUAO>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KDebug>
 #include <QtCore/QDateTime>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
 ContactEdit::ContactEdit(QWidget *parent)
@@ -49,9 +50,9 @@ void ContactEdit::setupLabel()
     QString labelText;
 
     if(hasMultipleCardinality()) {
-        QList<Nepomuk::Resource> authorList = resource().property(propertyUrl()).toResourceList();
+        QList<Nepomuk2::Resource> authorList = resource().property(propertyUrl()).toResourceList();
 
-        foreach(const Nepomuk::Resource & r, authorList) {
+        foreach(const Nepomuk2::Resource & r, authorList) {
             QString fullname = r.property(NCO::fullname()).toString();
             labelText.append(fullname.trimmed());
             labelText.append(QLatin1String("; "));
@@ -60,7 +61,7 @@ void ContactEdit::setupLabel()
         labelText.chop(2);
     }
     else {
-        Nepomuk::Resource author = resource().property(propertyUrl()).toResource();
+        Nepomuk2::Resource author = resource().property(propertyUrl()).toResource();
 
         QString fullname = author.property(NCO::fullname()).toString();
         labelText.append(fullname.trimmed());
@@ -72,9 +73,9 @@ void ContactEdit::setupLabel()
 void ContactEdit::updateResource(const QString & newContactNames)
 {
     if(newContactNames.isEmpty()) {
-        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
         QList<QUrl> value; value << propertyUrl();
-        Nepomuk::removeProperties(resourceUris, value);
+        Nepomuk2::removeProperties(resourceUris, value);
         return;
     }
 
@@ -86,9 +87,9 @@ void ContactEdit::updateResource(const QString & newContactNames)
         entryList.append(newContactNames);
     }
 
-    Nepomuk::SimpleResourceGraph graph;
-    Nepomuk::SimpleResource publicationRes(resource().uri());
-    Nepomuk::NBIB::Publication publication(publicationRes);
+    Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::SimpleResource publicationRes(resource().resourceUri());
+    Nepomuk2::NBIB::Publication publication(publicationRes);
     //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
     QDateTime datetime = QDateTime::currentDateTimeUtc();
     publicationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
@@ -97,7 +98,7 @@ void ContactEdit::updateResource(const QString & newContactNames)
     foreach(const QString & s, entryList) {
         if(s.trimmed().isEmpty()) { continue; }
 
-        Nepomuk::NCO::Contact contact;
+        Nepomuk2::NCO::Contact contact;
 
         contact.addProperty( NCO::fullname(), s.trimmed() );
         contact.addProperty( NAO::prefLabel(), s.trimmed() );
@@ -110,7 +111,7 @@ void ContactEdit::updateResource(const QString & newContactNames)
     graph << publication;
 
     m_changedResource = resource();
-    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
+    connect(Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties),
             SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 
 }

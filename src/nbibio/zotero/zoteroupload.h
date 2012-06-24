@@ -102,7 +102,7 @@ private:
     File *m_uploadBibCache;
     File *m_corruptedUploads;
 
-    QList<Nepomuk::Resource> m_syncDataToBeRemoved;
+    QList<Nepomuk2::Resource> m_syncDataToBeRemoved;
     QList<SyncDetails> m_tmpUserDeleteRequest;
 };
 

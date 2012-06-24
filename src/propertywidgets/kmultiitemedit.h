@@ -20,8 +20,8 @@
 
 #include <KDE/KLineEdit>
 
-#include <Nepomuk/Query/QueryServiceClient>
-#include <Nepomuk/Query/Result>
+#include <Nepomuk2/Query/QueryServiceClient>
+#include <Nepomuk2/Query/Result>
 
 class KMultiItemEdit : public KLineEdit
 {
@@ -37,7 +37,7 @@ public slots:
 
 protected slots:
     void makeCompletion (const QString &substring);
-    void addToCompleterList( const QList< Nepomuk::Query::Result > &entries );
+    void addToCompleterList( const QList< Nepomuk2::Query::Result > &entries );
 
 private slots:
     void _k_slotCompletionBoxTextChanged( const QString& text );
@@ -52,7 +52,7 @@ private:
     KUrl m_range;
     KUrl m_labelProperty;
     bool m_nepomukDataFetched;
-    Nepomuk::Query::QueryServiceClient *m_queryClient;
+    Nepomuk2::Query::QueryServiceClient *m_queryClient;
 };
 
 #endif // KMULTIITEMEDIT_H

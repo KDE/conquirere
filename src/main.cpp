@@ -23,11 +23,11 @@
 #include <KDE/KCmdLineArgs>
 #include <KDE/KLocale>
 
-#include <Nepomuk/ResourceManager>
+#include <Nepomuk2/ResourceManager>
 
 int main(int argc, char *argv[])
 {
-    Nepomuk::ResourceManager::instance()->init();
+    Nepomuk2::ResourceManager::instance()->init();
 
     KAboutData aboutData( "conquirere", 0,
                           ki18n("Conquirere"), VERSION,

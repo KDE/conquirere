@@ -8,11 +8,11 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
 #include "nbib/report.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NBIB {
 /**
  * A report published by a school or other institution, usually 

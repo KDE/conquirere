@@ -35,21 +35,21 @@
 #include <kbibtex/entry.h>
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NFO>
-#include <Nepomuk/Vocabulary/NMO>
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/NCO>
-#include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/NFO>
+#include <Nepomuk2/Vocabulary/NMO>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NCO>
+#include <Nepomuk2/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Resource>
-#include <Nepomuk/Variant>
-#include <Nepomuk/Query/QueryServiceClient>
-#include <Nepomuk/Query/ResourceTypeTerm>
-#include <Nepomuk/Query/ResourceTerm>
-#include <Nepomuk/Query/LiteralTerm>
-#include <Nepomuk/Query/ComparisonTerm>
-#include <Nepomuk/Query/AndTerm>
-#include <Nepomuk/Query/OrTerm>
+#include <Nepomuk2/Resource>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Query/QueryServiceClient>
+#include <Nepomuk2/Query/ResourceTypeTerm>
+#include <Nepomuk2/Query/ResourceTerm>
+#include <Nepomuk2/Query/LiteralTerm>
+#include <Nepomuk2/Query/ComparisonTerm>
+#include <Nepomuk2/Query/AndTerm>
+#include <Nepomuk2/Query/OrTerm>
 
 #include <KDE/KConfigGroup>
 #include <KDE/KConfig>
@@ -85,12 +85,12 @@ SearchWidget::SearchWidget(QWidget *parent)
     connect(this, SIGNAL(newSearchStarted()), m_searchResultModel, SLOT(clearData()));
     connect(this, SIGNAL(searchResult(SearchResultEntry)), m_searchResultModel, SLOT(addSearchResult(SearchResultEntry)));
 
-    m_queryClient = new Nepomuk::Query::QueryServiceClient();
-    connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(foundNepomukEntry(QList<Nepomuk::Query::Result>)));
+    m_queryClient = new Nepomuk2::Query::QueryServiceClient();
+    connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk2::Query::Result>)), this, SLOT(foundNepomukEntry(QList<Nepomuk2::Query::Result>)));
     connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(nepomukQueryFinished()));
 
-    m_projectQueryClient = new Nepomuk::Query::QueryServiceClient();
-    connect(m_projectQueryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(fillProjectList(QList<Nepomuk::Query::Result>)));
+    m_projectQueryClient = new Nepomuk2::Query::QueryServiceClient();
+    connect(m_projectQueryClient, SIGNAL(newEntries(QList<Nepomuk2::Query::Result>)), this, SLOT(fillProjectList(QList<Nepomuk2::Query::Result>)));
 
     loadSettings();
 
@@ -158,9 +158,9 @@ void SearchWidget::fetchProjects()
      m_projectQueryClient->sparqlQuery( query );
 }
 
-void SearchWidget::fillProjectList( const QList< Nepomuk::Query::Result > &entries )
+void SearchWidget::fillProjectList( const QList< Nepomuk2::Query::Result > &entries )
 {
-    foreach(const Nepomuk::Query::Result &r, entries) {
+    foreach(const Nepomuk2::Query::Result &r, entries) {
         ui->editLibrary->addItem(r.resource().property(Soprano::Vocabulary::NAO::prefLabel()).toString(),
                                  r.resource().resourceUri());
     }
@@ -218,77 +218,77 @@ void SearchWidget::startSearch()
        source == Search_Nepomuk) {
         m_nepomukSearchInProgress = true;
 
-        Nepomuk::Query::AndTerm andTerm;
+        Nepomuk2::Query::AndTerm andTerm;
 
         QString content = ui->editContent->text();
         QString title =  ui->editTitle->text();
         QString author =  ui->editAuthor->text();
 
         if(!content.isEmpty()) {
-            Nepomuk::Query::OrTerm orTerm;
-            orTerm.addSubTerm(Nepomuk::Query::LiteralTerm(content));
+            Nepomuk2::Query::OrTerm orTerm;
+            orTerm.addSubTerm(Nepomuk2::Query::LiteralTerm(content));
 
-            Nepomuk::Query::ComparisonTerm fullTextSearch( Nepomuk::Vocabulary::NIE::plainTextContent(), Nepomuk::Query::LiteralTerm(content) );
-            fullTextSearch.setComparator(Nepomuk::Query::ComparisonTerm::Contains);
+            Nepomuk2::Query::ComparisonTerm fullTextSearch( Nepomuk2::Vocabulary::NIE::plainTextContent(), Nepomuk2::Query::LiteralTerm(content) );
+            fullTextSearch.setComparator(Nepomuk2::Query::ComparisonTerm::Contains);
             orTerm.addSubTerm(fullTextSearch);
 
             andTerm.addSubTerm(orTerm);
         }
 
         if(!title.isEmpty())
-             andTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::NIE::title(),
-                                                                 Nepomuk::Query::LiteralTerm(content) ));
+             andTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Nepomuk2::Vocabulary::NIE::title(),
+                                                                 Nepomuk2::Query::LiteralTerm(content) ));
 
         if(!author.isEmpty()) {
-            Nepomuk::Query::OrTerm orTerm;
+            Nepomuk2::Query::OrTerm orTerm;
 
-            Nepomuk::Query::ComparisonTerm naoSearch( Soprano::Vocabulary::NAO::creator(), Nepomuk::Query::LiteralTerm(author) );
-            naoSearch.setComparator(Nepomuk::Query::ComparisonTerm::Contains);
+            Nepomuk2::Query::ComparisonTerm naoSearch( Soprano::Vocabulary::NAO::creator(), Nepomuk2::Query::LiteralTerm(author) );
+            naoSearch.setComparator(Nepomuk2::Query::ComparisonTerm::Contains);
             orTerm.addSubTerm(naoSearch);
 
-            Nepomuk::Query::ComparisonTerm ncoSearch( Nepomuk::Vocabulary::NCO::creator(), Nepomuk::Query::LiteralTerm(author) );
-            ncoSearch.setComparator(Nepomuk::Query::ComparisonTerm::Contains);
+            Nepomuk2::Query::ComparisonTerm ncoSearch( Nepomuk2::Vocabulary::NCO::creator(), Nepomuk2::Query::LiteralTerm(author) );
+            ncoSearch.setComparator(Nepomuk2::Query::ComparisonTerm::Contains);
             orTerm.addSubTerm(ncoSearch);
 
             andTerm.addSubTerm( orTerm );
         }
 
-        Nepomuk::Query::OrTerm orTerm;
+        Nepomuk2::Query::OrTerm orTerm;
         if(ui->cbDocument->isChecked())
-            orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Document() ) );
+            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::Document() ) );
         if(ui->cbAudio->isChecked())
-            orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Audio() ) );
+            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::Audio() ) );
         if(ui->cbVideo->isChecked())
-            orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Video() ) );
+            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::Video() ) );
         if(ui->cbImage->isChecked())
-            orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Image() ) );
+            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::Image() ) );
         if(ui->cbEmail->isChecked())
-            orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NMO::Email() ) );
+            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NMO::Email() ) );
         if(ui->cbNote->isChecked())
-            orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::PIMO::Note() ) );
+            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::PIMO::Note() ) );
         if(ui->cbPublication->isChecked()) {
-            orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Publication() ) );
-            orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Series() ) );
+            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NBIB::Publication() ) );
+            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NBIB::Series() ) );
         }
         if(ui->cbWebpage->isChecked()) {
-            orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Website() ) );
-            orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Bookmark() ) );
+            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::Website() ) );
+            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::Bookmark() ) );
         }
 
         if(ui->editLibrary->currentIndex() != 0) {
-            Nepomuk::Resource project = Nepomuk::Resource::fromResourceUri( ui->editLibrary->itemData(ui->editLibrary->currentIndex()).toString());
-            Nepomuk::Query::OrTerm orTerm;
-            orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
-                                                               Nepomuk::Query::ResourceTerm( project )));
-            orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
-                                                               Nepomuk::Query::ResourceTerm( project )));
+            Nepomuk2::Resource project = Nepomuk2::Resource::fromResourceUri( ui->editLibrary->itemData(ui->editLibrary->currentIndex()).toString());
+            Nepomuk2::Query::OrTerm orTerm;
+            orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
+                                                               Nepomuk2::Query::ResourceTerm( project )));
+            orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
+                                                               Nepomuk2::Query::ResourceTerm( project )));
             andTerm.addSubTerm(orTerm);
         }
 
         andTerm.addSubTerm(orTerm);
 
         // build the query
-        Nepomuk::Query::Query query( andTerm );
+        Nepomuk2::Query::Query query( andTerm );
 
         query.setLimit(numResults);
 
@@ -330,9 +330,9 @@ void SearchWidget::foundOnlineEntry(QSharedPointer<Entry> newEntry)
     emit searchResult(sre);
 }
 
-void SearchWidget::foundNepomukEntry(QList<Nepomuk::Query::Result> newEntry)
+void SearchWidget::foundNepomukEntry(QList<Nepomuk2::Query::Result> newEntry)
 {
-    foreach(const Nepomuk::Query::Result &r, newEntry) {
+    foreach(const Nepomuk2::Query::Result &r, newEntry) {
         SearchResultEntry sre;
         sre.nepomukResult = r;
         //sre.webResult = 0;

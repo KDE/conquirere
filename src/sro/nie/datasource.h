@@ -8,9 +8,9 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NIE {
 /**
  * A superclass for all entities from which DataObjects can be 
@@ -25,7 +25,7 @@ namespace NIE {
  * application to gain access to the data sources. (paths, urls, 
  * passwords etc...) 
  */
-class DataSource : public virtual Nepomuk::SimpleResource
+class DataSource : public virtual Nepomuk2::SimpleResource
 {
 public:
     DataSource(const QUrl& uri = QUrl())

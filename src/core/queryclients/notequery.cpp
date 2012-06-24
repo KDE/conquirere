@@ -20,14 +20,14 @@
 #include "../library.h"
 #include "../projectsettings.h"
 
-#include <Nepomuk/Variant>
-#include <Nepomuk/Query/ResourceTerm>
-#include <Nepomuk/Query/AndTerm>
-#include <Nepomuk/Query/OrTerm>
-#include <Nepomuk/Query/ResourceTypeTerm>
-#include <Nepomuk/Query/ComparisonTerm>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Query/ResourceTerm>
+#include <Nepomuk2/Query/AndTerm>
+#include <Nepomuk2/Query/OrTerm>
+#include <Nepomuk2/Query/ResourceTypeTerm>
+#include <Nepomuk2/Query/ComparisonTerm>
 
-#include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
 
 NoteQuery::NoteQuery(QObject *parent)
@@ -37,27 +37,27 @@ NoteQuery::NoteQuery(QObject *parent)
 
 void NoteQuery::startFetchData()
 {
-    Nepomuk::Query::AndTerm andTerm;
+    Nepomuk2::Query::AndTerm andTerm;
 
-    andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::PIMO::Note() ) );
+    andTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::PIMO::Note() ) );
 
     if(m_library->libraryType() == Library_Project) {
-        Nepomuk::Query::OrTerm orTerm;
-        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
-                                                           Nepomuk::Query::ResourceTerm( m_library->settings()->projectTag() )));
-        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
-                                                            Nepomuk::Query::ResourceTerm(m_library->settings()->projectThing() )));
+        Nepomuk2::Query::OrTerm orTerm;
+        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
+                                                           Nepomuk2::Query::ResourceTerm( m_library->settings()->projectTag() )));
+        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
+                                                            Nepomuk2::Query::ResourceTerm(m_library->settings()->projectThing() )));
         andTerm.addSubTerm(orTerm);
     }
 
     // build the query
-    Nepomuk::Query::Query query( andTerm );
+    Nepomuk2::Query::Query query( andTerm );
     m_queryClient->query(query);
 }
 
-void NoteQuery::resourceChanged (const Nepomuk::Resource &resource)
+void NoteQuery::resourceChanged (const Nepomuk2::Resource &resource)
 {
-    if(!resource.hasType(Nepomuk::Vocabulary::PIMO::Note()))
+    if(!resource.hasType(Nepomuk2::Vocabulary::PIMO::Note()))
         return;
 
     QList<CachedRowEntry> newCache;
@@ -71,7 +71,7 @@ void NoteQuery::resourceChanged (const Nepomuk::Resource &resource)
     emit updateCacheEntries(newCache);
 }
 
-QVariantList NoteQuery::createDisplayData(const Nepomuk::Resource & res) const
+QVariantList NoteQuery::createDisplayData(const Nepomuk2::Resource & res) const
 {
     QVariantList displayList;
     displayList.reserve(Max_columns-1);
@@ -86,7 +86,7 @@ QVariantList NoteQuery::createDisplayData(const Nepomuk::Resource & res) const
             break;
         }
         case Column_Date: {
-            Nepomuk::Resource note = res.property(Nepomuk::Vocabulary::PIMO::groundingOccurrence()).toResource();
+            Nepomuk2::Resource note = res.property(Nepomuk2::Vocabulary::PIMO::groundingOccurrence()).toResource();
 
             QString dateString = note.property(Soprano::Vocabulary::NAO::lastModified()).toString();
             if(dateString.isEmpty()) {
@@ -104,9 +104,9 @@ QVariantList NoteQuery::createDisplayData(const Nepomuk::Resource & res) const
         }
         case Column_Tags: {
             QString tagString;
-            QList<Nepomuk::Resource> tagList = res.property(Soprano::Vocabulary::NAO::hasTag()).toResourceList();
+            QList<Nepomuk2::Resource> tagList = res.property(Soprano::Vocabulary::NAO::hasTag()).toResourceList();
 
-            foreach(const Nepomuk::Resource & nr, tagList) {
+            foreach(const Nepomuk2::Resource & nr, tagList) {
                 tagString.append(nr.property(Soprano::Vocabulary::NAO::prefLabel()).toString());
                 tagString.append(QLatin1String("; "));
             }
@@ -129,7 +129,7 @@ QVariantList NoteQuery::createDisplayData(const Nepomuk::Resource & res) const
     return displayList;
 }
 
-QVariantList NoteQuery::createDecorationData(const Nepomuk::Resource & res) const
+QVariantList NoteQuery::createDecorationData(const Nepomuk2::Resource & res) const
 {
     QVariantList decorationList;
     decorationList.reserve(Max_columns-1);

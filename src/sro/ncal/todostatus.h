@@ -8,9 +8,9 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * A status of a calendar entity. This class has been introduced 
@@ -19,7 +19,7 @@ namespace NCAL {
  * create his/her own. See the documentation for ncal:todoStatus 
  * for details. 
  */
-class TodoStatus : public virtual Nepomuk::SimpleResource
+class TodoStatus : public virtual Nepomuk2::SimpleResource
 {
 public:
     TodoStatus(const QUrl& uri = QUrl())

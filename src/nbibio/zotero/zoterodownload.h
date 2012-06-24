@@ -115,7 +115,7 @@ private:
       *     This helps to add the pimo:isRelated property to items already existing in the storage but not already related to
       *     a project.
       */
-    void findDuplicates(QList<Nepomuk::Resource> &existingItems);
+    void findDuplicates(QList<Nepomuk2::Resource> &existingItems);
 
     /**
       * takes the entries from the @c m_bibCache and checks which zoterokeys tha tare available locally are missing in it

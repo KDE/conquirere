@@ -8,12 +8,12 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
 #include "pimo/agent.h"
 #include "pimo/locatable.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace PIMO {
 /**
  * An administrative and functional structure (as a business 

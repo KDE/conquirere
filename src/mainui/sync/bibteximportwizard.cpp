@@ -29,8 +29,8 @@
 #include <kbibtex/findduplicatesui.h>
 #include <kbibtex/findduplicates.h>
 
-#include <Nepomuk/Thing>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Thing>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KUrlRequester>
 #include <KDE/KComboBox>
@@ -318,7 +318,7 @@ void ParseFile::initializePage()
     bool importToProject = field(QLatin1String("projectImport")).toBool();
     if(importToProject) {
         int curProject = ip->projectImport->currentIndex();
-        Nepomuk::Thing pimoThing = Nepomuk::Thing (ip->projectImport->itemData(curProject).toUrl());
+        Nepomuk2::Thing pimoThing = Nepomuk2::Thing (ip->projectImport->itemData(curProject).toUrl());
         importer->setProjectPimoThing(pimoThing);
     }
 

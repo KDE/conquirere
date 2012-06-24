@@ -8,11 +8,11 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
 #include "pimo/classorthingorpropertyorassociation.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace PIMO {
 /**
  * An association between two or more pimo-things. This is used 

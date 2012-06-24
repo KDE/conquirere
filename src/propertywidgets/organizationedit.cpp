@@ -19,23 +19,24 @@
 
 #include "kmultiitemedit.h"
 
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/storeresourcesjob.h"
-#include "dms-copy/simpleresourcegraph.h"
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+#include <Nepomuk2/SimpleResourceGraph>
+#include <Nepomuk2/SimpleResource>
+
 #include <KDE/KJob>
 #include "sro/nco/organizationcontact.h"
 #include "sro/nbib/publication.h"
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NCO>
-#include <Nepomuk/Vocabulary/NUAO>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Vocabulary/NCO>
+#include <Nepomuk2/Vocabulary/NUAO>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KDebug>
 #include <QtCore/QDateTime>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 
 OrganizationEdit::OrganizationEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -49,12 +50,12 @@ void OrganizationEdit::setupLabel()
     QString title;
 
     //different cases are handled here
-    Nepomuk::Resource organization;
+    Nepomuk2::Resource organization;
 
     // I. the resource is an Article, means the organization is attached to the Collection
     // not the article itself
     if(resource().hasType(NBIB::Article())) {
-        Nepomuk::Resource collection = resource().property( NBIB::collection() ).toResource();
+        Nepomuk2::Resource collection = resource().property( NBIB::collection() ).toResource();
         organization = collection.property( NBIB::organization() ).toResource();
     }
     // otherwise the organization is directly connected to the publication
@@ -70,10 +71,10 @@ void OrganizationEdit::setupLabel()
 
 void OrganizationEdit::updateResource(const QString & text)
 {
-    Nepomuk::Resource currentOrganization;
+    Nepomuk2::Resource currentOrganization;
     // see above
     if(resource().hasType(NBIB::Article())) {
-        Nepomuk::Resource collection = resource().property( NBIB::collection() ).toResource();
+        Nepomuk2::Resource collection = resource().property( NBIB::collection() ).toResource();
         currentOrganization = collection.property( NBIB::organization() ).toResource();
     }
     else {
@@ -88,9 +89,9 @@ void OrganizationEdit::updateResource(const QString & text)
 
     if(currentOrganization.exists()) {
         // remove the crosslink reference <-> publication
-        QList<QUrl> resourceUris; resourceUris << resource().uri();
-        QVariantList value; value << currentOrganization.uri();
-        Nepomuk::removeProperty(resourceUris, NBIB::organization(), value);
+        QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
+        QVariantList value; value << currentOrganization.resourceUri();
+        Nepomuk2::removeProperty(resourceUris, NBIB::organization(), value);
     }
 
     if(text.isEmpty()) {
@@ -99,14 +100,14 @@ void OrganizationEdit::updateResource(const QString & text)
 
     // ok the user changed the text in the list
     // let the DMS create a new Organization and merge it to the right place
-    Nepomuk::SimpleResourceGraph graph;
-    Nepomuk::SimpleResource publicationRes(resource().uri());
-    Nepomuk::NBIB::Publication publication(publicationRes);
+    Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::SimpleResource publicationRes(resource().resourceUri());
+    Nepomuk2::NBIB::Publication publication(publicationRes);
     //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
     QDateTime datetime = QDateTime::currentDateTimeUtc();
     publicationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
 
-    Nepomuk::NCO::OrganizationContact newOrganization;
+    Nepomuk2::NCO::OrganizationContact newOrganization;
 
     newOrganization.setProperty(NCO::fullname(), text.trimmed());
     publication.setOrganization( newOrganization.uri() );
@@ -114,6 +115,6 @@ void OrganizationEdit::updateResource(const QString & text)
     graph << newOrganization << publication;
 
     m_changedResource = resource();
-    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
+    connect(Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties),
             SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }

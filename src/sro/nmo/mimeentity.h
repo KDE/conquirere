@@ -8,11 +8,11 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
 #include "nie/informationelement.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NMO {
 /**
  * A MIME entity, as defined in RFC2045, Section 2.4. 

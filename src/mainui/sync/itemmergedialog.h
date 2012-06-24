@@ -50,7 +50,7 @@ private slots:
 
 private:
     struct MergedResults {
-        Nepomuk::Resource localSyncResource;
+        Nepomuk2::Resource localSyncResource;
         QSharedPointer<Entry> localEntry;
         Entry * originalServerEntry;
         Entry * serverChanges;

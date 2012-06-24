@@ -22,8 +22,8 @@
 
 #include <KDE/KDirLister>
 
-#include <Nepomuk/File>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/File>
+#include <Nepomuk2/Variant>
 #include <Soprano/Vocabulary/NAO>
 
 #include <QDBusInterface>
@@ -71,9 +71,9 @@ void DirWatcher::itemsAdded (const KUrl &directoryUrl, const KFileItemList &item
         if(file.isDir())
             continue;
 
-        Nepomuk::File addedFile(file.url());
+        Nepomuk2::File addedFile(file.url());
 
-        QList<Nepomuk::Resource> relatesTo = addedFile.property( Soprano::Vocabulary::NAO::isRelated()).toResourceList();
+        QList<Nepomuk2::Resource> relatesTo = addedFile.property( Soprano::Vocabulary::NAO::isRelated()).toResourceList();
 
         if(!relatesTo.contains(m_library->settings()->projectThing())) {
             QString filePath = file.url().url().remove(QLatin1String("file://"));
@@ -87,7 +87,7 @@ void DirWatcher::itemsAdded (const KUrl &directoryUrl, const KFileItemList &item
 void DirWatcher::itemsDeleted (const KFileItemList &items)
 {
     foreach(const KFileItem &file, items) {
-        Nepomuk::File addedFile(file.url());
+        Nepomuk2::File addedFile(file.url());
         addedFile.remove();
     }
 }

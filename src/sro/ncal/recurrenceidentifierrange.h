@@ -8,16 +8,16 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * Recurrence Identifier Range. This class has been created to 
  * provide means to express the limited set of values for the ncal:range 
  * property. See documentation for ncal:range for details. 
  */
-class RecurrenceIdentifierRange : public virtual Nepomuk::SimpleResource
+class RecurrenceIdentifierRange : public virtual Nepomuk2::SimpleResource
 {
 public:
     RecurrenceIdentifierRange(const QUrl& uri = QUrl())

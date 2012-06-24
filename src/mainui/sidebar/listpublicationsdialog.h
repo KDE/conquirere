@@ -20,7 +20,7 @@
 
 #include "globals.h"
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 #include <QtGui/QDialog>
 
@@ -55,7 +55,7 @@ public:
     /**
       * returns the current selected @c nbib:publication
       */
-    Nepomuk::Resource selectedPublication();
+    Nepomuk2::Resource selectedPublication();
 
     /**
       * activated the filter if enter/return is pressed
@@ -66,7 +66,7 @@ signals:
     /**
       * @todo remove when resource watcher is working
       */
-    void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
+    void resourceCacheNeedsUpdate(Nepomuk2::Resource resource);
 
 private slots:
     void applyFilter();

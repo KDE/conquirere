@@ -20,7 +20,7 @@
 
 #include <QtGui/QDialog>
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 class LibraryManager;
 
@@ -48,11 +48,11 @@ public:
     ~FileObjectEditDialog();
 
     void setLibraryManager(LibraryManager *lm);
-    void setPublication(const Nepomuk::Resource &r);
-    void setResource(Nepomuk::Resource r);
+    void setPublication(const Nepomuk2::Resource &r);
+    void setResource(Nepomuk2::Resource r);
     void createNewResource();
 
-    Nepomuk::Resource resource();
+    Nepomuk2::Resource resource();
 
 private slots:
     void typeChanged(int newType);
@@ -63,8 +63,8 @@ private slots:
 private:
     Ui::FileObjectEditDialog *ui;
 
-    Nepomuk::Resource m_publication;
-    Nepomuk::Resource m_fileObject;
+    Nepomuk2::Resource m_publication;
+    Nepomuk2::Resource m_fileObject;
 };
 
 #endif // FILEOBJECTEDITDIALOG_H

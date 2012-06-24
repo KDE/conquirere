@@ -22,13 +22,12 @@
 #include "mainui/librarymanager.h"
 #include "notewidget.h"
 
-#include "dms-copy/datamanagement.h"
-
+#include <Nepomuk2/DataManagement>
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Vocabulary/PIMO>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Vocabulary/PIMO>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KDialog>
 #include <KDE/KIcon>
@@ -37,7 +36,7 @@
 #include <QtCore/QPointer>
 
 using namespace Soprano::Vocabulary;
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 
 ListAnnotationsWidget::ListAnnotationsWidget(QWidget *parent)
     : QWidget(parent)
@@ -66,16 +65,16 @@ void ListAnnotationsWidget::setLibraryManager(LibraryManager *lm)
     m_libraryManager = lm;
 }
 
-void ListAnnotationsWidget::setResource(Nepomuk::Resource resource)
+void ListAnnotationsWidget::setResource(Nepomuk2::Resource resource)
 {
     m_resource = resource;
 
     ui->listWidget->clear();
 
     // fill the widget with all pimo:notes
-    QList<Nepomuk::Resource> resourceList = m_resource.property(NAO::isRelated()).toResourceList();
+    QList<Nepomuk2::Resource> resourceList = m_resource.property(NAO::isRelated()).toResourceList();
 
-    foreach(const Nepomuk::Resource & r, resourceList) {
+    foreach(const Nepomuk2::Resource & r, resourceList) {
         if( !r.hasType( PIMO::Note() ) ) { continue; }
 
         QListWidgetItem *i = new QListWidgetItem();
@@ -105,7 +104,7 @@ void ListAnnotationsWidget::editAnnotation()
     QListWidgetItem *i = ui->listWidget->currentItem();
     if(!i)  { return; }
 
-    Nepomuk::Resource note = Nepomuk::Resource::fromResourceUri(i->data(Qt::UserRole).toString());
+    Nepomuk2::Resource note = Nepomuk2::Resource::fromResourceUri(i->data(Qt::UserRole).toString());
 
     // open dialog to edit the note
     QPointer<KDialog> addAnnotationWidget = new KDialog(this);
@@ -145,20 +144,20 @@ void ListAnnotationsWidget::addAnnotation()
 
     int ret = addAnnotationWidget->exec();
 
-    Nepomuk::Resource note = nw->resource();
+    Nepomuk2::Resource note = nw->resource();
     if(ret == KDialog::Accepted) {
         // create the nao relations and declare it a subresource
         QList<QUrl> resUri; resUri << m_resource.resourceUri();
         QVariantList value; value << note.resourceUri();
-        Nepomuk::addProperty(resUri, NAO::isRelated(), value);
+        Nepomuk2::addProperty(resUri, NAO::isRelated(), value);
 
         resUri.clear(); resUri << note.resourceUri();
         value.clear(); value << m_resource.resourceUri();
-        Nepomuk::addProperty(resUri, NAO::isRelated(), value);
+        Nepomuk2::addProperty(resUri, NAO::isRelated(), value);
 
         resUri.clear(); resUri << m_resource.resourceUri();
         value.clear(); value << note.resourceUri();
-        Nepomuk::addProperty(resUri, NAO::hasSubResource(), value);
+        Nepomuk2::addProperty(resUri, NAO::hasSubResource(), value);
 
         QListWidgetItem *i = new QListWidgetItem();
 
@@ -194,7 +193,7 @@ void ListAnnotationsWidget::removeAnnotation()
     QListWidgetItem *i = ui->listWidget->currentItem();
     if(!i) { return; }
 
-    Nepomuk::Resource note = Nepomuk::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
+    Nepomuk2::Resource note = Nepomuk2::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
     m_libraryManager->systemLibrary()->deleteResource( note );
 
     ui->listWidget->removeItemWidget(i);
@@ -220,7 +219,7 @@ void ListAnnotationsWidget::selectionChanged()
     QListWidgetItem *i = ui->listWidget->currentItem();
     if(!i) { return; }
 
-    Nepomuk::Resource note = Nepomuk::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
+    Nepomuk2::Resource note = Nepomuk2::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
 
     emit selectedAnnotation(note);
 }

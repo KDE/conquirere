@@ -17,20 +17,21 @@
 
 #include "issnedit.h"
 
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/storeresourcesjob.h"
-#include "dms-copy/simpleresourcegraph.h"
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+#include <Nepomuk2/SimpleResourceGraph>
+#include <Nepomuk2/SimpleResource>
+
 #include <KDE/KJob>
 #include "sro/nbib/series.h"
 #include "sro/nbib/collection.h"
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Variant>
 #include <KDE/KDebug>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 
 IssnEdit::IssnEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -39,8 +40,8 @@ IssnEdit::IssnEdit(QWidget *parent)
 
 void IssnEdit::setupLabel()
 {
-    Nepomuk::Resource series;
-    Nepomuk::Resource issue;
+    Nepomuk2::Resource series;
+    Nepomuk2::Resource issue;
     if(resource().hasType(NBIB::Article())) {
         issue = resource().property(NBIB::collection()).toResource();
         series = issue.property(NBIB::inSeries()).toResource();
@@ -58,8 +59,8 @@ void IssnEdit::setupLabel()
 void IssnEdit::updateResource(const QString & newIssnString)
 {
     // first get the right series resource where the issn will be attached to
-    Nepomuk::Resource series;
-    Nepomuk::Resource issue;
+    Nepomuk2::Resource series;
+    Nepomuk2::Resource issue;
     if(resource().hasType(NBIB::Article())) {
         issue = resource().property(NBIB::collection()).toResource();
         series = issue.property(NBIB::inSeries()).toResource();
@@ -78,9 +79,9 @@ void IssnEdit::updateResource(const QString & newIssnString)
 
         // no collection available for the article, create one
         if(!issue.exists()) {
-            Nepomuk::SimpleResourceGraph graph;
-            Nepomuk::NBIB::Collection newCollection;
-            Nepomuk::NBIB::Series newSeries;
+            Nepomuk2::SimpleResourceGraph graph;
+            Nepomuk2::NBIB::Collection newCollection;
+            Nepomuk2::NBIB::Series newSeries;
 
             newCollection.setProperty(NIE::title(), i18n("Unknown Collection"));
             newSeries.setProperty(NIE::title(), i18n("Unknown Series"));
@@ -91,84 +92,84 @@ void IssnEdit::updateResource(const QString & newIssnString)
             graph << newCollection << newSeries;
 
             //blocking graph save
-            Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone );
+            Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNone );
             if( !srj->exec() ) {
                 kWarning() << "could not create new issue and series" << srj->errorString();
                 return;
             }
 
-            Nepomuk::Resource newCollectionResource = Nepomuk::Resource::fromResourceUri( srj->mappings().value( newCollection.uri() ) );
-            series = Nepomuk::Resource::fromResourceUri( srj->mappings().value( newSeries.uri() ) );
+            Nepomuk2::Resource newCollectionResource = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( newCollection.uri() ) );
+            series = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( newSeries.uri() ) );
 
             // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
-            QList<QUrl> resUri; resUri << resource().uri();
-            QVariantList value; value << newCollectionResource.uri();
-            Nepomuk::setProperty(resUri, NBIB::collection(), value);
+            QList<QUrl> resUri; resUri << resource().resourceUri();
+            QVariantList value; value << newCollectionResource.resourceUri();
+            Nepomuk2::setProperty(resUri, NBIB::collection(), value);
 
-            resUri.clear(); resUri << newCollectionResource.uri();
-            value.clear(); value << resource().uri();
-            Nepomuk::addProperty(resUri, NBIB::article(), value);
+            resUri.clear(); resUri << newCollectionResource.resourceUri();
+            value.clear(); value << resource().resourceUri();
+            Nepomuk2::addProperty(resUri, NBIB::article(), value);
         }
         else if(!series.exists()) {
-            Nepomuk::SimpleResourceGraph graph;
-            Nepomuk::NBIB::Series newSeries;
+            Nepomuk2::SimpleResourceGraph graph;
+            Nepomuk2::NBIB::Series newSeries;
 
             newSeries.setProperty(NIE::title(), i18n("Unknown Series"));
 
             graph << newSeries;
 
             //blocking graph save
-            Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone );
+            Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNone );
             if( !srj->exec() ) {
                 kWarning() << "could not create new series" << srj->errorString();
                 return;
             }
 
-            series = Nepomuk::Resource::fromResourceUri( srj->mappings().value( newSeries.uri() ) );
+            series = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( newSeries.uri() ) );
 
             // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
-            QList<QUrl> resUri; resUri << issue.uri();
-            QVariantList value; value << series.uri();
-            Nepomuk::setProperty(resUri, NBIB::inSeries(), value);
+            QList<QUrl> resUri; resUri << issue.resourceUri();
+            QVariantList value; value << series.resourceUri();
+            Nepomuk2::setProperty(resUri, NBIB::inSeries(), value);
 
-            resUri.clear(); resUri << series.uri();
-            value.clear(); value << issue.uri();
-            Nepomuk::addProperty(resUri, NBIB::seriesOf(), value);
+            resUri.clear(); resUri << series.resourceUri();
+            value.clear(); value << issue.resourceUri();
+            Nepomuk2::addProperty(resUri, NBIB::seriesOf(), value);
         }
     }
     // if we operate on something else than an article and have no series we create it too
     else if(!series.exists()) {
-        Nepomuk::SimpleResourceGraph graph;
-        Nepomuk::NBIB::Series newSeries;
+        Nepomuk2::SimpleResourceGraph graph;
+        Nepomuk2::NBIB::Series newSeries;
 
         newSeries.setProperty(NIE::title(), i18n("Unknown Series"));
 
         graph << newSeries;
 
         //blocking graph save
-        Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone );
+        Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNone );
         if( !srj->exec() ) {
             kWarning() << "could not create new series" << srj->errorString();
             return;
         }
 
-        series = Nepomuk::Resource::fromResourceUri( srj->mappings().value( newSeries.uri() ) );
+        series = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( newSeries.uri() ) );
 
         // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
-        QList<QUrl> resUri; resUri << resource().uri();
-        QVariantList value; value << series.uri();
-        Nepomuk::setProperty(resUri, NBIB::inSeries(), value);
+        QList<QUrl> resUri; resUri << resource().resourceUri();
+        QVariantList value; value << series.resourceUri();
+        Nepomuk2::setProperty(resUri, NBIB::inSeries(), value);
 
-        resUri.clear(); resUri << series.uri();
-        value.clear(); value << resource().uri();
-        Nepomuk::addProperty(resUri, NBIB::seriesOf(), value);
+        resUri.clear(); resUri << series.resourceUri();
+        value.clear(); value << resource().resourceUri();
+        Nepomuk2::addProperty(resUri, NBIB::seriesOf(), value);
     }
 
     // now we have the valid seriws in the right connection add the issn to it
-    QList<QUrl> resourceUris; resourceUris << series.uri();
+    QList<QUrl> resourceUris; resourceUris << series.resourceUri();
     QVariantList value; value << newIssnString;
     m_changedResource = resource();
 
-    connect(Nepomuk::setProperty(resourceUris, NBIB::issn(), value),
+    connect(Nepomuk2::setProperty(resourceUris, NBIB::issn(), value),
             SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }

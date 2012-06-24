@@ -8,11 +8,11 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
 #include "nfo/media.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NFO {
 /**
  * File containing visual content. 

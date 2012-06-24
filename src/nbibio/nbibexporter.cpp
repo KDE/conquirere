@@ -29,7 +29,7 @@ NBibExporter::~NBibExporter()
 {
 }
 
-bool NBibExporter::toFile( const QString &filename, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog)
+bool NBibExporter::toFile( const QString &filename, const QList<Nepomuk2::Resource> referenceList, QStringList *errorLog)
 {
     QFile bibFile(filename);
     if (!bibFile.open(QIODevice::WriteOnly | QIODevice::Text)) {

@@ -8,9 +8,9 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * Access classification of a calendar component. Introduced 
@@ -19,7 +19,7 @@ namespace NCAL {
  * his/her own with desired semantics. See the documentation 
  * of ncal:class for details. 
  */
-class AccessClassification : public virtual Nepomuk::SimpleResource
+class AccessClassification : public virtual Nepomuk2::SimpleResource
 {
 public:
     AccessClassification(const QUrl& uri = QUrl())

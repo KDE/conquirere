@@ -25,20 +25,20 @@
 #include "onlinestorage/providersettings.h"
 
 #include "sync.h"
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/NUAO>
-#include <Nepomuk/Variant>
-#include <Nepomuk/Query/Term>
-#include <Nepomuk/Query/ResourceTerm>
-#include <Nepomuk/Query/ResourceTypeTerm>
-#include <Nepomuk/Query/ComparisonTerm>
-#include <Nepomuk/Query/NegationTerm>
-#include <Nepomuk/Query/LiteralTerm>
-#include <Nepomuk/Query/AndTerm>
-#include <Nepomuk/Query/OrTerm>
-#include <Nepomuk/Query/QueryServiceClient>
-#include <Nepomuk/Query/Result>
-#include <Nepomuk/Query/QueryParser>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NUAO>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Query/Term>
+#include <Nepomuk2/Query/ResourceTerm>
+#include <Nepomuk2/Query/ResourceTypeTerm>
+#include <Nepomuk2/Query/ComparisonTerm>
+#include <Nepomuk2/Query/NegationTerm>
+#include <Nepomuk2/Query/LiteralTerm>
+#include <Nepomuk2/Query/AndTerm>
+#include <Nepomuk2/Query/OrTerm>
+#include <Nepomuk2/Query/QueryServiceClient>
+#include <Nepomuk2/Query/Result>
+#include <Nepomuk2/Query/QueryParser>
 
 SyncKBibTeXFile::SyncKBibTeXFile(QObject *parent)
     : NBibSync(parent)
@@ -101,7 +101,7 @@ void SyncKBibTeXFile::readDownloadSyncAfterDelete(const File &zoteroData)
 //    findDuplicates(zoteroData, newEntries, m_tmpUserMergeRequest);
 
 //    if(!m_tmpUserMergeRequest.isEmpty()) {
-//        qDebug() << "SyncZoteroNepomuk::readDownloadSync user merge request necessary for " << m_tmpUserMergeRequest.size() << "items";
+//        qDebug() << "SyncZoteroNepomuk2::readDownloadSync user merge request necessary for " << m_tmpUserMergeRequest.size() << "items";
 
 //        if(m_psd.mergeMode == Manual) {
 //            emit userMerge(m_tmpUserMergeRequest);
@@ -182,11 +182,11 @@ void SyncKBibTeXFile::startUpload()
 
     emit calculateProgress(0);
 
-    Nepomuk::Query::Query query( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Reference() ) );
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
+    Nepomuk2::Query::Query query( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NBIB::Reference() ) );
+    QList<Nepomuk2::Query::Result> queryResult = Nepomuk2::Query::QueryServiceClient::syncQuery(query);
 
-    QList<Nepomuk::Resource> exportList;
-    foreach(const Nepomuk::Query::Result & r, queryResult) {
+    QList<Nepomuk2::Resource> exportList;
+    foreach(const Nepomuk2::Query::Result & r, queryResult) {
         exportList.append(r.resource());
     }
 

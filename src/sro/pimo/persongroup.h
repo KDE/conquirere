@@ -8,12 +8,12 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
 #include "pimo/agent.h"
 #include "pimo/collection.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace PIMO {
 /**
  * A group of Persons. They are connected to each other by sharing 

@@ -8,9 +8,9 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * A time entity. Conceived as a common superclass for NcalDateTime 
@@ -20,7 +20,7 @@ namespace NCAL {
  * possible in ncal:rdate property. Therefore the timezone properties 
  * have been defined at this level. 
  */
-class NcalTimeEntity : public virtual Nepomuk::SimpleResource
+class NcalTimeEntity : public virtual Nepomuk2::SimpleResource
 {
 public:
     NcalTimeEntity(const QUrl& uri = QUrl())

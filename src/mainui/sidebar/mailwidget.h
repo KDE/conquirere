@@ -20,7 +20,7 @@
 
 #include "sidebarcomponent.h"
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 namespace Ui {
     class MailWidget;
@@ -33,17 +33,17 @@ class MailWidget : public SidebarComponent
 public:
     explicit MailWidget(QWidget *parent = 0);
     ~MailWidget();
-    Nepomuk::Resource resource();
+    Nepomuk2::Resource resource();
 
 public slots:
-    void setResource(Nepomuk::Resource & resource);
+    void setResource(Nepomuk2::Resource & resource);
     void newButtonClicked();
     void deleteButtonClicked();
 
 private:
     Ui::MailWidget *ui;
 
-    Nepomuk::Resource m_mail;
+    Nepomuk2::Resource m_mail;
 };
 
 #endif // MAILWIDGET_H

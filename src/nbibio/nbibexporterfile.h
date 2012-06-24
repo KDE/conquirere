@@ -60,12 +60,12 @@ public:
       * @see FileExporterPS
       *
       * @p iodevice the device the exporter writes into
-      * @p referenceList list of all Nepomuk::Resources used for the export
+      * @p referenceList list of all Nepomuk2::Resources used for the export
       * @p errorLog pointer to the error list
       *
       * @pre referenceList must be a list of NBIB::Publication or NBIB::Resource
       */
-    bool save(QIODevice *iodevice, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog = NULL);
+    bool save(QIODevice *iodevice, const QList<Nepomuk2::Resource> referenceList, QStringList *errorLog = NULL);
 
 private:
     FileType m_fileType;

@@ -36,7 +36,7 @@ namespace Nepomuk {
 /**
  * \class CreateResourceJob createresourcejob.h Nepomuk/CreateResourceJob
  *
- * \brief Job returned by Nepomuk::createResource().
+ * \brief Job returned by Nepomuk2::createResource().
  *
  * Access the result through the resources() method in the slot connected
  * to the KJOb::result() signal.
@@ -75,7 +75,7 @@ private:
     class Private;
     Private* const d;
 
-    friend Nepomuk::CreateResourceJob* Nepomuk::createResource(const QList<QUrl>&,
+    friend Nepomuk2::CreateResourceJob* Nepomuk2::createResource(const QList<QUrl>&,
                                                                const QString&,
                                                                const QString&,
                                                                const KComponentData&);

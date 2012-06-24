@@ -8,12 +8,12 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
 #include "pimo/tag.h"
 #include "pimo/thing.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace PIMO {
 /**
  * A topic is the subject of a discussion or document. Topics are 

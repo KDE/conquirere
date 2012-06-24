@@ -49,11 +49,11 @@ public slots:
       *
       * @todo remove when starting to use ResourceWatcher later on
       */
-    void resourceChanged (const Nepomuk::Resource &resource);
+    void resourceChanged (const Nepomuk2::Resource &resource);
 
 private:
-    QVariantList createDisplayData(const Nepomuk::Resource & res) const;
-    QVariantList createDecorationData(const Nepomuk::Resource & res) const;
+    QVariantList createDisplayData(const Nepomuk2::Resource & res) const;
+    QVariantList createDecorationData(const Nepomuk2::Resource & res) const;
 };
 
 #endif // EVENTQUERY_H

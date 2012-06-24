@@ -20,8 +20,8 @@
 
 #include <QtGui/QDialog>
 
-#include <Nepomuk/Query/QueryServiceClient>
-#include <Nepomuk/Query/Result>
+#include <Nepomuk2/Query/QueryServiceClient>
+#include <Nepomuk2/Query/Result>
 
 namespace Ui {
     class LoadProject;
@@ -48,7 +48,7 @@ public:
 
 private slots:
     void queryFinished();
-    void fillProjectList( const QList< Nepomuk::Query::Result > &entries );
+    void fillProjectList( const QList< Nepomuk2::Query::Result > &entries );
 
     void showCollection(int currentRow);
 
@@ -56,7 +56,7 @@ private slots:
 
 private:
     Ui::LoadProject *ui;
-    Nepomuk::Query::QueryServiceClient *m_queryClient;
+    Nepomuk2::Query::QueryServiceClient *m_queryClient;
     Library *m_loadLibrary;
 };
 

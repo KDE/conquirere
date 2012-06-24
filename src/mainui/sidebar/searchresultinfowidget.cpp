@@ -32,14 +32,14 @@ SearchResultInfoWidget::~SearchResultInfoWidget()
 
 
 
-Nepomuk::Resource SearchResultInfoWidget::resource()
+Nepomuk2::Resource SearchResultInfoWidget::resource()
 {
     qWarning() << "this shouldn't be used .... SearchResultInfoWidget can't return a resource";
-    Nepomuk::Resource empty;
+    Nepomuk2::Resource empty;
     return empty;
 }
 
-void SearchResultInfoWidget::setResource(Nepomuk::Resource & resource)
+void SearchResultInfoWidget::setResource(Nepomuk2::Resource & resource)
 {
     Q_UNUSED(resource);
 }

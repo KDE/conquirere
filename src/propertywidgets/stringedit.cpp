@@ -1,4 +1,4 @@
-/*
+#/*
  * Copyright 2011 Jörg Ehrichs <joerg.ehichs@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -17,9 +17,10 @@
 
 #include "stringedit.h"
 
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/storeresourcesjob.h"
-#include <Nepomuk/Variant>
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Resource>
 
 StringEdit::StringEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -30,9 +31,9 @@ void StringEdit::setupLabel()
 {
     QString stringLabel;
     if(hasMultipleCardinality()) {
-        QList<Nepomuk::Resource> stringList = resource().property(propertyUrl()).toResourceList();
+        QList<Nepomuk2::Resource> stringList = resource().property(propertyUrl()).toResourceList();
 
-        foreach(const Nepomuk::Resource & r, stringList) {
+        foreach (const Nepomuk2::Resource & r, stringList) {
             stringLabel.append(r.property(propertyUrl()).toString());
             stringLabel.append(QLatin1String("; "));
         }
@@ -61,8 +62,8 @@ void StringEdit::updateResource(const QString & text)
         value << s.trimmed();
     }
 
-    QList<QUrl> resourceUris; resourceUris << resource().uri();
+    QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
     m_changedResource = resource();
-    connect(Nepomuk::setProperty(resourceUris, propertyUrl(), value),
+    connect(Nepomuk2::setProperty(resourceUris, propertyUrl(), value),
             SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }

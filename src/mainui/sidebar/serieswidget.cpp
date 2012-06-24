@@ -27,15 +27,15 @@
 
 #include "nbibio/conquirere.h"
 
-#include "dms-copy/simpleresourcegraph.h"
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/storeresourcesjob.h"
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+#include <Nepomuk2/SimpleResourceGraph>
 #include <KDE/KJob>
 #include "sro/nbib/series.h"
 
 #include "nbib.h"
-#include <Nepomuk/Variant>
-#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 
 SeriesWidget::SeriesWidget(QWidget *parent)
@@ -60,12 +60,12 @@ void SeriesWidget::setLibraryManager(LibraryManager *lm)
     SidebarComponent::setLibraryManager(lm);
 }
 
-Nepomuk::Resource SeriesWidget::resource()
+Nepomuk2::Resource SeriesWidget::resource()
 {
     return m_series;
 }
 
-void SeriesWidget::setResource(Nepomuk::Resource & resource)
+void SeriesWidget::setResource(Nepomuk2::Resource & resource)
 {
     m_series = resource;
 
@@ -102,7 +102,7 @@ void SeriesWidget::newSeriesTypeSelected(int index)
         // create the full hierarchy
         //DEBUG this seems wrong, but is currently the only way to preserve type hierarchy
         QList<QUrl>newtype;
-        newtype.append(Nepomuk::Vocabulary::NIE::InformationElement());
+        newtype.append(Nepomuk2::Vocabulary::NIE::InformationElement());
         newtype.append(newEntryUrl);
 
         // add another hierarchy if the newEntryUrl is not a direct subclass of NBIB::Series()
@@ -111,7 +111,7 @@ void SeriesWidget::newSeriesTypeSelected(int index)
         case SeriesType_Journal:
         case SeriesType_Magazin:
         case SeriesType_Newspaper:
-            newtype.append(Nepomuk::Vocabulary::NBIB::Series());
+            newtype.append(Nepomuk2::Vocabulary::NBIB::Series());
             break;
         case SeriesType_Series:
         case Max_SeriesTypes:
@@ -124,9 +124,9 @@ void SeriesWidget::newSeriesTypeSelected(int index)
         // when we change the series type, we must change the type of any related collection
         // in the case a collection is a JournalIssue / series the Journal etc.
 
-        QList<Nepomuk::Resource> collectionResource = m_series.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
+        QList<Nepomuk2::Resource> collectionResource = m_series.property(Nepomuk2::Vocabulary::NBIB::seriesOf()).toResourceList();
 
-        foreach(Nepomuk::Resource r, collectionResource) { // krazy:exclude=foreach
+        foreach(Nepomuk2::Resource r, collectionResource) { // krazy:exclude=foreach
             switch(entryType) {
             case SeriesType_Series:
             case Max_SeriesTypes:
@@ -137,25 +137,25 @@ void SeriesWidget::newSeriesTypeSelected(int index)
                 // this changes the resource from a collection to a Book
                 // (might run into some bad stuff when articles are attached to it)
                 //TODO check if we need to take special attention here
-                Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::Book());
+                Nepomuk2::Resource x(QUrl(), Nepomuk2::Vocabulary::NBIB::Book());
                 r.setTypes(x.types());
                 break;
             }
             case SeriesType_Journal:
             {
-                Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::JournalIssue());
+                Nepomuk2::Resource x(QUrl(), Nepomuk2::Vocabulary::NBIB::JournalIssue());
                 r.setTypes(x.types());
                 break;
             }
             case SeriesType_Magazin:
             {
-                Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::MagazinIssue());
+                Nepomuk2::Resource x(QUrl(), Nepomuk2::Vocabulary::NBIB::MagazinIssue());
                 r.setTypes(x.types());
                 break;
             }
             case SeriesType_Newspaper:
             {
-                Nepomuk::Resource x(QUrl(), Nepomuk::Vocabulary::NBIB::NewspaperIssue());
+                Nepomuk2::Resource x(QUrl(), Nepomuk2::Vocabulary::NBIB::NewspaperIssue());
                 r.setTypes(x.types());
                 break;
             }
@@ -170,21 +170,21 @@ void SeriesWidget::newButtonClicked()
 {
     //create a new resource with default name
 
-    Nepomuk::SimpleResourceGraph graph;
-    Nepomuk::NBIB::Series newSeries;
+    Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::NBIB::Series newSeries;
 
-    newSeries.setProperty( Nepomuk::Vocabulary::NIE::title(), i18n("New Series"));
+    newSeries.setProperty( Nepomuk2::Vocabulary::NIE::title(), i18n("New Series"));
 
     graph << newSeries;
     //blocking graph save
-    Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone);
+    Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNone);
     if( !srj->exec() ) {
         kWarning() << "could not new default series" << srj->errorString();
         return;
     }
 
     // get the pimo project from the return job mappings
-    Nepomuk::Resource newSeriesResource = Nepomuk::Resource::fromResourceUri( srj->mappings().value( newSeries.uri() ) );
+    Nepomuk2::Resource newSeriesResource = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( newSeries.uri() ) );
 
     Library *curUsedLib = libraryManager()->currentUsedLibrary();
     if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
@@ -198,7 +198,7 @@ void SeriesWidget::deleteButtonClicked()
 {
     libraryManager()->systemLibrary()->deleteResource( m_series );
 
-    Nepomuk::Resource invalid;
+    Nepomuk2::Resource invalid;
 
     setResource(invalid);
 }
@@ -211,7 +211,7 @@ void SeriesWidget::changeRating(int newRating)
 
     QList<QUrl> resourceUris; resourceUris << m_series.resourceUri();
     QVariantList rating; rating <<  newRating;
-    KJob *job = Nepomuk::setProperty(resourceUris, Soprano::Vocabulary::NAO::numericRating(), rating);
+    KJob *job = Nepomuk2::setProperty(resourceUris, Soprano::Vocabulary::NAO::numericRating(), rating);
 
     if(job->exec()) {
         emit resourceCacheNeedsUpdate(m_series);
@@ -233,14 +233,14 @@ void SeriesWidget::setupWidget()
 
     connect(ui->editType, SIGNAL(currentIndexChanged(int)), this, SLOT(newSeriesTypeSelected(int)));
 
-    ui->editIssn->setPropertyUrl( Nepomuk::Vocabulary::NBIB::issn() );
-    ui->editTitle->setPropertyUrl( Nepomuk::Vocabulary::NIE::title() );
+    ui->editIssn->setPropertyUrl( Nepomuk2::Vocabulary::NBIB::issn() );
+    ui->editTitle->setPropertyUrl( Nepomuk2::Vocabulary::NIE::title() );
 
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 
     // TODO this part should be removed when the resourceWatcher is working correctly
-    connect(ui->listPartWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-    connect(ui->editIssn, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-    connect(ui->editTitle, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-    connect(ui->editAnnot, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->listPartWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
+    connect(ui->editIssn, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
+    connect(ui->editTitle, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
+    connect(ui->editAnnot, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 }

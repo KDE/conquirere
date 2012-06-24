@@ -33,7 +33,7 @@
 
 #include <KDebug>
 
-Nepomuk::GenericDataManagementJob::GenericDataManagementJob(const char *methodName,
+Nepomuk2::GenericDataManagementJob::GenericDataManagementJob(const char *methodName,
                                                             QGenericArgument val0,
                                                             QGenericArgument val1,
                                                             QGenericArgument val2,
@@ -64,16 +64,16 @@ Nepomuk::GenericDataManagementJob::GenericDataManagementJob(const char *methodNa
             this, SLOT(slotDBusCallFinished(QDBusPendingCallWatcher*)));
 }
 
-Nepomuk::GenericDataManagementJob::~GenericDataManagementJob()
+Nepomuk2::GenericDataManagementJob::~GenericDataManagementJob()
 {
 }
 
-void Nepomuk::GenericDataManagementJob::start()
+void Nepomuk2::GenericDataManagementJob::start()
 {
     // do nothing
 }
 
-void Nepomuk::GenericDataManagementJob::slotDBusCallFinished(QDBusPendingCallWatcher *watcher)
+void Nepomuk2::GenericDataManagementJob::slotDBusCallFinished(QDBusPendingCallWatcher *watcher)
 {
     QDBusPendingReply<> reply = *watcher;
     if (reply.isError()) {

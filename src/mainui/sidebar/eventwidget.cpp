@@ -22,22 +22,22 @@
 #include "core/projectsettings.h"
 #include "mainui/librarymanager.h"
 
-#include "dms-copy/simpleresourcegraph.h"
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/storeresourcesjob.h"
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+#include <Nepomuk2/SimpleResourceGraph>
 #include <KDE/KJob>
 #include "sro/pimo/event.h"
 
-#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Vocabulary/NFO>
-#include <Nepomuk/Vocabulary/NCO>
-#include <Nepomuk/Vocabulary/PIMO>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Vocabulary/NFO>
+#include <Nepomuk2/Vocabulary/NCO>
+#include <Nepomuk2/Vocabulary/PIMO>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KDebug>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
 EventWidget::EventWidget(QWidget *parent)
@@ -60,11 +60,11 @@ EventWidget::EventWidget(QWidget *parent)
     ui->editPlace->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
     ui->editPlace->setPropertyUrl( NCO::addressLocation() );
 
-    connect(ui->editTags, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-    connect(ui->editName, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->editAttendee, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->editPlace, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->listPartsWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->editTags, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
+    connect(ui->editName, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->editAttendee, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->editPlace, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->listPartsWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
 }
 
 EventWidget::~EventWidget()
@@ -78,12 +78,12 @@ void EventWidget::setLibraryManager(LibraryManager *lm)
     ui->listPartsWidget->setLibraryManager(lm);
 }
 
-Nepomuk::Resource EventWidget::resource()
+Nepomuk2::Resource EventWidget::resource()
 {
     return m_eventThing;
 }
 
-void EventWidget::setResource(Nepomuk::Resource & resource)
+void EventWidget::setResource(Nepomuk2::Resource & resource)
 {
     // we start by getting the pimo:Thing of the rescource
     // as we list also ncal:Event stuff but do not want to add data to these events
@@ -99,8 +99,8 @@ void EventWidget::setResource(Nepomuk::Resource & resource)
 
     //now copy all tags from the ncal:event to the pimo:event where it belongs to
     //TODO aknadifeeder needs to be changed to respect pimo:Event and adds its tags there rather than to its ncal:Event
-    QList<Nepomuk::Tag> ncalTags = m_eventResource.tags();
-    foreach(const Nepomuk::Tag &t, ncalTags)
+    QList<Nepomuk2::Tag> ncalTags = m_eventResource.tags();
+    foreach(const Nepomuk2::Tag &t, ncalTags)
         m_eventThing.addTag(t);
 
     if(!m_eventThing.isValid() && !m_eventResource.isValid()) {
@@ -122,8 +122,8 @@ void EventWidget::newButtonClicked()
 {
     //create a new resource with default name
 
-    Nepomuk::SimpleResourceGraph graph;
-    Nepomuk::PIMO::Event newEvent;
+    Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::PIMO::Event newEvent;
     newEvent.addType(NIE::InformationElement());
 
     newEvent.setProperty( NAO::prefLabel(), i18n("New Event"));
@@ -132,14 +132,14 @@ void EventWidget::newButtonClicked()
     graph << newEvent;
 
     //blocking graph save
-    Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone);
+    Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNone);
     if( !srj->exec() ) {
         kWarning() << "could not new default series" << srj->errorString();
         return;
     }
 
     // get the pimo event from the return job mappings
-    Nepomuk::Resource newEventResource = Nepomuk::Resource::fromResourceUri( srj->mappings().value( newEvent.uri() ) );
+    Nepomuk2::Resource newEventResource = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( newEvent.uri() ) );
 
     Library *curUsedLib = libraryManager()->currentUsedLibrary();
     if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
@@ -151,23 +151,23 @@ void EventWidget::newButtonClicked()
 
 void EventWidget::deleteButtonClicked()
 {
-    QList<Nepomuk::Resource> pubList = m_eventThing.property(NBIB::eventPublication()).toResourceList();
+    QList<Nepomuk2::Resource> pubList = m_eventThing.property(NBIB::eventPublication()).toResourceList();
     QList<QUrl> resUri;
     QVariantList value; value << m_eventThing.resourceUri();
-    foreach(const Nepomuk::Resource &r, pubList) {
+    foreach(const Nepomuk2::Resource &r, pubList) {
         resUri << r.resourceUri();
     }
 
-    KJob *job1 = Nepomuk::addProperty(resUri, NBIB::event(), value);
+    KJob *job1 = Nepomuk2::addProperty(resUri, NBIB::event(), value);
     job1->exec(); // blocking wait ...
 
-    foreach(const Nepomuk::Resource &r, pubList) {
+    foreach(const Nepomuk2::Resource &r, pubList) {
         emit resourceCacheNeedsUpdate(r);
     }
 
     libraryManager()->systemLibrary()->deleteResource( m_eventThing );
 
-    Nepomuk::Resource invalid;
+    Nepomuk2::Resource invalid;
     setResource(invalid);
 }
 
@@ -179,7 +179,7 @@ void EventWidget::changeRating(int newRating)
 
     QList<QUrl> resourceUris; resourceUris << m_eventThing.resourceUri();
     QVariantList rating; rating <<  newRating;
-    KJob *job = Nepomuk::setProperty(resourceUris, NAO::numericRating(), rating);
+    KJob *job = Nepomuk2::setProperty(resourceUris, NAO::numericRating(), rating);
 
     if(job->exec()) {
         emit resourceCacheNeedsUpdate(m_eventThing);
@@ -192,9 +192,9 @@ void EventWidget::subResourceUpdated()
     emit resourceCacheNeedsUpdate(m_eventThing);
 
     // also emit changes to the publications cache entries
-    QList<Nepomuk::Resource> pubList = m_eventThing.property(NBIB::eventPublication()).toResourceList();
+    QList<Nepomuk2::Resource> pubList = m_eventThing.property(NBIB::eventPublication()).toResourceList();
 
-    foreach(const Nepomuk::Resource &r, pubList) {
+    foreach(const Nepomuk2::Resource &r, pubList) {
         emit resourceCacheNeedsUpdate(r);
     }
 }

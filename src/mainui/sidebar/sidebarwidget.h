@@ -20,7 +20,7 @@
 
 #include "globals.h"
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 #include <QtGui/QWidget>
 
@@ -77,16 +77,16 @@ public slots:
       */
     void showSearchResults();
 
-    void findResourceSelection(Nepomuk::Resource & resource);
+    void findResourceSelection(Nepomuk2::Resource & resource);
 
     /**
-      * Called when a Nepomuk::Resource was selected in the MainWidget
+      * Called when a Nepomuk2::Resource was selected in the MainWidget
       *
       * Updates the current widget
       */
-    void setResource(Nepomuk::Resource & resource);
+    void setResource(Nepomuk2::Resource & resource);
 
-    void setMultipleResources(QList<Nepomuk::Resource> resourcelist);
+    void setMultipleResources(QList<Nepomuk2::Resource> resourcelist);
 
     void clear();
 
@@ -133,11 +133,11 @@ signals:
       * This signal gets thrown when the resource was changed and must be updated in the table model cache
       * redirects the signal from all propertywidgets of every SidbarComponent
       *
-      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
       */
-    void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
+    void resourceCacheNeedsUpdate(Nepomuk2::Resource resource);
 
-    void openDocument(Nepomuk::Resource & resource, bool inTab);
+    void openDocument(Nepomuk2::Resource & resource, bool inTab);
 
 private:
     void setupUi();
@@ -160,7 +160,7 @@ private:
 
     bool m_searchResultVisible;
     SidebarComponent *m_currentWidget;
-    Nepomuk::Resource m_curResource;
+    Nepomuk2::Resource m_curResource;
 };
 
 #endif // SIDEBARWIDGET_H

@@ -8,15 +8,15 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NIE {
 /**
  * A unit of content the user works with. This is a superclass for 
  * all interpretations of a DataObject. 
  */
-class InformationElement : public virtual Nepomuk::SimpleResource
+class InformationElement : public virtual Nepomuk2::SimpleResource
 {
 public:
     InformationElement(const QUrl& uri = QUrl())

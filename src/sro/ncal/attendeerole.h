@@ -8,9 +8,9 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * A role the attendee is going to play during an event. This class 
@@ -18,7 +18,7 @@ namespace NCAL {
  * values of ncal:role property. Please refer to the documentation 
  * of ncal:role for details. 
  */
-class AttendeeRole : public virtual Nepomuk::SimpleResource
+class AttendeeRole : public virtual Nepomuk2::SimpleResource
 {
 public:
     AttendeeRole(const QUrl& uri = QUrl())

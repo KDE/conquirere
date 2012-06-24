@@ -17,8 +17,8 @@
 
 #include "kmultiitemedit.h"
 
-#include <Nepomuk/Resource>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Resource>
+#include <Nepomuk2/Variant>
 #include <Soprano/Vocabulary/NAO>
 
 #include <KDE/KCompletionBox>
@@ -31,8 +31,8 @@ KMultiItemEdit::KMultiItemEdit(QWidget *parent)
     completionObject()->setIgnoreCase(true);
 
     //query client for the auto completion
-    m_queryClient = new Nepomuk::Query::QueryServiceClient();
-    connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addToCompleterList(QList<Nepomuk::Query::Result>)));
+    m_queryClient = new Nepomuk2::Query::QueryServiceClient();
+    connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk2::Query::Result>)), this, SLOT(addToCompleterList(QList<Nepomuk2::Query::Result>)));
     connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(queryFinished()));
 
     connect(this, SIGNAL(textChanged(QString)), this, SLOT(startCompleterSearch()));
@@ -204,9 +204,9 @@ void KMultiItemEdit::clearCompleterData()
     }
 }
 
-void KMultiItemEdit::addToCompleterList( const QList< Nepomuk::Query::Result > &entries )
+void KMultiItemEdit::addToCompleterList( const QList< Nepomuk2::Query::Result > &entries )
 {
-    foreach(const Nepomuk::Query::Result &nqr, entries) {
+    foreach(const Nepomuk2::Query::Result &nqr, entries) {
         completionObject()->addItem( nqr.resource().property( m_labelProperty ).toString() );
     }
 }

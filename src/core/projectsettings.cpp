@@ -22,11 +22,11 @@
 #include "onlinestorage/zotero/zoteroinfo.h"
 #include "onlinestorage/kbibtexfile/kbtfileinfo.h"
 
-#include <Nepomuk/Variant>
-#include <Nepomuk/File>
-#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/File>
+#include <Nepomuk2/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Tag>
+#include <Nepomuk2/Tag>
 
 #include <KDE/KUrl>
 #include <KDE/KConfigGroup>
@@ -58,11 +58,11 @@ void ProjectSettings::loadSettings(const QString &projectFile)
 
     // read the nepomuk resources for this project
     KConfigGroup generalGroup( m_projectConfig, "Conquirere" );
-    m_pimoThing = Nepomuk::Thing(generalGroup.readEntry("pimoProject", QString()));
+    m_pimoThing = Nepomuk2::Thing(generalGroup.readEntry("pimoProject", QString()));
 
     QString name = m_pimoThing.property(Soprano::Vocabulary::NAO::prefLabel()).toString();
     if(!name.isEmpty()) {
-        m_projectTag = Nepomuk::Tag( QUrl::toPercentEncoding(name) );
+        m_projectTag = Nepomuk2::Tag( QUrl::toPercentEncoding(name) );
         if(!m_projectTag.exists()) {
             m_projectTag.setLabel( name );
         }
@@ -75,7 +75,7 @@ void ProjectSettings::loadSettings(const QString &projectFile)
     }
 }
 
-void ProjectSettings::setPimoThing( Nepomuk::Resource &thing )
+void ProjectSettings::setPimoThing( Nepomuk2::Resource &thing )
 {
     Q_ASSERT_X(thing.isValid(), "setPimoThing", "no valid thing used");
 
@@ -86,12 +86,12 @@ void ProjectSettings::setPimoThing( Nepomuk::Resource &thing )
     m_pimoThing = thing;
 }
 
-Nepomuk::Thing ProjectSettings::projectThing() const
+Nepomuk2::Thing ProjectSettings::projectThing() const
 {
     return m_pimoThing;
 }
 
-Nepomuk::Tag ProjectSettings::projectTag() const
+Nepomuk2::Tag ProjectSettings::projectTag() const
 {
     return m_projectTag;
 }
@@ -106,7 +106,7 @@ void ProjectSettings::setName(const QString &newName)
     generalGroup.sync();
 
     // check if a tag with the project name exist
-    m_projectTag = Nepomuk::Tag( QUrl::toPercentEncoding(name()) );
+    m_projectTag = Nepomuk2::Tag( QUrl::toPercentEncoding(name()) );
 
     // update the used tag for the project
     if(m_projectTag.exists()) {
@@ -120,7 +120,7 @@ void ProjectSettings::setName(const QString &newName)
     }
     else {
         kDebug() << "no project Tag existed with name" << name() << ", create a new one" << newName;
-        m_projectTag = Nepomuk::Tag( QUrl::toPercentEncoding(newName) );
+        m_projectTag = Nepomuk2::Tag( QUrl::toPercentEncoding(newName) );
         m_projectTag.setLabel( newName.toUtf8() );
     }
 

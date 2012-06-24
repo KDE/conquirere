@@ -27,7 +27,7 @@
 #include <KDE/DOM/HTMLDocument>
 #include <KDE/KStandardDirs>
 
-#include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/PIMO>
 
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QSortFilterProxyModel>

@@ -8,16 +8,16 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * Participation Status. This class has been introduced to express 
  * the limited vocabulary of values for the ncal:partstat property. 
  * See the documentation of ncal:partstat for details. 
  */
-class ParticipationStatus : public virtual Nepomuk::SimpleResource
+class ParticipationStatus : public virtual Nepomuk2::SimpleResource
 {
 public:
     ParticipationStatus(const QUrl& uri = QUrl())

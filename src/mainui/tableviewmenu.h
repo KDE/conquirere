@@ -21,7 +21,7 @@
 #include <QtCore/QObject>
 
 #include <kbibtex/entry.h>
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 #include <QtCore/QSharedPointer>
 
@@ -36,12 +36,12 @@ class TableViewMenu : public QObject
 public:
     explicit TableViewMenu(QObject *parent = 0);
 
-    void showNepomukEntryMenu(Nepomuk::Resource resource);
+    void showNepomukEntryMenu(Nepomuk2::Resource resource);
     void showBibTeXEntryMenu(QSharedPointer<Entry> entry);
     void setLibraryManager(LibraryManager *lm);
 
     signals:
-    void openResourceInTab(Nepomuk::Resource &resource, bool);
+    void openResourceInTab(Nepomuk2::Resource &resource, bool);
 
 public slots:
     void addSelectedToProject();
@@ -57,7 +57,7 @@ public slots:
 
 private:
     LibraryManager *m_libraryManager;
-    Nepomuk::Resource m_nepomukResource;
+    Nepomuk2::Resource m_nepomukResource;
     QSharedPointer<Entry> m_bibtexEntry;
 };
 

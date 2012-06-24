@@ -26,18 +26,18 @@
 
 #include "nbibio/conquirere.h"
 
-#include <Nepomuk/Variant>
-#include <Nepomuk/Query/ResourceTerm>
-#include <Nepomuk/Query/AndTerm>
-#include <Nepomuk/Query/OrTerm>
-#include <Nepomuk/Query/ResourceTypeTerm>
-#include <Nepomuk/Query/ComparisonTerm>
-#include <Nepomuk/Query/NegationTerm>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Query/ResourceTerm>
+#include <Nepomuk2/Query/AndTerm>
+#include <Nepomuk2/Query/OrTerm>
+#include <Nepomuk2/Query/ResourceTypeTerm>
+#include <Nepomuk2/Query/ComparisonTerm>
+#include <Nepomuk2/Query/NegationTerm>
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/PIMO>
-#include <Nepomuk/Vocabulary/NCO>
-#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/NCO>
+#include <Nepomuk2/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 
 ReferenceQuery::ReferenceQuery(QObject *parent)
@@ -47,16 +47,16 @@ ReferenceQuery::ReferenceQuery(QObject *parent)
 
 void ReferenceQuery::startFetchData()
 {
-    Nepomuk::Query::AndTerm andTerm;
-    andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Reference() ) );
+    Nepomuk2::Query::AndTerm andTerm;
+    andTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NBIB::Reference() ) );
 
     /*
     //BUG this is something nepomuk does not like ...
     // added workaround in queryclient.cpp
-//    Nepomuk::Query::AndTerm hideOrTerm;
+//    Nepomuk2::Query::AndTerm hideOrTerm;
     foreach(int i, ConqSettings::hiddenNbibPublications()) {
-        Nepomuk::Query::Term hiddenPublicationTerm = Nepomuk::Query::NegationTerm::negateTerm( Nepomuk::Query::ResourceTypeTerm( BibEntryTypeURL.at(i) ) );
-        Nepomuk::Query::ComparisonTerm pubTypeTerm = Nepomuk::Query::ComparisonTerm( Nepomuk::Vocabulary::NBIB::publication(),
+        Nepomuk2::Query::Term hiddenPublicationTerm = Nepomuk2::Query::NegationTerm::negateTerm( Nepomuk2::Query::ResourceTypeTerm( BibEntryTypeURL.at(i) ) );
+        Nepomuk2::Query::ComparisonTerm pubTypeTerm = Nepomuk2::Query::ComparisonTerm( Nepomuk2::Vocabulary::NBIB::publication(),
                                                                                      hiddenPublicationTerm);
         hideOrTerm.addSubTerm(pubTypeTerm);
     }
@@ -66,22 +66,22 @@ void ReferenceQuery::startFetchData()
         */
 
     if(m_library->libraryType() == Library_Project) {
-        Nepomuk::Query::OrTerm orTerm;
-        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
-                                                           Nepomuk::Query::ResourceTerm( m_library->settings()->projectTag() ) ));
-        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
-                                                            Nepomuk::Query::ResourceTerm(m_library->settings()->projectThing()) ) );
+        Nepomuk2::Query::OrTerm orTerm;
+        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
+                                                           Nepomuk2::Query::ResourceTerm( m_library->settings()->projectTag() ) ));
+        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
+                                                            Nepomuk2::Query::ResourceTerm(m_library->settings()->projectThing()) ) );
         andTerm.addSubTerm(orTerm);
     }
 
     // build the query
-    Nepomuk::Query::Query query( andTerm );
+    Nepomuk2::Query::Query query( andTerm );
     m_queryClient->query(query);
 }
 
-void ReferenceQuery::resourceChanged (const Nepomuk::Resource &resource)
+void ReferenceQuery::resourceChanged (const Nepomuk2::Resource &resource)
 {
-    if(!resource.hasType(Nepomuk::Vocabulary::NBIB::Reference()))
+    if(!resource.hasType(Nepomuk2::Vocabulary::NBIB::Reference()))
         return;
 
     QList<CachedRowEntry> newCache;
@@ -95,11 +95,11 @@ void ReferenceQuery::resourceChanged (const Nepomuk::Resource &resource)
     emit updateCacheEntries(newCache);
 }
 
-QVariantList ReferenceQuery::createDisplayData(const Nepomuk::Resource & res) const
+QVariantList ReferenceQuery::createDisplayData(const Nepomuk2::Resource & res) const
 {
     QVariantList displayList;
     displayList.reserve(Max_columns-1);
-    Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
+    Nepomuk2::Resource publication = res.property(Nepomuk2::Vocabulary::NBIB::publication()).toResource();
 
     for(int i = 0; i < Max_columns; i++) {
         QVariant newEntry;
@@ -114,9 +114,9 @@ QVariantList ReferenceQuery::createDisplayData(const Nepomuk::Resource & res) co
         }
         case Column_Author: {
             QString authorSting;
-            QList<Nepomuk::Resource> authorList = publication.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
+            QList<Nepomuk2::Resource> authorList = publication.property(Nepomuk2::Vocabulary::NCO::creator()).toResourceList();
 
-            foreach(const Nepomuk::Resource & a, authorList) {
+            foreach(const Nepomuk2::Resource & a, authorList) {
                 authorSting.append(a.genericLabel());
                 authorSting.append(QLatin1String("; "));
             }
@@ -126,13 +126,13 @@ QVariantList ReferenceQuery::createDisplayData(const Nepomuk::Resource & res) co
             break;
         }
         case Column_Title: {
-            QString titleSting = publication.property(Nepomuk::Vocabulary::NIE::title()).toString();
+            QString titleSting = publication.property(Nepomuk2::Vocabulary::NIE::title()).toString();
 
             newEntry = titleSting;
             break;
         }
         case Column_Date: {
-            QString dateString = publication.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
+            QString dateString = publication.property(Nepomuk2::Vocabulary::NBIB::publicationDate()).toString();
             dateString.remove('Z');
 
             QDateTime date = QDateTime::fromString(dateString, Qt::ISODate);
@@ -147,9 +147,9 @@ QVariantList ReferenceQuery::createDisplayData(const Nepomuk::Resource & res) co
         }
         case Column_Editor: {
             QString authorSting;
-            QList<Nepomuk::Resource> authorList = publication.property(Nepomuk::Vocabulary::NBIB::editor()).toResourceList();
+            QList<Nepomuk2::Resource> authorList = publication.property(Nepomuk2::Vocabulary::NBIB::editor()).toResourceList();
 
-            foreach(const Nepomuk::Resource & a, authorList) {
+            foreach(const Nepomuk2::Resource & a, authorList) {
                 authorSting.append(a.genericLabel());
                 authorSting.append(QLatin1String("; "));
             }
@@ -160,9 +160,9 @@ QVariantList ReferenceQuery::createDisplayData(const Nepomuk::Resource & res) co
         }
         case Column_Publisher: {
             QString authorSting;
-            QList<Nepomuk::Resource> authorList = publication.property(Nepomuk::Vocabulary::NCO::publisher()).toResourceList();
+            QList<Nepomuk2::Resource> authorList = publication.property(Nepomuk2::Vocabulary::NCO::publisher()).toResourceList();
 
-            foreach(const Nepomuk::Resource & a, authorList) {
+            foreach(const Nepomuk2::Resource & a, authorList) {
                 authorSting.append(a.genericLabel());
                 authorSting.append(QLatin1String("; "));
             }
@@ -172,7 +172,7 @@ QVariantList ReferenceQuery::createDisplayData(const Nepomuk::Resource & res) co
             break;
         }
         case Column_CiteKey: {
-            QString citekeySting = res.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
+            QString citekeySting = res.property(Nepomuk2::Vocabulary::NBIB::citeKey()).toString();
 
             newEntry = citekeySting;
             break;
@@ -193,7 +193,7 @@ QVariantList ReferenceQuery::createDisplayData(const Nepomuk::Resource & res) co
     return displayList;
 }
 
-QVariantList ReferenceQuery::createDecorationData(const Nepomuk::Resource & res) const
+QVariantList ReferenceQuery::createDecorationData(const Nepomuk2::Resource & res) const
 {
     QVariantList decorationList;
     decorationList.reserve(Max_columns-1);
@@ -203,8 +203,8 @@ QVariantList ReferenceQuery::createDecorationData(const Nepomuk::Resource & res)
         switch(i) {
         case Column_FileAvailable:
         {
-            Nepomuk::Resource publication = res.property(Nepomuk::Vocabulary::NBIB::publication()).toResource();
-            Nepomuk::Resource file = publication.property(Nepomuk::Vocabulary::NBIB::isPublicationOf()).toResource();
+            Nepomuk2::Resource publication = res.property(Nepomuk2::Vocabulary::NBIB::publication()).toResource();
+            Nepomuk2::Resource file = publication.property(Nepomuk2::Vocabulary::NBIB::isPublicationOf()).toResource();
             if(file.isValid()) {
                 newEntry = KIcon(QLatin1String("bookmarks-organize"));
             }

@@ -20,7 +20,7 @@
 
 #include "sidebarcomponent.h"
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 #include <QtGui/QWidget>
 
@@ -41,26 +41,26 @@ public:
     virtual ~PublicationWidget();
 
     void setLibraryManager(LibraryManager *lm);
-    Nepomuk::Resource resource();
+    Nepomuk2::Resource resource();
 
 public slots:
     /**
       * called when something is selected in the project view
       */
-    void setResource(Nepomuk::Resource & resource);
+    void setResource(Nepomuk2::Resource & resource);
 
     /**
       * This slot gets called from the propertywidgets, replace the subresource with the main nepomuk resource
       * and calls resourceCacheNeedsUpdate()
       *
-      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
       */
-    void subResourceUpdated(Nepomuk::Resource resource);
+    void subResourceUpdated(Nepomuk2::Resource resource);
 
 signals:
     void hasReference(bool reference);
 
-    void openDocument(Nepomuk::Resource & resource, bool inTab);
+    void openDocument(Nepomuk2::Resource & resource, bool inTab);
 
 private slots:
     /**
@@ -85,13 +85,13 @@ private slots:
       *
       * shows the content of the note in the edit box
       */
-    void newAnnotationSelected(Nepomuk::Resource & noteResource);
+    void newAnnotationSelected(Nepomuk2::Resource & noteResource);
     void saveAnnotationContent();
 
 
     void changeRating(int newRating);
-    void editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl);
-    void showDetailDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl);
+    void editContactDialog(Nepomuk2::Resource & resource, const QUrl & propertyUrl);
+    void showDetailDialog(Nepomuk2::Resource & resource, const QUrl & propertyUrl);
 
 private:
     void setupWidget();
@@ -116,8 +116,8 @@ private:
     void layoutMap();
     void layoutCase();
 
-    Nepomuk::Resource m_publication;
-    Nepomuk::Resource m_currentAnnotation; /**< the current opened annotation. Necessary so we can save them automatically*/
+    Nepomuk2::Resource m_publication;
+    Nepomuk2::Resource m_currentAnnotation; /**< the current opened annotation. Necessary so we can save them automatically*/
 
     Ui::PublicationWidget *ui;
 };

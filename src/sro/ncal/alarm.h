@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
 #include "ncal/unionofalarmeventfreebusytodo.h"
 #include "nie/informationelement.h"
@@ -16,7 +16,7 @@
 #include "ncal/unionofalarmeventfreebusyjournaltodo.h"
 #include "ncal/unionofalarmeventtodo.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * Provide a grouping of component properties that define an alarm. 

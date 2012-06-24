@@ -49,7 +49,7 @@ private:
       *
       * For example if the resource() is an nbib:JournalIssue the type must be nbib:Journal
       *
-      * @return correct Nepomuk::Vocabulary::NBIB::*type*
+      * @return correct Nepomuk2::Vocabulary::NBIB::*type*
       */
     QUrl findSeriesType();
 };

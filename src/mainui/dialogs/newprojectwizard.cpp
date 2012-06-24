@@ -82,7 +82,7 @@ void NewProjectWizard::done(int result)
             path = sp->m_syncFolder->text() + QLatin1String("/") + gp->projectTitle();
         }
 
-        Nepomuk::Thing newLibraryThing = Library::createLibrary(gp->projectTitle(),
+        Nepomuk2::Thing newLibraryThing = Library::createLibrary(gp->projectTitle(),
                                                                 gp->projectDescription(),
                                                                 path);
 

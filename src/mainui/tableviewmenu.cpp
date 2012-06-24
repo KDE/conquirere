@@ -29,14 +29,14 @@
 
 #include <kbibtex/value.h>
 
-#include "dms-copy/datamanagement.h"
+#include <Nepomuk2/DataManagement>
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/PIMO>
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/NFO>
+#include <Nepomuk2/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NFO>
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KMimeType>
 #include <KDE/KIcon>
@@ -46,7 +46,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QDesktopServices>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
 TableViewMenu::TableViewMenu(QObject *parent)
@@ -56,7 +56,7 @@ TableViewMenu::TableViewMenu(QObject *parent)
 {
 }
 
-void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
+void TableViewMenu::showNepomukEntryMenu(Nepomuk2::Resource resource)
 {
     m_nepomukResource = resource;
 
@@ -78,7 +78,7 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
     menu.addMenu(&openExternal);
 
     if(m_nepomukResource.hasType(NBIB::Publication()) || m_nepomukResource.hasType(NBIB::Reference()) ) {
-        Nepomuk::Resource queryResource;
+        Nepomuk2::Resource queryResource;
         if(resource.hasType(NBIB::Reference())) {
             queryResource = m_nepomukResource.property(NBIB::publication()).toResource();
         }
@@ -86,14 +86,14 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
             queryResource = m_nepomukResource;
         }
 
-        QList<Nepomuk::Resource> fileList = queryResource.property(NBIB::isPublicationOf()).toResourceList();
+        QList<Nepomuk2::Resource> fileList = queryResource.property(NBIB::isPublicationOf()).toResourceList();
 
         bool hasDataObjects = false;
         bool hasDOI = false;
         // this adds all DataObject links
         if(!fileList.isEmpty()) {
             hasDataObjects = true;
-            foreach(const Nepomuk::Resource &r, fileList) {
+            foreach(const Nepomuk2::Resource &r, fileList) {
                 KUrl file = r.property(NIE::url()).toUrl();
                 QString name;
                 KIcon icon(KMimeType::iconNameForUrl(file));
@@ -210,10 +210,10 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk::Resource resource)
     menu.addMenu(&removeFromProject);
 
     // fill al list of all project this file is in
-    QList<Nepomuk::Resource> projectList = m_nepomukResource.property(NAO::isRelated()).toResourceList();
+    QList<Nepomuk2::Resource> projectList = m_nepomukResource.property(NAO::isRelated()).toResourceList();
 
     bool projectRelated = false;
-    foreach(const Nepomuk::Resource &project, projectList) {
+    foreach(const Nepomuk2::Resource &project, projectList) {
         if(project.hasType(PIMO::Project())) {
             projectRelated = true;
             QAction *a = new QAction(KIcon(QLatin1String("conquirere")), project.property(NAO::prefLabel()).toString(), this);
@@ -328,10 +328,10 @@ void TableViewMenu::setLibraryManager(LibraryManager *lm)
 void TableViewMenu::addSelectedToProject()
 {
     // get the pimoProject we use to connect the data to
-    Nepomuk::Resource pimoProject;
+    Nepomuk2::Resource pimoProject;
     QAction *a = static_cast<QAction *>(sender());
     if(a) {
-        pimoProject = Nepomuk::Resource(a->data().toString());
+        pimoProject = Nepomuk2::Resource(a->data().toString());
     }
 
     if(pimoProject.isValid()) {
@@ -345,10 +345,10 @@ void TableViewMenu::addSelectedToProject()
 void TableViewMenu::removeSelectedFromProject()
 {
     // get the pimoProject we use to remove the data from
-    Nepomuk::Resource pimoProject;
+    Nepomuk2::Resource pimoProject;
     QAction *a = static_cast<QAction *>(sender());
     if(a) {
-        pimoProject = Nepomuk::Resource(a->data().toString());
+        pimoProject = Nepomuk2::Resource(a->data().toString());
     }
 
     if(pimoProject.isValid()) {
@@ -394,7 +394,7 @@ void TableViewMenu::exportBibTexReference()
         f.append(m_bibtexEntry);
     }
     else {
-        QList<Nepomuk::Resource> resourcelist;
+        QList<Nepomuk2::Resource> resourcelist;
         resourcelist.append(m_nepomukResource);
         ntbp.pipeExport(resourcelist);
 
@@ -415,7 +415,7 @@ void TableViewMenu::exportCiteKey()
         f.append(m_bibtexEntry);
     }
     else {
-        QList<Nepomuk::Resource> resourcelist;
+        QList<Nepomuk2::Resource> resourcelist;
         resourcelist.append(m_nepomukResource);
         ntbp.pipeExport(resourcelist);
 
@@ -437,7 +437,7 @@ void TableViewMenu::sendToKileLyX()
         klp.pipeExport(f);
     }
     else {
-        QList<Nepomuk::Resource> resourcelist;
+        QList<Nepomuk2::Resource> resourcelist;
         resourcelist.append(m_nepomukResource);
         klp.pipeExport(resourcelist);
     }

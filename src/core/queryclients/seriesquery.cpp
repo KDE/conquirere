@@ -23,17 +23,17 @@
 
 #include "nbibio/conquirere.h"
 
-#include <Nepomuk/Variant>
-#include <Nepomuk/Query/ResourceTerm>
-#include <Nepomuk/Query/AndTerm>
-#include <Nepomuk/Query/OrTerm>
-#include <Nepomuk/Query/ResourceTypeTerm>
-#include <Nepomuk/Query/ComparisonTerm>
-#include <Nepomuk/Query/NegationTerm>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Query/ResourceTerm>
+#include <Nepomuk2/Query/AndTerm>
+#include <Nepomuk2/Query/OrTerm>
+#include <Nepomuk2/Query/ResourceTypeTerm>
+#include <Nepomuk2/Query/ComparisonTerm>
+#include <Nepomuk2/Query/NegationTerm>
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
 
 SeriesQuery::SeriesQuery(QObject *parent)
@@ -43,32 +43,32 @@ SeriesQuery::SeriesQuery(QObject *parent)
 
 void SeriesQuery::startFetchData()
 {
-    Nepomuk::Query::AndTerm andTerm;
+    Nepomuk2::Query::AndTerm andTerm;
 
-    andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NBIB::Series() ) );
+    andTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NBIB::Series() ) );
 
     foreach(int i, ConqSettings::hiddenNbibSeries()) {
-        Nepomuk::Query::Term hiddenSeriesTerm = Nepomuk::Query::NegationTerm::negateTerm(Nepomuk::Query::ResourceTypeTerm( SeriesTypeURL.at(i) ));
+        Nepomuk2::Query::Term hiddenSeriesTerm = Nepomuk2::Query::NegationTerm::negateTerm(Nepomuk2::Query::ResourceTypeTerm( SeriesTypeURL.at(i) ));
         andTerm.addSubTerm(hiddenSeriesTerm);
     }
 
     if(m_library->libraryType() == Library_Project) {
-        Nepomuk::Query::OrTerm orTerm;
-        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
-                                                           Nepomuk::Query::ResourceTerm( m_library->settings()->projectTag() )));
-        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
-                                                            Nepomuk::Query::ResourceTerm(m_library->settings()->projectThing() )));
+        Nepomuk2::Query::OrTerm orTerm;
+        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
+                                                           Nepomuk2::Query::ResourceTerm( m_library->settings()->projectTag() )));
+        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
+                                                            Nepomuk2::Query::ResourceTerm(m_library->settings()->projectThing() )));
         andTerm.addSubTerm(orTerm);
     }
 
     // build the query
-    Nepomuk::Query::Query query( andTerm );
+    Nepomuk2::Query::Query query( andTerm );
     m_queryClient->query(query);
 }
 
-void SeriesQuery::resourceChanged (const Nepomuk::Resource &resource)
+void SeriesQuery::resourceChanged (const Nepomuk2::Resource &resource)
 {
-    if(!resource.hasType(Nepomuk::Vocabulary::NBIB::Series()))
+    if(!resource.hasType(Nepomuk2::Vocabulary::NBIB::Series()))
         return;
 
     QList<CachedRowEntry> newCache;
@@ -82,7 +82,7 @@ void SeriesQuery::resourceChanged (const Nepomuk::Resource &resource)
     emit updateCacheEntries(newCache);
 }
 
-QVariantList SeriesQuery::createDisplayData(const Nepomuk::Resource & res) const
+QVariantList SeriesQuery::createDisplayData(const Nepomuk2::Resource & res) const
 {
     QVariantList displayList;
     displayList.reserve(Max_columns-1);
@@ -99,7 +99,7 @@ QVariantList SeriesQuery::createDisplayData(const Nepomuk::Resource & res) const
             break;
         }
         case Column_Title: {
-            QString titleSting = res.property(Nepomuk::Vocabulary::NIE::title()).toString();
+            QString titleSting = res.property(Nepomuk2::Vocabulary::NIE::title()).toString();
 
             newEntry = titleSting;
             break;
@@ -111,13 +111,13 @@ QVariantList SeriesQuery::createDisplayData(const Nepomuk::Resource & res) const
             break;
         }
         case Column_Content: {
-            QList<Nepomuk::Resource> isSeriesOf = res.property(Nepomuk::Vocabulary::NBIB::seriesOf()).toResourceList();
+            QList<Nepomuk2::Resource> isSeriesOf = res.property(Nepomuk2::Vocabulary::NBIB::seriesOf()).toResourceList();
 
             //create content for the HTMLDelegate looks a lot better when several entries are being displayed
             QString seriesContent = QLatin1String("<font size=\"85%\">");
-            foreach(const Nepomuk::Resource &r, isSeriesOf) {
+            foreach(const Nepomuk2::Resource &r, isSeriesOf) {
                 seriesContent.append("&#8226; ");
-                seriesContent.append(r.property(Nepomuk::Vocabulary::NIE::title()).toString());
+                seriesContent.append(r.property(Nepomuk2::Vocabulary::NIE::title()).toString());
                 seriesContent.append("<br/>");
             }
             seriesContent.chop(5);
@@ -136,7 +136,7 @@ QVariantList SeriesQuery::createDisplayData(const Nepomuk::Resource & res) const
     return displayList;
 }
 
-QVariantList SeriesQuery::createDecorationData(const Nepomuk::Resource & res) const
+QVariantList SeriesQuery::createDecorationData(const Nepomuk2::Resource & res) const
 {
     QVariantList decorationList;
     decorationList.reserve(Max_columns-1);

@@ -8,15 +8,15 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * A calendar scale. This class has been introduced to provide 
  * the limited vocabulary for the ncal:calscale property. 
  */
-class CalendarScale : public virtual Nepomuk::SimpleResource
+class CalendarScale : public virtual Nepomuk2::SimpleResource
 {
 public:
     CalendarScale(const QUrl& uri = QUrl())

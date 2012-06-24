@@ -20,7 +20,7 @@
 
 #include "globals.h"
 
-#include <Nepomuk/Query/Result>
+#include <Nepomuk2/Query/Result>
 #include <KDE/KIcon>
 
 #include <QtCore/QAbstractTableModel>
@@ -36,7 +36,7 @@ class OnlineSearchAbstract;
   * @brief Holds the date for one search entry as retrieved from the @c SearchWidget
   */
 struct SearchResultEntry {
-    Nepomuk::Query::Result nepomukResult; /**< The valid resource if the result was found in the nepomuk storage */
+    Nepomuk2::Query::Result nepomukResult; /**< The valid resource if the result was found in the nepomuk storage */
     OnlineSearchAbstract *webEngine;      /**< The OnlineSearch Engine details if the result comes from a websearch */
     QSharedPointer<Entry> webResult;      /**< The BibTeX entry if the result comes from a websearch */
 };
@@ -69,7 +69,7 @@ public:
         QVariantList displayColums;
         QVariantList decorationColums;
         QVariantList toolTipColums;
-        Nepomuk::Resource resource;
+        Nepomuk2::Resource resource;
         QSharedPointer<Entry> entry;
     };
 
@@ -97,7 +97,7 @@ public:
     /**
       * @return the resource for the current search entry or an invalid resource if it contains a BibTeX entry
       */
-    Nepomuk::Resource nepomukResourceAt(const QModelIndex &selection);
+    Nepomuk2::Resource nepomukResourceAt(const QModelIndex &selection);
 
     /**
       * @return the BibTeX entry for the current search entry or an invalid sharedpointer if it contains a Nepomuk Resource
@@ -109,9 +109,9 @@ public slots:
     void addSearchResult(SearchResultEntry newEntry);
 
 private:
-    QVariantList createDisplayData(const Nepomuk::Query::Result & nepomukResult) const;
-    QVariantList createDecorationData(const Nepomuk::Query::Result & nepomukResult) const;
-    QVariantList createToolTipData(const Nepomuk::Query::Result & nepomukResult) const;
+    QVariantList createDisplayData(const Nepomuk2::Query::Result & nepomukResult) const;
+    QVariantList createDecorationData(const Nepomuk2::Query::Result & nepomukResult) const;
+    QVariantList createToolTipData(const Nepomuk2::Query::Result & nepomukResult) const;
     QVariantList createDisplayData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const;
     QVariantList createDecorationData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const;
     QVariantList createToolTipData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const;
@@ -119,14 +119,14 @@ private:
     /**
       * Generates a Translated string for the type of the nepomuk resource document from the entry
       */
-    QString translateEntryType(const Nepomuk::Resource & resource) const;
+    QString translateEntryType(const Nepomuk2::Resource & resource) const;
 
     /**
       * Generates an Icon for the mimetype of the entry that is being displayed
       *
       * @todo find better icons based on mimetype from nepomuk or the url extension rather than using a fixed generic icon
       */
-    KIcon iconizeEntryType(const Nepomuk::Resource & resource) const;
+    KIcon iconizeEntryType(const Nepomuk2::Resource & resource) const;
 
     QList<SRCachedRowEntry> m_modelCacheData;
     FileExporterXSLT *m_exporterXSLT;

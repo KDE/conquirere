@@ -21,7 +21,7 @@
 #include "globals.h"
 #include "core/queryclients/queryclient.h"
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 #include <QtCore/QAbstractTableModel>
 
@@ -40,7 +40,7 @@ class QModelIndex;
   * To alter the content of the table change the necessary header data in the @c headerData() function of the subclasses or
   * the @c createDisplayData() and @c createDecorationData() of the corresponding @c QueryClient
   *
-  * @todo implement cache update via Nepomuk::ResourceWatcher
+  * @todo implement cache update via Nepomuk2::ResourceWatcher
   * @bug Updating the @c CachedRowEntry is triggered manually at the moment, this does not work always and will never update when
   *      the resource is updated outside the program. Manually starting the list update is necessary than, or wait till the next
   *      restart.
@@ -55,7 +55,7 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
 
-    bool cacheEntryNeedsUpdate(const Nepomuk::Resource & resource) const;
+    bool cacheEntryNeedsUpdate(const Nepomuk2::Resource & resource) const;
 
     /**
       * @return the default width for a table section if the user didn't changed it.
@@ -70,7 +70,7 @@ public:
     virtual QList<int> fixedWithSections() const;
 
     void setLibrary(Library *library);
-    Nepomuk::Resource documentResource(const QModelIndex &selection);
+    Nepomuk2::Resource documentResource(const QModelIndex &selection);
 
     /**
       * @return a unique id for the table model.
@@ -87,8 +87,8 @@ signals:
     void queryFinished();
 
     // for the connected tag cloud widget to change the internas
-    void resourceAdded(const Nepomuk::Resource &resource);
-    void resourceUpdated(const Nepomuk::Resource & resource);
+    void resourceAdded(const Nepomuk2::Resource &resource);
+    void resourceUpdated(const Nepomuk2::Resource & resource);
     void resourceRemoved(const QUrl &resourceUrl);
 
 public slots:

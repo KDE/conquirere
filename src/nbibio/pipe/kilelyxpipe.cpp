@@ -23,8 +23,8 @@
 #include <kbibtex/entry.h>
 
 #include "nbib.h"
-#include <Nepomuk/Resource>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Resource>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KConfig>
 #include <KDE/KConfigGroup>
@@ -64,18 +64,18 @@ void KileLyxPipe::pipeExport(File & bibEntries)
     sendReferences(refs);
 }
 
-void KileLyxPipe::pipeExport(QList<Nepomuk::Resource> resources)
+void KileLyxPipe::pipeExport(QList<Nepomuk2::Resource> resources)
 {
     QStringList refList;
-    foreach(const Nepomuk::Resource &r, resources) {
-        if(r.hasType(Nepomuk::Vocabulary::NBIB::Publication())) {
-            QList<Nepomuk::Resource> references = r.property(Nepomuk::Vocabulary::NBIB::reference()).toResourceList();
-            foreach(const Nepomuk::Resource &refs, references) {
-                refList.append(refs.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString());
+    foreach(const Nepomuk2::Resource &r, resources) {
+        if(r.hasType(Nepomuk2::Vocabulary::NBIB::Publication())) {
+            QList<Nepomuk2::Resource> references = r.property(Nepomuk2::Vocabulary::NBIB::reference()).toResourceList();
+            foreach(const Nepomuk2::Resource &refs, references) {
+                refList.append(refs.property(Nepomuk2::Vocabulary::NBIB::citeKey()).toString());
             }
         }
-        else if(r.hasType(Nepomuk::Vocabulary::NBIB::Reference())) {
-            refList.append(r.property(Nepomuk::Vocabulary::NBIB::citeKey()).toString());
+        else if(r.hasType(Nepomuk2::Vocabulary::NBIB::Reference())) {
+            refList.append(r.property(Nepomuk2::Vocabulary::NBIB::citeKey()).toString());
         }
         else {
             m_errorLog->append(i18n("No valid resource used to create citekeys from it"));

@@ -23,12 +23,12 @@
 #include "mainui/mainwindow.h"
 #include "mainui/librarymanager.h"
 
-#include "dms-copy/datamanagement.h"
+#include <Nepomuk2/DataManagement>
 #include <KDE/KJob>
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KFileMetaDataWidget>
 #include <KDE/KGlobalSettings>
@@ -37,7 +37,7 @@
 
 #include <KDE/KDebug>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 
 DocumentWidget::DocumentWidget(QWidget *parent)
     : SidebarComponent(parent)
@@ -63,12 +63,12 @@ void DocumentWidget::setLibraryManager(LibraryManager *lm)
     SidebarComponent::setLibraryManager(lm);
 }
 
-Nepomuk::Resource DocumentWidget::resource()
+Nepomuk2::Resource DocumentWidget::resource()
 {
     return m_document;
 }
 
-void DocumentWidget::setResource(Nepomuk::Resource & resource)
+void DocumentWidget::setResource(Nepomuk2::Resource & resource)
 {
     m_document = resource;
 
@@ -80,7 +80,7 @@ void DocumentWidget::setResource(Nepomuk::Resource & resource)
         ui->kfmdWidget->setVisible(true);
 
         //fetch the documents icon
-        QString fileUrl = m_document.property(Nepomuk::Vocabulary::NIE::url()).toString();
+        QString fileUrl = m_document.property(Nepomuk2::Vocabulary::NIE::url()).toString();
 
         QString mimeType = KMimeType::iconNameForUrl( fileUrl);
 
@@ -97,7 +97,7 @@ void DocumentWidget::setResource(Nepomuk::Resource & resource)
         kfil.append(kf);
         ui->kfmdWidget->setItems(kfil);
 
-        Nepomuk::Resource pa = m_document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
+        Nepomuk2::Resource pa = m_document.property(Nepomuk2::Vocabulary::NBIB::publishedAs()).toResource();
         if(pa.isValid()) {
             emit hasPublication(true);
         }
@@ -131,16 +131,16 @@ void DocumentWidget::setPublication()
     int ret = lpd->exec();
 
     if(ret == QDialog::Accepted) {
-        Nepomuk::Resource publication = lpd->selectedPublication();
+        Nepomuk2::Resource publication = lpd->selectedPublication();
 
         QList<QUrl> resUri; resUri << m_document.resourceUri();
         QVariantList value; value << publication.resourceUri();
-        KJob *job1 = Nepomuk::addProperty(resUri, NBIB::publishedAs(), value);
+        KJob *job1 = Nepomuk2::addProperty(resUri, NBIB::publishedAs(), value);
         job1->exec(); //blocking call...
 
         resUri.clear(); resUri << publication.resourceUri();
         value.clear(); value << m_document.resourceUri();
-        KJob *job2 = Nepomuk::addProperty(resUri, NBIB::isPublicationOf(), value);
+        KJob *job2 = Nepomuk2::addProperty(resUri, NBIB::isPublicationOf(), value);
         job2->exec(); //blocking call...
 
         setResource(m_document);
@@ -153,16 +153,16 @@ void DocumentWidget::setPublication()
 
 void DocumentWidget::removePublication()
 {
-    Nepomuk::Resource publication = m_document.property(Nepomuk::Vocabulary::NBIB::publishedAs()).toResource();
+    Nepomuk2::Resource publication = m_document.property(Nepomuk2::Vocabulary::NBIB::publishedAs()).toResource();
 
     QList<QUrl> resourceUris; resourceUris << m_document.resourceUri();
     QVariantList value; value << publication.resourceUri();
-    KJob *job1 = Nepomuk::removeProperty(resourceUris, NBIB::publishedAs(), value);
+    KJob *job1 = Nepomuk2::removeProperty(resourceUris, NBIB::publishedAs(), value);
     job1->exec(); //blocking call...
 
     resourceUris.clear(); resourceUris << publication.resourceUri();
     value.clear(); value << m_document.resourceUri();
-    KJob *job2 = Nepomuk::removeProperty(resourceUris, NBIB::isPublicationOf(), value);
+    KJob *job2 = Nepomuk2::removeProperty(resourceUris, NBIB::isPublicationOf(), value);
     job2->exec(); //blocking call...
 
     //update

@@ -19,10 +19,11 @@
 
 #include "kmultiitemedit.h"
 
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/storeresourcesjob.h"
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+
 #include "nbib.h"
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KDatePicker>
 #include <KDE/KLineEdit>
@@ -80,21 +81,21 @@ void DateEdit::setupLabel()
 
 void DateEdit::updateResource(const QString & newDateText)
 {
-    QList<QUrl> resourceUris; resourceUris << resource().uri();
+    QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
     QList<QUrl> propertyUris; propertyUris << propertyUrl();
 
     if(newDateText.isEmpty()) {
-        connect(Nepomuk::removeProperties(resourceUris, propertyUris),
+        connect(Nepomuk2::removeProperties(resourceUris, propertyUris),
                 SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 
     }
     else {
         QDateTime date = QDateTime::fromString(newDateText, "dd.MMM.yyyy");
 
-        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
         QVariantList value; value << date.toString(Qt::ISODate);
         m_changedResource = resource();
-        connect(Nepomuk::setProperty(resourceUris, propertyUrl(), value),
+        connect(Nepomuk2::setProperty(resourceUris, propertyUrl(), value),
                 SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
     }
 }

@@ -8,11 +8,11 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
 #include "nie/informationelement.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NMM {
 /**
  * A TV Series has multiple seasons and episodes 

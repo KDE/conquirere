@@ -8,11 +8,11 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
 #include "nbib/legalcasedocument.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NBIB {
 /**
  * A written argument submitted to a court. 

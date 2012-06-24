@@ -18,7 +18,7 @@
 #ifndef DOCUMENTPREVIEW_H
 #define DOCUMENTPREVIEW_H
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 #include <QtGui/QWidget>
 
 namespace Ui {
@@ -40,10 +40,10 @@ public:
     ~DocumentPreview();
 
 signals:
-    void activeDocumentChanged(Nepomuk::Resource & resource);
+    void activeDocumentChanged(Nepomuk2::Resource & resource);
 
 public slots:
-    void setResource(Nepomuk::Resource & resource, bool inNewTab = false);
+    void setResource(Nepomuk2::Resource & resource, bool inNewTab = false);
     void clear();
 
 private slots:

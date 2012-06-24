@@ -29,10 +29,11 @@
 #include <kbibtex/element.h>
 #include <kbibtex/entry.h>
 
-#include "dms-copy/simpleresourcegraph.h"
-#include "dms-copy/simpleresource.h"
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/storeresourcesjob.h"
+#include <Nepomuk2/SimpleResourceGraph>
+#include <Nepomuk2/SimpleResource>
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+
 #include <KDE/KJob>
 #include "sro/sync/serversyncdata.h"
 #include "sro/nbib/publication.h"
@@ -42,21 +43,21 @@
 
 #include "nbib.h"
 #include "sync.h"
-#include <Nepomuk/Variant>
-#include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Vocabulary/NUAO>
-#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NUAO>
+#include <Nepomuk2/Vocabulary/NIE>
 
-#include <Nepomuk/Query/QueryServiceClient>
-#include <Nepomuk/Query/Result>
-#include <Nepomuk/Query/QueryParser>
+#include <Nepomuk2/Query/QueryServiceClient>
+#include <Nepomuk2/Query/Result>
+#include <Nepomuk2/Query/QueryParser>
 
 #include <KDE/KIO/NetAccess>
 #include <QDBusInterface>
 #include <QNetworkReply>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
 ZoteroDownload::ZoteroDownload(QObject *parent)
@@ -188,7 +189,7 @@ void ZoteroDownload::readDownloadSync()
 void ZoteroDownload::readDownloadSyncAfterDelete()
 {
     m_newEntries = new File;
-    QList<Nepomuk::Resource> existingItems;
+    QList<Nepomuk2::Resource> existingItems;
 
     // step 4 find duplicates for the merge process
     m_currentStep++;
@@ -209,7 +210,7 @@ void ZoteroDownload::readDownloadSyncAfterDelete()
 
     // if we operate on a library project add the is related part to all existingItems
     if(m_libraryToSyncWith->libraryType() == Library_Project) {
-        foreach(const Nepomuk::Resource &r, existingItems) {
+        foreach(const Nepomuk2::Resource &r, existingItems) {
             m_libraryToSyncWith->addResource(r);
         }
     }
@@ -468,7 +469,7 @@ void ZoteroDownload::deleteLocalFiles(bool deleteThem)
             // if we operate on the system library remove the resources completely
             // if we operate only on a project, remove only the isRelated part
             // after all the resource could be part of a different group too
-            Nepomuk::Resource mainResource;
+            Nepomuk2::Resource mainResource;
             QUrl syncDataType = sd.syncResource.property( SYNC::syncDataType() ).toUrl();
             bool deleteFileFromDisk = false;
             if( syncDataType == SYNC::Note()) {
@@ -505,14 +506,14 @@ void ZoteroDownload::deleteLocalFiles(bool deleteThem)
             }
 
             QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
-            Nepomuk::removeResources(resUri);
+            Nepomuk2::removeResources(resUri);
         }
         else {
             if(m_libraryToSyncWith->libraryType() == Library_System) {
                 // the user decided to keep the file in his storage so we want to upload it again next time we upload files
                 // we simply remove the sync::ServerSyncData so the item will be uploaded as a new item in zotero
-                Nepomuk::Resource mainResource;
-                Nepomuk::Resource reference;
+                Nepomuk2::Resource mainResource;
+                Nepomuk2::Resource reference;
                 QUrl syncDataType = sd.syncResource.property( SYNC::syncDataType() ).toUrl();
                 if( syncDataType == SYNC::Note()) {
                     mainResource = sd.syncResource.property( SYNC::note() ).toResource();
@@ -525,15 +526,15 @@ void ZoteroDownload::deleteLocalFiles(bool deleteThem)
                     reference = sd.syncResource.property( SYNC::reference()).toResource();
                 }
 
-                QList<QUrl> mrUri; mrUri << mainResource.uri();
-                QVariantList ssdValue; ssdValue << sd.syncResource.uri();
-                Nepomuk::removeProperty(mrUri,SYNC::serverSyncData(), ssdValue);
+                QList<QUrl> mrUri; mrUri << mainResource.resourceUri();
+                QVariantList ssdValue; ssdValue << sd.syncResource.resourceUri();
+                Nepomuk2::removeProperty(mrUri,SYNC::serverSyncData(), ssdValue);
 
-                QList<QUrl> refUri; refUri << reference.uri();
-                Nepomuk::removeProperty(refUri,SYNC::serverSyncData(), ssdValue);
+                QList<QUrl> refUri; refUri << reference.resourceUri();
+                Nepomuk2::removeProperty(refUri,SYNC::serverSyncData(), ssdValue);
 
-                QList<QUrl> resUri; resUri << sd.syncResource.uri();
-                Nepomuk::removeResources(resUri);
+                QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
+                Nepomuk2::removeResources(resUri);
             }
             // in the case of an project library next time we upload, all items will be added again to the right group
         }
@@ -583,12 +584,12 @@ void ZoteroDownload::writeNewSyncDetailsToNepomuk(Entry *localData, const QStrin
     // This one is only called when we upload data to the server
     // or if we fix a corrupted upload. (so we downloaded items we uploaded last time but couldn't add sync details before)
     // downloaded stuff is handled by the bibtexToNepomukPipe.cpp directly
-    // So we know we must have a valid Nepomuk::Resource attached to the "localData" Entry
+    // So we know we must have a valid Nepomuk2::Resource attached to the "localData" Entry
 
     // well we create a new ServerSyncData object to the entry
 
-    Nepomuk::SimpleResourceGraph graph;
-    Nepomuk::SYNC::ServerSyncData serverSyncData;
+    Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::SYNC::ServerSyncData serverSyncData;
 
     serverSyncData.setUrl( m_psd.url );
     serverSyncData.setProvider( QString("zotero") );
@@ -602,8 +603,8 @@ void ZoteroDownload::writeNewSyncDetailsToNepomuk(Entry *localData, const QStrin
         serverSyncData.setSyncDataType( SYNC::Note() );
 
         QString noteResourceUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-note-uri")));
-        Nepomuk::SimpleResource noteRes( noteResourceUri );
-        Nepomuk::PIMO::Note note(noteRes);
+        Nepomuk2::SimpleResource noteRes( noteResourceUri );
+        Nepomuk2::PIMO::Note note(noteRes);
         //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
         QDateTime datetime = QDateTime::currentDateTimeUtc();
         noteRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
@@ -617,8 +618,8 @@ void ZoteroDownload::writeNewSyncDetailsToNepomuk(Entry *localData, const QStrin
         serverSyncData.setSyncDataType( SYNC::Attachment() );
 
         QString attachmentResourceUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-note-uri")));
-        Nepomuk::SimpleResource attachmentRes( attachmentResourceUri );
-        Nepomuk::NFO::Document attachment(attachmentRes);
+        Nepomuk2::SimpleResource attachmentRes( attachmentResourceUri );
+        Nepomuk2::NFO::Document attachment(attachmentRes);
         //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
         QDateTime datetime = QDateTime::currentDateTimeUtc();
         attachmentRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
@@ -633,8 +634,8 @@ void ZoteroDownload::writeNewSyncDetailsToNepomuk(Entry *localData, const QStrin
 
         QString pubUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-publication-uri")));
 
-        Nepomuk::SimpleResource publicationRes( pubUri );
-        Nepomuk::NBIB::Publication publication(publicationRes);
+        Nepomuk2::SimpleResource publicationRes( pubUri );
+        Nepomuk2::NBIB::Publication publication(publicationRes);
         //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
         QDateTime datetime = QDateTime::currentDateTimeUtc();
         publicationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
@@ -646,8 +647,8 @@ void ZoteroDownload::writeNewSyncDetailsToNepomuk(Entry *localData, const QStrin
 
         QString refUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-reference-uri")));
         if(!refUri.isEmpty()) {
-            Nepomuk::SimpleResource referenceRes( refUri );
-            Nepomuk::NBIB::Reference reference(referenceRes);
+            Nepomuk2::SimpleResource referenceRes( refUri );
+            Nepomuk2::NBIB::Reference reference(referenceRes);
             //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
             QDateTime datetime = QDateTime::currentDateTimeUtc();
             referenceRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
@@ -662,7 +663,7 @@ void ZoteroDownload::writeNewSyncDetailsToNepomuk(Entry *localData, const QStrin
     graph << serverSyncData;
 
     //blocking graph save
-    Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone);
+    Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNone);
     if( !srj->exec() ) {
         kWarning() << "could not new ServerSyncData" << srj->errorString();
         return;
@@ -714,12 +715,12 @@ void ZoteroDownload::findRemovedEntries()
                     "FILTER (" + keyFilter + ")"
                     "}";
 
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
+    QList<Nepomuk2::Query::Result> queryResult = Nepomuk2::Query::QueryServiceClient::syncSparqlQuery(query);
 
     // the results contain now only those syncDataObjects that are part of the Project (or system library) and are not
     // part of the zotero group (or on the zotero server at all, depending what we synced with)
-    foreach(const Nepomuk::Query::Result &nqr, queryResult) {
-        Nepomuk::Resource syncRes = nqr.resource();
+    foreach(const Nepomuk2::Query::Result &nqr, queryResult) {
+        Nepomuk2::Resource syncRes = nqr.resource();
 
         SyncDetails sd;
         sd.syncResource = syncRes;
@@ -731,7 +732,7 @@ void ZoteroDownload::findRemovedEntries()
     // userDeleteRequest has all the resources we operate on in the next step
 }
 
-void ZoteroDownload::findDuplicates(QList<Nepomuk::Resource> &existingItems)
+void ZoteroDownload::findDuplicates(QList<Nepomuk2::Resource> &existingItems)
 {
     // for each downloaded item from zotero we try to find the item in the local storage
     // we can itentify this via the unique zotero Key
@@ -759,7 +760,7 @@ void ZoteroDownload::findDuplicates(QList<Nepomuk::Resource> &existingItems)
                         "?r sync:id ?zoterokey . FILTER regex(?zoterokey, \"" + itemID + "\") "
                         "}";
 
-        QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
+        QList<Nepomuk2::Query::Result> queryResult = Nepomuk2::Query::QueryServiceClient::syncSparqlQuery(query);
 
         // nothing found, means we have a new entry
         if(queryResult.isEmpty()) {
@@ -771,7 +772,7 @@ void ZoteroDownload::findDuplicates(QList<Nepomuk::Resource> &existingItems)
                 qWarning() << "database error, found more than 1 item to sync the zotero data to. size::" << queryResult.size() << "item" << itemID;
             }
 
-            Nepomuk::Resource syncResource = queryResult.first().resource();
+            Nepomuk2::Resource syncResource = queryResult.first().resource();
 
             QString localEtag = syncResource.property( SYNC::etag()).toString();
             QString serverEtag = PlainTextValue::text(entry->value(QLatin1String("zoteroetag")));
@@ -780,15 +781,15 @@ void ZoteroDownload::findDuplicates(QList<Nepomuk::Resource> &existingItems)
             // Because when we check the isRelated  part we need to check different resources in this case
             // also while for note/attachment the resource itself must be valid
             // when it comes to the BibResource the reference and publication must be valid
-            Nepomuk::Resource resToCheckIsRelatedRelationship;
-            QList<Nepomuk::Resource> addToExisting;
+            Nepomuk2::Resource resToCheckIsRelatedRelationship;
+            QList<Nepomuk2::Resource> addToExisting;
             bool validExistingData = false;
 
             QUrl resourceType = syncResource.property(SYNC::syncDataType()).toUrl();
 
             if(resourceType == SYNC::BibResource()) {
-                Nepomuk::Resource publication = syncResource.property( SYNC::publication()).toResource();
-                Nepomuk::Resource reference = syncResource.property( SYNC::reference()).toResource();
+                Nepomuk2::Resource publication = syncResource.property( SYNC::publication()).toResource();
+                Nepomuk2::Resource reference = syncResource.property( SYNC::reference()).toResource();
                 if(reference.isValid() && publication.isValid()) {
                     addToExisting.append(publication);
                     addToExisting.append(reference);
@@ -798,7 +799,7 @@ void ZoteroDownload::findDuplicates(QList<Nepomuk::Resource> &existingItems)
                 }
             }
             else if(resourceType == SYNC::Note()) {
-                Nepomuk::Resource note = syncResource.property( SYNC::note()).toResource();
+                Nepomuk2::Resource note = syncResource.property( SYNC::note()).toResource();
                 if(note.isValid()) {
                     addToExisting.append(note);
                     validExistingData = true;
@@ -806,7 +807,7 @@ void ZoteroDownload::findDuplicates(QList<Nepomuk::Resource> &existingItems)
                 }
             }
             else if(resourceType == SYNC::Attachment()) {
-                Nepomuk::Resource attachment = syncResource.property( SYNC::attachment()).toResource();
+                Nepomuk2::Resource attachment = syncResource.property( SYNC::attachment()).toResource();
                 if(attachment.isValid()) {
                     addToExisting.append(attachment);
                     validExistingData = true;
@@ -814,10 +815,10 @@ void ZoteroDownload::findDuplicates(QList<Nepomuk::Resource> &existingItems)
                 }
             }
 
-            // the actual check if the syncData points to still existing or already deleted Nepomuk::Resource objects
+            // the actual check if the syncData points to still existing or already deleted Nepomuk2::Resource objects
             if(validExistingData) {
                 if(m_libraryToSyncWith->libraryType() == Library_Project) {
-                    QList<Nepomuk::Resource> relatedTo = resToCheckIsRelatedRelationship.property( PIMO::isRelated()).toResourceList();
+                    QList<Nepomuk2::Resource> relatedTo = resToCheckIsRelatedRelationship.property( PIMO::isRelated()).toResourceList();
 
                     if( !relatedTo.contains(m_libraryToSyncWith->settings()->projectThing()) ) {
                         // so if the item is not related to the project that we sync with this group anymore

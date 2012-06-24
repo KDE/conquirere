@@ -45,7 +45,7 @@ public:
       *
       * @p resources list of publication or reference resources
       */
-    void pipeExport(QList<Nepomuk::Resource> resources);
+    void pipeExport(QList<Nepomuk2::Resource> resources);
 
     /**
       * @return the transformed KBibTeX File with all BibTeX entries
@@ -69,42 +69,42 @@ private:
     /**
       * @todo implement strict bibtex entry type export
       */
-    QString retrieveEntryType(Nepomuk::Resource reference, Nepomuk::Resource publication);
-    void collectContent(Entry *e, Nepomuk::Resource reference, Nepomuk::Resource publication);
-    void collectNoteContent(Entry *e, Nepomuk::Resource note);
-    void collectAttachmentContent(Entry *e, Nepomuk::Resource attachment);
+    QString retrieveEntryType(Nepomuk2::Resource reference, Nepomuk2::Resource publication);
+    void collectContent(Entry *e, Nepomuk2::Resource reference, Nepomuk2::Resource publication);
+    void collectNoteContent(Entry *e, Nepomuk2::Resource note);
+    void collectAttachmentContent(Entry *e, Nepomuk2::Resource attachment);
 
     // Helper function to get the nepomuk data
     // title + booktitle
-    void setTitle(Entry *e, Nepomuk::Resource publication, Nepomuk::Resource reference);
-    void setSeriesEditors(Entry *e, Nepomuk::Resource publication);
-    void setPublicationDate(Entry *e, Nepomuk::Resource publication);
-    void setPublisher(Entry *e, Nepomuk::Resource publication);
-    void setOrganization(Entry *e, Nepomuk::Resource publication);
-    void setCrossref(Entry *e, Nepomuk::Resource publication);
-    void setUrl(Entry *e, Nepomuk::Resource publication);
-    void setSeries(Entry *e, Nepomuk::Resource publication);
-    void setJournal(Entry *e, Nepomuk::Resource publication);
-    void setISSN(Entry *e, Nepomuk::Resource publication);
-    void setChapter(Entry *e, Nepomuk::Resource reference);
-    void setEvent(Entry *e, Nepomuk::Resource publication);
-    void setCode(Entry *e, Nepomuk::Resource publication);
-    void setCodeNumber(Entry *e, Nepomuk::Resource publication);
-    void setCodeVolume(Entry *e, Nepomuk::Resource publication);
-    void setReporter(Entry *e, Nepomuk::Resource publication);
-    void setReporterVolume(Entry *e, Nepomuk::Resource publication);
-    void setAssignee(Entry *e, Nepomuk::Resource publication);
-    void setNote(Entry *e, Nepomuk::Resource publication);
-    void setKewords(Entry *e, Nepomuk::Resource publication);
-    void setArticleType(Entry *e, Nepomuk::Resource publication);
+    void setTitle(Entry *e, Nepomuk2::Resource publication, Nepomuk2::Resource reference);
+    void setSeriesEditors(Entry *e, Nepomuk2::Resource publication);
+    void setPublicationDate(Entry *e, Nepomuk2::Resource publication);
+    void setPublisher(Entry *e, Nepomuk2::Resource publication);
+    void setOrganization(Entry *e, Nepomuk2::Resource publication);
+    void setCrossref(Entry *e, Nepomuk2::Resource publication);
+    void setUrl(Entry *e, Nepomuk2::Resource publication);
+    void setSeries(Entry *e, Nepomuk2::Resource publication);
+    void setJournal(Entry *e, Nepomuk2::Resource publication);
+    void setISSN(Entry *e, Nepomuk2::Resource publication);
+    void setChapter(Entry *e, Nepomuk2::Resource reference);
+    void setEvent(Entry *e, Nepomuk2::Resource publication);
+    void setCode(Entry *e, Nepomuk2::Resource publication);
+    void setCodeNumber(Entry *e, Nepomuk2::Resource publication);
+    void setCodeVolume(Entry *e, Nepomuk2::Resource publication);
+    void setReporter(Entry *e, Nepomuk2::Resource publication);
+    void setReporterVolume(Entry *e, Nepomuk2::Resource publication);
+    void setAssignee(Entry *e, Nepomuk2::Resource publication);
+    void setNote(Entry *e, Nepomuk2::Resource publication);
+    void setKewords(Entry *e, Nepomuk2::Resource publication);
+    void setArticleType(Entry *e, Nepomuk2::Resource publication);
 
     /**
       * Reuseable function that simply transforms a nepomuk value as QString to bibtex without further processing
       */
-    void setValue(Entry *e, Nepomuk::Resource publication, QUrl property, const QString &bibkey);
-    void setContact(Entry *e, Nepomuk::Resource publication, QUrl property, const QString &bibkey);
+    void setValue(Entry *e, Nepomuk2::Resource publication, QUrl property, const QString &bibkey);
+    void setContact(Entry *e, Nepomuk2::Resource publication, QUrl property, const QString &bibkey);
 
-    void setSyncDetails(Entry *e, Nepomuk::Resource publication);
+    void setSyncDetails(Entry *e, Nepomuk2::Resource publication);
 
     File *m_bibtexFile;
     bool m_strict;

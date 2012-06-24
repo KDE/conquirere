@@ -27,16 +27,16 @@
 #include "nbib.h"
 #include <Soprano/Vocabulary/NAO>
 
-#include <Nepomuk/Query/ComparisonTerm>
-#include <Nepomuk/Query/LiteralTerm>
-#include <Nepomuk/Query/ResourceTypeTerm>
-#include <Nepomuk/Query/AndTerm>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Query/ComparisonTerm>
+#include <Nepomuk2/Query/LiteralTerm>
+#include <Nepomuk2/Query/ResourceTypeTerm>
+#include <Nepomuk2/Query/AndTerm>
+#include <Nepomuk2/Variant>
 
-#include <Nepomuk/Query/QueryServiceClient>
-#include <Nepomuk/Query/Query>
-#include <Nepomuk/Query/Result>
-#include <Nepomuk/Query/QueryParser>
+#include <Nepomuk2/Query/QueryServiceClient>
+#include <Nepomuk2/Query/Query>
+#include <Nepomuk2/Query/Result>
+#include <Nepomuk2/Query/QueryParser>
 
 #include <QtTest>
 #include <QtDebug>
@@ -154,19 +154,19 @@ void BibtexNepomukTest::importExportTest()
     //######################################################################################
 
     endDate = QDateTime::currentDateTime();
-    const Nepomuk::Query::LiteralTerm dateFrom( startDate );
-    const Nepomuk::Query::LiteralTerm dateTo( endDate );
+    const Nepomuk2::Query::LiteralTerm dateFrom( startDate );
+    const Nepomuk2::Query::LiteralTerm dateTo( endDate );
 
-    Nepomuk::Query::ComparisonTerm createdStartDate = Soprano::Vocabulary::NAO::created() > dateFrom;
-    Nepomuk::Query::ComparisonTerm createdEndDate = Soprano::Vocabulary::NAO::created() < dateTo;
-    Nepomuk::Query::AndTerm andTerm;
+    Nepomuk2::Query::ComparisonTerm createdStartDate = Soprano::Vocabulary::NAO::created() > dateFrom;
+    Nepomuk2::Query::ComparisonTerm createdEndDate = Soprano::Vocabulary::NAO::created() < dateTo;
+    Nepomuk2::Query::AndTerm andTerm;
 
     andTerm.addSubTerm(createdStartDate);
     andTerm.addSubTerm(createdEndDate);
-    andTerm.addSubTerm(Nepomuk::Query::ResourceTypeTerm(Nepomuk::Vocabulary::NBIB::Reference()));
+    andTerm.addSubTerm(Nepomuk2::Query::ResourceTypeTerm(Nepomuk2::Vocabulary::NBIB::Reference()));
 
-    Nepomuk::Query::Query query( andTerm );
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
+    Nepomuk2::Query::Query query( andTerm );
+    QList<Nepomuk2::Query::Result> queryResult = Nepomuk2::Query::QueryServiceClient::syncQuery(query);
 
     if( queryResult.size() != importedFile->size()) {
 
@@ -175,8 +175,8 @@ void BibtexNepomukTest::importExportTest()
             if(!entryImport) continue;
 
             bool citeKeyFound = false;
-            foreach(const Nepomuk::Query::Result & r, queryResult) {
-                QString citekey = r.resource().property(Nepomuk::Vocabulary::NBIB::citeKey()).toString();
+            foreach(const Nepomuk2::Query::Result & r, queryResult) {
+                QString citekey = r.resource().property(Nepomuk2::Vocabulary::NBIB::citeKey()).toString();
                 if(citekey == entryImport->id()) {
                     citeKeyFound = true;
                     break;
@@ -191,8 +191,8 @@ void BibtexNepomukTest::importExportTest()
 
     QCOMPARE( importedFile->size(), queryResult.size() );
 
-    QList<Nepomuk::Resource> references;
-    foreach(const Nepomuk::Query::Result & r, queryResult) {
+    QList<Nepomuk2::Resource> references;
+    foreach(const Nepomuk2::Query::Result & r, queryResult) {
         references.append(r.resource());
     }
 
@@ -282,22 +282,22 @@ void BibtexNepomukTest::importExportTest()
 void BibtexNepomukTest::cleanup()
 {
     // create our range
-    const Nepomuk::Query::LiteralTerm dateFrom( startDate );
-    const Nepomuk::Query::LiteralTerm dateTo( endDate );
+    const Nepomuk2::Query::LiteralTerm dateFrom( startDate );
+    const Nepomuk2::Query::LiteralTerm dateTo( endDate );
 
-    Nepomuk::Query::ComparisonTerm lastModifiedStart = Soprano::Vocabulary::NAO::created() > dateFrom;
-    Nepomuk::Query::ComparisonTerm lastModifiedEnd = Soprano::Vocabulary::NAO::created() < dateTo;
-    Nepomuk::Query::AndTerm andTerm;
+    Nepomuk2::Query::ComparisonTerm lastModifiedStart = Soprano::Vocabulary::NAO::created() > dateFrom;
+    Nepomuk2::Query::ComparisonTerm lastModifiedEnd = Soprano::Vocabulary::NAO::created() < dateTo;
+    Nepomuk2::Query::AndTerm andTerm;
 
     andTerm.addSubTerm(lastModifiedStart);
     andTerm.addSubTerm(lastModifiedEnd);
 
     // fetch data
-    Nepomuk::Query::Query query( andTerm );
+    Nepomuk2::Query::Query query( andTerm );
 
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncQuery(query);
+    QList<Nepomuk2::Query::Result> queryResult = Nepomuk2::Query::QueryServiceClient::syncQuery(query);
 
-    foreach(const Nepomuk::Query::Result & r, queryResult) {
+    foreach(const Nepomuk2::Query::Result & r, queryResult) {
         r.resource().remove();
     }
 }

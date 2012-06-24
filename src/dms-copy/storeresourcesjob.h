@@ -40,9 +40,9 @@ namespace Nepomuk {
         QHash<QUrl, QUrl> mappings() const;
 
     private:
-        StoreResourcesJob(const Nepomuk::SimpleResourceGraph& resources,
-                         Nepomuk::StoreIdentificationMode identificationMode,
-                         Nepomuk::StoreResourcesFlags flags,
+        StoreResourcesJob(const Nepomuk2::SimpleResourceGraph& resources,
+                         Nepomuk2::StoreIdentificationMode identificationMode,
+                         Nepomuk2::StoreResourcesFlags flags,
                          const QHash<QUrl, QVariant>& additionalMetadata,
                          const KComponentData& component);
         class Private;
@@ -52,7 +52,7 @@ namespace Nepomuk {
 
         Q_PRIVATE_SLOT( d, void _k_slotDBusCallFinished( QDBusPendingCallWatcher* ) )
 
-        friend Nepomuk::StoreResourcesJob* storeResources(const SimpleResourceGraph&,
+        friend Nepomuk2::StoreResourcesJob* storeResources(const SimpleResourceGraph&,
                                                          StoreIdentificationMode,
                                                          StoreResourcesFlags,
                                                          const QHash<QUrl, QVariant>&,

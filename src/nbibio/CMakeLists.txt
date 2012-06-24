@@ -29,7 +29,6 @@ install(FILES ../conquirere.kcfg DESTINATION ${KCFG_INSTALL_DIR})
 kde4_add_library( nbibio STATIC ${nbibio_LIB_SRCS} )
 
 target_link_libraries(nbibio
-        nepomukdatamanagement-copy
 # include static libs from conquirere
         ontology
 )

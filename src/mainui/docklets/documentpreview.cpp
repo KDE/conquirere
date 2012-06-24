@@ -44,7 +44,7 @@ DocumentPreview::~DocumentPreview()
     delete ui;
 }
 
-void DocumentPreview::setResource(Nepomuk::Resource & resource, bool inNewTab)
+void DocumentPreview::setResource(Nepomuk2::Resource & resource, bool inNewTab)
 {
     if(inNewTab) {
         DocumentPreviewTab *newTab = new DocumentPreviewTab(this);

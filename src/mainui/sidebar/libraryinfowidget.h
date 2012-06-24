@@ -20,7 +20,7 @@
 
 #include "sidebarcomponent.h"
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 namespace Ui {
     class LibraryInfoWidget;
@@ -41,11 +41,11 @@ public:
     explicit LibraryInfoWidget(QWidget *parent = 0);
     ~LibraryInfoWidget();
 
-    Nepomuk::Resource resource();
+    Nepomuk2::Resource resource();
 
     void setLibrary(Library *p);
 
-    void setResource(Nepomuk::Resource & resource);
+    void setResource(Nepomuk2::Resource & resource);
     void newButtonClicked();
     void deleteButtonClicked();
 

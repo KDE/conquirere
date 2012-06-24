@@ -24,12 +24,12 @@
 #include "listpublicationsdialog.h"
 #include "referencewidget.h"
 
-#include "dms-copy/datamanagement.h"
+#include <Nepomuk2/DataManagement>
 #include <KDE/KJob>
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KDialog>
 #include <KDE/KIcon>
@@ -38,7 +38,7 @@
 #include <QtGui/QListWidgetItem>
 #include <QtCore/QPointer>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 
 ListCitedSources::ListCitedSources(QWidget *parent) :
     QWidget(parent),
@@ -68,18 +68,18 @@ void ListCitedSources::setLibraryManager(LibraryManager *lm)
     m_libraryManager = lm;
 }
 
-void ListCitedSources::setResource(Nepomuk::Resource resource)
+void ListCitedSources::setResource(Nepomuk2::Resource resource)
 {
     m_resource = resource;
 
     ui->listWidget->clear();
 
     // fill the widget with all cited references
-    QList<Nepomuk::Resource> resourceList = m_resource.property(NBIB::citedReference()).toResourceList();
+    QList<Nepomuk2::Resource> resourceList = m_resource.property(NBIB::citedReference()).toResourceList();
 
-    foreach(const Nepomuk::Resource & r, resourceList) {
+    foreach(const Nepomuk2::Resource & r, resourceList) {
         QListWidgetItem *i = new QListWidgetItem();
-        Nepomuk::Resource publication = r.property(NBIB::publication()).toResource();
+        Nepomuk2::Resource publication = r.property(NBIB::publication()).toResource();
 
         BibEntryType bet = BibEntryTypeFromUrl(publication);
         i->setIcon( KIcon(BibEntryTypeIcon.at(bet)) );
@@ -107,7 +107,7 @@ void ListCitedSources::editReference()
     QListWidgetItem *i = ui->listWidget->currentItem();
     if(!i)  { return; }
 
-    Nepomuk::Resource reference(i->data(Qt::UserRole).toString());
+    Nepomuk2::Resource reference(i->data(Qt::UserRole).toString());
 
     // open dialog to edit the reference
     QPointer<KDialog> editReferenceWidget = new KDialog(this);
@@ -121,7 +121,7 @@ void ListCitedSources::editReference()
 
     editReferenceWidget->exec();
 
-    Nepomuk::Resource publication = reference.property(NBIB::publication()).toResource();
+    Nepomuk2::Resource publication = reference.property(NBIB::publication()).toResource();
 
     BibEntryType bet = BibEntryTypeFromUrl(publication);
     i->setIcon( KIcon(BibEntryTypeIcon.at(bet)) );
@@ -149,14 +149,14 @@ void ListCitedSources::addReference()
     int ret = lpd->exec();
 
     if(ret == QDialog::Accepted) {
-        Nepomuk::Resource selectedReference = lpd->selectedPublication();
+        Nepomuk2::Resource selectedReference = lpd->selectedPublication();
 
-        Nepomuk::Resource publication = selectedReference.property(NBIB::publication()).toResource();
+        Nepomuk2::Resource publication = selectedReference.property(NBIB::publication()).toResource();
 
         // add crosslink via nepomuk DMS
         QList<QUrl> resUri; resUri << m_resource.resourceUri();
         QVariantList value; value << selectedReference.resourceUri();
-        Nepomuk::addProperty(resUri, NBIB::citedReference(), value);
+        Nepomuk2::addProperty(resUri, NBIB::citedReference(), value);
 
         QListWidgetItem *i = new QListWidgetItem();
 
@@ -189,14 +189,14 @@ void ListCitedSources::removeReference()
     QListWidgetItem *i = ui->listWidget->currentItem();
     if(!i) { return; }
 
-    Nepomuk::Resource removedReference(i->data(Qt::UserRole).toUrl());
+    Nepomuk2::Resource removedReference(i->data(Qt::UserRole).toUrl());
     ui->listWidget->removeItemWidget(i);
     delete i;
 
     // add crosslink via nepomuk DMS
     QList<QUrl> resUri; resUri << m_resource.resourceUri();
     QVariantList value; value << removedReference.resourceUri();
-    Nepomuk::removeProperty(resUri, NBIB::citedReference(), value);
+    Nepomuk2::removeProperty(resUri, NBIB::citedReference(), value);
 
     ui->listWidget->setCurrentRow(0);
 

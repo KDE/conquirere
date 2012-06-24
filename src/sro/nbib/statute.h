@@ -8,11 +8,11 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
 #include "nbib/legislation.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NBIB {
 /**
  * A bill enacted into law. 

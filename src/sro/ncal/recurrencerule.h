@@ -8,14 +8,14 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * 
  */
-class RecurrenceRule : public virtual Nepomuk::SimpleResource
+class RecurrenceRule : public virtual Nepomuk2::SimpleResource
 {
 public:
     RecurrenceRule(const QUrl& uri = QUrl())

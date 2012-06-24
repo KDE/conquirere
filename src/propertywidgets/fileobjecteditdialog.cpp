@@ -21,23 +21,24 @@
 #include "stringedit.h"
 #include "dateedit.h"
 
-#include "dms-copy/simpleresourcegraph.h"
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/storeresourcesjob.h"
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+#include <Nepomuk2/SimpleResourceGraph>
+
 #include <KDE/KJob>
 #include "sro/nfo/webdataobject.h"
 #include "sro/nfo/website.h"
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/NUAO>
-#include <Nepomuk/Vocabulary/NFO>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NUAO>
+#include <Nepomuk2/Vocabulary/NFO>
 #include <Soprano/Vocabulary/RDF>
 
-#include <Nepomuk/Query/QueryServiceClient>
-#include <Nepomuk/Query/Result>
-#include <Nepomuk/Query/QueryParser>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Query/QueryServiceClient>
+#include <Nepomuk2/Query/Result>
+#include <Nepomuk2/Query/QueryParser>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KInputDialog>
 #include <KDE/KFileDialog>
@@ -45,7 +46,7 @@
 
 #include <QtCore/QUrl>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
 FileObjectEditDialog::FileObjectEditDialog(QWidget *parent)
@@ -72,12 +73,12 @@ void FileObjectEditDialog::setLibraryManager(LibraryManager *lm)
     ui->editNotes->setLibraryManager(lm);
 }
 
-void FileObjectEditDialog::setPublication(const Nepomuk::Resource &r)
+void FileObjectEditDialog::setPublication(const Nepomuk2::Resource &r)
 {
     m_publication = r;
 }
 
-void FileObjectEditDialog::setResource(Nepomuk::Resource r)
+void FileObjectEditDialog::setResource(Nepomuk2::Resource r)
 {
     m_fileObject = r;
 
@@ -102,8 +103,8 @@ void FileObjectEditDialog::setResource(Nepomuk::Resource r)
 
 void FileObjectEditDialog::createNewResource()
 {
-    Nepomuk::SimpleResourceGraph graph;
-    Nepomuk::NFO::Website newWebsite;
+    Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::NFO::Website newWebsite;
     //newWebsite.addType(NFO::WebDataObject());
     newWebsite.addType(NIE::InformationElement());
 
@@ -111,24 +112,24 @@ void FileObjectEditDialog::createNewResource()
 
     graph << newWebsite;
     //blocking graph save
-    Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone);
+    Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNone);
     if( !srj->exec() ) {
         kWarning() << "could not create new default website" << srj->errorString();
         return;
     }
 
     // get the pimo project from the return job mappings
-    Nepomuk::Resource newWebsiteResource = Nepomuk::Resource::fromResourceUri( srj->mappings().value( newWebsite.uri() ) );
+    Nepomuk2::Resource newWebsiteResource = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( newWebsite.uri() ) );
 
-    QList<QUrl> publicationUri; publicationUri << m_publication.uri();
-    QVariantList fileObjectValue; fileObjectValue << newWebsiteResource.uri();
+    QList<QUrl> publicationUri; publicationUri << m_publication.resourceUri();
+    QVariantList fileObjectValue; fileObjectValue << newWebsiteResource.resourceUri();
 
-    Nepomuk::addProperty(publicationUri, NIE::links(), fileObjectValue);
+    Nepomuk2::addProperty(publicationUri, NIE::links(), fileObjectValue);
 
     setResource(newWebsiteResource);
 }
 
-Nepomuk::Resource FileObjectEditDialog::resource()
+Nepomuk2::Resource FileObjectEditDialog::resource()
 {
     return m_fileObject;
 }
@@ -146,11 +147,11 @@ void FileObjectEditDialog::saveAndMergeUrlChange()
                         "?r nie:url ?url . FILTER ( regex(?url, \"^" + newUrl + "$\"))"
                         "}";
 
-        QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
+        QList<Nepomuk2::Query::Result> queryResult = Nepomuk2::Query::QueryServiceClient::syncSparqlQuery(query);
 
-        if(!queryResult.isEmpty() && queryResult.first().resource().uri() != m_fileObject.uri()) {
+        if(!queryResult.isEmpty() && queryResult.first().resource().resourceUri() != m_fileObject.resourceUri()) {
             kDebug() << "found a duplicate with url" << newUrl << "merge it";
-            KJob *job = Nepomuk::mergeResources(queryResult.first().resource().uri(), m_fileObject.uri());
+            KJob *job = Nepomuk2::mergeResources(queryResult.first().resource().resourceUri(), m_fileObject.resourceUri());
             job->exec();
 
             if(job->error() != 0) {
@@ -161,9 +162,9 @@ void FileObjectEditDialog::saveAndMergeUrlChange()
         }
         else {
             kDebug() << "set url to " << newUrl;
-            QList<QUrl> fileObjectUri; fileObjectUri << m_fileObject.uri();
+            QList<QUrl> fileObjectUri; fileObjectUri << m_fileObject.resourceUri();
             QVariantList fileObjectValue; fileObjectValue << newUrl;
-            Nepomuk::setProperty(fileObjectUri, NIE::url(), fileObjectValue);
+            Nepomuk2::setProperty(fileObjectUri, NIE::url(), fileObjectValue);
         }
     }
 }
@@ -232,10 +233,10 @@ void FileObjectEditDialog::typeChanged(int newType)
         }
     }
 
-    QList<QUrl> publicationUri; publicationUri << m_publication.uri();
-    QVariantList publicationValue; publicationValue << m_publication.uri();
-    QList<QUrl> fileObjectUri; fileObjectUri << m_fileObject.uri();
-    QVariantList fileObjectValue; fileObjectValue << m_fileObject.uri();
+    QList<QUrl> publicationUri; publicationUri << m_publication.resourceUri();
+    QVariantList publicationValue; publicationValue << m_publication.resourceUri();
+    QList<QUrl> fileObjectUri; fileObjectUri << m_fileObject.resourceUri();
+    QVariantList fileObjectValue; fileObjectValue << m_fileObject.resourceUri();
     QVariantList typeValue;
 
     foreach(const QUrl &url, currentTypes) {
@@ -246,21 +247,21 @@ void FileObjectEditDialog::typeChanged(int newType)
 
     // this appraoch is not working
 //    QList<QUrl> removeAllTypes; removeAllTypes << RDF::type();
-//    KJob *job = Nepomuk::removeProperties(fileObjectUri, removeAllTypes);
+//    KJob *job = Nepomuk2::removeProperties(fileObjectUri, removeAllTypes);
 //    job->exec();
-//    KJob *job2 = Nepomuk::setProperty(fileObjectUri, RDF::type(), typeValue);
+//    KJob *job2 = Nepomuk2::setProperty(fileObjectUri, RDF::type(), typeValue);
 //    job2->exec();
 
     // change crosslink from nbib:publicationOf / nbib:isPublishedAs to nie:links
     if( switchToFile ) {
-        Nepomuk::removeProperty(publicationUri, NIE::links(), fileObjectValue);
-        Nepomuk::addProperty(publicationUri, NBIB::isPublicationOf(), fileObjectValue);
-        Nepomuk::setProperty(fileObjectUri, NBIB::publishedAs(), publicationValue);
+        Nepomuk2::removeProperty(publicationUri, NIE::links(), fileObjectValue);
+        Nepomuk2::addProperty(publicationUri, NBIB::isPublicationOf(), fileObjectValue);
+        Nepomuk2::setProperty(fileObjectUri, NBIB::publishedAs(), publicationValue);
     }
     else if( switchToWebsite ) {
-        Nepomuk::removeProperty(publicationUri, NBIB::isPublicationOf(), fileObjectValue);
-        Nepomuk::removeProperty(fileObjectUri, NBIB::publishedAs(), publicationValue);
-        Nepomuk::addProperty(publicationUri, NIE::links(), fileObjectValue);
+        Nepomuk2::removeProperty(publicationUri, NBIB::isPublicationOf(), fileObjectValue);
+        Nepomuk2::removeProperty(fileObjectUri, NBIB::publishedAs(), publicationValue);
+        Nepomuk2::addProperty(publicationUri, NIE::links(), fileObjectValue);
     }
 }
 

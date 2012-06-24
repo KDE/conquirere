@@ -20,7 +20,7 @@
 
 #include "globals.h"
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 #include <QtGui/QWidget>
 #include <QtGui/QItemSelection>
@@ -54,8 +54,8 @@ public:
     void setSearchResultModel(SearchResultModel* srm);
 
 signals:
-    void selectedResource(Nepomuk::Resource & nr, bool);
-    void selectedMultipleResources(QList<Nepomuk::Resource> resourceList);
+    void selectedResource(Nepomuk2::Resource & nr, bool);
+    void selectedMultipleResources(QList<Nepomuk2::Resource> resourceList);
 
 public slots:
     void switchView(ResourceSelection selection, BibEntryType filter, Library *p);

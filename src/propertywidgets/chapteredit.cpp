@@ -18,10 +18,10 @@
 #include "chapteredit.h"
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Variant>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 
 ChapterEdit::ChapterEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -32,7 +32,7 @@ ChapterEdit::ChapterEdit(QWidget *parent)
 
 void ChapterEdit::setupLabel()
 {
-    Nepomuk::Resource chapter = resource().property(NBIB::referencedPart()).toResource();
+    Nepomuk2::Resource chapter = resource().property(NBIB::referencedPart()).toResource();
     // creates a string in the form
     // "1. Introduction" or just "Introduction"
     QString showString;

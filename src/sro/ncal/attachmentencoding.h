@@ -8,16 +8,16 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * Attachment encoding. This class has been introduced to express 
  * the limited vocabulary of values for the ncal:encoding property. 
  * See the documentation of ncal:encoding for details. 
  */
-class AttachmentEncoding : public virtual Nepomuk::SimpleResource
+class AttachmentEncoding : public virtual Nepomuk2::SimpleResource
 {
 public:
     AttachmentEncoding(const QUrl& uri = QUrl())

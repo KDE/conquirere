@@ -20,7 +20,7 @@
 
 #include "sidebarcomponent.h"
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 namespace Ui {
     class SeriesWidget;
@@ -43,7 +43,7 @@ public:
     virtual ~SeriesWidget();
 
     void setLibraryManager(LibraryManager *lm);
-    Nepomuk::Resource resource();
+    Nepomuk2::Resource resource();
 
 public slots:
     /**
@@ -51,7 +51,7 @@ public slots:
       *
       * @pre @p resource musst be of type @c nbib:Series
       */
-    void setResource(Nepomuk::Resource & resource);
+    void setResource(Nepomuk2::Resource & resource);
 
 private slots:
     /**
@@ -82,7 +82,7 @@ private:
     void setupWidget();
 
     Ui::SeriesWidget *ui;
-    Nepomuk::Resource m_series;
+    Nepomuk2::Resource m_series;
 };
 
 #endif // SERIESWIDGET_H

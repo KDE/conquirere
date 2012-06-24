@@ -159,7 +159,7 @@ bool NBibImporterBibTex::findDuplicates()
     return true;
 }
 
-void NBibImporterBibTex::setProjectPimoThing(Nepomuk::Thing projectThing)
+void NBibImporterBibTex::setProjectPimoThing(Nepomuk2::Thing projectThing)
 {
     m_projectThing = projectThing;
 }

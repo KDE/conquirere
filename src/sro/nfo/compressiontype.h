@@ -8,16 +8,16 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NFO {
 /**
  * Type of compression. Instances of this class represent the 
  * limited set of values allowed for the nfo:compressionType 
  * property. 
  */
-class CompressionType : public virtual Nepomuk::SimpleResource
+class CompressionType : public virtual Nepomuk2::SimpleResource
 {
 public:
     CompressionType(const QUrl& uri = QUrl())

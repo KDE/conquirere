@@ -8,9 +8,9 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace PIMO {
 /**
  * A Personal Information Model (PIMO) of a user. Represents the 
@@ -19,7 +19,7 @@ namespace PIMO {
  * (PSI)) which a user needs for Personal Information Management 
  * (PIM). 
  */
-class PersonalInformationModel : public virtual Nepomuk::SimpleResource
+class PersonalInformationModel : public virtual Nepomuk2::SimpleResource
 {
 public:
     PersonalInformationModel(const QUrl& uri = QUrl())

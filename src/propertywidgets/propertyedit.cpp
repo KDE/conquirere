@@ -19,17 +19,17 @@
 
 #include "kmultiitemedit.h"
 
-#include <Nepomuk/Query/Term>
-#include <Nepomuk/Query/QueryServiceClient>
-#include <Nepomuk/Query/Result>
-#include <Nepomuk/Query/ResourceTypeTerm>
-#include <Nepomuk/Query/OrTerm>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Query/Term>
+#include <Nepomuk2/Query/QueryServiceClient>
+#include <Nepomuk2/Query/Result>
+#include <Nepomuk2/Query/ResourceTypeTerm>
+#include <Nepomuk2/Query/OrTerm>
+#include <Nepomuk2/Variant>
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/PIMO>
-#include <Nepomuk/Vocabulary/NCAL>
-#include <Nepomuk/Vocabulary/NFO>
+#include <Nepomuk2/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/NCAL>
+#include <Nepomuk2/Vocabulary/NFO>
 #include <Soprano/Vocabulary/RDFS>
 
 #include <KDE/KIcon>
@@ -88,14 +88,14 @@ PropertyEdit::~PropertyEdit()
     delete m_lineEdit;
 }
 
-void PropertyEdit::setResource(Nepomuk::Resource & resource)
+void PropertyEdit::setResource(Nepomuk2::Resource & resource)
 {
     m_resource = resource;
 
     setupLabel();
 }
 
-Nepomuk::Resource PropertyEdit::resource()
+Nepomuk2::Resource PropertyEdit::resource()
 {
     return m_resource;
 }
@@ -146,8 +146,8 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
     m_propertyUrl = propertyUrl;
 
     //get the range of the property (so what we are allowed to enter)
-    Nepomuk::Resource nr(m_propertyUrl);
-    Nepomuk::Resource range = nr.property(Soprano::Vocabulary::RDFS::range()).toResource();
+    Nepomuk2::Resource nr(m_propertyUrl);
+    Nepomuk2::Resource range = nr.property(Soprano::Vocabulary::RDFS::range()).toResource();
 
     if(range.isValid())
         m_lineEdit->setNepomukCompleterRange( range.resourceUri() );

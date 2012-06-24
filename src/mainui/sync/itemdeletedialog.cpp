@@ -21,9 +21,9 @@
 #include "nbib.h"
 #include "sync.h"
 
-#include <Nepomuk/Resource>
-#include <Nepomuk/Variant>
-#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk2/Resource>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Vocabulary/NIE>
 
 ItemDeleteDialog::ItemDeleteDialog(Mode mode, QWidget *parent)
     : QDialog(parent)
@@ -79,23 +79,23 @@ void ItemDeleteDialog::localDeleteDetails(QList<SyncDetails> items)
 {
     QString details;
     foreach(const SyncDetails &sd, items) {
-        Nepomuk::Resource deletedResource;
+        Nepomuk2::Resource deletedResource;
         QString type;
-        QUrl syncType = sd.syncResource.property(Nepomuk::Vocabulary::SYNC::syncDataType()).toUrl();
-        if(syncType == Nepomuk::Vocabulary::SYNC::Note()) {
-            deletedResource = sd.syncResource.property(Nepomuk::Vocabulary::SYNC::note()).toResource();
+        QUrl syncType = sd.syncResource.property(Nepomuk2::Vocabulary::SYNC::syncDataType()).toUrl();
+        if(syncType == Nepomuk2::Vocabulary::SYNC::Note()) {
+            deletedResource = sd.syncResource.property(Nepomuk2::Vocabulary::SYNC::note()).toResource();
             type = i18n("Note");
         }
-        else if(syncType == Nepomuk::Vocabulary::SYNC::Attachment()) {
-            deletedResource = sd.syncResource.property(Nepomuk::Vocabulary::SYNC::attachment()).toResource();
+        else if(syncType == Nepomuk2::Vocabulary::SYNC::Attachment()) {
+            deletedResource = sd.syncResource.property(Nepomuk2::Vocabulary::SYNC::attachment()).toResource();
             type = i18n("Attachment");
         }
         else {
-            deletedResource = sd.syncResource.property(Nepomuk::Vocabulary::SYNC::publication()).toResource();
+            deletedResource = sd.syncResource.property(Nepomuk2::Vocabulary::SYNC::publication()).toResource();
             type = i18n("Reference");
         }
 
-        details.append( deletedResource.property(Nepomuk::Vocabulary::NIE::title()).toString()  + QLatin1String(" (") + type + QLatin1String(")"));
+        details.append( deletedResource.property(Nepomuk2::Vocabulary::NIE::title()).toString()  + QLatin1String(" (") + type + QLatin1String(")"));
         details.append( QLatin1String(", "));
     }
 
@@ -109,13 +109,13 @@ void ItemDeleteDialog::serverDeleteDetails(QList<SyncDetails> items)
 {
     QString details;
     foreach(const SyncDetails &sd, items) {
-        QUrl syncType = sd.syncResource.property(Nepomuk::Vocabulary::SYNC::syncDataType()).toUrl();
-        QString id = sd.syncResource.property(Nepomuk::Vocabulary::SYNC::id()).toString();
+        QUrl syncType = sd.syncResource.property(Nepomuk2::Vocabulary::SYNC::syncDataType()).toUrl();
+        QString id = sd.syncResource.property(Nepomuk2::Vocabulary::SYNC::id()).toString();
         QString type;
-        if(syncType == Nepomuk::Vocabulary::SYNC::Note()) {
+        if(syncType == Nepomuk2::Vocabulary::SYNC::Note()) {
             type = i18n("Note");
         }
-        else if(syncType == Nepomuk::Vocabulary::SYNC::Attachment()) {
+        else if(syncType == Nepomuk2::Vocabulary::SYNC::Attachment()) {
             type = i18n("Attachment");
         }
         else {

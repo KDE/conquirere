@@ -19,7 +19,7 @@
 #define LISTANNOTATIONSWIDGET_H
 
 #include <QtGui/QWidget>
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 namespace Ui {
     class ListAnnotationsWidget;
@@ -41,7 +41,7 @@ public:
     ~ListAnnotationsWidget();
 
     void setLibraryManager(LibraryManager *lm);
-    void setResource(Nepomuk::Resource resource);
+    void setResource(Nepomuk2::Resource resource);
 
 signals:
     /**
@@ -50,9 +50,9 @@ signals:
       *
       * Must be connected to the resourceUpdated signal from the widget it is contained in
       *
-      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
       */
-    void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
+    void resourceCacheNeedsUpdate(Nepomuk2::Resource resource);
 
     /**
       * Emits the resource of the note the user has selected
@@ -60,7 +60,7 @@ signals:
       * Used to update the KRichText field that displays the content of the note
       * @see PublicationWidget
       */
-    void selectedAnnotation(Nepomuk::Resource &resource);
+    void selectedAnnotation(Nepomuk2::Resource &resource);
 
 private slots:
     /**
@@ -89,7 +89,7 @@ private:
     Ui::ListAnnotationsWidget *ui;
     LibraryManager *m_libraryManager;
 
-    Nepomuk::Resource m_resource;
+    Nepomuk2::Resource m_resource;
 };
 
 #endif // LISTANNOTATIONSWIDGET_H

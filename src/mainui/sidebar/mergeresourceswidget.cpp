@@ -28,12 +28,12 @@
 #include "nbibio/pipe/kilelyxpipe.h"
 #include "sync/bibtexexportdialog.h"
 
-#include <Nepomuk/Vocabulary/PIMO>
-#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Variant>
 
-#include "dms-copy/datamanagement.h"
+#include <Nepomuk2/DataManagement>
 #include <KDE/KJob>
 
 #include <KDE/KMessageBox>
@@ -44,7 +44,7 @@
 #include <QDBusInterface>
 #include <QtGui/QMenu>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
 MergeResourcesWidget::MergeResourcesWidget(QWidget *parent)
@@ -95,19 +95,19 @@ MergeResourcesWidget::~MergeResourcesWidget()
     delete ui;
 }
 
-void MergeResourcesWidget::setResources(QList<Nepomuk::Resource> resourcelist)
+void MergeResourcesWidget::setResources(QList<Nepomuk2::Resource> resourcelist)
 {
     ui->mergeInfoLabel->setText(i18n("You have selected %1 different resources.", resourcelist.size()));
     m_resourceList = resourcelist;
 }
 
-Nepomuk::Resource MergeResourcesWidget::resource()
+Nepomuk2::Resource MergeResourcesWidget::resource()
 {
-    Nepomuk::Resource invalid;
+    Nepomuk2::Resource invalid;
     return invalid;
 }
 
-void MergeResourcesWidget::setResource(Nepomuk::Resource & resource)
+void MergeResourcesWidget::setResource(Nepomuk2::Resource & resource)
 {
     Q_UNUSED(resource);
     //not used
@@ -158,7 +158,7 @@ void MergeResourcesWidget::addToSelectedProject()
 
     Library *selectedLib = libraryManager()->libFromResourceUri(pimoThing);
 
-    foreach(const Nepomuk::Resource &r, m_resourceList) {
+    foreach(const Nepomuk2::Resource &r, m_resourceList) {
         selectedLib->addResource(r);
     }
 }
@@ -169,11 +169,11 @@ void MergeResourcesWidget::removeFromProject()
     QMenu addToProjects;
 
     // get the list of projects
-    QSet<Nepomuk::Resource> projectList;
-    foreach(const Nepomuk::Resource &r, m_resourceList) {
-        QList<Nepomuk::Resource> relatedList = r.property(NAO::isRelated()).toResourceList();
+    QSet<Nepomuk2::Resource> projectList;
+    foreach(const Nepomuk2::Resource &r, m_resourceList) {
+        QList<Nepomuk2::Resource> relatedList = r.property(NAO::isRelated()).toResourceList();
 
-        foreach(const Nepomuk::Resource &project, relatedList) {
+        foreach(const Nepomuk2::Resource &project, relatedList) {
             if(project.hasType(PIMO::Project())) {
                 projectList << project;
             }
@@ -184,7 +184,7 @@ void MergeResourcesWidget::removeFromProject()
         addToProjects.addAction(i18n("not related to any project"));
     }
     else {
-        foreach(const Nepomuk::Resource &r, projectList) {
+        foreach(const Nepomuk2::Resource &r, projectList) {
             QAction *a = new QAction(r.genericLabel(), this);
             a->setData(r.resourceUri());
             connect(a, SIGNAL(triggered(bool)),this, SLOT(removeFromSelectedProject()));
@@ -204,11 +204,11 @@ void MergeResourcesWidget::removeFromSelectedProject()
 
     if(!a) { return; }
 
-    Nepomuk::Resource pimoProject = Nepomuk::Resource(a->data().toString());
+    Nepomuk2::Resource pimoProject = Nepomuk2::Resource(a->data().toString());
 
     Library *l = libraryManager()->libFromResourceUri(pimoProject.resourceUri());
 
-    foreach(const Nepomuk::Resource &r, m_resourceList) {
+    foreach(const Nepomuk2::Resource &r, m_resourceList) {
         l->removeResource(r);
     }
 }
@@ -216,7 +216,7 @@ void MergeResourcesWidget::removeFromSelectedProject()
 void MergeResourcesWidget::merge()
 {
     QStringList itemList;
-    foreach(const Nepomuk::Resource &r, m_resourceList) {
+    foreach(const Nepomuk2::Resource &r, m_resourceList) {
         itemList << r.genericLabel();
     }
 
@@ -227,8 +227,8 @@ void MergeResourcesWidget::merge()
     }
 
     // get item from selectedname
-    Nepomuk::Resource mainResource;
-    foreach(const Nepomuk::Resource &r, m_resourceList) {
+    Nepomuk2::Resource mainResource;
+    foreach(const Nepomuk2::Resource &r, m_resourceList) {
         if(r.genericLabel() == selectedMainResource)
         {
             mainResource = r;
@@ -236,13 +236,13 @@ void MergeResourcesWidget::merge()
     }
 
     int i=0;
-    foreach(const Nepomuk::Resource &r, m_resourceList) {
+    foreach(const Nepomuk2::Resource &r, m_resourceList) {
         if(i==0) {
             mainResource = r;
             i++;
         }
         else {
-            Nepomuk::mergeResources(mainResource.resourceUri(), r.resourceUri());
+            Nepomuk2::mergeResources(mainResource.resourceUri(), r.resourceUri());
         }
     }
 }
@@ -250,7 +250,7 @@ void MergeResourcesWidget::merge()
 void MergeResourcesWidget::removeFromSystem()
 {
     QStringList itemList;
-    foreach(const Nepomuk::Resource &r, m_resourceList) {
+    foreach(const Nepomuk2::Resource &r, m_resourceList) {
         itemList << r.genericLabel();
     }
 
@@ -260,7 +260,7 @@ void MergeResourcesWidget::removeFromSystem()
         return;
     }
 
-    foreach(const Nepomuk::Resource &r, m_resourceList) {
+    foreach(const Nepomuk2::Resource &r, m_resourceList) {
         libraryManager()->systemLibrary()->deleteResource(r);
     }
 }
@@ -314,7 +314,7 @@ void MergeResourcesWidget::exportToFile()
 
 void MergeResourcesWidget::reindexFiles()
 {
-    foreach(const Nepomuk::Resource &r, m_resourceList) {
+    foreach(const Nepomuk2::Resource &r, m_resourceList) {
         QString filePath = r.property(NIE::url()).toString().remove(QLatin1String("file://"));
 
         if(!filePath.isEmpty())

@@ -45,10 +45,10 @@ LibraryInfoWidget::~LibraryInfoWidget()
     delete m_kpd;
 }
 
-Nepomuk::Resource LibraryInfoWidget::resource()
+Nepomuk2::Resource LibraryInfoWidget::resource()
 {
     qWarning() << "this shouldn't be used .... LibraryInfoWidget can't return a resource";
-    Nepomuk::Resource empty;
+    Nepomuk2::Resource empty;
     return empty;
 }
 
@@ -79,7 +79,7 @@ void LibraryInfoWidget::setLibrary(Library *p)
     }
 }
 
-void LibraryInfoWidget::setResource(Nepomuk::Resource & resource)
+void LibraryInfoWidget::setResource(Nepomuk2::Resource & resource)
 {
     Q_UNUSED(resource);
 }

@@ -23,7 +23,7 @@
 
 #include "onlinestorage/storageglobals.h"
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 #include <Akonadi/Collection>
 
 class StorageInfo;
@@ -32,7 +32,7 @@ class Library;
 class LibraryManager;
 
 struct SyncDetails {
-    Nepomuk::Resource syncResource;
+    Nepomuk2::Resource syncResource;
     Entry* externalResource;
 };
 

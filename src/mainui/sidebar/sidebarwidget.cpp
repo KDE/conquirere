@@ -41,13 +41,13 @@
 #include <kbibtex/findpdfui.h>
 #include <nepomukmetadataextractor/fetcherdialog.h>
 
-#include <Nepomuk/Resource>
-#include <Nepomuk/Variant>
-#include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk2/Resource>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Vocabulary/NFO>
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/NMO>
+#include <Nepomuk2/Vocabulary/NFO>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NMO>
 
 #include <KDE/KGlobalSettings>
 #include <KDE/KDebug>
@@ -58,7 +58,7 @@
 #include <QtCore/QPointer>
 
 using namespace Soprano::Vocabulary;
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 using namespace NepomukMetaDataExtractor::Dialog;
 
 SidebarWidget::SidebarWidget(QWidget *parent)
@@ -77,7 +77,7 @@ SidebarWidget::~SidebarWidget()
     delete ui;
 }
 
-void SidebarWidget::setResource(Nepomuk::Resource & resource)
+void SidebarWidget::setResource(Nepomuk2::Resource & resource)
 {
     Q_ASSERT(m_currentWidget != 0);
 
@@ -110,7 +110,7 @@ void SidebarWidget::setResource(Nepomuk::Resource & resource)
     }
 }
 
-void SidebarWidget::setMultipleResources(QList<Nepomuk::Resource> resourcelist)
+void SidebarWidget::setMultipleResources(QList<Nepomuk2::Resource> resourcelist)
 {
     m_stackedLayout->setCurrentWidget(m_mergeWidget);
     m_mergeWidget->setResources(resourcelist);
@@ -193,13 +193,13 @@ void SidebarWidget::removeFromProject()
     QList<QAction*> actionCollection;
     QMenu addToProjects;
 
-    QList<Nepomuk::Resource> relatedList = m_curResource.property(NAO::isRelated()).toResourceList();
+    QList<Nepomuk2::Resource> relatedList = m_curResource.property(NAO::isRelated()).toResourceList();
 
     if(relatedList.isEmpty()) {
         addToProjects.addAction(i18n("not related to any project"));
     }
     else {
-        foreach(const Nepomuk::Resource &r, relatedList) {
+        foreach(const Nepomuk2::Resource &r, relatedList) {
             if(!r.hasType(PIMO::Project())) { continue; }
 
             QAction *a = new QAction(r.genericLabel(), this);
@@ -221,7 +221,7 @@ void SidebarWidget::removeFromSelectedProject()
 
     if(!a) { return; }
 
-    Nepomuk::Resource pimoProject = Nepomuk::Resource(a->data().toString());
+    Nepomuk2::Resource pimoProject = Nepomuk2::Resource(a->data().toString());
 
     if(m_curResource.isValid() && pimoProject.exists()) {
         Library *l = m_libraryManager->libFromResourceUri(pimoProject.resourceUri());
@@ -232,7 +232,7 @@ void SidebarWidget::removeFromSelectedProject()
 void SidebarWidget::findPdf()
 {
     NepomukToBibTexPipe bibtexPipe;
-    QList<Nepomuk::Resource> exportList;
+    QList<Nepomuk2::Resource> exportList;
     exportList.append(m_curResource);
     bibtexPipe.pipeExport(exportList);
     File bibFile = *bibtexPipe.bibtexFile();
@@ -277,7 +277,7 @@ void SidebarWidget::findPdf()
             haveLocalfile = false;
         }
         else {
-            Nepomuk::Resource dataObject(QUrl(), NFO::FileDataObject());
+            Nepomuk2::Resource dataObject(QUrl(), NFO::FileDataObject());
             dataObject.setProperty(NIE::url(), newLocalFile);
             // connect new dataobject to resource
             m_curResource.addProperty( NBIB::isPublicationOf(), dataObject);
@@ -303,7 +303,7 @@ void SidebarWidget::findPdf()
             haveUrlfile = false;
         }
         else {
-            Nepomuk::Resource dataObject(QUrl(), NFO::RemoteDataObject());
+            Nepomuk2::Resource dataObject(QUrl(), NFO::RemoteDataObject());
             dataObject.setProperty(NIE::url(), newurlFile);
             // connect new dataobject to resource
             m_curResource.addProperty( NBIB::isPublicationOf(), dataObject);
@@ -354,7 +354,7 @@ void SidebarWidget::setLibraryManager(LibraryManager* lm)
     m_mailWidget->setLibraryManager(m_libraryManager);
     m_mergeWidget->setLibraryManager(m_libraryManager);
 
-    connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), m_libraryManager, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), m_libraryManager, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 }
 
 void SidebarWidget::hasPublication(bool publication)
@@ -509,7 +509,7 @@ void SidebarWidget::showSearchResults()
     m_searchResultVisible = true;
 }
 
-void SidebarWidget::findResourceSelection(Nepomuk::Resource & resource)
+void SidebarWidget::findResourceSelection(Nepomuk2::Resource & resource)
 {
     ResourceSelection selection;
     BibEntryType filter = Max_BibTypes;
@@ -550,7 +550,7 @@ void SidebarWidget::findResourceSelection(Nepomuk::Resource & resource)
 
 void SidebarWidget::clear()
 {
-    Nepomuk::Resource empty;
+    Nepomuk2::Resource empty;
     setResource(empty);
 }
 
@@ -608,33 +608,33 @@ void SidebarWidget::setupUi()
 
     m_documentWidget = new DocumentWidget(this);
     m_stackedLayout->addWidget(m_documentWidget);
-    connect(m_documentWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(m_documentWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 
     PublicationWidget * pw = new PublicationWidget(this);
     m_stackedLayout->addWidget(pw);
-    connect(pw, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
-    connect(pw, SIGNAL(openDocument(Nepomuk::Resource&,bool)), this, SIGNAL(openDocument(Nepomuk::Resource&,bool)));
+    connect(pw, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
+    connect(pw, SIGNAL(openDocument(Nepomuk2::Resource&,bool)), this, SIGNAL(openDocument(Nepomuk2::Resource&,bool)));
     m_publicationWidget = pw;
 
     m_referenceWidget = new ReferenceWidget(this);
     m_stackedLayout->addWidget(m_referenceWidget);
-    connect(m_referenceWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(m_referenceWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 
     m_noteWidget = new NoteWidget(this);
     m_stackedLayout->addWidget(m_noteWidget);
-    connect(m_noteWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(m_noteWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 
     m_eventWidget = new EventWidget(this);
     m_stackedLayout->addWidget(m_eventWidget);
-    connect(m_eventWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(m_eventWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 
     m_seriesWidget = new SeriesWidget(this);
     m_stackedLayout->addWidget(m_seriesWidget);
-    connect(m_seriesWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(m_seriesWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 
     m_mailWidget = new MailWidget(this);
     m_stackedLayout->addWidget(m_mailWidget);
-    connect(m_mailWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(m_mailWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 
     m_currentWidget = m_libraryInfoWidget;
     m_stackedLayout->setCurrentWidget(m_libraryInfoWidget);

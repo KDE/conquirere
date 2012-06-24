@@ -29,9 +29,9 @@
 
 #include "sync.h"
 #include "nbib.h"
-#include <Nepomuk/Resource>
-#include <Nepomuk/Variant>
-#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk2/Resource>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Vocabulary/NIE>
 
 #include <KDE/KIcon>
 #include <KDE/KComboBox>
@@ -40,7 +40,7 @@
 #include <QtGui/QScrollArea>
 #include <QtGui/QFormLayout>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 
 ItemMergeDialog::ItemMergeDialog(QWidget *parent)
     : QDialog(parent)
@@ -146,7 +146,7 @@ ItemMergeDialog::~ItemMergeDialog()
 void ItemMergeDialog::setItemsToMerge(QList<SyncDetails> items)
 {
     foreach(const SyncDetails &sd, items) {
-        Nepomuk::Resource publication;
+        Nepomuk2::Resource publication;
 
         QUrl syncType = sd.syncResource.property(SYNC::syncDataType()).toUrl();
 
@@ -267,8 +267,8 @@ void ItemMergeDialog::showItem(int index)
 
     MergedResults mr = m_mergeResults.at(index);
 
-    Nepomuk::Resource publication;
-    Nepomuk::Resource reference;
+    Nepomuk2::Resource publication;
+    Nepomuk2::Resource reference;
 
     QUrl syncType = mr.localSyncResource.property(SYNC::syncDataType()).toUrl();
 

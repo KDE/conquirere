@@ -20,7 +20,7 @@
 
 #include "sidebarcomponent.h"
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 #include <QtGui/QWidget>
 #include <QtCore/QList>
@@ -41,14 +41,14 @@ public:
     /**
       * Set all selected respources
       */
-    void setResources(QList<Nepomuk::Resource> resourcelist);
+    void setResources(QList<Nepomuk2::Resource> resourcelist);
 
     // not used, but required for the SidebarComponent
-    Nepomuk::Resource resource();
+    Nepomuk2::Resource resource();
 
 public slots:
     // not used, but required for the SidebarComponent
-    void setResource(Nepomuk::Resource & resource);
+    void setResource(Nepomuk2::Resource & resource);
     void newButtonClicked();
     void deleteButtonClicked();
 
@@ -71,7 +71,7 @@ private slots:
 
 private:
     Ui::MergeResourcesWidget *ui;
-    QList<Nepomuk::Resource> m_resourceList;
+    QList<Nepomuk2::Resource> m_resourceList;
     QDBusInterface *m_nepomukDBus;
 };
 

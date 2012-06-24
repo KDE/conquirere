@@ -18,15 +18,15 @@
 #include "tagcloud.h"
 
 #include "nbib.h"
-#include <Nepomuk/Variant>
-#include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
 
 #include <QtCore/QThread>
 #include <QtCore/QtConcurrentRun>
 #include <QtCore/QTimer>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
 TagCloud::TagCloud(QObject *parent)
@@ -42,7 +42,7 @@ TagCloud::~TagCloud()
     delete m_futureWatcher;
 }
 
-void TagCloud::addResource(const Nepomuk::Resource &resource)
+void TagCloud::addResource(const Nepomuk2::Resource &resource)
 {
     if(resource.hasType(NBIB::Publication())) {
         m_resourceList.append(resource);
@@ -50,7 +50,7 @@ void TagCloud::addResource(const Nepomuk::Resource &resource)
     }
 }
 
-void TagCloud::updateResource(const Nepomuk::Resource &resource)
+void TagCloud::updateResource(const Nepomuk2::Resource &resource)
 {
     updateTagCloud();
 }
@@ -58,7 +58,7 @@ void TagCloud::updateResource(const Nepomuk::Resource &resource)
 void TagCloud::removeResource(const QUrl &resourceUrl)
 {
     int i = 0;
-    foreach(const Nepomuk::Resource &r, m_resourceList) {
+    foreach(const Nepomuk2::Resource &r, m_resourceList) {
         if(!r.isValid()) {
             m_resourceList.removeAt(i);
         }
@@ -110,15 +110,15 @@ bool sortTagPair(const QPair<int, QString> &s1, const QPair<int, QString> &s2)
     return s1.first > s2.first;
 }
 
-QList<QPair<int, QString> > TagCloud::createTagCloud(QList<Nepomuk::Resource> resourceList)
+QList<QPair<int, QString> > TagCloud::createTagCloud(QList<Nepomuk2::Resource> resourceList)
 {
     // step one create a map with all tags and their ocurence count
     QMap<QString, int> cloudMap;
-    foreach(const Nepomuk::Resource &r, resourceList) {
+    foreach(const Nepomuk2::Resource &r, resourceList) {
 
-        QList<Nepomuk::Resource> tagList = r.property(NAO::hasTopic()).toResourceList();
+        QList<Nepomuk2::Resource> tagList = r.property(NAO::hasTopic()).toResourceList();
 
-        foreach(const Nepomuk::Resource &t, tagList) {
+        foreach(const Nepomuk2::Resource &t, tagList) {
             QString topicLabel = t.property(PIMO::tagLabel()).toString();
             int count = cloudMap.value(topicLabel, 0);
             count ++;

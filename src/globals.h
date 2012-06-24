@@ -21,7 +21,7 @@
 #include <Qt>
 #include <QString>
 #include <QStringList>
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 #include <KLocale>
 
@@ -99,7 +99,7 @@ enum BibEntryType {
 
     Max_BibTypes
 };
- 
+
 static const QStringList BibEntryTypeTranslation = QStringList() << I18N_NOOP("Article")
                                                                  << I18N_NOOP("Book")
                                                                  << I18N_NOOP("Booklet")
@@ -180,160 +180,160 @@ static const QStringList BibEntryTypeIcon = QStringList()        << QString("kne
                                                                  << QString("knewsticker")
                                                                  << QString("services");
 
-static const QList<QUrl> BibEntryTypeURL = QList<QUrl>() << Nepomuk::Vocabulary::NBIB::Article()
-                                                         << Nepomuk::Vocabulary::NBIB::Book()
-                                                         << Nepomuk::Vocabulary::NBIB::Booklet()
-                                                         << Nepomuk::Vocabulary::NBIB::Collection()
-                                                         << Nepomuk::Vocabulary::NBIB::Encyclopedia()
-                                                         << Nepomuk::Vocabulary::NBIB::Dictionary()
-                                                         << Nepomuk::Vocabulary::NBIB::BachelorThesis()
-                                                         << Nepomuk::Vocabulary::NBIB::MastersThesis()
-                                                         << Nepomuk::Vocabulary::NBIB::PhdThesis()
-                                                         << Nepomuk::Vocabulary::NBIB::Thesis()
-                                                         << Nepomuk::Vocabulary::NBIB::Report()
-                                                         << Nepomuk::Vocabulary::NBIB::Techreport()
-                                                         << Nepomuk::Vocabulary::NBIB::Electronic()
-                                                         << Nepomuk::Vocabulary::NBIB::Forum()
-                                                         << Nepomuk::Vocabulary::NBIB::ForumPost()
-                                                         << Nepomuk::Vocabulary::NBIB::Blog()
-                                                         << Nepomuk::Vocabulary::NBIB::BlogPost()
-                                                         << Nepomuk::Vocabulary::NBIB::Webpage()
-                                                         << Nepomuk::Vocabulary::NBIB::Website()
-                                                         << Nepomuk::Vocabulary::NBIB::Script()
-                                                         << Nepomuk::Vocabulary::NBIB::Presentation()
-                                                         << Nepomuk::Vocabulary::NBIB::Unpublished()
-                                                         << Nepomuk::Vocabulary::NBIB::Publication()
-                                                         << Nepomuk::Vocabulary::NBIB::Manual()
-                                                         << Nepomuk::Vocabulary::NBIB::Proceedings()
-                                                         << Nepomuk::Vocabulary::NBIB::JournalIssue()
-                                                         << Nepomuk::Vocabulary::NBIB::NewspaperIssue()
-                                                         << Nepomuk::Vocabulary::NBIB::MagazinIssue()
-                                                         << Nepomuk::Vocabulary::NBIB::Standard()
-                                                         << Nepomuk::Vocabulary::NBIB::Patent()
-                                                         << Nepomuk::Vocabulary::NBIB::CodeOfLaw()
-                                                         << Nepomuk::Vocabulary::NBIB::CourtReporter()
-                                                         << Nepomuk::Vocabulary::NBIB::Legislation()
-                                                         << Nepomuk::Vocabulary::NBIB::Bill()
-                                                         << Nepomuk::Vocabulary::NBIB::Statute()
-                                                         << Nepomuk::Vocabulary::NBIB::LegalCaseDocument()
-                                                         << Nepomuk::Vocabulary::NBIB::Decision()
-                                                         << Nepomuk::Vocabulary::NBIB::Brief()
-                                                         << Nepomuk::Vocabulary::NBIB::Map();
+static const QList<QUrl> BibEntryTypeURL = QList<QUrl>() << Nepomuk2::Vocabulary::NBIB::Article()
+                                                         << Nepomuk2::Vocabulary::NBIB::Book()
+                                                         << Nepomuk2::Vocabulary::NBIB::Booklet()
+                                                         << Nepomuk2::Vocabulary::NBIB::Collection()
+                                                         << Nepomuk2::Vocabulary::NBIB::Encyclopedia()
+                                                         << Nepomuk2::Vocabulary::NBIB::Dictionary()
+                                                         << Nepomuk2::Vocabulary::NBIB::BachelorThesis()
+                                                         << Nepomuk2::Vocabulary::NBIB::MastersThesis()
+                                                         << Nepomuk2::Vocabulary::NBIB::PhdThesis()
+                                                         << Nepomuk2::Vocabulary::NBIB::Thesis()
+                                                         << Nepomuk2::Vocabulary::NBIB::Report()
+                                                         << Nepomuk2::Vocabulary::NBIB::Techreport()
+                                                         << Nepomuk2::Vocabulary::NBIB::Electronic()
+                                                         << Nepomuk2::Vocabulary::NBIB::Forum()
+                                                         << Nepomuk2::Vocabulary::NBIB::ForumPost()
+                                                         << Nepomuk2::Vocabulary::NBIB::Blog()
+                                                         << Nepomuk2::Vocabulary::NBIB::BlogPost()
+                                                         << Nepomuk2::Vocabulary::NBIB::Webpage()
+                                                         << Nepomuk2::Vocabulary::NBIB::Website()
+                                                         << Nepomuk2::Vocabulary::NBIB::Script()
+                                                         << Nepomuk2::Vocabulary::NBIB::Presentation()
+                                                         << Nepomuk2::Vocabulary::NBIB::Unpublished()
+                                                         << Nepomuk2::Vocabulary::NBIB::Publication()
+                                                         << Nepomuk2::Vocabulary::NBIB::Manual()
+                                                         << Nepomuk2::Vocabulary::NBIB::Proceedings()
+                                                         << Nepomuk2::Vocabulary::NBIB::JournalIssue()
+                                                         << Nepomuk2::Vocabulary::NBIB::NewspaperIssue()
+                                                         << Nepomuk2::Vocabulary::NBIB::MagazinIssue()
+                                                         << Nepomuk2::Vocabulary::NBIB::Standard()
+                                                         << Nepomuk2::Vocabulary::NBIB::Patent()
+                                                         << Nepomuk2::Vocabulary::NBIB::CodeOfLaw()
+                                                         << Nepomuk2::Vocabulary::NBIB::CourtReporter()
+                                                         << Nepomuk2::Vocabulary::NBIB::Legislation()
+                                                         << Nepomuk2::Vocabulary::NBIB::Bill()
+                                                         << Nepomuk2::Vocabulary::NBIB::Statute()
+                                                         << Nepomuk2::Vocabulary::NBIB::LegalCaseDocument()
+                                                         << Nepomuk2::Vocabulary::NBIB::Decision()
+                                                         << Nepomuk2::Vocabulary::NBIB::Brief()
+                                                         << Nepomuk2::Vocabulary::NBIB::Map();
 
-static BibEntryType BibEntryTypeFromUrl(const Nepomuk::Resource & resource)
+static BibEntryType BibEntryTypeFromUrl(const Nepomuk2::Resource & resource)
 {
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Proceedings())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Proceedings())) {
         return BibType_Proceedings;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::MastersThesis())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::MastersThesis())) {
         return BibType_Mastersthesis;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::PhdThesis())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::PhdThesis())) {
         return BibType_Phdthesis;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::BachelorThesis())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::BachelorThesis())) {
         return BibType_Bachelorthesis;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Thesis())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Thesis())) {
         return BibType_Thesis;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Book())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Book())) {
         return BibType_Book;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Booklet())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Booklet())) {
         return BibType_Booklet;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Manual())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Manual())) {
         return BibType_Manual;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Techreport())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Techreport())) {
         return BibType_Techreport;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Unpublished())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Unpublished())) {
         return BibType_Unpublished;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Patent())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Patent())) {
         return BibType_Patent;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Forum())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Forum())) {
         return BibType_Forum;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::ForumPost())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::ForumPost())) {
         return BibType_ForumPost;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Blog())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Blog())) {
         return BibType_Blog;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::BlogPost())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::BlogPost())) {
         return BibType_BlogPost;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Webpage())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Webpage())) {
         return BibType_WebPage;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Website())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Website())) {
         return BibType_WebSite;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::JournalIssue())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::JournalIssue())) {
         return BibType_JournalIssue;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::NewspaperIssue())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::NewspaperIssue())) {
         return BibType_NewspaperIssue;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::MagazinIssue())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::MagazinIssue())) {
         return BibType_MagazinIssue;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Report())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Report())) {
         return BibType_Report;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Script())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Script())) {
         return BibType_Script;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Presentation())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Presentation())) {
         return BibType_Presentation;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Encyclopedia())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Encyclopedia())) {
         return BibType_Encyclopedia;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Dictionary())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Dictionary())) {
         return BibType_Dictionary;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Standard())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Standard())) {
         return BibType_Standard;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Bill())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Bill())) {
         return BibType_Bill;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Decision())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Decision())) {
         return BibType_Decision;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Brief())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Brief())) {
         return BibType_Brief;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Statute())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Statute())) {
         return BibType_Statute;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::CodeOfLaw())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::CodeOfLaw())) {
         return BibType_CodeOfLaw;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::CourtReporter())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::CourtReporter())) {
         return BibType_CourtReporter;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::LegalCaseDocument())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::LegalCaseDocument())) {
         return BibType_LegalCaseDocument;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Legislation())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Legislation())) {
         return BibType_Legislation;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Collection())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Collection())) {
         return BibType_Collection;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Electronic())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Electronic())) {
         return BibType_Electronic;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Map())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Map())) {
         return BibType_Map;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Article())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Article())) {
         return BibType_Article;
     }
     return BibType_Misc;
@@ -361,24 +361,24 @@ static const QStringList SeriesTypeIcon = QStringList()        << QString("acror
                                                                << QString("kjournal")
                                                                << QString("knewsticker");
 
-static const QList<QUrl> SeriesTypeURL = QList<QUrl>() << Nepomuk::Vocabulary::NBIB::Series()
-                                                       << Nepomuk::Vocabulary::NBIB::BookSeries()
-                                                       << Nepomuk::Vocabulary::NBIB::Journal()
-                                                       << Nepomuk::Vocabulary::NBIB::Magazin()
-                                                       << Nepomuk::Vocabulary::NBIB::Newspaper();
+static const QList<QUrl> SeriesTypeURL = QList<QUrl>() << Nepomuk2::Vocabulary::NBIB::Series()
+                                                       << Nepomuk2::Vocabulary::NBIB::BookSeries()
+                                                       << Nepomuk2::Vocabulary::NBIB::Journal()
+                                                       << Nepomuk2::Vocabulary::NBIB::Magazin()
+                                                       << Nepomuk2::Vocabulary::NBIB::Newspaper();
 
-static SeriesType SeriesTypeFromUrl(const Nepomuk::Resource & resource)
+static SeriesType SeriesTypeFromUrl(const Nepomuk2::Resource & resource)
 {
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::BookSeries())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::BookSeries())) {
         return SeriesType_BookSeries;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Journal())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Journal())) {
         return SeriesType_Journal;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Magazin())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Magazin())) {
         return SeriesType_Magazin;
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Newspaper())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Newspaper())) {
         return SeriesType_Newspaper;
     }
     return SeriesType_Series;

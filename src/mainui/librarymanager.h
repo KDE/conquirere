@@ -18,7 +18,7 @@
 #ifndef LIBRARYMANAGER_H
 #define LIBRARYMANAGER_H
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 #include <QtCore/QObject>
 #include <QtCore/QMap>
@@ -82,9 +82,9 @@ signals:
       * This signal gets thrown when the resource was changed and must be updated in the table model cache
       * redirects the signal from all propertywidgets of every SidbarComponent
       *
-      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
       */
-    void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
+    void resourceCacheNeedsUpdate(Nepomuk2::Resource resource);
 
 private:
     QList<Library*> m_openProjectList;

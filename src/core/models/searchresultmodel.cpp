@@ -21,13 +21,13 @@
 #include <kbibtex/fileexporterxslt.h>
 #include <kbibtex/onlinesearchabstract.h>
 
-#include <Nepomuk/Variant>
-#include <Nepomuk/Vocabulary/NFO>
-#include <Nepomuk/Vocabulary/NMO>
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/NCO>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Vocabulary/NFO>
+#include <Nepomuk2/Vocabulary/NMO>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NCO>
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/PIMO>
 
 #include <KDE/KGlobalSettings>
 #include <KDE/KStandardDirs>
@@ -155,9 +155,9 @@ QVariant SearchResultModel::headerData(int section, Qt::Orientation orientation,
     return QVariant();
 }
 
-Nepomuk::Resource SearchResultModel::nepomukResourceAt(const QModelIndex &selection)
+Nepomuk2::Resource SearchResultModel::nepomukResourceAt(const QModelIndex &selection)
 {
-    Nepomuk::Resource ret;
+    Nepomuk2::Resource ret;
 
     if(!m_modelCacheData.isEmpty() && selection.row() >= 0) {
         SRCachedRowEntry entryCache = m_modelCacheData.at(selection.row());
@@ -243,9 +243,9 @@ void SearchResultModel::addSearchResult(SearchResultEntry newEntry)
     endInsertRows();
 }
 
-QVariantList SearchResultModel::createDisplayData(const Nepomuk::Query::Result & nepomukResult) const
+QVariantList SearchResultModel::createDisplayData(const Nepomuk2::Query::Result & nepomukResult) const
 {
-    Nepomuk::Resource res = nepomukResult.resource();
+    Nepomuk2::Resource res = nepomukResult.resource();
     QVariantList displayList;
     displayList.reserve(Max_columns-1);
 
@@ -258,9 +258,9 @@ QVariantList SearchResultModel::createDisplayData(const Nepomuk::Query::Result &
         }
         case Column_Author: {
             QString authorSting;
-            QList<Nepomuk::Resource> authorList = res.property(Nepomuk::Vocabulary::NCO::creator()).toResourceList();
+            QList<Nepomuk2::Resource> authorList = res.property(Nepomuk2::Vocabulary::NCO::creator()).toResourceList();
 
-            foreach(const Nepomuk::Resource & a, authorList) {
+            foreach(const Nepomuk2::Resource & a, authorList) {
                 authorSting.append(a.genericLabel());
                 authorSting.append(QLatin1String("; "));
             }
@@ -270,19 +270,19 @@ QVariantList SearchResultModel::createDisplayData(const Nepomuk::Query::Result &
             break;
         }
         case Column_Name: {
-            QString titleSting = res.property(Nepomuk::Vocabulary::NIE::title()).toString();
+            QString titleSting = res.property(Nepomuk2::Vocabulary::NIE::title()).toString();
 
             newEntry = titleSting;
             break;
         }
         case Column_Date: {
             QString dateString;
-            if(res.hasType(Nepomuk::Vocabulary::NBIB::Publication()))
-                dateString = res.property(Nepomuk::Vocabulary::NBIB::publicationDate()).toString();
+            if(res.hasType(Nepomuk2::Vocabulary::NBIB::Publication()))
+                dateString = res.property(Nepomuk2::Vocabulary::NBIB::publicationDate()).toString();
             else {
-                dateString = res.property(Nepomuk::Vocabulary::NMO::sentDate()).toString();
+                dateString = res.property(Nepomuk2::Vocabulary::NMO::sentDate()).toString();
                 if(dateString.isEmpty())
-                    dateString = res.property(Nepomuk::Vocabulary::NIE::contentCreated()).toString();
+                    dateString = res.property(Nepomuk2::Vocabulary::NIE::contentCreated()).toString();
             }
 
             QDateTime date = QDateTime::fromString(dateString, Qt::ISODate);
@@ -297,7 +297,7 @@ QVariantList SearchResultModel::createDisplayData(const Nepomuk::Query::Result &
             break;
         }
         case Column_Details: {
-            QString titleSting = res.property(Nepomuk::Vocabulary::NIE::title()).toString();
+            QString titleSting = res.property(Nepomuk2::Vocabulary::NIE::title()).toString();
             if(titleSting.isEmpty())
                 titleSting = res.genericLabel();
 
@@ -327,7 +327,7 @@ QVariantList SearchResultModel::createDisplayData(const Nepomuk::Query::Result &
     return displayList;
 }
 
-QVariantList SearchResultModel::createDecorationData(const Nepomuk::Query::Result & nepomukResult) const
+QVariantList SearchResultModel::createDecorationData(const Nepomuk2::Query::Result & nepomukResult) const
 {
     QVariantList decorationList;
     decorationList.reserve(Max_columns-1);
@@ -355,7 +355,7 @@ QVariantList SearchResultModel::createDecorationData(const Nepomuk::Query::Resul
     return decorationList;
 }
 
-QVariantList SearchResultModel::createToolTipData(const Nepomuk::Query::Result & nepomukResult) const
+QVariantList SearchResultModel::createToolTipData(const Nepomuk2::Query::Result & nepomukResult) const
 {
     QVariantList decorationList;
     decorationList.reserve(Max_columns-1);
@@ -491,67 +491,67 @@ QVariantList SearchResultModel::createToolTipData(QSharedPointer<Entry> entry, O
     return decorationList;
 }
 
-QString SearchResultModel::translateEntryType(const Nepomuk::Resource & resource) const
+QString SearchResultModel::translateEntryType(const Nepomuk2::Resource & resource) const
 {
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Publication())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Publication())) {
         BibEntryType type = BibEntryTypeFromUrl(resource);
         return BibEntryTypeTranslation.at(type);
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NFO::Document())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Document())) {
         return i18nc("General document type","Document");
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NFO::Audio())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Audio())) {
         return i18nc("Audio resource type","Audio");
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NFO::Video())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Video())) {
         return i18nc("Video resource type","Video");
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NFO::Image())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Image())) {
         return i18nc("Image resource type","Image");
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NMO::Message())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NMO::Message())) {
         return i18nc("Email resource type","EMail");
     }
-    if(resource.hasType(Nepomuk::Vocabulary::PIMO::Note())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::PIMO::Note())) {
         return i18nc("Note resource type","Note");
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NFO::Website())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Website())) {
         return i18nc("Website or bookmark","Website");
     }
 
     return i18nc("other unknown resource type","other");
 }
 
-KIcon SearchResultModel::iconizeEntryType(const Nepomuk::Resource & resource) const
+KIcon SearchResultModel::iconizeEntryType(const Nepomuk2::Resource & resource) const
 {
-    if(resource.hasType(Nepomuk::Vocabulary::NBIB::Publication())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Publication())) {
         BibEntryType type = BibEntryTypeFromUrl(resource);
         return KIcon(BibEntryTypeIcon.at(type));
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NFO::Document())) {
-        KUrl path = resource.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Document())) {
+        KUrl path = resource.property(Nepomuk2::Vocabulary::NIE::url()).toUrl();
         return KIcon(KMimeType::iconNameForUrl(path));
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NFO::Audio())) {
-        KUrl path = resource.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Audio())) {
+        KUrl path = resource.property(Nepomuk2::Vocabulary::NIE::url()).toUrl();
         return KIcon(KMimeType::iconNameForUrl(path));
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NFO::Video())) {
-        KUrl path = resource.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Video())) {
+        KUrl path = resource.property(Nepomuk2::Vocabulary::NIE::url()).toUrl();
         return KIcon(KMimeType::iconNameForUrl(path));
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NFO::Image())) {
-        KUrl path = resource.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Image())) {
+        KUrl path = resource.property(Nepomuk2::Vocabulary::NIE::url()).toUrl();
         return KIcon(KMimeType::iconNameForUrl(path));
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NMO::Message())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::NMO::Message())) {
         return KIcon(QLatin1String("internet-mail"));
     }
-    if(resource.hasType(Nepomuk::Vocabulary::PIMO::Note())) {
+    if(resource.hasType(Nepomuk2::Vocabulary::PIMO::Note())) {
         return KIcon(QLatin1String("knotes"));
     }
-    if(resource.hasType(Nepomuk::Vocabulary::NFO::Website())) {
-        KUrl path = resource.property(Nepomuk::Vocabulary::NIE::url()).toUrl();
+    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Website())) {
+        KUrl path = resource.property(Nepomuk2::Vocabulary::NIE::url()).toUrl();
         QString iconName = KMimeType::favIconForUrl(path);
         if(iconName.isEmpty()) {
             iconName = QLatin1String("text-html");

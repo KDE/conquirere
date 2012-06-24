@@ -20,11 +20,11 @@
 
 #include "core/library.h"
 
-#include <Nepomuk/Resource>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Resource>
+#include <Nepomuk2/Variant>
 
-#include <Nepomuk/Vocabulary/PIMO>
-#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 
 #include <KDE/KConfig>
@@ -66,7 +66,7 @@ void LoadProject::showCollection(int currentRow)
 
         QListWidgetItem *item = ui->listWidget->item(currentRow);
 
-        Nepomuk::Resource collection = Nepomuk::Resource(item->data(Qt::UserRole).toString());
+        Nepomuk2::Resource collection = Nepomuk2::Resource(item->data(Qt::UserRole).toString());
 
         ui->labelName->setText(collection.property(Soprano::Vocabulary::NAO::prefLabel()).toString());
 
@@ -84,7 +84,7 @@ void LoadProject::accept()
     m_loadLibrary = new Library();
 
     QListWidgetItem *curItem = ui->listWidget->currentItem();
-    Nepomuk::Thing collection = Nepomuk::Thing(curItem->data(Qt::UserRole).toString());
+    Nepomuk2::Thing collection = Nepomuk2::Thing(curItem->data(Qt::UserRole).toString());
     m_loadLibrary->loadLibrary(collection);
 
     QDialog::accept();
@@ -92,8 +92,8 @@ void LoadProject::accept()
 
 void LoadProject::fetchProjects()
 {
-    m_queryClient = new Nepomuk::Query::QueryServiceClient();
-    connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(fillProjectList(QList<Nepomuk::Query::Result>)));
+    m_queryClient = new Nepomuk2::Query::QueryServiceClient();
+    connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk2::Query::Result>)), this, SLOT(fillProjectList(QList<Nepomuk2::Query::Result>)));
     connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(queryFinished()));
 
     QString query = "select DISTINCT ?r where { "
@@ -103,9 +103,9 @@ void LoadProject::fetchProjects()
      m_queryClient->sparqlQuery( query );
 }
 
-void LoadProject::fillProjectList( const QList< Nepomuk::Query::Result > &entries )
+void LoadProject::fillProjectList( const QList< Nepomuk2::Query::Result > &entries )
 {
-    foreach(const Nepomuk::Query::Result &r, entries) {
+    foreach(const Nepomuk2::Query::Result &r, entries) {
         QListWidgetItem *newItem = new QListWidgetItem;
         newItem->setText(r.resource().property(Soprano::Vocabulary::NAO::prefLabel()).toString());
         newItem->setData(Qt::UserRole, r.resource().resourceUri());

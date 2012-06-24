@@ -20,7 +20,7 @@
 
 #include <QtGui/QWidget>
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 namespace Ui {
     class ListCitedSources;
@@ -37,7 +37,7 @@ public:
     ~ListCitedSources();
 
     void setLibraryManager(LibraryManager *lm);
-    void setResource(Nepomuk::Resource resource);
+    void setResource(Nepomuk2::Resource resource);
 
 signals:
     /**
@@ -46,9 +46,9 @@ signals:
       *
       * Must be connected to the resourceUpdated signal from the widget it is contained in
       *
-      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
       */
-    void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
+    void resourceCacheNeedsUpdate(Nepomuk2::Resource resource);
 
 private slots:
     /**
@@ -72,7 +72,7 @@ private:
     Ui::ListCitedSources *ui;
     LibraryManager *m_libraryManager;
 
-    Nepomuk::Resource m_resource;
+    Nepomuk2::Resource m_resource;
 };
 
 #endif // LISTCITEDSOURCES_H

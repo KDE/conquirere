@@ -31,7 +31,7 @@
 #include "core/delegates/ratingdelegate.h"
 #include "core/delegates/htmldelegate.h"
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 #include <KDE/KWidgetItemDelegate>
 #include <KDE/KRatingWidget>
@@ -269,7 +269,7 @@ void ResourceTableWidget::selectedResource( const QItemSelection & selected, con
     QModelIndexList selectedIndex = m_documentView->selectionModel()->selectedRows();
 
     if(selectedIndex.isEmpty()) {
-        Nepomuk::Resource empty;
+        Nepomuk2::Resource empty;
         emit selectedResource(empty,false);
     }
     else if(selectedIndex.size() > 1) {
@@ -278,9 +278,9 @@ void ResourceTableWidget::selectedResource( const QItemSelection & selected, con
         if(!rm) {
             SearchResultModel *srm = qobject_cast<SearchResultModel *>(sfpm->sourceModel());
             if(srm) {
-                QList<Nepomuk::Resource> resourceList;
+                QList<Nepomuk2::Resource> resourceList;
                 foreach(const QModelIndex & mi, selectedIndex) {
-                    Nepomuk::Resource nr = srm->nepomukResourceAt(sfpm->mapToSource(mi));
+                    Nepomuk2::Resource nr = srm->nepomukResourceAt(sfpm->mapToSource(mi));
                     resourceList.append(nr);
                 }
 
@@ -288,9 +288,9 @@ void ResourceTableWidget::selectedResource( const QItemSelection & selected, con
             }
         }
         else {
-            QList<Nepomuk::Resource> resourceList;
+            QList<Nepomuk2::Resource> resourceList;
             foreach(const QModelIndex & mi, selectedIndex) {
-                Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(mi));
+                Nepomuk2::Resource nr = rm->documentResource(sfpm->mapToSource(mi));
                 resourceList.append(nr);
             }
 
@@ -302,17 +302,17 @@ void ResourceTableWidget::selectedResource( const QItemSelection & selected, con
         NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
 
         if(rm) {
-            Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(selectedIndex.first()));
+            Nepomuk2::Resource nr = rm->documentResource(sfpm->mapToSource(selectedIndex.first()));
             emit selectedResource(nr,false);
         }
         else {
             SearchResultModel *srm = qobject_cast<SearchResultModel *>(sfpm->sourceModel());
             if(srm) {
-                Nepomuk::Resource nr = srm->nepomukResourceAt(sfpm->mapToSource(selectedIndex.first()));
+                Nepomuk2::Resource nr = srm->nepomukResourceAt(sfpm->mapToSource(selectedIndex.first()));
                 emit selectedResource(nr,false);
             }
             else {
-                Nepomuk::Resource empty;
+                Nepomuk2::Resource empty;
                 emit selectedResource(empty,false);
             }
         }
@@ -343,7 +343,7 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
     QModelIndexList selectedIndex = sm->selectedRows();
     if(selectedIndex.isEmpty()) { return; }
 
-    Nepomuk::Resource nepomukRescource;
+    Nepomuk2::Resource nepomukRescource;
     QSharedPointer<Entry> bibTeXResource;
 
     QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
@@ -365,7 +365,7 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
     }
 
     TableViewMenu tvm;
-    connect(&tvm, SIGNAL(openResourceInTab(Nepomuk::Resource&, bool)), this, SIGNAL(selectedResource(Nepomuk::Resource&, bool)));
+    connect(&tvm, SIGNAL(openResourceInTab(Nepomuk2::Resource&, bool)), this, SIGNAL(selectedResource(Nepomuk2::Resource&, bool)));
     tvm.setLibraryManager(m_libraryManager);
 
     if(nepomukRescource.isValid()) {
@@ -408,7 +408,7 @@ void ResourceTableWidget::mouseDoubleClickEvent ( QModelIndex index )
     QModelIndexList selectedIndex = sm->selectedRows();
     if(selectedIndex.isEmpty()) { return; }
 
-    Nepomuk::Resource nepomukRescource;
+    Nepomuk2::Resource nepomukRescource;
 
     QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
     NepomukModel *nm = qobject_cast<NepomukModel *>(sfpm->sourceModel());

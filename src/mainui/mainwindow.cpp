@@ -51,10 +51,10 @@
 #include <KDE/KMessageBox>
 #include <KDE/KProgressDialog>
 
-#include <Nepomuk/Resource>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Resource>
+#include <Nepomuk2/Variant>
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/PIMO>
 #include <KDE/KStatusBar>
 #include <KDE/KDebug>
 
@@ -239,7 +239,7 @@ void MainWindow::switchView(ResourceSelection selection, BibEntryType filter, Li
         ww->show();
 
         // reset the sidebarwidget and documentpreview
-        // if there was some Nepomuk::Resouce selected beforehand
+        // if there was some Nepomuk2::Resouce selected beforehand
         m_sidebarWidget->clear();
         m_documentPreview->clear();
     }
@@ -565,20 +565,20 @@ void MainWindow::setupMainWindow()
     connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,BibEntryType,Library*)),
             m_sidebarWidget, SLOT(newSelection(ResourceSelection,BibEntryType,Library*)));
 
-    connect(m_tableWidget, SIGNAL(selectedResource(Nepomuk::Resource&, bool)),
-            m_sidebarWidget, SLOT(setResource(Nepomuk::Resource&)));
+    connect(m_tableWidget, SIGNAL(selectedResource(Nepomuk2::Resource&, bool)),
+            m_sidebarWidget, SLOT(setResource(Nepomuk2::Resource&)));
 
-    connect(m_tableWidget, SIGNAL(selectedMultipleResources(QList<Nepomuk::Resource>)),
-            m_sidebarWidget, SLOT(setMultipleResources(QList<Nepomuk::Resource>)));
+    connect(m_tableWidget, SIGNAL(selectedMultipleResources(QList<Nepomuk2::Resource>)),
+            m_sidebarWidget, SLOT(setMultipleResources(QList<Nepomuk2::Resource>)));
 
-    connect(m_tableWidget, SIGNAL(selectedResource(Nepomuk::Resource&, bool)),
-            m_documentPreview, SLOT(setResource(Nepomuk::Resource&, bool)));
+    connect(m_tableWidget, SIGNAL(selectedResource(Nepomuk2::Resource&, bool)),
+            m_documentPreview, SLOT(setResource(Nepomuk2::Resource&, bool)));
 
-    connect(m_sidebarWidget, SIGNAL(openDocument(Nepomuk::Resource&,bool)),
-            m_documentPreview, SLOT(setResource(Nepomuk::Resource&, bool)));
+    connect(m_sidebarWidget, SIGNAL(openDocument(Nepomuk2::Resource&,bool)),
+            m_documentPreview, SLOT(setResource(Nepomuk2::Resource&, bool)));
 
-    connect(m_documentPreview, SIGNAL(activeDocumentChanged(Nepomuk::Resource&)),
-            m_sidebarWidget, SLOT(setResource(Nepomuk::Resource&)));
+    connect(m_documentPreview, SIGNAL(activeDocumentChanged(Nepomuk2::Resource&)),
+            m_sidebarWidget, SLOT(setResource(Nepomuk2::Resource&)));
 
     connect(m_documentPreview, SIGNAL(activateKPart(KParts::Part*)),
             this, SLOT(connectKPartGui(KParts::Part*)));

@@ -19,16 +19,16 @@
 #include "../library.h"
 #include "../projectsettings.h"
 
-#include <Nepomuk/Variant>
-#include <Nepomuk/Query/ResourceTerm>
-#include <Nepomuk/Query/AndTerm>
-#include <Nepomuk/Query/OrTerm>
-#include <Nepomuk/Query/ResourceTypeTerm>
-#include <Nepomuk/Query/ComparisonTerm>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Query/ResourceTerm>
+#include <Nepomuk2/Query/AndTerm>
+#include <Nepomuk2/Query/OrTerm>
+#include <Nepomuk2/Query/ResourceTypeTerm>
+#include <Nepomuk2/Query/ComparisonTerm>
 
-#include <Nepomuk/Vocabulary/PIMO>
-#include <Nepomuk/Vocabulary/NFO>
-#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/NFO>
+#include <Nepomuk2/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 
 BookmarkQuery::BookmarkQuery(QObject *parent) :
@@ -38,26 +38,26 @@ BookmarkQuery::BookmarkQuery(QObject *parent) :
 
 void BookmarkQuery::startFetchData()
 {
-    Nepomuk::Query::AndTerm andTerm;
-    andTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NFO::Website() ) );
+    Nepomuk2::Query::AndTerm andTerm;
+    andTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::Website() ) );
 
     if(m_library->libraryType() == Library_Project) {
-        Nepomuk::Query::OrTerm orTerm;
-        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
-                                                           Nepomuk::Query::ResourceTerm( m_library->settings()->projectTag() )));
-        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
-                                                            Nepomuk::Query::ResourceTerm(m_library->settings()->projectThing() )));
+        Nepomuk2::Query::OrTerm orTerm;
+        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
+                                                           Nepomuk2::Query::ResourceTerm( m_library->settings()->projectTag() )));
+        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
+                                                            Nepomuk2::Query::ResourceTerm(m_library->settings()->projectThing() )));
         andTerm.addSubTerm(orTerm);
     }
 
     // build the query
-    Nepomuk::Query::Query query( andTerm );
+    Nepomuk2::Query::Query query( andTerm );
     m_queryClient->query(query);
 }
 
-void BookmarkQuery::resourceChanged (const Nepomuk::Resource &resource)
+void BookmarkQuery::resourceChanged (const Nepomuk2::Resource &resource)
 {
-    if(!resource.hasType(Nepomuk::Vocabulary::NFO::Website()))
+    if(!resource.hasType(Nepomuk2::Vocabulary::NFO::Website()))
         return;
 
     QList<CachedRowEntry> newCache;
@@ -71,7 +71,7 @@ void BookmarkQuery::resourceChanged (const Nepomuk::Resource &resource)
     emit updateCacheEntries(newCache);
 }
 
-QVariantList BookmarkQuery::createDisplayData(const Nepomuk::Resource & res) const
+QVariantList BookmarkQuery::createDisplayData(const Nepomuk2::Resource & res) const
 {
     QVariantList displayList;
     displayList.reserve(Max_columns-1);
@@ -80,15 +80,15 @@ QVariantList BookmarkQuery::createDisplayData(const Nepomuk::Resource & res) con
         QVariant newEntry;
         switch(i) {
         case Column_Title: {
-            QString titleSting = res.property(Nepomuk::Vocabulary::NIE::title()).toString();
+            QString titleSting = res.property(Nepomuk2::Vocabulary::NIE::title()).toString();
 
             newEntry = titleSting;
             break;
         }
         case Column_Date: {
-            QString dateString = res.property(Nepomuk::Vocabulary::NIE::contentLastModified()).toString();
+            QString dateString = res.property(Nepomuk2::Vocabulary::NIE::contentLastModified()).toString();
             if(dateString.isEmpty()) {
-                dateString = res.property(Nepomuk::Vocabulary::NIE::contentLastModified()).toString();
+                dateString = res.property(Nepomuk2::Vocabulary::NIE::contentLastModified()).toString();
             }
             dateString.remove('Z');
 
@@ -103,9 +103,9 @@ QVariantList BookmarkQuery::createDisplayData(const Nepomuk::Resource & res) con
         }
         case Column_Tags: {
             QString tagString;
-            QList<Nepomuk::Resource> tagList = res.property(Soprano::Vocabulary::NAO::hasTag()).toResourceList();
+            QList<Nepomuk2::Resource> tagList = res.property(Soprano::Vocabulary::NAO::hasTag()).toResourceList();
 
-            foreach(const Nepomuk::Resource & nr, tagList) {
+            foreach(const Nepomuk2::Resource & nr, tagList) {
                 tagString.append(nr.property(Soprano::Vocabulary::NAO::prefLabel()).toString());
                 tagString.append(QLatin1String("; "));
             }
@@ -114,7 +114,7 @@ QVariantList BookmarkQuery::createDisplayData(const Nepomuk::Resource & res) con
             break;
         }
         case Column_Link: {
-            Nepomuk::Resource linkResource = res.property(Nepomuk::Vocabulary::NIE::url()).toResource();
+            Nepomuk2::Resource linkResource = res.property(Nepomuk2::Vocabulary::NIE::url()).toResource();
             newEntry = linkResource.genericLabel();
             break;
         }
@@ -133,7 +133,7 @@ QVariantList BookmarkQuery::createDisplayData(const Nepomuk::Resource & res) con
     return displayList;
 }
 
-QVariantList BookmarkQuery::createDecorationData(const Nepomuk::Resource & res) const
+QVariantList BookmarkQuery::createDecorationData(const Nepomuk2::Resource & res) const
 {
     QVariantList decorationList;
     decorationList.reserve(Max_columns-1);

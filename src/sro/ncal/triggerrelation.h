@@ -8,9 +8,9 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * The relation between the trigger and its parent calendar component. 
@@ -18,7 +18,7 @@ namespace NCAL {
  * for the ncal:related property. See the documentation for ncal:related 
  * for more details. 
  */
-class TriggerRelation : public virtual Nepomuk::SimpleResource
+class TriggerRelation : public virtual Nepomuk2::SimpleResource
 {
 public:
     TriggerRelation(const QUrl& uri = QUrl())

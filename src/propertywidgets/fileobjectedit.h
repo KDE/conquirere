@@ -20,7 +20,7 @@
 
 #include <QtGui/QWidget>
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 class LibraryManager;
 class QListWidgetItem;
@@ -38,10 +38,10 @@ public:
     ~FileObjectEdit();
 
     void setLibraryManager(LibraryManager *lm);
-    void setResource(Nepomuk::Resource & resource);
+    void setResource(Nepomuk2::Resource & resource);
 
 signals:
-    void openDocument(Nepomuk::Resource & resource, bool inTab);
+    void openDocument(Nepomuk2::Resource & resource, bool inTab);
 
 private slots:
     void fillFileObjectWidget();
@@ -51,12 +51,12 @@ private slots:
     void doubleClicked(QListWidgetItem* item,QPoint point);
 
 private:
-    void addItemInfo(QListWidgetItem *i, const Nepomuk::Resource &resource);
+    void addItemInfo(QListWidgetItem *i, const Nepomuk2::Resource &resource);
 
     Ui::FileObjectEdit *ui;
 
     LibraryManager *m_libraryManager;
-    Nepomuk::Resource m_publication;
+    Nepomuk2::Resource m_publication;
 };
 
 #endif // FILEOBJECTEDIT_H

@@ -20,7 +20,7 @@
 
 #include "sidebarcomponent.h"
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 namespace Ui {
     class DocumentWidget;
@@ -43,7 +43,7 @@ public:
     virtual ~DocumentWidget();
 
     void setLibraryManager(LibraryManager *lm);
-    Nepomuk::Resource resource();
+    Nepomuk2::Resource resource();
 
 public slots:
     /**
@@ -51,7 +51,7 @@ public slots:
       *
       * @pre resource must be a nfo:Document
       */
-    virtual void setResource(Nepomuk::Resource & resource);
+    virtual void setResource(Nepomuk2::Resource & resource);
 
     /**
       * @todo implement file add (push data into nepomuk which is not there yet)
@@ -84,7 +84,7 @@ signals:
     void hasPublication(bool publication);
 
 private:
-    Nepomuk::Resource m_document; /**< the @c nfo:Document resource */
+    Nepomuk2::Resource m_document; /**< the @c nfo:Document resource */
 
     Ui::DocumentWidget *ui;
 };

@@ -21,16 +21,16 @@
 #include "propertywidgets/contactedit.h"
 #include "contactdialog.h"
 
-#include "dms-copy/datamanagement.h"
+#include <Nepomuk2/DataManagement>
 #include <KDE/KJob>
 #include "sro/nbib/chapter.h"
 
 #include "nbib.h"
-#include <Nepomuk/Variant>
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/NCO>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NCO>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 
 AddChapterDialog::AddChapterDialog(QWidget *parent) :
     QDialog(parent),
@@ -40,7 +40,7 @@ AddChapterDialog::AddChapterDialog(QWidget *parent) :
 
     ui->chapterAuthor->setPropertyUrl( NCO::creator() );
     ui->chapterAuthor->setUseDetailDialog(true);
-    connect(ui->chapterAuthor, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk::Resource&,QUrl)));
+    connect(ui->chapterAuthor, SIGNAL(externalEditRequested(Nepomuk2::Resource&,QUrl)), this, SLOT(editContactDialog(Nepomuk2::Resource&,QUrl)));
 }
 
 AddChapterDialog::~AddChapterDialog()
@@ -48,7 +48,7 @@ AddChapterDialog::~AddChapterDialog()
     delete ui;
 }
 
-void AddChapterDialog::setResource(Nepomuk::Resource resource)
+void AddChapterDialog::setResource(Nepomuk2::Resource resource)
 {
     m_resource = resource;
 
@@ -68,7 +68,7 @@ void AddChapterDialog::setResource(Nepomuk::Resource resource)
     ui->pageEnd->setValue(pageEnd.toInt());
 }
 
-Nepomuk::Resource AddChapterDialog::resource()
+Nepomuk2::Resource AddChapterDialog::resource()
 {
     return m_resource;
 }
@@ -81,26 +81,26 @@ void AddChapterDialog::accept()
 
     QList<QUrl> resUri; resUri << m_resource.resourceUri();
     QVariantList value; value << ui->chapterNumber->text();
-    KJob *job = Nepomuk::setProperty(resUri, NBIB::chapterNumber(), value);
+    KJob *job = Nepomuk2::setProperty(resUri, NBIB::chapterNumber(), value);
     job->exec();// wait till changes are made .. to properly update listWidget afterwards again
 
     resUri.clear(); resUri << m_resource.resourceUri();
     value.clear(); value << ui->chapterTitle->text();
-    KJob *job2 = Nepomuk::setProperty(resUri, NIE::title(), value);
+    KJob *job2 = Nepomuk2::setProperty(resUri, NIE::title(), value);
     job2->exec();// wait till changes are made .. to properly update listWidget afterwards again
 
     resUri.clear(); resUri << m_resource.resourceUri();
     value.clear(); value << ui->pageStart->text();
-    Nepomuk::setProperty(resUri, NBIB::pageStart(), value);
+    Nepomuk2::setProperty(resUri, NBIB::pageStart(), value);
 
     resUri.clear(); resUri << m_resource.resourceUri();
     value.clear(); value << ui->pageEnd->text();
-    Nepomuk::setProperty(resUri, NBIB::pageEnd(), value);
+    Nepomuk2::setProperty(resUri, NBIB::pageEnd(), value);
 
     QDialog::accept();
 }
 
-void AddChapterDialog::editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl)
+void AddChapterDialog::editContactDialog(Nepomuk2::Resource & resource, const QUrl & propertyUrl)
 {
     ContactDialog cd;
     cd.setResource(resource, propertyUrl);

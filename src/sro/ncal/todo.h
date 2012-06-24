@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
 #include "ncal/unionofalarmeventtodo.h"
 #include "ncal/unionofeventfreebusyjournaltodo.h"
@@ -23,7 +23,7 @@
 #include "ncal/unionofalarmeventfreebusyjournaltodo.h"
 #include "ncal/unionoftimezoneobservanceeventfreebusyjournaltimezonetodo.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * Provide a grouping of calendar properties that describe a to-do. 

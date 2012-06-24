@@ -18,7 +18,7 @@
 #ifndef CONTACTDIALOG_H
 #define CONTACTDIALOG_H
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 #include <Akonadi/Item>
 
 #include <QtGui/QDialog>
@@ -51,7 +51,7 @@ public:
       * @p resource the resource which need additional contact details
       * @p propertyUrl the property that should be changed for example nco:creator or nco:editor
       */
-    void setResource(Nepomuk::Resource & resource, const QUrl & propertyUrl);
+    void setResource(Nepomuk2::Resource & resource, const QUrl & propertyUrl);
 
 private slots:
     /**
@@ -112,7 +112,7 @@ private:
     void fillWidget();
 
     Ui::ContactDialog *ui;
-    Nepomuk::Resource m_resource;
+    Nepomuk2::Resource m_resource;
     QUrl m_propertyUrl;
 };
 

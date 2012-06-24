@@ -29,10 +29,11 @@
 #include <kbibtex/entry.h>
 #include <kbibtex/file.h>
 
-#include "dms-copy/simpleresourcegraph.h"
-#include "dms-copy/simpleresource.h"
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/storeresourcesjob.h"
+#include <Nepomuk2/SimpleResourceGraph>
+#include <Nepomuk2/SimpleResource>
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+
 #include <KDE/KJob>
 #include "sro/sync/serversyncdata.h"
 #include "sro/nbib/publication.h"
@@ -42,23 +43,23 @@
 
 #include "nbib.h"
 #include "sync.h"
-#include <Nepomuk/Vocabulary/PIMO>
-#include <Nepomuk/Vocabulary/NUAO>
+#include <Nepomuk2/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/NUAO>
 #include <Soprano/Vocabulary/NAO>
 
-#include <Nepomuk/Variant>
-#include <Nepomuk/Query/Term>
-#include <Nepomuk/Query/ResourceTerm>
-#include <Nepomuk/Query/ResourceTypeTerm>
-#include <Nepomuk/Query/ComparisonTerm>
-#include <Nepomuk/Query/LiteralTerm>
-#include <Nepomuk/Query/AndTerm>
-#include <Nepomuk/Query/OrTerm>
-#include <Nepomuk/Query/QueryServiceClient>
-#include <Nepomuk/Query/Result>
-#include <Nepomuk/Query/QueryParser>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Query/Term>
+#include <Nepomuk2/Query/ResourceTerm>
+#include <Nepomuk2/Query/ResourceTypeTerm>
+#include <Nepomuk2/Query/ComparisonTerm>
+#include <Nepomuk2/Query/LiteralTerm>
+#include <Nepomuk2/Query/AndTerm>
+#include <Nepomuk2/Query/OrTerm>
+#include <Nepomuk2/Query/QueryServiceClient>
+#include <Nepomuk2/Query/Result>
+#include <Nepomuk2/Query/QueryParser>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
 ZoteroUpload::ZoteroUpload(QObject *parent)
@@ -154,10 +155,10 @@ void ZoteroUpload::startUpload()
     "}"
     "}";
 
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
+    QList<Nepomuk2::Query::Result> queryResult = Nepomuk2::Query::QueryServiceClient::syncSparqlQuery(query);
 
-    QList<Nepomuk::Resource> exportList;
-    foreach(const Nepomuk::Query::Result & r, queryResult) {
+    QList<Nepomuk2::Resource> exportList;
+    foreach(const Nepomuk2::Query::Result & r, queryResult) {
         exportList.append(r.resource());
     }
 
@@ -351,7 +352,7 @@ void ZoteroUpload::removeFilesFromGroup()
 
     query += '}';
 
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
+    QList<Nepomuk2::Query::Result> queryResult = Nepomuk2::Query::QueryServiceClient::syncSparqlQuery(query);
 
     calculateProgress(50);
 
@@ -360,7 +361,7 @@ void ZoteroUpload::removeFilesFromGroup()
     kDebug() << queryResult.size() << "items must be removed from server group";
 
     m_tmpUserDeleteRequest.clear();
-    foreach(const Nepomuk::Query::Result &nqr, queryResult) {
+    foreach(const Nepomuk2::Query::Result &nqr, queryResult) {
         SyncDetails sd;
         sd.syncResource = nqr.resource();
         m_tmpUserDeleteRequest.append(sd);
@@ -387,7 +388,7 @@ void ZoteroUpload::removeFilesFromGroup(bool removeThem)
 
             idsToBeRemoved.append( sd.syncResource.property(  SYNC::id() ).toString() );
             QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
-            Nepomuk::removeResources(resUri);
+            Nepomuk2::removeResources(resUri);
         }
 
         connect(m_wtz, SIGNAL(finished()), this, SLOT(removeFilesFromZotero()));
@@ -400,7 +401,7 @@ void ZoteroUpload::removeFilesFromGroup(bool removeThem)
             if(m_cancel) { cleanupAfterUpload(); return; }
 
             QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
-            Nepomuk::removeResources(resUri);
+            Nepomuk2::removeResources(resUri);
         }
 
         removeFilesFromZotero();
@@ -454,7 +455,7 @@ void ZoteroUpload::removeFilesFromZotero()
                     "}"
                     "}";
 
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
+    QList<Nepomuk2::Query::Result> queryResult = Nepomuk2::Query::QueryServiceClient::syncSparqlQuery(query);
 
     calculateProgress(50);
 
@@ -463,7 +464,7 @@ void ZoteroUpload::removeFilesFromZotero()
     kDebug() << queryResult.size() << "items must be removed from the server completely";
 
     m_tmpUserDeleteRequest.clear();
-    foreach(const Nepomuk::Query::Result &nqr, queryResult) {
+    foreach(const Nepomuk2::Query::Result &nqr, queryResult) {
         SyncDetails sd;
         sd.syncResource = nqr.resource();
         m_tmpUserDeleteRequest.append(sd);
@@ -484,7 +485,7 @@ void ZoteroUpload::removeFilesFromZotero(bool removeThem)
     if(removeThem) {
         QList<QPair<QString, QString> > idsToBeRemoved;
         foreach(const SyncDetails &sd, m_tmpUserDeleteRequest) {
-            Nepomuk::Resource syncRes = sd.syncResource;
+            Nepomuk2::Resource syncRes = sd.syncResource;
             QPair<QString, QString> item;
             item.first = syncRes.property(  SYNC::id() ).toString();
             item.second = syncRes.property(  SYNC::etag() ).toString();
@@ -492,7 +493,7 @@ void ZoteroUpload::removeFilesFromZotero(bool removeThem)
             m_syncDataToBeRemoved.append(syncRes);
 
             QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
-            Nepomuk::removeResources(resUri);
+            Nepomuk2::removeResources(resUri);
         }
 
         connect(m_wtz, SIGNAL(finished()), this, SLOT(cleanupAfterUpload()));
@@ -504,7 +505,7 @@ void ZoteroUpload::removeFilesFromZotero(bool removeThem)
             if(m_cancel) { cleanupAfterUpload(); return; }
 
             QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
-            Nepomuk::removeResources(resUri);
+            Nepomuk2::removeResources(resUri);
         }
 
         cleanupAfterUpload();
@@ -517,12 +518,12 @@ void ZoteroUpload::cleanupAfterUpload()
 
     QList<QUrl> uris;
     kDebug() << "cleanup and start attachment upload";
-    foreach(const Nepomuk::Resource &r, m_syncDataToBeRemoved) {
+    foreach(const Nepomuk2::Resource &r, m_syncDataToBeRemoved) {
         uris << r.resourceUri();
     }
 
     if(!uris.isEmpty()) {
-        Nepomuk::removeResources( uris, Nepomuk::RemoveSubResoures );
+        Nepomuk2::removeResources( uris, Nepomuk2::RemoveSubResoures );
     }
 
     m_syncDataToBeRemoved.clear();
@@ -572,10 +573,10 @@ void ZoteroUpload::startAttachmentUpload()
                     "?r nie:url ?url ."
                     "}";
 
-    QList<Nepomuk::Query::Result> queryResult = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
+    QList<Nepomuk2::Query::Result> queryResult = Nepomuk2::Query::QueryServiceClient::syncSparqlQuery(query);
 
-    QList<Nepomuk::Resource> exportList;
-    foreach(const Nepomuk::Query::Result & r, queryResult) {
+    QList<Nepomuk2::Resource> exportList;
+    foreach(const Nepomuk2::Query::Result & r, queryResult) {
         exportList.append(r.resource());
     }
 
@@ -640,21 +641,21 @@ void ZoteroUpload::updateSyncDetailsToNepomuk(const QString &id, const QString &
                      "?r sync:id ?id . FILTER regex(?id, \""+ id + "\") "
                      "}";
 
-    QList<Nepomuk::Query::Result> results = Nepomuk::Query::QueryServiceClient::syncSparqlQuery(query);
+    QList<Nepomuk2::Query::Result> results = Nepomuk2::Query::QueryServiceClient::syncSparqlQuery(query);
 
     if(results.size() > 1 || results.isEmpty()) {
         kDebug() << "could not find the right sync details for the current item query" << m_psd.providerInfo->providerId() << m_psd.userName << m_psd.collection << id;
         return;
     }
 
-    Nepomuk::Resource syncDetails = results.first().resource();
+    Nepomuk2::Resource syncDetails = results.first().resource();
 
     // update changed etag / modification date
-    QList<QUrl> ssdUri; ssdUri << syncDetails.uri();
+    QList<QUrl> ssdUri; ssdUri << syncDetails.resourceUri();
     QVariantList etagValue; etagValue << etag;
     QVariantList lmValue; lmValue << updated;
-    Nepomuk::setProperty(ssdUri, SYNC::etag(), etagValue);
-    Nepomuk::setProperty(ssdUri, NUAO::lastModification(), lmValue);
+    Nepomuk2::setProperty(ssdUri, SYNC::etag(), etagValue);
+    Nepomuk2::setProperty(ssdUri, NUAO::lastModification(), lmValue);
 }
 
 void ZoteroUpload::writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated)
@@ -662,12 +663,12 @@ void ZoteroUpload::writeNewSyncDetailsToNepomuk(Entry *localData, const QString 
     // This one is only called when we upload data to the server
     // or if we fix a corrupted upload. (so we downloaded items we uploaded last time but couldn't add sync details before)
     // downloaded stuff is handled by the bibtexToNepomukPipe.cpp directly
-    // So we know we must have a valid Nepomuk::Resource attached to the "localData" Entry
+    // So we know we must have a valid Nepomuk2::Resource attached to the "localData" Entry
 
     // well we create a new ServerSyncData object to the entry
 
-    Nepomuk::SimpleResourceGraph graph;
-    Nepomuk::SYNC::ServerSyncData serverSyncData;
+    Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::SYNC::ServerSyncData serverSyncData;
 
     serverSyncData.setUrl( m_psd.url );
     serverSyncData.setProvider( QString("zotero") );
@@ -681,8 +682,8 @@ void ZoteroUpload::writeNewSyncDetailsToNepomuk(Entry *localData, const QString 
         serverSyncData.setSyncDataType( SYNC::Note() );
 
         QString noteResourceUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-note-uri")));
-        Nepomuk::SimpleResource noteRes( noteResourceUri );
-        Nepomuk::PIMO::Note note(noteRes);
+        Nepomuk2::SimpleResource noteRes( noteResourceUri );
+        Nepomuk2::PIMO::Note note(noteRes);
         //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
         QDateTime datetime = QDateTime::currentDateTimeUtc();
         noteRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
@@ -696,8 +697,8 @@ void ZoteroUpload::writeNewSyncDetailsToNepomuk(Entry *localData, const QString 
         serverSyncData.setSyncDataType( SYNC::Attachment() );
 
         QString attachmentResourceUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-note-uri")));
-        Nepomuk::SimpleResource attachmentRes( attachmentResourceUri );
-        Nepomuk::NFO::Document attachment(attachmentRes);
+        Nepomuk2::SimpleResource attachmentRes( attachmentResourceUri );
+        Nepomuk2::NFO::Document attachment(attachmentRes);
         //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
         QDateTime datetime = QDateTime::currentDateTimeUtc();
         attachmentRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
@@ -712,8 +713,8 @@ void ZoteroUpload::writeNewSyncDetailsToNepomuk(Entry *localData, const QString 
 
         QString pubUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-publication-uri")));
 
-        Nepomuk::SimpleResource publicationRes( pubUri );
-        Nepomuk::NBIB::Publication publication(publicationRes);
+        Nepomuk2::SimpleResource publicationRes( pubUri );
+        Nepomuk2::NBIB::Publication publication(publicationRes);
         //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
         QDateTime datetime = QDateTime::currentDateTimeUtc();
         publicationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
@@ -725,8 +726,8 @@ void ZoteroUpload::writeNewSyncDetailsToNepomuk(Entry *localData, const QString 
 
         QString refUri = PlainTextValue::text(localData->value(QLatin1String("nepomuk-reference-uri")));
         if(!refUri.isEmpty()) {
-            Nepomuk::SimpleResource referenceRes( refUri );
-            Nepomuk::NBIB::Reference reference(referenceRes);
+            Nepomuk2::SimpleResource referenceRes( refUri );
+            Nepomuk2::NBIB::Reference reference(referenceRes);
             //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
             QDateTime datetime = QDateTime::currentDateTimeUtc();
             referenceRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
@@ -741,7 +742,7 @@ void ZoteroUpload::writeNewSyncDetailsToNepomuk(Entry *localData, const QString 
     graph << serverSyncData;
 
     //blocking graph save
-    Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone);
+    Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNone);
     if( !srj->exec() ) {
         kWarning() << "could not new ServerSyncData" << srj->errorString();
         return;

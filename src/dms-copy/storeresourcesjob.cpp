@@ -37,21 +37,21 @@
 #include <KUrl>
 #include <KDebug>
 
-class Nepomuk::StoreResourcesJob::Private {
+class Nepomuk2::StoreResourcesJob::Private {
 public:
-    Nepomuk::StoreResourcesJob *q;
+    Nepomuk2::StoreResourcesJob *q;
     QHash<QUrl, QUrl> m_mappings;
 
     void _k_slotDBusCallFinished(QDBusPendingCallWatcher* watcher);
 };
 
-Nepomuk::StoreResourcesJob::StoreResourcesJob(const Nepomuk::SimpleResourceGraph& resources,
-                                              Nepomuk::StoreIdentificationMode identificationMode,
-                                              Nepomuk::StoreResourcesFlags flags,
+Nepomuk2::StoreResourcesJob::StoreResourcesJob(const Nepomuk2::SimpleResourceGraph& resources,
+                                              Nepomuk2::StoreIdentificationMode identificationMode,
+                                              Nepomuk2::StoreResourcesFlags flags,
                                               const QHash< QUrl, QVariant >& additionalMetadata,
                                               const KComponentData& component)
     : KJob(),
-      d( new Nepomuk::StoreResourcesJob::Private )
+      d( new Nepomuk2::StoreResourcesJob::Private )
 {
     d->q = this;
     DBus::registerDBusTypes();
@@ -68,22 +68,22 @@ Nepomuk::StoreResourcesJob::StoreResourcesJob(const Nepomuk::SimpleResourceGraph
             this, SLOT(_k_slotDBusCallFinished(QDBusPendingCallWatcher*)));
 }
 
-Nepomuk::StoreResourcesJob::~StoreResourcesJob()
+Nepomuk2::StoreResourcesJob::~StoreResourcesJob()
 {
     delete d;
 }
 
-void Nepomuk::StoreResourcesJob::start()
+void Nepomuk2::StoreResourcesJob::start()
 {
     // Nothing to do
 }
 
-QHash< QUrl, QUrl > Nepomuk::StoreResourcesJob::mappings() const
+QHash< QUrl, QUrl > Nepomuk2::StoreResourcesJob::mappings() const
 {
     return d->m_mappings;
 }
 
-void Nepomuk::StoreResourcesJob::Private::_k_slotDBusCallFinished(QDBusPendingCallWatcher* watcher)
+void Nepomuk2::StoreResourcesJob::Private::_k_slotDBusCallFinished(QDBusPendingCallWatcher* watcher)
 {
     QDBusPendingReply< QHash<QString,QString> > reply = *watcher;
     if (reply.isError()) {

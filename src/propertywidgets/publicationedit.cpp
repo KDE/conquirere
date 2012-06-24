@@ -19,23 +19,24 @@
 
 #include "kmultiitemedit.h"
 
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/storeresourcesjob.h"
-#include "dms-copy/simpleresourcegraph.h"
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+#include <Nepomuk2/SimpleResourceGraph>
+#include <Nepomuk2/SimpleResource>
+
 #include <KDE/KJob>
 #include "sro/nbib/publication.h"
 #include "sro/nbib/reference.h"
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/NUAO>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NUAO>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KDebug>
 #include <QtCore/QDateTime>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 
 PublicationEdit::PublicationEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -48,7 +49,7 @@ PublicationEdit::PublicationEdit(QWidget *parent)
 
 void PublicationEdit::setupLabel()
 {
-    Nepomuk::Resource publication = resource().property( NBIB::publication() ).toResource();
+    Nepomuk2::Resource publication = resource().property( NBIB::publication() ).toResource();
 
     QString title = publication.property( NIE::title() ).toString();
 
@@ -57,7 +58,7 @@ void PublicationEdit::setupLabel()
 
 void PublicationEdit::updateResource(const QString & newPublicationTitle)
 {
-    Nepomuk::Resource currentPublication = resource().property( NBIB::publication() ).toResource();
+    Nepomuk2::Resource currentPublication = resource().property( NBIB::publication() ).toResource();
     QString curentTitle = currentPublication.property(NIE::title()).toString();
 
     if(newPublicationTitle == curentTitle) {
@@ -66,13 +67,13 @@ void PublicationEdit::updateResource(const QString & newPublicationTitle)
 
     if(currentPublication.exists()) {
         // remove the crosslink reference <-> publication
-        QList<QUrl> resourceUris; resourceUris << resource().uri();
-        QVariantList value; value << currentPublication.uri();
-        Nepomuk::removeProperty(resourceUris, NBIB::publication(), value);
+        QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
+        QVariantList value; value << currentPublication.resourceUri();
+        Nepomuk2::removeProperty(resourceUris, NBIB::publication(), value);
 
-        resourceUris.clear(); resourceUris << currentPublication.uri();
-        value.clear(); value << resource().uri();
-        Nepomuk::removeProperty(resourceUris, NBIB::reference(), value);
+        resourceUris.clear(); resourceUris << currentPublication.resourceUri();
+        value.clear(); value << resource().resourceUri();
+        Nepomuk2::removeProperty(resourceUris, NBIB::reference(), value);
     }
 
     if(newPublicationTitle.isEmpty()) {
@@ -81,14 +82,14 @@ void PublicationEdit::updateResource(const QString & newPublicationTitle)
 
     // ok the user changed the text in the list
     // let the DMS create a new Publication and merge it to the right place
-    Nepomuk::SimpleResourceGraph graph;
-    Nepomuk::SimpleResource referenceRes(resource().uri());
-    Nepomuk::NBIB::Reference reference(referenceRes);
+    Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::SimpleResource referenceRes(resource().resourceUri());
+    Nepomuk2::NBIB::Reference reference(referenceRes);
     //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
     QDateTime datetime = QDateTime::currentDateTimeUtc();
     referenceRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
 
-    Nepomuk::NBIB::Publication newPublication;
+    Nepomuk2::NBIB::Publication newPublication;
 
     newPublication.setProperty(NIE::title(), newPublicationTitle.trimmed());
     reference.setPublication( newPublication.uri() );
@@ -97,6 +98,6 @@ void PublicationEdit::updateResource(const QString & newPublicationTitle)
     graph << newPublication << reference;
 
     m_changedResource = resource();
-    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
+    connect(Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties),
             SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }

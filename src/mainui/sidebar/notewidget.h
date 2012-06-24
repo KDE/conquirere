@@ -19,7 +19,7 @@
 #define NOTEWIDGET_H
 
 #include "sidebarcomponent.h"
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 namespace Ui {
     class NoteWidget;
@@ -37,10 +37,10 @@ public:
     explicit NoteWidget(QWidget *parent = 0);
     ~NoteWidget();
 
-    Nepomuk::Resource resource();
+    Nepomuk2::Resource resource();
 
 public slots:
-    void setResource(Nepomuk::Resource & resource);
+    void setResource(Nepomuk2::Resource & resource);
     /**
       * creates a new @c pimo:Note
       */
@@ -57,7 +57,7 @@ private slots:
     void changeRating(int newRating);
 
 private:
-    Nepomuk::Resource m_note;
+    Nepomuk2::Resource m_note;
     Ui::NoteWidget *ui;
 };
 

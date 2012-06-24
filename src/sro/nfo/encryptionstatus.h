@@ -8,9 +8,9 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NFO {
 /**
  * The status of the encryption of an InformationElement. nfo:encryptedStatus 
@@ -19,7 +19,7 @@ namespace NFO {
  * available. nfo:decryptedStatus means that decryption was 
  * successfull and the content is available. 
  */
-class EncryptionStatus : public virtual Nepomuk::SimpleResource
+class EncryptionStatus : public virtual Nepomuk2::SimpleResource
 {
 public:
     EncryptionStatus(const QUrl& uri = QUrl())

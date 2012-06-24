@@ -17,25 +17,26 @@
 
 #include "eventedit.h"
 
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/storeresourcesjob.h"
-#include "dms-copy/simpleresourcegraph.h"
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+#include <Nepomuk2/SimpleResourceGraph>
+#include <Nepomuk2/SimpleResource>
+
 #include <KDE/KJob>
 #include "sro/pimo/event.h"
 #include "sro/nbib/publication.h"
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Vocabulary/NUAO>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Vocabulary/NUAO>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KDebug>
 #include <QtCore/QDateTime>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
 EventEdit::EventEdit(QWidget *parent)
@@ -45,7 +46,7 @@ EventEdit::EventEdit(QWidget *parent)
 
 void EventEdit::setupLabel()
 {
-    Nepomuk::Resource event = resource().property(NBIB::event()).toResource();
+    Nepomuk2::Resource event = resource().property(NBIB::event()).toResource();
 
     QString title;
     title = event.property(NAO::prefLabel()).toString();
@@ -58,7 +59,7 @@ void EventEdit::setupLabel()
 
 void EventEdit::updateResource(const QString & newEventTitle)
 {
-    Nepomuk::Resource currentEvent = resource().property(NBIB::event()).toResource();
+    Nepomuk2::Resource currentEvent = resource().property(NBIB::event()).toResource();
 
     QString curentTitle;
 
@@ -73,13 +74,13 @@ void EventEdit::updateResource(const QString & newEventTitle)
 
     if(currentEvent.exists()) {
         // remove the crosslink event <-> publication
-        QList<QUrl> resourceUris; resourceUris << resource().uri();
-        QVariantList value; value << currentEvent.uri();
-        Nepomuk::removeProperty(resourceUris, NBIB::event(), value);
+        QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
+        QVariantList value; value << currentEvent.resourceUri();
+        Nepomuk2::removeProperty(resourceUris, NBIB::event(), value);
 
-        resourceUris.clear(); resourceUris << currentEvent.uri();
-        value.clear(); value << resource().uri();
-        Nepomuk::removeProperty(resourceUris, NBIB::eventPublication(), value);
+        resourceUris.clear(); resourceUris << currentEvent.resourceUri();
+        value.clear(); value << resource().resourceUri();
+        Nepomuk2::removeProperty(resourceUris, NBIB::eventPublication(), value);
     }
 
     if(newEventTitle.isEmpty()) {
@@ -88,15 +89,15 @@ void EventEdit::updateResource(const QString & newEventTitle)
 
     // ok the user changed the text in the list
     // let the DMS create a new event and merge it to the right place
-    Nepomuk::SimpleResourceGraph graph;
+    Nepomuk2::SimpleResourceGraph graph;
 
-    Nepomuk::SimpleResource publicationRes(resource().uri());
-    Nepomuk::NBIB::Publication publication(publicationRes);
+    Nepomuk2::SimpleResource publicationRes(resource().resourceUri());
+    Nepomuk2::NBIB::Publication publication(publicationRes);
     //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
     QDateTime datetime = QDateTime::currentDateTimeUtc();
     publicationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
 
-    Nepomuk::PIMO::Event newEvent;
+    Nepomuk2::PIMO::Event newEvent;
     newEvent.addType(NIE::InformationElement());
 
     newEvent.setProperty(NIE::title(), newEventTitle.trimmed());
@@ -108,6 +109,6 @@ void EventEdit::updateResource(const QString & newEventTitle)
     graph << newEvent << publication;
 
     m_changedResource = resource();
-    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
+    connect(Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties),
             SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }

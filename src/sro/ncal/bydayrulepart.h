@@ -8,16 +8,16 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * Expresses the compound value of a byday part of a recurrence 
  * rule. It stores the weekday and the integer modifier. Inspired 
  * by RFC 2445 sec. 4.3.10 
  */
-class BydayRulePart : public virtual Nepomuk::SimpleResource
+class BydayRulePart : public virtual Nepomuk2::SimpleResource
 {
 public:
     BydayRulePart(const QUrl& uri = QUrl())

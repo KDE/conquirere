@@ -20,7 +20,7 @@
 
 #include <QtGui/QDialog>
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 namespace Ui {
     class AddChapterDialog;
@@ -46,12 +46,12 @@ public:
       *
       * @pre valid @c nbib:Chapter resource
       */
-    void setResource(Nepomuk::Resource resource);
+    void setResource(Nepomuk2::Resource resource);
 
     /**
       * @return The newly crated @c nbib:Chapter
       */
-    Nepomuk::Resource resource();
+    Nepomuk2::Resource resource();
 
 public slots:
     void accept();
@@ -61,12 +61,12 @@ public slots:
       *
       * @see ContactDialog
       */
-    void editContactDialog(Nepomuk::Resource & resource, const QUrl & propertyUrl);
+    void editContactDialog(Nepomuk2::Resource & resource, const QUrl & propertyUrl);
 
 private:
     Ui::AddChapterDialog *ui;
 
-    Nepomuk::Resource m_resource;
+    Nepomuk2::Resource m_resource;
 };
 
 #endif // ADDCHAPTERDIALOG_H

@@ -30,12 +30,12 @@ MailWidget::~MailWidget()
     delete ui;
 }
 
-Nepomuk::Resource MailWidget::resource()
+Nepomuk2::Resource MailWidget::resource()
 {
     return m_mail;
 }
 
-void MailWidget::setResource(Nepomuk::Resource & resource)
+void MailWidget::setResource(Nepomuk2::Resource & resource)
 {
     m_mail = resource;
 }

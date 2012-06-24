@@ -18,7 +18,7 @@
 #ifndef NEPOMUKPIPE_H
 #define NEPOMUKPIPE_H
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 #include <QtCore/QObject>
 #include <QtCore/QList>
@@ -40,7 +40,7 @@ public:
       *
       * @p resources list of publication or reference resources
       */
-    virtual void pipeExport(QList<Nepomuk::Resource> resources) = 0;
+    virtual void pipeExport(QList<Nepomuk2::Resource> resources) = 0;
 
 signals:
     void progress(int value);

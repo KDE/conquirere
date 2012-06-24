@@ -22,18 +22,18 @@
 
 #include "globals.h"
 
-#include <Nepomuk/Variant>
-#include <Nepomuk/Thing>
-#include <Nepomuk/Query/ResourceTerm>
-#include <Nepomuk/Query/AndTerm>
-#include <Nepomuk/Query/OrTerm>
-#include <Nepomuk/Query/ResourceTypeTerm>
-#include <Nepomuk/Query/ComparisonTerm>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Thing>
+#include <Nepomuk2/Query/ResourceTerm>
+#include <Nepomuk2/Query/AndTerm>
+#include <Nepomuk2/Query/OrTerm>
+#include <Nepomuk2/Query/ResourceTypeTerm>
+#include <Nepomuk2/Query/ComparisonTerm>
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/PIMO>
-#include <Nepomuk/Vocabulary/NCAL>
-#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/NCAL>
+#include <Nepomuk2/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 
 #include <KDE/KIcon>
@@ -45,31 +45,31 @@ EventQuery::EventQuery(QObject *parent)
 
 void EventQuery::startFetchData()
 {
-    Nepomuk::Query::AndTerm andTerm;
+    Nepomuk2::Query::AndTerm andTerm;
 
-    Nepomuk::Query::OrTerm orTerm;
-    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::PIMO::Event() ) );
-    orTerm.addSubTerm( Nepomuk::Query::ResourceTypeTerm( Nepomuk::Vocabulary::NCAL::Event() ) );
+    Nepomuk2::Query::OrTerm orTerm;
+    orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::PIMO::Event() ) );
+    orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NCAL::Event() ) );
     andTerm.addSubTerm(orTerm);
 
     if(m_library->libraryType() == Library_Project) {
-        Nepomuk::Query::OrTerm orTerm;
-        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
-                                                           Nepomuk::Query::ResourceTerm( m_library->settings()->projectTag() )));
-        orTerm.addSubTerm( Nepomuk::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
-                                                            Nepomuk::Query::ResourceTerm(m_library->settings()->projectThing() )));
+        Nepomuk2::Query::OrTerm orTerm;
+        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
+                                                           Nepomuk2::Query::ResourceTerm( m_library->settings()->projectTag() )));
+        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
+                                                            Nepomuk2::Query::ResourceTerm(m_library->settings()->projectThing() )));
         andTerm.addSubTerm(orTerm);
     }
 
     // build the query
-    Nepomuk::Query::Query query( andTerm );
+    Nepomuk2::Query::Query query( andTerm );
     m_queryClient->query(query);
 }
 
-void EventQuery::resourceChanged (const Nepomuk::Resource &resource)
+void EventQuery::resourceChanged (const Nepomuk2::Resource &resource)
 {
-    if(!resource.hasType(Nepomuk::Vocabulary::PIMO::Event() ) ||
-       !resource.hasType(Nepomuk::Vocabulary::NCAL::Event() ))
+    if(!resource.hasType(Nepomuk2::Vocabulary::PIMO::Event() ) ||
+       !resource.hasType(Nepomuk2::Vocabulary::NCAL::Event() ))
         return;
 
     QList<CachedRowEntry> newCache;
@@ -83,16 +83,16 @@ void EventQuery::resourceChanged (const Nepomuk::Resource &resource)
     emit updateCacheEntries(newCache);
 }
 
-QVariantList EventQuery::createDisplayData(const Nepomuk::Resource & res) const
+QVariantList EventQuery::createDisplayData(const Nepomuk2::Resource & res) const
 {
-    Nepomuk::Resource event;
-    Nepomuk::Thing thing;
-    if(res.hasType(Nepomuk::Vocabulary::NCAL::Event())) {
+    Nepomuk2::Resource event;
+    Nepomuk2::Thing thing;
+    if(res.hasType(Nepomuk2::Vocabulary::NCAL::Event())) {
         event = res;
         thing = event.pimoThing();
     }
     else {
-        event = res.property(Nepomuk::Vocabulary::PIMO::groundingOccurrence()).toResource();
+        event = res.property(Nepomuk2::Vocabulary::PIMO::groundingOccurrence()).toResource();
         thing = res;
     }
 
@@ -103,15 +103,15 @@ QVariantList EventQuery::createDisplayData(const Nepomuk::Resource & res) const
         QVariant newEntry;
         switch(i) {
         case Column_Publication: {
-            QList<Nepomuk::Resource> publicationList = thing.property(Nepomuk::Vocabulary::NBIB::eventPublication()).toResourceList();
+            QList<Nepomuk2::Resource> publicationList = thing.property(Nepomuk2::Vocabulary::NBIB::eventPublication()).toResourceList();
 
             QString pubString;
             if(!publicationList.isEmpty()) {
                 //create content for the HTMLDelegate looks a lot better when several publication are being displayed
                 pubString = QLatin1String("<font size=\"85%\">");
-                foreach(const Nepomuk::Resource & r, publicationList) {
+                foreach(const Nepomuk2::Resource & r, publicationList) {
                     pubString.append("&#8226; ");
-                    pubString.append( r.property(Nepomuk::Vocabulary::NIE::title()).toString() );
+                    pubString.append( r.property(Nepomuk2::Vocabulary::NIE::title()).toString() );
                     pubString.append("<br/>");
                 }
                 pubString.chop(5);
@@ -122,16 +122,16 @@ QVariantList EventQuery::createDisplayData(const Nepomuk::Resource & res) const
             break;
         }
         case Column_Title: {
-            QString titleSting = event.property(Nepomuk::Vocabulary::NIE::title()).toString();
+            QString titleSting = event.property(Nepomuk2::Vocabulary::NIE::title()).toString();
             if(titleSting.isEmpty()) {
-                titleSting = thing.property(Nepomuk::Vocabulary::NIE::title()).toString();
+                titleSting = thing.property(Nepomuk2::Vocabulary::NIE::title()).toString();
             }
 
             newEntry = titleSting;
             break;
         }
         case Column_Date: {
-            QString dateString = event.property(Nepomuk::Vocabulary::PIMO::dtstart()).toString();
+            QString dateString = event.property(Nepomuk2::Vocabulary::PIMO::dtstart()).toString();
             dateString.remove('Z');
 
             QDateTime date = QDateTime::fromString(dateString, Qt::ISODate);
@@ -159,7 +159,7 @@ QVariantList EventQuery::createDisplayData(const Nepomuk::Resource & res) const
     return displayList;
 }
 
-QVariantList EventQuery::createDecorationData(const Nepomuk::Resource & res) const
+QVariantList EventQuery::createDecorationData(const Nepomuk2::Resource & res) const
 {
     QVariantList decorationList;
     decorationList.reserve(Max_columns-1);
@@ -168,8 +168,8 @@ QVariantList EventQuery::createDecorationData(const Nepomuk::Resource & res) con
         QVariant newEntry;
         switch(i) {
         case Column_Akonadi: {
-            Nepomuk::Resource event = res.property(Nepomuk::Vocabulary::PIMO::groundingOccurrence()).toResource();
-            if(res.hasType(Nepomuk::Vocabulary::NCAL::Event()) || event.isValid()) {
+            Nepomuk2::Resource event = res.property(Nepomuk2::Vocabulary::PIMO::groundingOccurrence()).toResource();
+            if(res.hasType(Nepomuk2::Vocabulary::NCAL::Event()) || event.isValid()) {
                 newEntry = KIcon(QLatin1String("akonadi"));
             }
         }

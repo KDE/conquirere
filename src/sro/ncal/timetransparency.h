@@ -8,16 +8,16 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * Time transparency. Introduced to provide a way to express the 
  * limited vocabulary for the values of ncal:transp property. 
  * See documentation of ncal:transp for details. 
  */
-class TimeTransparency : public virtual Nepomuk::SimpleResource
+class TimeTransparency : public virtual Nepomuk2::SimpleResource
 {
 public:
     TimeTransparency(const QUrl& uri = QUrl())

@@ -22,21 +22,21 @@
 #include "core/projectsettings.h"
 #include "mainui/librarymanager.h"
 
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/simpleresourcegraph.h"
-#include "dms-copy/storeresourcesjob.h"
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+#include <Nepomuk2/SimpleResourceGraph>
 #include <KDE/KJob>
 #include "sro/pimo/note.h"
 
-#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Vocabulary/NFO>
-#include <Nepomuk/Vocabulary/PIMO>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Vocabulary/NFO>
+#include <Nepomuk2/Vocabulary/PIMO>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KDebug>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
 NoteWidget::NoteWidget(QWidget *parent)
@@ -52,7 +52,7 @@ NoteWidget::NoteWidget(QWidget *parent)
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 
     //TODO remove and use ResourceWatcher later on
-    connect(ui->editTags, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(ui->editTags, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 }
 
 NoteWidget::~NoteWidget()
@@ -60,12 +60,12 @@ NoteWidget::~NoteWidget()
     delete ui;
 }
 
-Nepomuk::Resource NoteWidget::resource()
+Nepomuk2::Resource NoteWidget::resource()
 {
     return m_note;
 }
 
-void NoteWidget::setResource(Nepomuk::Resource & resource)
+void NoteWidget::setResource(Nepomuk2::Resource & resource)
 {
     m_note = resource;
 
@@ -87,8 +87,8 @@ void NoteWidget::newButtonClicked()
 {
     // create temp Resource via DMS
     // if the user clicks cancel in the next dialog, the resource will be deleted again
-    Nepomuk::SimpleResourceGraph graph;
-    Nepomuk::PIMO::Note note;
+    Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::PIMO::Note note;
 
     note.addType( NIE::InformationElement() );
     note.setProperty(NIE::title(), i18n("New Note"));
@@ -96,13 +96,13 @@ void NoteWidget::newButtonClicked()
     graph << note;
 
     //blocking graph save
-    Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone );
+    Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNone );
     if( !srj->exec() ) {
         kWarning() << "could not create temporay publication" << srj->errorString();
         return;
     }
 
-    m_note = Nepomuk::Resource::fromResourceUri( srj->mappings().value( note.uri() ) );
+    m_note = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( note.uri() ) );
 
     // we add a dummy title and save the note
     ui->editTitle->setText(i18n("New note title"));
@@ -120,7 +120,7 @@ void NoteWidget::deleteButtonClicked()
 {
     libraryManager()->systemLibrary()->deleteResource( m_note );
 
-    Nepomuk::Resource invalid;
+    Nepomuk2::Resource invalid;
     setResource(invalid);
 }
 
@@ -128,16 +128,16 @@ void NoteWidget::saveNote()
 {
     QList<QUrl> resUri; resUri << m_note.resourceUri();
     QVariantList value; value << ui->editTitle->text();
-    Nepomuk::setProperty(resUri, NIE::title(), value);
-    Nepomuk::setProperty(resUri, NAO::prefLabel(), value);
+    Nepomuk2::setProperty(resUri, NIE::title(), value);
+    Nepomuk2::setProperty(resUri, NAO::prefLabel(), value);
 
     resUri.clear(); resUri << m_note.resourceUri();
     value.clear(); value << ui->editContent->document()->toPlainText();
-    Nepomuk::setProperty(resUri, NIE::plainTextContent(), value);
+    Nepomuk2::setProperty(resUri, NIE::plainTextContent(), value);
 
     resUri.clear(); resUri << m_note.resourceUri();
     value.clear(); value << ui->editContent->document()->toHtml();
-    Nepomuk::setProperty(resUri, NIE::htmlContent(), value);
+    Nepomuk2::setProperty(resUri, NIE::htmlContent(), value);
 
     emit resourceCacheNeedsUpdate(m_note);
 }
@@ -172,7 +172,7 @@ void NoteWidget::changeRating(int newRating)
     resourceUris << m_note.resourceUri();
     QVariantList rating;
     rating <<  newRating;
-    KJob *job = Nepomuk::setProperty(resourceUris, Soprano::Vocabulary::NAO::numericRating(), rating);
+    KJob *job = Nepomuk2::setProperty(resourceUris, Soprano::Vocabulary::NAO::numericRating(), rating);
 
     if(job->exec()) {
         emit resourceCacheNeedsUpdate(m_note);

@@ -41,7 +41,7 @@ public:
 
     void pipeExport(File & bibEntries);
 
-    void pipeExport(QList<Nepomuk::Resource> resources);
+    void pipeExport(QList<Nepomuk2::Resource> resources);
 
 private:
     /**

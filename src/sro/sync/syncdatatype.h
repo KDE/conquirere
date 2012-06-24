@@ -8,9 +8,9 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace SYNC {
 /**
  * What kind of syncdata we represent here. Help to find deleted 
@@ -20,7 +20,7 @@ namespace SYNC {
  * from the server. When the resource is valid we can check if the 
  * etag changed and update it 
  */
-class SyncDataType : public virtual Nepomuk::SimpleResource
+class SyncDataType : public virtual Nepomuk2::SimpleResource
 {
 public:
     SyncDataType(const QUrl& uri = QUrl())

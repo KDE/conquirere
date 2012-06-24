@@ -21,11 +21,10 @@
 #include <QtCore/QThread>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk/Resource>
-#include <Nepomuk/Query/QueryServiceClient>
-#include <Nepomuk/Query/Result>
-
-#include "dms-copy/resourcewatcher.h"
+#include <Nepomuk2/Resource>
+#include <Nepomuk2/Query/QueryServiceClient>
+#include <Nepomuk2/Query/Result>
+#include <Nepomuk2/ResourceWatcher>
 
 /**
   * @brief Cache for one row
@@ -35,7 +34,7 @@
 struct CachedRowEntry {
     QVariantList displayColums;
     QVariantList decorationColums;
-    Nepomuk::Resource resource;
+    Nepomuk2::Resource resource;
     QDateTime timestamp;
 };
 
@@ -73,7 +72,7 @@ public slots:
       *
       * @todo remove when starting to use ResourceWatcher later on
       */
-    virtual void resourceChanged (const Nepomuk::Resource &resource) = 0;
+    virtual void resourceChanged (const Nepomuk2::Resource &resource) = 0;
 
 signals:
     void newCacheEntries(const QList<CachedRowEntry> &entries) const;
@@ -84,28 +83,28 @@ signals:
 
 private slots:
     //process resourceWatcher signals
-    void propertyAdded (const Nepomuk::Resource &resource, const Nepomuk::Types::Property &property, const QVariant &value);
-    void propertyChanged (const Nepomuk::Resource &resource, const Nepomuk::Types::Property &property, const QVariantList &oldValue, const QVariantList &newValue);
-    void propertyRemoved (const Nepomuk::Resource &resource, const Nepomuk::Types::Property &property, const QVariant &value);
-    void resourceTypeAdded (const Nepomuk::Resource &res, const Nepomuk::Types::Class &type);
-    void resourceTypeRemoved (const Nepomuk::Resource &res, const Nepomuk::Types::Class &type);
+    void propertyAdded (const Nepomuk2::Resource &resource, const Nepomuk2::Types::Property &property, const QVariant &value);
+    void propertyChanged (const Nepomuk2::Resource &resource, const Nepomuk2::Types::Property &property, const QVariantList &oldValue, const QVariantList &newValue);
+    void propertyRemoved (const Nepomuk2::Resource &resource, const Nepomuk2::Types::Property &property, const QVariant &value);
+    void resourceTypeAdded (const Nepomuk2::Resource &res, const Nepomuk2::Types::Class &type);
+    void resourceTypeRemoved (const Nepomuk2::Resource &res, const Nepomuk2::Types::Class &type);
 
-    void addToCache( const QList< Nepomuk::Query::Result > &entries ) const;
+    void addToCache( const QList< Nepomuk2::Query::Result > &entries ) const;
     void resultCount(int number) const;
 
     void finishedStartup();
     void initalQueryFinished();
 
 protected:
-    void updateCacheEntry(const Nepomuk::Resource &resource);
+    void updateCacheEntry(const Nepomuk2::Resource &resource);
 
-    virtual QVariantList createDisplayData(const Nepomuk::Resource & res) const = 0;
-    virtual QVariantList createDecorationData(const Nepomuk::Resource & res) const = 0;
+    virtual QVariantList createDisplayData(const Nepomuk2::Resource & res) const = 0;
+    virtual QVariantList createDecorationData(const Nepomuk2::Resource & res) const = 0;
 
     Library *m_library;
     NepomukModel *m_model;
-    Nepomuk::Query::QueryServiceClient *m_queryClient;
-    Nepomuk::ResourceWatcher *m_resourceWatcher;
+    Nepomuk2::Query::QueryServiceClient *m_queryClient;
+    Nepomuk2::ResourceWatcher *m_resourceWatcher;
     bool m_startupQuery;
 };
 

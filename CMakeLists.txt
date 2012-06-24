@@ -14,7 +14,8 @@ find_package(KdepimLibs REQUIRED)
 
 set(SDO_MIN_VERSION "0.8.1")
 find_package(SharedDesktopOntologies)
-find_package(Nepomuk REQUIRED)
+find_package(Soprano)
+find_package(NepomukCore REQUIRED)
 
 find_package(QJSON REQUIRED)
 #set(KBIBTEX_MIN_VERSION "0.6.0")

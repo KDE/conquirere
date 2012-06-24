@@ -19,7 +19,7 @@
 #define LISTPARTSWIDGET_H
 
 #include <QtGui/QWidget>
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 namespace Ui {
     class ListPartsWidget;
@@ -61,12 +61,12 @@ public:
       *
       * @pre publication must be a @c nbib:Publication or @c nbib:Series
       */
-    void setResource(Nepomuk::Resource resource);
+    void setResource(Nepomuk2::Resource resource);
 
     /**
       * @returns the user selected resource
       */
-    Nepomuk::Resource selectedPart() const;
+    Nepomuk2::Resource selectedPart() const;
 
 signals:
     /**
@@ -75,9 +75,9 @@ signals:
       *
       * Must be connected to the resourceUpdated signal from the widget it is contained in
       *
-      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
       */
-    void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
+    void resourceCacheNeedsUpdate(Nepomuk2::Resource resource);
 
 private slots:
     /**
@@ -125,37 +125,37 @@ private slots:
     void deletePart();
 
 private:
-    QString showChapterString(Nepomuk::Resource publication);
-    QString showSeriesOfString(Nepomuk::Resource publication);
-    QString showArticleString(Nepomuk::Resource publication);
+    QString showChapterString(Nepomuk2::Resource publication);
+    QString showSeriesOfString(Nepomuk2::Resource publication);
+    QString showArticleString(Nepomuk2::Resource publication);
 
     void addChapter();
-    void editChapter(Nepomuk::Resource editResource);
-    void removeChapter(Nepomuk::Resource chapter);
-    void deleteChapter(Nepomuk::Resource chapter);
+    void editChapter(Nepomuk2::Resource editResource);
+    void removeChapter(Nepomuk2::Resource chapter);
+    void deleteChapter(Nepomuk2::Resource chapter);
 
     // collections to series
     void addToSeries();
-    void editFromSeries(Nepomuk::Resource editResource);
-    void removeFromSeries(Nepomuk::Resource publication);
-    void deleteFromSeries(Nepomuk::Resource publication);
+    void editFromSeries(Nepomuk2::Resource editResource);
+    void removeFromSeries(Nepomuk2::Resource publication);
+    void deleteFromSeries(Nepomuk2::Resource publication);
 
     // articles to Collections
     void addToCollection();
-    void editFromCollection(Nepomuk::Resource editResource);
-    void removeFromCollection(Nepomuk::Resource article);
-    void deleteFromCollection(Nepomuk::Resource article);
+    void editFromCollection(Nepomuk2::Resource editResource);
+    void removeFromCollection(Nepomuk2::Resource article);
+    void deleteFromCollection(Nepomuk2::Resource article);
 
     // publication for events
     void addToEvent();
-    void editFromEvent(Nepomuk::Resource editResource);
-    void removeFromEvent(Nepomuk::Resource publication);
-    void deleteFromEvent(Nepomuk::Resource publication);
+    void editFromEvent(Nepomuk2::Resource editResource);
+    void removeFromEvent(Nepomuk2::Resource publication);
+    void deleteFromEvent(Nepomuk2::Resource publication);
 
     Ui::ListPartsWidget *ui;
     LibraryManager *m_libraryManager;
 
-    Nepomuk::Resource m_resource;
+    Nepomuk2::Resource m_resource;
     PartType m_partType;
 };
 

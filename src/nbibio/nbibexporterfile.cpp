@@ -43,7 +43,7 @@ void NBibExporterFile::setFileType(FileType type)
     m_fileType = type;
 }
 
-bool NBibExporterFile::save(QIODevice *iodevice, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog)
+bool NBibExporterFile::save(QIODevice *iodevice, const QList<Nepomuk2::Resource> referenceList, QStringList *errorLog)
 {
     if(referenceList.isEmpty()) {
         QString error = i18n("No resources specified for the export to bibtex.");

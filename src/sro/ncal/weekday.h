@@ -8,16 +8,16 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * Day of the week. This class has been created to provide the limited 
  * vocabulary for ncal:byday property. See the documentation 
  * for ncal:byday for details. 
  */
-class Weekday : public virtual Nepomuk::SimpleResource
+class Weekday : public virtual Nepomuk2::SimpleResource
 {
 public:
     Weekday(const QUrl& uri = QUrl())

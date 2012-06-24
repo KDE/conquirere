@@ -20,9 +20,9 @@
 
 #include "globals.h"
 
-#include <Nepomuk/Resource>
-#include <Nepomuk/Thing>
-#include <Nepomuk/Tag>
+#include <Nepomuk2/Resource>
+#include <Nepomuk2/Thing>
+#include <Nepomuk2/Tag>
 
 #include <QtCore/QObject>
 #include <QtCore/QFileInfo>
@@ -39,7 +39,7 @@ class ProjectSettings;
 class KJob;
 
 /**
-  * @brief A Library is a collection of files and Nepomuk::Resource data of a specific topic
+  * @brief A Library is a collection of files and Nepomuk2::Resource data of a specific topic
   *
   * The Library can be either a @c System @c library containing all known entities or a specific
   * library containing only a subset of the system entities grouped together for a
@@ -73,12 +73,12 @@ public:
     /**
       * Creates a new project library
       *
-      * This function creates the document structure, the Nepomuk::Thing and Nepomuk::Tag.
+      * This function creates the document structure, the Nepomuk2::Thing and Nepomuk2::Tag.
       *
       * Has to be called when a new project is created
       */
-    static Nepomuk::Thing createLibrary(const QString & name, const QString & description, const QString & path);
-    static QString createIniFile(Nepomuk::Thing & pimoProject, const QString & path = QString());
+    static Nepomuk2::Thing createLibrary(const QString & name, const QString & description, const QString & path);
+    static QString createIniFile(Nepomuk2::Thing & pimoProject, const QString & path = QString());
 
     /**
       * Loads an existing project .ini file
@@ -97,7 +97,7 @@ public:
       *
       * Or it was a pimo:Project created from some other program and we have to create the .ini file again
       */
-    void loadLibrary(Nepomuk::Thing & pimoProject);
+    void loadLibrary(Nepomuk2::Thing & pimoProject);
     ProjectSettings * settings();
 
     /**
@@ -121,20 +121,20 @@ public:
     TagCloud *tagCloud();
 
     /**
-      * Relates a Nepomuk::Resource to this project
+      * Relates a Nepomuk2::Resource to this project
       *
       * If this sycdetaisl for this item was in the "to be removed" section of the .ini provider settings
       * They will be removed from there too
       *
-      * @p res the used Nepomuk::Resource
+      * @p res the used Nepomuk2::Resource
       */
-    void addResource(const Nepomuk::Resource & res);
+    void addResource(const Nepomuk2::Resource & res);
 
     /**
       * removes the pimo::isRelated elation again and also adds the sync data to the syncprovider
       * ini files so we know we need to remove it from the online storage too.
       */
-    void removeResource(const Nepomuk::Resource & res);
+    void removeResource(const Nepomuk2::Resource & res);
 
     /**
       * Deletes the resource and also any subresources
@@ -142,7 +142,7 @@ public:
       * Also detects if this removed the only @c article in a @c collection or only @c publication in a @c series
       * and removes them too.
       */
-    void deleteResource(const Nepomuk::Resource & resource);
+    void deleteResource(const Nepomuk2::Resource & resource);
 
     /**
       * Updates all cached list data
@@ -170,9 +170,9 @@ signals:
       * This signal gets thrown when the resource was changed and must be updated in the table model cache
       * redirects the signal from all propertywidgets
       *
-      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
       */
-    void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
+    void resourceCacheNeedsUpdate(Nepomuk2::Resource resource);
 
 private slots:
     void finishedInitialImport();
@@ -184,7 +184,7 @@ private:
       *
       * For each ResourceSelection there exists one model
       * The model fetches all data from the Nepomuk storage and update itself
-      * when a Nepomuk::Resource is created or removed
+      * when a Nepomuk2::Resource is created or removed
       */
     void setupModels();
     void connectModelToTagCloud(NepomukModel *model);

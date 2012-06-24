@@ -21,7 +21,7 @@
 #include "nbibimporter.h"
 
 #include <Akonadi/Collection>
-#include <Nepomuk/Thing>
+#include <Nepomuk2/Thing>
 
 class File;
 class EntryClique;
@@ -109,7 +109,7 @@ public:
       */
     bool findDuplicates();
 
-    void setProjectPimoThing(Nepomuk::Thing projectThing);
+    void setProjectPimoThing(Nepomuk2::Thing projectThing);
 
     /**
       * @return the list of duplicated entries that can be used by KBibTeX::FindDuplicatesUi
@@ -140,7 +140,7 @@ private:
     NBibImporterBibTex::FileType m_selectedFileType;
     QList<EntryClique*> m_cliques;
     Akonadi::Collection m_addressbook;
-    Nepomuk::Thing m_projectThing;
+    Nepomuk2::Thing m_projectThing;
 };
 
 #endif // NBIBIMPORTERBIBTEX_H

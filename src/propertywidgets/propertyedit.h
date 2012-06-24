@@ -18,9 +18,9 @@
 #ifndef PROPERTYEDIT_H
 #define PROPERTYEDIT_H
 
-#include <Nepomuk/Resource>
-#include <Nepomuk/Query/QueryServiceClient>
-#include <Nepomuk/Query/Result>
+#include <Nepomuk2/Resource>
+#include <Nepomuk2/Query/QueryServiceClient>
+#include <Nepomuk2/Query/Result>
 
 #include <QtGui/QWidget>
 #include <QtCore/QModelIndex>
@@ -84,7 +84,7 @@ public:
     /**
       * returns the resource that is being manipulated by this edit widget
       */
-    Nepomuk::Resource resource();
+    Nepomuk2::Resource resource();
 
     /**
       * Returns the property url for this widget
@@ -132,7 +132,7 @@ signals:
       * 
       * when the resource was editied update the PropertyEdit via setResource()
       */
-    void externalEditRequested(Nepomuk::Resource & resource, const QUrl & m_propertyUrl);
+    void externalEditRequested(Nepomuk2::Resource & resource, const QUrl & m_propertyUrl);
 
     /**
       * Emits the text of the label
@@ -157,15 +157,15 @@ signals:
     /**
       * This signal gets thrown when the resource was changed and must be updated in the table model cache
       *
-      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
       */
-    void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
+    void resourceCacheNeedsUpdate(Nepomuk2::Resource resource);
 
 public slots:
     /**
       * Sets the resource that should be shown/manipulated
       */
-    void setResource(Nepomuk::Resource & resource);
+    void setResource(Nepomuk2::Resource & resource);
 
     /**
       * Force the label to set certain text
@@ -199,7 +199,7 @@ public slots:
 
 protected:
     /**
-      * Defines how the Nepomuk::Resource of the widget should be shown.
+      * Defines how the Nepomuk2::Resource of the widget should be shown.
       *
       * Subclasses must implement this. If the property has a rage of xsd:string a simple call
       * to setLabelText() is enough. If the propery has a specific resource on its own its possible to define
@@ -230,7 +230,7 @@ protected:
     // otherwise if we switch to a different resource while the KJob
     // hasn't finished jet, we add the tags to the wrong resource
     //TODO remove when resourcewatcher is working ...
-    Nepomuk::Resource m_changedResource;
+    Nepomuk2::Resource m_changedResource;
 
 private:
     void keyPressEvent(QKeyEvent * e);
@@ -240,7 +240,7 @@ private:
     bool m_useDetailDialog;
     bool m_directEditAllowed;
 
-    Nepomuk::Resource m_resource;
+    Nepomuk2::Resource m_resource;
     QUrl m_propertyUrl;
 };
 

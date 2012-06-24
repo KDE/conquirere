@@ -8,16 +8,16 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * Frequency of a recurrence rule. This class has been introduced 
  * to express a limited set of allowed values for the ncal:freq 
  * property. See the documentation of ncal:freq for details. 
  */
-class RecurrenceFrequency : public virtual Nepomuk::SimpleResource
+class RecurrenceFrequency : public virtual Nepomuk2::SimpleResource
 {
 public:
     RecurrenceFrequency(const QUrl& uri = QUrl())

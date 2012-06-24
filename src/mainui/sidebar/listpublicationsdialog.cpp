@@ -97,7 +97,7 @@ void ListPublicationsDialog::setLibraryManager(LibraryManager *lm)
 {
     m_libraryManager = lm;
 
-    connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), m_libraryManager, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)));
+    connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), m_libraryManager, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 
     showLibraryModel(lm->systemLibrary());
 
@@ -151,7 +151,7 @@ void ListPublicationsDialog::setListMode(ResourceSelection selection, BibEntryTy
     }
 }
 
-Nepomuk::Resource ListPublicationsDialog::selectedPublication()
+Nepomuk2::Resource ListPublicationsDialog::selectedPublication()
 {
     QItemSelectionModel *sm = ui->tableView->selectionModel();
     QModelIndexList indexes = sm->selectedRows();
@@ -160,7 +160,7 @@ Nepomuk::Resource ListPublicationsDialog::selectedPublication()
     NepomukModel *rm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
 
     // the resource for this entry
-    Nepomuk::Resource nr = rm->documentResource(sfpm->mapToSource(indexes.first()));
+    Nepomuk2::Resource nr = rm->documentResource(sfpm->mapToSource(indexes.first()));
 
     return nr;
 }
@@ -401,7 +401,7 @@ void ListPublicationsDialog::createNew()
     }
     else {
         // remove resource and anything that only depends on it again
-        Nepomuk::Resource createdResource = sbcWidget->resource();
+        Nepomuk2::Resource createdResource = sbcWidget->resource();
         m_libraryManager->systemLibrary()->deleteResource( createdResource );
     }
 

@@ -8,9 +8,9 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * A status of an event. This class has been introduced to express 
@@ -19,7 +19,7 @@ namespace NCAL {
  * his/her own. See the documentation for ncal:eventStatus for 
  * details. 
  */
-class EventStatus : public virtual Nepomuk::SimpleResource
+class EventStatus : public virtual Nepomuk2::SimpleResource
 {
 public:
     EventStatus(const QUrl& uri = QUrl())

@@ -1,5 +1,5 @@
 
-add_subdirectory( dms-copy )
+# add_subdirectory( dms-copy )
 add_subdirectory( nbibio )
 add_subdirectory( core )
 add_subdirectory( onlinestorage )
@@ -17,7 +17,8 @@ ADD_DEPENDENCIES(conquirere version)
 ADD_DEPENDENCIES(conquirere nbibio)
 
 target_link_libraries(conquirere
-        nepomukdatamanagement-copy
+        nepomukcore
+        nepomuksync
 # include static libs from conquirere
         ontology
         core

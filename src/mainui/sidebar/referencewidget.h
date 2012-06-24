@@ -20,7 +20,7 @@
 
 #include "sidebarcomponent.h"
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 namespace Ui {
     class ReferenceWidget;
@@ -37,7 +37,7 @@ public:
     explicit ReferenceWidget(QWidget *parent = 0);
 
     void setLibraryManager(LibraryManager *lm);
-    Nepomuk::Resource resource();
+    Nepomuk2::Resource resource();
 
 public slots:
     /**
@@ -45,20 +45,20 @@ public slots:
       *
       * @pre @p resource must be of type @c nbib:Reference
       */
-    void setResource(Nepomuk::Resource & resource);
+    void setResource(Nepomuk2::Resource & resource);
 
     /**
       * Sends changes in the connected property widgets to the connected table model to update the cache
       *
       * Send updates for the reference and the publication object
-      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
       */
     void subResourceUpdated();
 
     void newButtonClicked();
 
 private slots:
-    void showPublicationList(Nepomuk::Resource & resource, const QUrl & propertyUrl);
+    void showPublicationList(Nepomuk2::Resource & resource, const QUrl & propertyUrl);
     void showChapterList();
     void showCiteKeySuggetion();
 
@@ -70,7 +70,7 @@ private slots:
     void changeRating(int newRating);
 
 private:
-    Nepomuk::Resource m_reference;
+    Nepomuk2::Resource m_reference;
     Ui::ReferenceWidget *ui;
 };
 

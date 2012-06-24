@@ -18,7 +18,7 @@
 #ifndef NBIBEXPORTER_H
 #define NBIBEXPORTER_H
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 #include <QtCore/QObject>
 
@@ -45,12 +45,12 @@ public:
       * calls save() internally
       *
       * @p filename the path and name of the file the exporter writes into
-      * @p referenceList list of all Nepomuk::Resources used for the export
+      * @p referenceList list of all Nepomuk2::Resources used for the export
       * @p errorLog pointer to the error list
       *
       * @pre referenceList must be a list of NBIB::Publication or NBIB::Resource
       */
-    bool toFile( const QString &filename, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog = NULL);
+    bool toFile( const QString &filename, const QList<Nepomuk2::Resource> referenceList, QStringList *errorLog = NULL);
 
     /**
       * Exports a list of publication or reference resources
@@ -58,12 +58,12 @@ public:
       * Must be implemented in any subclass
       *
       * @p iodevice the iodevice the exporter writes into
-      * @p referenceList list of all Nepomuk::Resources used for the export
+      * @p referenceList list of all Nepomuk2::Resources used for the export
       * @p errorLog pointer to the error list
       *
       * @pre referenceList must be a list of NBIB::Publication or NBIB::Resource
       */
-    virtual bool save(QIODevice *iodevice, const QList<Nepomuk::Resource> referenceList, QStringList *errorLog = NULL) = 0;
+    virtual bool save(QIODevice *iodevice, const QList<Nepomuk2::Resource> referenceList, QStringList *errorLog = NULL) = 0;
 
 signals:
     /**

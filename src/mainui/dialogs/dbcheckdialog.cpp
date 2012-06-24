@@ -20,29 +20,29 @@
 
 #include "nbib.h"
 #include "sync.h"
-#include <Nepomuk/Vocabulary/NCO>
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/NCO>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
 
-#include <Nepomuk/Query/Term>
-#include <Nepomuk/Query/ResourceTerm>
-#include <Nepomuk/Query/ResourceTypeTerm>
-#include <Nepomuk/Query/ComparisonTerm>
-#include <Nepomuk/Query/AndTerm>
-#include <Nepomuk/Query/OrTerm>
-#include <Nepomuk/Query/QueryServiceClient>
-#include <Nepomuk/Query/Result>
-#include <Nepomuk/Query/QueryParser>
-#include <Nepomuk/Tag>
+#include <Nepomuk2/Query/Term>
+#include <Nepomuk2/Query/ResourceTerm>
+#include <Nepomuk2/Query/ResourceTypeTerm>
+#include <Nepomuk2/Query/ComparisonTerm>
+#include <Nepomuk2/Query/AndTerm>
+#include <Nepomuk2/Query/OrTerm>
+#include <Nepomuk2/Query/QueryServiceClient>
+#include <Nepomuk2/Query/Result>
+#include <Nepomuk2/Query/QueryParser>
+#include <Nepomuk2/Tag>
 
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Variant>
 
-#include "dms-copy/datamanagement.h"
+#include <Nepomuk2/DataManagement>
 
 #include <QDebug>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 
 DbCheckDialog::DbCheckDialog(QWidget *parent) :
     QDialog(parent),
@@ -50,8 +50,8 @@ DbCheckDialog::DbCheckDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_queryClient = new Nepomuk::Query::QueryServiceClient();
-    connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk::Query::Result>)), this, SLOT(addToList(QList<Nepomuk::Query::Result>)));
+    m_queryClient = new Nepomuk2::Query::QueryServiceClient();
+    connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk2::Query::Result>)), this, SLOT(addToList(QList<Nepomuk2::Query::Result>)));
     connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(queryFinished()));
 
     connect(ui->checkAll, SIGNAL(clicked()), this, SLOT(checkAll()));
@@ -109,23 +109,23 @@ void DbCheckDialog::checkSeries()
                      "FILTER (!bound(?seriesOf) )"
                      "}";
 
-    Nepomuk::Resource myTag = Nepomuk::Resource(QString("nepomuk:/res/dd299c50-d0d8-4c09-9a3b-58d761bae1e3"));
-    Nepomuk::Query::ComparisonTerm term( Soprano::Vocabulary::NAO::isRelated(), Nepomuk::Query::ResourceTerm(myTag) );
+    Nepomuk2::Resource myTag = Nepomuk2::Resource(QString("nepomuk:/res/dd299c50-d0d8-4c09-9a3b-58d761bae1e3"));
+    Nepomuk2::Query::ComparisonTerm term( Soprano::Vocabulary::NAO::isRelated(), Nepomuk2::Query::ResourceTerm(myTag) );
 
-    Nepomuk::Query::Query queryTEST(term);
+    Nepomuk2::Query::Query queryTEST(term);
     qDebug() << myTag.resourceUri().toString();
 
-    Nepomuk::Resource syncTest = Nepomuk::Resource(QUrl());
-    syncTest.addType(Nepomuk::Vocabulary::SYNC::ServerSyncData());
-    QUrl x = Nepomuk::Vocabulary::SYNC::Attachment();
-    syncTest.setProperty(Nepomuk::Vocabulary::SYNC::syncDataType(), x);
-    syncTest.setProperty(Nepomuk::Vocabulary::SYNC::id(), "yay");
+    Nepomuk2::Resource syncTest = Nepomuk2::Resource(QUrl());
+    syncTest.addType(Nepomuk2::Vocabulary::SYNC::ServerSyncData());
+    QUrl x = Nepomuk2::Vocabulary::SYNC::Attachment();
+    syncTest.setProperty(Nepomuk2::Vocabulary::SYNC::syncDataType(), x);
+    syncTest.setProperty(Nepomuk2::Vocabulary::SYNC::id(), "yay");
 
-    Nepomuk::Resource syncTest2 = Nepomuk::Resource(QUrl());
-    syncTest2.addType(Nepomuk::Vocabulary::SYNC::ServerSyncData());
-    QUrl y = Nepomuk::Vocabulary::SYNC::Note();
-    syncTest2.setProperty(Nepomuk::Vocabulary::SYNC::syncDataType(), y);
-    syncTest2.setProperty(Nepomuk::Vocabulary::SYNC::id(), "yay1234");
+    Nepomuk2::Resource syncTest2 = Nepomuk2::Resource(QUrl());
+    syncTest2.addType(Nepomuk2::Vocabulary::SYNC::ServerSyncData());
+    QUrl y = Nepomuk2::Vocabulary::SYNC::Note();
+    syncTest2.setProperty(Nepomuk2::Vocabulary::SYNC::syncDataType(), y);
+    syncTest2.setProperty(Nepomuk2::Vocabulary::SYNC::id(), "yay1234");
 
      m_queryClient->sparqlQuery( query );
      ui->infoLabel->setText(i18n("processing query"));
@@ -239,16 +239,16 @@ void DbCheckDialog::checkAll()
      ui->infoLabel->setText(i18n("processing query"));
 }
 
-void DbCheckDialog::addToList( const QList< Nepomuk::Query::Result > &entries )
+void DbCheckDialog::addToList( const QList< Nepomuk2::Query::Result > &entries )
 {
-    foreach(const Nepomuk::Query::Result &result, entries) {
+    foreach(const Nepomuk2::Query::Result &result, entries) {
 
 
 //        QList<QUrl> resourceUris;
 //        resourceUris << result.resource().uri();
 //        QVariantList value;
 //        value <<  QString("DMS TEST");
-//        Nepomuk::setProperty(resourceUris, NIE::title(), value);
+//        Nepomuk2::setProperty(resourceUris, NIE::title(), value);
 
 
         ui->listWidget->addItem(result.resource().genericLabel());
@@ -273,7 +273,7 @@ void DbCheckDialog::queryFinished()
 
 void DbCheckDialog::removeData()
 {
-    foreach(Nepomuk::Resource r, m_toBeDeleted) {
+    foreach(Nepomuk2::Resource r, m_toBeDeleted) {
         r.remove();
     }
 

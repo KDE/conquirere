@@ -33,17 +33,17 @@
 #include "nbibio/pipe/nepomuktobibtexpipe.h"
 #include <kbibtex/idsuggestions.h>
 
-#include "dms-copy/datamanagement.h"
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+#include <Nepomuk2/SimpleResourceGraph>
 #include <KDE/KJob>
-#include "dms-copy/storeresourcesjob.h"
-#include "dms-copy/simpleresourcegraph.h"
 #include "sro/nbib/reference.h"
 
 #include "nbib.h"
-#include <Nepomuk/Variant>
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/NCO>
-#include <Nepomuk/Vocabulary/PIMO>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NCO>
+#include <Nepomuk2/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
 
 #include <KDE/KGlobalSettings>
@@ -58,7 +58,7 @@
 #include <QtGui/QPushButton>
 #include <QtCore/QPointer>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
 ReferenceWidget::ReferenceWidget(QWidget *parent)
@@ -79,16 +79,16 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
 
     connect(ui->publicationEdit, SIGNAL(textChanged(QString)), this, SLOT(enableReferenceDetails()));
-    connect(ui->publicationEdit, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showPublicationList(Nepomuk::Resource&,QUrl)));
-    connect(ui->chapterEdit, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showChapterList()));
-    connect(ui->citeKeyEdit, SIGNAL(externalEditRequested(Nepomuk::Resource&,QUrl)), this, SLOT(showCiteKeySuggetion()));
+    connect(ui->publicationEdit, SIGNAL(externalEditRequested(Nepomuk2::Resource&,QUrl)), this, SLOT(showPublicationList(Nepomuk2::Resource&,QUrl)));
+    connect(ui->chapterEdit, SIGNAL(externalEditRequested(Nepomuk2::Resource&,QUrl)), this, SLOT(showChapterList()));
+    connect(ui->citeKeyEdit, SIGNAL(externalEditRequested(Nepomuk2::Resource&,QUrl)), this, SLOT(showCiteKeySuggetion()));
 
     //TODO remove and use ResourceWatcher later on
-    connect(ui->chapterEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->citeKeyEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->pagesEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->publicationEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->editAnnot, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->chapterEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->citeKeyEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->pagesEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->publicationEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
+    connect(ui->editAnnot, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
 }
 
 void ReferenceWidget::setLibraryManager(LibraryManager *lm)
@@ -97,19 +97,19 @@ void ReferenceWidget::setLibraryManager(LibraryManager *lm)
     SidebarComponent::setLibraryManager(lm);
 }
 
-Nepomuk::Resource ReferenceWidget::resource()
+Nepomuk2::Resource ReferenceWidget::resource()
 {
     return m_reference;
 }
 
-void ReferenceWidget::setResource(Nepomuk::Resource & resource)
+void ReferenceWidget::setResource(Nepomuk2::Resource & resource)
 {
     if(resource.isValid()) {
         setEnabled(true);
         m_reference = resource;
         enableReferenceDetails();
 
-        Nepomuk::Resource pub = m_reference.property(NBIB::publication()).toResource();
+        Nepomuk2::Resource pub = m_reference.property(NBIB::publication()).toResource();
         ui->editRating->setRating(pub.rating());
     }
     else {
@@ -125,15 +125,15 @@ void ReferenceWidget::setResource(Nepomuk::Resource & resource)
 
 void ReferenceWidget::subResourceUpdated()
 {
-    Nepomuk::Resource publication = m_reference.property(NBIB::publication()).toResource();
+    Nepomuk2::Resource publication = m_reference.property(NBIB::publication()).toResource();
 
     emit resourceCacheNeedsUpdate(m_reference);
     emit resourceCacheNeedsUpdate(publication);
 }
 
-void ReferenceWidget::showPublicationList(Nepomuk::Resource & reference, const QUrl & propertyUrl)
+void ReferenceWidget::showPublicationList(Nepomuk2::Resource & reference, const QUrl & propertyUrl)
 {
-    Nepomuk::Resource changedResource = reference.property(propertyUrl).toResource();
+    Nepomuk2::Resource changedResource = reference.property(propertyUrl).toResource();
 
     // first if the resource is valid, we just want to edit it
     if(changedResource.isValid()) {
@@ -167,19 +167,19 @@ void ReferenceWidget::showPublicationList(Nepomuk::Resource & reference, const Q
     int ret = lpd->exec();
 
     if(ret == KDialog::Accepted) {
-        Nepomuk::Resource selectedPublication = lpd->selectedPublication();
+        Nepomuk2::Resource selectedPublication = lpd->selectedPublication();
 
         // do the crosslinking via DMS
         QList<QUrl> resUri; resUri << reference.resourceUri();
         QVariantList value; value << selectedPublication.resourceUri();
-        KJob* job1 = Nepomuk::setProperty(resUri, NBIB::publication(), value);
+        KJob* job1 = Nepomuk2::setProperty(resUri, NBIB::publication(), value);
         job1->exec(); // blocking wait so we are sure we updated the resource
 
         resUri.clear(); resUri << selectedPublication.resourceUri();
         value.clear(); value << reference.resourceUri();
-        KJob* job2 = Nepomuk::addProperty(resUri, NBIB::reference(), value);
+        KJob* job2 = Nepomuk2::addProperty(resUri, NBIB::reference(), value);
         job2->exec(); // blocking wait so we are sure we updated the resource
-        Nepomuk::addProperty(resUri, NAO::hasSubResource(), value);
+        Nepomuk2::addProperty(resUri, NAO::hasSubResource(), value);
 
         setResource(m_reference); // updates this widget
         subResourceUpdated();
@@ -193,7 +193,7 @@ void ReferenceWidget::showChapterList()
     QPointer<KDialog> kd = new KDialog(this);
 
     ListPartsWidget *lpw = new ListPartsWidget(kd);
-    Nepomuk::Resource publication = m_reference.property(NBIB::publication()).toResource();
+    Nepomuk2::Resource publication = m_reference.property(NBIB::publication()).toResource();
     lpw->setResource(publication);
     lpw->setLibraryManager(libraryManager());
 
@@ -202,12 +202,12 @@ void ReferenceWidget::showChapterList()
     int ret = kd->exec();
 
     if(ret == KDialog::Accepted) {
-        Nepomuk::Resource selectedPart = lpw->selectedPart();
+        Nepomuk2::Resource selectedPart = lpw->selectedPart();
 
         // do the crosslinking via DMS
         QList<QUrl> resUri; resUri << m_reference.resourceUri();
         QVariantList value; value << selectedPart.resourceUri();
-        KJob* job1 = Nepomuk::setProperty(resUri, NBIB::referencedPart(), value);
+        KJob* job1 = Nepomuk2::setProperty(resUri, NBIB::referencedPart(), value);
         job1->exec(); // blocking wait so we are sure we updated the resource
 
         QString pageStart = selectedPart.property(NBIB::pageStart() ).toString();
@@ -216,7 +216,7 @@ void ReferenceWidget::showChapterList()
 
         resUri.clear(); resUri << m_reference.resourceUri();
         value.clear(); value << pages;
-        KJob* job2 = Nepomuk::setProperty(resUri, NBIB::pages(), value);
+        KJob* job2 = Nepomuk2::setProperty(resUri, NBIB::pages(), value);
         job2->exec(); // blocking wait so we are sure we updated the resource
 
         setResource(m_reference); // updates this widget
@@ -228,7 +228,7 @@ void ReferenceWidget::showCiteKeySuggetion()
 {
     // transform current reference to bibtex
     NepomukToBibTexPipe ntbp;
-    QList<Nepomuk::Resource> list; list << m_reference;
+    QList<Nepomuk2::Resource> list; list << m_reference;
     ntbp.pipeExport(list);
     File *f = ntbp.bibtexFile();
 
@@ -244,7 +244,7 @@ void ReferenceWidget::showCiteKeySuggetion()
         // do the crosslinking via DMS
         QList<QUrl> resUri; resUri << m_reference.resourceUri();
         QVariantList value; value << selection;
-        KJob* job1 = Nepomuk::setProperty(resUri, NBIB::citeKey(), value);
+        KJob* job1 = Nepomuk2::setProperty(resUri, NBIB::citeKey(), value);
         job1->exec(); // blocking wait so we are sure we updated the resource
 
         ui->citeKeyEdit->setLabelText(selection);
@@ -255,7 +255,7 @@ void ReferenceWidget::showCiteKeySuggetion()
 void ReferenceWidget::enableReferenceDetails()
 {
     //check if a valid publication exist
-    Nepomuk::Resource publication = m_reference.property(NBIB::publication()).toResource();
+    Nepomuk2::Resource publication = m_reference.property(NBIB::publication()).toResource();
 
     if(publication.isValid()) {
         ui->pagesEdit->setEnabled(true);
@@ -286,36 +286,36 @@ void ReferenceWidget::newButtonClicked()
     }
 
     // if he selected something, retrive his selection
-    Nepomuk::Resource selectedPublication = lpd->selectedPublication();
+    Nepomuk2::Resource selectedPublication = lpd->selectedPublication();
 
     // create a new reference
-    Nepomuk::SimpleResourceGraph graph;
-    Nepomuk::NBIB::Reference newReference;
+    Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::NBIB::Reference newReference;
 
-    newReference.setProperty( Nepomuk::Vocabulary::NIE::title(), i18n("New Reference"));
+    newReference.setProperty( Nepomuk2::Vocabulary::NIE::title(), i18n("New Reference"));
 
     graph << newReference;
     //blocking graph save
-    Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone);
+    Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNone);
     if( !srj->exec() ) {
         kWarning() << "could not new default series" << srj->errorString();
         return;
     }
 
     // get the reference resource from the return job mappings
-    Nepomuk::Resource newReferenceResource = Nepomuk::Resource::fromResourceUri( srj->mappings().value( newReference.uri() ) );
+    Nepomuk2::Resource newReferenceResource = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( newReference.uri() ) );
 
     // do the crosslinking via DMS
     QList<QUrl> resUri; resUri << newReferenceResource.resourceUri();
     QVariantList value; value << selectedPublication.resourceUri();
-    KJob* job1 = Nepomuk::setProperty(resUri, NBIB::publication(), value);
+    KJob* job1 = Nepomuk2::setProperty(resUri, NBIB::publication(), value);
     job1->exec(); // blocking wait so we are sure we updated the resource
 
     resUri.clear(); resUri << selectedPublication.resourceUri();
     value.clear(); value << newReferenceResource.resourceUri();
-    KJob* job2 = Nepomuk::addProperty(resUri, NBIB::reference(), value);
+    KJob* job2 = Nepomuk2::addProperty(resUri, NBIB::reference(), value);
     job2->exec(); // blocking wait so we are sure we updated the resource
-    Nepomuk::addProperty(resUri, NAO::hasSubResource(), value);
+    Nepomuk2::addProperty(resUri, NAO::hasSubResource(), value);
 
     Library *curUsedLib = libraryManager()->currentUsedLibrary();
     if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
@@ -332,13 +332,13 @@ void ReferenceWidget::deleteButtonClicked()
 {
     libraryManager()->systemLibrary()->deleteResource(m_reference);
 
-    Nepomuk::Resource emptyResource;
+    Nepomuk2::Resource emptyResource;
     setResource(emptyResource);
 }
 
 void ReferenceWidget::changeRating(int newRating)
 {
-    Nepomuk::Resource publication = m_reference.property(NBIB::publication()).toResource();
+    Nepomuk2::Resource publication = m_reference.property(NBIB::publication()).toResource();
 
     if(newRating != publication.rating()) {
         publication.setRating(newRating);

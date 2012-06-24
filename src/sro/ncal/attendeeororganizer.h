@@ -8,14 +8,14 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * A common superclass for ncal:Attendee and ncal:Organizer. 
  */
-class AttendeeOrOrganizer : public virtual Nepomuk::SimpleResource
+class AttendeeOrOrganizer : public virtual Nepomuk2::SimpleResource
 {
 public:
     AttendeeOrOrganizer(const QUrl& uri = QUrl())

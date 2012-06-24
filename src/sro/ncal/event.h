@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
 #include "ncal/unionofeventtodo.h"
 #include "ncal/unionofalarmeventtodo.h"
@@ -24,7 +24,7 @@
 #include "ncal/unionoftimezoneobservanceeventfreebusyjournaltimezonetodo.h"
 #include "ncal/unionofalarmeventfreebusyjournaltodo.h"
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * Provide a grouping of component properties that describe an 

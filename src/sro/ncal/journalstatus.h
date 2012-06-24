@@ -8,9 +8,9 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * A status of a journal entry. This class has been introduced to 
@@ -19,7 +19,7 @@ namespace NCAL {
  * create his/her own. See the documentation for ncal:journalStatus 
  * for details. 
  */
-class JournalStatus : public virtual Nepomuk::SimpleResource
+class JournalStatus : public virtual Nepomuk2::SimpleResource
 {
 public:
     JournalStatus(const QUrl& uri = QUrl())

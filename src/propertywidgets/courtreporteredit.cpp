@@ -17,23 +17,24 @@
 
 #include "courtreporteredit.h"
 
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/storeresourcesjob.h"
-#include "dms-copy/simpleresourcegraph.h"
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+#include <Nepomuk2/SimpleResourceGraph>
+#include <Nepomuk2/SimpleResource>
+
 #include <KDE/KJob>
 #include "sro/nbib/courtreporter.h"
 #include "sro/nbib/legalcasedocument.h"
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/NUAO>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/NUAO>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KDebug>
 #include <QtCore/QDateTime>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 
 CourtReporterEdit::CourtReporterEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -43,7 +44,7 @@ CourtReporterEdit::CourtReporterEdit(QWidget *parent)
 void CourtReporterEdit::setupLabel()
 {
     QString title;
-    Nepomuk::Resource courtReporter = resource().property(NBIB::courtReporter()).toResource();
+    Nepomuk2::Resource courtReporter = resource().property(NBIB::courtReporter()).toResource();
     title = courtReporter.property(NIE::title()).toString();
 
     setLabelText(title);
@@ -51,7 +52,7 @@ void CourtReporterEdit::setupLabel()
 
 void CourtReporterEdit::updateResource(const QString & newCRTitle)
 {
-    Nepomuk::Resource currentCourtReporter = resource().property(NBIB::courtReporter()).toResource();
+    Nepomuk2::Resource currentCourtReporter = resource().property(NBIB::courtReporter()).toResource();
 
     QString curentTitle = currentCourtReporter.property(NIE::title()).toString();
 
@@ -61,13 +62,13 @@ void CourtReporterEdit::updateResource(const QString & newCRTitle)
 
     if(currentCourtReporter.exists()) {
         // remove the crosslink CourtReporter <-> publication
-        QList<QUrl> resourceUris; resourceUris << resource().uri();
-        QVariantList value; value << currentCourtReporter.uri();
-        Nepomuk::removeProperty(resourceUris, NBIB::courtReporter(), value);
+        QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
+        QVariantList value; value << currentCourtReporter.resourceUri();
+        Nepomuk2::removeProperty(resourceUris, NBIB::courtReporter(), value);
 
-        resourceUris.clear(); resourceUris << currentCourtReporter.uri();
-        value.clear(); value << resource().uri();
-        Nepomuk::removeProperty(resourceUris, NBIB::legalCase(), value);
+        resourceUris.clear(); resourceUris << currentCourtReporter.resourceUri();
+        value.clear(); value << resource().resourceUri();
+        Nepomuk2::removeProperty(resourceUris, NBIB::legalCase(), value);
     }
 
     if(newCRTitle.isEmpty()) {
@@ -76,14 +77,14 @@ void CourtReporterEdit::updateResource(const QString & newCRTitle)
 
     // ok the user changed the text in the list
     // let the DMS create a new event and merge it to the right place
-    Nepomuk::SimpleResourceGraph graph;
-    Nepomuk::SimpleResource legalCaseRes(resource().uri());
-    Nepomuk::NBIB::LegalCaseDocument legalCase(legalCaseRes);
+    Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::SimpleResource legalCaseRes(resource().resourceUri());
+    Nepomuk2::NBIB::LegalCaseDocument legalCase(legalCaseRes);
     //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
     QDateTime datetime = QDateTime::currentDateTimeUtc();
     legalCaseRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
 
-    Nepomuk::NBIB::CourtReporter newCourtReporter;
+    Nepomuk2::NBIB::CourtReporter newCourtReporter;
 
     newCourtReporter.setProperty(NIE::title(), newCRTitle.trimmed());
 
@@ -93,6 +94,6 @@ void CourtReporterEdit::updateResource(const QString & newCRTitle)
     graph << newCourtReporter << legalCase;
 
     m_changedResource = resource();
-    connect(Nepomuk::storeResources(graph, Nepomuk::IdentifyNew, Nepomuk::OverwriteProperties),
+    connect(Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties),
             SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
 }

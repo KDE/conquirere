@@ -27,7 +27,7 @@
 #include <QtCore/QTextStream>
 
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Variant>
 
 NepomukModel::NepomukModel(QObject *parent)
     : QAbstractTableModel(parent)
@@ -81,7 +81,7 @@ QVariant NepomukModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-bool NepomukModel::cacheEntryNeedsUpdate(const Nepomuk::Resource & resource) const
+bool NepomukModel::cacheEntryNeedsUpdate(const Nepomuk2::Resource & resource) const
 {
     if( !m_lookupCache.contains(resource.resourceUri().toString()) )
         return true;
@@ -118,12 +118,12 @@ void NepomukModel::setLibrary(Library *library)
     m_library = library;
     m_queryClient->setLibrary(m_library);
 
-    connect(m_library, SIGNAL(resourceCacheNeedsUpdate(Nepomuk::Resource)), m_queryClient, SLOT(resourceChanged(Nepomuk::Resource)));
+    connect(m_library, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), m_queryClient, SLOT(resourceChanged(Nepomuk2::Resource)));
 }
 
-Nepomuk::Resource NepomukModel::documentResource(const QModelIndex &selection)
+Nepomuk2::Resource NepomukModel::documentResource(const QModelIndex &selection)
 {
-    Nepomuk::Resource ret;
+    Nepomuk2::Resource ret;
 
     if(!m_modelCacheData.isEmpty() && selection.row() >= 0) {
         CachedRowEntry entryCache = m_modelCacheData.at(selection.row());
@@ -212,7 +212,7 @@ void NepomukModel::loadCache()
             }
         }
         QStringList resInfo = in.readLine().split(QLatin1String("|#|"));
-        cre.resource = Nepomuk::Resource::fromResourceUri(resInfo.first());
+        cre.resource = Nepomuk2::Resource::fromResourceUri(resInfo.first());
         cre.timestamp = QDateTime::fromString( resInfo.last() );
 
         // don't add entries which are removed already

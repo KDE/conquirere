@@ -20,7 +20,7 @@
 
 #include <QObject>
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 #include <QtCore/QFutureWatcher>
 #include <QtCore/QUrl>
@@ -49,8 +49,8 @@ public:
     void pauseUpdates(bool pause);
 
 public slots:
-    void addResource(const Nepomuk::Resource &resource);
-    void updateResource(const Nepomuk::Resource &resource);
+    void addResource(const Nepomuk2::Resource &resource);
+    void updateResource(const Nepomuk2::Resource &resource);
     void removeResource(const QUrl &resourceUrl);
 
     void updateTagCloud();
@@ -62,11 +62,11 @@ private slots:
     void tagCloudUpdated();
 
 private:
-    QList<QPair<int, QString> > createTagCloud(QList<Nepomuk::Resource> resourceList);
+    QList<QPair<int, QString> > createTagCloud(QList<Nepomuk2::Resource> resourceList);
 
     QFutureWatcher<QList<QPair<int, QString> > > *m_futureWatcher;
     QList<QPair<int, QString> > m_tagCloud;
-    QList<Nepomuk::Resource> m_resourceList;
+    QList<Nepomuk2::Resource> m_resourceList;
     bool m_missingUpdate;
     bool m_pauseUpdates;
 };

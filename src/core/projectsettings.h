@@ -20,8 +20,8 @@
 
 #include <QObject>
 
-#include <Nepomuk/Thing>
-#include <Nepomuk/Tag>
+#include <Nepomuk2/Thing>
+#include <Nepomuk2/Tag>
 
 #include <KDE/KSharedConfigPtr>
 
@@ -48,10 +48,10 @@ public:
     void setSettingsFile(const QString &projectFile);
     void loadSettings(const QString &projectFile);
 
-    void setPimoThing( Nepomuk::Resource &thing );
-    Nepomuk::Thing projectThing() const;
+    void setPimoThing( Nepomuk2::Resource &thing );
+    Nepomuk2::Thing projectThing() const;
 
-    Nepomuk::Tag projectTag() const;
+    Nepomuk2::Tag projectTag() const;
 
     void setName(const QString &newName);
     QString name() const;
@@ -79,8 +79,8 @@ private:
     Library *m_library;
     KSharedConfigPtr m_projectConfig;
 
-    Nepomuk::Thing m_pimoThing;
-    Nepomuk::Tag m_projectTag;
+    Nepomuk2::Thing m_pimoThing;
+    Nepomuk2::Tag m_projectTag;
 };
 
 #endif // PROJECTSETTINGS_H

@@ -20,7 +20,7 @@
 
 #include "globals.h"
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 
 #include <QtGui/QWidget>
 
@@ -44,16 +44,16 @@ public:
     virtual void setLibraryManager(LibraryManager *lm);
     LibraryManager *libraryManager();
 
-    virtual Nepomuk::Resource resource() = 0;
+    virtual Nepomuk2::Resource resource() = 0;
 
 signals:
     /**
       * This signal gets thrown when the resource was changed and must be updated in the table model cache
       * redirects the signal from all propertywidgets
       *
-      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
       */
-    void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
+    void resourceCacheNeedsUpdate(Nepomuk2::Resource resource);
 
 public slots:
     /**
@@ -61,7 +61,7 @@ public slots:
       *
       * Has to be implemented in the subclasses to fill the right PropertyEdit widgets
       */
-    virtual void setResource(Nepomuk::Resource & resource) = 0;
+    virtual void setResource(Nepomuk2::Resource & resource) = 0;
 
     virtual void newButtonClicked() = 0;
     virtual void deleteButtonClicked() = 0;

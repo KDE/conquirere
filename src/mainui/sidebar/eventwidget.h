@@ -19,8 +19,8 @@
 #define EVENTWIDGET_H
 
 #include "sidebarcomponent.h"
-#include <Nepomuk/Resource>
-#include <Nepomuk/Thing>
+#include <Nepomuk2/Resource>
+#include <Nepomuk2/Thing>
 
 namespace Ui {
     class EventWidget;
@@ -49,13 +49,13 @@ public:
     ~EventWidget();
 
    void setLibraryManager(LibraryManager *lm);
-   Nepomuk::Resource resource();
+   Nepomuk2::Resource resource();
 
 public slots:
    /**
      * @bug AkonadiContactFeder needs to be changed to respect pimo:Event and add its tags to the thing not the ncal:Event
      */
-    virtual void setResource(Nepomuk::Resource & resource);
+    virtual void setResource(Nepomuk2::Resource & resource);
 
 private slots:
     /**
@@ -77,14 +77,14 @@ private slots:
       *
       * Updates not only the eventname cache entry but also the entries for the publication connected here
       *
-      * @todo This should be replaced by the Nepomuk::ResourceWatcher later
+      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
       */
     void subResourceUpdated();
 
 private:
     Ui::EventWidget *ui;
-    Nepomuk::Thing m_eventThing;
-    Nepomuk::Resource m_eventResource;
+    Nepomuk2::Thing m_eventThing;
+    Nepomuk2::Resource m_eventResource;
 };
 
 #endif // EVENTWIDGET_H

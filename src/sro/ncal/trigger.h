@@ -8,16 +8,16 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * An alarm trigger. This class has been created to serve as the 
  * range of ncal:trigger property. See the documentation for 
  * ncal:trigger for more details. 
  */
-class Trigger : public virtual Nepomuk::SimpleResource
+class Trigger : public virtual Nepomuk2::SimpleResource
 {
 public:
     Trigger(const QUrl& uri = QUrl())

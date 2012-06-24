@@ -8,15 +8,15 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace PIMO {
 /**
  * Roles of classes in PIMO: concrete instances are Abstract and 
  * Concrete. 
  */
-class ClassRole : public virtual Nepomuk::SimpleResource
+class ClassRole : public virtual Nepomuk2::SimpleResource
 {
 public:
     ClassRole(const QUrl& uri = QUrl())

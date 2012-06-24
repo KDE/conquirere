@@ -24,19 +24,19 @@
 #include "mainui/librarymanager.h"
 #include "core/library.h"
 
-#include "dms-copy/datamanagement.h"
-#include "dms-copy/storeresourcesjob.h"
-#include "dms-copy/simpleresourcegraph.h"
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/StoreResourcesJob>
+#include <Nepomuk2/SimpleResourceGraph>
 #include "sro/nbib/publication.h"
 #include "sro/nbib/article.h"
 #include "sro/nbib/chapter.h"
 
 #include "nbib.h"
-#include <Nepomuk/Vocabulary/NIE>
-#include <Nepomuk/Vocabulary/PIMO>
-#include <Nepomuk/Vocabulary/NCAL>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Nepomuk2/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/NCAL>
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk/Variant>
+#include <Nepomuk2/Variant>
 
 #include <KDE/KDialog>
 #include <KDE/KIcon>
@@ -45,7 +45,7 @@
 #include <QtGui/QListWidgetItem>
 #include <QtCore/QPointer>
 
-using namespace Nepomuk::Vocabulary;
+using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
 ListPartsWidget::ListPartsWidget(QWidget *parent) :
@@ -75,7 +75,7 @@ void ListPartsWidget::setLibraryManager(LibraryManager *lm)
     m_libraryManager = lm;
 }
 
-void ListPartsWidget::setResource(Nepomuk::Resource resource)
+void ListPartsWidget::setResource(Nepomuk2::Resource resource)
 {
     m_resource = resource;
 
@@ -86,7 +86,7 @@ void ListPartsWidget::setResource(Nepomuk::Resource resource)
     // otherwise list all chapters
 
     // get the resource list
-    QList<Nepomuk::Resource> resourceList;
+    QList<Nepomuk2::Resource> resourceList;
     if(m_resource.hasType(NBIB::Collection())) {
         m_partType = Collection;
         ui->labelTitel->setText(i18n("List of articles:"));
@@ -113,7 +113,7 @@ void ListPartsWidget::setResource(Nepomuk::Resource resource)
     }
 
     // fill the list widget
-    foreach(const Nepomuk::Resource & r, resourceList) {
+    foreach(const Nepomuk2::Resource & r, resourceList) {
         QListWidgetItem *i = new QListWidgetItem();
 
         QString showString;
@@ -154,7 +154,7 @@ void ListPartsWidget::setResource(Nepomuk::Resource resource)
     }
 }
 
-QString ListPartsWidget::showChapterString(Nepomuk::Resource publication)
+QString ListPartsWidget::showChapterString(Nepomuk2::Resource publication)
 {
     // creates a string in the form
     // "1. Introduction" or just "Introduction"
@@ -171,7 +171,7 @@ QString ListPartsWidget::showChapterString(Nepomuk::Resource publication)
     return showString;
 }
 
-QString ListPartsWidget::showSeriesOfString(Nepomuk::Resource publication)
+QString ListPartsWidget::showSeriesOfString(Nepomuk2::Resource publication)
 {
     QString showString;
     QString title = publication.property(NIE::title()).toString();
@@ -189,18 +189,18 @@ QString ListPartsWidget::showSeriesOfString(Nepomuk::Resource publication)
     return showString;
 }
 
-QString ListPartsWidget::showArticleString(Nepomuk::Resource publication)
+QString ListPartsWidget::showArticleString(Nepomuk2::Resource publication)
 {
     QString title = publication.property(NIE::title()).toString();
 
     return title;
 }
 
-Nepomuk::Resource ListPartsWidget::selectedPart() const
+Nepomuk2::Resource ListPartsWidget::selectedPart() const
 {
     QListWidgetItem *i = ui->listWidget->currentItem();
 
-    Nepomuk::Resource nepomukPart(i->data(Qt::UserRole).toString());
+    Nepomuk2::Resource nepomukPart(i->data(Qt::UserRole).toString());
 
     return nepomukPart;
 }
@@ -211,7 +211,7 @@ void ListPartsWidget::editPart()
     QListWidgetItem *i = ui->listWidget->currentItem();
     if(!i)  { return; }
 
-    Nepomuk::Resource resourceToEdit = Nepomuk::Resource::fromResourceUri(i->data(Qt::UserRole).toString());
+    Nepomuk2::Resource resourceToEdit = Nepomuk2::Resource::fromResourceUri(i->data(Qt::UserRole).toString());
     QString showNewString;
 
     switch(m_partType) {
@@ -275,7 +275,7 @@ void ListPartsWidget::removePart()
     QListWidgetItem *i = ui->listWidget->currentItem();
     if(!i) { return; }
 
-    Nepomuk::Resource resource(i->data(Qt::UserRole).toUrl());
+    Nepomuk2::Resource resource(i->data(Qt::UserRole).toUrl());
     ui->listWidget->removeItemWidget(i);
     delete i;
 
@@ -313,7 +313,7 @@ void ListPartsWidget::deletePart()
     QListWidgetItem *i = ui->listWidget->currentItem();
     if(!i) { return; }
 
-    Nepomuk::Resource resourceToBeDeleted(i->data(Qt::UserRole).toUrl());
+    Nepomuk2::Resource resourceToBeDeleted(i->data(Qt::UserRole).toUrl());
 
     removePart();
 
@@ -333,7 +333,7 @@ void ListPartsWidget::deletePart()
     }
 }
 
-void ListPartsWidget::editChapter(Nepomuk::Resource editResource)
+void ListPartsWidget::editChapter(Nepomuk2::Resource editResource)
 {
     QPointer<AddChapterDialog> acd = new AddChapterDialog(this);
 
@@ -347,8 +347,8 @@ void ListPartsWidget::addChapter()
 {
     // create new temp Chapter via DMS
     // if the user clicks cancel in the next dialog, the resource will be deleted again
-    Nepomuk::SimpleResourceGraph graph;
-    Nepomuk::NBIB::Chapter tempChapter;
+    Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::NBIB::Chapter tempChapter;
 
     tempChapter.setProperty(NIE::title(), i18n("New Chapter"));
     tempChapter.setProperty(NBIB::chapterNumber(), i18n("1"));
@@ -356,26 +356,26 @@ void ListPartsWidget::addChapter()
     graph << tempChapter;
 
     //blocking graph save
-    Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone );
+    Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNone );
     if( !srj->exec() ) {
         kWarning() << "could not create temporay chapter" << srj->errorString();
         return;
     }
 
-    Nepomuk::Resource tempResource = Nepomuk::Resource::fromResourceUri( srj->mappings().value( tempChapter.uri() ) );
+    Nepomuk2::Resource tempResource = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( tempChapter.uri() ) );
 
     // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
     QList<QUrl> resUri; resUri << m_resource.resourceUri();
     QVariantList value; value << tempResource.resourceUri();
-    Nepomuk::addProperty(resUri, NBIB::documentPart(), value);
+    Nepomuk2::addProperty(resUri, NBIB::documentPart(), value);
 
     resUri.clear(); resUri << tempResource.resourceUri();
     value.clear(); value << m_resource.resourceUri();
-    Nepomuk::setProperty(resUri, NBIB::documentPartOf(), value);
+    Nepomuk2::setProperty(resUri, NBIB::documentPartOf(), value);
 
     resUri.clear(); resUri << m_resource.resourceUri();
     value.clear(); value << tempResource.resourceUri();
-    Nepomuk::setProperty(resUri, NAO::hasSubResource(), value); // delete chapter when publication is deleted
+    Nepomuk2::setProperty(resUri, NAO::hasSubResource(), value); // delete chapter when publication is deleted
 
 
     QPointer<AddChapterDialog> acd = new AddChapterDialog(this);
@@ -402,7 +402,7 @@ void ListPartsWidget::addChapter()
     delete acd;
 }
 
-void ListPartsWidget::removeChapter(Nepomuk::Resource chapter)
+void ListPartsWidget::removeChapter(Nepomuk2::Resource chapter)
 {
     if(m_resource.hasType(NBIB::Publication())) {
         deleteChapter(chapter); // otherwise we get a loose chapter that does not belong anywhere, removing only works for references
@@ -414,15 +414,15 @@ void ListPartsWidget::removeChapter(Nepomuk::Resource chapter)
     QVariantList value;
     value << chapter.resourceUri();
 
-    Nepomuk::setProperty(resourceUris, NBIB::documentPart(), value);
+    Nepomuk2::setProperty(resourceUris, NBIB::documentPart(), value);
 }
 
-void ListPartsWidget::deleteChapter(Nepomuk::Resource chapter)
+void ListPartsWidget::deleteChapter(Nepomuk2::Resource chapter)
 {
     QList<QUrl> resourceUris;
     resourceUris << chapter.resourceUri();
 
-    Nepomuk::removeResources(resourceUris);
+    Nepomuk2::removeResources(resourceUris);
 }
 
 void ListPartsWidget::addToSeries()
@@ -448,8 +448,8 @@ void ListPartsWidget::addToSeries()
 
     // create temp Resource via DMS
     // if the user clicks cancel in the next dialog, the resource will be deleted again
-    Nepomuk::SimpleResourceGraph graph;
-    Nepomuk::NBIB::Publication tempPublication;
+    Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::NBIB::Publication tempPublication;
 
     tempPublication.addType( type );
     tempPublication.setProperty(NIE::title(), i18n("New Publication"));
@@ -457,22 +457,22 @@ void ListPartsWidget::addToSeries()
     graph << tempPublication;
 
     //blocking graph save
-    Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone );
+    Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNone );
     if( !srj->exec() ) {
         kWarning() << "could not create temporay publication" << srj->errorString();
         return;
     }
 
-    Nepomuk::Resource tempResource = Nepomuk::Resource::fromResourceUri( srj->mappings().value( tempPublication.uri() ) );
+    Nepomuk2::Resource tempResource = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( tempPublication.uri() ) );
 
     // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
     QList<QUrl> resUri; resUri << m_resource.resourceUri();
     QVariantList value; value << tempResource.resourceUri();
-    Nepomuk::addProperty(resUri, NBIB::seriesOf(), value);
+    Nepomuk2::addProperty(resUri, NBIB::seriesOf(), value);
 
     resUri.clear(); resUri << tempResource.resourceUri();
     value.clear(); value << m_resource.resourceUri();
-    KJob *job2 = Nepomuk::addProperty(resUri, NBIB::inSeries(), value);
+    KJob *job2 = Nepomuk2::addProperty(resUri, NBIB::inSeries(), value);
     job2->exec(); // wait until this is created, otherwise the parent Series won't show up in the PublicationWidget
 
     // open the publication Widget to allow the change of the resource
@@ -509,7 +509,7 @@ void ListPartsWidget::addToSeries()
     delete addIssueWidget;
 }
 
-void ListPartsWidget::editFromSeries(Nepomuk::Resource editResource)
+void ListPartsWidget::editFromSeries(Nepomuk2::Resource editResource)
 {
     QPointer<KDialog> addIssueWidget = new KDialog(this);
 
@@ -525,18 +525,18 @@ void ListPartsWidget::editFromSeries(Nepomuk::Resource editResource)
     delete addIssueWidget;
 }
 
-void ListPartsWidget::removeFromSeries(Nepomuk::Resource  publication)
+void ListPartsWidget::removeFromSeries(Nepomuk2::Resource  publication)
 {
     QList<QUrl> resourceUris; resourceUris << m_resource.resourceUri();
     QVariantList value; value << publication.resourceUri();
-    Nepomuk::removeProperty(resourceUris, NBIB::seriesOf(), value);
+    Nepomuk2::removeProperty(resourceUris, NBIB::seriesOf(), value);
 
     resourceUris.clear(); resourceUris << publication.resourceUri();
     value.clear(); value << m_resource.resourceUri();
-    Nepomuk::removeProperty(resourceUris, NBIB::inSeries(), value);
+    Nepomuk2::removeProperty(resourceUris, NBIB::inSeries(), value);
 }
 
-void ListPartsWidget::deleteFromSeries(Nepomuk::Resource  publication)
+void ListPartsWidget::deleteFromSeries(Nepomuk2::Resource  publication)
 {
     m_libraryManager->systemLibrary()->deleteResource( publication );
 }
@@ -545,30 +545,30 @@ void ListPartsWidget::addToCollection()
 {
     // create temp Resource via DMS
     // if teh user clikcs cancel in teh next dialog, the resource will be deleted again
-    Nepomuk::SimpleResourceGraph graph;
-    Nepomuk::NBIB::Article tempArticle;
+    Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::NBIB::Article tempArticle;
 
     tempArticle.setProperty(NIE::title(), i18n("New Article"));
 
     graph << tempArticle;
 
     //blocking graph save
-    Nepomuk::StoreResourcesJob *srj = Nepomuk::storeResources(graph, Nepomuk::IdentifyNone );
+    Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNone );
     if( !srj->exec() ) {
         kWarning() << "could not create temporay article" << srj->errorString();
         return;
     }
 
-    Nepomuk::Resource tempResource = Nepomuk::Resource::fromResourceUri( srj->mappings().value( tempArticle.uri() ) );
+    Nepomuk2::Resource tempResource = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( tempArticle.uri() ) );
 
     // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
     QList<QUrl> resUri; resUri << m_resource.resourceUri();
     QVariantList value; value << tempResource.resourceUri();
-    Nepomuk::addProperty(resUri, NBIB::article(), value);
+    Nepomuk2::addProperty(resUri, NBIB::article(), value);
 
     resUri.clear(); resUri << tempResource.resourceUri();
     value.clear(); value << m_resource.resourceUri();
-    KJob *job2 = Nepomuk::addProperty(resUri, NBIB::collection(), value);
+    KJob *job2 = Nepomuk2::addProperty(resUri, NBIB::collection(), value);
     job2->exec(); // wait until this is created, otherwise the parent Series won't show up in the PublicationWidget
 
     QPointer<KDialog> addIssueWidget = new KDialog(this);
@@ -604,7 +604,7 @@ void ListPartsWidget::addToCollection()
     delete addIssueWidget;
 }
 
-void ListPartsWidget::editFromCollection(Nepomuk::Resource editResource)
+void ListPartsWidget::editFromCollection(Nepomuk2::Resource editResource)
 {
     QPointer<KDialog> addIssueWidget = new KDialog(this);
 
@@ -620,25 +620,25 @@ void ListPartsWidget::editFromCollection(Nepomuk::Resource editResource)
     delete addIssueWidget;
 }
 
-void ListPartsWidget::removeFromCollection(Nepomuk::Resource  article)
+void ListPartsWidget::removeFromCollection(Nepomuk2::Resource  article)
 {
     QList<QUrl> resourceUris; resourceUris << m_resource.resourceUri();
     QVariantList value; value << article.resourceUri();
 
-    Nepomuk::setProperty(resourceUris, NBIB::article(), value);
+    Nepomuk2::setProperty(resourceUris, NBIB::article(), value);
 
     resourceUris.clear(); resourceUris << article.resourceUri();
     value.clear(); value << m_resource.resourceUri();
 
-    Nepomuk::setProperty(resourceUris, NBIB::collection(), value);
+    Nepomuk2::setProperty(resourceUris, NBIB::collection(), value);
 }
 
-void ListPartsWidget::deleteFromCollection(Nepomuk::Resource  article)
+void ListPartsWidget::deleteFromCollection(Nepomuk2::Resource  article)
 {
     QList<QUrl> resourceUris;
     resourceUris << article.resourceUri();
 
-    Nepomuk::removeResources(resourceUris);
+    Nepomuk2::removeResources(resourceUris);
 }
 
 void ListPartsWidget::addToEvent()
@@ -649,16 +649,16 @@ void ListPartsWidget::addToEvent()
     int ret = lpd->exec();
 
     if(ret == KDialog::Accepted) {
-        Nepomuk::Resource publication = lpd->selectedPublication();
+        Nepomuk2::Resource publication = lpd->selectedPublication();
 
         // do the crosslinking via DMS
         QList<QUrl> resUri; resUri << m_resource.resourceUri();
         QVariantList value; value << publication.resourceUri();
-        Nepomuk::addProperty(resUri, NBIB::eventPublication(), value);
+        Nepomuk2::addProperty(resUri, NBIB::eventPublication(), value);
 
         resUri.clear(); resUri << publication.resourceUri();
         value.clear(); value << m_resource.resourceUri();
-        Nepomuk::addProperty(resUri, NBIB::event(), value);
+        Nepomuk2::addProperty(resUri, NBIB::event(), value);
 
         QListWidgetItem *i = new QListWidgetItem();
 
@@ -677,7 +677,7 @@ void ListPartsWidget::addToEvent()
     delete lpd;
 }
 
-void ListPartsWidget::editFromEvent(Nepomuk::Resource editResource)
+void ListPartsWidget::editFromEvent(Nepomuk2::Resource editResource)
 {
     QPointer<KDialog> addPublicationWidget = new KDialog(this);
 
@@ -693,21 +693,21 @@ void ListPartsWidget::editFromEvent(Nepomuk::Resource editResource)
     delete addPublicationWidget;
 }
 
-void ListPartsWidget::removeFromEvent(Nepomuk::Resource  publication)
+void ListPartsWidget::removeFromEvent(Nepomuk2::Resource  publication)
 {
     QList<QUrl> resourceUris; resourceUris << m_resource.resourceUri();
     QVariantList value; value << publication.resourceUri();
-    Nepomuk::setProperty(resourceUris, NBIB::eventPublication(), value);
+    Nepomuk2::setProperty(resourceUris, NBIB::eventPublication(), value);
 
     resourceUris.clear(); resourceUris << publication.resourceUri();
     value.clear(); value << m_resource.resourceUri();
-    Nepomuk::setProperty(resourceUris, NBIB::event(), value);
+    Nepomuk2::setProperty(resourceUris, NBIB::event(), value);
 }
 
-void ListPartsWidget::deleteFromEvent(Nepomuk::Resource  publication)
+void ListPartsWidget::deleteFromEvent(Nepomuk2::Resource  publication)
 {
     QList<QUrl> resourceUris;
     resourceUris << publication.resourceUri();
 
-    Nepomuk::removeResources(resourceUris);
+    Nepomuk2::removeResources(resourceUris);
 }

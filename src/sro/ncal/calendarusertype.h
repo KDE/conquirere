@@ -8,16 +8,16 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * A calendar user type. This class has been introduced to express 
  * the limited vocabulary for the ncal:cutype property. See documentation 
  * of ncal:cutype for details. 
  */
-class CalendarUserType : public virtual Nepomuk::SimpleResource
+class CalendarUserType : public virtual Nepomuk2::SimpleResource
 {
 public:
     CalendarUserType(const QUrl& uri = QUrl())

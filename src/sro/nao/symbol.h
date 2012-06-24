@@ -10,14 +10,14 @@
 
 #include <nepomuk/simpleresource.h>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NAO {
 /**
  * Represents a symbol, a visual representation of a resource. 
  * Typically a local or remote file would be double-typed to be 
  * used as a symbol. An alternative is nao:FreeDesktopIcon. 
  */
-class Symbol : public virtual Nepomuk::SimpleResource
+class Symbol : public virtual Nepomuk2::SimpleResource
 {
 public:
     Symbol(const QUrl& uri = QUrl())

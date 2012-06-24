@@ -8,16 +8,16 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include "dms-copy/simpleresource.h"
+#include <Nepomuk2/SimpleResource>
 
-namespace Nepomuk {
+namespace Nepomuk2 {
 namespace NCAL {
 /**
  * Request Status. A class that was introduced to provide a structure 
  * for the value of ncal:requestStatus property. See documentation 
  * for ncal:requestStatus for details. 
  */
-class RequestStatus : public virtual Nepomuk::SimpleResource
+class RequestStatus : public virtual Nepomuk2::SimpleResource
 {
 public:
     RequestStatus(const QUrl& uri = QUrl())

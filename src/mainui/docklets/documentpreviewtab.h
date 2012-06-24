@@ -18,7 +18,7 @@
 #ifndef DOCUMENTPREVIEWTAB_H
 #define DOCUMENTPREVIEWTAB_H
 
-#include <Nepomuk/Resource>
+#include <Nepomuk2/Resource>
 #include <KParts/MainWindow>
 #include <KParts/BrowserExtension>
 
@@ -46,10 +46,10 @@ public:
     explicit DocumentPreviewTab(QWidget *parent = 0);
     ~DocumentPreviewTab();
 
-    Nepomuk::Resource & resource();
+    Nepomuk2::Resource & resource();
 
 public slots:
-    void setResource(Nepomuk::Resource & resource);
+    void setResource(Nepomuk2::Resource & resource);
     void clear();
     void showUrl(int index, bool hidden = false);
     void openExternally();
@@ -66,7 +66,7 @@ protected:
 
 private:
     Ui::DocumentPreviewTab *ui;
-    Nepomuk::Resource m_resource;
+    Nepomuk2::Resource m_resource;
     KParts::ReadOnlyPart* m_part;
     QString m_lastPartsName;
     QLabel *m_labelInvalid;
