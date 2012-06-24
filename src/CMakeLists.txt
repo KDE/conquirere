@@ -1,5 +1,4 @@
 
-# add_subdirectory( dms-copy )
 add_subdirectory( nbibio )
 add_subdirectory( core )
 add_subdirectory( onlinestorage )
