@@ -216,7 +216,7 @@ void Library::loadLibrary(const QString & projectFile, LibraryType type)
     setupModels();
 }
 
-void Library::loadSystemLibrary()
+void Library::loadSystemLibrary( )
 {
     QString inipath = KStandardDirs::locateLocal("appdata", QLatin1String("system"));
     QString iniFile = inipath + QLatin1String("/system_library.ini");
@@ -400,7 +400,7 @@ void Library::finishedInitialImport()
     m_initialImportFinished++;
 
     if(m_initialImportFinished == m_resources.size()) {
-        m_tagCloud->pauseUpdates(false);
+        //m_tagCloud->pauseUpdates(false);
     }
 }
 
@@ -490,11 +490,17 @@ void Library::setupModels()
     }
 
     if(ConqSettings::cacheOnStartUp()) {
+        emit statusMessage(i18n("load document cache ..."));
         documentModel->loadCache();
+        emit statusMessage(i18n("load reference cache ..."));
         referencesModel->loadCache();
+        emit statusMessage(i18n("load publication cache ..."));
         publicationModel->loadCache();
+        emit statusMessage(i18n("load serie cache ..."));
         seriesModel->loadCache();
+        emit statusMessage(i18n("load note cache ..."));
         noteModel->loadCache();
+        emit statusMessage(i18n("load event cache ..."));
         eventModel->loadCache();
     }
 }
@@ -504,5 +510,5 @@ void Library::connectModelToTagCloud(NepomukModel *model)
 //    connect(model, SIGNAL(resourceAdded(Nepomuk::Resource)), m_tagCloud, SLOT(addResource(Nepomuk::Resource)));
 //    connect(model, SIGNAL(resourceRemoved(QUrl)), m_tagCloud, SLOT(removeResource(QUrl)));
 //    connect(model, SIGNAL(resourceUpdated(Nepomuk::Resource)), m_tagCloud, SLOT(updateResource(Nepomuk::Resource)));
-//    connect(model, SIGNAL(queryFinished()), this, SLOT(finishedInitialImport()));
+    connect(model, SIGNAL(queryFinished()), this, SLOT(finishedInitialImport()));
 }

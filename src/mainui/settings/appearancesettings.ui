@@ -38,6 +38,13 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
+        <widget class="QCheckBox" name="cb_splashScreen">
+         <property name="text">
+          <string>Show Splash Screen on startup</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="cb_startupCache">
          <property name="text">
           <string>Use cache to speed up startup</string>

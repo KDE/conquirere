@@ -46,6 +46,7 @@ void AppearanceSettings::resetSettings()
 {
     // view part
    ui->cb_startupCache->setChecked( ConqSettings::cacheOnStartUp() );
+   ui->cb_splashScreen->setChecked( ConqSettings::splashScreen() );
 
     // categories part
     for(int i=0; i < Max_SeriesTypes; i++) {
@@ -101,6 +102,7 @@ void AppearanceSettings::applySettings()
     ConqSettings::setHiddenNbibPublicationsOnRestart(hiddenPublications);
 
     ConqSettings::setCacheOnStartUp(ui->cb_startupCache->isChecked());
+    ConqSettings::setSplashScreen(ui->cb_splashScreen->isChecked());
 
     ConqSettings::self()->writeConfig();
 }

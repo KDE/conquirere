@@ -37,6 +37,7 @@ class NBibSync;
 class BackgroundSync;
 class ProjectSettings;
 class KJob;
+class SplashScreen;
 
 /**
   * @brief A Library is a collection of files and Nepomuk::Resource data of a specific topic
@@ -87,7 +88,7 @@ public:
       * @p type the type of the library
       */
     void loadLibrary(const QString & projectFile, LibraryType type = Library_Project);
-    void loadSystemLibrary();
+    void loadSystemLibrary( );
 
     /**
       * Loads a project by its pimo:Project resource uri.
@@ -173,6 +174,8 @@ signals:
       * @todo This should be replaced by the Nepomuk::ResourceWatcher later
       */
     void resourceCacheNeedsUpdate(Nepomuk::Resource resource);
+
+    void statusMessage(const QString & message);
 
 private slots:
     void finishedInitialImport();
