@@ -32,6 +32,7 @@ class SearchWidget;
 class KProgressDialog;
 class QVBoxLayout;
 class QSplitter;
+class SplashScreen;
 
 class MainWindow : public KParts::MainWindow
 {
@@ -94,9 +95,9 @@ private slots:
 
 private:
     bool queryExit();
-    void setupActions();
-    void setupMainWindow();
-    void setupLibrary();
+    void setupActions( );
+    void setupMainWindow( );
+    void setupLibrary( SplashScreen *splash );
 
     LibraryManager *m_libraryManager;
     QMap<QUrl, QWidget *> m_libraryList; /**< holds the welcome widget for each opened library */

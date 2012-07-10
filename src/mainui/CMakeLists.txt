@@ -5,6 +5,7 @@ set(mainui_LIB_SRCS
     tableviewmenu.cpp
     mainwindow.cpp
     welcomewidget.cpp
+    splashscreen.cpp
 
     dialogs/newprojectwizard.cpp
     dialogs/loadproject.cpp

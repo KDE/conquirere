@@ -23,6 +23,7 @@
 #include "librarymanager.h"
 #include "welcomewidget.h"
 #include "resourcetablewidget.h"
+#include "splashscreen.h"
 
 #include "settings/conquireresettingsdialog.h"
 
@@ -67,9 +68,21 @@ MainWindow::MainWindow(QWidget *parent)
 {
     Q_UNUSED(parent);
 
+    SplashScreen *splash = new SplashScreen;
+
+    if(ConqSettings::splashScreen()) {
+        splash->show();
+    }
+
+    splash->message(QString("load mainwindow .."));
     setupMainWindow();
+    splash->message(QString("load actions ..."));
     setupActions();
-    setupLibrary();
+
+    setupLibrary( splash );
+
+    splash->hide();
+    delete splash;
 }
 
 MainWindow::~MainWindow()
@@ -587,11 +600,14 @@ void MainWindow::setupMainWindow()
             this, SLOT(switchView(ResourceSelection,BibEntryType,Library*)));
 }
 
-void MainWindow::setupLibrary()
+void MainWindow::setupLibrary( SplashScreen *splash )
 {
     //create the system library
     Library *l = new Library();
-    l->loadSystemLibrary();
+
+    connect(l, SIGNAL(statusMessage(QString)), splash, SLOT(message(QString)));
+
+    l->loadSystemLibrary( );
     m_libraryManager->addSystemLibrary(l);
 
     m_sidebarWidget->newSelection(Resource_Library, Max_BibTypes, l);

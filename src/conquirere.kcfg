@@ -27,6 +27,10 @@
       <label>Use a cache to speed up startup loading time of a large nepomuk database</label>
       <default>false</default>
     </entry>
+    <entry name="SplashScreen" type="Bool">
+      <label>Show a splash screen on startup.</label>
+      <default>true</default>
+    </entry>
   </group>
   
   <group name="Background-Sync">
