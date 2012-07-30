@@ -49,28 +49,24 @@ include_directories (
                      ${CMAKE_BINARY_DIR}/nbib
 )
 
-# create versions string
-FILE(WRITE ${CMAKE_BINARY_DIR}/version.h.in
-    "\#define VERSION \"@VERSION@\"\n"
-)
+# Set a version that will be used if we're not building from git
+set(VERSION 0.1pre)
 
-FILE(WRITE ${CMAKE_BINARY_DIR}/version.cmake
-    "execute_process(COMMAND git describe --abbrev=4 HEAD
-                   COMMAND sed -e "s/-/./g"
-                   OUTPUT_VARIABLE VERSION
-                   OUTPUT_STRIP_TRAILING_WHITESPACE)
-    # remove leading "v"
-    string(REGEX REPLACE "^v(.*)" "\\1" VERSION ${VERSION})
+if(EXISTS "${conquirere_SOURCE_DIR}/.git")
+  find_program(GIT_EXECUTABLE NAMES git)
+  if(GIT_EXECUTABLE)
+    message(STATUS "Found git: ${GIT_EXECUTABLE}")
+    execute_process(COMMAND ${GIT_EXECUTABLE} describe --abbrev=4 HEAD
+                    WORKING_DIRECTORY ${conquirere_SOURCE_DIR}
+                    OUTPUT_VARIABLE conquirere_git_revision)
 
-    CONFIGURE_FILE(\${SRC} \${DST} @ONLY)
-")
+    string(REGEX REPLACE "\n" "" conquirere_git_revision "${conquirere_git_revision}")
+    string(REGEX REPLACE "^v(.*)" "\\1" VERSION ${conquirere_git_revision})
+  endif()
+endif()
 
-ADD_CUSTOM_TARGET(
-    version
-    ${CMAKE_COMMAND} -D SRC=${CMAKE_BINARY_DIR}/version.h.in
-                     -D DST=${CMAKE_BINARY_DIR}/version.h
-                     -P ${CMAKE_BINARY_DIR}/version.cmake
-)
+configure_file(${conquirere_SOURCE_DIR}/version.h.in ${conquirere_BINARY_DIR}/version.h @ONLY)
+
 
 add_subdirectory( nbib )
 add_subdirectory( src )

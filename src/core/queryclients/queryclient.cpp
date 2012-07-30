@@ -28,7 +28,6 @@
 #include <Nepomuk2/Variant>
 #include <Nepomuk2/Thing>
 
-#include <valgrind/callgrind.h>
 
 QueryClient::QueryClient(QObject *parent)
     :QThread(parent)
