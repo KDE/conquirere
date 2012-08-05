@@ -67,7 +67,6 @@ endif()
 
 configure_file(${conquirere_SOURCE_DIR}/version.h.in ${conquirere_BINARY_DIR}/version.h @ONLY)
 
-
 add_subdirectory( nbib )
 add_subdirectory( src )
 add_subdirectory( html )

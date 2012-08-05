@@ -17,7 +17,7 @@ endif( NEPOMUK_METADATA_EXTRACTOR_INCLUDE_DIRS AND NEPOMUK_METADATA_EXTRACTOR_LI
 
 find_library(
     NEPOMUK_METADATA_EXTRACTOR_LIB
-    NAMES libnepomukmetadataextractor
+    NAMES nepomukmetadataextractor
     HINTS ${KDE4_LIB_DIR} ${LIB_INSTALL_DIR}
 )
 
