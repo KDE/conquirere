@@ -162,7 +162,7 @@ void SearchWidget::fillProjectList( const QList< Nepomuk2::Query::Result > &entr
 {
     foreach(const Nepomuk2::Query::Result &r, entries) {
         ui->editLibrary->addItem(r.resource().property(Soprano::Vocabulary::NAO::prefLabel()).toString(),
-                                 r.resource().resourceUri());
+                                 r.resource().uri());
     }
 }
 

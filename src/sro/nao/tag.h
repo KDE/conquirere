@@ -7,454 +7,31 @@
 #include <QtCore/QDate>
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
-#include <Soprano/Vocabulary/RDF>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 namespace Nepomuk2 {
 namespace NAO {
 /**
  * Represents a generic tag 
  */
-class Tag
+class Tag : public virtual Nepomuk2::SimpleResource
 {
 public:
-    Tag(Nepomuk2::SimpleResource* res)
-      : m_res(res)
-    {}
-
-    virtual ~Tag() {}
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#created. 
-     * States the creation, or first modification time for a resource 
-     */
-    QDateTime created() const {
-        QDateTime value;
-        if(m_res->contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#created", QUrl::StrictMode)))
-            value = m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#created", QUrl::StrictMode)).first().value<QDateTime>();
-        return value;
+    Tag(const QUrl& uri = QUrl())
+      : SimpleResource(uri) {
+        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Tag", QUrl::StrictMode));
     }
 
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#created. 
-     * States the creation, or first modification time for a resource 
-     */
-    void setCreated(const QDateTime& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        values << value;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#created", QUrl::StrictMode), values);
+    Tag(const SimpleResource& res)
+      : SimpleResource(res) {
+        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Tag", QUrl::StrictMode));
     }
 
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#created. 
-     * States the creation, or first modification time for a resource 
-     */
-    void addCreated(const QDateTime& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#created", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
-     * Number of front channels. 
-     */
-    QList<qint64> frontChannelses() const {
-        QList<qint64> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode)))
-            value << v.value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
-     * Number of front channels. 
-     */
-    void setFrontChannelses(const QList<qint64>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const qint64& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
-     * Number of front channels. 
-     */
-    void addFrontChannels(const qint64& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license. 
-     * Terms and intellectual property rights licensing conditions. 
-     */
-    QStringList licenses() const {
-        QStringList value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license. 
-     * Terms and intellectual property rights licensing conditions. 
-     */
-    void setLicenses(const QStringList& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license. 
-     * Terms and intellectual property rights licensing conditions. 
-     */
-    void addLicense(const QString& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#personalIdentifier. 
-     * Defines a personal string identifier for a resource 
-     */
-    QStringList personalIdentifiers() const {
-        QStringList value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#personalIdentifier", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#personalIdentifier. 
-     * Defines a personal string identifier for a resource 
-     */
-    void setPersonalIdentifiers(const QStringList& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#personalIdentifier", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#personalIdentifier. 
-     * Defines a personal string identifier for a resource 
-     */
-    void addPersonalIdentifier(const QString& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#personalIdentifier", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels. 
-     * Number of side channels 
-     */
-    QList<qint64> sideChannelses() const {
-        QList<qint64> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode)))
-            value << v.value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels. 
-     * Number of side channels 
-     */
-    void setSideChannelses(const QList<qint64>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const qint64& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels. 
-     * Number of side channels 
-     */
-    void addSideChannels(const qint64& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels. 
-     * Number of rear channels. 
-     */
-    QList<qint64> rearChannelses() const {
-        QList<qint64> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels", QUrl::StrictMode)))
-            value << v.value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels. 
-     * Number of rear channels. 
-     */
-    void setRearChannelses(const QList<qint64>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const qint64& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels. 
-     * Number of rear channels. 
-     */
-    void addRearChannels(const qint64& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSuperResource. 
-     * Defines a relationship between a resource and one or more super 
-     * resources 
-     */
-    QList<QUrl> hasSuperResources() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSuperResource", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSuperResource. 
-     * Defines a relationship between a resource and one or more super 
-     * resources 
-     */
-    void setHasSuperResources(const QList<QUrl>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSuperResource", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSuperResource. 
-     * Defines a relationship between a resource and one or more super 
-     * resources 
-     */
-    void addHasSuperResource(const QUrl& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSuperResource", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated. 
-     * If this property is assigned, the subject class, property, 
-     * or resource, is deprecated and should not be used in production 
-     * systems any longer. It may be removed without further notice. 
-     */
-    QList<QUrl> deprecateds() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated. 
-     * If this property is assigned, the subject class, property, 
-     * or resource, is deprecated and should not be used in production 
-     * systems any longer. It may be removed without further notice. 
-     */
-    void setDeprecateds(const QList<QUrl>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated. 
-     * If this property is assigned, the subject class, property, 
-     * or resource, is deprecated and should not be used in production 
-     * systems any longer. It may be removed without further notice. 
-     */
-    void addDeprecated(const QUrl& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isRelated. 
-     * Defines an annotation for a resource in the form of a relationship 
-     * between the subject resource and another resource 
-     */
-    QList<QUrl> isRelateds() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isRelated", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isRelated. 
-     * Defines an annotation for a resource in the form of a relationship 
-     * between the subject resource and another resource 
-     */
-    void setIsRelateds(const QList<QUrl>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isRelated", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isRelated. 
-     * Defines an annotation for a resource in the form of a relationship 
-     * between the subject resource and another resource 
-     */
-    void addIsRelated(const QUrl& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isRelated", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#numericRating. 
-     * Annotation for a resource in the form of a numeric rating (float 
-     * value), allowed values are between 1 and 10 whereas 0 is interpreted 
-     * as not set 
-     */
-    qint64 numericRating() const {
-        qint64 value;
-        if(m_res->contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#numericRating", QUrl::StrictMode)))
-            value = m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#numericRating", QUrl::StrictMode)).first().value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#numericRating. 
-     * Annotation for a resource in the form of a numeric rating (float 
-     * value), allowed values are between 1 and 10 whereas 0 is interpreted 
-     * as not set 
-     */
-    void setNumericRating(const qint64& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        values << value;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#numericRating", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#numericRating. 
-     * Annotation for a resource in the form of a numeric rating (float 
-     * value), allowed values are between 1 and 10 whereas 0 is interpreted 
-     * as not set 
-     */
-    void addNumericRating(const qint64& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#numericRating", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#disclaimer. 
-     * A disclaimer 
-     */
-    QStringList disclaimers() const {
-        QStringList value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#disclaimer", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#disclaimer. 
-     * A disclaimer 
-     */
-    void setDisclaimers(const QStringList& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#disclaimer", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#disclaimer. 
-     * A disclaimer 
-     */
-    void addDisclaimer(const QString& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#disclaimer", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels. 
-     * Number of Low Frequency Expansion (subwoofer) channels. 
-     */
-    QList<qint64> lfeChannelses() const {
-        QList<qint64> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode)))
-            value << v.value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels. 
-     * Number of Low Frequency Expansion (subwoofer) channels. 
-     */
-    void setLfeChannelses(const QList<qint64>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const qint64& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels. 
-     * Number of Low Frequency Expansion (subwoofer) channels. 
-     */
-    void addLfeChannels(const qint64& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altLabel. 
-     * An alternative label alongside the preferred label for a resource 
-     */
-    QStringList altLabels() const {
-        QStringList value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altLabel", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altLabel. 
-     * An alternative label alongside the preferred label for a resource 
-     */
-    void setAltLabels(const QStringList& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altLabel", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altLabel. 
-     * An alternative label alongside the preferred label for a resource 
-     */
-    void addAltLabel(const QString& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altLabel", QUrl::StrictMode), value);
+    Tag& operator=(const SimpleResource& res) {
+        SimpleResource::operator=(res);
+        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Tag", QUrl::StrictMode));
+        return *this;
     }
 
     /**
@@ -465,8 +42,8 @@ public:
      */
     bool userVisible() const {
         bool value;
-        if(m_res->contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#userVisible", QUrl::StrictMode)))
-            value = m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#userVisible", QUrl::StrictMode)).first().value<bool>();
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#userVisible", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#userVisible", QUrl::StrictMode)).first().value<bool>();
         return value;
     }
 
@@ -477,10 +54,9 @@ public:
      * user. By default everything is user-visible. 
      */
     void setUserVisible(const bool& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
         QVariantList values;
         values << value;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#userVisible", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#userVisible", QUrl::StrictMode), values);
     }
 
     /**
@@ -490,106 +66,62 @@ public:
      * user. By default everything is user-visible. 
      */
     void addUserVisible(const bool& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#userVisible", QUrl::StrictMode), value);
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#userVisible", QUrl::StrictMode), value);
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#lastModified. 
-     * States the last modification time for a resource 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefLabel. 
+     * A preferred label for a resource 
      */
-    QDateTime lastModified() const {
-        QDateTime value;
-        if(m_res->contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#lastModified", QUrl::StrictMode)))
-            value = m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#lastModified", QUrl::StrictMode)).first().value<QDateTime>();
+    QString prefLabel() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefLabel", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefLabel", QUrl::StrictMode)).first().value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#lastModified. 
-     * States the last modification time for a resource 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefLabel. 
+     * A preferred label for a resource 
      */
-    void setLastModified(const QDateTime& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
+    void setPrefLabel(const QString& value) {
         QVariantList values;
         values << value;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#lastModified", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefLabel", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#lastModified. 
-     * States the last modification time for a resource 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefLabel. 
+     * A preferred label for a resource 
      */
-    void addLastModified(const QDateTime& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#lastModified", QUrl::StrictMode), value);
+    void addPrefLabel(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefLabel", QUrl::StrictMode), value);
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSubResource. 
-     * Defines a relationship between a resource and one or more sub 
-     * resources 
+     * Get property http://www.w3.org/2003/01/geo/wgs84_pos#long. 
      */
-    QList<QUrl> hasSubResources() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSubResource", QUrl::StrictMode)))
-            value << v.value<QUrl>();
+    double FAILlong() const {
+        double value;
+        if(contains(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#long", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#long", QUrl::StrictMode)).first().value<double>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSubResource. 
-     * Defines a relationship between a resource and one or more sub 
-     * resources 
+     * Set property http://www.w3.org/2003/01/geo/wgs84_pos#long. 
      */
-    void setHasSubResources(const QList<QUrl>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
+    void setLong(const double& value) {
         QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSubResource", QUrl::StrictMode), values);
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#long", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSubResource. 
-     * Defines a relationship between a resource and one or more sub 
-     * resources 
+     * Add value to property http://www.w3.org/2003/01/geo/wgs84_pos#long. 
      */
-    void addHasSubResource(const QUrl& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSubResource", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTagFor. 
-     * States which resources a tag is associated with 
-     */
-    QList<QUrl> isTagFors() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTagFor", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTagFor. 
-     * States which resources a tag is associated with 
-     */
-    void setIsTagFors(const QList<QUrl>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTagFor", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTagFor. 
-     * States which resources a tag is associated with 
-     */
-    void addIsTagFor(const QUrl& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTagFor", QUrl::StrictMode), value);
+    void addLong(const double& value) {
+        addProperty(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#long", QUrl::StrictMode), value);
     }
 
     /**
@@ -598,7 +130,7 @@ public:
      */
     QStringList copyrights() const {
         QStringList value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright", QUrl::StrictMode)))
             value << v.value<QString>();
         return value;
     }
@@ -608,11 +140,10 @@ public:
      * Content copyright 
      */
     void setCopyrights(const QStringList& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
         QVariantList values;
         foreach(const QString& v, value)
             values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright", QUrl::StrictMode), values);
     }
 
     /**
@@ -620,107 +151,430 @@ public:
      * Content copyright 
      */
     void addCopyright(const QString& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright", QUrl::StrictMode), value);
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright", QUrl::StrictMode), value);
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#contributor. 
-     * Refers to a single or a group of individuals that contributed 
-     * to a resource 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#disclaimer. 
+     * A disclaimer 
      */
-    QList<QUrl> contributors() const {
+    QStringList disclaimers() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#disclaimer", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#disclaimer. 
+     * A disclaimer 
+     */
+    void setDisclaimers(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#disclaimer", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#disclaimer. 
+     * A disclaimer 
+     */
+    void addDisclaimer(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#disclaimer", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefSymbol. 
+     * A unique preferred symbol representation for a resource 
+     */
+    QUrl prefSymbol() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefSymbol", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefSymbol", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefSymbol. 
+     * A unique preferred symbol representation for a resource 
+     */
+    void setPrefSymbol(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefSymbol", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefSymbol. 
+     * A unique preferred symbol representation for a resource 
+     */
+    void addPrefSymbol(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefSymbol", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends. 
+     * Dependency relation. A piece of content depends on another 
+     * piece of data in order to be properly understood/used/interpreted. 
+     */
+    QList<QUrl> dependses() const {
         QList<QUrl> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#contributor", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends", QUrl::StrictMode)))
             value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#contributor. 
-     * Refers to a single or a group of individuals that contributed 
-     * to a resource 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends. 
+     * Dependency relation. A piece of content depends on another 
+     * piece of data in order to be properly understood/used/interpreted. 
      */
-    void setContributors(const QList<QUrl>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
+    void setDependses(const QList<QUrl>& value) {
         QVariantList values;
         foreach(const QUrl& v, value)
             values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#contributor", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#contributor. 
-     * Refers to a single or a group of individuals that contributed 
-     * to a resource 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends. 
+     * Dependency relation. A piece of content depends on another 
+     * piece of data in order to be properly understood/used/interpreted. 
      */
-    void addContributor(const QUrl& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#contributor", QUrl::StrictMode), value);
+    void addDepends(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends", QUrl::StrictMode), value);
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSymbol. 
-     * Annotation for a resource in the form of a symbol representation 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#creator. 
+     * Refers to the single or group of individuals that created the 
+     * resource 
      */
-    QList<QUrl> hasSymbols() const {
+    QUrl creator() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#creator", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#creator", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#creator. 
+     * Refers to the single or group of individuals that created the 
+     * resource 
+     */
+    void setCreator(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#creator", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#creator. 
+     * Refers to the single or group of individuals that created the 
+     * resource 
+     */
+    void addCreator(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#creator", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#numericRating. 
+     * Annotation for a resource in the form of a numeric rating (float 
+     * value), allowed values are between 1 and 10 whereas 0 is interpreted 
+     * as not set 
+     */
+    qint64 numericRating() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#numericRating", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#numericRating", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#numericRating. 
+     * Annotation for a resource in the form of a numeric rating (float 
+     * value), allowed values are between 1 and 10 whereas 0 is interpreted 
+     * as not set 
+     */
+    void setNumericRating(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#numericRating", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#numericRating. 
+     * Annotation for a resource in the form of a numeric rating (float 
+     * value), allowed values are between 1 and 10 whereas 0 is interpreted 
+     * as not set 
+     */
+    void addNumericRating(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#numericRating", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#depiction. 
+     * Relates an information element to an image which depicts said 
+     * element. 
+     */
+    QList<QUrl> depictions() const {
         QList<QUrl> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSymbol", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#depiction", QUrl::StrictMode)))
             value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSymbol. 
-     * Annotation for a resource in the form of a symbol representation 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#depiction. 
+     * Relates an information element to an image which depicts said 
+     * element. 
      */
-    void setHasSymbols(const QList<QUrl>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
+    void setDepictions(const QList<QUrl>& value) {
         QVariantList values;
         foreach(const QUrl& v, value)
             values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSymbol", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#depiction", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSymbol. 
-     * Annotation for a resource in the form of a symbol representation 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#depiction. 
+     * Relates an information element to an image which depicts said 
+     * element. 
      */
-    void addHasSymbol(const QUrl& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSymbol", QUrl::StrictMode), value);
+    void addDepiction(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#depiction", QUrl::StrictMode), value);
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#score. 
-     * An authoritative score for an item valued between 0 and 1 
+     * Get property http://www.w3.org/2003/01/geo/wgs84_pos#lat. 
      */
-    QList<double> scores() const {
-        QList<double> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#score", QUrl::StrictMode)))
-            value << v.value<double>();
+    double lat() const {
+        double value;
+        if(contains(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#lat", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#lat", QUrl::StrictMode)).first().value<double>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#score. 
-     * An authoritative score for an item valued between 0 and 1 
+     * Set property http://www.w3.org/2003/01/geo/wgs84_pos#lat. 
      */
-    void setScores(const QList<double>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
+    void setLat(const double& value) {
         QVariantList values;
-        foreach(const double& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#score", QUrl::StrictMode), values);
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#lat", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#score. 
-     * An authoritative score for an item valued between 0 and 1 
+     * Add value to property http://www.w3.org/2003/01/geo/wgs84_pos#lat. 
      */
-    void addScore(const double& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#score", QUrl::StrictMode), value);
+    void addLat(const double& value) {
+        addProperty(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#lat", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated. 
+     * If this property is assigned, the subject class, property, 
+     * or resource, is deprecated and should not be used in production 
+     * systems any longer. It may be removed without further notice. 
+     */
+    QUrl deprecated() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated. 
+     * If this property is assigned, the subject class, property, 
+     * or resource, is deprecated and should not be used in production 
+     * systems any longer. It may be removed without further notice. 
+     */
+    void setDeprecated(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated. 
+     * If this property is assigned, the subject class, property, 
+     * or resource, is deprecated and should not be used in production 
+     * systems any longer. It may be removed without further notice. 
+     */
+    void addDeprecated(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#deprecated", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingForDeletedThing. 
+     * This NIE Information Element was used as a grounding occurrence 
+     * for the object Thing. The Thing was then deleted by the user manually, 
+     * indicating that this Information Element should not cause 
+     * an automatic creation of another Thing in the future. The object 
+     * resource has no range to indicate that it was completely removed 
+     * from the user's PIMO, including the rdf:type statement. Relevant 
+     * for data alignment and enrichment algorithms. 
+     */
+    QList<QUrl> groundingForDeletedThings() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingForDeletedThing", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingForDeletedThing. 
+     * This NIE Information Element was used as a grounding occurrence 
+     * for the object Thing. The Thing was then deleted by the user manually, 
+     * indicating that this Information Element should not cause 
+     * an automatic creation of another Thing in the future. The object 
+     * resource has no range to indicate that it was completely removed 
+     * from the user's PIMO, including the rdf:type statement. Relevant 
+     * for data alignment and enrichment algorithms. 
+     */
+    void setGroundingForDeletedThings(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingForDeletedThing", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingForDeletedThing. 
+     * This NIE Information Element was used as a grounding occurrence 
+     * for the object Thing. The Thing was then deleted by the user manually, 
+     * indicating that this Information Element should not cause 
+     * an automatic creation of another Thing in the future. The object 
+     * resource has no range to indicate that it was completely removed 
+     * from the user's PIMO, including the rdf:type statement. Relevant 
+     * for data alignment and enrichment algorithms. 
+     */
+    void addGroundingForDeletedThing(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#groundingForDeletedThing", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#description. 
+     * A non-technical textual annotation for a resource 
+     */
+    QStringList descriptions() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#description", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#description. 
+     * A non-technical textual annotation for a resource 
+     */
+    void setDescriptions(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#description", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#description. 
+     * A non-technical textual annotation for a resource 
+     */
+    void addDescription(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#description", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#lastModified. 
+     * States the last modification time for a resource 
+     */
+    QDateTime lastModified() const {
+        QDateTime value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#lastModified", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#lastModified", QUrl::StrictMode)).first().value<QDateTime>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#lastModified. 
+     * States the last modification time for a resource 
+     */
+    void setLastModified(const QDateTime& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#lastModified", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#lastModified. 
+     * States the last modification time for a resource 
+     */
+    void addLastModified(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#lastModified", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSuperResource. 
+     * Defines a relationship between a resource and one or more super 
+     * resources 
+     */
+    QList<QUrl> superResources() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSuperResource", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSuperResource. 
+     * Defines a relationship between a resource and one or more super 
+     * resources 
+     */
+    void setSuperResources(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSuperResource", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSuperResource. 
+     * Defines a relationship between a resource and one or more super 
+     * resources 
+     */
+    void addSuperResource(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSuperResource", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altLabel. 
+     * An alternative label alongside the preferred label for a resource 
+     */
+    QStringList altLabels() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altLabel", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altLabel. 
+     * An alternative label alongside the preferred label for a resource 
+     */
+    void setAltLabels(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altLabel", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altLabel. 
+     * An alternative label alongside the preferred label for a resource 
+     */
+    void addAltLabel(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altLabel", QUrl::StrictMode), value);
     }
 
     /**
@@ -728,9 +582,9 @@ public:
      * Defines a relationship between two resources, where the object 
      * is a topic of the subject 
      */
-    QList<QUrl> hasTopics() const {
+    QList<QUrl> topics() const {
         QList<QUrl> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTopic", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTopic", QUrl::StrictMode)))
             value << v.value<QUrl>();
         return value;
     }
@@ -740,12 +594,11 @@ public:
      * Defines a relationship between two resources, where the object 
      * is a topic of the subject 
      */
-    void setHasTopics(const QList<QUrl>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
+    void setTopics(const QList<QUrl>& value) {
         QVariantList values;
         foreach(const QUrl& v, value)
             values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTopic", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTopic", QUrl::StrictMode), values);
     }
 
     /**
@@ -753,41 +606,262 @@ public:
      * Defines a relationship between two resources, where the object 
      * is a topic of the subject 
      */
-    void addHasTopic(const QUrl& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTopic", QUrl::StrictMode), value);
+    void addTopic(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTopic", QUrl::StrictMode), value);
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefLabel. 
-     * A preferred label for a resource 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels. 
+     * Number of side channels 
      */
-    QStringList prefLabels() const {
+    qint64 sideChannels() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels. 
+     * Number of side channels 
+     */
+    void setSideChannels(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels. 
+     * Number of side channels 
+     */
+    void addSideChannels(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels. 
+     * Number of Low Frequency Expansion (subwoofer) channels. 
+     */
+    qint64 lfeChannels() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels. 
+     * Number of Low Frequency Expansion (subwoofer) channels. 
+     */
+    void setLfeChannels(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels. 
+     * Number of Low Frequency Expansion (subwoofer) channels. 
+     */
+    void addLfeChannels(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#personalIdentifier. 
+     * Defines a personal string identifier for a resource 
+     */
+    QStringList personalIdentifiers() const {
         QStringList value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefLabel", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#personalIdentifier", QUrl::StrictMode)))
             value << v.value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefLabel. 
-     * A preferred label for a resource 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#personalIdentifier. 
+     * Defines a personal string identifier for a resource 
      */
-    void setPrefLabels(const QStringList& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
+    void setPersonalIdentifiers(const QStringList& value) {
         QVariantList values;
         foreach(const QString& v, value)
             values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefLabel", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#personalIdentifier", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefLabel. 
-     * A preferred label for a resource 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#personalIdentifier. 
+     * Defines a personal string identifier for a resource 
      */
-    void addPrefLabel(const QString& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefLabel", QUrl::StrictMode), value);
+    void addPersonalIdentifier(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#personalIdentifier", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSubResource. 
+     * Defines a relationship between a resource and one or more sub 
+     * resources. Descriptions of sub-resources are only interpretable 
+     * when the super-resource exists. Deleting a super-resource 
+     * should then also delete all sub-resources, and transferring 
+     * a super-resource (for example, sending it to another user) 
+     * must also include the sub-resource. 
+     */
+    QList<QUrl> subResources() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSubResource", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSubResource. 
+     * Defines a relationship between a resource and one or more sub 
+     * resources. Descriptions of sub-resources are only interpretable 
+     * when the super-resource exists. Deleting a super-resource 
+     * should then also delete all sub-resources, and transferring 
+     * a super-resource (for example, sending it to another user) 
+     * must also include the sub-resource. 
+     */
+    void setSubResources(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSubResource", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSubResource. 
+     * Defines a relationship between a resource and one or more sub 
+     * resources. Descriptions of sub-resources are only interpretable 
+     * when the super-resource exists. Deleting a super-resource 
+     * should then also delete all sub-resources, and transferring 
+     * a super-resource (for example, sending it to another user) 
+     * must also include the sub-resource. 
+     */
+    void addSubResource(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSubResource", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isRelated. 
+     * Defines an annotation for a resource in the form of a relationship 
+     * between the subject resource and another resource 
+     */
+    QList<QUrl> isRelateds() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isRelated", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isRelated. 
+     * Defines an annotation for a resource in the form of a relationship 
+     * between the subject resource and another resource 
+     */
+    void setIsRelateds(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isRelated", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isRelated. 
+     * Defines an annotation for a resource in the form of a relationship 
+     * between the subject resource and another resource 
+     */
+    void addIsRelated(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isRelated", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
+     * Number of front channels. 
+     */
+    qint64 frontChannels() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
+     * Number of front channels. 
+     */
+    void setFrontChannels(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
+     * Number of front channels. 
+     */
+    void addFrontChannels(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license. 
+     * Terms and intellectual property rights licensing conditions. 
+     */
+    QStringList licenses() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license. 
+     * Terms and intellectual property rights licensing conditions. 
+     */
+    void setLicenses(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license. 
+     * Terms and intellectual property rights licensing conditions. 
+     */
+    void addLicense(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels. 
+     * Number of rear channels. 
+     */
+    qint64 rearChannels() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels. 
+     * Number of rear channels. 
+     */
+    void setRearChannels(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels. 
+     * Number of rear channels. 
+     */
+    void addRearChannels(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels", QUrl::StrictMode), value);
     }
 
     /**
@@ -797,7 +871,7 @@ public:
      */
     QStringList licenseTypes() const {
         QStringList value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType", QUrl::StrictMode)))
             value << v.value<QString>();
         return value;
     }
@@ -808,11 +882,10 @@ public:
      * "GPL", "BSD", "Creative Commons" etc. 
      */
     void setLicenseTypes(const QStringList& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
         QVariantList values;
         foreach(const QString& v, value)
             values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType", QUrl::StrictMode), values);
     }
 
     /**
@@ -821,8 +894,192 @@ public:
      * "GPL", "BSD", "Creative Commons" etc. 
      */
     void addLicenseType(const QString& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType", QUrl::StrictMode), value);
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#contributor. 
+     * Refers to a single or a group of individuals that contributed 
+     * to a resource 
+     */
+    QList<QUrl> contributors() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#contributor", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#contributor. 
+     * Refers to a single or a group of individuals that contributed 
+     * to a resource 
+     */
+    void setContributors(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#contributor", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#contributor. 
+     * Refers to a single or a group of individuals that contributed 
+     * to a resource 
+     */
+    void addContributor(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#contributor", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altSymbol. 
+     * An alternative symbol representation for a resource 
+     */
+    QList<QUrl> altSymbols() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altSymbol", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altSymbol. 
+     * An alternative symbol representation for a resource 
+     */
+    void setAltSymbols(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altSymbol", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altSymbol. 
+     * An alternative symbol representation for a resource 
+     */
+    void addAltSymbol(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altSymbol", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTopicOf. 
+     * Defines a relationship between two resources, where the subject 
+     * is a topic of the object 
+     */
+    QList<QUrl> isTopicOfs() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTopicOf", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTopicOf. 
+     * Defines a relationship between two resources, where the subject 
+     * is a topic of the object 
+     */
+    void setIsTopicOfs(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTopicOf", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTopicOf. 
+     * Defines a relationship between two resources, where the subject 
+     * is a topic of the object 
+     */
+    void addIsTopicOf(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTopicOf", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#modified. 
+     * States the modification time for a resource 
+     */
+    QList<QDateTime> modifieds() const {
+        QList<QDateTime> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#modified", QUrl::StrictMode)))
+            value << v.value<QDateTime>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#modified. 
+     * States the modification time for a resource 
+     */
+    void setModifieds(const QList<QDateTime>& value) {
+        QVariantList values;
+        foreach(const QDateTime& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#modified", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#modified. 
+     * States the modification time for a resource 
+     */
+    void addModified(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#modified", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#created. 
+     * States the creation, or first modification time for a resource 
+     */
+    QDateTime created() const {
+        QDateTime value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#created", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#created", QUrl::StrictMode)).first().value<QDateTime>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#created. 
+     * States the creation, or first modification time for a resource 
+     */
+    void setCreated(const QDateTime& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#created", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#created. 
+     * States the creation, or first modification time for a resource 
+     */
+    void addCreated(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#created", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTag. 
+     * Defines an existing tag for a resource 
+     */
+    QList<QUrl> tags() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTag", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTag. 
+     * Defines an existing tag for a resource 
+     */
+    void setTags(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTag", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTag. 
+     * Defines an existing tag for a resource 
+     */
+    void addTag(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTag", QUrl::StrictMode), value);
     }
 
     /**
@@ -834,7 +1091,7 @@ public:
      */
     QList<double> scoreParameters() const {
         QList<double> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#scoreParameter", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#scoreParameter", QUrl::StrictMode)))
             value << v.value<double>();
         return value;
     }
@@ -847,11 +1104,10 @@ public:
      * this property 
      */
     void setScoreParameters(const QList<double>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
         QVariantList values;
         foreach(const double& v, value)
             values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#scoreParameter", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#scoreParameter", QUrl::StrictMode), values);
     }
 
     /**
@@ -862,248 +1118,86 @@ public:
      * this property 
      */
     void addScoreParameter(const double& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#scoreParameter", QUrl::StrictMode), value);
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#scoreParameter", QUrl::StrictMode), value);
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTag. 
-     * Defines an existing tag for a resource 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#maintainedBy. 
+     * The agent that maintains this resource, ie. created it and knows 
+     * what to do with it. 
      */
-    QList<QUrl> hasTags() const {
+    QList<QUrl> maintainedBys() const {
         QList<QUrl> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTag", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#maintainedBy", QUrl::StrictMode)))
             value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTag. 
-     * Defines an existing tag for a resource 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#maintainedBy. 
+     * The agent that maintains this resource, ie. created it and knows 
+     * what to do with it. 
      */
-    void setHasTags(const QList<QUrl>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
+    void setMaintainedBys(const QList<QUrl>& value) {
         QVariantList values;
         foreach(const QUrl& v, value)
             values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTag", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#maintainedBy", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTag. 
-     * Defines an existing tag for a resource 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#maintainedBy. 
+     * The agent that maintains this resource, ie. created it and knows 
+     * what to do with it. 
      */
-    void addHasTag(const QUrl& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasTag", QUrl::StrictMode), value);
+    void addMaintainedBy(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#maintainedBy", QUrl::StrictMode), value);
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#creator. 
-     * Refers to the single or group of individuals that created the 
-     * resource 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable. 
+     * Defines if this information model can be modified by the user 
+     * of the system. This is usually false for imported ontologies 
+     * and true for the user's own PersonalInformationModel. 
      */
-    QList<QUrl> creators() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#creator", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#creator. 
-     * Refers to the single or group of individuals that created the 
-     * resource 
-     */
-    void setCreators(const QList<QUrl>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#creator", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#creator. 
-     * Refers to the single or group of individuals that created the 
-     * resource 
-     */
-    void addCreator(const QUrl& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#creator", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#description. 
-     * A non-technical textual annotation for a resource 
-     */
-    QStringList descriptions() const {
+    QStringList isWriteables() const {
         QStringList value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#description", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable", QUrl::StrictMode)))
             value << v.value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#description. 
-     * A non-technical textual annotation for a resource 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable. 
+     * Defines if this information model can be modified by the user 
+     * of the system. This is usually false for imported ontologies 
+     * and true for the user's own PersonalInformationModel. 
      */
-    void setDescriptions(const QStringList& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
+    void setIsWriteables(const QStringList& value) {
         QVariantList values;
         foreach(const QString& v, value)
             values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#description", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#description. 
-     * A non-technical textual annotation for a resource 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable. 
+     * Defines if this information model can be modified by the user 
+     * of the system. This is usually false for imported ontologies 
+     * and true for the user's own PersonalInformationModel. 
      */
-    void addDescription(const QString& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#description", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#modified. 
-     * States the modification time for a resource 
-     */
-    QList<QDateTime> modifieds() const {
-        QList<QDateTime> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#modified", QUrl::StrictMode)))
-            value << v.value<QDateTime>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#modified. 
-     * States the modification time for a resource 
-     */
-    void setModifieds(const QList<QDateTime>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const QDateTime& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#modified", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#modified. 
-     * States the modification time for a resource 
-     */
-    void addModified(const QDateTime& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#modified", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTopicOf. 
-     * Defines a relationship between two resources, where the subject 
-     * is a topic of the object 
-     */
-    QList<QUrl> isTopicOfs() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTopicOf", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTopicOf. 
-     * Defines a relationship between two resources, where the subject 
-     * is a topic of the object 
-     */
-    void setIsTopicOfs(const QList<QUrl>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTopicOf", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTopicOf. 
-     * Defines a relationship between two resources, where the subject 
-     * is a topic of the object 
-     */
-    void addIsTopicOf(const QUrl& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTopicOf", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altSymbol. 
-     * An alternative symbol representation for a resource 
-     */
-    QList<QUrl> altSymbols() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altSymbol", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altSymbol. 
-     * An alternative symbol representation for a resource 
-     */
-    void setAltSymbols(const QList<QUrl>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altSymbol", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altSymbol. 
-     * An alternative symbol representation for a resource 
-     */
-    void addAltSymbol(const QUrl& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#altSymbol", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefSymbol. 
-     * A unique preferred symbol representation for a resource 
-     */
-    QList<QUrl> prefSymbols() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefSymbol", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefSymbol. 
-     * A unique preferred symbol representation for a resource 
-     */
-    void setPrefSymbols(const QList<QUrl>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefSymbol", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefSymbol. 
-     * A unique preferred symbol representation for a resource 
-     */
-    void addPrefSymbol(const QUrl& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#prefSymbol", QUrl::StrictMode), value);
+    void addIsWriteable(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable", QUrl::StrictMode), value);
     }
 
     /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#pluralPrefLabel. 
      * The plural form of the preferred label for a resource 
      */
-    QStringList pluralPrefLabels() const {
-        QStringList value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#pluralPrefLabel", QUrl::StrictMode)))
-            value << v.value<QString>();
+    QString pluralPrefLabel() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#pluralPrefLabel", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#pluralPrefLabel", QUrl::StrictMode)).first().value<QString>();
         return value;
     }
 
@@ -1111,12 +1205,10 @@ public:
      * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#pluralPrefLabel. 
      * The plural form of the preferred label for a resource 
      */
-    void setPluralPrefLabels(const QStringList& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
+    void setPluralPrefLabel(const QString& value) {
         QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#pluralPrefLabel", QUrl::StrictMode), values);
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#pluralPrefLabel", QUrl::StrictMode), values);
     }
 
     /**
@@ -1124,50 +1216,177 @@ public:
      * The plural form of the preferred label for a resource 
      */
     void addPluralPrefLabel(const QString& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#pluralPrefLabel", QUrl::StrictMode), value);
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#pluralPrefLabel", QUrl::StrictMode), value);
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends. 
-     * Dependency relation. A piece of content depends on another 
-     * piece of data in order to be properly understood/used/interpreted. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#score. 
+     * An authoritative score for an item valued between 0 and 1 
      */
-    QList<QUrl> dependses() const {
+    double score() const {
+        double value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#score", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#score", QUrl::StrictMode)).first().value<double>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#score. 
+     * An authoritative score for an item valued between 0 and 1 
+     */
+    void setScore(const double& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#score", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#score. 
+     * An authoritative score for an item valued between 0 and 1 
+     */
+    void addScore(const double& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#score", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSymbol. 
+     * Annotation for a resource in the form of a visual representation. 
+     * Typically the symbol is a double-typed image file or a nao:FreeDesktopIcon. 
+     */
+    QList<QUrl> symbols() const {
         QList<QUrl> value;
-        foreach(const QVariant& v, m_res->property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSymbol", QUrl::StrictMode)))
             value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends. 
-     * Dependency relation. A piece of content depends on another 
-     * piece of data in order to be properly understood/used/interpreted. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSymbol. 
+     * Annotation for a resource in the form of a visual representation. 
+     * Typically the symbol is a double-typed image file or a nao:FreeDesktopIcon. 
      */
-    void setDependses(const QList<QUrl>& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
+    void setSymbols(const QList<QUrl>& value) {
         QVariantList values;
         foreach(const QUrl& v, value)
             values << v;
-        m_res->setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSymbol", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends. 
-     * Dependency relation. A piece of content depends on another 
-     * piece of data in order to be properly understood/used/interpreted. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSymbol. 
+     * Annotation for a resource in the form of a visual representation. 
+     * Typically the symbol is a double-typed image file or a nao:FreeDesktopIcon. 
      */
-    void addDepends(const QUrl& value) {
-        m_res->addProperty(Soprano::Vocabulary::RDF::type(), resourceType());
-        m_res->addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends", QUrl::StrictMode), value);
+    void addSymbol(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#hasSymbol", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#classRole. 
+     * Annotating abstract and concrete classes. Implementations 
+     * may offer the feature to hide abstract classes. By default, 
+     * classes are concrete. Classes can be declared abstract by setting 
+     * their classRole to abstract. Instances should not have an abstract 
+     * class as type (if not inferred). 
+     */
+    QUrl classRole() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#classRole", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#classRole", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#classRole. 
+     * Annotating abstract and concrete classes. Implementations 
+     * may offer the feature to hide abstract classes. By default, 
+     * classes are concrete. Classes can be declared abstract by setting 
+     * their classRole to abstract. Instances should not have an abstract 
+     * class as type (if not inferred). 
+     */
+    void setClassRole(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#classRole", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#classRole. 
+     * Annotating abstract and concrete classes. Implementations 
+     * may offer the feature to hide abstract classes. By default, 
+     * classes are concrete. Classes can be declared abstract by setting 
+     * their classRole to abstract. Instances should not have an abstract 
+     * class as type (if not inferred). 
+     */
+    void addClassRole(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#classRole", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTagFor. 
+     * States which resources a tag is associated with 
+     */
+    QList<QUrl> isTagFors() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTagFor", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTagFor. 
+     * States which resources a tag is associated with 
+     */
+    void setIsTagFors(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTagFor", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTagFor. 
+     * States which resources a tag is associated with 
+     */
+    void addIsTagFor(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#isTagFor", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.w3.org/2003/01/geo/wgs84_pos#alt. 
+     */
+    double alt() const {
+        double value;
+        if(contains(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#alt", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#alt", QUrl::StrictMode)).first().value<double>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.w3.org/2003/01/geo/wgs84_pos#alt. 
+     */
+    void setAlt(const double& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#alt", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.w3.org/2003/01/geo/wgs84_pos#alt. 
+     */
+    void addAlt(const double& value) {
+        addProperty(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#alt", QUrl::StrictMode), value);
     }
 
 protected:
-    virtual QUrl resourceType() const { return QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Tag", QUrl::StrictMode); }
-
-private:
-    Nepomuk2::SimpleResource* m_res;
+    Tag(const QUrl& uri, const QUrl& type)
+      : SimpleResource(uri) {
+        addType(type);
+    }
+    Tag(const SimpleResource& res, const QUrl& type)
+      : SimpleResource(res) {
+        addType(type);
+    }
 };
 }
 }

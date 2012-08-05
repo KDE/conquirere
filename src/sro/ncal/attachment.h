@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "nfo/attachment.h"
 
@@ -34,6 +34,41 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Attachment", QUrl::StrictMode));
         return *this;
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#fmttype. 
+     * To specify the content type of a referenced object. Inspired 
+     * by RFC 2445 sec. 4.2.8. The value of this property should be an 
+     * IANA-registered content type (e.g. application/binary) 
+     */
+    QString fmttype() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#fmttype", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#fmttype", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#fmttype. 
+     * To specify the content type of a referenced object. Inspired 
+     * by RFC 2445 sec. 4.2.8. The value of this property should be an 
+     * IANA-registered content type (e.g. application/binary) 
+     */
+    void setFmttype(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#fmttype", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#fmttype. 
+     * To specify the content type of a referenced object. Inspired 
+     * by RFC 2445 sec. 4.2.8. The value of this property should be an 
+     * IANA-registered content type (e.g. application/binary) 
+     */
+    void addFmttype(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#fmttype", QUrl::StrictMode), value);
     }
 
     /**
@@ -73,44 +108,6 @@ public:
      */
     void addAttachmentContent(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attachmentContent", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attachmentUri. 
-     * The uri of the attachment. Created to express the actual value 
-     * of the ATTACH property defined in RFC 2445 sec. 4.8.1.1. This 
-     * property expresses the default URI datatype of that property. 
-     * see ncal:attachmentContents for the BINARY datatype. 
-     */
-    QUrl attachmentUri() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attachmentUri", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attachmentUri", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attachmentUri. 
-     * The uri of the attachment. Created to express the actual value 
-     * of the ATTACH property defined in RFC 2445 sec. 4.8.1.1. This 
-     * property expresses the default URI datatype of that property. 
-     * see ncal:attachmentContents for the BINARY datatype. 
-     */
-    void setAttachmentUri(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attachmentUri", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attachmentUri. 
-     * The uri of the attachment. Created to express the actual value 
-     * of the ATTACH property defined in RFC 2445 sec. 4.8.1.1. This 
-     * property expresses the default URI datatype of that property. 
-     * see ncal:attachmentContents for the BINARY datatype. 
-     */
-    void addAttachmentUri(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attachmentUri", QUrl::StrictMode), value);
     }
 
     /**
@@ -155,38 +152,41 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#fmttype. 
-     * To specify the content type of a referenced object. Inspired 
-     * by RFC 2445 sec. 4.2.8. The value of this property should be an 
-     * IANA-registered content type (e.g. application/binary) 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attachmentUri. 
+     * The uri of the attachment. Created to express the actual value 
+     * of the ATTACH property defined in RFC 2445 sec. 4.8.1.1. This 
+     * property expresses the default URI datatype of that property. 
+     * see ncal:attachmentContents for the BINARY datatype. 
      */
-    QString fmttype() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#fmttype", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#fmttype", QUrl::StrictMode)).first().value<QString>();
+    QUrl attachmentUri() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attachmentUri", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attachmentUri", QUrl::StrictMode)).first().value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#fmttype. 
-     * To specify the content type of a referenced object. Inspired 
-     * by RFC 2445 sec. 4.2.8. The value of this property should be an 
-     * IANA-registered content type (e.g. application/binary) 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attachmentUri. 
+     * The uri of the attachment. Created to express the actual value 
+     * of the ATTACH property defined in RFC 2445 sec. 4.8.1.1. This 
+     * property expresses the default URI datatype of that property. 
+     * see ncal:attachmentContents for the BINARY datatype. 
      */
-    void setFmttype(const QString& value) {
+    void setAttachmentUri(const QUrl& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#fmttype", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attachmentUri", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#fmttype. 
-     * To specify the content type of a referenced object. Inspired 
-     * by RFC 2445 sec. 4.2.8. The value of this property should be an 
-     * IANA-registered content type (e.g. application/binary) 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attachmentUri. 
+     * The uri of the attachment. Created to express the actual value 
+     * of the ATTACH property defined in RFC 2445 sec. 4.8.1.1. This 
+     * property expresses the default URI datatype of that property. 
+     * see ncal:attachmentContents for the BINARY datatype. 
      */
-    void addFmttype(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#fmttype", QUrl::StrictMode), value);
+    void addAttachmentUri(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attachmentUri", QUrl::StrictMode), value);
     }
 
 protected:

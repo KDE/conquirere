@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "ncal/unionofeventtodo.h"
 #include "ncal/unionofalarmeventtodo.h"
@@ -48,38 +48,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#eventStatus. 
-     * Defines the overall status or confirmation for an Event. Based 
-     * on the STATUS property defined in RFC 2445 sec. 4.8.1.11. 
-     */
-    QUrl eventStatus() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#eventStatus", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#eventStatus", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#eventStatus. 
-     * Defines the overall status or confirmation for an Event. Based 
-     * on the STATUS property defined in RFC 2445 sec. 4.8.1.11. 
-     */
-    void setEventStatus(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#eventStatus", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#eventStatus. 
-     * Defines the overall status or confirmation for an Event. Based 
-     * on the STATUS property defined in RFC 2445 sec. 4.8.1.11. 
-     */
-    void addEventStatus(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#eventStatus", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#transp. 
      * Defines whether an event is transparent or not to busy time searches. 
      * Inspired by RFC 2445 sec.4.8.2.7. Values for this property 
@@ -115,6 +83,38 @@ public:
      */
     void addTransp(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#transp", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#eventStatus. 
+     * Defines the overall status or confirmation for an Event. Based 
+     * on the STATUS property defined in RFC 2445 sec. 4.8.1.11. 
+     */
+    QUrl eventStatus() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#eventStatus", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#eventStatus", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#eventStatus. 
+     * Defines the overall status or confirmation for an Event. Based 
+     * on the STATUS property defined in RFC 2445 sec. 4.8.1.11. 
+     */
+    void setEventStatus(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#eventStatus", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#eventStatus. 
+     * Defines the overall status or confirmation for an Event. Based 
+     * on the STATUS property defined in RFC 2445 sec. 4.8.1.11. 
+     */
+    void addEventStatus(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#eventStatus", QUrl::StrictMode), value);
     }
 
 protected:

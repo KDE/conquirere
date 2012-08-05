@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "ncal/unionparentclass.h"
 
@@ -32,6 +32,80 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#UnionOfEventJournalTimezoneTodo", QUrl::StrictMode));
         return *this;
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#recurrenceId. 
+     * This property is used in conjunction with the "UID" and "SEQUENCE" 
+     * property to identify a specific instance of a recurring "VEVENT", 
+     * "VTODO" or "VJOURNAL" calendar component. The property value 
+     * is the effective value of the "DTSTART" property of the recurrence 
+     * instance. Inspired by the RFC 2445 sec. 4.8.4.4 
+     */
+    QUrl recurrenceId() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#recurrenceId", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#recurrenceId", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#recurrenceId. 
+     * This property is used in conjunction with the "UID" and "SEQUENCE" 
+     * property to identify a specific instance of a recurring "VEVENT", 
+     * "VTODO" or "VJOURNAL" calendar component. The property value 
+     * is the effective value of the "DTSTART" property of the recurrence 
+     * instance. Inspired by the RFC 2445 sec. 4.8.4.4 
+     */
+    void setRecurrenceId(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#recurrenceId", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#recurrenceId. 
+     * This property is used in conjunction with the "UID" and "SEQUENCE" 
+     * property to identify a specific instance of a recurring "VEVENT", 
+     * "VTODO" or "VJOURNAL" calendar component. The property value 
+     * is the effective value of the "DTSTART" property of the recurrence 
+     * instance. Inspired by the RFC 2445 sec. 4.8.4.4 
+     */
+    void addRecurrenceId(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#recurrenceId", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate. 
+     * This property defines the list of date/time exceptions for 
+     * a recurring calendar component. Inspired by RFC 2445 sec. 4.8.5.1 
+     */
+    QList<QUrl> exdates() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate. 
+     * This property defines the list of date/time exceptions for 
+     * a recurring calendar component. Inspired by RFC 2445 sec. 4.8.5.1 
+     */
+    void setExdates(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate. 
+     * This property defines the list of date/time exceptions for 
+     * a recurring calendar component. Inspired by RFC 2445 sec. 4.8.5.1 
+     */
+    void addExdate(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate", QUrl::StrictMode), value);
     }
 
     /**
@@ -76,80 +150,6 @@ public:
      */
     void addLastModified(const QDateTime& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#lastModified", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate. 
-     * This property defines the list of date/time exceptions for 
-     * a recurring calendar component. Inspired by RFC 2445 sec. 4.8.5.1 
-     */
-    QList<QUrl> exdates() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate. 
-     * This property defines the list of date/time exceptions for 
-     * a recurring calendar component. Inspired by RFC 2445 sec. 4.8.5.1 
-     */
-    void setExdates(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate. 
-     * This property defines the list of date/time exceptions for 
-     * a recurring calendar component. Inspired by RFC 2445 sec. 4.8.5.1 
-     */
-    void addExdate(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#exdate", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#recurrenceId. 
-     * This property is used in conjunction with the "UID" and "SEQUENCE" 
-     * property to identify a specific instance of a recurring "VEVENT", 
-     * "VTODO" or "VJOURNAL" calendar component. The property value 
-     * is the effective value of the "DTSTART" property of the recurrence 
-     * instance. Inspired by the RFC 2445 sec. 4.8.4.4 
-     */
-    QUrl recurrenceId() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#recurrenceId", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#recurrenceId", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#recurrenceId. 
-     * This property is used in conjunction with the "UID" and "SEQUENCE" 
-     * property to identify a specific instance of a recurring "VEVENT", 
-     * "VTODO" or "VJOURNAL" calendar component. The property value 
-     * is the effective value of the "DTSTART" property of the recurrence 
-     * instance. Inspired by the RFC 2445 sec. 4.8.4.4 
-     */
-    void setRecurrenceId(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#recurrenceId", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#recurrenceId. 
-     * This property is used in conjunction with the "UID" and "SEQUENCE" 
-     * property to identify a specific instance of a recurring "VEVENT", 
-     * "VTODO" or "VJOURNAL" calendar component. The property value 
-     * is the effective value of the "DTSTART" property of the recurrence 
-     * instance. Inspired by the RFC 2445 sec. 4.8.4.4 
-     */
-    void addRecurrenceId(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#recurrenceId", QUrl::StrictMode), value);
     }
 
 protected:

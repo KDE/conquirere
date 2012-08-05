@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "pimo/classorthingorpropertyorassociation.h"
 
@@ -33,6 +33,44 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#ClassOrThing", QUrl::StrictMode));
         return *this;
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#wikiText. 
+     * A wiki-like free-text description of a Thing or a Class. The 
+     * text can be formatted using a limited set of HTML elements and 
+     * can contain links to other Things. The format is described in 
+     * detail in the WIF specification (http://semanticweb.org/wiki/Wiki_Interchange_Format). 
+     */
+    QString wikiText() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#wikiText", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#wikiText", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#wikiText. 
+     * A wiki-like free-text description of a Thing or a Class. The 
+     * text can be formatted using a limited set of HTML elements and 
+     * can contain links to other Things. The format is described in 
+     * detail in the WIF specification (http://semanticweb.org/wiki/Wiki_Interchange_Format). 
+     */
+    void setWikiText(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#wikiText", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#wikiText. 
+     * A wiki-like free-text description of a Thing or a Class. The 
+     * text can be formatted using a limited set of HTML elements and 
+     * can contain links to other Things. The format is described in 
+     * detail in the WIF specification (http://semanticweb.org/wiki/Wiki_Interchange_Format). 
+     */
+    void addWikiText(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#wikiText", QUrl::StrictMode), value);
     }
 
     /**
@@ -75,44 +113,6 @@ public:
      */
     void addFolder(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasFolder", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#wikiText. 
-     * A wiki-like free-text description of a Thing or a Class. The 
-     * text can be formatted using a limited set of HTML elements and 
-     * can contain links to other Things. The format is described in 
-     * detail in the WIF specification (http://semanticweb.org/wiki/Wiki_Interchange_Format). 
-     */
-    QString wikiText() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#wikiText", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#wikiText", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#wikiText. 
-     * A wiki-like free-text description of a Thing or a Class. The 
-     * text can be formatted using a limited set of HTML elements and 
-     * can contain links to other Things. The format is described in 
-     * detail in the WIF specification (http://semanticweb.org/wiki/Wiki_Interchange_Format). 
-     */
-    void setWikiText(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#wikiText", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#wikiText. 
-     * A wiki-like free-text description of a Thing or a Class. The 
-     * text can be formatted using a limited set of HTML elements and 
-     * can contain links to other Things. The format is described in 
-     * detail in the WIF specification (http://semanticweb.org/wiki/Wiki_Interchange_Format). 
-     */
-    void addWikiText(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#wikiText", QUrl::StrictMode), value);
     }
 
 protected:

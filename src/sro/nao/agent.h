@@ -1,5 +1,5 @@
-#ifndef _NAO_PARTY_H_
-#define _NAO_PARTY_H_
+#ifndef _NAO_AGENT_H_
+#define _NAO_AGENT_H_
 
 #include <QtCore/QVariant>
 #include <QtCore/QStringList>
@@ -13,24 +13,25 @@
 namespace Nepomuk2 {
 namespace NAO {
 /**
- * Represents a single or a group of individuals 
+ * An agent is the artificial counterpart to nao:Party. It can 
+ * be a software component or some service. 
  */
-class Party : public virtual Nepomuk2::SimpleResource
+class Agent : public virtual Nepomuk2::SimpleResource
 {
 public:
-    Party(const QUrl& uri = QUrl())
+    Agent(const QUrl& uri = QUrl())
       : SimpleResource(uri) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Party", QUrl::StrictMode));
+        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Agent", QUrl::StrictMode));
     }
 
-    Party(const SimpleResource& res)
+    Agent(const SimpleResource& res)
       : SimpleResource(res) {
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Party", QUrl::StrictMode));
+        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Agent", QUrl::StrictMode));
     }
 
-    Party& operator=(const SimpleResource& res) {
+    Agent& operator=(const SimpleResource& res) {
         SimpleResource::operator=(res);
-        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Party", QUrl::StrictMode));
+        addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/08/15/nao#Agent", QUrl::StrictMode));
         return *this;
     }
 
@@ -101,7 +102,7 @@ public:
     /**
      * Get property http://www.w3.org/2003/01/geo/wgs84_pos#long. 
      */
-    double FAILlong() const {
+    double long() const {
         double value;
         if(contains(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#long", QUrl::StrictMode)))
             value = property(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#long", QUrl::StrictMode)).first().value<double>();
@@ -1349,11 +1350,11 @@ public:
     }
 
 protected:
-    Party(const QUrl& uri, const QUrl& type)
+    Agent(const QUrl& uri, const QUrl& type)
       : SimpleResource(uri) {
         addType(type);
     }
-    Party(const SimpleResource& res, const QUrl& type)
+    Agent(const SimpleResource& res, const QUrl& type)
       : SimpleResource(res) {
         addType(type);
     }

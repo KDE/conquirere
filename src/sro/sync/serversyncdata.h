@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "nie/informationelement.h"
 
@@ -35,64 +35,35 @@ public:
     }
 
     /**
-     * Get property http://www.example.com/sync#userId. The user 
-     * name or user id the sync is done 
+     * Get property http://www.example.com/sync#syncDataType. 
+     * Saves which SyncDataType enum value this resource represents 
+     * (Note, Attachment, BibResource) 
      */
-    QString userId() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/sync#userId", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/sync#userId", QUrl::StrictMode)).first().value<QString>();
+    QUrl syncDataType() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/sync#syncDataType", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/sync#syncDataType", QUrl::StrictMode)).first().value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.example.com/sync#userId. The user 
-     * name or user id the sync is done 
+     * Set property http://www.example.com/sync#syncDataType. 
+     * Saves which SyncDataType enum value this resource represents 
+     * (Note, Attachment, BibResource) 
      */
-    void setUserId(const QString& value) {
+    void setSyncDataType(const QUrl& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/sync#userId", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.example.com/sync#syncDataType", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.example.com/sync#userId. 
-     * The user name or user id the sync is done 
+     * Add value to property http://www.example.com/sync#syncDataType. 
+     * Saves which SyncDataType enum value this resource represents 
+     * (Note, Attachment, BibResource) 
      */
-    void addUserId(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/sync#userId", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.example.com/sync#etag. Special 
-     * hash to denote if teh item was manipulated on the server since 
-     * last sync 
-     */
-    QString etag() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/sync#etag", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/sync#etag", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/sync#etag. Special 
-     * hash to denote if teh item was manipulated on the server since 
-     * last sync 
-     */
-    void setEtag(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/sync#etag", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/sync#etag. 
-     * Special hash to denote if teh item was manipulated on the server 
-     * since last sync 
-     */
-    void addEtag(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/sync#etag", QUrl::StrictMode), value);
+    void addSyncDataType(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/sync#syncDataType", QUrl::StrictMode), value);
     }
 
     /**
@@ -131,6 +102,70 @@ public:
     }
 
     /**
+     * Get property http://www.example.com/sync#url. The provider 
+     * url addition. for zotero this is users or groups could be full 
+     * url in other cases 
+     */
+    QString url() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/sync#url", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/sync#url", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/sync#url. The provider 
+     * url addition. for zotero this is users or groups could be full 
+     * url in other cases 
+     */
+    void setUrl(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/sync#url", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/sync#url. 
+     * The provider url addition. for zotero this is users or groups 
+     * could be full url in other cases 
+     */
+    void addUrl(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/sync#url", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/sync#etag. Special 
+     * hash to denote if teh item was manipulated on the server since 
+     * last sync 
+     */
+    QString etag() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/sync#etag", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/sync#etag", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/sync#etag. Special 
+     * hash to denote if teh item was manipulated on the server since 
+     * last sync 
+     */
+    void setEtag(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/sync#etag", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/sync#etag. 
+     * Special hash to denote if teh item was manipulated on the server 
+     * since last sync 
+     */
+    void addEtag(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/sync#etag", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.example.com/sync#note. Links to 
      * the note that is ment to be an attachment for another sync entry. 
      * In zotero they have a unique etag/id too to identify changes 
@@ -164,35 +199,61 @@ public:
     }
 
     /**
-     * Get property http://www.example.com/sync#url. The provider 
-     * url addition. for zotero this is users or groups could be full 
-     * url in other cases 
+     * Get property http://www.example.com/sync#publication. 
+     * Links to the Publication that this sync data represents 
      */
-    QString url() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/sync#url", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/sync#url", QUrl::StrictMode)).first().value<QString>();
+    QUrl publication() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/sync#publication", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/sync#publication", QUrl::StrictMode)).first().value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.example.com/sync#url. The provider 
-     * url addition. for zotero this is users or groups could be full 
-     * url in other cases 
+     * Set property http://www.example.com/sync#publication. 
+     * Links to the Publication that this sync data represents 
      */
-    void setUrl(const QString& value) {
+    void setPublication(const QUrl& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/sync#url", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.example.com/sync#publication", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.example.com/sync#url. 
-     * The provider url addition. for zotero this is users or groups 
-     * could be full url in other cases 
+     * Add value to property http://www.example.com/sync#publication. 
+     * Links to the Publication that this sync data represents 
      */
-    void addUrl(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/sync#url", QUrl::StrictMode), value);
+    void addPublication(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/sync#publication", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/sync#userId. The user 
+     * name or user id the sync is done 
+     */
+    QString userId() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/sync#userId", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/sync#userId", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/sync#userId. The user 
+     * name or user id the sync is done 
+     */
+    void setUserId(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/sync#userId", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/sync#userId. 
+     * The user name or user id the sync is done 
+     */
+    void addUserId(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/sync#userId", QUrl::StrictMode), value);
     }
 
     /**
@@ -225,38 +286,6 @@ public:
     }
 
     /**
-     * Get property http://www.example.com/sync#id. The unique 
-     * ID of the publication for the specific provider at the specific 
-     * url with the given userid 
-     */
-    QString id() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/sync#id", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/sync#id", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/sync#id. The unique 
-     * ID of the publication for the specific provider at the specific 
-     * url with the given userid 
-     */
-    void setId(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/sync#id", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/sync#id. The 
-     * unique ID of the publication for the specific provider at the 
-     * specific url with the given userid 
-     */
-    void addId(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/sync#id", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.example.com/sync#provider. The 
      * provider name the sync info comes from. for example zotero 
      */
@@ -286,64 +315,35 @@ public:
     }
 
     /**
-     * Get property http://www.example.com/sync#syncDataType. 
-     * Saves which SyncDataType enum value this resource represents 
-     * (Note, Attachment, BibResource) 
+     * Get property http://www.example.com/sync#id. The unique 
+     * ID of the publication for the specific provider at the specific 
+     * url with the given userid 
      */
-    QUrl syncDataType() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/sync#syncDataType", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/sync#syncDataType", QUrl::StrictMode)).first().value<QUrl>();
+    QString id() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/sync#id", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/sync#id", QUrl::StrictMode)).first().value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.example.com/sync#syncDataType. 
-     * Saves which SyncDataType enum value this resource represents 
-     * (Note, Attachment, BibResource) 
+     * Set property http://www.example.com/sync#id. The unique 
+     * ID of the publication for the specific provider at the specific 
+     * url with the given userid 
      */
-    void setSyncDataType(const QUrl& value) {
+    void setId(const QString& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/sync#syncDataType", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.example.com/sync#id", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.example.com/sync#syncDataType. 
-     * Saves which SyncDataType enum value this resource represents 
-     * (Note, Attachment, BibResource) 
+     * Add value to property http://www.example.com/sync#id. The 
+     * unique ID of the publication for the specific provider at the 
+     * specific url with the given userid 
      */
-    void addSyncDataType(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/sync#syncDataType", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.example.com/sync#publication. 
-     * Links to the Publication that this sync data represents 
-     */
-    QUrl publication() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/sync#publication", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/sync#publication", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/sync#publication. 
-     * Links to the Publication that this sync data represents 
-     */
-    void setPublication(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/sync#publication", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/sync#publication. 
-     * Links to the Publication that this sync data represents 
-     */
-    void addPublication(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/sync#publication", QUrl::StrictMode), value);
+    void addId(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/sync#id", QUrl::StrictMode), value);
     }
 
 protected:

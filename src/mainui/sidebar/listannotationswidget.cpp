@@ -85,7 +85,7 @@ void ListAnnotationsWidget::setResource(Nepomuk2::Resource resource)
             title = r.property(NIE::title()).toString();
         }
         i->setText( title );
-        i->setData(Qt::UserRole, r.resourceUri());
+        i->setData(Qt::UserRole, r.uri());
         ui->listWidget->addItem(i);
     }
 
@@ -147,16 +147,16 @@ void ListAnnotationsWidget::addAnnotation()
     Nepomuk2::Resource note = nw->resource();
     if(ret == KDialog::Accepted) {
         // create the nao relations and declare it a subresource
-        QList<QUrl> resUri; resUri << m_resource.resourceUri();
-        QVariantList value; value << note.resourceUri();
+        QList<QUrl> resUri; resUri << m_resource.uri();
+        QVariantList value; value << note.uri();
         Nepomuk2::addProperty(resUri, NAO::isRelated(), value);
 
-        resUri.clear(); resUri << note.resourceUri();
-        value.clear(); value << m_resource.resourceUri();
+        resUri.clear(); resUri << note.uri();
+        value.clear(); value << m_resource.uri();
         Nepomuk2::addProperty(resUri, NAO::isRelated(), value);
 
-        resUri.clear(); resUri << m_resource.resourceUri();
-        value.clear(); value << note.resourceUri();
+        resUri.clear(); resUri << m_resource.uri();
+        value.clear(); value << note.uri();
         Nepomuk2::addProperty(resUri, NAO::hasSubResource(), value);
 
         QListWidgetItem *i = new QListWidgetItem();
@@ -167,7 +167,7 @@ void ListAnnotationsWidget::addAnnotation()
             title = note.property(NIE::title()).toString();
         }
         i->setText( title );
-        i->setData(Qt::UserRole, note.resourceUri());
+        i->setData(Qt::UserRole, note.uri());
         ui->listWidget->addItem(i);
     }
     else {

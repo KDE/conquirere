@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "ncal/unionoftimezoneobservanceeventjournaltimezonetodo.h"
 #include "ncal/unionoftimezoneobservanceeventfreebusyjournaltimezonetodo.h"
@@ -37,45 +37,6 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Timezone", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzurl. 
-     * The TZURL provides a means for a VTIMEZONE component to point 
-     * to a network location that can be used to retrieve an up-to- date 
-     * version of itself. Inspired by RFC 2445 sec. 4.8.3.5. Originally 
-     * the range of this property had been specified as URI. 
-     */
-    QList<QUrl> tzurls() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzurl", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzurl. 
-     * The TZURL provides a means for a VTIMEZONE component to point 
-     * to a network location that can be used to retrieve an up-to- date 
-     * version of itself. Inspired by RFC 2445 sec. 4.8.3.5. Originally 
-     * the range of this property had been specified as URI. 
-     */
-    void setTzurls(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzurl", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzurl. 
-     * The TZURL provides a means for a VTIMEZONE component to point 
-     * to a network location that can be used to retrieve an up-to- date 
-     * version of itself. Inspired by RFC 2445 sec. 4.8.3.5. Originally 
-     * the range of this property had been specified as URI. 
-     */
-    void addTzurl(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzurl", QUrl::StrictMode), value);
     }
 
     /**
@@ -146,6 +107,45 @@ public:
      */
     void addDaylight(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#daylight", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzurl. 
+     * The TZURL provides a means for a VTIMEZONE component to point 
+     * to a network location that can be used to retrieve an up-to- date 
+     * version of itself. Inspired by RFC 2445 sec. 4.8.3.5. Originally 
+     * the range of this property had been specified as URI. 
+     */
+    QList<QUrl> tzurls() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzurl", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzurl. 
+     * The TZURL provides a means for a VTIMEZONE component to point 
+     * to a network location that can be used to retrieve an up-to- date 
+     * version of itself. Inspired by RFC 2445 sec. 4.8.3.5. Originally 
+     * the range of this property had been specified as URI. 
+     */
+    void setTzurls(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzurl", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzurl. 
+     * The TZURL provides a means for a VTIMEZONE component to point 
+     * to a network location that can be used to retrieve an up-to- date 
+     * version of itself. Inspired by RFC 2445 sec. 4.8.3.5. Originally 
+     * the range of this property had been specified as URI. 
+     */
+    void addTzurl(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzurl", QUrl::StrictMode), value);
     }
 
     /**

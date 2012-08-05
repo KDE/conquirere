@@ -138,7 +138,7 @@ void ListPartsWidget::setResource(Nepomuk2::Resource resource)
         }
 
         i->setText(showString);
-        i->setData(Qt::UserRole, r.resourceUri());
+        i->setData(Qt::UserRole, r.uri());
         ui->listWidget->addItem(i);
     }
 
@@ -365,16 +365,16 @@ void ListPartsWidget::addChapter()
     Nepomuk2::Resource tempResource = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( tempChapter.uri() ) );
 
     // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
-    QList<QUrl> resUri; resUri << m_resource.resourceUri();
-    QVariantList value; value << tempResource.resourceUri();
+    QList<QUrl> resUri; resUri << m_resource.uri();
+    QVariantList value; value << tempResource.uri();
     Nepomuk2::addProperty(resUri, NBIB::documentPart(), value);
 
-    resUri.clear(); resUri << tempResource.resourceUri();
-    value.clear(); value << m_resource.resourceUri();
+    resUri.clear(); resUri << tempResource.uri();
+    value.clear(); value << m_resource.uri();
     Nepomuk2::setProperty(resUri, NBIB::documentPartOf(), value);
 
-    resUri.clear(); resUri << m_resource.resourceUri();
-    value.clear(); value << tempResource.resourceUri();
+    resUri.clear(); resUri << m_resource.uri();
+    value.clear(); value << tempResource.uri();
     Nepomuk2::setProperty(resUri, NAO::hasSubResource(), value); // delete chapter when publication is deleted
 
 
@@ -389,7 +389,7 @@ void ListPartsWidget::addChapter()
         QString showString = showChapterString(tempResource);
 
         i->setText(showString);
-        i->setData(Qt::UserRole, tempResource.resourceUri());
+        i->setData(Qt::UserRole, tempResource.uri());
         ui->listWidget->addItem(i);
         ui->listWidget->setCurrentItem(i);
 
@@ -410,9 +410,9 @@ void ListPartsWidget::removeChapter(Nepomuk2::Resource chapter)
     }
 
     QList<QUrl> resourceUris;
-    resourceUris << m_resource.resourceUri();
+    resourceUris << m_resource.uri();
     QVariantList value;
-    value << chapter.resourceUri();
+    value << chapter.uri();
 
     Nepomuk2::setProperty(resourceUris, NBIB::documentPart(), value);
 }
@@ -420,7 +420,7 @@ void ListPartsWidget::removeChapter(Nepomuk2::Resource chapter)
 void ListPartsWidget::deleteChapter(Nepomuk2::Resource chapter)
 {
     QList<QUrl> resourceUris;
-    resourceUris << chapter.resourceUri();
+    resourceUris << chapter.uri();
 
     Nepomuk2::removeResources(resourceUris);
 }
@@ -466,12 +466,12 @@ void ListPartsWidget::addToSeries()
     Nepomuk2::Resource tempResource = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( tempPublication.uri() ) );
 
     // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
-    QList<QUrl> resUri; resUri << m_resource.resourceUri();
-    QVariantList value; value << tempResource.resourceUri();
+    QList<QUrl> resUri; resUri << m_resource.uri();
+    QVariantList value; value << tempResource.uri();
     Nepomuk2::addProperty(resUri, NBIB::seriesOf(), value);
 
-    resUri.clear(); resUri << tempResource.resourceUri();
-    value.clear(); value << m_resource.resourceUri();
+    resUri.clear(); resUri << tempResource.uri();
+    value.clear(); value << m_resource.uri();
     KJob *job2 = Nepomuk2::addProperty(resUri, NBIB::inSeries(), value);
     job2->exec(); // wait until this is created, otherwise the parent Series won't show up in the PublicationWidget
 
@@ -497,7 +497,7 @@ void ListPartsWidget::addToSeries()
         }
 
         i->setText(showString);
-        i->setData(Qt::UserRole, tempResource.resourceUri());
+        i->setData(Qt::UserRole, tempResource.uri());
         ui->listWidget->addItem(i);
         emit resourceCacheNeedsUpdate(m_resource);
     }
@@ -527,12 +527,12 @@ void ListPartsWidget::editFromSeries(Nepomuk2::Resource editResource)
 
 void ListPartsWidget::removeFromSeries(Nepomuk2::Resource  publication)
 {
-    QList<QUrl> resourceUris; resourceUris << m_resource.resourceUri();
-    QVariantList value; value << publication.resourceUri();
+    QList<QUrl> resourceUris; resourceUris << m_resource.uri();
+    QVariantList value; value << publication.uri();
     Nepomuk2::removeProperty(resourceUris, NBIB::seriesOf(), value);
 
-    resourceUris.clear(); resourceUris << publication.resourceUri();
-    value.clear(); value << m_resource.resourceUri();
+    resourceUris.clear(); resourceUris << publication.uri();
+    value.clear(); value << m_resource.uri();
     Nepomuk2::removeProperty(resourceUris, NBIB::inSeries(), value);
 }
 
@@ -562,12 +562,12 @@ void ListPartsWidget::addToCollection()
     Nepomuk2::Resource tempResource = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( tempArticle.uri() ) );
 
     // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
-    QList<QUrl> resUri; resUri << m_resource.resourceUri();
-    QVariantList value; value << tempResource.resourceUri();
+    QList<QUrl> resUri; resUri << m_resource.uri();
+    QVariantList value; value << tempResource.uri();
     Nepomuk2::addProperty(resUri, NBIB::article(), value);
 
-    resUri.clear(); resUri << tempResource.resourceUri();
-    value.clear(); value << m_resource.resourceUri();
+    resUri.clear(); resUri << tempResource.uri();
+    value.clear(); value << m_resource.uri();
     KJob *job2 = Nepomuk2::addProperty(resUri, NBIB::collection(), value);
     job2->exec(); // wait until this is created, otherwise the parent Series won't show up in the PublicationWidget
 
@@ -592,7 +592,7 @@ void ListPartsWidget::addToCollection()
         }
 
         i->setText(showString);
-        i->setData(Qt::UserRole, tempResource.resourceUri());
+        i->setData(Qt::UserRole, tempResource.uri());
         ui->listWidget->addItem(i);
         emit resourceCacheNeedsUpdate(m_resource);
     }
@@ -622,13 +622,13 @@ void ListPartsWidget::editFromCollection(Nepomuk2::Resource editResource)
 
 void ListPartsWidget::removeFromCollection(Nepomuk2::Resource  article)
 {
-    QList<QUrl> resourceUris; resourceUris << m_resource.resourceUri();
-    QVariantList value; value << article.resourceUri();
+    QList<QUrl> resourceUris; resourceUris << m_resource.uri();
+    QVariantList value; value << article.uri();
 
     Nepomuk2::setProperty(resourceUris, NBIB::article(), value);
 
-    resourceUris.clear(); resourceUris << article.resourceUri();
-    value.clear(); value << m_resource.resourceUri();
+    resourceUris.clear(); resourceUris << article.uri();
+    value.clear(); value << m_resource.uri();
 
     Nepomuk2::setProperty(resourceUris, NBIB::collection(), value);
 }
@@ -636,7 +636,7 @@ void ListPartsWidget::removeFromCollection(Nepomuk2::Resource  article)
 void ListPartsWidget::deleteFromCollection(Nepomuk2::Resource  article)
 {
     QList<QUrl> resourceUris;
-    resourceUris << article.resourceUri();
+    resourceUris << article.uri();
 
     Nepomuk2::removeResources(resourceUris);
 }
@@ -652,12 +652,12 @@ void ListPartsWidget::addToEvent()
         Nepomuk2::Resource publication = lpd->selectedPublication();
 
         // do the crosslinking via DMS
-        QList<QUrl> resUri; resUri << m_resource.resourceUri();
-        QVariantList value; value << publication.resourceUri();
+        QList<QUrl> resUri; resUri << m_resource.uri();
+        QVariantList value; value << publication.uri();
         Nepomuk2::addProperty(resUri, NBIB::eventPublication(), value);
 
-        resUri.clear(); resUri << publication.resourceUri();
-        value.clear(); value << m_resource.resourceUri();
+        resUri.clear(); resUri << publication.uri();
+        value.clear(); value << m_resource.uri();
         Nepomuk2::addProperty(resUri, NBIB::event(), value);
 
         QListWidgetItem *i = new QListWidgetItem();
@@ -668,7 +668,7 @@ void ListPartsWidget::addToEvent()
         }
 
         i->setText(publication.property(NIE::title()).toString());
-        i->setData(Qt::UserRole, publication.resourceUri());
+        i->setData(Qt::UserRole, publication.uri());
         ui->listWidget->addItem(i);
 
         emit resourceCacheNeedsUpdate(m_resource);
@@ -695,19 +695,19 @@ void ListPartsWidget::editFromEvent(Nepomuk2::Resource editResource)
 
 void ListPartsWidget::removeFromEvent(Nepomuk2::Resource  publication)
 {
-    QList<QUrl> resourceUris; resourceUris << m_resource.resourceUri();
-    QVariantList value; value << publication.resourceUri();
+    QList<QUrl> resourceUris; resourceUris << m_resource.uri();
+    QVariantList value; value << publication.uri();
     Nepomuk2::setProperty(resourceUris, NBIB::eventPublication(), value);
 
-    resourceUris.clear(); resourceUris << publication.resourceUri();
-    value.clear(); value << m_resource.resourceUri();
+    resourceUris.clear(); resourceUris << publication.uri();
+    value.clear(); value << m_resource.uri();
     Nepomuk2::setProperty(resourceUris, NBIB::event(), value);
 }
 
 void ListPartsWidget::deleteFromEvent(Nepomuk2::Resource  publication)
 {
     QList<QUrl> resourceUris;
-    resourceUris << publication.resourceUri();
+    resourceUris << publication.uri();
 
     Nepomuk2::removeResources(resourceUris);
 }

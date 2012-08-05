@@ -30,7 +30,6 @@
 #include "sro/nbib/reference.h"
 
 #include <Nepomuk2/Resource>
-#include <Nepomuk2/Thing>
 
 #include <Akonadi/Collection>
 
@@ -90,7 +89,7 @@ public:
     /**
       * if the @p projectThing is valid all imported data will be related via @c pimo:isRelated to the project
       */
-    void setProjectPimoThing(Nepomuk2::Thing projectThing);
+    void setProjectPimoThing(Nepomuk2::Resource projectThing);
 
 private slots:
     void slotSaveToNepomukDone(KJob *job);
@@ -184,7 +183,7 @@ private:
     QMap<QString, QString> m_macroLookup;
 
     Akonadi::Collection m_addressbook;
-    Nepomuk2::Thing m_projectThing;
+    Nepomuk2::Resource m_projectThing;
 
     QString m_syncUrl;
     QString m_syncUserId;

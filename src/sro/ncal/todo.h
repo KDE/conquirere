@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "ncal/unionofalarmeventtodo.h"
 #include "ncal/unionofeventfreebusyjournaltodo.h"
@@ -43,6 +43,41 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Todo", QUrl::StrictMode));
         return *this;
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#completed. 
+     * This property defines the date and time that a to-do was actually 
+     * completed. Inspired by RFC 2445 sec. 4.8.2.1. Note that the 
+     * RFC allows ONLY UTC time values for this property. 
+     */
+    QDateTime completed() const {
+        QDateTime value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#completed", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#completed", QUrl::StrictMode)).first().value<QDateTime>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#completed. 
+     * This property defines the date and time that a to-do was actually 
+     * completed. Inspired by RFC 2445 sec. 4.8.2.1. Note that the 
+     * RFC allows ONLY UTC time values for this property. 
+     */
+    void setCompleted(const QDateTime& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#completed", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#completed. 
+     * This property defines the date and time that a to-do was actually 
+     * completed. Inspired by RFC 2445 sec. 4.8.2.1. Note that the 
+     * RFC allows ONLY UTC time values for this property. 
+     */
+    void addCompleted(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#completed", QUrl::StrictMode), value);
     }
 
     /**
@@ -107,41 +142,6 @@ public:
      */
     void addTodoStatus(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#todoStatus", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#completed. 
-     * This property defines the date and time that a to-do was actually 
-     * completed. Inspired by RFC 2445 sec. 4.8.2.1. Note that the 
-     * RFC allows ONLY UTC time values for this property. 
-     */
-    QDateTime completed() const {
-        QDateTime value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#completed", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#completed", QUrl::StrictMode)).first().value<QDateTime>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#completed. 
-     * This property defines the date and time that a to-do was actually 
-     * completed. Inspired by RFC 2445 sec. 4.8.2.1. Note that the 
-     * RFC allows ONLY UTC time values for this property. 
-     */
-    void setCompleted(const QDateTime& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#completed", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#completed. 
-     * This property defines the date and time that a to-do was actually 
-     * completed. Inspired by RFC 2445 sec. 4.8.2.1. Note that the 
-     * RFC allows ONLY UTC time values for this property. 
-     */
-    void addCompleted(const QDateTime& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#completed", QUrl::StrictMode), value);
     }
 
     /**

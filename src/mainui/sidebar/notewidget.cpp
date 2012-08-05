@@ -126,16 +126,16 @@ void NoteWidget::deleteButtonClicked()
 
 void NoteWidget::saveNote()
 {
-    QList<QUrl> resUri; resUri << m_note.resourceUri();
+    QList<QUrl> resUri; resUri << m_note.uri();
     QVariantList value; value << ui->editTitle->text();
     Nepomuk2::setProperty(resUri, NIE::title(), value);
     Nepomuk2::setProperty(resUri, NAO::prefLabel(), value);
 
-    resUri.clear(); resUri << m_note.resourceUri();
+    resUri.clear(); resUri << m_note.uri();
     value.clear(); value << ui->editContent->document()->toPlainText();
     Nepomuk2::setProperty(resUri, NIE::plainTextContent(), value);
 
-    resUri.clear(); resUri << m_note.resourceUri();
+    resUri.clear(); resUri << m_note.uri();
     value.clear(); value << ui->editContent->document()->toHtml();
     Nepomuk2::setProperty(resUri, NIE::htmlContent(), value);
 
@@ -169,7 +169,7 @@ void NoteWidget::changeRating(int newRating)
     }
 
     QList<QUrl> resourceUris;
-    resourceUris << m_note.resourceUri();
+    resourceUris << m_note.uri();
     QVariantList rating;
     rating <<  newRating;
     KJob *job = Nepomuk2::setProperty(resourceUris, Soprano::Vocabulary::NAO::numericRating(), rating);

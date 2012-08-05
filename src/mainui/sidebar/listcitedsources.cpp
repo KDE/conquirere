@@ -88,7 +88,7 @@ void ListCitedSources::setResource(Nepomuk2::Resource resource)
         QString title = publication.property(NIE::title()).toString();
         QString showText = QLatin1String("[") + citeKey + QLatin1String("] ") + title;
         i->setText( showText );
-        i->setData(Qt::UserRole, r.resourceUri());
+        i->setData(Qt::UserRole, r.uri());
         ui->listWidget->addItem(i);
     }
 
@@ -154,8 +154,8 @@ void ListCitedSources::addReference()
         Nepomuk2::Resource publication = selectedReference.property(NBIB::publication()).toResource();
 
         // add crosslink via nepomuk DMS
-        QList<QUrl> resUri; resUri << m_resource.resourceUri();
-        QVariantList value; value << selectedReference.resourceUri();
+        QList<QUrl> resUri; resUri << m_resource.uri();
+        QVariantList value; value << selectedReference.uri();
         Nepomuk2::addProperty(resUri, NBIB::citedReference(), value);
 
         QListWidgetItem *i = new QListWidgetItem();
@@ -168,7 +168,7 @@ void ListCitedSources::addReference()
         QString showText = QLatin1String("[") + citeKey + QLatin1String("] ") + title;
         i->setText( showText );
 
-        i->setData(Qt::UserRole, selectedReference.resourceUri());
+        i->setData(Qt::UserRole, selectedReference.uri());
         ui->listWidget->addItem(i);
     }
 
@@ -194,8 +194,8 @@ void ListCitedSources::removeReference()
     delete i;
 
     // add crosslink via nepomuk DMS
-    QList<QUrl> resUri; resUri << m_resource.resourceUri();
-    QVariantList value; value << removedReference.resourceUri();
+    QList<QUrl> resUri; resUri << m_resource.uri();
+    QVariantList value; value << removedReference.uri();
     Nepomuk2::removeProperty(resUri, NBIB::citedReference(), value);
 
     ui->listWidget->setCurrentRow(0);

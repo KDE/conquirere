@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "ncal/unionparentclass.h"
 
@@ -32,6 +32,121 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#UnionOfEventFreebusyJournalTodo", QUrl::StrictMode));
         return *this;
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url. 
+     * This property defines a Uniform Resource Locator (URL) associated 
+     * with the iCalendar object. Inspired by the RFC 2445 sec. 4.8.4.6. 
+     * Original range had been specified as URI. 
+     */
+    QUrl url() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url. 
+     * This property defines a Uniform Resource Locator (URL) associated 
+     * with the iCalendar object. Inspired by the RFC 2445 sec. 4.8.4.6. 
+     * Original range had been specified as URI. 
+     */
+    void setUrl(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url. 
+     * This property defines a Uniform Resource Locator (URL) associated 
+     * with the iCalendar object. Inspired by the RFC 2445 sec. 4.8.4.6. 
+     * Original range had been specified as URI. 
+     */
+    void addUrl(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid. 
+     * This property defines the persistent, globally unique identifier 
+     * for the calendar component. Inspired by the RFC 2445 sec 4.8.4.7 
+     */
+    QString uid() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid. 
+     * This property defines the persistent, globally unique identifier 
+     * for the calendar component. Inspired by the RFC 2445 sec 4.8.4.7 
+     */
+    void setUid(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid. 
+     * This property defines the persistent, globally unique identifier 
+     * for the calendar component. Inspired by the RFC 2445 sec 4.8.4.7 
+     */
+    void addUid(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#contact. 
+     * The property is used to represent contact information or alternately 
+     * a reference to contact information associated with the calendar 
+     * component. Inspired by RFC 2445 sec. 4.8.4.2 with the following 
+     * reservations: the LANGUAGE parameter has been discarded. 
+     * Please use xml:lang literals to express language. For the ALTREP 
+     * parameter use the contactAltRep property.RFC doesn't define 
+     * any format for the string. 
+     */
+    QStringList contacts() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#contact", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#contact. 
+     * The property is used to represent contact information or alternately 
+     * a reference to contact information associated with the calendar 
+     * component. Inspired by RFC 2445 sec. 4.8.4.2 with the following 
+     * reservations: the LANGUAGE parameter has been discarded. 
+     * Please use xml:lang literals to express language. For the ALTREP 
+     * parameter use the contactAltRep property.RFC doesn't define 
+     * any format for the string. 
+     */
+    void setContacts(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#contact", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#contact. 
+     * The property is used to represent contact information or alternately 
+     * a reference to contact information associated with the calendar 
+     * component. Inspired by RFC 2445 sec. 4.8.4.2 with the following 
+     * reservations: the LANGUAGE parameter has been discarded. 
+     * Please use xml:lang literals to express language. For the ALTREP 
+     * parameter use the contactAltRep property.RFC doesn't define 
+     * any format for the string. 
+     */
+    void addContact(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#contact", QUrl::StrictMode), value);
     }
 
     /**
@@ -68,6 +183,50 @@ public:
      */
     void addContactAltRep(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#contactAltRep", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#requestStatus. 
+     * This property defines the status code returned for a scheduling 
+     * request. Inspired by RFC 2445 sec. 4.8.8.2. Original value 
+     * of this property was a four-element structure. The RequestStatus 
+     * class has been introduced to express it. In RFC 2445 this property 
+     * could have the LANGUAGE parameter. This has been discarded 
+     * in this ontology. Use xml:lang literals to express it if necessary. 
+     */
+    QUrl requestStatus() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#requestStatus", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#requestStatus", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#requestStatus. 
+     * This property defines the status code returned for a scheduling 
+     * request. Inspired by RFC 2445 sec. 4.8.8.2. Original value 
+     * of this property was a four-element structure. The RequestStatus 
+     * class has been introduced to express it. In RFC 2445 this property 
+     * could have the LANGUAGE parameter. This has been discarded 
+     * in this ontology. Use xml:lang literals to express it if necessary. 
+     */
+    void setRequestStatus(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#requestStatus", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#requestStatus. 
+     * This property defines the status code returned for a scheduling 
+     * request. Inspired by RFC 2445 sec. 4.8.8.2. Original value 
+     * of this property was a four-element structure. The RequestStatus 
+     * class has been introduced to express it. In RFC 2445 this property 
+     * could have the LANGUAGE parameter. This has been discarded 
+     * in this ontology. Use xml:lang literals to express it if necessary. 
+     */
+    void addRequestStatus(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#requestStatus", QUrl::StrictMode), value);
     }
 
     /**
@@ -154,165 +313,6 @@ public:
      */
     void addOrganizer(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#organizer", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url. 
-     * This property defines a Uniform Resource Locator (URL) associated 
-     * with the iCalendar object. Inspired by the RFC 2445 sec. 4.8.4.6. 
-     * Original range had been specified as URI. 
-     */
-    QUrl url() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url. 
-     * This property defines a Uniform Resource Locator (URL) associated 
-     * with the iCalendar object. Inspired by the RFC 2445 sec. 4.8.4.6. 
-     * Original range had been specified as URI. 
-     */
-    void setUrl(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url. 
-     * This property defines a Uniform Resource Locator (URL) associated 
-     * with the iCalendar object. Inspired by the RFC 2445 sec. 4.8.4.6. 
-     * Original range had been specified as URI. 
-     */
-    void addUrl(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#url", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#requestStatus. 
-     * This property defines the status code returned for a scheduling 
-     * request. Inspired by RFC 2445 sec. 4.8.8.2. Original value 
-     * of this property was a four-element structure. The RequestStatus 
-     * class has been introduced to express it. In RFC 2445 this property 
-     * could have the LANGUAGE parameter. This has been discarded 
-     * in this ontology. Use xml:lang literals to express it if necessary. 
-     */
-    QUrl requestStatus() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#requestStatus", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#requestStatus", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#requestStatus. 
-     * This property defines the status code returned for a scheduling 
-     * request. Inspired by RFC 2445 sec. 4.8.8.2. Original value 
-     * of this property was a four-element structure. The RequestStatus 
-     * class has been introduced to express it. In RFC 2445 this property 
-     * could have the LANGUAGE parameter. This has been discarded 
-     * in this ontology. Use xml:lang literals to express it if necessary. 
-     */
-    void setRequestStatus(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#requestStatus", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#requestStatus. 
-     * This property defines the status code returned for a scheduling 
-     * request. Inspired by RFC 2445 sec. 4.8.8.2. Original value 
-     * of this property was a four-element structure. The RequestStatus 
-     * class has been introduced to express it. In RFC 2445 this property 
-     * could have the LANGUAGE parameter. This has been discarded 
-     * in this ontology. Use xml:lang literals to express it if necessary. 
-     */
-    void addRequestStatus(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#requestStatus", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#contact. 
-     * The property is used to represent contact information or alternately 
-     * a reference to contact information associated with the calendar 
-     * component. Inspired by RFC 2445 sec. 4.8.4.2 with the following 
-     * reservations: the LANGUAGE parameter has been discarded. 
-     * Please use xml:lang literals to express language. For the ALTREP 
-     * parameter use the contactAltRep property.RFC doesn't define 
-     * any format for the string. 
-     */
-    QStringList contacts() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#contact", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#contact. 
-     * The property is used to represent contact information or alternately 
-     * a reference to contact information associated with the calendar 
-     * component. Inspired by RFC 2445 sec. 4.8.4.2 with the following 
-     * reservations: the LANGUAGE parameter has been discarded. 
-     * Please use xml:lang literals to express language. For the ALTREP 
-     * parameter use the contactAltRep property.RFC doesn't define 
-     * any format for the string. 
-     */
-    void setContacts(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#contact", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#contact. 
-     * The property is used to represent contact information or alternately 
-     * a reference to contact information associated with the calendar 
-     * component. Inspired by RFC 2445 sec. 4.8.4.2 with the following 
-     * reservations: the LANGUAGE parameter has been discarded. 
-     * Please use xml:lang literals to express language. For the ALTREP 
-     * parameter use the contactAltRep property.RFC doesn't define 
-     * any format for the string. 
-     */
-    void addContact(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#contact", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid. 
-     * This property defines the persistent, globally unique identifier 
-     * for the calendar component. Inspired by the RFC 2445 sec 4.8.4.7 
-     */
-    QString uid() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid. 
-     * This property defines the persistent, globally unique identifier 
-     * for the calendar component. Inspired by the RFC 2445 sec 4.8.4.7 
-     */
-    void setUid(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid. 
-     * This property defines the persistent, globally unique identifier 
-     * for the calendar component. Inspired by the RFC 2445 sec 4.8.4.7 
-     */
-    void addUid(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#uid", QUrl::StrictMode), value);
     }
 
 protected:

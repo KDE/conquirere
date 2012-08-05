@@ -67,12 +67,12 @@ void PublicationEdit::updateResource(const QString & newPublicationTitle)
 
     if(currentPublication.exists()) {
         // remove the crosslink reference <-> publication
-        QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
-        QVariantList value; value << currentPublication.resourceUri();
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QVariantList value; value << currentPublication.uri();
         Nepomuk2::removeProperty(resourceUris, NBIB::publication(), value);
 
-        resourceUris.clear(); resourceUris << currentPublication.resourceUri();
-        value.clear(); value << resource().resourceUri();
+        resourceUris.clear(); resourceUris << currentPublication.uri();
+        value.clear(); value << resource().uri();
         Nepomuk2::removeProperty(resourceUris, NBIB::reference(), value);
     }
 
@@ -83,7 +83,7 @@ void PublicationEdit::updateResource(const QString & newPublicationTitle)
     // ok the user changed the text in the list
     // let the DMS create a new Publication and merge it to the right place
     Nepomuk2::SimpleResourceGraph graph;
-    Nepomuk2::SimpleResource referenceRes(resource().resourceUri());
+    Nepomuk2::SimpleResource referenceRes(resource().uri());
     Nepomuk2::NBIB::Reference reference(referenceRes);
     //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
     QDateTime datetime = QDateTime::currentDateTimeUtc();

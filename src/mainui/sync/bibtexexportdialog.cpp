@@ -33,7 +33,7 @@
 #include <Nepomuk2/Query/QueryServiceClient>
 #include <Nepomuk2/Query/Result>
 #include <Nepomuk2/Query/QueryParser>
-#include <Nepomuk2/Thing>
+
 #include <Nepomuk2/Resource>
 #include <Nepomuk2/Variant>
 
@@ -85,7 +85,7 @@ void BibTexExportDialog::setLibraryManager(LibraryManager *lm)
     int i=1;
     int selectedIndex=0;
     foreach(Library *l, m_libraryManager->openProjects()) {
-        ui->dataSelection->addItem(l->settings()->name(), l->settings()->projectThing().resourceUri());
+        ui->dataSelection->addItem(l->settings()->name(), l->settings()->projectThing().uri());
 
         if(l == m_importLibrary) { selectedIndex=i; }
 
@@ -99,7 +99,7 @@ void BibTexExportDialog::setExportLibrary(Library* l)
 {
     m_importLibrary = l;
 
-    int selectLib = ui->dataSelection->findData( l->settings()->projectThing().resourceUri() );
+    int selectLib = ui->dataSelection->findData( l->settings()->projectThing().uri() );
     ui->dataSelection->setCurrentIndex(selectLib);
 }
 
@@ -149,7 +149,7 @@ void BibTexExportDialog::accept()
         int curIndex = ui->dataSelection->currentIndex();
         if(curIndex > 0) {
             QUrl projectToExport = ui->dataSelection->itemData(curIndex).toUrl();
-            Nepomuk2::Thing projectThing = Nepomuk2::Thing(projectToExport);
+            Nepomuk2::Resource projectThing = Nepomuk2::Resource(projectToExport);
 
             andTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
                                                                 Nepomuk2::Query::ResourceTerm( projectThing )));

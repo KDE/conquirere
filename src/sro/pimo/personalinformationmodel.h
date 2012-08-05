@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 namespace Nepomuk2 {
 namespace PIMO {
@@ -36,295 +36,6 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#PersonalInformationModel", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.w3.org/2003/01/geo/wgs84_pos#long. 
-     */
-    double long() const {
-        double value;
-        if(contains(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#long", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#long", QUrl::StrictMode)).first().value<double>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.w3.org/2003/01/geo/wgs84_pos#long. 
-     */
-    void setLong(const double& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#long", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.w3.org/2003/01/geo/wgs84_pos#long. 
-     */
-    void addLong(const double& value) {
-        addProperty(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#long", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasGlobalNamespace. 
-     * The global namespace of this user using the semdesk uri scheme, 
-     * based on the Global Identifier of the user. Example semdesk://bob@example.com/things/. 
-     * See http://dev.nepomuk.semanticdesktop.org/repos/trunk/doc/2008_09_semdeskurischeme/index.html 
-     */
-    QStringList globalNamespaces() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasGlobalNamespace", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasGlobalNamespace. 
-     * The global namespace of this user using the semdesk uri scheme, 
-     * based on the Global Identifier of the user. Example semdesk://bob@example.com/things/. 
-     * See http://dev.nepomuk.semanticdesktop.org/repos/trunk/doc/2008_09_semdeskurischeme/index.html 
-     */
-    void setGlobalNamespaces(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasGlobalNamespace", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasGlobalNamespace. 
-     * The global namespace of this user using the semdesk uri scheme, 
-     * based on the Global Identifier of the user. Example semdesk://bob@example.com/things/. 
-     * See http://dev.nepomuk.semanticdesktop.org/repos/trunk/doc/2008_09_semdeskurischeme/index.html 
-     */
-    void addGlobalNamespace(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasGlobalNamespace", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels. 
-     * Number of Low Frequency Expansion (subwoofer) channels. 
-     */
-    qint64 lfeChannels() const {
-        qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode)).first().value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels. 
-     * Number of Low Frequency Expansion (subwoofer) channels. 
-     */
-    void setLfeChannels(const qint64& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels. 
-     * Number of Low Frequency Expansion (subwoofer) channels. 
-     */
-    void addLfeChannels(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable. 
-     * Defines if this information model can be modified by the user 
-     * of the system. This is usually false for imported ontologies 
-     * and true for the user's own PersonalInformationModel. 
-     */
-    QStringList isWriteables() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable. 
-     * Defines if this information model can be modified by the user 
-     * of the system. This is usually false for imported ontologies 
-     * and true for the user's own PersonalInformationModel. 
-     */
-    void setIsWriteables(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable. 
-     * Defines if this information model can be modified by the user 
-     * of the system. This is usually false for imported ontologies 
-     * and true for the user's own PersonalInformationModel. 
-     */
-    void addIsWriteable(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends. 
-     * Dependency relation. A piece of content depends on another 
-     * piece of data in order to be properly understood/used/interpreted. 
-     */
-    QList<QUrl> dependses() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends. 
-     * Dependency relation. A piece of content depends on another 
-     * piece of data in order to be properly understood/used/interpreted. 
-     */
-    void setDependses(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends. 
-     * Dependency relation. A piece of content depends on another 
-     * piece of data in order to be properly understood/used/interpreted. 
-     */
-    void addDepends(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels. 
-     * Number of side channels 
-     */
-    qint64 sideChannels() const {
-        qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode)).first().value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels. 
-     * Number of side channels 
-     */
-    void setSideChannels(const qint64& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels. 
-     * Number of side channels 
-     */
-    void addSideChannels(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasRootTopic. 
-     * The root topics of this PersonalInformationModel's topic 
-     * hierarchy. Every topic that has no pimo:superTopic is a root 
-     * topic. Semantically equivalent to skos:hasTopConcept. 
-     */
-    QList<QUrl> rootTopics() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasRootTopic", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasRootTopic. 
-     * The root topics of this PersonalInformationModel's topic 
-     * hierarchy. Every topic that has no pimo:superTopic is a root 
-     * topic. Semantically equivalent to skos:hasTopConcept. 
-     */
-    void setRootTopics(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasRootTopic", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasRootTopic. 
-     * The root topics of this PersonalInformationModel's topic 
-     * hierarchy. Every topic that has no pimo:superTopic is a root 
-     * topic. Semantically equivalent to skos:hasTopConcept. 
-     */
-    void addRootTopic(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasRootTopic", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#creator. 
-     * The creator of the Personal Information Model. A subproperty 
-     * of NAO:creator. The human being whose mental models are represented 
-     * in the PIMO. Range is an Agent. 
-     */
-    QUrl creator() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#creator", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#creator", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#creator. 
-     * The creator of the Personal Information Model. A subproperty 
-     * of NAO:creator. The human being whose mental models are represented 
-     * in the PIMO. Range is an Agent. 
-     */
-    void setCreator(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#creator", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#creator. 
-     * The creator of the Personal Information Model. A subproperty 
-     * of NAO:creator. The human being whose mental models are represented 
-     * in the PIMO. Range is an Agent. 
-     */
-    void addCreator(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#creator", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels. 
-     * Number of rear channels. 
-     */
-    qint64 rearChannels() const {
-        qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels", QUrl::StrictMode)).first().value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels. 
-     * Number of rear channels. 
-     */
-    void setRearChannels(const qint64& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels. 
-     * Number of rear channels. 
-     */
-    void addRearChannels(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels", QUrl::StrictMode), value);
     }
 
     /**
@@ -402,36 +113,126 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType. 
-     * The type of the license. Possible values for this field may include 
-     * "GPL", "BSD", "Creative Commons" etc. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels. 
+     * Number of side channels 
      */
-    QStringList licenseTypes() const {
+    qint64 sideChannels() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels. 
+     * Number of side channels 
+     */
+    void setSideChannels(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels. 
+     * Number of side channels 
+     */
+    void addSideChannels(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#sideChannels", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels. 
+     * Number of Low Frequency Expansion (subwoofer) channels. 
+     */
+    qint64 lfeChannels() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels. 
+     * Number of Low Frequency Expansion (subwoofer) channels. 
+     */
+    void setLfeChannels(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels. 
+     * Number of Low Frequency Expansion (subwoofer) channels. 
+     */
+    void addLfeChannels(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lfeChannels", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright. 
+     * Content copyright 
+     */
+    QStringList copyrights() const {
         QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright", QUrl::StrictMode)))
             value << v.value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType. 
-     * The type of the license. Possible values for this field may include 
-     * "GPL", "BSD", "Creative Commons" etc. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright. 
+     * Content copyright 
      */
-    void setLicenseTypes(const QStringList& value) {
+    void setCopyrights(const QStringList& value) {
         QVariantList values;
         foreach(const QString& v, value)
             values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType. 
-     * The type of the license. Possible values for this field may include 
-     * "GPL", "BSD", "Creative Commons" etc. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright. 
+     * Content copyright 
      */
-    void addLicenseType(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType", QUrl::StrictMode), value);
+    void addCopyright(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#creator. 
+     * The creator of the Personal Information Model. A subproperty 
+     * of NAO:creator. The human being whose mental models are represented 
+     * in the PIMO. Range is an Agent. 
+     */
+    QUrl creator() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#creator", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#creator", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#creator. 
+     * The creator of the Personal Information Model. A subproperty 
+     * of NAO:creator. The human being whose mental models are represented 
+     * in the PIMO. Range is an Agent. 
+     */
+    void setCreator(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#creator", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#creator. 
+     * The creator of the Personal Information Model. A subproperty 
+     * of NAO:creator. The human being whose mental models are represented 
+     * in the PIMO. Range is an Agent. 
+     */
+    void addCreator(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#creator", QUrl::StrictMode), value);
     }
 
     /**
@@ -476,6 +277,65 @@ public:
     }
 
     /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends. 
+     * Dependency relation. A piece of content depends on another 
+     * piece of data in order to be properly understood/used/interpreted. 
+     */
+    QList<QUrl> dependses() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends. 
+     * Dependency relation. A piece of content depends on another 
+     * piece of data in order to be properly understood/used/interpreted. 
+     */
+    void setDependses(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends. 
+     * Dependency relation. A piece of content depends on another 
+     * piece of data in order to be properly understood/used/interpreted. 
+     */
+    void addDepends(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#depends", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.w3.org/2003/01/geo/wgs84_pos#lat. 
+     */
+    double lat() const {
+        double value;
+        if(contains(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#lat", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#lat", QUrl::StrictMode)).first().value<double>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.w3.org/2003/01/geo/wgs84_pos#lat. 
+     */
+    void setLat(const double& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#lat", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.w3.org/2003/01/geo/wgs84_pos#lat. 
+     */
+    void addLat(const double& value) {
+        addProperty(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#lat", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#disclaimer. 
      * A disclaimer 
      */
@@ -503,6 +363,258 @@ public:
      */
     void addDisclaimer(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#disclaimer", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType. 
+     * The type of the license. Possible values for this field may include 
+     * "GPL", "BSD", "Creative Commons" etc. 
+     */
+    QStringList licenseTypes() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType. 
+     * The type of the license. Possible values for this field may include 
+     * "GPL", "BSD", "Creative Commons" etc. 
+     */
+    void setLicenseTypes(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType. 
+     * The type of the license. Possible values for this field may include 
+     * "GPL", "BSD", "Creative Commons" etc. 
+     */
+    void addLicenseType(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#licenseType", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasRootTopic. 
+     * The root topics of this PersonalInformationModel's topic 
+     * hierarchy. Every topic that has no pimo:superTopic is a root 
+     * topic. Semantically equivalent to skos:hasTopConcept. 
+     */
+    QList<QUrl> rootTopics() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasRootTopic", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasRootTopic. 
+     * The root topics of this PersonalInformationModel's topic 
+     * hierarchy. Every topic that has no pimo:superTopic is a root 
+     * topic. Semantically equivalent to skos:hasTopConcept. 
+     */
+    void setRootTopics(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasRootTopic", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasRootTopic. 
+     * The root topics of this PersonalInformationModel's topic 
+     * hierarchy. Every topic that has no pimo:superTopic is a root 
+     * topic. Semantically equivalent to skos:hasTopConcept. 
+     */
+    void addRootTopic(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasRootTopic", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
+     * Number of front channels. 
+     */
+    qint64 frontChannels() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
+     * Number of front channels. 
+     */
+    void setFrontChannels(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
+     * Number of front channels. 
+     */
+    void addFrontChannels(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels. 
+     * Number of rear channels. 
+     */
+    qint64 rearChannels() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels. 
+     * Number of rear channels. 
+     */
+    void setRearChannels(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels. 
+     * Number of rear channels. 
+     */
+    void addRearChannels(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#rearChannels", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.w3.org/2003/01/geo/wgs84_pos#long. 
+     */
+    double long() const {
+        double value;
+        if(contains(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#long", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#long", QUrl::StrictMode)).first().value<double>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.w3.org/2003/01/geo/wgs84_pos#long. 
+     */
+    void setLong(const double& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#long", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.w3.org/2003/01/geo/wgs84_pos#long. 
+     */
+    void addLong(const double& value) {
+        addProperty(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#long", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#depiction. 
+     * Relates an information element to an image which depicts said 
+     * element. 
+     */
+    QList<QUrl> depictions() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#depiction", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#depiction. 
+     * Relates an information element to an image which depicts said 
+     * element. 
+     */
+    void setDepictions(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#depiction", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#depiction. 
+     * Relates an information element to an image which depicts said 
+     * element. 
+     */
+    void addDepiction(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#depiction", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable. 
+     * Defines if this information model can be modified by the user 
+     * of the system. This is usually false for imported ontologies 
+     * and true for the user's own PersonalInformationModel. 
+     */
+    QStringList isWriteables() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable. 
+     * Defines if this information model can be modified by the user 
+     * of the system. This is usually false for imported ontologies 
+     * and true for the user's own PersonalInformationModel. 
+     */
+    void setIsWriteables(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable. 
+     * Defines if this information model can be modified by the user 
+     * of the system. This is usually false for imported ontologies 
+     * and true for the user's own PersonalInformationModel. 
+     */
+    void addIsWriteable(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isWriteable", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license. 
+     * Terms and intellectual property rights licensing conditions. 
+     */
+    QStringList licenses() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license. 
+     * Terms and intellectual property rights licensing conditions. 
+     */
+    void setLicenses(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license. 
+     * Terms and intellectual property rights licensing conditions. 
+     */
+    void addLicense(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license", QUrl::StrictMode), value);
     }
 
     /**
@@ -542,118 +654,39 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
-     * Number of front channels. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasGlobalNamespace. 
+     * The global namespace of this user using the semdesk uri scheme, 
+     * based on the Global Identifier of the user. Example semdesk://bob@example.com/things/. 
+     * See http://dev.nepomuk.semanticdesktop.org/repos/trunk/doc/2008_09_semdeskurischeme/index.html 
      */
-    qint64 frontChannels() const {
-        qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode)).first().value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
-     * Number of front channels. 
-     */
-    void setFrontChannels(const qint64& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels. 
-     * Number of front channels. 
-     */
-    void addFrontChannels(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#frontChannels", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.w3.org/2003/01/geo/wgs84_pos#lat. 
-     */
-    double lat() const {
-        double value;
-        if(contains(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#lat", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#lat", QUrl::StrictMode)).first().value<double>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.w3.org/2003/01/geo/wgs84_pos#lat. 
-     */
-    void setLat(const double& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#lat", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.w3.org/2003/01/geo/wgs84_pos#lat. 
-     */
-    void addLat(const double& value) {
-        addProperty(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#lat", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright. 
-     * Content copyright 
-     */
-    QStringList copyrights() const {
+    QStringList globalNamespaces() const {
         QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasGlobalNamespace", QUrl::StrictMode)))
             value << v.value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright. 
-     * Content copyright 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasGlobalNamespace. 
+     * The global namespace of this user using the semdesk uri scheme, 
+     * based on the Global Identifier of the user. Example semdesk://bob@example.com/things/. 
+     * See http://dev.nepomuk.semanticdesktop.org/repos/trunk/doc/2008_09_semdeskurischeme/index.html 
      */
-    void setCopyrights(const QStringList& value) {
+    void setGlobalNamespaces(const QStringList& value) {
         QVariantList values;
         foreach(const QString& v, value)
             values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasGlobalNamespace", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright. 
-     * Content copyright 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasGlobalNamespace. 
+     * The global namespace of this user using the semdesk uri scheme, 
+     * based on the Global Identifier of the user. Example semdesk://bob@example.com/things/. 
+     * See http://dev.nepomuk.semanticdesktop.org/repos/trunk/doc/2008_09_semdeskurischeme/index.html 
      */
-    void addCopyright(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#copyright", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license. 
-     * Terms and intellectual property rights licensing conditions. 
-     */
-    QStringList licenses() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license. 
-     * Terms and intellectual property rights licensing conditions. 
-     */
-    void setLicenses(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license. 
-     * Terms and intellectual property rights licensing conditions. 
-     */
-    void addLicense(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/01/19/nie#license", QUrl::StrictMode), value);
+    void addGlobalNamespace(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#hasGlobalNamespace", QUrl::StrictMode), value);
     }
 
 protected:

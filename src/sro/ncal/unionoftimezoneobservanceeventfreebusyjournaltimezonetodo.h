@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "ncal/unionparentclass.h"
 
@@ -32,6 +32,42 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#UnionOfTimezoneObservanceEventFreebusyJournalTimezoneTodo", QUrl::StrictMode));
         return *this;
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#commentAltRep. 
+     * Alternate representation of the comment. Introduced to cover 
+     * the ALTREP parameter of the COMMENT property. See documentation 
+     * of ncal:comment for details. 
+     */
+    QList<QUrl> commentAltReps() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#commentAltRep", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#commentAltRep. 
+     * Alternate representation of the comment. Introduced to cover 
+     * the ALTREP parameter of the COMMENT property. See documentation 
+     * of ncal:comment for details. 
+     */
+    void setCommentAltReps(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#commentAltRep", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#commentAltRep. 
+     * Alternate representation of the comment. Introduced to cover 
+     * the ALTREP parameter of the COMMENT property. See documentation 
+     * of ncal:comment for details. 
+     */
+    void addCommentAltRep(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#commentAltRep", QUrl::StrictMode), value);
     }
 
     /**
@@ -74,42 +110,6 @@ public:
      */
     void addComment(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#comment", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#commentAltRep. 
-     * Alternate representation of the comment. Introduced to cover 
-     * the ALTREP parameter of the COMMENT property. See documentation 
-     * of ncal:comment for details. 
-     */
-    QList<QUrl> commentAltReps() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#commentAltRep", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#commentAltRep. 
-     * Alternate representation of the comment. Introduced to cover 
-     * the ALTREP parameter of the COMMENT property. See documentation 
-     * of ncal:comment for details. 
-     */
-    void setCommentAltReps(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#commentAltRep", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#commentAltRep. 
-     * Alternate representation of the comment. Introduced to cover 
-     * the ALTREP parameter of the COMMENT property. See documentation 
-     * of ncal:comment for details. 
-     */
-    void addCommentAltRep(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#commentAltRep", QUrl::StrictMode), value);
     }
 
 protected:

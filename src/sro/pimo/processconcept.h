@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "pimo/thing.h"
 
@@ -34,38 +34,6 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#ProcessConcept", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#dtend. 
-     * This property specifies the date and time when a process ends. 
-     * Inspired by NCAL:dtend. 
-     */
-    QDateTime dtend() const {
-        QDateTime value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#dtend", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#dtend", QUrl::StrictMode)).first().value<QDateTime>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#dtend. 
-     * This property specifies the date and time when a process ends. 
-     * Inspired by NCAL:dtend. 
-     */
-    void setDtend(const QDateTime& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#dtend", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#dtend. 
-     * This property specifies the date and time when a process ends. 
-     * Inspired by NCAL:dtend. 
-     */
-    void addDtend(const QDateTime& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#dtend", QUrl::StrictMode), value);
     }
 
     /**
@@ -98,6 +66,70 @@ public:
      */
     void addDtstart(const QDateTime& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#dtstart", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#duration. 
+     * The duration of the process (meeting, event, etc). Difference 
+     * between start and end time. 
+     */
+    QUrl duration() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#duration", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#duration", QUrl::StrictMode)).first().value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#duration. 
+     * The duration of the process (meeting, event, etc). Difference 
+     * between start and end time. 
+     */
+    void setDuration(const QUrl& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#duration", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#duration. 
+     * The duration of the process (meeting, event, etc). Difference 
+     * between start and end time. 
+     */
+    void addDuration(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#duration", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#dtend. 
+     * This property specifies the date and time when a process ends. 
+     * Inspired by NCAL:dtend. 
+     */
+    QDateTime dtend() const {
+        QDateTime value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#dtend", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#dtend", QUrl::StrictMode)).first().value<QDateTime>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#dtend. 
+     * This property specifies the date and time when a process ends. 
+     * Inspired by NCAL:dtend. 
+     */
+    void setDtend(const QDateTime& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#dtend", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#dtend. 
+     * This property specifies the date and time when a process ends. 
+     * Inspired by NCAL:dtend. 
+     */
+    void addDtend(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#dtend", QUrl::StrictMode), value);
     }
 
 protected:

@@ -134,7 +134,7 @@ void ZoteroUpload::startUpload()
     QString projectFilter;
     if( m_libraryToSyncWith->libraryType() == Library_Project) {
         projectFilter =  "?r nbib:publication ?publication . "
-                         "?publication pimo:isRelated <" + m_libraryToSyncWith->settings()->projectThing().resourceUri().toString() + "> . ";
+                         "?publication pimo:isRelated <" + m_libraryToSyncWith->settings()->projectThing().uri().toString() + "> . ";
     }
 
     QString query = "select DISTINCT ?r where {"
@@ -387,7 +387,7 @@ void ZoteroUpload::removeFilesFromGroup(bool removeThem)
             if(m_cancel) { cleanupAfterUpload(); return; }
 
             idsToBeRemoved.append( sd.syncResource.property(  SYNC::id() ).toString() );
-            QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
+            QList<QUrl> resUri; resUri << sd.syncResource.uri();
             Nepomuk2::removeResources(resUri);
         }
 
@@ -400,7 +400,7 @@ void ZoteroUpload::removeFilesFromGroup(bool removeThem)
         foreach(const SyncDetails &sd, m_tmpUserDeleteRequest) {
             if(m_cancel) { cleanupAfterUpload(); return; }
 
-            QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
+            QList<QUrl> resUri; resUri << sd.syncResource.uri();
             Nepomuk2::removeResources(resUri);
         }
 
@@ -492,7 +492,7 @@ void ZoteroUpload::removeFilesFromZotero(bool removeThem)
             idsToBeRemoved.append(item);
             m_syncDataToBeRemoved.append(syncRes);
 
-            QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
+            QList<QUrl> resUri; resUri << sd.syncResource.uri();
             Nepomuk2::removeResources(resUri);
         }
 
@@ -504,7 +504,7 @@ void ZoteroUpload::removeFilesFromZotero(bool removeThem)
         foreach(const SyncDetails &sd, m_tmpUserDeleteRequest) {
             if(m_cancel) { cleanupAfterUpload(); return; }
 
-            QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
+            QList<QUrl> resUri; resUri << sd.syncResource.uri();
             Nepomuk2::removeResources(resUri);
         }
 
@@ -519,7 +519,7 @@ void ZoteroUpload::cleanupAfterUpload()
     QList<QUrl> uris;
     kDebug() << "cleanup and start attachment upload";
     foreach(const Nepomuk2::Resource &r, m_syncDataToBeRemoved) {
-        uris << r.resourceUri();
+        uris << r.uri();
     }
 
     if(!uris.isEmpty()) {
@@ -651,7 +651,7 @@ void ZoteroUpload::updateSyncDetailsToNepomuk(const QString &id, const QString &
     Nepomuk2::Resource syncDetails = results.first().resource();
 
     // update changed etag / modification date
-    QList<QUrl> ssdUri; ssdUri << syncDetails.resourceUri();
+    QList<QUrl> ssdUri; ssdUri << syncDetails.uri();
     QVariantList etagValue; etagValue << etag;
     QVariantList lmValue; lmValue << updated;
     Nepomuk2::setProperty(ssdUri, SYNC::etag(), etagValue);

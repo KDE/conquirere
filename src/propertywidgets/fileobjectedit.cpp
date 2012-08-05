@@ -117,8 +117,8 @@ void FileObjectEdit::fileObjectAdd()
 
     if(ret == QDialog::Rejected) {
         // remove crosslink, but do not delete the resource
-        QList<QUrl> publication; publication << m_publication.resourceUri();
-        QVariantList uris; uris << foed->resource().resourceUri();
+        QList<QUrl> publication; publication << m_publication.uri();
+        QVariantList uris; uris << foed->resource().uri();
         Nepomuk2::removeProperty( publication, NIE::links(), uris );
         Nepomuk2::removeProperty( publication, NBIB::isPublicationOf(), uris );
         return;
@@ -147,17 +147,17 @@ void FileObjectEdit::fileObjectRemove()
     delete i;
 
     if(resource.hasType(NFO::Website())) {
-        QList<QUrl> resourceUris; resourceUris << m_publication.resourceUri();
-        QVariantList value; value <<  resource.resourceUri();
+        QList<QUrl> resourceUris; resourceUris << m_publication.uri();
+        QVariantList value; value <<  resource.uri();
         Nepomuk2::removeProperty(resourceUris, NIE::links(), value);
     }
     else {
-        QList<QUrl> resourceUris; resourceUris << m_publication.resourceUri();
-        QVariantList value; value <<  resource.resourceUri();
+        QList<QUrl> resourceUris; resourceUris << m_publication.uri();
+        QVariantList value; value <<  resource.uri();
         Nepomuk2::removeProperty(resourceUris, NBIB::isPublicationOf(), value);
 
-        resourceUris.clear(); resourceUris << resource.resourceUri();
-        value.clear(); value <<  m_publication.resourceUri();
+        resourceUris.clear(); resourceUris << resource.uri();
+        value.clear(); value <<  m_publication.uri();
         Nepomuk2::removeProperty(resourceUris, NBIB::publishedAs(), value);
     }
 }
@@ -204,5 +204,5 @@ void FileObjectEdit::addItemInfo(QListWidgetItem *i, const Nepomuk2::Resource &r
 
     i->setIcon( KIcon(icon) );
     i->setText(showString);
-    i->setData(Qt::UserRole, resource.resourceUri());
+    i->setData(Qt::UserRole, resource.uri());
 }

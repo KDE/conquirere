@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "ncal/unionoftimezoneobservanceeventjournaltimezonetodo.h"
 #include "ncal/unionoftimezoneobservanceeventfreebusytimezonetodo.h"
@@ -34,6 +34,54 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#TimezoneObservance", QUrl::StrictMode));
         return *this;
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzname. 
+     * Specifies the customary designation for a timezone description. 
+     * Inspired by RFC 2445 sec. 4.8.3.2 The LANGUAGE parameter has 
+     * been discarded. Please xml:lang literals to express languages. 
+     * Original specification for the domain of this property stated 
+     * that it must appear within the timezone component. In this ontology 
+     * the TimezoneObservance class has been itroduced to clarify 
+     * this specification. 
+     */
+    QStringList tznames() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzname", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzname. 
+     * Specifies the customary designation for a timezone description. 
+     * Inspired by RFC 2445 sec. 4.8.3.2 The LANGUAGE parameter has 
+     * been discarded. Please xml:lang literals to express languages. 
+     * Original specification for the domain of this property stated 
+     * that it must appear within the timezone component. In this ontology 
+     * the TimezoneObservance class has been itroduced to clarify 
+     * this specification. 
+     */
+    void setTznames(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzname", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzname. 
+     * Specifies the customary designation for a timezone description. 
+     * Inspired by RFC 2445 sec. 4.8.3.2 The LANGUAGE parameter has 
+     * been discarded. Please xml:lang literals to express languages. 
+     * Original specification for the domain of this property stated 
+     * that it must appear within the timezone component. In this ontology 
+     * the TimezoneObservance class has been itroduced to clarify 
+     * this specification. 
+     */
+    void addTzname(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzname", QUrl::StrictMode), value);
     }
 
     /**
@@ -128,54 +176,6 @@ public:
      */
     void addTzoffsetfrom(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzoffsetfrom", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzname. 
-     * Specifies the customary designation for a timezone description. 
-     * Inspired by RFC 2445 sec. 4.8.3.2 The LANGUAGE parameter has 
-     * been discarded. Please xml:lang literals to express languages. 
-     * Original specification for the domain of this property stated 
-     * that it must appear within the timezone component. In this ontology 
-     * the TimezoneObservance class has been itroduced to clarify 
-     * this specification. 
-     */
-    QStringList tznames() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzname", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzname. 
-     * Specifies the customary designation for a timezone description. 
-     * Inspired by RFC 2445 sec. 4.8.3.2 The LANGUAGE parameter has 
-     * been discarded. Please xml:lang literals to express languages. 
-     * Original specification for the domain of this property stated 
-     * that it must appear within the timezone component. In this ontology 
-     * the TimezoneObservance class has been itroduced to clarify 
-     * this specification. 
-     */
-    void setTznames(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzname", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzname. 
-     * Specifies the customary designation for a timezone description. 
-     * Inspired by RFC 2445 sec. 4.8.3.2 The LANGUAGE parameter has 
-     * been discarded. Please xml:lang literals to express languages. 
-     * Original specification for the domain of this property stated 
-     * that it must appear within the timezone component. In this ontology 
-     * the TimezoneObservance class has been itroduced to clarify 
-     * this specification. 
-     */
-    void addTzname(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#tzname", QUrl::StrictMode), value);
     }
 
 protected:

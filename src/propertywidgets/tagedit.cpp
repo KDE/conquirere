@@ -77,7 +77,7 @@ void TagEdit::setupLabel()
 void TagEdit::updateResource(const QString & newTagNames)
 {
     if(newTagNames.isEmpty()) {
-        QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
         QList<QUrl> value; value << propertyUrl();
         Nepomuk2::removeProperties(resourceUris, value);
         return;
@@ -97,7 +97,7 @@ void TagEdit::updateResource(const QString & newTagNames)
 
         if( propertyUrl() == NAO::hasTag()) {
             Nepomuk2::SimpleResource tagResource;
-            Nepomuk2::NAO::Tag tag (&tagResource);
+            Nepomuk2::NAO::Tag tag (tagResource);
 
             tagResource.addProperty( NAO::identifier(), KUrl::fromEncoded(s.trimmed().toUtf8()) );
             tag.addPrefLabel( s.trimmed() );
@@ -138,7 +138,7 @@ void TagEdit::addTags(KJob *job)
     }
 
     // and attach all tags to the current Nepomuk resource
-    QList<QUrl> resourceUris; resourceUris << m_editedResource.resourceUri();
+    QList<QUrl> resourceUris; resourceUris << m_editedResource.uri();
     Nepomuk2::setProperty(resourceUris, propertyUrl(), tagUris);
 
     //TODO remove when resourcewatcher is working..

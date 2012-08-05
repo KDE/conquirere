@@ -248,7 +248,7 @@ void MainWindow::switchView(ResourceSelection selection, BibEntryType filter, Li
              w->hide();
 
         //show welcome page for the current library
-        QWidget *ww = m_libraryList.value(selectedLibrary->settings()->projectThing().resourceUri());
+        QWidget *ww = m_libraryList.value(selectedLibrary->settings()->projectThing().uri());
         ww->show();
 
         // reset the sidebarwidget and documentpreview
@@ -318,7 +318,7 @@ void MainWindow::openLibrary(Library *l)
     WelcomeWidget *ww = new WelcomeWidget(l);
     ww->hide();
     m_centralLayout->addWidget(ww);
-    m_libraryList.insert(l->settings()->projectThing().resourceUri(), ww);
+    m_libraryList.insert(l->settings()->projectThing().uri(), ww);
 
     if(!m_libraryManager->openProjects().isEmpty()) {
         actionCollection()->action(QLatin1String("delete_project"))->setEnabled(true);

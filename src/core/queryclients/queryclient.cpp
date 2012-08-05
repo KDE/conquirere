@@ -26,7 +26,6 @@
 #include <Nepomuk2/Vocabulary/PIMO>
 #include <Nepomuk2/Vocabulary/NIE>
 #include <Nepomuk2/Variant>
-#include <Nepomuk2/Thing>
 
 
 QueryClient::QueryClient(QObject *parent)
@@ -144,13 +143,13 @@ void QueryClient::addToCache( const QList< Nepomuk2::Query::Result > &entries ) 
             continue;
         }
 
-        //TODO Event workaround as we search for pimo:Event and NCAl:Event we end up
+        //TODO: Event workaround as we search for pimo:Event and NCAl:Event we end up
         // with duplicates. here we ignore all ncal:Events when a pimo:event exist for it
-        if(r.hasType(Nepomuk2::Vocabulary::NCAL::Event())) {
-            Nepomuk2::Thing t = r.pimoThing();
-            if(t.isValid())
-                continue;
-        }
+//        if(r.hasType(Nepomuk2::Vocabulary::NCAL::Event())) {
+//            Nepomuk2::Thing t = r.pimoThing();
+//            if(t.isValid())
+//                continue;
+//        }
 
         // workaround as creating a query regarding this leads to a very bad behaviour
         // @see referencequery.cpp

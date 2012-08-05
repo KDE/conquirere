@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "nie/informationelement.h"
 
@@ -34,45 +34,6 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#Calendar", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#version. 
-     * This property specifies the identifier corresponding to the 
-     * highest version number or the minimum and maximum range of the 
-     * iCalendar specification that is required in order to interpret 
-     * the iCalendar object. Defined in RFC 2445 sec. 4.7.4 
-     */
-    QStringList versions() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#version", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#version. 
-     * This property specifies the identifier corresponding to the 
-     * highest version number or the minimum and maximum range of the 
-     * iCalendar specification that is required in order to interpret 
-     * the iCalendar object. Defined in RFC 2445 sec. 4.7.4 
-     */
-    void setVersions(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#version", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#version. 
-     * This property specifies the identifier corresponding to the 
-     * highest version number or the minimum and maximum range of the 
-     * iCalendar specification that is required in order to interpret 
-     * the iCalendar object. Defined in RFC 2445 sec. 4.7.4 
-     */
-    void addVersion(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#version", QUrl::StrictMode), value);
     }
 
     /**
@@ -112,6 +73,39 @@ public:
     }
 
     /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#prodid. 
+     * This property specifies the identifier for the product that 
+     * created the iCalendar object. Defined in RFC 2445 sec. 4.7.2 
+     */
+    QStringList prodids() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#prodid", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#prodid. 
+     * This property specifies the identifier for the product that 
+     * created the iCalendar object. Defined in RFC 2445 sec. 4.7.2 
+     */
+    void setProdids(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#prodid", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#prodid. 
+     * This property specifies the identifier for the product that 
+     * created the iCalendar object. Defined in RFC 2445 sec. 4.7.2 
+     */
+    void addProdid(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#prodid", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#method. 
      * This property defines the iCalendar object method associated 
      * with the calendar object. Defined in RFC 2445 sec. 4.7.2 
@@ -144,36 +138,42 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#prodid. 
-     * This property specifies the identifier for the product that 
-     * created the iCalendar object. Defined in RFC 2445 sec. 4.7.2 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#version. 
+     * This property specifies the identifier corresponding to the 
+     * highest version number or the minimum and maximum range of the 
+     * iCalendar specification that is required in order to interpret 
+     * the iCalendar object. Defined in RFC 2445 sec. 4.7.4 
      */
-    QStringList prodids() const {
+    QStringList versions() const {
         QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#prodid", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#version", QUrl::StrictMode)))
             value << v.value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#prodid. 
-     * This property specifies the identifier for the product that 
-     * created the iCalendar object. Defined in RFC 2445 sec. 4.7.2 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#version. 
+     * This property specifies the identifier corresponding to the 
+     * highest version number or the minimum and maximum range of the 
+     * iCalendar specification that is required in order to interpret 
+     * the iCalendar object. Defined in RFC 2445 sec. 4.7.4 
      */
-    void setProdids(const QStringList& value) {
+    void setVersions(const QStringList& value) {
         QVariantList values;
         foreach(const QString& v, value)
             values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#prodid", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#version", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#prodid. 
-     * This property specifies the identifier for the product that 
-     * created the iCalendar object. Defined in RFC 2445 sec. 4.7.2 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#version. 
+     * This property specifies the identifier corresponding to the 
+     * highest version number or the minimum and maximum range of the 
+     * iCalendar specification that is required in order to interpret 
+     * the iCalendar object. Defined in RFC 2445 sec. 4.7.4 
      */
-    void addProdid(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#prodid", QUrl::StrictMode), value);
+    void addVersion(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#version", QUrl::StrictMode), value);
     }
 
     /**

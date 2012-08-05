@@ -505,7 +505,7 @@ void ZoteroDownload::deleteLocalFiles(bool deleteThem)
                 }
             }
 
-            QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
+            QList<QUrl> resUri; resUri << sd.syncResource.uri();
             Nepomuk2::removeResources(resUri);
         }
         else {
@@ -526,14 +526,14 @@ void ZoteroDownload::deleteLocalFiles(bool deleteThem)
                     reference = sd.syncResource.property( SYNC::reference()).toResource();
                 }
 
-                QList<QUrl> mrUri; mrUri << mainResource.resourceUri();
-                QVariantList ssdValue; ssdValue << sd.syncResource.resourceUri();
+                QList<QUrl> mrUri; mrUri << mainResource.uri();
+                QVariantList ssdValue; ssdValue << sd.syncResource.uri();
                 Nepomuk2::removeProperty(mrUri,SYNC::serverSyncData(), ssdValue);
 
-                QList<QUrl> refUri; refUri << reference.resourceUri();
+                QList<QUrl> refUri; refUri << reference.uri();
                 Nepomuk2::removeProperty(refUri,SYNC::serverSyncData(), ssdValue);
 
-                QList<QUrl> resUri; resUri << sd.syncResource.resourceUri();
+                QList<QUrl> resUri; resUri << sd.syncResource.uri();
                 Nepomuk2::removeResources(resUri);
             }
             // in the case of an project library next time we upload, all items will be added again to the right group
@@ -693,7 +693,7 @@ void ZoteroDownload::findRemovedEntries()
     QString projectFilter;
     if( m_libraryToSyncWith->libraryType() == Library_Project) {
         projectFilter =  "?r nbib:publication ?publication . "
-                         "?publication pimo:isRelated <" + m_libraryToSyncWith->settings()->projectThing().resourceUri().toString() + "> . ";
+                         "?publication pimo:isRelated <" + m_libraryToSyncWith->settings()->projectThing().uri().toString() + "> . ";
     }
 
     QString dataTypeFilter;

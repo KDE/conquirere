@@ -20,7 +20,6 @@
 
 #include "sidebarcomponent.h"
 #include <Nepomuk2/Resource>
-#include <Nepomuk2/Thing>
 
 namespace Ui {
     class EventWidget;
@@ -83,7 +82,7 @@ private slots:
 
 private:
     Ui::EventWidget *ui;
-    Nepomuk2::Thing m_eventThing;
+    Nepomuk2::Resource m_eventThing;
     Nepomuk2::Resource m_eventResource;
 };
 

@@ -75,7 +75,7 @@ Library *LibraryManager::currentUsedLibrary()
 Library *LibraryManager::libFromResourceUri(const QUrl &projectThing)
 {
     foreach(Library *p, m_openProjectList) {
-        if(p->settings()->projectThing().resourceUri() == projectThing) {
+        if(p->settings()->projectThing().uri() == projectThing) {
             return p;
         }
     }
@@ -117,7 +117,7 @@ void LibraryManager::closeLibrary(Library *l)
         m_currentUsedLibrary = m_systemLibrary;
 
     m_openProjectList.removeAll(l);
-    QUrl thingUri = l->settings()->projectThing().resourceUri();
+    QUrl thingUri = l->settings()->projectThing().uri();
     emit libraryRemoved(thingUri);
 
     l->deleteLater();
@@ -129,7 +129,7 @@ void LibraryManager::deleteLibrary(Library *l)
         m_currentUsedLibrary = m_systemLibrary;
 
     m_openProjectList.removeAll(l);
-    QUrl thingUri = l->settings()->projectThing().resourceUri();
+    QUrl thingUri = l->settings()->projectThing().uri();
     emit libraryRemoved(thingUri);
 
     l->deleteLibrary();

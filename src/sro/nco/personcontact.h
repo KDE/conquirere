@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "nco/contact.h"
 
@@ -35,99 +35,35 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificPrefix. 
-     * A prefix for the name of the object represented by this Contact. 
-     * See documentation for the 'nameFamily' property for details. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameGiven. 
+     * The given name for the object represented by this Contact. See 
+     * documentation for 'nameFamily' property for details. 
      */
-    QStringList nameHonorificPrefixs() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificPrefix", QUrl::StrictMode)))
-            value << v.value<QString>();
+    QString nameGiven() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameGiven", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameGiven", QUrl::StrictMode)).first().value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificPrefix. 
-     * A prefix for the name of the object represented by this Contact. 
-     * See documentation for the 'nameFamily' property for details. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameGiven. 
+     * The given name for the object represented by this Contact. See 
+     * documentation for 'nameFamily' property for details. 
      */
-    void setNameHonorificPrefixs(const QStringList& value) {
+    void setNameGiven(const QString& value) {
         QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificPrefix", QUrl::StrictMode), values);
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameGiven", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificPrefix. 
-     * A prefix for the name of the object represented by this Contact. 
-     * See documentation for the 'nameFamily' property for details. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameGiven. 
+     * The given name for the object represented by this Contact. See 
+     * documentation for 'nameFamily' property for details. 
      */
-    void addNameHonorificPrefix(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificPrefix", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificSuffix. 
-     * A suffix for the name of the Object represented by the given object. 
-     * See documentation for the 'nameFamily' for details. 
-     */
-    QStringList nameHonorificSuffixs() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificSuffix", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificSuffix. 
-     * A suffix for the name of the Object represented by the given object. 
-     * See documentation for the 'nameFamily' for details. 
-     */
-    void setNameHonorificSuffixs(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificSuffix", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificSuffix. 
-     * A suffix for the name of the Object represented by the given object. 
-     * See documentation for the 'nameFamily' for details. 
-     */
-    void addNameHonorificSuffix(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificSuffix", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasAffiliation. 
-     * Links a PersonContact with an Affiliation. 
-     */
-    QList<QUrl> affiliations() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasAffiliation", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasAffiliation. 
-     * Links a PersonContact with an Affiliation. 
-     */
-    void setAffiliations(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasAffiliation", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasAffiliation. 
-     * Links a PersonContact with an Affiliation. 
-     */
-    void addAffiliation(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasAffiliation", QUrl::StrictMode), value);
+    void addNameGiven(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameGiven", QUrl::StrictMode), value);
     }
 
     /**
@@ -161,35 +97,6 @@ public:
      */
     void addNameAdditional(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameAdditional", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#gender. 
-     * Gender of the given contact. 
-     */
-    QUrl gender() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#gender", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#gender", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#gender. 
-     * Gender of the given contact. 
-     */
-    void setGender(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#gender", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#gender. 
-     * Gender of the given contact. 
-     */
-    void addGender(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#gender", QUrl::StrictMode), value);
     }
 
     /**
@@ -285,35 +192,128 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameGiven. 
-     * The given name for the object represented by this Contact. See 
-     * documentation for 'nameFamily' property for details. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#gender. 
+     * Gender of the given contact. 
      */
-    QString nameGiven() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameGiven", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameGiven", QUrl::StrictMode)).first().value<QString>();
+    QUrl gender() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#gender", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#gender", QUrl::StrictMode)).first().value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameGiven. 
-     * The given name for the object represented by this Contact. See 
-     * documentation for 'nameFamily' property for details. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#gender. 
+     * Gender of the given contact. 
      */
-    void setNameGiven(const QString& value) {
+    void setGender(const QUrl& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameGiven", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#gender", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameGiven. 
-     * The given name for the object represented by this Contact. See 
-     * documentation for 'nameFamily' property for details. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#gender. 
+     * Gender of the given contact. 
      */
-    void addNameGiven(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameGiven", QUrl::StrictMode), value);
+    void addGender(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#gender", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificSuffix. 
+     * A suffix for the name of the Object represented by the given object. 
+     * See documentation for the 'nameFamily' for details. 
+     */
+    QStringList nameHonorificSuffixs() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificSuffix", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificSuffix. 
+     * A suffix for the name of the Object represented by the given object. 
+     * See documentation for the 'nameFamily' for details. 
+     */
+    void setNameHonorificSuffixs(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificSuffix", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificSuffix. 
+     * A suffix for the name of the Object represented by the given object. 
+     * See documentation for the 'nameFamily' for details. 
+     */
+    void addNameHonorificSuffix(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificSuffix", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificPrefix. 
+     * A prefix for the name of the object represented by this Contact. 
+     * See documentation for the 'nameFamily' property for details. 
+     */
+    QStringList nameHonorificPrefixs() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificPrefix", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificPrefix. 
+     * A prefix for the name of the object represented by this Contact. 
+     * See documentation for the 'nameFamily' property for details. 
+     */
+    void setNameHonorificPrefixs(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificPrefix", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificPrefix. 
+     * A prefix for the name of the object represented by this Contact. 
+     * See documentation for the 'nameFamily' property for details. 
+     */
+    void addNameHonorificPrefix(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#nameHonorificPrefix", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasAffiliation. 
+     * Links a PersonContact with an Affiliation. 
+     */
+    QList<QUrl> affiliations() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasAffiliation", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasAffiliation. 
+     * Links a PersonContact with an Affiliation. 
+     */
+    void setAffiliations(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasAffiliation", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasAffiliation. 
+     * Links a PersonContact with an Affiliation. 
+     */
+    void addAffiliation(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasAffiliation", QUrl::StrictMode), value);
     }
 
 protected:

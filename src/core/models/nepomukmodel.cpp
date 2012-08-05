@@ -83,7 +83,7 @@ QVariant NepomukModel::data(const QModelIndex &index, int role) const
 
 bool NepomukModel::cacheEntryNeedsUpdate(const Nepomuk2::Resource & resource) const
 {
-    if( !m_lookupCache.contains(resource.resourceUri().toString()) )
+    if( !m_lookupCache.contains(resource.uri().toString()) )
         return true;
 
     // here we need to check if the current timestamp of the cache entry is
@@ -91,7 +91,7 @@ bool NepomukModel::cacheEntryNeedsUpdate(const Nepomuk2::Resource & resource) co
     // if the nepomuk data is newer, we need to update the data
 
 
-    int cacheEntry = m_lookupCache.value(resource.resourceUri().toString());
+    int cacheEntry = m_lookupCache.value(resource.uri().toString());
     QDateTime cacheTimestamp = m_modelCacheData.at(cacheEntry).timestamp;
 
     // TODO also check against connected resources, like publishedAs, reference and so on.
@@ -177,7 +177,7 @@ void NepomukModel::saveCache()
         }
         out << "\n";
         //DEBUG save the timestampg when the entry was actually inserted into the program?
-        out << cre.resource.resourceUri().toString() << "|#|" << QDateTime::currentDateTime().toString() << "\n";
+        out << cre.resource.uri().toString() << "|#|" << QDateTime::currentDateTime().toString() << "\n";
     }
     file.close();
 }
@@ -238,7 +238,7 @@ void NepomukModel::addCacheData(const QList<CachedRowEntry> &entries)
         beginInsertRows(QModelIndex(), m_modelCacheData.size(), m_modelCacheData.size() + entries.size()-1);
         foreach(const CachedRowEntry &cre, entries) {
             m_modelCacheData.append(cre);
-            m_lookupCache.insert(cre.resource.resourceUri().toString(), m_modelCacheData.size()-1);
+            m_lookupCache.insert(cre.resource.uri().toString(), m_modelCacheData.size()-1);
             emit resourceAdded(cre.resource);
         }
         endInsertRows();
@@ -253,7 +253,7 @@ void NepomukModel::removeCacheData( QList<QUrl> urls )
         //iterate through the full list of entries and find the one we are going to remove
         int i = 0;
         foreach(const CachedRowEntry & cre, m_modelCacheData) {
-            if(!cre.resource.isValid() || cre.resource.resourceUri() == url) {
+            if(!cre.resource.isValid() || cre.resource.uri() == url) {
 
                 beginRemoveRows(QModelIndex(), i, i );
                 m_modelCacheData.removeAt(i);
@@ -285,7 +285,7 @@ void NepomukModel::updateCacheData(const QList<CachedRowEntry> &entries)
 {
     foreach(const CachedRowEntry &entry, entries) {
 
-        int pos = m_lookupCache.value(entry.resource.resourceUri().toString(), -1);
+        int pos = m_lookupCache.value(entry.resource.uri().toString(), -1);
         if(pos < 0) {
             QList<CachedRowEntry> e;
             e << entry;

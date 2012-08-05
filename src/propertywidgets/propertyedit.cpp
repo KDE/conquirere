@@ -150,7 +150,7 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
     Nepomuk2::Resource range = nr.property(Soprano::Vocabulary::RDFS::range()).toResource();
 
     if(range.isValid())
-        m_lineEdit->setNepomukCompleterRange( range.resourceUri() );
+        m_lineEdit->setNepomukCompleterRange( range.uri() );
 
 }
 

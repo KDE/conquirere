@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "nbib/publication.h"
 
@@ -32,6 +32,97 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.example.com/nbib#Patent", QUrl::StrictMode));
         return *this;
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#applicationNumber. 
+     * The application number of a patent 
+     */
+    QString applicationNumber() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#applicationNumber", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#applicationNumber", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#applicationNumber. 
+     * The application number of a patent 
+     */
+    void setApplicationNumber(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#applicationNumber", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#applicationNumber. 
+     * The application number of a patent 
+     */
+    void addApplicationNumber(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#applicationNumber", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#filingDate. 
+     * The date when the patent was filed, the issue date is the same 
+     * as the publication date 
+     */
+    QDateTime filingDate() const {
+        QDateTime value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode)).first().value<QDateTime>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#filingDate. 
+     * The date when the patent was filed, the issue date is the same 
+     * as the publication date 
+     */
+    void setFilingDate(const QDateTime& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#filingDate. 
+     * The date when the patent was filed, the issue date is the same 
+     * as the publication date 
+     */
+    void addFilingDate(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#attorneyAgent. 
+     * A attorney agent related to a patent 
+     */
+    QList<QUrl> attorneyAgents() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#attorneyAgent", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#attorneyAgent. 
+     * A attorney agent related to a patent 
+     */
+    void setAttorneyAgents(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#attorneyAgent", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#attorneyAgent. 
+     * A attorney agent related to a patent 
+     */
+    void addAttorneyAgent(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#attorneyAgent", QUrl::StrictMode), value);
     }
 
     /**
@@ -95,94 +186,33 @@ public:
     }
 
     /**
-     * Get property http://www.example.com/nbib#attorneyAgent. 
-     * A attorney agent related to a patent 
+     * Get property http://www.example.com/nbib#legalStatus. 
+     * The legal status of this patent 
      */
-    QList<QUrl> attorneyAgents() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#attorneyAgent", QUrl::StrictMode)))
-            value << v.value<QUrl>();
+    QStringList legalStatuses() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#legalStatus", QUrl::StrictMode)))
+            value << v.value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.example.com/nbib#attorneyAgent. 
-     * A attorney agent related to a patent 
+     * Set property http://www.example.com/nbib#legalStatus. 
+     * The legal status of this patent 
      */
-    void setAttorneyAgents(const QList<QUrl>& value) {
+    void setLegalStatuses(const QStringList& value) {
         QVariantList values;
-        foreach(const QUrl& v, value)
+        foreach(const QString& v, value)
             values << v;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#attorneyAgent", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#legalStatus", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.example.com/nbib#attorneyAgent. 
-     * A attorney agent related to a patent 
+     * Add value to property http://www.example.com/nbib#legalStatus. 
+     * The legal status of this patent 
      */
-    void addAttorneyAgent(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#attorneyAgent", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#filingDate. 
-     * The date when the patent was filed, the issue date is the same 
-     * as the publication date 
-     */
-    QDateTime filingDate() const {
-        QDateTime value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode)).first().value<QDateTime>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#filingDate. 
-     * The date when the patent was filed, the issue date is the same 
-     * as the publication date 
-     */
-    void setFilingDate(const QDateTime& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#filingDate. 
-     * The date when the patent was filed, the issue date is the same 
-     * as the publication date 
-     */
-    void addFilingDate(const QDateTime& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#filingDate", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#applicationNumber. 
-     * The application number of a patent 
-     */
-    QString applicationNumber() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#applicationNumber", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#applicationNumber", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#applicationNumber. 
-     * The application number of a patent 
-     */
-    void setApplicationNumber(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#applicationNumber", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#applicationNumber. 
-     * The application number of a patent 
-     */
-    void addApplicationNumber(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#applicationNumber", QUrl::StrictMode), value);
+    void addLegalStatus(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#legalStatus", QUrl::StrictMode), value);
     }
 
     /**
@@ -213,36 +243,6 @@ public:
      */
     void addPriorityNumbers(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#priorityNumbers", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.example.com/nbib#legalStatus. 
-     * The legal status of this patent 
-     */
-    QStringList legalStatuses() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.example.com/nbib#legalStatus", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#legalStatus. 
-     * The legal status of this patent 
-     */
-    void setLegalStatuses(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#legalStatus", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#legalStatus. 
-     * The legal status of this patent 
-     */
-    void addLegalStatus(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#legalStatus", QUrl::StrictMode), value);
     }
 
 protected:

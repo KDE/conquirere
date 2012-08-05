@@ -113,7 +113,7 @@ void DbCheckDialog::checkSeries()
     Nepomuk2::Query::ComparisonTerm term( Soprano::Vocabulary::NAO::isRelated(), Nepomuk2::Query::ResourceTerm(myTag) );
 
     Nepomuk2::Query::Query queryTEST(term);
-    qDebug() << myTag.resourceUri().toString();
+    qDebug() << myTag.uri().toString();
 
     Nepomuk2::Resource syncTest = Nepomuk2::Resource(QUrl());
     syncTest.addType(Nepomuk2::Vocabulary::SYNC::ServerSyncData());

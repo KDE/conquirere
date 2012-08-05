@@ -62,12 +62,12 @@ void CourtReporterEdit::updateResource(const QString & newCRTitle)
 
     if(currentCourtReporter.exists()) {
         // remove the crosslink CourtReporter <-> publication
-        QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
-        QVariantList value; value << currentCourtReporter.resourceUri();
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QVariantList value; value << currentCourtReporter.uri();
         Nepomuk2::removeProperty(resourceUris, NBIB::courtReporter(), value);
 
-        resourceUris.clear(); resourceUris << currentCourtReporter.resourceUri();
-        value.clear(); value << resource().resourceUri();
+        resourceUris.clear(); resourceUris << currentCourtReporter.uri();
+        value.clear(); value << resource().uri();
         Nepomuk2::removeProperty(resourceUris, NBIB::legalCase(), value);
     }
 
@@ -78,7 +78,7 @@ void CourtReporterEdit::updateResource(const QString & newCRTitle)
     // ok the user changed the text in the list
     // let the DMS create a new event and merge it to the right place
     Nepomuk2::SimpleResourceGraph graph;
-    Nepomuk2::SimpleResource legalCaseRes(resource().resourceUri());
+    Nepomuk2::SimpleResource legalCaseRes(resource().uri());
     Nepomuk2::NBIB::LegalCaseDocument legalCase(legalCaseRes);
     //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
     QDateTime datetime = QDateTime::currentDateTimeUtc();

@@ -58,7 +58,7 @@ void ProjectSettings::loadSettings(const QString &projectFile)
 
     // read the nepomuk resources for this project
     KConfigGroup generalGroup( m_projectConfig, "Conquirere" );
-    m_pimoThing = Nepomuk2::Thing(generalGroup.readEntry("pimoProject", QString()));
+    m_pimoThing = Nepomuk2::Resource(generalGroup.readEntry("pimoProject", QString()));
 
     QString name = m_pimoThing.property(Soprano::Vocabulary::NAO::prefLabel()).toString();
     if(!name.isEmpty()) {
@@ -80,18 +80,18 @@ void ProjectSettings::setPimoThing( Nepomuk2::Resource &thing )
     Q_ASSERT_X(thing.isValid(), "setPimoThing", "no valid thing used");
 
     KConfigGroup generalGroup( m_projectConfig, "Conquirere" );
-    generalGroup.writeEntry("pimoProject", thing.resourceUri().toString());
+    generalGroup.writeEntry("pimoProject", thing.uri().toString());
     generalGroup.sync();
 
     m_pimoThing = thing;
 }
 
-Nepomuk2::Thing ProjectSettings::projectThing() const
+Nepomuk2::Resource ProjectSettings::projectThing() const
 {
     return m_pimoThing;
 }
 
-Nepomuk2::Tag ProjectSettings::projectTag() const
+Nepomuk2::Resource ProjectSettings::projectTag() const
 {
     return m_projectTag;
 }

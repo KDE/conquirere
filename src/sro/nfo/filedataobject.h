@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "nie/dataobject.h"
 
@@ -39,32 +39,131 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName. 
-     * Name of the file, together with the extension 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileOwner. 
+     * The owner of the file as defined by the file system access rights 
+     * feature. 
      */
-    QString fileName() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName", QUrl::StrictMode)).first().value<QString>();
+    QUrl fileOwner() const {
+        QUrl value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileOwner", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileOwner", QUrl::StrictMode)).first().value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName. 
-     * Name of the file, together with the extension 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileOwner. 
+     * The owner of the file as defined by the file system access rights 
+     * feature. 
      */
-    void setFileName(const QString& value) {
+    void setFileOwner(const QUrl& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileOwner", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName. 
-     * Name of the file, together with the extension 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileOwner. 
+     * The owner of the file as defined by the file system access rights 
+     * feature. 
      */
-    void addFileName(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName", QUrl::StrictMode), value);
+    void addFileOwner(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileOwner", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileCreated. 
+     * File creation date 
+     */
+    QDateTime fileCreated() const {
+        QDateTime value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileCreated", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileCreated", QUrl::StrictMode)).first().value<QDateTime>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileCreated. 
+     * File creation date 
+     */
+    void setFileCreated(const QDateTime& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileCreated", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileCreated. 
+     * File creation date 
+     */
+    void addFileCreated(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileCreated", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#permissions. 
+     * A string containing the permissions of a file. A feature common 
+     * in many UNIX-like operating systems. 
+     */
+    QString permissions() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#permissions", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#permissions", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#permissions. 
+     * A string containing the permissions of a file. A feature common 
+     * in many UNIX-like operating systems. 
+     */
+    void setPermissions(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#permissions", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#permissions. 
+     * A string containing the permissions of a file. A feature common 
+     * in many UNIX-like operating systems. 
+     */
+    void addPermissions(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#permissions", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize. 
+     * The size of the file in bytes. For compressed files it means the 
+     * size of the packed file, not of the contents. For folders it means 
+     * the aggregated size of all contained files and folders 
+     */
+    qint64 fileSize() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize. 
+     * The size of the file in bytes. For compressed files it means the 
+     * size of the packed file, not of the contents. For folders it means 
+     * the aggregated size of all contained files and folders 
+     */
+    void setFileSize(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize. 
+     * The size of the file in bytes. For compressed files it means the 
+     * size of the packed file, not of the contents. For folders it means 
+     * the aggregated size of all contained files and folders 
+     */
+    void addFileSize(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize", QUrl::StrictMode), value);
     }
 
     /**
@@ -142,70 +241,33 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileOwner. 
-     * The owner of the file as defined by the file system access rights 
-     * feature. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileLastModified. 
+     * last modification date 
      */
-    QUrl fileOwner() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileOwner", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileOwner", QUrl::StrictMode)).first().value<QUrl>();
+    QList<QDateTime> fileLastModifieds() const {
+        QList<QDateTime> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileLastModified", QUrl::StrictMode)))
+            value << v.value<QDateTime>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileOwner. 
-     * The owner of the file as defined by the file system access rights 
-     * feature. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileLastModified. 
+     * last modification date 
      */
-    void setFileOwner(const QUrl& value) {
+    void setFileLastModifieds(const QList<QDateTime>& value) {
         QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileOwner", QUrl::StrictMode), values);
+        foreach(const QDateTime& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileLastModified", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileOwner. 
-     * The owner of the file as defined by the file system access rights 
-     * feature. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileLastModified. 
+     * last modification date 
      */
-    void addFileOwner(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileOwner", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize. 
-     * The size of the file in bytes. For compressed files it means the 
-     * size of the packed file, not of the contents. For folders it means 
-     * the aggregated size of all contained files and folders 
-     */
-    qint64 fileSize() const {
-        qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize", QUrl::StrictMode)).first().value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize. 
-     * The size of the file in bytes. For compressed files it means the 
-     * size of the packed file, not of the contents. For folders it means 
-     * the aggregated size of all contained files and folders 
-     */
-    void setFileSize(const qint64& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize. 
-     * The size of the file in bytes. For compressed files it means the 
-     * size of the packed file, not of the contents. For folders it means 
-     * the aggregated size of all contained files and folders 
-     */
-    void addFileSize(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileSize", QUrl::StrictMode), value);
+    void addFileLastModified(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileLastModified", QUrl::StrictMode), value);
     }
 
     /**
@@ -239,94 +301,32 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileCreated. 
-     * File creation date 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName. 
+     * Name of the file, together with the extension 
      */
-    QDateTime fileCreated() const {
-        QDateTime value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileCreated", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileCreated", QUrl::StrictMode)).first().value<QDateTime>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileCreated. 
-     * File creation date 
-     */
-    void setFileCreated(const QDateTime& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileCreated", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileCreated. 
-     * File creation date 
-     */
-    void addFileCreated(const QDateTime& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileCreated", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#permissions. 
-     * A string containing the permissions of a file. A feature common 
-     * in many UNIX-like operating systems. 
-     */
-    QString permissions() const {
+    QString fileName() const {
         QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#permissions", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#permissions", QUrl::StrictMode)).first().value<QString>();
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName", QUrl::StrictMode)).first().value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#permissions. 
-     * A string containing the permissions of a file. A feature common 
-     * in many UNIX-like operating systems. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName. 
+     * Name of the file, together with the extension 
      */
-    void setPermissions(const QString& value) {
+    void setFileName(const QString& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#permissions", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#permissions. 
-     * A string containing the permissions of a file. A feature common 
-     * in many UNIX-like operating systems. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName. 
+     * Name of the file, together with the extension 
      */
-    void addPermissions(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#permissions", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileLastModified. 
-     * last modification date 
-     */
-    QList<QDateTime> fileLastModifieds() const {
-        QList<QDateTime> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileLastModified", QUrl::StrictMode)))
-            value << v.value<QDateTime>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileLastModified. 
-     * last modification date 
-     */
-    void setFileLastModifieds(const QList<QDateTime>& value) {
-        QVariantList values;
-        foreach(const QDateTime& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileLastModified", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileLastModified. 
-     * last modification date 
-     */
-    void addFileLastModified(const QDateTime& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileLastModified", QUrl::StrictMode), value);
+    void addFileName(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName", QUrl::StrictMode), value);
     }
 
 protected:

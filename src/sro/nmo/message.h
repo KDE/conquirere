@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "nie/informationelement.h"
 
@@ -33,6 +33,214 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#Message", QUrl::StrictMode));
         return *this;
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#receivedDate. 
+     * Date when this message was received. 
+     */
+    QDateTime receivedDate() const {
+        QDateTime value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#receivedDate", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#receivedDate", QUrl::StrictMode)).first().value<QDateTime>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#receivedDate. 
+     * Date when this message was received. 
+     */
+    void setReceivedDate(const QDateTime& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#receivedDate", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#receivedDate. 
+     * Date when this message was received. 
+     */
+    void addReceivedDate(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#receivedDate", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryMessageRecipient. 
+     * A superproperty for all "additional" recipients of a message. 
+     */
+    QList<QUrl> secondaryMessageRecipients() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryMessageRecipient", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryMessageRecipient. 
+     * A superproperty for all "additional" recipients of a message. 
+     */
+    void setSecondaryMessageRecipients(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryMessageRecipient", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryMessageRecipient. 
+     * A superproperty for all "additional" recipients of a message. 
+     */
+    void addSecondaryMessageRecipient(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryMessageRecipient", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sentDate. 
+     * Date when this message was sent. 
+     */
+    QDateTime sentDate() const {
+        QDateTime value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sentDate", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sentDate", QUrl::StrictMode)).first().value<QDateTime>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sentDate. 
+     * Date when this message was sent. 
+     */
+    void setSentDate(const QDateTime& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sentDate", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sentDate. 
+     * Date when this message was sent. 
+     */
+    void addSentDate(const QDateTime& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sentDate", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageId. 
+     * An identifier of a message. This property has been inspired 
+     * by the message-id property defined in RFC 2822, Sec. 3.6.4. 
+     * It should be used for all kinds of identifiers used by various 
+     * messaging applications to connect multiple messages into 
+     * conversations. For email messageids, values are according 
+     * to RFC2822/sec 3.6.4 and the literal value in RDF must include 
+     * the brackets. 
+     */
+    QStringList messageIds() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageId", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageId. 
+     * An identifier of a message. This property has been inspired 
+     * by the message-id property defined in RFC 2822, Sec. 3.6.4. 
+     * It should be used for all kinds of identifiers used by various 
+     * messaging applications to connect multiple messages into 
+     * conversations. For email messageids, values are according 
+     * to RFC2822/sec 3.6.4 and the literal value in RDF must include 
+     * the brackets. 
+     */
+    void setMessageIds(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageId", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageId. 
+     * An identifier of a message. This property has been inspired 
+     * by the message-id property defined in RFC 2822, Sec. 3.6.4. 
+     * It should be used for all kinds of identifiers used by various 
+     * messaging applications to connect multiple messages into 
+     * conversations. For email messageids, values are according 
+     * to RFC2822/sec 3.6.4 and the literal value in RDF must include 
+     * the brackets. 
+     */
+    void addMessageId(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageId", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryRecipient. 
+     * deprecated in favor of nmo:secondaryMessageRecipient 
+     */
+    QList<QUrl> secondaryRecipients() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryRecipient", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryRecipient. 
+     * deprecated in favor of nmo:secondaryMessageRecipient 
+     */
+    void setSecondaryRecipients(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryRecipient", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryRecipient. 
+     * deprecated in favor of nmo:secondaryMessageRecipient 
+     */
+    void addSecondaryRecipient(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryRecipient", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#plainTextMessageContent. 
+     * Plain text representation of the body of the message. For multipart 
+     * messages, all parts are concatenated into the value of this 
+     * property. Attachments, whose mimeTypes are different from 
+     * text/plain or message/rfc822 are considered separate DataObjects 
+     * and are therefore not included in the value of this property. 
+     */
+    QStringList plainTextMessageContents() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#plainTextMessageContent", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#plainTextMessageContent. 
+     * Plain text representation of the body of the message. For multipart 
+     * messages, all parts are concatenated into the value of this 
+     * property. Attachments, whose mimeTypes are different from 
+     * text/plain or message/rfc822 are considered separate DataObjects 
+     * and are therefore not included in the value of this property. 
+     */
+    void setPlainTextMessageContents(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#plainTextMessageContent", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#plainTextMessageContent. 
+     * Plain text representation of the body of the message. For multipart 
+     * messages, all parts are concatenated into the value of this 
+     * property. Attachments, whose mimeTypes are different from 
+     * text/plain or message/rfc822 are considered separate DataObjects 
+     * and are therefore not included in the value of this property. 
+     */
+    void addPlainTextMessageContent(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#plainTextMessageContent", QUrl::StrictMode), value);
     }
 
     /**
@@ -68,125 +276,6 @@ public:
      */
     void addMessageSender(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageSender", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#from. 
-     * deprecated in favor of nmo:messageFrom 
-     */
-    QList<QUrl> froms() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#from", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#from. 
-     * deprecated in favor of nmo:messageFrom 
-     */
-    void setFroms(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#from", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#from. 
-     * deprecated in favor of nmo:messageFrom 
-     */
-    void addFrom(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#from", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sender. 
-     * deprecated in favor of nmo:messageSender 
-     */
-    QList<QUrl> senders() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sender", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sender. 
-     * deprecated in favor of nmo:messageSender 
-     */
-    void setSenders(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sender", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sender. 
-     * deprecated in favor of nmo:messageSender 
-     */
-    void addSender(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sender", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryRecipient. 
-     * deprecated in favor of nmo:secondaryMessageRecipient 
-     */
-    QList<QUrl> secondaryRecipients() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryRecipient", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryRecipient. 
-     * deprecated in favor of nmo:secondaryMessageRecipient 
-     */
-    void setSecondaryRecipients(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryRecipient", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryRecipient. 
-     * deprecated in favor of nmo:secondaryMessageRecipient 
-     */
-    void addSecondaryRecipient(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryRecipient", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageHeader. 
-     * Links the message wiith an arbitrary message header. 
-     */
-    QUrl messageHeader() const {
-        QUrl value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageHeader", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageHeader", QUrl::StrictMode)).first().value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageHeader. 
-     * Links the message wiith an arbitrary message header. 
-     */
-    void setMessageHeader(const QUrl& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageHeader", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageHeader. 
-     * Links the message wiith an arbitrary message header. 
-     */
-    void addMessageHeader(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageHeader", QUrl::StrictMode), value);
     }
 
     /**
@@ -228,6 +317,96 @@ public:
     }
 
     /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#from. 
+     * deprecated in favor of nmo:messageFrom 
+     */
+    QList<QUrl> froms() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#from", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#from. 
+     * deprecated in favor of nmo:messageFrom 
+     */
+    void setFroms(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#from", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#from. 
+     * deprecated in favor of nmo:messageFrom 
+     */
+    void addFrom(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#from", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#hasAttachment. 
+     * Links a message with files that were sent as attachments. 
+     */
+    QList<QUrl> attachments() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#hasAttachment", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#hasAttachment. 
+     * Links a message with files that were sent as attachments. 
+     */
+    void setAttachments(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#hasAttachment", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#hasAttachment. 
+     * Links a message with files that were sent as attachments. 
+     */
+    void addAttachment(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#hasAttachment", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sender. 
+     * deprecated in favor of nmo:messageSender 
+     */
+    QList<QUrl> senders() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sender", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sender. 
+     * deprecated in favor of nmo:messageSender 
+     */
+    void setSenders(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sender", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sender. 
+     * deprecated in favor of nmo:messageSender 
+     */
+    void addSender(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sender", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#primaryMessageRecipient. 
      * The primary intended recipient of a message. 
      */
@@ -255,65 +434,6 @@ public:
      */
     void addPrimaryMessageRecipient(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#primaryMessageRecipient", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#recipient. 
-     * deprecated in favor of nmo:messageRecipient 
-     */
-    QList<QUrl> recipients() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#recipient", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#recipient. 
-     * deprecated in favor of nmo:messageRecipient 
-     */
-    void setRecipients(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#recipient", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#recipient. 
-     * deprecated in favor of nmo:messageRecipient 
-     */
-    void addRecipient(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#recipient", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageSubject. 
-     * The subject of a message 
-     */
-    QString messageSubject() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageSubject", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageSubject", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageSubject. 
-     * The subject of a message 
-     */
-    void setMessageSubject(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageSubject", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageSubject. 
-     * The subject of a message 
-     */
-    void addMessageSubject(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageSubject", QUrl::StrictMode), value);
     }
 
     /**
@@ -347,39 +467,6 @@ public:
      */
     void addReferences(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#references", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageRecipient. 
-     * A common superproperty for all properties that link a message 
-     * with its recipients. Please don't use this property directly. 
-     */
-    QList<QUrl> messageRecipients() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageRecipient", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageRecipient. 
-     * A common superproperty for all properties that link a message 
-     * with its recipients. Please don't use this property directly. 
-     */
-    void setMessageRecipients(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageRecipient", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageRecipient. 
-     * A common superproperty for all properties that link a message 
-     * with its recipients. Please don't use this property directly. 
-     */
-    void addMessageRecipient(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageRecipient", QUrl::StrictMode), value);
     }
 
     /**
@@ -442,225 +529,32 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryMessageRecipient. 
-     * A superproperty for all "additional" recipients of a message. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageSubject. 
+     * The subject of a message 
      */
-    QList<QUrl> secondaryMessageRecipients() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryMessageRecipient", QUrl::StrictMode)))
-            value << v.value<QUrl>();
+    QString messageSubject() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageSubject", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageSubject", QUrl::StrictMode)).first().value<QString>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryMessageRecipient. 
-     * A superproperty for all "additional" recipients of a message. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageSubject. 
+     * The subject of a message 
      */
-    void setSecondaryMessageRecipients(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryMessageRecipient", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryMessageRecipient. 
-     * A superproperty for all "additional" recipients of a message. 
-     */
-    void addSecondaryMessageRecipient(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#secondaryMessageRecipient", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#hasAttachment. 
-     * Links a message with files that were sent as attachments. 
-     */
-    QList<QUrl> attachments() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#hasAttachment", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#hasAttachment. 
-     * Links a message with files that were sent as attachments. 
-     */
-    void setAttachments(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#hasAttachment", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#hasAttachment. 
-     * Links a message with files that were sent as attachments. 
-     */
-    void addAttachment(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#hasAttachment", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#replyTo. 
-     * deprecated in favor of nmo:messageReplyTo 
-     */
-    QList<QUrl> replyTos() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#replyTo", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#replyTo. 
-     * deprecated in favor of nmo:messageReplyTo 
-     */
-    void setReplyTos(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#replyTo", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#replyTo. 
-     * deprecated in favor of nmo:messageReplyTo 
-     */
-    void addReplyTo(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#replyTo", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sentDate. 
-     * Date when this message was sent. 
-     */
-    QDateTime sentDate() const {
-        QDateTime value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sentDate", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sentDate", QUrl::StrictMode)).first().value<QDateTime>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sentDate. 
-     * Date when this message was sent. 
-     */
-    void setSentDate(const QDateTime& value) {
+    void setMessageSubject(const QString& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sentDate", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageSubject", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sentDate. 
-     * Date when this message was sent. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageSubject. 
+     * The subject of a message 
      */
-    void addSentDate(const QDateTime& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#sentDate", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#plainTextMessageContent. 
-     * Plain text representation of the body of the message. For multipart 
-     * messages, all parts are concatenated into the value of this 
-     * property. Attachments, whose mimeTypes are different from 
-     * text/plain or message/rfc822 are considered separate DataObjects 
-     * and are therefore not included in the value of this property. 
-     */
-    QStringList plainTextMessageContents() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#plainTextMessageContent", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#plainTextMessageContent. 
-     * Plain text representation of the body of the message. For multipart 
-     * messages, all parts are concatenated into the value of this 
-     * property. Attachments, whose mimeTypes are different from 
-     * text/plain or message/rfc822 are considered separate DataObjects 
-     * and are therefore not included in the value of this property. 
-     */
-    void setPlainTextMessageContents(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#plainTextMessageContent", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#plainTextMessageContent. 
-     * Plain text representation of the body of the message. For multipart 
-     * messages, all parts are concatenated into the value of this 
-     * property. Attachments, whose mimeTypes are different from 
-     * text/plain or message/rfc822 are considered separate DataObjects 
-     * and are therefore not included in the value of this property. 
-     */
-    void addPlainTextMessageContent(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#plainTextMessageContent", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#isRead. 
-     * A flag that states the fact that a MailboxDataObject has been 
-     * read. 
-     */
-    bool isRead() const {
-        bool value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#isRead", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#isRead", QUrl::StrictMode)).first().value<bool>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#isRead. 
-     * A flag that states the fact that a MailboxDataObject has been 
-     * read. 
-     */
-    void setIsRead(const bool& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#isRead", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#isRead. 
-     * A flag that states the fact that a MailboxDataObject has been 
-     * read. 
-     */
-    void addIsRead(const bool& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#isRead", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#receivedDate. 
-     * Date when this message was received. 
-     */
-    QDateTime receivedDate() const {
-        QDateTime value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#receivedDate", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#receivedDate", QUrl::StrictMode)).first().value<QDateTime>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#receivedDate. 
-     * Date when this message was received. 
-     */
-    void setReceivedDate(const QDateTime& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#receivedDate", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#receivedDate. 
-     * Date when this message was received. 
-     */
-    void addReceivedDate(const QDateTime& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#receivedDate", QUrl::StrictMode), value);
+    void addMessageSubject(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageSubject", QUrl::StrictMode), value);
     }
 
     /**
@@ -706,6 +600,69 @@ public:
     }
 
     /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#recipient. 
+     * deprecated in favor of nmo:messageRecipient 
+     */
+    QList<QUrl> recipients() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#recipient", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#recipient. 
+     * deprecated in favor of nmo:messageRecipient 
+     */
+    void setRecipients(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#recipient", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#recipient. 
+     * deprecated in favor of nmo:messageRecipient 
+     */
+    void addRecipient(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#recipient", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageRecipient. 
+     * A common superproperty for all properties that link a message 
+     * with its recipients. Please don't use this property directly. 
+     */
+    QList<QUrl> messageRecipients() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageRecipient", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageRecipient. 
+     * A common superproperty for all properties that link a message 
+     * with its recipients. Please don't use this property directly. 
+     */
+    void setMessageRecipients(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageRecipient", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageRecipient. 
+     * A common superproperty for all properties that link a message 
+     * with its recipients. Please don't use this property directly. 
+     */
+    void addMessageRecipient(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageRecipient", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageFrom. 
      * The sender of the message 
      */
@@ -735,51 +692,95 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageId. 
-     * An identifier of a message. This property has been inspired 
-     * by the message-id property defined in RFC 2822, Sec. 3.6.4. 
-     * It should be used for all kinds of identifiers used by various 
-     * messaging applications to connect multiple messages into 
-     * conversations. For email messageids, values are according 
-     * to RFC2822/sec 3.6.4 and the literal value in RDF must include 
-     * the brackets. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#isRead. 
+     * A flag that states the fact that a MailboxDataObject has been 
+     * read. 
      */
-    QStringList messageIds() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageId", QUrl::StrictMode)))
-            value << v.value<QString>();
+    bool isRead() const {
+        bool value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#isRead", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#isRead", QUrl::StrictMode)).first().value<bool>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageId. 
-     * An identifier of a message. This property has been inspired 
-     * by the message-id property defined in RFC 2822, Sec. 3.6.4. 
-     * It should be used for all kinds of identifiers used by various 
-     * messaging applications to connect multiple messages into 
-     * conversations. For email messageids, values are according 
-     * to RFC2822/sec 3.6.4 and the literal value in RDF must include 
-     * the brackets. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#isRead. 
+     * A flag that states the fact that a MailboxDataObject has been 
+     * read. 
      */
-    void setMessageIds(const QStringList& value) {
+    void setIsRead(const bool& value) {
         QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageId", QUrl::StrictMode), values);
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#isRead", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageId. 
-     * An identifier of a message. This property has been inspired 
-     * by the message-id property defined in RFC 2822, Sec. 3.6.4. 
-     * It should be used for all kinds of identifiers used by various 
-     * messaging applications to connect multiple messages into 
-     * conversations. For email messageids, values are according 
-     * to RFC2822/sec 3.6.4 and the literal value in RDF must include 
-     * the brackets. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#isRead. 
+     * A flag that states the fact that a MailboxDataObject has been 
+     * read. 
      */
-    void addMessageId(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageId", QUrl::StrictMode), value);
+    void addIsRead(const bool& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#isRead", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageHeader. 
+     * Links the message with an arbitrary message header. 
+     */
+    QList<QUrl> messageHeaders() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageHeader", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageHeader. 
+     * Links the message with an arbitrary message header. 
+     */
+    void setMessageHeaders(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageHeader", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageHeader. 
+     * Links the message with an arbitrary message header. 
+     */
+    void addMessageHeader(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#messageHeader", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#replyTo. 
+     * deprecated in favor of nmo:messageReplyTo 
+     */
+    QList<QUrl> replyTos() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#replyTo", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#replyTo. 
+     * deprecated in favor of nmo:messageReplyTo 
+     */
+    void setReplyTos(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#replyTo", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#replyTo. 
+     * deprecated in favor of nmo:messageReplyTo 
+     */
+    void addReplyTo(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#replyTo", QUrl::StrictMode), value);
     }
 
 protected:

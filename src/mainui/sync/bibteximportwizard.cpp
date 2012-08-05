@@ -29,7 +29,6 @@
 #include <kbibtex/findduplicatesui.h>
 #include <kbibtex/findduplicates.h>
 
-#include <Nepomuk2/Thing>
 #include <Nepomuk2/Variant>
 
 #include <KDE/KUrlRequester>
@@ -180,7 +179,7 @@ void IntroPage::setupUi()
     int i=1;
     int selectedIndex=0;
     foreach(Library *l, biw->libraryManager()->openProjects()) {
-        projectImport->addItem(l->settings()->name(), l->settings()->projectThing().resourceUri());
+        projectImport->addItem(l->settings()->name(), l->settings()->projectThing().uri());
 
         if(l == biw->importLibrary()) { selectedIndex=i; }
 
@@ -318,7 +317,7 @@ void ParseFile::initializePage()
     bool importToProject = field(QLatin1String("projectImport")).toBool();
     if(importToProject) {
         int curProject = ip->projectImport->currentIndex();
-        Nepomuk2::Thing pimoThing = Nepomuk2::Thing (ip->projectImport->itemData(curProject).toUrl());
+        Nepomuk2::Resource pimoThing = Nepomuk2::Resource (ip->projectImport->itemData(curProject).toUrl());
         importer->setProjectPimoThing(pimoThing);
     }
 

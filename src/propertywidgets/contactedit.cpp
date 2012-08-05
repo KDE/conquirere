@@ -73,7 +73,7 @@ void ContactEdit::setupLabel()
 void ContactEdit::updateResource(const QString & newContactNames)
 {
     if(newContactNames.isEmpty()) {
-        QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
         QList<QUrl> value; value << propertyUrl();
         Nepomuk2::removeProperties(resourceUris, value);
         return;
@@ -88,7 +88,7 @@ void ContactEdit::updateResource(const QString & newContactNames)
     }
 
     Nepomuk2::SimpleResourceGraph graph;
-    Nepomuk2::SimpleResource publicationRes(resource().resourceUri());
+    Nepomuk2::SimpleResource publicationRes(resource().uri());
     Nepomuk2::NBIB::Publication publication(publicationRes);
     //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
     QDateTime datetime = QDateTime::currentDateTimeUtc();

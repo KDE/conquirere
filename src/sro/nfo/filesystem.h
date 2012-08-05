@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "nfo/datacontainer.h"
 
@@ -66,68 +66,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid. 
-     * Universally unique identifier of the filesystem. In the future, 
-     * this property may have its parent changed to a more generic class. 
-     */
-    QStringList uuids() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid. 
-     * Universally unique identifier of the filesystem. In the future, 
-     * this property may have its parent changed to a more generic class. 
-     */
-    void setUuids(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid. 
-     * Universally unique identifier of the filesystem. In the future, 
-     * this property may have its parent changed to a more generic class. 
-     */
-    void addUuid(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filesystemType. 
-     * Type of filesystem such as ext3 and ntfs. 
-     */
-    QString filesystemType() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filesystemType", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filesystemType", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filesystemType. 
-     * Type of filesystem such as ext3 and ntfs. 
-     */
-    void setFilesystemType(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filesystemType", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filesystemType. 
-     * Type of filesystem such as ext3 and ntfs. 
-     */
-    void addFilesystemType(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filesystemType", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#totalSpace. 
      * Total storage space of the filesystem, which can be different 
      * from nie:contentSize because the latter includes filesystem 
@@ -163,6 +101,39 @@ public:
     }
 
     /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid. 
+     * Universally unique identifier of the filesystem. In the future, 
+     * this property may have its parent changed to a more generic class. 
+     */
+    QStringList uuids() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid. 
+     * Universally unique identifier of the filesystem. In the future, 
+     * this property may have its parent changed to a more generic class. 
+     */
+    void setUuids(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid. 
+     * Universally unique identifier of the filesystem. In the future, 
+     * this property may have its parent changed to a more generic class. 
+     */
+    void addUuid(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#uuid", QUrl::StrictMode), value);
+    }
+
+    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#occupiedSpace. 
      * Occupied storage space of the filesystem. 
      */
@@ -189,6 +160,35 @@ public:
      */
     void addOccupiedSpace(const qint64& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#occupiedSpace", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filesystemType. 
+     * Type of filesystem such as ext3 and ntfs. 
+     */
+    QString filesystemType() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filesystemType", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filesystemType", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filesystemType. 
+     * Type of filesystem such as ext3 and ntfs. 
+     */
+    void setFilesystemType(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filesystemType", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filesystemType. 
+     * Type of filesystem such as ext3 and ntfs. 
+     */
+    void addFilesystemType(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#filesystemType", QUrl::StrictMode), value);
     }
 
 protected:

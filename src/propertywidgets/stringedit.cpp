@@ -62,7 +62,7 @@ void StringEdit::updateResource(const QString & text)
         value << s.trimmed();
     }
 
-    QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
+    QList<QUrl> resourceUris; resourceUris << resource().uri();
     m_changedResource = resource();
     connect(Nepomuk2::setProperty(resourceUris, propertyUrl(), value),
             SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));

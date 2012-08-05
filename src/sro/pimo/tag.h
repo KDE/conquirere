@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "pimo/thing.h"
 
@@ -35,6 +35,39 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#Tag", QUrl::StrictMode));
         return *this;
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isTagFor. 
+     * This thing is described further in the object thing. Similar 
+     * semantics as skos:isSubjectOf. 
+     */
+    QList<QUrl> isTagFors() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isTagFor", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isTagFor. 
+     * This thing is described further in the object thing. Similar 
+     * semantics as skos:isSubjectOf. 
+     */
+    void setIsTagFors(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isTagFor", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isTagFor. 
+     * This thing is described further in the object thing. Similar 
+     * semantics as skos:isSubjectOf. 
+     */
+    void addIsTagFor(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isTagFor", QUrl::StrictMode), value);
     }
 
     /**
@@ -76,39 +109,6 @@ public:
      */
     void addTagLabel(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#tagLabel", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isTagFor. 
-     * This thing is described further in the object thing. Similar 
-     * semantics as skos:isSubjectOf. 
-     */
-    QList<QUrl> isTagFors() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isTagFor", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isTagFor. 
-     * This thing is described further in the object thing. Similar 
-     * semantics as skos:isSubjectOf. 
-     */
-    void setIsTagFors(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isTagFor", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isTagFor. 
-     * This thing is described further in the object thing. Similar 
-     * semantics as skos:isSubjectOf. 
-     */
-    void addIsTagFor(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isTagFor", QUrl::StrictMode), value);
     }
 
 protected:

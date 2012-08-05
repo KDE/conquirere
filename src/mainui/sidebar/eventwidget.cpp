@@ -85,17 +85,18 @@ Nepomuk2::Resource EventWidget::resource()
 
 void EventWidget::setResource(Nepomuk2::Resource & resource)
 {
+    //FIXME: Broken because of the missing Pimo:Thing stuff
     // we start by getting the pimo:Thing of the rescource
     // as we list also ncal:Event stuff but do not want to add data to these events
     // we operate only on the Thing
-    m_eventThing = resource.pimoThing();
-    m_eventThing.addType(PIMO::Event());
-    if(resource.resourceUri() == m_eventThing.resourceUri()) {
+    //m_eventThing = resource.pimoThing();
+    //m_eventThing.addType(PIMO::Event());
+    //if(resource.resourceUri() == m_eventThing.resourceUri()) {
         m_eventResource = m_eventThing.property(PIMO::groundingOccurrence()).toResource();
-    }
-    else {
+    //}
+    //else {
         m_eventResource = resource;
-    }
+    //}
 
     //now copy all tags from the ncal:event to the pimo:event where it belongs to
     //TODO aknadifeeder needs to be changed to respect pimo:Event and adds its tags there rather than to its ncal:Event
@@ -153,9 +154,9 @@ void EventWidget::deleteButtonClicked()
 {
     QList<Nepomuk2::Resource> pubList = m_eventThing.property(NBIB::eventPublication()).toResourceList();
     QList<QUrl> resUri;
-    QVariantList value; value << m_eventThing.resourceUri();
+    QVariantList value; value << m_eventThing.uri();
     foreach(const Nepomuk2::Resource &r, pubList) {
-        resUri << r.resourceUri();
+        resUri << r.uri();
     }
 
     KJob *job1 = Nepomuk2::addProperty(resUri, NBIB::event(), value);
@@ -177,7 +178,7 @@ void EventWidget::changeRating(int newRating)
         return;
     }
 
-    QList<QUrl> resourceUris; resourceUris << m_eventThing.resourceUri();
+    QList<QUrl> resourceUris; resourceUris << m_eventThing.uri();
     QVariantList rating; rating <<  newRating;
     KJob *job = Nepomuk2::setProperty(resourceUris, NAO::numericRating(), rating);
 

@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <nepomuk/simpleresource.h>
+#include <nepomuk2/simpleresource.h>
 
 #include "nao/symbol.h"
 

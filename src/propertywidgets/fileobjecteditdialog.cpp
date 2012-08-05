@@ -121,8 +121,8 @@ void FileObjectEditDialog::createNewResource()
     // get the pimo project from the return job mappings
     Nepomuk2::Resource newWebsiteResource = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( newWebsite.uri() ) );
 
-    QList<QUrl> publicationUri; publicationUri << m_publication.resourceUri();
-    QVariantList fileObjectValue; fileObjectValue << newWebsiteResource.resourceUri();
+    QList<QUrl> publicationUri; publicationUri << m_publication.uri();
+    QVariantList fileObjectValue; fileObjectValue << newWebsiteResource.uri();
 
     Nepomuk2::addProperty(publicationUri, NIE::links(), fileObjectValue);
 
@@ -149,9 +149,9 @@ void FileObjectEditDialog::saveAndMergeUrlChange()
 
         QList<Nepomuk2::Query::Result> queryResult = Nepomuk2::Query::QueryServiceClient::syncSparqlQuery(query);
 
-        if(!queryResult.isEmpty() && queryResult.first().resource().resourceUri() != m_fileObject.resourceUri()) {
+        if(!queryResult.isEmpty() && queryResult.first().resource().uri() != m_fileObject.uri()) {
             kDebug() << "found a duplicate with url" << newUrl << "merge it";
-            KJob *job = Nepomuk2::mergeResources(queryResult.first().resource().resourceUri(), m_fileObject.resourceUri());
+            KJob *job = Nepomuk2::mergeResources(queryResult.first().resource().uri(), m_fileObject.uri());
             job->exec();
 
             if(job->error() != 0) {
@@ -162,7 +162,7 @@ void FileObjectEditDialog::saveAndMergeUrlChange()
         }
         else {
             kDebug() << "set url to " << newUrl;
-            QList<QUrl> fileObjectUri; fileObjectUri << m_fileObject.resourceUri();
+            QList<QUrl> fileObjectUri; fileObjectUri << m_fileObject.uri();
             QVariantList fileObjectValue; fileObjectValue << newUrl;
             Nepomuk2::setProperty(fileObjectUri, NIE::url(), fileObjectValue);
         }
@@ -233,10 +233,10 @@ void FileObjectEditDialog::typeChanged(int newType)
         }
     }
 
-    QList<QUrl> publicationUri; publicationUri << m_publication.resourceUri();
-    QVariantList publicationValue; publicationValue << m_publication.resourceUri();
-    QList<QUrl> fileObjectUri; fileObjectUri << m_fileObject.resourceUri();
-    QVariantList fileObjectValue; fileObjectValue << m_fileObject.resourceUri();
+    QList<QUrl> publicationUri; publicationUri << m_publication.uri();
+    QVariantList publicationValue; publicationValue << m_publication.uri();
+    QList<QUrl> fileObjectUri; fileObjectUri << m_fileObject.uri();
+    QVariantList fileObjectValue; fileObjectValue << m_fileObject.uri();
     QVariantList typeValue;
 
     foreach(const QUrl &url, currentTypes) {

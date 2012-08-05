@@ -45,7 +45,6 @@
 #include "sro/nbib/publication.h"
 
 #include "nbib.h"
-#include <Nepomuk2/Thing>
 #include <Nepomuk2/Variant>
 #include <Nepomuk2/Vocabulary/NIE>
 #include <Nepomuk2/Vocabulary/NFO>
@@ -360,7 +359,7 @@ void PublicationWidget::deleteButtonClicked()
 
 void PublicationWidget::subResourceUpdated(Nepomuk2::Resource resource)
 {
-    if(resource.resourceUri() != m_publication.resourceUri())
+    if(resource.uri() != m_publication.uri())
         emit resourceCacheNeedsUpdate(resource);
 
     emit resourceCacheNeedsUpdate(m_publication);
@@ -404,8 +403,8 @@ void PublicationWidget::addReference()
     rw->newButtonClicked();
     Nepomuk2::Resource tmpReference = rw->resource();
 
-    QList<QUrl> resourceUris; resourceUris << tmpReference.resourceUri();
-    QVariantList value; value << m_publication.resourceUri();
+    QList<QUrl> resourceUris; resourceUris << tmpReference.uri();
+    QVariantList value; value << m_publication.uri();
     KJob *job = Nepomuk2::setProperty(resourceUris, NBIB::publication(), value);
     job->exec(); //blocking to ensure resource is fully updated
 
@@ -416,8 +415,8 @@ void PublicationWidget::addReference()
     int ret = showRefWidget->exec();
 
     if(ret == KDialog::Accepted) {
-        QList<QUrl> resourceUris; resourceUris << m_publication.resourceUri();
-        QVariantList value; value <<  tmpReference.resourceUri();
+        QList<QUrl> resourceUris; resourceUris << m_publication.uri();
+        QVariantList value; value <<  tmpReference.uri();
         KJob *job = Nepomuk2::setProperty(resourceUris, NBIB::reference(), value);
         job->exec(); //blocking to ensure resource is fully updated
 
@@ -438,7 +437,7 @@ void PublicationWidget::removeReference()
 
     foreach(const Nepomuk2::Resource &r, referenceList) {
         QAction *a = new QAction(r.property(NBIB::citeKey()).toString(), this);
-        a->setData(r.resourceUri());
+        a->setData(r.uri());
         connect(a, SIGNAL(triggered(bool)),this, SLOT(removeFromSelectedReference()));
         removeReference.addAction(a);
         actionCollection.append(a);
@@ -455,7 +454,7 @@ void PublicationWidget::removeFromSelectedReference()
 
     if(!a) { return; }
 
-    QList<QUrl> resourceUris; resourceUris << m_publication.resourceUri();
+    QList<QUrl> resourceUris; resourceUris << m_publication.uri();
     QVariantList value; value << a->data().toString();
     KJob *job = Nepomuk2::removeProperty(resourceUris, NBIB::reference(), value);
     job->exec(); // blocking wait till resource is updated
@@ -474,7 +473,7 @@ void PublicationWidget::removeFromSelectedReference()
 
 void PublicationWidget::acceptContentChanges()
 {
-    QList<QUrl> resourceUris; resourceUris << m_publication.resourceUri();
+    QList<QUrl> resourceUris; resourceUris << m_publication.uri();
     QVariantList value; value <<  ui->editAbstract->document()->toPlainText();
     Nepomuk2::setProperty(resourceUris, NBIB::abstract(), value);
 }
@@ -503,7 +502,7 @@ void PublicationWidget::saveAnnotationContent()
     if(!m_currentAnnotation.isValid())
         return;
 
-    QList<QUrl> resUri; resUri << m_currentAnnotation.resourceUri();
+    QList<QUrl> resUri; resUri << m_currentAnnotation.uri();
 
     QVariantList value; value << ui->editAnnotText->document()->toPlainText();
     Nepomuk2::setProperty(resUri, NIE::plainTextContent(), value);
@@ -520,7 +519,7 @@ void PublicationWidget::changeRating(int newRating)
         return;
     }
 
-    QList<QUrl> resourceUris; resourceUris << m_publication.resourceUri();
+    QList<QUrl> resourceUris; resourceUris << m_publication.uri();
     QVariantList rating; rating <<  newRating;
     Nepomuk2::setProperty(resourceUris, Soprano::Vocabulary::NAO::numericRating(), rating);
 
@@ -776,27 +775,28 @@ kDebug() << propertyUrl;
     if(ret == QDialog::Accepted) {
         Nepomuk2::Resource selectedPart = lpd->selectedPublication();
 
-        if(propertyUrl == NBIB::event()) {
-            // switch from ncal:Event to pimo:Event
-            QString eventTitle = selectedPart.property(NIE::title()).toString();
-            QList<Nepomuk2::Tag> ncalTags = selectedPart.tags();
-            QList<QUrl> resourceUris; resourceUris << selectedPart.resourceUri();
-            QVariantList value; value << eventTitle;
+//        if(propertyUrl == NBIB::event()) {
+//            // switch from ncal:Event to pimo:Event
+//            QString eventTitle = selectedPart.property(NIE::title()).toString();
+//            QList<Nepomuk2::Tag> ncalTags = selectedPart.tags();
+//            QList<QUrl> resourceUris; resourceUris << selectedPart.uri();
+//            QVariantList value; value << eventTitle;
 
-            selectedPart = selectedPart.pimoThing();
-            selectedPart.addType(PIMO::Event());
-            selectedPart.addType(NIE::InformationElement());
+//            //FIXME: Events broke nbecause of the missing Pimo:Thing
+//            selectedPart = selectedPart.pimoThing();
+//            selectedPart.addType(PIMO::Event());
+//            selectedPart.addType(NIE::InformationElement());
 
-            Nepomuk2::setProperty(resourceUris, NIE::title(), value);
-            Nepomuk2::setProperty(resourceUris, NAO::prefLabel(), value);
+//            Nepomuk2::setProperty(resourceUris, NIE::title(), value);
+//            Nepomuk2::setProperty(resourceUris, NAO::prefLabel(), value);
 
-            foreach(const Nepomuk2::Tag &t, ncalTags)
-                selectedPart.addTag(t);
-        }
+//            foreach(const Nepomuk2::Tag &t, ncalTags)
+//                selectedPart.addTag(t);
+//        }
 
         // add forward link
-        QList<QUrl> resourceUris; resourceUris << resource.resourceUri();
-        QVariantList value; value << selectedPart.resourceUri();
+        QList<QUrl> resourceUris; resourceUris << resource.uri();
+        QVariantList value; value << selectedPart.uri();
         KJob *job = Nepomuk2::setProperty(resourceUris, propertyUrl, value);
         job->exec(); //blocking to ensure we udate the resource
 
@@ -819,8 +819,8 @@ kDebug() << propertyUrl;
         }
 
         // add backward link
-        resourceUris.clear(); resourceUris << selectedPart.resourceUri();
-        value.clear(); value << resource.resourceUri();
+        resourceUris.clear(); resourceUris << selectedPart.uri();
+        value.clear(); value << resource.uri();
         KJob *job2 = Nepomuk2::setProperty(resourceUris, backwardLink, value);
         job2->exec(); //blocking to ensure we udate the resource
 

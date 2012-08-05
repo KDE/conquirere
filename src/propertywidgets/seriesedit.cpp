@@ -66,12 +66,12 @@ void SeriesEdit::updateResource(const QString & text)
 
     if(currentSeriesResource.exists()) {
         // remove the crosslink series <-> resource
-        QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
-        QVariantList value; value << currentSeriesResource.resourceUri();
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QVariantList value; value << currentSeriesResource.uri();
         Nepomuk2::removeProperty(resourceUris, NBIB::inSeries(), value);
 
-        resourceUris.clear(); resourceUris << currentSeriesResource.resourceUri();
-        value.clear(); value << resource().resourceUri();
+        resourceUris.clear(); resourceUris << currentSeriesResource.uri();
+        value.clear(); value << resource().uri();
         Nepomuk2::removeProperty(resourceUris, NBIB::seriesOf(), value);
     }
 
@@ -83,7 +83,7 @@ void SeriesEdit::updateResource(const QString & text)
     // ok the user changed the text in the list
     // let the DMS create a new Series and merge it to the right place
     Nepomuk2::SimpleResourceGraph graph;
-    Nepomuk2::SimpleResource publicationRes(resource().resourceUri());
+    Nepomuk2::SimpleResource publicationRes(resource().uri());
     Nepomuk2::NBIB::Publication publication(publicationRes);
     //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
     QDateTime datetime = QDateTime::currentDateTimeUtc();

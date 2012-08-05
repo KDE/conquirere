@@ -21,7 +21,6 @@
 #include "globals.h"
 
 #include <Nepomuk2/Resource>
-#include <Nepomuk2/Thing>
 #include <Nepomuk2/Tag>
 
 #include <QtCore/QObject>
@@ -78,8 +77,8 @@ public:
       *
       * Has to be called when a new project is created
       */
-    static Nepomuk2::Thing createLibrary(const QString & name, const QString & description, const QString & path);
-    static QString createIniFile(Nepomuk2::Thing & pimoProject, const QString & path = QString());
+    static Nepomuk2::Resource createLibrary(const QString & name, const QString & description, const QString & path);
+    static QString createIniFile(Nepomuk2::Resource & pimoProject, const QString & path = QString());
 
     /**
       * Loads an existing project .ini file
@@ -98,7 +97,7 @@ public:
       *
       * Or it was a pimo:Project created from some other program and we have to create the .ini file again
       */
-    void loadLibrary(Nepomuk2::Thing & pimoProject);
+    void loadLibrary(Nepomuk2::Resource &pimoProject);
     ProjectSettings * settings();
 
     /**

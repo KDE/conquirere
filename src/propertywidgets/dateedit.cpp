@@ -81,7 +81,7 @@ void DateEdit::setupLabel()
 
 void DateEdit::updateResource(const QString & newDateText)
 {
-    QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
+    QList<QUrl> resourceUris; resourceUris << resource().uri();
     QList<QUrl> propertyUris; propertyUris << propertyUrl();
 
     if(newDateText.isEmpty()) {
@@ -92,7 +92,7 @@ void DateEdit::updateResource(const QString & newDateText)
     else {
         QDateTime date = QDateTime::fromString(newDateText, "dd.MMM.yyyy");
 
-        QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
         QVariantList value; value << date.toString(Qt::ISODate);
         m_changedResource = resource();
         connect(Nepomuk2::setProperty(resourceUris, propertyUrl(), value),

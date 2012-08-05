@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "nbib/documentpart.h"
 
@@ -64,35 +64,6 @@ public:
     }
 
     /**
-     * Get property http://www.example.com/nbib#pageStart. Starting 
-     * page number of the chapter 
-     */
-    qint64 pageStart() const {
-        qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#pageStart", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.example.com/nbib#pageStart", QUrl::StrictMode)).first().value<qint64>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.example.com/nbib#pageStart. Starting 
-     * page number of the chapter 
-     */
-    void setPageStart(const qint64& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#pageStart", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.example.com/nbib#pageStart. 
-     * Starting page number of the chapter 
-     */
-    void addPageStart(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#pageStart", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.example.com/nbib#chapterNumber. 
      * The number of the Chapter for example 1.2, II etc 
      */
@@ -119,6 +90,35 @@ public:
      */
     void addChapterNumber(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.example.com/nbib#chapterNumber", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.example.com/nbib#pageStart. Starting 
+     * page number of the chapter 
+     */
+    qint64 pageStart() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.example.com/nbib#pageStart", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.example.com/nbib#pageStart", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.example.com/nbib#pageStart. Starting 
+     * page number of the chapter 
+     */
+    void setPageStart(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.example.com/nbib#pageStart", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.example.com/nbib#pageStart. 
+     * Starting page number of the chapter 
+     */
+    void addPageStart(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.example.com/nbib#pageStart", QUrl::StrictMode), value);
     }
 
 protected:

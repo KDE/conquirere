@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "nco/contactmedium.h"
 
@@ -35,33 +35,185 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasIMCapability. 
-     * Indicates that an IMAccount has a certain capability. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imStatus. 
+     * Current status of the given IM account. When this property is 
+     * set, the nco:imStatusType should also always be set. Applications 
+     * should attempt to parse this property to determine the presence, 
+     * only falling back to the nco:imStatusType property in the case 
+     * that this property's value is unrecognised. Values for this 
+     * property may include 'available', 'offline', 'busy' etc. 
+     * The exact choice of them is unspecified, although it is recommended 
+     * to follow the guidance of the Telepathy project when choosing 
+     * a string identifier http://telepathy.freedesktop.org/spec/Connection_Interface_Simple_Presence.html#description 
      */
-    QList<QUrl> iMCapabilitys() const {
+    QString imStatus() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imStatus", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imStatus", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imStatus. 
+     * Current status of the given IM account. When this property is 
+     * set, the nco:imStatusType should also always be set. Applications 
+     * should attempt to parse this property to determine the presence, 
+     * only falling back to the nco:imStatusType property in the case 
+     * that this property's value is unrecognised. Values for this 
+     * property may include 'available', 'offline', 'busy' etc. 
+     * The exact choice of them is unspecified, although it is recommended 
+     * to follow the guidance of the Telepathy project when choosing 
+     * a string identifier http://telepathy.freedesktop.org/spec/Connection_Interface_Simple_Presence.html#description 
+     */
+    void setImStatus(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imStatus", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imStatus. 
+     * Current status of the given IM account. When this property is 
+     * set, the nco:imStatusType should also always be set. Applications 
+     * should attempt to parse this property to determine the presence, 
+     * only falling back to the nco:imStatusType property in the case 
+     * that this property's value is unrecognised. Values for this 
+     * property may include 'available', 'offline', 'busy' etc. 
+     * The exact choice of them is unspecified, although it is recommended 
+     * to follow the guidance of the Telepathy project when choosing 
+     * a string identifier http://telepathy.freedesktop.org/spec/Connection_Interface_Simple_Presence.html#description 
+     */
+    void addImStatus(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imStatus", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imNickname. 
+     * A nickname attached to a particular IM Account. 
+     */
+    QStringList imNicknames() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imNickname", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imNickname. 
+     * A nickname attached to a particular IM Account. 
+     */
+    void setImNicknames(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imNickname", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imNickname. 
+     * A nickname attached to a particular IM Account. 
+     */
+    void addImNickname(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imNickname", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isAccessedBy. 
+     * Indicates the local IMAccount by which this IMAccount is accessed. 
+     * This does not imply membership of a contact list. 
+     */
+    QList<QUrl> isAccessedBys() const {
         QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasIMCapability", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isAccessedBy", QUrl::StrictMode)))
             value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasIMCapability. 
-     * Indicates that an IMAccount has a certain capability. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isAccessedBy. 
+     * Indicates the local IMAccount by which this IMAccount is accessed. 
+     * This does not imply membership of a contact list. 
      */
-    void setIMCapabilitys(const QList<QUrl>& value) {
+    void setIsAccessedBys(const QList<QUrl>& value) {
         QVariantList values;
         foreach(const QUrl& v, value)
             values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasIMCapability", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isAccessedBy", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasIMCapability. 
-     * Indicates that an IMAccount has a certain capability. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isAccessedBy. 
+     * Indicates the local IMAccount by which this IMAccount is accessed. 
+     * This does not imply membership of a contact list. 
      */
-    void addIMCapability(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasIMCapability", QUrl::StrictMode), value);
+    void addIsAccessedBy(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isAccessedBy", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#publishesPresenceTo. 
+     * Indicates that this IMAccount publishes its presence information 
+     * to the other IMAccount. 
+     */
+    QList<QUrl> publishesPresenceTos() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#publishesPresenceTo", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#publishesPresenceTo. 
+     * Indicates that this IMAccount publishes its presence information 
+     * to the other IMAccount. 
+     */
+    void setPublishesPresenceTos(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#publishesPresenceTo", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#publishesPresenceTo. 
+     * Indicates that this IMAccount publishes its presence information 
+     * to the other IMAccount. 
+     */
+    void addPublishesPresenceTo(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#publishesPresenceTo", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imID. 
+     * Identifier of the IM account. Examples of such identifier might 
+     * include ICQ UINs, Jabber IDs, Skype names etc. 
+     */
+    QStringList imIDs() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imID", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imID. 
+     * Identifier of the IM account. Examples of such identifier might 
+     * include ICQ UINs, Jabber IDs, Skype names etc. 
+     */
+    void setImIDs(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imID", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imID. 
+     * Identifier of the IM account. Examples of such identifier might 
+     * include ICQ UINs, Jabber IDs, Skype names etc. 
+     */
+    void addImID(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imID", QUrl::StrictMode), value);
     }
 
     /**
@@ -139,151 +291,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imNickname. 
-     * A nickname attached to a particular IM Account. 
-     */
-    QStringList imNicknames() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imNickname", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imNickname. 
-     * A nickname attached to a particular IM Account. 
-     */
-    void setImNicknames(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imNickname", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imNickname. 
-     * A nickname attached to a particular IM Account. 
-     */
-    void addImNickname(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imNickname", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imStatus. 
-     * Current status of the given IM account. When this property is 
-     * set, the nco:imStatusType should also always be set. Applications 
-     * should attempt to parse this property to determine the presence, 
-     * only falling back to the nco:imStatusType property in the case 
-     * that this property's value is unrecognised. Values for this 
-     * property may include 'available', 'offline', 'busy' etc. 
-     * The exact choice of them is unspecified, although it is recommended 
-     * to follow the guidance of the Telepathy project when choosing 
-     * a string identifier http://telepathy.freedesktop.org/spec/Connection_Interface_Simple_Presence.html#description 
-     */
-    QString imStatus() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imStatus", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imStatus", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imStatus. 
-     * Current status of the given IM account. When this property is 
-     * set, the nco:imStatusType should also always be set. Applications 
-     * should attempt to parse this property to determine the presence, 
-     * only falling back to the nco:imStatusType property in the case 
-     * that this property's value is unrecognised. Values for this 
-     * property may include 'available', 'offline', 'busy' etc. 
-     * The exact choice of them is unspecified, although it is recommended 
-     * to follow the guidance of the Telepathy project when choosing 
-     * a string identifier http://telepathy.freedesktop.org/spec/Connection_Interface_Simple_Presence.html#description 
-     */
-    void setImStatus(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imStatus", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imStatus. 
-     * Current status of the given IM account. When this property is 
-     * set, the nco:imStatusType should also always be set. Applications 
-     * should attempt to parse this property to determine the presence, 
-     * only falling back to the nco:imStatusType property in the case 
-     * that this property's value is unrecognised. Values for this 
-     * property may include 'available', 'offline', 'busy' etc. 
-     * The exact choice of them is unspecified, although it is recommended 
-     * to follow the guidance of the Telepathy project when choosing 
-     * a string identifier http://telepathy.freedesktop.org/spec/Connection_Interface_Simple_Presence.html#description 
-     */
-    void addImStatus(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imStatus", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isBlocked. 
-     * Indicates that this IMAccount has been blocked. 
-     */
-    bool isBlocked() const {
-        bool value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isBlocked", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isBlocked", QUrl::StrictMode)).first().value<bool>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isBlocked. 
-     * Indicates that this IMAccount has been blocked. 
-     */
-    void setIsBlocked(const bool& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isBlocked", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isBlocked. 
-     * Indicates that this IMAccount has been blocked. 
-     */
-    void addIsBlocked(const bool& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isBlocked", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isAccessedBy. 
-     * Indicates the local IMAccount by which this IMAccount is accessed. 
-     * This does not imply membership of a contact list. 
-     */
-    QList<QUrl> isAccessedBys() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isAccessedBy", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isAccessedBy. 
-     * Indicates the local IMAccount by which this IMAccount is accessed. 
-     * This does not imply membership of a contact list. 
-     */
-    void setIsAccessedBys(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isAccessedBy", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isAccessedBy. 
-     * Indicates the local IMAccount by which this IMAccount is accessed. 
-     * This does not imply membership of a contact list. 
-     */
-    void addIsAccessedBy(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isAccessedBy", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imAccountType. 
      * Type of the IM account. This may be the name of the service that 
      * provides the IM functionality. Examples might include Jabber, 
@@ -319,36 +326,62 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#publishesPresenceTo. 
-     * Indicates that this IMAccount publishes its presence information 
-     * to the other IMAccount. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasIMCapability. 
+     * Indicates that an IMAccount has a certain capability. 
      */
-    QList<QUrl> publishesPresenceTos() const {
+    QList<QUrl> iMCapabilitys() const {
         QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#publishesPresenceTo", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasIMCapability", QUrl::StrictMode)))
             value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#publishesPresenceTo. 
-     * Indicates that this IMAccount publishes its presence information 
-     * to the other IMAccount. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasIMCapability. 
+     * Indicates that an IMAccount has a certain capability. 
      */
-    void setPublishesPresenceTos(const QList<QUrl>& value) {
+    void setIMCapabilitys(const QList<QUrl>& value) {
         QVariantList values;
         foreach(const QUrl& v, value)
             values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#publishesPresenceTo", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasIMCapability", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#publishesPresenceTo. 
-     * Indicates that this IMAccount publishes its presence information 
-     * to the other IMAccount. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasIMCapability. 
+     * Indicates that an IMAccount has a certain capability. 
      */
-    void addPublishesPresenceTo(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#publishesPresenceTo", QUrl::StrictMode), value);
+    void addIMCapability(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#hasIMCapability", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isBlocked. 
+     * Indicates that this IMAccount has been blocked. 
+     */
+    bool isBlocked() const {
+        bool value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isBlocked", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isBlocked", QUrl::StrictMode)).first().value<bool>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isBlocked. 
+     * Indicates that this IMAccount has been blocked. 
+     */
+    void setIsBlocked(const bool& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isBlocked", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isBlocked. 
+     * Indicates that this IMAccount has been blocked. 
+     */
+    void addIsBlocked(const bool& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#isBlocked", QUrl::StrictMode), value);
     }
 
     /**
@@ -381,39 +414,6 @@ public:
      */
     void addImStatusMessage(const QString& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imStatusMessage", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imID. 
-     * Identifier of the IM account. Examples of such identifier might 
-     * include ICQ UINs, Jabber IDs, Skype names etc. 
-     */
-    QStringList imIDs() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imID", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imID. 
-     * Identifier of the IM account. Examples of such identifier might 
-     * include ICQ UINs, Jabber IDs, Skype names etc. 
-     */
-    void setImIDs(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imID", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imID. 
-     * Identifier of the IM account. Examples of such identifier might 
-     * include ICQ UINs, Jabber IDs, Skype names etc. 
-     */
-    void addImID(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nco#imID", QUrl::StrictMode), value);
     }
 
 protected:

@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "ncal/unionparentclass.h"
 
@@ -32,129 +32,6 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#UnionOfAlarmEventJournalTodo", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attach. 
-     * The property provides the capability to associate a document 
-     * object with a calendar component. Defined in the RFC 2445 sec. 
-     * 4.8.1.1 
-     */
-    QList<QUrl> attachs() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attach", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attach. 
-     * The property provides the capability to associate a document 
-     * object with a calendar component. Defined in the RFC 2445 sec. 
-     * 4.8.1.1 
-     */
-    void setAttachs(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attach", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attach. 
-     * The property provides the capability to associate a document 
-     * object with a calendar component. Defined in the RFC 2445 sec. 
-     * 4.8.1.1 
-     */
-    void addAttach(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attach", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#description. 
-     * A more complete description of the calendar component, than 
-     * that provided by the ncal:summary property.Inspired by RFC 
-     * 2445 sec. 4.8.1.5 with following reservations: the LANGUAGE 
-     * parameter has been discarded. Please use xml:lang literals 
-     * to express language. For the ALTREP parameter use the descriptionAltRep 
-     * property. 
-     */
-    QStringList descriptions() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#description", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#description. 
-     * A more complete description of the calendar component, than 
-     * that provided by the ncal:summary property.Inspired by RFC 
-     * 2445 sec. 4.8.1.5 with following reservations: the LANGUAGE 
-     * parameter has been discarded. Please use xml:lang literals 
-     * to express language. For the ALTREP parameter use the descriptionAltRep 
-     * property. 
-     */
-    void setDescriptions(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#description", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#description. 
-     * A more complete description of the calendar component, than 
-     * that provided by the ncal:summary property.Inspired by RFC 
-     * 2445 sec. 4.8.1.5 with following reservations: the LANGUAGE 
-     * parameter has been discarded. Please use xml:lang literals 
-     * to express language. For the ALTREP parameter use the descriptionAltRep 
-     * property. 
-     */
-    void addDescription(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#description", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#summary. 
-     * Defines a short summary or subject for the calendar component. 
-     * Inspired by RFC 2445 sec 4.8.1.12 with the following reservations: 
-     * the LANGUAGE parameter has been discarded. Please use xml:lang 
-     * literals to express language. For the ALTREP parameter use 
-     * the summaryAltRep property. 
-     */
-    QStringList summarys() const {
-        QStringList value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#summary", QUrl::StrictMode)))
-            value << v.value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#summary. 
-     * Defines a short summary or subject for the calendar component. 
-     * Inspired by RFC 2445 sec 4.8.1.12 with the following reservations: 
-     * the LANGUAGE parameter has been discarded. Please use xml:lang 
-     * literals to express language. For the ALTREP parameter use 
-     * the summaryAltRep property. 
-     */
-    void setSummarys(const QStringList& value) {
-        QVariantList values;
-        foreach(const QString& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#summary", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#summary. 
-     * Defines a short summary or subject for the calendar component. 
-     * Inspired by RFC 2445 sec 4.8.1.12 with the following reservations: 
-     * the LANGUAGE parameter has been discarded. Please use xml:lang 
-     * literals to express language. For the ALTREP parameter use 
-     * the summaryAltRep property. 
-     */
-    void addSummary(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#summary", QUrl::StrictMode), value);
     }
 
     /**
@@ -227,6 +104,129 @@ public:
      */
     void addSummaryAltRep(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#summaryAltRep", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#summary. 
+     * Defines a short summary or subject for the calendar component. 
+     * Inspired by RFC 2445 sec 4.8.1.12 with the following reservations: 
+     * the LANGUAGE parameter has been discarded. Please use xml:lang 
+     * literals to express language. For the ALTREP parameter use 
+     * the summaryAltRep property. 
+     */
+    QStringList summarys() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#summary", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#summary. 
+     * Defines a short summary or subject for the calendar component. 
+     * Inspired by RFC 2445 sec 4.8.1.12 with the following reservations: 
+     * the LANGUAGE parameter has been discarded. Please use xml:lang 
+     * literals to express language. For the ALTREP parameter use 
+     * the summaryAltRep property. 
+     */
+    void setSummarys(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#summary", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#summary. 
+     * Defines a short summary or subject for the calendar component. 
+     * Inspired by RFC 2445 sec 4.8.1.12 with the following reservations: 
+     * the LANGUAGE parameter has been discarded. Please use xml:lang 
+     * literals to express language. For the ALTREP parameter use 
+     * the summaryAltRep property. 
+     */
+    void addSummary(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#summary", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#description. 
+     * A more complete description of the calendar component, than 
+     * that provided by the ncal:summary property.Inspired by RFC 
+     * 2445 sec. 4.8.1.5 with following reservations: the LANGUAGE 
+     * parameter has been discarded. Please use xml:lang literals 
+     * to express language. For the ALTREP parameter use the descriptionAltRep 
+     * property. 
+     */
+    QStringList descriptions() const {
+        QStringList value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#description", QUrl::StrictMode)))
+            value << v.value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#description. 
+     * A more complete description of the calendar component, than 
+     * that provided by the ncal:summary property.Inspired by RFC 
+     * 2445 sec. 4.8.1.5 with following reservations: the LANGUAGE 
+     * parameter has been discarded. Please use xml:lang literals 
+     * to express language. For the ALTREP parameter use the descriptionAltRep 
+     * property. 
+     */
+    void setDescriptions(const QStringList& value) {
+        QVariantList values;
+        foreach(const QString& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#description", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#description. 
+     * A more complete description of the calendar component, than 
+     * that provided by the ncal:summary property.Inspired by RFC 
+     * 2445 sec. 4.8.1.5 with following reservations: the LANGUAGE 
+     * parameter has been discarded. Please use xml:lang literals 
+     * to express language. For the ALTREP parameter use the descriptionAltRep 
+     * property. 
+     */
+    void addDescription(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#description", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attach. 
+     * The property provides the capability to associate a document 
+     * object with a calendar component. Defined in the RFC 2445 sec. 
+     * 4.8.1.1 
+     */
+    QList<QUrl> attachs() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attach", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attach. 
+     * The property provides the capability to associate a document 
+     * object with a calendar component. Defined in the RFC 2445 sec. 
+     * 4.8.1.1 
+     */
+    void setAttachs(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attach", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attach. 
+     * The property provides the capability to associate a document 
+     * object with a calendar component. Defined in the RFC 2445 sec. 
+     * 4.8.1.1 
+     */
+    void addAttach(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#attach", QUrl::StrictMode), value);
     }
 
 protected:

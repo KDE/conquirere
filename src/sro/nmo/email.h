@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "nmo/message.h"
 
@@ -32,6 +32,86 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#Email", QUrl::StrictMode));
         return *this;
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#contentMimeType. 
+     * Key used to store the MIME type of the content of an object when 
+     * it is different from the object's main MIME type. This value 
+     * can be used, for example, to model an e-mail message whose mime 
+     * type is"message/rfc822", but whose content has type "text/html". 
+     * If not specified, the MIME type of the content defaults to the 
+     * value specified by the 'mimeType' property. 
+     */
+    QString contentMimeType() const {
+        QString value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#contentMimeType", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#contentMimeType", QUrl::StrictMode)).first().value<QString>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#contentMimeType. 
+     * Key used to store the MIME type of the content of an object when 
+     * it is different from the object's main MIME type. This value 
+     * can be used, for example, to model an e-mail message whose mime 
+     * type is"message/rfc822", but whose content has type "text/html". 
+     * If not specified, the MIME type of the content defaults to the 
+     * value specified by the 'mimeType' property. 
+     */
+    void setContentMimeType(const QString& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#contentMimeType", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#contentMimeType. 
+     * Key used to store the MIME type of the content of an object when 
+     * it is different from the object's main MIME type. This value 
+     * can be used, for example, to model an e-mail message whose mime 
+     * type is"message/rfc822", but whose content has type "text/html". 
+     * If not specified, the MIME type of the content defaults to the 
+     * value specified by the 'mimeType' property. 
+     */
+    void addContentMimeType(const QString& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#contentMimeType", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailBcc. 
+     * A Contact that is to receive a bcc of the email. A Bcc (blind carbon 
+     * copy) is a copy of an email message sent to a recipient whose email 
+     * address does not appear in the message. 
+     */
+    QList<QUrl> emailBccs() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailBcc", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailBcc. 
+     * A Contact that is to receive a bcc of the email. A Bcc (blind carbon 
+     * copy) is a copy of an email message sent to a recipient whose email 
+     * address does not appear in the message. 
+     */
+    void setEmailBccs(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailBcc", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailBcc. 
+     * A Contact that is to receive a bcc of the email. A Bcc (blind carbon 
+     * copy) is a copy of an email message sent to a recipient whose email 
+     * address does not appear in the message. 
+     */
+    void addEmailBcc(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailBcc", QUrl::StrictMode), value);
     }
 
     /**
@@ -65,39 +145,33 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailCc. 
-     * A Contact that is to receive a cc of the email. A cc (carbon copy) 
-     * is a copy of an email message whose recipient appears on the recipient 
-     * list, so that all other recipients are aware of it. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#to. 
+     * deprecated in favor of nmo:emailTo 
      */
-    QList<QUrl> emailCcs() const {
+    QList<QUrl> tos() const {
         QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailCc", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#to", QUrl::StrictMode)))
             value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailCc. 
-     * A Contact that is to receive a cc of the email. A cc (carbon copy) 
-     * is a copy of an email message whose recipient appears on the recipient 
-     * list, so that all other recipients are aware of it. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#to. 
+     * deprecated in favor of nmo:emailTo 
      */
-    void setEmailCcs(const QList<QUrl>& value) {
+    void setTos(const QList<QUrl>& value) {
         QVariantList values;
         foreach(const QUrl& v, value)
             values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailCc", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#to", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailCc. 
-     * A Contact that is to receive a cc of the email. A cc (carbon copy) 
-     * is a copy of an email message whose recipient appears on the recipient 
-     * list, so that all other recipients are aware of it. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#to. 
+     * deprecated in favor of nmo:emailTo 
      */
-    void addEmailCc(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailCc", QUrl::StrictMode), value);
+    void addTo(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#to", QUrl::StrictMode), value);
     }
 
     /**
@@ -161,113 +235,39 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailBcc. 
-     * A Contact that is to receive a bcc of the email. A Bcc (blind carbon 
-     * copy) is a copy of an email message sent to a recipient whose email 
-     * address does not appear in the message. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailCc. 
+     * A Contact that is to receive a cc of the email. A cc (carbon copy) 
+     * is a copy of an email message whose recipient appears on the recipient 
+     * list, so that all other recipients are aware of it. 
      */
-    QList<QUrl> emailBccs() const {
+    QList<QUrl> emailCcs() const {
         QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailBcc", QUrl::StrictMode)))
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailCc", QUrl::StrictMode)))
             value << v.value<QUrl>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailBcc. 
-     * A Contact that is to receive a bcc of the email. A Bcc (blind carbon 
-     * copy) is a copy of an email message sent to a recipient whose email 
-     * address does not appear in the message. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailCc. 
+     * A Contact that is to receive a cc of the email. A cc (carbon copy) 
+     * is a copy of an email message whose recipient appears on the recipient 
+     * list, so that all other recipients are aware of it. 
      */
-    void setEmailBccs(const QList<QUrl>& value) {
+    void setEmailCcs(const QList<QUrl>& value) {
         QVariantList values;
         foreach(const QUrl& v, value)
             values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailBcc", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailCc", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailBcc. 
-     * A Contact that is to receive a bcc of the email. A Bcc (blind carbon 
-     * copy) is a copy of an email message sent to a recipient whose email 
-     * address does not appear in the message. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailCc. 
+     * A Contact that is to receive a cc of the email. A cc (carbon copy) 
+     * is a copy of an email message whose recipient appears on the recipient 
+     * list, so that all other recipients are aware of it. 
      */
-    void addEmailBcc(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailBcc", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#contentMimeType. 
-     * Key used to store the MIME type of the content of an object when 
-     * it is different from the object's main MIME type. This value 
-     * can be used, for example, to model an e-mail message whose mime 
-     * type is"message/rfc822", but whose content has type "text/html". 
-     * If not specified, the MIME type of the content defaults to the 
-     * value specified by the 'mimeType' property. 
-     */
-    QString contentMimeType() const {
-        QString value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#contentMimeType", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#contentMimeType", QUrl::StrictMode)).first().value<QString>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#contentMimeType. 
-     * Key used to store the MIME type of the content of an object when 
-     * it is different from the object's main MIME type. This value 
-     * can be used, for example, to model an e-mail message whose mime 
-     * type is"message/rfc822", but whose content has type "text/html". 
-     * If not specified, the MIME type of the content defaults to the 
-     * value specified by the 'mimeType' property. 
-     */
-    void setContentMimeType(const QString& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#contentMimeType", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#contentMimeType. 
-     * Key used to store the MIME type of the content of an object when 
-     * it is different from the object's main MIME type. This value 
-     * can be used, for example, to model an e-mail message whose mime 
-     * type is"message/rfc822", but whose content has type "text/html". 
-     * If not specified, the MIME type of the content defaults to the 
-     * value specified by the 'mimeType' property. 
-     */
-    void addContentMimeType(const QString& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#contentMimeType", QUrl::StrictMode), value);
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#to. 
-     * deprecated in favor of nmo:emailTo 
-     */
-    QList<QUrl> tos() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#to", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#to. 
-     * deprecated in favor of nmo:emailTo 
-     */
-    void setTos(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#to", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#to. 
-     * deprecated in favor of nmo:emailTo 
-     */
-    void addTo(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#to", QUrl::StrictMode), value);
+    void addEmailCc(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#emailCc", QUrl::StrictMode), value);
     }
 
 protected:

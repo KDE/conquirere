@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "nfo/media.h"
 
@@ -35,32 +35,32 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#colorDepth. 
-     * Amount of bits used to express the color of each pixel. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#aspectRatio. 
+     * Visual content aspect ratio. (Width divided by Height) 
      */
-    qint64 colorDepth() const {
-        qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#colorDepth", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#colorDepth", QUrl::StrictMode)).first().value<qint64>();
+    double aspectRatio() const {
+        double value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#aspectRatio", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#aspectRatio", QUrl::StrictMode)).first().value<double>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#colorDepth. 
-     * Amount of bits used to express the color of each pixel. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#aspectRatio. 
+     * Visual content aspect ratio. (Width divided by Height) 
      */
-    void setColorDepth(const qint64& value) {
+    void setAspectRatio(const double& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#colorDepth", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#aspectRatio", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#colorDepth. 
-     * Amount of bits used to express the color of each pixel. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#aspectRatio. 
+     * Visual content aspect ratio. (Width divided by Height) 
      */
-    void addColorDepth(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#colorDepth", QUrl::StrictMode), value);
+    void addAspectRatio(const double& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#aspectRatio", QUrl::StrictMode), value);
     }
 
     /**
@@ -122,35 +122,6 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#aspectRatio. 
-     * Visual content aspect ratio. (Width divided by Height) 
-     */
-    double aspectRatio() const {
-        double value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#aspectRatio", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#aspectRatio", QUrl::StrictMode)).first().value<double>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#aspectRatio. 
-     * Visual content aspect ratio. (Width divided by Height) 
-     */
-    void setAspectRatio(const double& value) {
-        QVariantList values;
-        values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#aspectRatio", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#aspectRatio. 
-     * Visual content aspect ratio. (Width divided by Height) 
-     */
-    void addAspectRatio(const double& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#aspectRatio", QUrl::StrictMode), value);
-    }
-
-    /**
      * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#interlaceMode. 
      * True if the image is interlaced, false if not. 
      */
@@ -177,6 +148,35 @@ public:
      */
     void addInterlaceMode(const bool& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#interlaceMode", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#colorDepth. 
+     * Amount of bits used to express the color of each pixel. 
+     */
+    qint64 colorDepth() const {
+        qint64 value;
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#colorDepth", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#colorDepth", QUrl::StrictMode)).first().value<qint64>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#colorDepth. 
+     * Amount of bits used to express the color of each pixel. 
+     */
+    void setColorDepth(const qint64& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#colorDepth", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#colorDepth. 
+     * Amount of bits used to express the color of each pixel. 
+     */
+    void addColorDepth(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#colorDepth", QUrl::StrictMode), value);
     }
 
 protected:

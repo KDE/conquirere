@@ -79,21 +79,21 @@ void AddChapterDialog::accept()
         kWarning() << "try to return an invalid chapter resource";
     }
 
-    QList<QUrl> resUri; resUri << m_resource.resourceUri();
+    QList<QUrl> resUri; resUri << m_resource.uri();
     QVariantList value; value << ui->chapterNumber->text();
     KJob *job = Nepomuk2::setProperty(resUri, NBIB::chapterNumber(), value);
     job->exec();// wait till changes are made .. to properly update listWidget afterwards again
 
-    resUri.clear(); resUri << m_resource.resourceUri();
+    resUri.clear(); resUri << m_resource.uri();
     value.clear(); value << ui->chapterTitle->text();
     KJob *job2 = Nepomuk2::setProperty(resUri, NIE::title(), value);
     job2->exec();// wait till changes are made .. to properly update listWidget afterwards again
 
-    resUri.clear(); resUri << m_resource.resourceUri();
+    resUri.clear(); resUri << m_resource.uri();
     value.clear(); value << ui->pageStart->text();
     Nepomuk2::setProperty(resUri, NBIB::pageStart(), value);
 
-    resUri.clear(); resUri << m_resource.resourceUri();
+    resUri.clear(); resUri << m_resource.uri();
     value.clear(); value << ui->pageEnd->text();
     Nepomuk2::setProperty(resUri, NBIB::pageEnd(), value);
 

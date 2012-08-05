@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "pimo/tag.h"
 #include "pimo/thing.h"
@@ -37,39 +37,6 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#Topic", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#superTopic. 
-     * The object topic is more general in meaning than the subject 
-     * topic. Transitive. Similar to skos:broader. 
-     */
-    QList<QUrl> superTopics() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#superTopic", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#superTopic. 
-     * The object topic is more general in meaning than the subject 
-     * topic. Transitive. Similar to skos:broader. 
-     */
-    void setSuperTopics(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#superTopic", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#superTopic. 
-     * The object topic is more general in meaning than the subject 
-     * topic. Transitive. Similar to skos:broader. 
-     */
-    void addSuperTopic(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#superTopic", QUrl::StrictMode), value);
     }
 
     /**
@@ -103,6 +70,39 @@ public:
      */
     void addSubTopic(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#subTopic", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#superTopic. 
+     * The object topic is more general in meaning than the subject 
+     * topic. Transitive. Similar to skos:broader. 
+     */
+    QList<QUrl> superTopics() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#superTopic", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#superTopic. 
+     * The object topic is more general in meaning than the subject 
+     * topic. Transitive. Similar to skos:broader. 
+     */
+    void setSuperTopics(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#superTopic", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#superTopic. 
+     * The object topic is more general in meaning than the subject 
+     * topic. Transitive. Similar to skos:broader. 
+     */
+    void addSuperTopic(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#superTopic", QUrl::StrictMode), value);
     }
 
 protected:

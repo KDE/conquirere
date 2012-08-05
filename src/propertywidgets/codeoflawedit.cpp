@@ -62,12 +62,12 @@ void CodeOfLawEdit::updateResource(const QString & newCodeOfLawTitle)
 
     if(currentCodeOfLaw.exists()) {
         // remove the crosslink event <-> publication
-        QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
-        QVariantList value; value << currentCodeOfLaw.resourceUri();
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QVariantList value; value << currentCodeOfLaw.uri();
         Nepomuk2::removeProperty(resourceUris, NBIB::codeOfLaw(), value);
 
-        resourceUris.clear(); resourceUris << currentCodeOfLaw.resourceUri();
-        value.clear(); value << resource().resourceUri();
+        resourceUris.clear(); resourceUris << currentCodeOfLaw.uri();
+        value.clear(); value << resource().uri();
         Nepomuk2::removeProperty(resourceUris, NBIB::legislation(), value);
     }
 
@@ -78,7 +78,7 @@ void CodeOfLawEdit::updateResource(const QString & newCodeOfLawTitle)
     // ok the user changed the text in the list
     // let the DMS create a new event and merge it to the right place
     Nepomuk2::SimpleResourceGraph graph;
-    Nepomuk2::SimpleResource legislationRes(resource().resourceUri());
+    Nepomuk2::SimpleResource legislationRes(resource().uri());
     Nepomuk2::NBIB::Legislation legislation(legislationRes);
     //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
     QDateTime datetime = QDateTime::currentDateTimeUtc();

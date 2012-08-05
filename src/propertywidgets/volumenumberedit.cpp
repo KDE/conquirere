@@ -85,20 +85,20 @@ void VolumeNumberEdit::updateResource(const QString & text)
     QList<QUrl> resourceUris;
     if(journalIssue.isValid()) {
         // in this case attach volume/number to the issue rather than the publication from resource()
-        resourceUris << journalIssue.resourceUri();
+        resourceUris << journalIssue.uri();
     }
     else if(codeOfLaw.isValid() && propertyUrl() == NBIB::volume()) {
         // in this case attach volume to the issue rather than the publication from resource()
         // the number is the bill number for the Legislation
-        resourceUris << codeOfLaw.resourceUri();
+        resourceUris << codeOfLaw.uri();
     }
     else if(courtReporter.isValid() && propertyUrl() == NBIB::volume()) {
         // in this case attach volume to the issue rather than the publication from resource()
         // the number is the docket number for the LegalCaseDocument
-        resourceUris << courtReporter.resourceUri();
+        resourceUris << courtReporter.uri();
     }
     else {
-        resourceUris << resource().resourceUri();
+        resourceUris << resource().uri();
     }
 
     QVariantList value; value << text;

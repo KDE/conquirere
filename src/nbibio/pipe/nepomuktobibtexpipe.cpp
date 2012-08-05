@@ -108,7 +108,7 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk2::Resource> resources)
 
             if(m_addNepomukUris) {
                 Value v1;
-                v1.append(QSharedPointer<ValueItem>(new PlainText(publication.resourceUri().toString())));
+                v1.append(QSharedPointer<ValueItem>(new PlainText(publication.uri().toString())));
                 e->insert(QLatin1String("nepomuk-note-uri"), v1);
             }
         }
@@ -118,7 +118,7 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk2::Resource> resources)
 
             if(m_addNepomukUris) {
                 Value v1;
-                v1.append(QSharedPointer<ValueItem>(new PlainText(publication.resourceUri().toString())));
+                v1.append(QSharedPointer<ValueItem>(new PlainText(publication.uri().toString())));
                 e->insert(QLatin1String("nepomuk-attachment-uri"), v1);
             }
         }
@@ -128,11 +128,11 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk2::Resource> resources)
 
             if(m_addNepomukUris) {
                 Value v1;
-                v1.append(QSharedPointer<ValueItem>(new PlainText(publication.resourceUri().toString())));
+                v1.append(QSharedPointer<ValueItem>(new PlainText(publication.uri().toString())));
                 e->insert(QLatin1String("nepomuk-publication-uri"), v1);
                 if(reference.isValid()) {
                     Value v2;
-                    v2.append(QSharedPointer<ValueItem>(new PlainText(reference.resourceUri().toString())));
+                    v2.append(QSharedPointer<ValueItem>(new PlainText(reference.uri().toString())));
                     e->insert(QLatin1String("nepomuk-reference-uri"), v2);
                 }
             }
@@ -184,7 +184,7 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk2::Resource reference, Nep
             }
         }
         else {
-            Nepomuk2::Resource typeResource(publication.resourceType());
+            Nepomuk2::Resource typeResource(publication.type());
             type = typeResource.genericLabel();
         }
     }
@@ -222,7 +222,7 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk2::Resource reference, Nep
     }
     // all other cases
     else {
-        Nepomuk2::Resource typeResource(publication.resourceType());
+        Nepomuk2::Resource typeResource(publication.type());
         type = typeResource.genericLabel();
 
         Nepomuk2::Resource typeResource2(NBIB::Publication());

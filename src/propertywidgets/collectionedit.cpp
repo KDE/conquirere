@@ -64,12 +64,12 @@ void CollectionEdit::updateResource(const QString & newCollectionTitle)
 
     if(currentCollection.exists()) {
         // remove the crosslink collection <-> article
-        QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
-        QVariantList value; value << currentCollection.resourceUri();
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QVariantList value; value << currentCollection.uri();
         Nepomuk2::removeProperty(resourceUris, NBIB::collection(), value);
 
-        resourceUris.clear(); resourceUris << currentCollection.resourceUri();
-        value.clear(); value << resource().resourceUri();
+        resourceUris.clear(); resourceUris << currentCollection.uri();
+        value.clear(); value << resource().uri();
         Nepomuk2::removeProperty(resourceUris, NBIB::article(), value);
     }
 
@@ -80,7 +80,7 @@ void CollectionEdit::updateResource(const QString & newCollectionTitle)
     // ok the user changed the text in the list
     // let the DMS create a new event and merge it to the right place
     Nepomuk2::SimpleResourceGraph graph;
-    Nepomuk2::SimpleResource articleRes(resource().resourceUri());
+    Nepomuk2::SimpleResource articleRes(resource().uri());
     Nepomuk2::NBIB::Article article(articleRes);
     //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
     QDateTime datetime = QDateTime::currentDateTimeUtc();

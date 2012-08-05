@@ -59,7 +59,7 @@
 
 using namespace Soprano::Vocabulary;
 using namespace Nepomuk2::Vocabulary;
-using namespace NepomukMetaDataExtractor::Dialog;
+using namespace NepomukMetaDataExtractor::UI;
 
 SidebarWidget::SidebarWidget(QWidget *parent)
     : QWidget(parent)
@@ -159,7 +159,7 @@ void SidebarWidget::addToProject()
     else {
         foreach(Library *l, m_libraryManager->openProjects()) {
             QAction *a = new QAction(l->settings()->name(), this);
-            a->setData(l->settings()->projectThing().resourceUri());
+            a->setData(l->settings()->projectThing().uri());
             connect(a, SIGNAL(triggered(bool)),this, SLOT(addToSelectedProject()));
             addToProjects.addAction(a);
             actionCollection.append(a);
@@ -203,7 +203,7 @@ void SidebarWidget::removeFromProject()
             if(!r.hasType(PIMO::Project())) { continue; }
 
             QAction *a = new QAction(r.genericLabel(), this);
-            a->setData(r.resourceUri());
+            a->setData(r.uri());
             connect(a, SIGNAL(triggered(bool)),this, SLOT(removeFromSelectedProject()));
             addToProjects.addAction(a);
             actionCollection.append(a);
@@ -224,7 +224,7 @@ void SidebarWidget::removeFromSelectedProject()
     Nepomuk2::Resource pimoProject = Nepomuk2::Resource(a->data().toString());
 
     if(m_curResource.isValid() && pimoProject.exists()) {
-        Library *l = m_libraryManager->libFromResourceUri(pimoProject.resourceUri());
+        Library *l = m_libraryManager->libFromResourceUri(pimoProject.uri());
         l->removeResource(m_curResource);
     }
 }

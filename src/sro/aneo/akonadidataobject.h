@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "nie/dataobject.h"
 
@@ -65,6 +65,35 @@ public:
      */
     void addAkonadiItemId(const QString& value) {
         addProperty(QUrl::fromEncoded("http://akonadi-project.org/ontologies/aneo#akonadiItemId", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://akonadi-project.org/ontologies/aneo#akonadiIndexCompatLevel. 
+     * Saves the version of the indexer used to write this item. 
+     */
+    qint32 akonadiIndexCompatLevel() const {
+        qint32 value;
+        if(contains(QUrl::fromEncoded("http://akonadi-project.org/ontologies/aneo#akonadiIndexCompatLevel", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://akonadi-project.org/ontologies/aneo#akonadiIndexCompatLevel", QUrl::StrictMode)).first().value<qint32>();
+        return value;
+    }
+
+    /**
+     * Set property http://akonadi-project.org/ontologies/aneo#akonadiIndexCompatLevel. 
+     * Saves the version of the indexer used to write this item. 
+     */
+    void setAkonadiIndexCompatLevel(const qint32& value) {
+        QVariantList values;
+        values << value;
+        setProperty(QUrl::fromEncoded("http://akonadi-project.org/ontologies/aneo#akonadiIndexCompatLevel", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://akonadi-project.org/ontologies/aneo#akonadiIndexCompatLevel. 
+     * Saves the version of the indexer used to write this item. 
+     */
+    void addAkonadiIndexCompatLevel(const qint32& value) {
+        addProperty(QUrl::fromEncoded("http://akonadi-project.org/ontologies/aneo#akonadiIndexCompatLevel", QUrl::StrictMode), value);
     }
 
 protected:

@@ -74,12 +74,12 @@ void EventEdit::updateResource(const QString & newEventTitle)
 
     if(currentEvent.exists()) {
         // remove the crosslink event <-> publication
-        QList<QUrl> resourceUris; resourceUris << resource().resourceUri();
-        QVariantList value; value << currentEvent.resourceUri();
+        QList<QUrl> resourceUris; resourceUris << resource().uri();
+        QVariantList value; value << currentEvent.uri();
         Nepomuk2::removeProperty(resourceUris, NBIB::event(), value);
 
-        resourceUris.clear(); resourceUris << currentEvent.resourceUri();
-        value.clear(); value << resource().resourceUri();
+        resourceUris.clear(); resourceUris << currentEvent.uri();
+        value.clear(); value << resource().uri();
         Nepomuk2::removeProperty(resourceUris, NBIB::eventPublication(), value);
     }
 
@@ -91,7 +91,7 @@ void EventEdit::updateResource(const QString & newEventTitle)
     // let the DMS create a new event and merge it to the right place
     Nepomuk2::SimpleResourceGraph graph;
 
-    Nepomuk2::SimpleResource publicationRes(resource().resourceUri());
+    Nepomuk2::SimpleResource publicationRes(resource().uri());
     Nepomuk2::NBIB::Publication publication(publicationRes);
     //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
     QDateTime datetime = QDateTime::currentDateTimeUtc();

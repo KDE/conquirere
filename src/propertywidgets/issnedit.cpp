@@ -102,12 +102,12 @@ void IssnEdit::updateResource(const QString & newIssnString)
             series = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( newSeries.uri() ) );
 
             // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
-            QList<QUrl> resUri; resUri << resource().resourceUri();
-            QVariantList value; value << newCollectionResource.resourceUri();
+            QList<QUrl> resUri; resUri << resource().uri();
+            QVariantList value; value << newCollectionResource.uri();
             Nepomuk2::setProperty(resUri, NBIB::collection(), value);
 
-            resUri.clear(); resUri << newCollectionResource.resourceUri();
-            value.clear(); value << resource().resourceUri();
+            resUri.clear(); resUri << newCollectionResource.uri();
+            value.clear(); value << resource().uri();
             Nepomuk2::addProperty(resUri, NBIB::article(), value);
         }
         else if(!series.exists()) {
@@ -128,12 +128,12 @@ void IssnEdit::updateResource(const QString & newIssnString)
             series = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( newSeries.uri() ) );
 
             // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
-            QList<QUrl> resUri; resUri << issue.resourceUri();
-            QVariantList value; value << series.resourceUri();
+            QList<QUrl> resUri; resUri << issue.uri();
+            QVariantList value; value << series.uri();
             Nepomuk2::setProperty(resUri, NBIB::inSeries(), value);
 
-            resUri.clear(); resUri << series.resourceUri();
-            value.clear(); value << issue.resourceUri();
+            resUri.clear(); resUri << series.uri();
+            value.clear(); value << issue.uri();
             Nepomuk2::addProperty(resUri, NBIB::seriesOf(), value);
         }
     }
@@ -156,17 +156,17 @@ void IssnEdit::updateResource(const QString & newIssnString)
         series = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( newSeries.uri() ) );
 
         // because we could not create the links via the SimpleResource method, we add 2 additional calls to do them now
-        QList<QUrl> resUri; resUri << resource().resourceUri();
-        QVariantList value; value << series.resourceUri();
+        QList<QUrl> resUri; resUri << resource().uri();
+        QVariantList value; value << series.uri();
         Nepomuk2::setProperty(resUri, NBIB::inSeries(), value);
 
-        resUri.clear(); resUri << series.resourceUri();
-        value.clear(); value << resource().resourceUri();
+        resUri.clear(); resUri << series.uri();
+        value.clear(); value << resource().uri();
         Nepomuk2::addProperty(resUri, NBIB::seriesOf(), value);
     }
 
     // now we have the valid seriws in the right connection add the issn to it
-    QList<QUrl> resourceUris; resourceUris << series.resourceUri();
+    QList<QUrl> resourceUris; resourceUris << series.uri();
     QVariantList value; value << newIssnString;
     m_changedResource = resource();
 

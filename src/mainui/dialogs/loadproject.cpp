@@ -84,7 +84,7 @@ void LoadProject::accept()
     m_loadLibrary = new Library();
 
     QListWidgetItem *curItem = ui->listWidget->currentItem();
-    Nepomuk2::Thing collection = Nepomuk2::Thing(curItem->data(Qt::UserRole).toString());
+    Nepomuk2::Resource collection = Nepomuk2::Resource(curItem->data(Qt::UserRole).toString());
     m_loadLibrary->loadLibrary(collection);
 
     QDialog::accept();
@@ -108,7 +108,7 @@ void LoadProject::fillProjectList( const QList< Nepomuk2::Query::Result > &entri
     foreach(const Nepomuk2::Query::Result &r, entries) {
         QListWidgetItem *newItem = new QListWidgetItem;
         newItem->setText(r.resource().property(Soprano::Vocabulary::NAO::prefLabel()).toString());
-        newItem->setData(Qt::UserRole, r.resource().resourceUri());
+        newItem->setData(Qt::UserRole, r.resource().uri());
         ui->listWidget->addItem(newItem);
     }
 }

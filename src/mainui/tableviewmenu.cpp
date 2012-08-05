@@ -102,7 +102,7 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk2::Resource resource)
                     name = file.fileName();
                 }
                 else {
-                    if(r.resourceType() == NFO::RemoteDataObject()) {
+                    if(r.type() == NFO::RemoteDataObject()) {
                         name = file.path();
                     }
                     else {
@@ -192,7 +192,7 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk2::Resource resource)
     if(openLibList.size() > 0) {
         foreach(Library *l, openLibList) {
             QAction *a = new QAction(KIcon(QLatin1String("conquirere")), l->settings()->name(), this);
-            a->setData(l->settings()->projectThing().resourceUri());
+            a->setData(l->settings()->projectThing().uri());
             actionCollection.append(a);
             connect(a, SIGNAL(triggered(bool)),this, SLOT(addSelectedToProject()));
             addToProject.addAction(a);
@@ -217,7 +217,7 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk2::Resource resource)
         if(project.hasType(PIMO::Project())) {
             projectRelated = true;
             QAction *a = new QAction(KIcon(QLatin1String("conquirere")), project.property(NAO::prefLabel()).toString(), this);
-            a->setData(project.resourceUri());
+            a->setData(project.uri());
             actionCollection.append(a);
             connect(a, SIGNAL(triggered(bool)),this, SLOT(removeSelectedFromProject()));
             removeFromProject.addAction(a);
@@ -335,7 +335,7 @@ void TableViewMenu::addSelectedToProject()
     }
 
     if(pimoProject.isValid()) {
-        Library *l = m_libraryManager->libFromResourceUri(pimoProject.resourceUri());
+        Library *l = m_libraryManager->libFromResourceUri(pimoProject.uri());
         l->addResource(m_nepomukResource);
     }
     else {
@@ -353,7 +353,7 @@ void TableViewMenu::removeSelectedFromProject()
 
     if(pimoProject.isValid()) {
         // find the library that is related to this prject
-        Library *l = m_libraryManager->libFromResourceUri(pimoProject.resourceUri());
+        Library *l = m_libraryManager->libFromResourceUri(pimoProject.uri());
         l->removeResource(m_nepomukResource);
     }
     else {

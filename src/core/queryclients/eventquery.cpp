@@ -23,7 +23,6 @@
 #include "globals.h"
 
 #include <Nepomuk2/Variant>
-#include <Nepomuk2/Thing>
 #include <Nepomuk2/Query/ResourceTerm>
 #include <Nepomuk2/Query/AndTerm>
 #include <Nepomuk2/Query/OrTerm>
@@ -85,11 +84,12 @@ void EventQuery::resourceChanged (const Nepomuk2::Resource &resource)
 
 QVariantList EventQuery::createDisplayData(const Nepomuk2::Resource & res) const
 {
+    //FIXME: Event stuff is broken because of the missing Nepomuk::Thing
     Nepomuk2::Resource event;
-    Nepomuk2::Thing thing;
+    Nepomuk2::Resource thing;
     if(res.hasType(Nepomuk2::Vocabulary::NCAL::Event())) {
         event = res;
-        thing = event.pimoThing();
+        //thing = event.pimoThing();
     }
     else {
         event = res.property(Nepomuk2::Vocabulary::PIMO::groundingOccurrence()).toResource();

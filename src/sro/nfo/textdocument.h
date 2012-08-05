@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "nfo/document.h"
 
@@ -35,32 +35,32 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lineCount. 
-     * The amount of lines in a text document 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount. 
+     * The amount of characters in the document. 
      */
-    qint64 lineCount() const {
+    qint64 characterCount() const {
         qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lineCount", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lineCount", QUrl::StrictMode)).first().value<qint64>();
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount", QUrl::StrictMode)).first().value<qint64>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lineCount. 
-     * The amount of lines in a text document 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount. 
+     * The amount of characters in the document. 
      */
-    void setLineCount(const qint64& value) {
+    void setCharacterCount(const qint64& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lineCount", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lineCount. 
-     * The amount of lines in a text document 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount. 
+     * The amount of characters in the document. 
      */
-    void addLineCount(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lineCount", QUrl::StrictMode), value);
+    void addCharacterCount(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount", QUrl::StrictMode), value);
     }
 
     /**
@@ -93,32 +93,32 @@ public:
     }
 
     /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount. 
-     * The amount of characters in the document. 
+     * Get property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lineCount. 
+     * The amount of lines in a text document 
      */
-    qint64 characterCount() const {
+    qint64 lineCount() const {
         qint64 value;
-        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount", QUrl::StrictMode)))
-            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount", QUrl::StrictMode)).first().value<qint64>();
+        if(contains(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lineCount", QUrl::StrictMode)))
+            value = property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lineCount", QUrl::StrictMode)).first().value<qint64>();
         return value;
     }
 
     /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount. 
-     * The amount of characters in the document. 
+     * Set property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lineCount. 
+     * The amount of lines in a text document 
      */
-    void setCharacterCount(const qint64& value) {
+    void setLineCount(const qint64& value) {
         QVariantList values;
         values << value;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount", QUrl::StrictMode), values);
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lineCount", QUrl::StrictMode), values);
     }
 
     /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount. 
-     * The amount of characters in the document. 
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lineCount. 
+     * The amount of lines in a text document 
      */
-    void addCharacterCount(const qint64& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#characterCount", QUrl::StrictMode), value);
+    void addLineCount(const qint64& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#lineCount", QUrl::StrictMode), value);
     }
 
 protected:

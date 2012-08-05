@@ -8,7 +8,7 @@
 #include <QtCore/QTime>
 #include <QtCore/QDateTime>
 
-#include <Nepomuk2/SimpleResource>
+#include <nepomuk2/simpleresource.h>
 
 #include "pimo/thing.h"
 
@@ -36,39 +36,6 @@ public:
         SimpleResource::operator=(res);
         addType(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#Agent", QUrl::StrictMode));
         return *this;
-    }
-
-    /**
-     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isOrganizationMemberOf. 
-     * The subject person or organozation (Agent) is member of the 
-     * object organization. 
-     */
-    QList<QUrl> isOrganizationMemberOfs() const {
-        QList<QUrl> value;
-        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isOrganizationMemberOf", QUrl::StrictMode)))
-            value << v.value<QUrl>();
-        return value;
-    }
-
-    /**
-     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isOrganizationMemberOf. 
-     * The subject person or organozation (Agent) is member of the 
-     * object organization. 
-     */
-    void setIsOrganizationMemberOfs(const QList<QUrl>& value) {
-        QVariantList values;
-        foreach(const QUrl& v, value)
-            values << v;
-        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isOrganizationMemberOf", QUrl::StrictMode), values);
-    }
-
-    /**
-     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isOrganizationMemberOf. 
-     * The subject person or organozation (Agent) is member of the 
-     * object organization. 
-     */
-    void addIsOrganizationMemberOf(const QUrl& value) {
-        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isOrganizationMemberOf", QUrl::StrictMode), value);
     }
 
     /**
@@ -102,6 +69,39 @@ public:
      */
     void addCreatedPimo(const QUrl& value) {
         addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#createdPimo", QUrl::StrictMode), value);
+    }
+
+    /**
+     * Get property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isOrganizationMemberOf. 
+     * The subject person or organozation (Agent) is member of the 
+     * object organization. 
+     */
+    QList<QUrl> isOrganizationMemberOfs() const {
+        QList<QUrl> value;
+        foreach(const QVariant& v, property(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isOrganizationMemberOf", QUrl::StrictMode)))
+            value << v.value<QUrl>();
+        return value;
+    }
+
+    /**
+     * Set property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isOrganizationMemberOf. 
+     * The subject person or organozation (Agent) is member of the 
+     * object organization. 
+     */
+    void setIsOrganizationMemberOfs(const QList<QUrl>& value) {
+        QVariantList values;
+        foreach(const QUrl& v, value)
+            values << v;
+        setProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isOrganizationMemberOf", QUrl::StrictMode), values);
+    }
+
+    /**
+     * Add value to property http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isOrganizationMemberOf. 
+     * The subject person or organozation (Agent) is member of the 
+     * object organization. 
+     */
+    void addIsOrganizationMemberOf(const QUrl& value) {
+        addProperty(QUrl::fromEncoded("http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#isOrganizationMemberOf", QUrl::StrictMode), value);
     }
 
 protected:

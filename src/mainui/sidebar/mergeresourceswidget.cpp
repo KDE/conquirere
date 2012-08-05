@@ -134,7 +134,7 @@ void MergeResourcesWidget::addToProject()
     else {
         foreach(Library *l, libraryManager()->openProjects()) {
             QAction *a = new QAction(l->settings()->name(), this);
-            a->setData(l->settings()->projectThing().resourceUri());
+            a->setData(l->settings()->projectThing().uri());
             connect(a, SIGNAL(triggered(bool)),this, SLOT(addToSelectedProject()));
             addToProjects.addAction(a);
             actionCollection.append(a);
@@ -186,7 +186,7 @@ void MergeResourcesWidget::removeFromProject()
     else {
         foreach(const Nepomuk2::Resource &r, projectList) {
             QAction *a = new QAction(r.genericLabel(), this);
-            a->setData(r.resourceUri());
+            a->setData(r.uri());
             connect(a, SIGNAL(triggered(bool)),this, SLOT(removeFromSelectedProject()));
             addToProjects.addAction(a);
             actionCollection.append(a);
@@ -206,7 +206,7 @@ void MergeResourcesWidget::removeFromSelectedProject()
 
     Nepomuk2::Resource pimoProject = Nepomuk2::Resource(a->data().toString());
 
-    Library *l = libraryManager()->libFromResourceUri(pimoProject.resourceUri());
+    Library *l = libraryManager()->libFromResourceUri(pimoProject.uri());
 
     foreach(const Nepomuk2::Resource &r, m_resourceList) {
         l->removeResource(r);
@@ -242,7 +242,7 @@ void MergeResourcesWidget::merge()
             i++;
         }
         else {
-            Nepomuk2::mergeResources(mainResource.resourceUri(), r.resourceUri());
+            Nepomuk2::mergeResources(mainResource.uri(), r.uri());
         }
     }
 }
