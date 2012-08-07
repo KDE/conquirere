@@ -328,7 +328,8 @@ void SidebarWidget::fetchMetaData()
 
         kDebug() << "find meta data for file" << url;
 
-        fd->setInitialPathOrFile( url );
+        fd->addFetcherPath( url );
+        fd->show();
     }
     else {
         kDebug() << "muh...";
