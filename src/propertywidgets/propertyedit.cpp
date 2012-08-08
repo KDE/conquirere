@@ -25,6 +25,9 @@
 #include <Nepomuk2/Query/ResourceTypeTerm>
 #include <Nepomuk2/Query/OrTerm>
 #include <Nepomuk2/Variant>
+#include <Nepomuk2/Types/Property>
+#include <Nepomuk2/Types/Class>
+#include <Nepomuk2/Types/Literal>
 
 #include "nbib.h"
 #include <Nepomuk2/Vocabulary/PIMO>
@@ -145,13 +148,16 @@ void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
 {
     m_propertyUrl = propertyUrl;
 
-    //get the range of the property (so what we are allowed to enter)
-    Nepomuk2::Resource nr(m_propertyUrl);
-    Nepomuk2::Resource range = nr.property(Soprano::Vocabulary::RDFS::range()).toResource();
+    Nepomuk2::Types::Property property(propertyUrl);
+    QUrl rangeUrl;
+    if(property.range().isValid()) {
+        rangeUrl = property.range().uri();
+    }
+    else {
+        rangeUrl = property.literalRangeType().dataTypeUri();
+    }
 
-    if(range.isValid())
-        m_lineEdit->setNepomukCompleterRange( range.uri() );
-
+    m_lineEdit->setNepomukCompleterRange( rangeUrl );
 }
 
 QUrl PropertyEdit::propertyUrl()
