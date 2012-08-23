@@ -38,6 +38,7 @@ include_directories (
                      ${NEPOMUKEXTRAS_INCLUDE_DIR}
                      ${KBIBTEX_INCLUDE_DIRS}
                      ${NEPOMUK_METADATA_EXTRACTOR_INCLUDE_DIRS}
+                     ${NEPOMUK_METADATA_EXTRACTOR_INCLUDE_DIRS}/nepomukmetadataextractor/
 
                      ${CMAKE_SOURCE_DIR}
                      ${CMAKE_SOURCE_DIR}/src
