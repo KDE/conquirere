@@ -26,7 +26,6 @@ NoteModel::NoteModel(QObject *parent)
     : NepomukModel(parent)
 {
     m_queryClient = new NoteQuery();
-    m_queryClient->setModel(this);
 
     connect(m_queryClient, SIGNAL(newCacheEntries(QList<CachedRowEntry>)), this, SLOT(addCacheData(QList<CachedRowEntry>)));
     connect(m_queryClient, SIGNAL(updateCacheEntries(QList<CachedRowEntry>)), this, SLOT(updateCacheData(QList<CachedRowEntry>)));
@@ -103,7 +102,7 @@ int NoteModel::defaultSectionSize(int i) const
     return 100;
 }
 
-QList<int> NoteModel::fixedWithSections() const
+QList<int> NoteModel::fixedWidthSections() const
 {
     QList<int> fixedWith;
     fixedWith << NoteQuery::Column_StarRate;

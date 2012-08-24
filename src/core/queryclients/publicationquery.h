@@ -20,8 +20,12 @@
 
 #include "queryclient.h"
 
+namespace Nepomuk2 {
+    class ResourceWatcher;
+}
+
 /**
-  * @brief @cQueryClient to fetch all @c nbib:Publication objects
+  * @brief @c QueryClient to fetch all @c nbib:Publication objects
   *
   * @see PublicationModel
   */
@@ -45,20 +49,21 @@ public:
     };
 
     explicit PublicationQuery(QObject *parent = 0);
+    ~PublicationQuery();
 
 public slots:
     void startFetchData();
 
-    /**
-      * Indicates that the resource has been changed and the cache needs an update
-      *
-      * @todo remove when starting to use ResourceWatcher later on
-      */
-    void resourceChanged (const Nepomuk2::Resource &resource);
-
 private:
+    // creates cache entries from Soprano:Model search
+    QVariantList createDisplayData(const QStringList & item) const;
+    QVariantList createDecorationData(const QStringList & item) const;
+
+    // creates cache entry from resource handed via resourcewatcher
     QVariantList createDisplayData(const Nepomuk2::Resource & res) const;
     QVariantList createDecorationData(const Nepomuk2::Resource & res) const;
+
+    Nepomuk2::ResourceWatcher* m_newWatcher;
 };
 
 #endif // PUBLICATIONQUERY_H

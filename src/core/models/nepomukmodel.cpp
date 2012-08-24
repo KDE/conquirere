@@ -25,6 +25,7 @@
 
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
+#include <QtCore/QThread>
 
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk2/Variant>
@@ -38,12 +39,13 @@ NepomukModel::NepomukModel(QObject *parent)
 
 NepomukModel::~NepomukModel()
 {
-    m_queryClient->quit();
-    m_queryClient->wait();
-    m_queryClient->deleteLater();
+    thread.quit();
+    while(!thread.isFinished()){}
 
     m_modelCacheData.clear();
     m_lookupCache.clear();
+
+    m_queryClient->deleteLater();
 }
 
 int NepomukModel::rowCount(const QModelIndex &parent) const
@@ -81,33 +83,7 @@ QVariant NepomukModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-bool NepomukModel::cacheEntryNeedsUpdate(const Nepomuk2::Resource & resource) const
-{
-    if( !m_lookupCache.contains(resource.uri().toString()) )
-        return true;
-
-    // here we need to check if the current timestamp of the cache entry is
-    // newer than the timestamp of the nepomuk entry (and some of its subentries)
-    // if the nepomuk data is newer, we need to update the data
-
-
-    int cacheEntry = m_lookupCache.value(resource.uri().toString());
-    QDateTime cacheTimestamp = m_modelCacheData.at(cacheEntry).timestamp;
-
-    // TODO also check against connected resources, like publishedAs, reference and so on.
-    // all resources which are shown in the table model
-    QDateTime dbTimestamp = resource.property( Soprano::Vocabulary::NAO::lastModified() ).toDateTime();
-
-    if(cacheTimestamp >= dbTimestamp) {
-        return false;
-    }
-    else {
-//        qDebug() << "Cache needs update :: " << resource.genericLabel();
-        return true;
-    }
-}
-
-QList<int> NepomukModel::fixedWithSections() const
+QList<int> NepomukModel::fixedWidthSections() const
 {
     QList<int> emptylist;
     return emptylist;
@@ -117,8 +93,15 @@ void NepomukModel::setLibrary(Library *library)
 {
     m_library = library;
     m_queryClient->setLibrary(m_library);
+}
 
-    connect(m_library, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), m_queryClient, SLOT(resourceChanged(Nepomuk2::Resource)));
+void NepomukModel::startFetchData()
+{
+    emit queryStarted();
+    connect(&thread, SIGNAL(started()), m_queryClient, SLOT(startFetchData()) );
+    m_queryClient->moveToThread(&thread);
+    thread.start();
+//    m_queryClient->startFetchData();
 }
 
 Nepomuk2::Resource NepomukModel::documentResource(const QModelIndex &selection)
@@ -136,22 +119,6 @@ Nepomuk2::Resource NepomukModel::documentResource(const QModelIndex &selection)
 QString NepomukModel::id()
 {
     return QString("abstract");
-}
-
-void NepomukModel::startFetchData()
-{
-    Q_ASSERT(m_queryClient);
-
-    m_queryClient->start();
-
-    emit queryStarted();
-}
-
-void NepomukModel::stopFetchData()
-{
-    Q_ASSERT(m_queryClient);
-
-    m_queryClient->stopFetchData();
 }
 
 void NepomukModel::saveCache()
@@ -176,7 +143,7 @@ void NepomukModel::saveCache()
             out << v.toString() << "|#|";
         }
         out << "\n";
-        //DEBUG save the timestampg when the entry was actually inserted into the program?
+        //DEBUG save the timestamp when the entry was actually inserted into the program?
         out << cre.resource.uri().toString() << "|#|" << QDateTime::currentDateTime().toString() << "\n";
     }
     file.close();
@@ -225,21 +192,14 @@ void NepomukModel::loadCache()
     qDebug() << "loadCache finished :: " << id();
 }
 
-void NepomukModel::updateCacheData()
-{
-    foreach(const CachedRowEntry &entry, m_modelCacheData) {
-        m_queryClient->resourceChanged(entry.resource);
-    }
-}
-
 void NepomukModel::addCacheData(const QList<CachedRowEntry> &entries)
 {
+
     if(entries.size() > 0) {
         beginInsertRows(QModelIndex(), m_modelCacheData.size(), m_modelCacheData.size() + entries.size()-1);
         foreach(const CachedRowEntry &cre, entries) {
             m_modelCacheData.append(cre);
             m_lookupCache.insert(cre.resource.uri().toString(), m_modelCacheData.size()-1);
-            emit resourceAdded(cre.resource);
         }
         endInsertRows();
     }
@@ -274,8 +234,6 @@ void NepomukModel::removeCacheData( QList<QUrl> urls )
             }
             i++;
         }
-
-        emit resourceRemoved(url);
     }
 
     emit dataSizeChaged(m_modelCacheData.size());
@@ -293,7 +251,6 @@ void NepomukModel::updateCacheData(const QList<CachedRowEntry> &entries)
         }
         else {
             m_modelCacheData.replace(pos, entry);
-            emit resourceUpdated(entry.resource);
             emit dataChanged(index(pos,0), index(pos,columnCount()));
         }
     }

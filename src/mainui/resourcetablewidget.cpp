@@ -184,7 +184,7 @@ void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType f
 
     m_documentView->selectRow(0);
 
-    QList<int> fixedWithList = nm->fixedWithSections();
+    QList<int> fixedWithList = nm->fixedWidthSections();
     foreach(int section, fixedWithList) {
         hv->setResizeMode(section, QHeaderView::Fixed);
     }

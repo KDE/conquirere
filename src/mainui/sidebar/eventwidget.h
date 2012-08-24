@@ -71,15 +71,6 @@ private slots:
 
     void changeRating(int newRating);
 
-    /**
-      * Sends changes in the connected property widgets to the connected table model to update the cache
-      *
-      * Updates not only the eventname cache entry but also the entries for the publication connected here
-      *
-      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
-      */
-    void subResourceUpdated();
-
 private:
     Ui::EventWidget *ui;
     Nepomuk2::Resource m_eventThing;

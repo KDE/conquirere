@@ -13,8 +13,6 @@ set(core_LIB_SRCS
     models/publicationfiltermodel.cpp
     models/documentmodel.cpp
     models/notemodel.cpp
-    models/bookmarkmodel.cpp
-    models/mailmodel.cpp
     models/seriesmodel.cpp
     models/seriesfiltermodel.cpp
     models/referencemodel.cpp
@@ -26,8 +24,6 @@ set(core_LIB_SRCS
     queryclients/referencequery.cpp
     queryclients/documentquery.cpp
     queryclients/notequery.cpp
-    queryclients/bookmarkquery.cpp
-    queryclients/mailquery.cpp
     queryclients/seriesquery.cpp
     queryclients/eventquery.cpp
 )

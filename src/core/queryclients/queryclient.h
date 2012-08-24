@@ -18,12 +18,10 @@
 #ifndef QUERYCLIENT_H
 #define QUERYCLIENT_H
 
-#include <QtCore/QThread>
+#include <QtCore/QObject>
 #include <QtCore/QDateTime>
 
 #include <Nepomuk2/Resource>
-#include <Nepomuk2/Query/QueryServiceClient>
-#include <Nepomuk2/Query/Result>
 #include <Nepomuk2/ResourceWatcher>
 
 /**
@@ -42,7 +40,6 @@ Q_DECLARE_METATYPE(CachedRowEntry)
 Q_DECLARE_METATYPE(QList<CachedRowEntry>)
 
 class Library;
-class NepomukModel;
 
 /**
   * @brief Abstract base class for any nepomuk query client.
@@ -52,7 +49,7 @@ class NepomukModel;
   * as  @c CachedRowEntry to speed up the display, sorting and filtering of these queries.
   *
   */
-class QueryClient : public QThread
+class QueryClient : public QObject
 {
     Q_OBJECT
 public:
@@ -60,19 +57,9 @@ public:
     virtual ~QueryClient();
 
     void setLibrary(Library *selectedLibrary);
-    void setModel(NepomukModel *nm);
-    void run();
 
 public slots:
     virtual void startFetchData() = 0;
-    void stopFetchData();
-
-    /**
-      * Indicates that the resource has been changed and the cache needs an update
-      *
-      * @todo remove when starting to use ResourceWatcher later on
-      */
-    virtual void resourceChanged (const Nepomuk2::Resource &resource) = 0;
 
 signals:
     void newCacheEntries(const QList<CachedRowEntry> &entries) const;
@@ -83,29 +70,22 @@ signals:
 
 private slots:
     //process resourceWatcher signals
-    void propertyAdded (const Nepomuk2::Resource &resource, const Nepomuk2::Types::Property &property, const QVariant &value);
     void propertyChanged (const Nepomuk2::Resource &resource, const Nepomuk2::Types::Property &property, const QVariantList &oldValue, const QVariantList &newValue);
-    void propertyRemoved (const Nepomuk2::Resource &resource, const Nepomuk2::Types::Property &property, const QVariant &value);
-    void resourceTypeAdded (const Nepomuk2::Resource &res, const Nepomuk2::Types::Class &type);
-    void resourceTypeRemoved (const Nepomuk2::Resource &res, const Nepomuk2::Types::Class &type);
-
-    void addToCache( const QList< Nepomuk2::Query::Result > &entries ) const;
-    void resultCount(int number) const;
-
-    void finishedStartup();
-    void initalQueryFinished();
+    void resourceTypeChanged (const Nepomuk2::Resource &resource, const Nepomuk2::Types::Class &type);
+    void resourceRemoved(const QUrl & uri, const QList<QUrl>& types);
+    void resourceCreated(const Nepomuk2::Resource & resource, const QList<QUrl>& types);
 
 protected:
     void updateCacheEntry(const Nepomuk2::Resource &resource);
+
+    virtual QVariantList createDisplayData(const QStringList & item) const = 0;
+    virtual QVariantList createDecorationData(const QStringList & item) const = 0;
 
     virtual QVariantList createDisplayData(const Nepomuk2::Resource & res) const = 0;
     virtual QVariantList createDecorationData(const Nepomuk2::Resource & res) const = 0;
 
     Library *m_library;
-    NepomukModel *m_model;
-    Nepomuk2::Query::QueryServiceClient *m_queryClient;
     Nepomuk2::ResourceWatcher *m_resourceWatcher;
-    bool m_startupQuery;
 };
 
 #endif // QUERYCLIENT_H

@@ -72,19 +72,9 @@ public slots:
     void syncData(ModeSelection mode = Select_Mode);
     void syncData(Library *l, ModeSelection mode = Select_Mode);
 
-    void updateListCache();
-
 signals:
     void libraryAdded(Library *l);
     void libraryRemoved(const QUrl &projectThingUrl);
-
-    /**
-      * This signal gets thrown when the resource was changed and must be updated in the table model cache
-      * redirects the signal from all propertywidgets of every SidbarComponent
-      *
-      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
-      */
-    void resourceCacheNeedsUpdate(Nepomuk2::Resource resource);
 
 private:
     QList<Library*> m_openProjectList;

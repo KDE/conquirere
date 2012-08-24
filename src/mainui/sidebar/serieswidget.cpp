@@ -161,8 +161,6 @@ void SeriesWidget::newSeriesTypeSelected(int index)
             }
             }
         }
-
-        emit resourceCacheNeedsUpdate(m_series);
     }
 }
 
@@ -212,10 +210,7 @@ void SeriesWidget::changeRating(int newRating)
     QList<QUrl> resourceUris; resourceUris << m_series.uri();
     QVariantList rating; rating <<  newRating;
     KJob *job = Nepomuk2::setProperty(resourceUris, Soprano::Vocabulary::NAO::numericRating(), rating);
-
-    if(job->exec()) {
-        emit resourceCacheNeedsUpdate(m_series);
-    }
+    job->exec();
 }
 
 void SeriesWidget::setupWidget()
@@ -237,10 +232,4 @@ void SeriesWidget::setupWidget()
     ui->editTitle->setPropertyUrl( Nepomuk2::Vocabulary::NIE::title() );
 
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
-
-    // TODO this part should be removed when the resourceWatcher is working correctly
-    connect(ui->listPartWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
-    connect(ui->editIssn, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
-    connect(ui->editTitle, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
-    connect(ui->editAnnot, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 }

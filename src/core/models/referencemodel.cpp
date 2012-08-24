@@ -28,7 +28,6 @@ ReferenceModel::ReferenceModel(QObject *parent)
     : NepomukModel(parent)
 {
     m_queryClient = new ReferenceQuery();
-    m_queryClient->setModel(this);
 
     connect(m_queryClient, SIGNAL(newCacheEntries(QList<CachedRowEntry>)), this, SLOT(addCacheData(QList<CachedRowEntry>)));
     connect(m_queryClient, SIGNAL(updateCacheEntries(QList<CachedRowEntry>)), this, SLOT(updateCacheData(QList<CachedRowEntry>)));
@@ -151,7 +150,7 @@ int ReferenceModel::defaultSectionSize(int i) const
     return 100;
 }
 
-QList<int> ReferenceModel::fixedWithSections() const
+QList<int> ReferenceModel::fixedWidthSections() const
 {
     QList<int> fixedWith;
     fixedWith << ReferenceQuery::Column_Reviewed << ReferenceQuery::Column_StarRate << ReferenceQuery::Column_FileAvailable;

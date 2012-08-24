@@ -144,8 +144,6 @@ void DocumentWidget::setPublication()
         job2->exec(); //blocking call...
 
         setResource(m_document);
-        emit resourceCacheNeedsUpdate(m_document);
-        emit resourceCacheNeedsUpdate(publication);
     }
 
     delete lpd;
@@ -167,7 +165,5 @@ void DocumentWidget::removePublication()
 
     //update
     setResource(m_document);
-    emit resourceCacheNeedsUpdate(m_document);
-    emit resourceCacheNeedsUpdate(publication);
 }
 

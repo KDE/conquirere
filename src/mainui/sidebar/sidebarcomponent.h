@@ -46,15 +46,6 @@ public:
 
     virtual Nepomuk2::Resource resource() = 0;
 
-signals:
-    /**
-      * This signal gets thrown when the resource was changed and must be updated in the table model cache
-      * redirects the signal from all propertywidgets
-      *
-      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
-      */
-    void resourceCacheNeedsUpdate(Nepomuk2::Resource resource);
-
 public slots:
     /**
       * Sets the resource which should be shown in the widget

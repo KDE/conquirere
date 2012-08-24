@@ -465,12 +465,6 @@ void MainWindow::setupActions()
     connect(dbBackupAction, SIGNAL(triggered(bool)),this, SLOT(dbBackup()));
 
     //View menu
-    KAction* updateListCache = new KAction(this);
-    updateListCache->setText(i18n("Update List Cache"));
-    updateListCache->setIcon(KIcon(QLatin1String("view-refresh")));
-    actionCollection()->addAction(QLatin1String("update_list_cache"), updateListCache);
-    connect(updateListCache, SIGNAL(triggered(bool)),m_libraryManager, SLOT(updateListCache()));
-
     KAction* viewFullModeCache = new KAction(this);
     viewFullModeCache->setText(i18n("View Full Mode"));
     viewFullModeCache->setIcon(KIcon(QLatin1String("view-choose")));

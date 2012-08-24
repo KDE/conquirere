@@ -24,6 +24,7 @@
 #include <Nepomuk2/Resource>
 
 #include <QtCore/QAbstractTableModel>
+#include <QtCore/QThread>
 
 class Library;
 class QModelIndex;
@@ -34,16 +35,12 @@ class QModelIndex;
   * In order to list and sort large sets of nepomuk data in a table model it is necessary to create a string cache for
   * the displayed data. This Model and the necessary subclasses realize these via the @c CachedRowEntry
   *
-  * The data is internally fetched with the corresponding @c QueryClient that retrieves the nepomuk data and updates the cache.
-  * The @c QueryClient is realized as QThread to allow nonblocking polution of the TableModel.
+  * The data is internally fetched with the corresponding @c QueryClient that retrieves the nepomuk data and updates the cache via
+  * the @c Nepomuk2::ResourceWatcher.
+  * The @c QueryClient is running inside a QThread to allow nonblocking polution of the TableModel.
   *
   * To alter the content of the table change the necessary header data in the @c headerData() function of the subclasses or
-  * the @c createDisplayData() and @c createDecorationData() of the corresponding @c QueryClient
-  *
-  * @todo implement cache update via Nepomuk2::ResourceWatcher
-  * @bug Updating the @c CachedRowEntry is triggered manually at the moment, this does not work always and will never update when
-  *      the resource is updated outside the program. Manually starting the list update is necessary than, or wait till the next
-  *      restart.
+  * the @c createDisplayData() and @c createDecorationData() of the corresponding @c QueryClient.
   */
 class NepomukModel : public QAbstractTableModel
 {
@@ -55,28 +52,37 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     QVariant data(const QModelIndex &index, int role) const;
 
-    bool cacheEntryNeedsUpdate(const Nepomuk2::Resource & resource) const;
-
     /**
       * @return the default width for a table section if the user didn't changed it.
       */
     virtual int defaultSectionSize(int i) const = 0;
 
     /**
-      * @return The numbers of all sections with a fixed with the user can't change (with will be default width).
+      * @return The numbers of all sections width a fixed with the user can't change (width will be default width).
       *
       * @see defaultSectionSize
       */
-    virtual QList<int> fixedWithSections() const;
+    virtual QList<int> fixedWidthSections() const;
 
     void setLibrary(Library *library);
+
+    /**
+     * @brief Returns the nepomuk resource for the model selection
+     *
+     * @param selection selected row of the table
+     * @return the nepomuk resource for the selected row
+     */
     Nepomuk2::Resource documentResource(const QModelIndex &selection);
+
+    /**
+     * @brief moves the @c QueryClient into a QThread and starts it
+     */
+    void startFetchData();
 
     /**
       * @return a unique id for the table model.
       *
       * used to save/load table content to disk.
-      * Not used currently
       */
     virtual QString id();
 
@@ -86,15 +92,7 @@ signals:
     void queryStarted();
     void queryFinished();
 
-    // for the connected tag cloud widget to change the internas
-    void resourceAdded(const Nepomuk2::Resource &resource);
-    void resourceUpdated(const Nepomuk2::Resource & resource);
-    void resourceRemoved(const QUrl &resourceUrl);
-
 public slots:
-    void startFetchData();
-    void stopFetchData();
-
     /**
       * saves the content of the table to disk
       *
@@ -115,11 +113,6 @@ public slots:
       */
     void loadCache();
 
-    /**
-      * Updates all cached list data
-      */
-    void updateCacheData();
-
 private slots:
     void addCacheData(const QList<CachedRowEntry> &entries);
     void removeCacheData(QList<QUrl> urls);
@@ -136,6 +129,8 @@ protected:
     QueryClient *m_queryClient;
     QList<CachedRowEntry> m_modelCacheData;
     QMap<QString, int> m_lookupCache;
+
+    QThread thread;
 };
 
 #endif // NEPOMUKMODEL_H

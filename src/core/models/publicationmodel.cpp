@@ -28,7 +28,6 @@ PublicationModel::PublicationModel(QObject *parent)
     : NepomukModel(parent)
 {
     m_queryClient = new PublicationQuery();
-    m_queryClient->setModel(this);
 
     connect(m_queryClient, SIGNAL(newCacheEntries(QList<CachedRowEntry>)), this, SLOT(addCacheData(QList<CachedRowEntry>)));
     connect(m_queryClient, SIGNAL(updateCacheEntries(QList<CachedRowEntry>)), this, SLOT(updateCacheData(QList<CachedRowEntry>)));
@@ -152,7 +151,7 @@ int PublicationModel::defaultSectionSize(int i) const
     return 100;
 }
 
-QList<int> PublicationModel::fixedWithSections() const
+QList<int> PublicationModel::fixedWidthSections() const
 {
     QList<int> fixedWith;
     fixedWith << PublicationQuery::Column_StarRate << PublicationQuery::Column_Reviewed << PublicationQuery::Column_FileAvailable;

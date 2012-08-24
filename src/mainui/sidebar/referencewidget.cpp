@@ -82,13 +82,6 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     connect(ui->publicationEdit, SIGNAL(externalEditRequested(Nepomuk2::Resource&,QUrl)), this, SLOT(showPublicationList(Nepomuk2::Resource&,QUrl)));
     connect(ui->chapterEdit, SIGNAL(externalEditRequested(Nepomuk2::Resource&,QUrl)), this, SLOT(showChapterList()));
     connect(ui->citeKeyEdit, SIGNAL(externalEditRequested(Nepomuk2::Resource&,QUrl)), this, SLOT(showCiteKeySuggetion()));
-
-    //TODO remove and use ResourceWatcher later on
-    connect(ui->chapterEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->citeKeyEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->pagesEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->publicationEdit, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->editAnnot, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
 }
 
 void ReferenceWidget::setLibraryManager(LibraryManager *lm)
@@ -123,14 +116,6 @@ void ReferenceWidget::setResource(Nepomuk2::Resource & resource)
     ui->editAnnot->setResource(m_reference);
 }
 
-void ReferenceWidget::subResourceUpdated()
-{
-    Nepomuk2::Resource publication = m_reference.property(NBIB::publication()).toResource();
-
-    emit resourceCacheNeedsUpdate(m_reference);
-    emit resourceCacheNeedsUpdate(publication);
-}
-
 void ReferenceWidget::showPublicationList(Nepomuk2::Resource & reference, const QUrl & propertyUrl)
 {
     Nepomuk2::Resource changedResource = reference.property(propertyUrl).toResource();
@@ -148,9 +133,6 @@ void ReferenceWidget::showPublicationList(Nepomuk2::Resource & reference, const 
         addIssueWidget->exec();
 
         setResource(m_reference); // this updates the changes in the current widget again
-
-        //update the cache
-        subResourceUpdated();
 
         delete addIssueWidget;
 
@@ -182,7 +164,6 @@ void ReferenceWidget::showPublicationList(Nepomuk2::Resource & reference, const 
         Nepomuk2::addProperty(resUri, NAO::hasSubResource(), value);
 
         setResource(m_reference); // updates this widget
-        subResourceUpdated();
     }
 
     delete lpd;
@@ -220,7 +201,6 @@ void ReferenceWidget::showChapterList()
         job2->exec(); // blocking wait so we are sure we updated the resource
 
         setResource(m_reference); // updates this widget
-        emit resourceCacheNeedsUpdate(m_reference);
     }
 }
 
@@ -248,7 +228,6 @@ void ReferenceWidget::showCiteKeySuggetion()
         job1->exec(); // blocking wait so we are sure we updated the resource
 
         ui->citeKeyEdit->setLabelText(selection);
-        subResourceUpdated();
     }
 }
 
@@ -323,7 +302,6 @@ void ReferenceWidget::newButtonClicked()
     }
 
     setResource(newReferenceResource); // updates this widget
-    subResourceUpdated();
 
     delete lpd;
 }
@@ -342,6 +320,5 @@ void ReferenceWidget::changeRating(int newRating)
 
     if(newRating != publication.rating()) {
         publication.setRating(newRating);
-        subResourceUpdated();
     }
 }

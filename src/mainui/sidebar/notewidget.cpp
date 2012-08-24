@@ -50,9 +50,6 @@ NoteWidget::NoteWidget(QWidget *parent)
     ui->editTags->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
     ui->editTags->setPropertyUrl( NAO::hasTag() );
     connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
-
-    //TODO remove and use ResourceWatcher later on
-    connect(ui->editTags, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 }
 
 NoteWidget::~NoteWidget()
@@ -138,8 +135,6 @@ void NoteWidget::saveNote()
     resUri.clear(); resUri << m_note.uri();
     value.clear(); value << ui->editContent->document()->toHtml();
     Nepomuk2::setProperty(resUri, NIE::htmlContent(), value);
-
-    emit resourceCacheNeedsUpdate(m_note);
 }
 
 void NoteWidget::discardNote()
@@ -173,8 +168,5 @@ void NoteWidget::changeRating(int newRating)
     QVariantList rating;
     rating <<  newRating;
     KJob *job = Nepomuk2::setProperty(resourceUris, Soprano::Vocabulary::NAO::numericRating(), rating);
-
-    if(job->exec()) {
-        emit resourceCacheNeedsUpdate(m_note);
-    }
+    job->exec();
 }

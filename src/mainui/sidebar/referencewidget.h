@@ -47,14 +47,6 @@ public slots:
       */
     void setResource(Nepomuk2::Resource & resource);
 
-    /**
-      * Sends changes in the connected property widgets to the connected table model to update the cache
-      *
-      * Send updates for the reference and the publication object
-      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
-      */
-    void subResourceUpdated();
-
     void newButtonClicked();
 
 private slots:

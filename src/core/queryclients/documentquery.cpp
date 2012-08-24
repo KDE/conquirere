@@ -24,40 +24,156 @@
 #include <KDE/KIcon>
 
 #include <Nepomuk2/Variant>
-#include <Nepomuk2/Query/ResourceTerm>
-#include <Nepomuk2/Query/AndTerm>
-#include <Nepomuk2/Query/OrTerm>
-#include <Nepomuk2/Query/ResourceTypeTerm>
-#include <Nepomuk2/Query/ComparisonTerm>
-#include <Nepomuk2/Query/NegationTerm>
 
 #include "nbib.h"
-#include <Nepomuk2/Vocabulary/PIMO>
 #include <Nepomuk2/Vocabulary/NCO>
 #include <Nepomuk2/Vocabulary/NIE>
 #include <Nepomuk2/Vocabulary/NFO>
 #include <Soprano/Vocabulary/NAO>
 
+#include <Nepomuk2/ResourceManager>
+#include <Soprano/Model>
+#include <Soprano/QueryResultIterator>
+
 #include <QtCore/QRegExp>
+#include <KDE/KDebug>
 
 DocumentQuery::DocumentQuery(QObject *parent) :
     QueryClient(parent)
 {
 }
 
+DocumentQuery::~DocumentQuery()
+{
+    m_newWatcher->stop();
+}
+
 void DocumentQuery::startFetchData()
 {
-    Nepomuk2::Query::OrTerm mainOrTerm;
-    Nepomuk2::Query::AndTerm andTerm;
+    // keep track of newly added resources
+    m_newWatcher = new Nepomuk2::ResourceWatcher(this);
+    m_newWatcher->addType(Nepomuk2::Vocabulary::NFO::PaginatedTextDocument());
+    m_newWatcher->addType(Nepomuk2::Vocabulary::NFO::Spreadsheet());
+    m_newWatcher->addType(Nepomuk2::Vocabulary::NFO::MindMap());
 
-    Nepomuk2::Query::OrTerm subOrTerm;
-    subOrTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::PaginatedTextDocument() ) );
-    subOrTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::Presentation() ) );
-    subOrTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::MindMap() ) );
-    subOrTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::Spreadsheet() ) );
+    connect(m_newWatcher, SIGNAL(resourceCreated(Nepomuk2::Resource,QList<QUrl>)),
+            this, SLOT(resourceCreated(Nepomuk2::Resource,QList<QUrl>)) );
 
-    andTerm.addSubTerm(subOrTerm);
+    m_newWatcher->start();
 
+    // create the resource watcher that will keep track of changes in the existing data
+    m_resourceWatcher = new Nepomuk2::ResourceWatcher(this);
+
+    connect(m_resourceWatcher, SIGNAL(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)),
+            this, SLOT(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)) );
+
+    connect(m_resourceWatcher, SIGNAL(resourceTypeAdded(Nepomuk2::Resource,Nepomuk2::Types::Class)),
+            this, SLOT(resourceTypeChanged(Nepomuk2::Resource,Nepomuk2::Types::Class)) );
+
+    connect(m_resourceWatcher, SIGNAL(resourceTypeRemoved(Nepomuk2::Resource,Nepomuk2::Types::Class)),
+            this, SLOT(resourceTypeChanged(Nepomuk2::Resource,Nepomuk2::Types::Class)) );
+
+    connect(m_resourceWatcher, SIGNAL(resourceRemoved(QUrl,QList<QUrl>)),
+            this, SLOT(resourceRemoved(QUrl,QList<QUrl>)) );
+
+    QTime t1 = QTime::currentTime();
+
+    // first fetch all publications
+    // this will lead to duplicates as we fetch for author names and types too
+    // for each rdf:type and each connected author/publisher/editor we get the resource as result
+    QString query = QString::fromLatin1("select distinct ?r ?title ?star ?publication ?date ?folder ?reviewed where {"
+                                        "?r a ?v1 ."
+                                        "FILTER(?v1 in (nfo:PaginatedTextDocument, nfo:Spreadsheet, nfo:MindMap )) ."
+
+                                        "OPTIONAL { ?r nao:prefLabel ?reviewed . }" //FIXME: add reviewed to query, implement it first. tagging?
+
+                                        "OPTIONAL { ?r nie:title ?title . }"
+                                        "OPTIONAL { ?r nao:numericRating ?star . }"
+                                        "OPTIONAL { ?r nie:lastModified ?date . }"
+                                        "?r nie:url ?folder ."
+                                        "OPTIONAL { ?r nbib:publishedAs ?publication . }"
+                                        "}");
+
+    Soprano::Model* model = Nepomuk2::ResourceManager::instance()->mainModel();
+    Soprano::QueryResultIterator it = model->executeQuery( query, Soprano::Query::QueryLanguageSparql );
+
+    QTime t2 = QTime::currentTime();
+    kDebug() << "###### search finished ########## after" << t1.msecsTo(t2) << "msecs";
+
+    // combine all search results again, so we get a just a single resource with a list of all authors and the list of types
+    // instead of many resources with all types again
+    QMap<QString, QStringList> resultList;
+    while( it.next() ) {
+        Soprano::BindingSet p = it.current();
+
+        // get either a new entry or what we have inserted beforehand
+        QStringList curEntry = resultList.value( p.value("r").toString(), QStringList());
+
+        // now set / add each queried value into the StringList
+        if (curEntry.isEmpty() ) {
+
+            curEntry << p.value("star").toString() << p.value("reviewed").toString() << p.value("publication").toString()
+                     << p.value("title").toString() << p.value("folder").toString() << p.value("date").toString();
+        }
+        else {
+            QString star = p.value("star").toString();
+            if(!star.isEmpty())
+                curEntry[Column_StarRate] = star;
+
+            QString reviewed = p.value("reviewed").toString();
+            if(!reviewed.isEmpty())
+                curEntry[Column_Reviewed] = reviewed;
+
+            QString publication = p.value("publication").toString();
+            if(!publication.isEmpty())
+                curEntry[Column_Publication] = publication;
+
+            QString title = p.value("title").toString();
+            if(!title.isEmpty())
+                curEntry[Column_Title] = title;
+
+            QString folder = p.value("folder").toString();
+            if(!folder.isEmpty())
+                curEntry[Column_Folder] = folder;
+
+            QString date = p.value("date").toString();
+            if(!date.isEmpty())
+                curEntry[Column_Date] = date;
+        }
+
+        // and save the result back into the map
+        resultList.insert(p.value("r").toString(), curEntry);
+    }
+
+    QTime t3 = QTime::currentTime();
+    kDebug() << "###### prefilter Finished ########## after" << t2.msecsTo(t3) << "msec";
+
+    // now create the cache entries from all returned search results
+    QList<CachedRowEntry> newCache;
+    QMapIterator<QString, QStringList> i(resultList);
+    while (i.hasNext()) {
+        i.next();
+
+        // create the cache entries for each search result
+        CachedRowEntry cre;
+        cre.displayColums = createDisplayData(i.value());
+        cre.decorationColums = createDecorationData(i.value());
+        cre.resource = Nepomuk2::Resource::fromResourceUri( KUrl( i.key() ) );
+        cre.timestamp = QDateTime::currentDateTime();
+        newCache.append(cre);
+
+        m_resourceWatcher->addResource( cre.resource );
+    }
+
+    QTime t4 = QTime::currentTime();
+    kDebug() << "add ########## " << newCache.size() << " ############## entires after" << t3.msecsTo(t4) << "msec. total" << t1.msecsTo(t4) << "msec";
+
+    emit newCacheEntries(newCache);
+    m_resourceWatcher->start();
+
+    emit queryFinished();
+
+    /*
     if(m_library->libraryType() == Library_Project) {
         Nepomuk2::Query::OrTerm orTerm;
         orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
@@ -76,29 +192,92 @@ void DocumentQuery::startFetchData()
         mainOrTerm.addSubTerm(subAndTerm);
     }
 
-    mainOrTerm.addSubTerm(andTerm);
+    */
 
-
-    // build the query
-    Nepomuk2::Query::Query query( mainOrTerm );
-    m_queryClient->query(query);
 }
 
-void DocumentQuery::resourceChanged (const Nepomuk2::Resource &resource)
+QVariantList DocumentQuery::createDisplayData(const QStringList & item) const
 {
-    if(!resource.hasType(Nepomuk2::Vocabulary::NFO::PaginatedTextDocument()))
-        return;
+    QVariantList displayList;
+    displayList.reserve(Max_columns-1);
 
-    QList<CachedRowEntry> newCache;
+    for(int i = 0; i < Max_columns; i++) {
+        QVariant newEntry;
+        switch(i) {
 
-    CachedRowEntry cre;
-    cre.displayColums = createDisplayData(resource);
-    cre.decorationColums = createDecorationData(resource);
-    cre.resource = resource;
-    newCache.append(cre);
+        case Column_Date: {
 
-    emit updateCacheEntries(newCache);
+            QDateTime date = QDateTime::fromString( item.at(Column_Date), Qt::ISODate);
+            if(date.isValid()) {
+                newEntry = date.toString("dd.MM.yyyy");
+            }
+
+            break;
+        }
+        case Column_FileName:
+        {
+            KUrl fn( item.at(Column_Folder));
+            newEntry = fn.fileName();
+            break;
+        }
+        case Column_Folder: {
+            QString folderString = item.at(Column_Folder);
+            KUrl fn( item.at(Column_Folder));
+            QString filenameString = fn.fileName();
+
+            folderString.remove(filenameString);
+            folderString.remove(QLatin1String("file://"));
+            folderString.replace(QRegExp(QLatin1String("/home/\\w*/")), QLatin1String("~/"));
+
+            newEntry = folderString;
+            break;
+        }
+        case Column_StarRate:
+        case Column_Title:
+            newEntry = item.at(i);
+            break;
+        default:
+            newEntry = QVariant();
+        }
+
+        displayList.append(newEntry);
+    }
+
+    return displayList;
 }
+
+QVariantList DocumentQuery::createDecorationData(const QStringList & item) const
+{
+    QVariantList decorationList;
+    decorationList.reserve(Max_columns-1);
+
+    for(int i = 0; i < Max_columns; i++) {
+        QVariant newEntry;
+        switch(i) {
+        case Column_Publication: {
+            if( !item.at(Column_Publication).isEmpty()) {
+                newEntry = KIcon(QLatin1String("bookmarks-organize"));
+            }
+            else {
+                newEntry = QVariant();
+            }
+            break;
+        }
+        case Column_Reviewed:
+        {
+            newEntry = KIcon(QLatin1String("dialog-ok-apply"));
+            break;
+        }
+        default:
+            newEntry = QVariant();
+        }
+
+        decorationList.append(newEntry);
+    }
+
+    return decorationList;
+}
+
 
 QVariantList DocumentQuery::createDisplayData(const Nepomuk2::Resource & res) const
 {
@@ -135,27 +314,6 @@ QVariantList DocumentQuery::createDisplayData(const Nepomuk2::Resource & res) co
             }
             else {
                 newEntry = dateString;
-            }
-            break;
-        }
-        case Column_Author: {
-            Nepomuk2::Resource publication = res.property(Nepomuk2::Vocabulary::NBIB::publishedAs()).toResource();
-
-            if(!publication.isValid()) {
-                newEntry = QVariant();
-            }
-            else {
-                QString authorSting;
-                QList<Nepomuk2::Resource> authorList;
-
-                authorList = publication.property(Nepomuk2::Vocabulary::NCO::creator()).toResourceList();
-
-                foreach(const Nepomuk2::Resource & a, authorList) {
-                    authorSting.append(a.genericLabel());
-                    authorSting.append(QLatin1String("; "));
-                }
-                authorSting.chop(2);
-                newEntry = authorSting;
             }
             break;
         }

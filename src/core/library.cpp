@@ -33,8 +33,6 @@
 #include "models/publicationfiltermodel.h"
 #include "models/documentmodel.h"
 #include "models/notemodel.h"
-#include "models/bookmarkmodel.h"
-#include "models/mailmodel.h"
 #include "models/seriesmodel.h"
 #include "models/seriesfiltermodel.h"
 #include "models/eventmodel.h"
@@ -373,14 +371,6 @@ void Library::deleteResource(const Nepomuk2::Resource & resource )
             SIGNAL(result(KJob*)), this, SLOT(nepomukDMSfinishedInfo(KJob*)));
 }
 
-void Library::updateCacheData()
-{
-    foreach(QSortFilterProxyModel *atm, m_resources) {
-        NepomukModel *nm = qobject_cast<NepomukModel *>(atm->sourceModel());
-        nm->updateCacheData();
-    }
-}
-
 QSortFilterProxyModel* Library::viewModel(ResourceSelection selection)
 {
     return m_resources.value(selection);
@@ -394,15 +384,6 @@ QMap<ResourceSelection, QSortFilterProxyModel*> Library::viewModels()
 TagCloud *Library::tagCloud()
 {
     return m_tagCloud;
-}
-
-void Library::finishedInitialImport()
-{
-    m_initialImportFinished++;
-
-    if(m_initialImportFinished == m_resources.size()) {
-        //m_tagCloud->pauseUpdates(false);
-    }
 }
 
 void Library::nepomukDMSfinishedInfo(KJob *job)
@@ -421,17 +402,6 @@ void Library::setupModels()
     documentFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     documentFilter->setSourceModel(documentModel);
     m_resources.insert(Resource_Document, documentFilter);
-    connectModelToTagCloud(documentModel);
-
-    /*
-    BookmarkModel *bookmarkModel = new BookmarkModel;
-    bookmarkModel->setLibrary(this);
-    QSortFilterProxyModel *bookmarkFilter = new QSortFilterProxyModel;
-    bookmarkFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    bookmarkFilter->setSourceModel(bookmarkModel);
-    m_resources.insert(Resource_Website, bookmarkFilter);
-    connectModelToTagCloud(bookmarkModel);
-    */
 
     ReferenceModel *referencesModel = new ReferenceModel;
     referencesModel->setLibrary(this);
@@ -439,7 +409,6 @@ void Library::setupModels()
     referenceFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     referenceFilter->setSourceModel(referencesModel);
     m_resources.insert(Resource_Reference, referenceFilter);
-    connectModelToTagCloud(referencesModel);
 
     PublicationModel *publicationModel = new PublicationModel;
     publicationModel->setLibrary(this);
@@ -447,7 +416,6 @@ void Library::setupModels()
     publicationFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     publicationFilter->setSourceModel(publicationModel);
     m_resources.insert(Resource_Publication, publicationFilter);
-    connectModelToTagCloud(publicationModel);
 
     SeriesModel *seriesModel = new SeriesModel;
     seriesModel->setLibrary(this);
@@ -455,7 +423,6 @@ void Library::setupModels()
     seriesFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     seriesFilter->setSourceModel(seriesModel);
     m_resources.insert(Resource_Series, seriesFilter);
-    connectModelToTagCloud(seriesModel);
 
     NoteModel *noteModel = new NoteModel;
     noteModel->setLibrary(this);
@@ -463,7 +430,6 @@ void Library::setupModels()
     noteFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     noteFilter->setSourceModel(noteModel);
     m_resources.insert(Resource_Note, noteFilter);
-    connectModelToTagCloud(noteModel);
 
     EventModel *eventModel = new EventModel;
     eventModel->setLibrary(this);
@@ -471,24 +437,6 @@ void Library::setupModels()
     eventFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     eventFilter->setSourceModel(eventModel);
     m_resources.insert(Resource_Event, eventFilter);
-    connectModelToTagCloud(eventModel);
-
-    if(m_libraryType == Library_Project) {
-        MailModel *mailModel = new MailModel;
-        mailModel->setLibrary(this);
-        QSortFilterProxyModel *mailFilter = new QSortFilterProxyModel;
-        mailFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
-        mailFilter->setSourceModel(mailModel);
-        m_resources.insert(Resource_Mail, mailFilter);
-        connectModelToTagCloud(mailModel);
-
-        /*
-        ResourceModel *MediaModel = new ResourceModel;
-        MediaModel->setLibrary(this);
-        m_resources.insert(Resource_Media, MediaModel);
-        connectModelToTagCloud(MediaModel);
-        */
-    }
 
     if(ConqSettings::cacheOnStartUp()) {
         emit statusMessage(i18n("load document cache ..."));
@@ -504,12 +452,4 @@ void Library::setupModels()
         emit statusMessage(i18n("load event cache ..."));
         eventModel->loadCache();
     }
-}
-
-void Library::connectModelToTagCloud(NepomukModel *model)
-{
-//    connect(model, SIGNAL(resourceAdded(Nepomuk2::Resource)), m_tagCloud, SLOT(addResource(Nepomuk2::Resource)));
-//    connect(model, SIGNAL(resourceRemoved(QUrl)), m_tagCloud, SLOT(removeResource(QUrl)));
-//    connect(model, SIGNAL(resourceUpdated(Nepomuk::Resource)), m_tagCloud, SLOT(updateResource(Nepomuk::Resource)));
-    connect(model, SIGNAL(queryFinished()), this, SLOT(finishedInitialImport()));
 }

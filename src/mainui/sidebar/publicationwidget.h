@@ -49,14 +49,6 @@ public slots:
       */
     void setResource(Nepomuk2::Resource & resource);
 
-    /**
-      * This slot gets called from the propertywidgets, replace the subresource with the main nepomuk resource
-      * and calls resourceCacheNeedsUpdate()
-      *
-      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
-      */
-    void subResourceUpdated(Nepomuk2::Resource resource);
-
 signals:
     void hasReference(bool reference);
 

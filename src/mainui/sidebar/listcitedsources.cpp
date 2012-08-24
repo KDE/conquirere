@@ -130,8 +130,6 @@ void ListCitedSources::editReference()
     QString title = publication.property(NIE::title()).toString();
     QString showText = QLatin1String("[") + citeKey + QLatin1String("] ") + title;
     i->setText( showText );
-
-    emit resourceCacheNeedsUpdate(m_resource);
 }
 
 void ListCitedSources::findeMoreReferences()
@@ -180,8 +178,6 @@ void ListCitedSources::addReference()
         ui->editPart->setEnabled(true);
         ui->removePart->setEnabled(true);
     }
-
-    emit resourceCacheNeedsUpdate(m_resource);
 }
 
 void ListCitedSources::removeReference()
@@ -199,8 +195,6 @@ void ListCitedSources::removeReference()
     Nepomuk2::removeProperty(resUri, NBIB::citedReference(), value);
 
     ui->listWidget->setCurrentRow(0);
-
-    emit resourceCacheNeedsUpdate(m_resource);
 
     if(ui->listWidget->count() == 0) {
         ui->editPart->setEnabled(false);

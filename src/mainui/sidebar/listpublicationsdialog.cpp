@@ -97,8 +97,6 @@ void ListPublicationsDialog::setLibraryManager(LibraryManager *lm)
 {
     m_libraryManager = lm;
 
-    connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), m_libraryManager, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
-
     showLibraryModel(lm->systemLibrary());
 
     foreach(Library *l, lm->openProjects()) {
@@ -345,7 +343,7 @@ void ListPublicationsDialog::showLibraryModel(Library *p)
 
     ui->tableView->selectRow(0);
 
-    QList<int> fixedWithList = nm->fixedWithSections();
+    QList<int> fixedWithList = nm->fixedWidthSections();
     foreach(int section, fixedWithList) {
         hv->setResizeMode(section, QHeaderView::Fixed);
     }
@@ -397,7 +395,6 @@ void ListPublicationsDialog::createNew()
 
     if(ret == KDialog::Ok || ret == KDialog::Accepted) {
         ui->tableView->selectRow(ui->tableView->model()->rowCount());
-        emit resourceCacheNeedsUpdate( sbcWidget->resource() );
     }
     else {
         // remove resource and anything that only depends on it again

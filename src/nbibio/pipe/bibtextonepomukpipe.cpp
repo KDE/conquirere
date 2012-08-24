@@ -47,6 +47,7 @@
 #include "sro/nao/tag.h"
 #include "sro/nfo/filedataobject.h"
 #include "sro/nfo/website.h"
+#include "sro/nfo/webdataobject.h"
 #include "sro/nfo/document.h"
 #include "sro/nco/postaladdress.h"
 #include "sro/nco/personcontact.h"
@@ -1998,7 +1999,7 @@ void BibTexToNepomukPipe::addWebsite(const QString &content, Nepomuk2::NBIB::Pub
 
     if( url.scheme().startsWith("http") && url.isValid()) {
         Nepomuk2::NFO::Website website ( url );
-        //website.addType(NFO::WebDataObject());
+        website.addType(NFO::WebDataObject());
 
         publication.addProperty(NIE::links(), website.uri() );
 

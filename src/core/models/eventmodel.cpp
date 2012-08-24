@@ -26,7 +26,6 @@ EventModel::EventModel(QObject *parent)
     : NepomukModel(parent)
 {
     m_queryClient = new EventQuery();
-    m_queryClient->setModel(this);
 
     connect(m_queryClient, SIGNAL(newCacheEntries(QList<CachedRowEntry>)), this, SLOT(addCacheData(QList<CachedRowEntry>)));
     connect(m_queryClient, SIGNAL(updateCacheEntries(QList<CachedRowEntry>)), this, SLOT(updateCacheData(QList<CachedRowEntry>)));
@@ -104,7 +103,7 @@ int EventModel::defaultSectionSize(int i) const
     return 100;
 }
 
-QList<int> EventModel::fixedWithSections() const
+QList<int> EventModel::fixedWidthSections() const
 {
     QList<int> fixedWith;
     fixedWith << EventQuery::Column_StarRate << EventQuery::Column_Akonadi;

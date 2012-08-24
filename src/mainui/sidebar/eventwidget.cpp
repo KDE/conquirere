@@ -59,12 +59,6 @@ EventWidget::EventWidget(QWidget *parent)
 
     ui->editPlace->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
     ui->editPlace->setPropertyUrl( NCO::addressLocation() );
-
-    connect(ui->editTags, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
-    connect(ui->editName, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->editAttendee, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->editPlace, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
-    connect(ui->listPartsWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SLOT(subResourceUpdated()));
 }
 
 EventWidget::~EventWidget()
@@ -162,10 +156,6 @@ void EventWidget::deleteButtonClicked()
     KJob *job1 = Nepomuk2::addProperty(resUri, NBIB::event(), value);
     job1->exec(); // blocking wait ...
 
-    foreach(const Nepomuk2::Resource &r, pubList) {
-        emit resourceCacheNeedsUpdate(r);
-    }
-
     libraryManager()->systemLibrary()->deleteResource( m_eventThing );
 
     Nepomuk2::Resource invalid;
@@ -181,21 +171,5 @@ void EventWidget::changeRating(int newRating)
     QList<QUrl> resourceUris; resourceUris << m_eventThing.uri();
     QVariantList rating; rating <<  newRating;
     KJob *job = Nepomuk2::setProperty(resourceUris, NAO::numericRating(), rating);
-
-    if(job->exec()) {
-        emit resourceCacheNeedsUpdate(m_eventThing);
-    }
-}
-
-void EventWidget::subResourceUpdated()
-{
-    // emit event cache changes
-    emit resourceCacheNeedsUpdate(m_eventThing);
-
-    // also emit changes to the publications cache entries
-    QList<Nepomuk2::Resource> pubList = m_eventThing.property(NBIB::eventPublication()).toResourceList();
-
-    foreach(const Nepomuk2::Resource &r, pubList) {
-        emit resourceCacheNeedsUpdate(r);
-    }
+    job->exec();
 }

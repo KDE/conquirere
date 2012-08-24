@@ -126,7 +126,6 @@ void ListAnnotationsWidget::editAnnotation()
     }
 
     i->setText( title );
-    emit resourceCacheNeedsUpdate(m_resource);
 }
 
 void ListAnnotationsWidget::addAnnotation()
@@ -184,8 +183,6 @@ void ListAnnotationsWidget::addAnnotation()
     }
 
     delete addAnnotationWidget;
-
-    emit resourceCacheNeedsUpdate(m_resource);
 }
 
 void ListAnnotationsWidget::removeAnnotation()
@@ -200,8 +197,6 @@ void ListAnnotationsWidget::removeAnnotation()
     delete i;
 
     ui->listWidget->setCurrentRow(0);
-
-    emit resourceCacheNeedsUpdate(m_resource);
 
     if(ui->listWidget->count() == 0) {
         ui->editPart->setEnabled(false);

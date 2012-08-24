@@ -33,30 +33,29 @@ public:
         Column_StarRate,
         Column_Reviewed,
         Column_Publication,
-        Column_Author,
         Column_Title,
-        Column_FileName,
         Column_Folder,
         Column_Date,
+        Column_FileName,
 
         Max_columns
     };
 
     explicit DocumentQuery(QObject *parent = 0);
+    ~DocumentQuery();
 
 public slots:
     void startFetchData();
 
-    /**
-      * Indicates that the resource has been changed and the cache needs an update
-      *
-      * @todo remove when starting to use ResourceWatcher later on
-      */
-    void resourceChanged (const Nepomuk2::Resource &resource);
-
 private:
+    // creates cache entries from Soprano:Model search
+    QVariantList createDisplayData(const QStringList & item) const;
+    QVariantList createDecorationData(const QStringList & item) const;
+
     QVariantList createDisplayData(const Nepomuk2::Resource & res) const;
     QVariantList createDecorationData(const Nepomuk2::Resource & res) const;
+
+    Nepomuk2::ResourceWatcher* m_newWatcher;
 };
 
 #endif // DOCUMENTQUERY_H

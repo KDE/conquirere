@@ -36,7 +36,7 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     int defaultSectionSize(int i) const;
-    QList<int> fixedWithSections() const;
+    QList<int> fixedWidthSections() const;
 
     QString id();
 };

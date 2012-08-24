@@ -86,7 +86,6 @@ Library *LibraryManager::libFromResourceUri(const QUrl &projectThing)
 void LibraryManager::addLibrary(Library *l)
 {
     m_openProjectList.append(l);
-    connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), l, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 
     foreach (QSortFilterProxyModel *model, l->viewModels()) {
         NepomukModel *m = qobject_cast<NepomukModel *>(model->sourceModel());
@@ -100,7 +99,6 @@ void LibraryManager::addLibrary(Library *l)
 void LibraryManager::addSystemLibrary(Library *l)
 {
     m_systemLibrary = l;
-    connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), m_systemLibrary, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 
     foreach (QSortFilterProxyModel *model, l->viewModels()) {
         NepomukModel *m = qobject_cast<NepomukModel *>(model->sourceModel());
@@ -255,13 +253,4 @@ void LibraryManager::syncData(Library *l, ModeSelection mode)
     else {
 
     }
-}
-
-void LibraryManager::updateListCache()
-{
-    foreach(Library *l, m_openProjectList) {
-        l->updateCacheData();
-    }
-
-    m_systemLibrary->updateCacheData();
 }

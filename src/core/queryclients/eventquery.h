@@ -21,7 +21,7 @@
 #include "queryclient.h"
 
 /**
-  * @brief @c QueryClient to populate the @c EventModel with the @c pimo:Event and ncal:Event nepomuk resources
+  * @brief @c QueryClient to populate the @c EventModel with all @c ncal:Event resources that have publications attached
   *
   * @see EventModel
   */
@@ -31,29 +31,29 @@ class EventQuery : public QueryClient
 public:
     enum ColumnList {
         Column_StarRate,
-        Column_Akonadi,
         Column_Title,
-        Column_Publication,
         Column_Date,
+        Column_Publication,
+        Column_Akonadi,
 
         Max_columns
     };
 
     explicit EventQuery(QObject *parent = 0);
+    ~EventQuery();
 
 public slots:
     void startFetchData();
 
-    /**
-      * Indicates that the resource has been changed and the cache needs an update
-      *
-      * @todo remove when starting to use ResourceWatcher later on
-      */
-    void resourceChanged (const Nepomuk2::Resource &resource);
-
 private:
-    QVariantList createDisplayData(const Nepomuk2::Resource & res) const;
-    QVariantList createDecorationData(const Nepomuk2::Resource & res) const;
+    // creates cache entries from Soprano:Model search
+    QVariantList createDisplayData(const QStringList & item) const;
+    QVariantList createDecorationData(const QStringList & item) const;
+
+    QVariantList createDisplayData(const Nepomuk2::Resource & resource) const;
+    QVariantList createDecorationData(const Nepomuk2::Resource & resource) const;
+
+    Nepomuk2::ResourceWatcher* m_newWatcher;
 };
 
 #endif // EVENTQUERY_H

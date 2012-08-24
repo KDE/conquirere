@@ -145,13 +145,6 @@ public:
     void deleteResource(const Nepomuk2::Resource & resource);
 
     /**
-      * Updates all cached list data
-      *
-      * @todo can be removed when the ResourceWatcher is working
-      */
-    void updateCacheData();
-
-    /**
       * Returns the model for a specific library Resource.
       *
       * @p selection one of the ResourceSelection types
@@ -166,18 +159,9 @@ public:
     QMap<ResourceSelection, QSortFilterProxyModel*> viewModels();
 
 signals:
-    /**
-      * This signal gets thrown when the resource was changed and must be updated in the table model cache
-      * redirects the signal from all propertywidgets
-      *
-      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
-      */
-    void resourceCacheNeedsUpdate(Nepomuk2::Resource resource);
-
     void statusMessage(const QString & message);
 
 private slots:
-    void finishedInitialImport();
     void nepomukDMSfinishedInfo(KJob *job);
 
 private:
@@ -189,7 +173,6 @@ private:
       * when a Nepomuk2::Resource is created or removed
       */
     void setupModels();
-    void connectModelToTagCloud(NepomukModel *model);
 
     LibraryType m_libraryType;
     ProjectSettings *m_projectSettings;

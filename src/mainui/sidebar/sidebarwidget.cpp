@@ -354,8 +354,6 @@ void SidebarWidget::setLibraryManager(LibraryManager* lm)
     m_seriesWidget->setLibraryManager(m_libraryManager);
     m_mailWidget->setLibraryManager(m_libraryManager);
     m_mergeWidget->setLibraryManager(m_libraryManager);
-
-    connect(this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), m_libraryManager, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 }
 
 void SidebarWidget::hasPublication(bool publication)
@@ -609,33 +607,26 @@ void SidebarWidget::setupUi()
 
     m_documentWidget = new DocumentWidget(this);
     m_stackedLayout->addWidget(m_documentWidget);
-    connect(m_documentWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 
     PublicationWidget * pw = new PublicationWidget(this);
     m_stackedLayout->addWidget(pw);
-    connect(pw, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
     connect(pw, SIGNAL(openDocument(Nepomuk2::Resource&,bool)), this, SIGNAL(openDocument(Nepomuk2::Resource&,bool)));
     m_publicationWidget = pw;
 
     m_referenceWidget = new ReferenceWidget(this);
     m_stackedLayout->addWidget(m_referenceWidget);
-    connect(m_referenceWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 
     m_noteWidget = new NoteWidget(this);
     m_stackedLayout->addWidget(m_noteWidget);
-    connect(m_noteWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 
     m_eventWidget = new EventWidget(this);
     m_stackedLayout->addWidget(m_eventWidget);
-    connect(m_eventWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 
     m_seriesWidget = new SeriesWidget(this);
     m_stackedLayout->addWidget(m_seriesWidget);
-    connect(m_seriesWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 
     m_mailWidget = new MailWidget(this);
     m_stackedLayout->addWidget(m_mailWidget);
-    connect(m_mailWidget, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)), this, SIGNAL(resourceCacheNeedsUpdate(Nepomuk2::Resource)));
 
     m_currentWidget = m_libraryInfoWidget;
     m_stackedLayout->setCurrentWidget(m_libraryInfoWidget);

@@ -28,7 +28,6 @@ DocumentModel::DocumentModel(QObject *parent)
     : NepomukModel(parent)
 {
     m_queryClient = new DocumentQuery();
-    m_queryClient->setModel(this);
 
     connect(m_queryClient, SIGNAL(newCacheEntries(QList<CachedRowEntry>)), this, SLOT(addCacheData(QList<CachedRowEntry>)));
     connect(m_queryClient, SIGNAL(updateCacheEntries(QList<CachedRowEntry>)), this, SLOT(updateCacheData(QList<CachedRowEntry>)));
@@ -73,8 +72,6 @@ QVariant DocumentModel::headerData(int section, Qt::Orientation orientation, int
             return QVariant();
         case DocumentQuery::Column_Publication:
             return QVariant();
-        case DocumentQuery::Column_Author:
-            return i18nc("Header for the author column","Author");
         case DocumentQuery::Column_Title:
             return i18nc("Header for the title column","Title");
         case DocumentQuery::Column_Date:
@@ -96,8 +93,6 @@ QVariant DocumentModel::headerData(int section, Qt::Orientation orientation, int
             return i18nc("ToolTip for the is reviewed column", "Reviewed");
         case DocumentQuery::Column_Publication:
             return i18nc("ToolTip for the publication is available for this file column", "Publication available");
-        case DocumentQuery::Column_Author:
-            return i18nc("ToolTip for the author column", "The author of the document");
         case DocumentQuery::Column_Title:
             return i18nc("ToolTip for the document title column", "The document title");
         case DocumentQuery::Column_Date:
@@ -123,8 +118,6 @@ int DocumentModel::defaultSectionSize(int i) const
         return 25;
     case DocumentQuery::Column_Publication:
         return 25;
-    case DocumentQuery::Column_Author:
-        return 100;
     case DocumentQuery::Column_Title:
         return 300;
     case DocumentQuery::Column_Date:
@@ -140,7 +133,7 @@ int DocumentModel::defaultSectionSize(int i) const
     return 100;
 }
 
-QList<int> DocumentModel::fixedWithSections() const
+QList<int> DocumentModel::fixedWidthSections() const
 {
     QList<int> fixedWith;
     fixedWith << DocumentQuery::Column_Reviewed << DocumentQuery::Column_StarRate << DocumentQuery::Column_Publication;

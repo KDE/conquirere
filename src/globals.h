@@ -339,6 +339,125 @@ static BibEntryType BibEntryTypeFromUrl(const Nepomuk2::Resource & resource)
     return BibType_Misc;
 }
 
+static BibEntryType BibEntryTypeFromUrl(const QList<QUrl> & urlList)
+{
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Proceedings())) {
+        return BibType_Proceedings;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::MastersThesis())) {
+        return BibType_Mastersthesis;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::PhdThesis())) {
+        return BibType_Phdthesis;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::BachelorThesis())) {
+        return BibType_Bachelorthesis;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Thesis())) {
+        return BibType_Thesis;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Book())) {
+        return BibType_Book;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Booklet())) {
+        return BibType_Booklet;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Manual())) {
+        return BibType_Manual;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Techreport())) {
+        return BibType_Techreport;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Unpublished())) {
+        return BibType_Unpublished;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Patent())) {
+        return BibType_Patent;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Forum())) {
+        return BibType_Forum;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::ForumPost())) {
+        return BibType_ForumPost;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Blog())) {
+        return BibType_Blog;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::BlogPost())) {
+        return BibType_BlogPost;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Webpage())) {
+        return BibType_WebPage;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Website())) {
+        return BibType_WebSite;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::JournalIssue())) {
+        return BibType_JournalIssue;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::NewspaperIssue())) {
+        return BibType_NewspaperIssue;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::MagazinIssue())) {
+        return BibType_MagazinIssue;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Report())) {
+        return BibType_Report;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Script())) {
+        return BibType_Script;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Presentation())) {
+        return BibType_Presentation;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Encyclopedia())) {
+        return BibType_Encyclopedia;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Dictionary())) {
+        return BibType_Dictionary;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Standard())) {
+        return BibType_Standard;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Bill())) {
+        return BibType_Bill;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Decision())) {
+        return BibType_Decision;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Brief())) {
+        return BibType_Brief;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Statute())) {
+        return BibType_Statute;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::CodeOfLaw())) {
+        return BibType_CodeOfLaw;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::CourtReporter())) {
+        return BibType_CourtReporter;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::LegalCaseDocument())) {
+        return BibType_LegalCaseDocument;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Legislation())) {
+        return BibType_Legislation;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Collection())) {
+        return BibType_Collection;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Electronic())) {
+        return BibType_Electronic;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Map())) {
+        return BibType_Map;
+    }
+    if(urlList.contains(Nepomuk2::Vocabulary::NBIB::Article())) {
+        return BibType_Article;
+    }
+    return BibType_Misc;
+}
+
 enum SeriesType {
     SeriesType_Series = 0,
     SeriesType_BookSeries,
@@ -366,6 +485,23 @@ static const QList<QUrl> SeriesTypeURL = QList<QUrl>() << Nepomuk2::Vocabulary::
                                                        << Nepomuk2::Vocabulary::NBIB::Journal()
                                                        << Nepomuk2::Vocabulary::NBIB::Magazin()
                                                        << Nepomuk2::Vocabulary::NBIB::Newspaper();
+
+static SeriesType SeriesTypeFromUrl(const QList<QUrl> & urllist)
+{
+    if(urllist.contains(Nepomuk2::Vocabulary::NBIB::BookSeries())) {
+        return SeriesType_BookSeries;
+    }
+    if(urllist.contains(Nepomuk2::Vocabulary::NBIB::Journal())) {
+        return SeriesType_Journal;
+    }
+    if(urllist.contains(Nepomuk2::Vocabulary::NBIB::Magazin())) {
+        return SeriesType_Magazin;
+    }
+    if(urllist.contains(Nepomuk2::Vocabulary::NBIB::Newspaper())) {
+        return SeriesType_Newspaper;
+    }
+    return SeriesType_Series;
+}
 
 static SeriesType SeriesTypeFromUrl(const Nepomuk2::Resource & resource)
 {
