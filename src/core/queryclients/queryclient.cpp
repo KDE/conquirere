@@ -19,17 +19,19 @@
 
 #include "nbibio/conquirere.h"
 #include "globals.h"
+#include "../library.h"
+#include "../projectsettings.h"
 #include "../models/nepomukmodel.h"
 
 #include "nbib.h"
-#include <Nepomuk2/Vocabulary/NCAL>
-#include <Nepomuk2/Vocabulary/PIMO>
-#include <Nepomuk2/Vocabulary/NIE>
+#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk2/Variant>
 
 
 QueryClient::QueryClient(QObject *parent)
     :QObject(parent)
+    , m_library(0)
+    , m_resourceWatcher(0)
 {
     qRegisterMetaType<CachedRowEntry>("CachedRowEntry");
     qRegisterMetaType<QList<CachedRowEntry> >("QList<CachedRowEntry>");
@@ -38,6 +40,7 @@ QueryClient::QueryClient(QObject *parent)
 QueryClient::~QueryClient()
 {
     m_resourceWatcher->stop();
+    delete m_resourceWatcher;
 }
 
 void QueryClient::setLibrary(Library *selectedLibrary)
@@ -45,13 +48,27 @@ void QueryClient::setLibrary(Library *selectedLibrary)
     m_library = selectedLibrary;
 }
 
-void QueryClient::propertyChanged (const Nepomuk2::Resource &resource, const Nepomuk2::Types::Property &property, const QVariantList &oldValue, const QVariantList &newValue)
+void QueryClient::propertyChanged (const Nepomuk2::Resource &resource, const Nepomuk2::Types::Property &property, const QVariantList &addedValues, const QVariantList &removedValues)
 {
     Q_UNUSED(property);
-    Q_UNUSED(oldValue);
-    Q_UNUSED(newValue);
 
-    updateCacheEntry(resource);
+    // see if we need to add / remove the changed resource from the project model
+    if(property.uri() == Soprano::Vocabulary::NAO::isRelated() ) {
+        if(m_library->libraryType() == Library_Project) {
+            if(addedValues.contains( m_library->settings()->projectThing().uri().toString() )) {
+                kDebug() << resource.genericLabel() << "added to" << m_library->settings()->projectThing().genericLabel();
+                updateCacheEntry(resource);
+            }
+            else if(removedValues.contains( m_library->settings()->projectThing().uri().toString() )) {
+                kDebug() << resource.genericLabel() << "removed from" << m_library->settings()->projectThing().genericLabel();
+                emit removeCacheEntries(QList<QUrl>() << resource.uri());
+            }
+        }
+        //else {...} ignore this case for system library
+    }
+    else {
+        updateCacheEntry(resource);
+    }
 }
 
 void QueryClient::resourceTypeChanged (const Nepomuk2::Resource &resource, const Nepomuk2::Types::Class &type)
@@ -80,7 +97,9 @@ void QueryClient::resourceCreated(const Nepomuk2::Resource & resource, const QLi
     cre.decorationColums = createDecorationData(resource);
     cre.resource = resource;
     newCache.append(cre);
+    m_resourceWatcher->stop(); //TODO: check if stopping resourceWatcher is necessary
     m_resourceWatcher->addResource(resource);
+    m_resourceWatcher->start();
 
     emit newCacheEntries(newCache);
 }

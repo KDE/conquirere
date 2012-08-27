@@ -41,6 +41,7 @@ SeriesQuery::SeriesQuery(QObject *parent)
 SeriesQuery::~SeriesQuery()
 {
     m_newWatcher->stop();
+    delete m_newWatcher;
 }
 
 void SeriesQuery::startFetchData()
@@ -48,6 +49,12 @@ void SeriesQuery::startFetchData()
     // keep track of newly added resources
     m_newWatcher = new Nepomuk2::ResourceWatcher(this);
     m_newWatcher->addType(Nepomuk2::Vocabulary::NBIB::Series());
+
+    if(m_library->libraryType() == Library_Project) {
+        m_newWatcher->addProperty(Soprano::Vocabulary::NAO::isRelated());
+        connect(m_newWatcher, SIGNAL(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)),
+                this, SLOT(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)) );
+    }
 
     connect(m_newWatcher, SIGNAL(resourceCreated(Nepomuk2::Resource,QList<QUrl>)),
             this, SLOT(resourceCreated(Nepomuk2::Resource,QList<QUrl>)) );
@@ -77,6 +84,14 @@ void SeriesQuery::startFetchData()
 
     QTime t1 = QTime::currentTime();
 
+    // helping string to filter for all documents that are related to the current project
+    QString projectRelated;
+    QString projectTag;
+    if(m_library->libraryType() == Library_Project) {
+        projectRelated = QString("?r nao:isRelated  <%1> .").arg(m_library->settings()->projectThing().uri().toString());
+        projectTag = QString("UNION { ?r nao:hasTag  <%1> . }").arg(m_library->settings()->projectTag().uri().toString() );
+    }
+
     // first fetch all series
     // this will lead to duplicates as we fetch for seriesOf publication names and types too
     // for each rdf:type and each connected publicaion (seriesOf) we get the resource as result
@@ -93,9 +108,11 @@ void SeriesQuery::startFetchData()
                                         "OPTIONAL { ?r rdf:type ?type . }"
                                         "Filter (?type != rdfs:Resource)"
                                         "Filter (?type != nie:InformationElement)"
-                                        //this might hide valid resources that are not further defined as book or some thing else. Won't happen often though
+
+                                        // this might hide valid resources that are not further defined as book or some thing else. Won't happen often though
                                         // but this would double the number of results we need t oquery due to the ?type query
                                         "Filter (?type != nbib:Series)"
+                                        + projectRelated.toLatin1() + " }" + projectTag.toLatin1() +
                                         "}");
 
     Soprano::Model* model = Nepomuk2::ResourceManager::instance()->mainModel();
@@ -170,22 +187,13 @@ void SeriesQuery::startFetchData()
 
     emit newCacheEntries(newCache);
 
-    m_resourceWatcher->start();
+    //don't start the watcher if we have no resources to watch
+    // will be started from the queryclient.h when updateResource inserts new items
+    if( !m_resourceWatcher->resources().isEmpty()) {
+        m_resourceWatcher->start();
+    }
 
     emit queryFinished();
-
-    /*
-    Nepomuk2::Query::AndTerm andTerm;
-
-    if(m_library->libraryType() == Library_Project) {
-        Nepomuk2::Query::OrTerm orTerm;
-        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
-                                                           Nepomuk2::Query::ResourceTerm( m_library->settings()->projectTag() )));
-        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
-                                                            Nepomuk2::Query::ResourceTerm(m_library->settings()->projectThing() )));
-        andTerm.addSubTerm(orTerm);
-    }
-    */
 }
 
 QVariantList SeriesQuery::createDisplayData(const QStringList & item) const

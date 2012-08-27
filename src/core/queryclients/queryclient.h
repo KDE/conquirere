@@ -70,7 +70,7 @@ signals:
 
 private slots:
     //process resourceWatcher signals
-    void propertyChanged (const Nepomuk2::Resource &resource, const Nepomuk2::Types::Property &property, const QVariantList &oldValue, const QVariantList &newValue);
+    void propertyChanged (const Nepomuk2::Resource &resource, const Nepomuk2::Types::Property &property, const QVariantList &addedValues, const QVariantList &removedValues);
     void resourceTypeChanged (const Nepomuk2::Resource &resource, const Nepomuk2::Types::Class &type);
     void resourceRemoved(const QUrl & uri, const QList<QUrl>& types);
     void resourceCreated(const Nepomuk2::Resource & resource, const QList<QUrl>& types);

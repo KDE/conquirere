@@ -39,6 +39,7 @@ NoteQuery::NoteQuery(QObject *parent)
 NoteQuery::~NoteQuery()
 {
     m_newWatcher->stop();
+    delete m_newWatcher;
 }
 
 void NoteQuery::startFetchData()
@@ -46,6 +47,12 @@ void NoteQuery::startFetchData()
     // keep track of newly added resources
     m_newWatcher = new Nepomuk2::ResourceWatcher(this);
     m_newWatcher->addType(Nepomuk2::Vocabulary::PIMO::Note());
+
+    if(m_library->libraryType() == Library_Project) {
+        m_newWatcher->addProperty(Soprano::Vocabulary::NAO::isRelated());
+        connect(m_newWatcher, SIGNAL(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)),
+                this, SLOT(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)) );
+    }
 
     connect(m_newWatcher, SIGNAL(resourceCreated(Nepomuk2::Resource,QList<QUrl>)),
             this, SLOT(resourceCreated(Nepomuk2::Resource,QList<QUrl>)) );
@@ -69,10 +76,18 @@ void NoteQuery::startFetchData()
 
     QTime t1 = QTime::currentTime();
 
+    // helping string to filter for all documents that are related to the current project
+    QString projectRelated;
+    QString projectTag;
+    if(m_library->libraryType() == Library_Project) {
+        projectRelated = QString("?r nao:isRelated  <%1> .").arg(m_library->settings()->projectThing().uri().toString());
+        projectTag = QString("UNION { ?r nao:hasTag  <%1> . }").arg(m_library->settings()->projectTag().uri().toString() );
+    }
+
     // first fetch all series
     // this will lead to duplicates as we fetch for seriesOf publication names and types too
     // for each rdf:type and each connected publicaion (seriesOf) we get the resource as result
-    QString query = QString::fromLatin1("select distinct ?r ?title ?star ?date ?tags where {"
+    QString query = QString::fromLatin1("select distinct ?r ?title ?star ?date ?tags where { {"
                                         "?r a pimo:Note . "
 
                                         "OPTIONAL { ?r nao:prefLabel ?reviewed . }" //FIXME: add reviewed to query, implement it first. tagging?
@@ -82,6 +97,7 @@ void NoteQuery::startFetchData()
                                         "OPTIONAL { ?r nao:lastModified ?date . }"
                                         "OPTIONAL { ?r nao:hasTag ?t . }"
                                         "OPTIONAL { ?t nao:prefLabel ?tag . }"
+                                        + projectRelated.toLatin1() + " }" + projectTag.toLatin1() +
 
                                         "}");
 
@@ -155,19 +171,13 @@ void NoteQuery::startFetchData()
 
     emit newCacheEntries(newCache);
 
-    m_resourceWatcher->start();
+    //don't start the watcher if we have no resources to watch
+    // will be started from the queryclient.h when updateResource inserts new items
+    if( !m_resourceWatcher->resources().isEmpty()) {
+        m_resourceWatcher->start();
+    }
 
     emit queryFinished();
-    /*
-    if(m_library->libraryType() == Library_Project) {
-        Nepomuk2::Query::OrTerm orTerm;
-        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
-                                                           Nepomuk2::Query::ResourceTerm( m_library->settings()->projectTag() )));
-        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
-                                                            Nepomuk2::Query::ResourceTerm(m_library->settings()->projectThing() )));
-        andTerm.addSubTerm(orTerm);
-    }
-    */
 }
 
 QVariantList NoteQuery::createDisplayData(const QStringList & item) const

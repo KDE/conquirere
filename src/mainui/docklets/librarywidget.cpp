@@ -406,7 +406,7 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
     root->addChild(twi3);
     connectModelSignals(twi3, p, Resource_Website);
     */
-
+/*
     if(root->data(0,Role_LibraryType).toInt() == Library_Project) {
         QLibraryTreeWidgetItem *twi2 = new QLibraryTreeWidgetItem();
         twi2->setText(0, i18n("Mails"));
@@ -418,6 +418,7 @@ void LibraryWidget::setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p)
         root->addChild(twi2);
         connectModelSignals(twi2, p, Resource_Mail);
     }
+    */
 }
 
 void LibraryWidget::connectModelSignals(QLibraryTreeWidgetItem *root, Library *p, ResourceSelection resourceType)

@@ -46,6 +46,7 @@ PublicationQuery::PublicationQuery(QObject *parent)
 PublicationQuery::~PublicationQuery()
 {
     m_newWatcher->stop();
+    delete m_newWatcher;
 }
 
 void PublicationQuery::startFetchData()
@@ -53,6 +54,12 @@ void PublicationQuery::startFetchData()
     // keep track of newly added resources
     m_newWatcher = new Nepomuk2::ResourceWatcher(this);
     m_newWatcher->addType(Nepomuk2::Vocabulary::NBIB::Publication());
+
+    if(m_library->libraryType() == Library_Project) {
+        m_newWatcher->addProperty(Soprano::Vocabulary::NAO::isRelated());
+        connect(m_newWatcher, SIGNAL(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)),
+                this, SLOT(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)) );
+    }
 
     connect(m_newWatcher, SIGNAL(resourceCreated(Nepomuk2::Resource,QList<QUrl>)),
             this, SLOT(resourceCreated(Nepomuk2::Resource,QList<QUrl>)) );
@@ -82,10 +89,18 @@ void PublicationQuery::startFetchData()
 
     QTime t1 = QTime::currentTime();
 
+    // helping string to filter for all documents that are related to the current project
+    QString projectRelated;
+    QString projectTag;
+    if(m_library->libraryType() == Library_Project) {
+        projectRelated = QString("?r nao:isRelated  <%1> .").arg(m_library->settings()->projectThing().uri().toString());
+        projectTag = QString("UNION { ?r nao:hasTag  <%1> . }").arg(m_library->settings()->projectTag().uri().toString() );
+    }
+
     // first fetch all publications
     // this will lead to duplicates as we fetch for author names and types too
     // for each rdf:type and each connected author/publisher/editor we get the resource as result
-    QString query = QString::fromLatin1("select distinct ?r ?title ?date ?star ?type ?creator ?citekey ?publisher ?editor ?reviewed ?file where {"
+    QString query = QString::fromLatin1("select distinct ?r ?title ?date ?star ?type ?creator ?citekey ?publisher ?editor ?reviewed ?file where { {"
                                         " { ?r a nbib:Publication . "  + hideTypes.toLatin1() + " }"
                                         "OPTIONAL { ?r rdf:type ?type . }"
                                         "OPTIONAL { ?r nie:title ?title . }"
@@ -110,9 +125,10 @@ void PublicationQuery::startFetchData()
                                         "Filter (?type != rdfs:Resource)"
                                         "Filter (?type != nie:InformationElement)"
 
-                                        //this might hide valid resources that are not further defined as book or some thing else. Won't happen often though
+                                        // this might hide valid resources that are not further defined as book or some thing else. Won't happen often though
                                         // but this would double the number of results we need to query due to the ?type query
                                         "Filter (?type != nbib:Publication)"
+                                        + projectRelated.toLatin1() + " }" + projectTag.toLatin1() +
                                         "}");
 
     Soprano::Model* model = Nepomuk2::ResourceManager::instance()->mainModel();
@@ -188,20 +204,14 @@ void PublicationQuery::startFetchData()
 
     emit newCacheEntries(newCache);
 
-    m_resourceWatcher->start();
+    //don't start the watcher if we have no resources to watch
+    // will be started from the queryclient.h when updateResource inserts new items
+    if( !m_resourceWatcher->resources().isEmpty()) {
+        m_resourceWatcher->start();
+    }
 
     emit queryFinished();
 
-    if(m_library->libraryType() == Library_Project) {
-        /*
-        Nepomuk2::Query::OrTerm orTerm;
-        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
-                                                           Nepomuk2::Query::ResourceTerm( m_library->settings()->projectTag() )));
-        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
-                                                           Nepomuk2::Query::ResourceTerm(m_library->settings()->projectThing() )));
-        andTerm.addSubTerm(orTerm);
-        */
-    }
 }
 
 QVariantList PublicationQuery::createDisplayData(const QStringList & item) const

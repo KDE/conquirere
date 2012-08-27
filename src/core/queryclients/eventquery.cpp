@@ -43,15 +43,23 @@ EventQuery::EventQuery(QObject *parent)
 
 EventQuery::~EventQuery()
 {
-    m_resourceWatcher->stop();
+    m_newWatcher->stop();
+    delete m_newWatcher;
 }
 
 void EventQuery::startFetchData()
 {
     // keep track of newly added resources
     m_newWatcher = new Nepomuk2::ResourceWatcher(this);
+
     m_newWatcher->addType(Nepomuk2::Vocabulary::NCAL::Event());
     m_newWatcher->addProperty(Nepomuk2::Vocabulary::NBIB::eventPublication());
+
+    if(m_library->libraryType() == Library_Project) {
+        m_newWatcher->addProperty(Soprano::Vocabulary::NAO::isRelated());
+    }
+    connect(m_newWatcher, SIGNAL(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)),
+            this, SLOT(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)) );
 
     connect(m_newWatcher, SIGNAL(resourceCreated(Nepomuk2::Resource,QList<QUrl>)),
             this, SLOT(resourceCreated(Nepomuk2::Resource,QList<QUrl>)) );
@@ -59,6 +67,7 @@ void EventQuery::startFetchData()
     m_newWatcher->start();
 
     // create the resource watcher that will keep track of changes in the existing data
+    //FIXME: Why does the resource watcher for events also call propertyChange for documents?
     m_resourceWatcher = new Nepomuk2::ResourceWatcher(this);
 
     connect(m_resourceWatcher, SIGNAL(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)),
@@ -75,10 +84,18 @@ void EventQuery::startFetchData()
 
     QTime t1 = QTime::currentTime();
 
+    // helping string to filter for all documents that are related to the current project
+    QString projectRelated;
+    QString projectTag;
+    if(m_library->libraryType() == Library_Project) {
+        projectRelated = QString("?r nao:isRelated  <%1> .").arg(m_library->settings()->projectThing().uri().toString());
+        projectTag = QString("UNION { ?r nao:hasTag  <%1> . }").arg(m_library->settings()->projectTag().uri().toString() );
+    }
+
     // first fetch all series
     // this will lead to duplicates as we fetch for nbib:eventpublication names
     // each connected publicaion we get the resource as result
-    QString query = QString::fromLatin1("select distinct ?r ?title ?star ?date ?publication where {"
+    QString query = QString::fromLatin1("select distinct ?r ?title ?star ?date ?publication where { {"
                                         "?r a ncal:Event . "
                                         "?r nbib:eventpublication ?pub ."
 
@@ -87,6 +104,7 @@ void EventQuery::startFetchData()
                                         "OPTIONAL { ?r nie:title ?title . }"
                                         "OPTIONAL { ?r nao:numericRating ?star . }"
                                         "OPTIONAL { ?r ncal:date ?date . }"
+                                        + projectRelated.toLatin1() + " }" + projectTag.toLatin1() +
 
                                         "}");
 
@@ -163,20 +181,11 @@ void EventQuery::startFetchData()
 
     emit newCacheEntries(newCache);
 
-    m_resourceWatcher->start();
+    if( !m_resourceWatcher->resources().isEmpty()) {
+        m_resourceWatcher->start();
+    }
 
     emit queryFinished();
-    /*
-
-    if(m_library->libraryType() == Library_Project) {
-        Nepomuk2::Query::OrTerm orTerm;
-        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
-                                                           Nepomuk2::Query::ResourceTerm( m_library->settings()->projectTag() )));
-        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
-                                                            Nepomuk2::Query::ResourceTerm(m_library->settings()->projectThing() )));
-        andTerm.addSubTerm(orTerm);
-    }
-    */
 }
 
 QVariantList EventQuery::createDisplayData(const QStringList & item) const

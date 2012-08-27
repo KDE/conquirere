@@ -57,6 +57,7 @@
 #include <Nepomuk2/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk2/Vocabulary/PIMO>
+#include <Nepomuk2/Vocabulary/NFO>
 
 #include <KDE/KUrl>
 #include <KDE/KStandardDirs>
@@ -288,10 +289,12 @@ void Library::addResource(const Nepomuk2::Resource & res)
         return;
     }
 
-    Nepomuk2::Resource relatesTo = res.property( Soprano::Vocabulary::NAO::isRelated()).toResource();
+    QList<Nepomuk2::Resource> relatesTo = res.property( Soprano::Vocabulary::NAO::isRelated()).toResourceList();
 
-    if ( relatesTo == m_projectSettings->projectThing()) {
-        return;
+    foreach(const Nepomuk2::Resource & rt, relatesTo) {
+        if ( rt == m_projectSettings->projectThing()) {
+            return;
+        }
     }
 
     QList<QUrl> publicationUrisToAddProject;
@@ -299,21 +302,43 @@ void Library::addResource(const Nepomuk2::Resource & res)
     QVariantList projectValue;
     projectValue <<  m_projectSettings->projectThing().uri();
 
-    // and the backlink parts
-    QList<QUrl> projectUrisToAddPublication;
-    projectUrisToAddPublication << m_projectSettings->projectThing().uri();
-    QVariantList publicationValues;
-    publicationValues <<  res.uri();
-
     // small special case, if the resource was a reference add also the publication to the project
     if(res.hasType(Nepomuk2::Vocabulary::NBIB::Reference())) {
         Nepomuk2::Resource pub = res.property(Nepomuk2::Vocabulary::NBIB::publication()).toResource();
         publicationUrisToAddProject << pub.uri();
-        publicationValues << pub.uri();
     }
 
-    Nepomuk2::setProperty(publicationUrisToAddProject, Soprano::Vocabulary::NAO::isRelated(), projectValue);
-    Nepomuk2::setProperty(projectUrisToAddPublication, Soprano::Vocabulary::NAO::isRelated(), publicationValues);
+    // if resource was a file (pdf for example) add also the known publication data
+    // and the publication references
+    if(res.hasType(Nepomuk2::Vocabulary::NFO::Document())) {
+        Nepomuk2::Resource pub = res.property(Nepomuk2::Vocabulary::NBIB::publishedAs()).toResource();
+        if(pub.isValid()) {
+            publicationUrisToAddProject << pub.uri();
+
+            // get references
+            QList<Nepomuk2::Resource> refs = pub.property(Nepomuk2::Vocabulary::NBIB::reference()).toResourceList();
+
+            foreach(const Nepomuk2::Resource r, refs) {
+                publicationUrisToAddProject << r.uri();
+            }
+        }
+    }
+
+    // if we added a publication, add also all its references and the pdf to the project
+    if(res.hasType(Nepomuk2::Vocabulary::NBIB::Publication())) {
+        QList<Nepomuk2::Resource> refs = res.property(Nepomuk2::Vocabulary::NBIB::reference()).toResourceList();
+
+        foreach(const Nepomuk2::Resource r, refs) {
+            publicationUrisToAddProject << r.uri();
+        }
+
+        Nepomuk2::Resource file = res.property(Nepomuk2::Vocabulary::NBIB::isPublicationOf()).toResource();
+        if(file.isValid()) {
+            publicationUrisToAddProject << file.uri();
+        }
+    }
+
+    Nepomuk2::addProperty(publicationUrisToAddProject, Soprano::Vocabulary::NAO::isRelated(), projectValue);
 }
 
 void Library::removeResource(const Nepomuk2::Resource & res)

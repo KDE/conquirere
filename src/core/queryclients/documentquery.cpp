@@ -46,6 +46,7 @@ DocumentQuery::DocumentQuery(QObject *parent) :
 DocumentQuery::~DocumentQuery()
 {
     m_newWatcher->stop();
+    delete m_newWatcher;
 }
 
 void DocumentQuery::startFetchData()
@@ -55,6 +56,12 @@ void DocumentQuery::startFetchData()
     m_newWatcher->addType(Nepomuk2::Vocabulary::NFO::PaginatedTextDocument());
     m_newWatcher->addType(Nepomuk2::Vocabulary::NFO::Spreadsheet());
     m_newWatcher->addType(Nepomuk2::Vocabulary::NFO::MindMap());
+
+    if(m_library->libraryType() == Library_Project) {
+        m_newWatcher->addProperty(Soprano::Vocabulary::NAO::isRelated());
+        connect(m_newWatcher, SIGNAL(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)),
+                this, SLOT(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)) );
+    }
 
     connect(m_newWatcher, SIGNAL(resourceCreated(Nepomuk2::Resource,QList<QUrl>)),
             this, SLOT(resourceCreated(Nepomuk2::Resource,QList<QUrl>)) );
@@ -78,10 +85,18 @@ void DocumentQuery::startFetchData()
 
     QTime t1 = QTime::currentTime();
 
+    // helping string to filter for all documents that are related to the current project
+    QString projectRelated;
+    QString projectTag;
+    if(m_library->libraryType() == Library_Project) {
+        projectRelated = QString("?r nao:isRelated  <%1> .").arg(m_library->settings()->projectThing().uri().toString());
+        projectTag = QString("UNION { ?r nao:hasTag  <%1> . }").arg(m_library->settings()->projectTag().uri().toString() );
+    }
+
     // first fetch all publications
     // this will lead to duplicates as we fetch for author names and types too
     // for each rdf:type and each connected author/publisher/editor we get the resource as result
-    QString query = QString::fromLatin1("select distinct ?r ?title ?star ?publication ?date ?folder ?reviewed where {"
+    QString query = QString::fromLatin1("select distinct ?r ?title ?star ?publication ?date ?folder ?reviewed where { {"
                                         "?r a ?v1 ."
                                         "FILTER(?v1 in (nfo:PaginatedTextDocument, nfo:Spreadsheet, nfo:MindMap )) ."
 
@@ -92,6 +107,7 @@ void DocumentQuery::startFetchData()
                                         "OPTIONAL { ?r nie:lastModified ?date . }"
                                         "?r nie:url ?folder ."
                                         "OPTIONAL { ?r nbib:publishedAs ?publication . }"
+                                        + projectRelated.toLatin1() + " }" + projectTag.toLatin1() +
                                         "}");
 
     Soprano::Model* model = Nepomuk2::ResourceManager::instance()->mainModel();
@@ -169,31 +185,14 @@ void DocumentQuery::startFetchData()
     kDebug() << "add ########## " << newCache.size() << " ############## entires after" << t3.msecsTo(t4) << "msec. total" << t1.msecsTo(t4) << "msec";
 
     emit newCacheEntries(newCache);
-    m_resourceWatcher->start();
 
-    emit queryFinished();
-
-    /*
-    if(m_library->libraryType() == Library_Project) {
-        Nepomuk2::Query::OrTerm orTerm;
-        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
-                                                           Nepomuk2::Query::ResourceTerm( m_library->settings()->projectTag() )));
-        orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
-                                                           Nepomuk2::Query::ResourceTerm(m_library->settings()->projectThing() )));
-        andTerm.addSubTerm(orTerm);
-
-
-        // now we also add all rescources with nfo:FileDataObject and isRelated() for the project too
-        Nepomuk2::Query::AndTerm subAndTerm;
-        subAndTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::FileDataObject() ) );
-        subAndTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
-                                                               Nepomuk2::Query::ResourceTerm(m_library->settings()->projectThing() )));
-
-        mainOrTerm.addSubTerm(subAndTerm);
+    //don't start the watcher if we have no resources to watch
+    // will be started from the queryclient.h when updateResource inserts new items
+    if( !m_resourceWatcher->resources().isEmpty()) {
+        m_resourceWatcher->start();
     }
 
-    */
-
+    emit queryFinished();
 }
 
 QVariantList DocumentQuery::createDisplayData(const QStringList & item) const

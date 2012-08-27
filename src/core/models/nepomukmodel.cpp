@@ -194,7 +194,7 @@ void NepomukModel::loadCache()
 
 void NepomukModel::addCacheData(const QList<CachedRowEntry> &entries)
 {
-
+    kDebug() << "add new entries" << entries.size() << m_modelCacheData.size() << "model" << id();
     if(entries.size() > 0) {
         beginInsertRows(QModelIndex(), m_modelCacheData.size(), m_modelCacheData.size() + entries.size()-1);
         foreach(const CachedRowEntry &cre, entries) {
@@ -203,6 +203,8 @@ void NepomukModel::addCacheData(const QList<CachedRowEntry> &entries)
         }
         endInsertRows();
     }
+
+    kDebug() << "new size " << m_modelCacheData.size();
 
     emit dataSizeChaged(m_modelCacheData.size());
 }

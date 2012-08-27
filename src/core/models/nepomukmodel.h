@@ -123,9 +123,7 @@ protected:
 
     // instead of creating the data to display every time it is requested, we cache the values for the
     // display and decoration entries in here this speeds up the model for huge data sets
-    // the cache is updated via updateCacheEntry() which will be triggered by the property widgets when they
-    // update the data. Later this will be replaced by the ResourceWatcher so that external changes will
-    // trigger chache changes too
+    // the cache is updated via updateCacheEntry() which will be triggered by ResourceWatcher
     QueryClient *m_queryClient;
     QList<CachedRowEntry> m_modelCacheData;
     QMap<QString, int> m_lookupCache;
