@@ -785,16 +785,16 @@ nbib: {
     nbib:event
           a       rdf:Property ;
           rdfs:domain nbib:Publication ;
-          rdfs:comment "The event this publication was shown, represented, published etc" ;
+          rdfs:comment "The event this publication was shown, presented, published etc" ;
           rdfs:label "Event" ;
-          rdfs:range pimo:Event ;
+          rdfs:range ncal:Event ;
           nrl:inverseProperty nbib:eventPublication ;
           nrl:maxCardinality 1 .
 
     nbib:eventPublication
           a       rdf:Property ;
-          rdfs:domain pimo:Event ;
-          rdfs:comment "the publications that fornm the result of an event" ;
+          rdfs:domain ncal:Event ;
+          rdfs:comment "The publications that form the result of an event" ;
           rdfs:label "Event Publications" ;
           nrl:inverseProperty nbib:event ;
           rdfs:range nbib:Publication .
