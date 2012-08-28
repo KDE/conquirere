@@ -39,9 +39,6 @@ NepomukModel::NepomukModel(QObject *parent)
 
 NepomukModel::~NepomukModel()
 {
-    thread.quit();
-    while(!thread.isFinished()){}
-
     m_modelCacheData.clear();
     m_lookupCache.clear();
 
@@ -98,10 +95,7 @@ void NepomukModel::setLibrary(Library *library)
 void NepomukModel::startFetchData()
 {
     emit queryStarted();
-    connect(&thread, SIGNAL(started()), m_queryClient, SLOT(startFetchData()) );
-    m_queryClient->moveToThread(&thread);
-    thread.start();
-//    m_queryClient->startFetchData();
+    m_queryClient->startFetchData();
 }
 
 Nepomuk2::Resource NepomukModel::documentResource(const QModelIndex &selection)
@@ -194,7 +188,7 @@ void NepomukModel::loadCache()
 
 void NepomukModel::addCacheData(const QList<CachedRowEntry> &entries)
 {
-    kDebug() << "add new entries" << entries.size() << m_modelCacheData.size() << "model" << id();
+    kDebug() << "add" << entries.size() << "new entries to model" << id() << ". Current size" << m_modelCacheData.size();
     if(entries.size() > 0) {
         beginInsertRows(QModelIndex(), m_modelCacheData.size(), m_modelCacheData.size() + entries.size()-1);
         foreach(const CachedRowEntry &cre, entries) {
@@ -203,8 +197,6 @@ void NepomukModel::addCacheData(const QList<CachedRowEntry> &entries)
         }
         endInsertRows();
     }
-
-    kDebug() << "new size " << m_modelCacheData.size();
 
     emit dataSizeChaged(m_modelCacheData.size());
 }
