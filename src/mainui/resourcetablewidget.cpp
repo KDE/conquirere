@@ -522,8 +522,5 @@ void ResourceTableWidget::setupWidget()
     connect(hvHorizontal, SIGNAL(sectionResized(int,int,int)),
             this, SLOT(sectionResized(int,int,int)));
 
-    QHeaderView *hvVertical = m_documentView->verticalHeader();
-    hvVertical->setResizeMode(QHeaderView::ResizeToContents);
-
     mainLayout->addWidget(m_documentView);
 }
