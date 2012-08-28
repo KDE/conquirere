@@ -20,6 +20,13 @@
 
 #include "queryclient.h"
 
+#include <QtCore/QFutureWatcher>
+#include <QtCore/QList>
+
+namespace Nepomuk2 {
+    class ResourceWatcher;
+}
+
 /**
   * @brief @c QueryClient to populate the @c EventModel with all @c ncal:Event resources that have publications attached
   *
@@ -45,6 +52,12 @@ public:
 public slots:
     void startFetchData();
 
+private slots:
+    void finishedQuery();
+
+private:
+    QList<CachedRowEntry> queryNepomuk();
+
 private:
     // creates cache entries from Soprano:Model search
     QVariantList createDisplayData(const QStringList & item) const;
@@ -54,6 +67,7 @@ private:
     QVariantList createDecorationData(const Nepomuk2::Resource & resource) const;
 
     Nepomuk2::ResourceWatcher* m_newWatcher;
+    QFutureWatcher<QList<CachedRowEntry> > *m_futureWatcher;
 };
 
 #endif // EVENTQUERY_H

@@ -127,8 +127,6 @@ protected:
     QueryClient *m_queryClient;
     QList<CachedRowEntry> m_modelCacheData;
     QMap<QString, int> m_lookupCache;
-
-    QThread thread;
 };
 
 #endif // NEPOMUKMODEL_H
