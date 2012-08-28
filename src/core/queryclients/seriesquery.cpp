@@ -95,7 +95,7 @@ void SeriesQuery::startFetchData()
     // first fetch all series
     // this will lead to duplicates as we fetch for seriesOf publication names and types too
     // for each rdf:type and each connected publicaion (seriesOf) we get the resource as result
-    QString query = QString::fromLatin1("select distinct ?r ?title ?star ?type ?content where {"
+    QString query = QString::fromLatin1("select distinct ?r ?title ?star ?type ?content where { {"
                                         " { ?r a nbib:Series . "  + hideTypes.toLatin1() + " }"
 
                                         "OPTIONAL { ?r nao:prefLabel ?reviewed . }" //FIXME: add reviewed to query, implement it first. tagging?
