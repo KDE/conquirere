@@ -29,9 +29,9 @@ target_link_libraries(zoteroreadtest
 
 #include nepomuk
         ${NEPOMUK_LIBRARIES}
-        nepomukquery
-        #nepomukcore
-        nepomukdatamanagement-copy
+        ${NEPOMUK_QUERY_LIBRARIES}
+        nepomukcore
+        nepomuksync
 
 #include kbibtex
         kbibtexio
