@@ -8,6 +8,8 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_SOURCE_DIR}/cmake/modules
 )
 
+ENABLE_TESTING()
+
 set(KDE_MIN_VERSION "4.5.80")  # for the < 4.2 macro
 find_package(KDE4 REQUIRED)
 find_package(KdepimLibs REQUIRED)
@@ -67,6 +69,8 @@ if(EXISTS "${conquirere_SOURCE_DIR}/.git")
 endif()
 
 configure_file(${conquirere_SOURCE_DIR}/version.h.in ${conquirere_BINARY_DIR}/version.h @ONLY)
+
+message(STATUS "Found kbibtex: ${KBIBTEX_LIBRARIES}")
 
 add_subdirectory( nbib )
 add_subdirectory( src )

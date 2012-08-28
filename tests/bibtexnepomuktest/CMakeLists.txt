@@ -1,6 +1,7 @@
 
 
 kde4_add_unit_test(bibtexnepomuktest
+  TESTNAME core-bibtexnepomuktest
   bibtexnepomuktest.cpp
 )
 
@@ -29,14 +30,15 @@ target_link_libraries(bibtexnepomuktest
 
 #include nepomuk
         ${NEPOMUK_LIBRARIES}
-        nepomukquery
-        #nepomukcore
-        nepomukdatamanagement-copy
+        ${NEPOMUK_QUERY_LIBRARIES}
+        nepomukcore
+        nepomuksync
 
 #include kbibtex
-        kbibtexio
-        kbibtexnetworking
-        kbibtexgui
-        kbibtexproc
+        ${KBIBTEX_LIBRARIES}
+        #kbibtexio
+        #kbibtexnetworking
+        #kbibtexgui
+        #kbibtexproc
 
 )

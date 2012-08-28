@@ -76,8 +76,10 @@ void BibtexNepomukTest::initTestCase()
 
 void BibtexNepomukTest::cleanupTestCase()
 {
-    exportedFile->clear();
-    importedFile->clear();
+//    exportedFile->clear();
+//    importedFile->clear();
+    delete exportedFile;
+    delete importedFile;
     delete nbImBib;
     nbImBib = 0;
     delete ntnp;
@@ -98,13 +100,7 @@ void BibtexNepomukTest::importExportTest_data()
 
 void BibtexNepomukTest::init()
 {
-    // clear old data
-    delete nbImBib;
-    nbImBib = 0;
-    delete ntnp;
-    ntnp = 0;
-
-    // create new one
+    // create importer
     nbImBib = new NBibImporterBibTex;
     ntnp = new NepomukToBibTexPipe;
 }
