@@ -34,13 +34,12 @@ DocumentModel::DocumentModel(QObject *parent)
     connect(m_queryClient, SIGNAL(removeCacheEntries(QList<QUrl>)), this, SLOT(removeCacheData(QList<QUrl>)));
 
     connect(m_queryClient, SIGNAL(queryFinished()), this, SIGNAL(queryFinished()));
+
+    setObjectName("documents");
 }
 
 DocumentModel::~DocumentModel()
 {
-    if(ConqSettings::cacheOnStartUp()) {
-        saveCache();
-    }
 }
 
 int DocumentModel::columnCount(const QModelIndex &parent) const
@@ -139,9 +138,4 @@ QList<int> DocumentModel::fixedWidthSections() const
     fixedWith << DocumentQuery::Column_Reviewed << DocumentQuery::Column_StarRate << DocumentQuery::Column_Publication;
 
     return fixedWith;
-}
-
-QString DocumentModel::id()
-{
-    return QLatin1String("documents");
 }

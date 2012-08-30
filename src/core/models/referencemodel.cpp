@@ -34,13 +34,12 @@ ReferenceModel::ReferenceModel(QObject *parent)
     connect(m_queryClient, SIGNAL(removeCacheEntries(QList<QUrl>)), this, SLOT(removeCacheData(QList<QUrl>)));
 
     connect(m_queryClient, SIGNAL(queryFinished()), this, SIGNAL(queryFinished()));
+
+    setObjectName("reference");
 }
 
 ReferenceModel::~ReferenceModel()
 {
-    if(ConqSettings::cacheOnStartUp()) {
-        saveCache();
-    }
 }
 
 int ReferenceModel::columnCount(const QModelIndex &parent) const
@@ -156,9 +155,4 @@ QList<int> ReferenceModel::fixedWidthSections() const
     fixedWith << ReferenceQuery::Column_Reviewed << ReferenceQuery::Column_StarRate << ReferenceQuery::Column_FileAvailable;
 
     return fixedWith;
-}
-
-QString ReferenceModel::id()
-{
-    return QLatin1String("reference");
 }

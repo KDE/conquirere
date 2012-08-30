@@ -32,13 +32,12 @@ NoteModel::NoteModel(QObject *parent)
     connect(m_queryClient, SIGNAL(removeCacheEntries(QList<QUrl>)), this, SLOT(removeCacheData(QList<QUrl>)));
 
     connect(m_queryClient, SIGNAL(queryFinished()), this, SIGNAL(queryFinished()));
+
+    setObjectName("notes");
 }
 
 NoteModel::~NoteModel()
 {
-    if(ConqSettings::cacheOnStartUp()) {
-        saveCache();
-    }
 }
 
 int NoteModel::columnCount(const QModelIndex &parent) const
@@ -108,9 +107,4 @@ QList<int> NoteModel::fixedWidthSections() const
     fixedWith << NoteQuery::Column_StarRate;
 
     return fixedWith;
-}
-
-QString NoteModel::id()
-{
-    return QLatin1String("notes");
 }

@@ -463,19 +463,4 @@ void Library::setupModels()
     eventFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     eventFilter->setSourceModel(eventModel);
     m_resources.insert(Resource_Event, eventFilter);
-
-    if(ConqSettings::cacheOnStartUp()) {
-        emit statusMessage(i18n("load document cache ..."));
-        documentModel->loadCache();
-        emit statusMessage(i18n("load reference cache ..."));
-        referencesModel->loadCache();
-        emit statusMessage(i18n("load publication cache ..."));
-        publicationModel->loadCache();
-        emit statusMessage(i18n("load serie cache ..."));
-        seriesModel->loadCache();
-        emit statusMessage(i18n("load note cache ..."));
-        noteModel->loadCache();
-        emit statusMessage(i18n("load event cache ..."));
-        eventModel->loadCache();
-    }
 }

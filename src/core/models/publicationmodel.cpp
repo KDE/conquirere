@@ -34,13 +34,12 @@ PublicationModel::PublicationModel(QObject *parent)
     connect(m_queryClient, SIGNAL(removeCacheEntries(QList<QUrl>)), this, SLOT(removeCacheData(QList<QUrl>)));
 
     connect(m_queryClient, SIGNAL(queryFinished()), this, SIGNAL(queryFinished()));
+
+    setObjectName("publications");
 }
 
 PublicationModel::~PublicationModel()
 {
-    if(ConqSettings::cacheOnStartUp()) {
-        saveCache();
-    }
 }
 
 int PublicationModel::columnCount(const QModelIndex &parent) const
@@ -157,9 +156,4 @@ QList<int> PublicationModel::fixedWidthSections() const
     fixedWith << PublicationQuery::Column_StarRate << PublicationQuery::Column_Reviewed << PublicationQuery::Column_FileAvailable;
 
     return fixedWith;
-}
-
-QString PublicationModel::id()
-{
-    return QLatin1String("publications");
 }

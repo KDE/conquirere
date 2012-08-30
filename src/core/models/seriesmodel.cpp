@@ -32,13 +32,12 @@ SeriesModel::SeriesModel(QObject *parent)
     connect(m_queryClient, SIGNAL(removeCacheEntries(QList<QUrl>)), this, SLOT(removeCacheData(QList<QUrl>)));
 
     connect(m_queryClient, SIGNAL(queryFinished()), this, SIGNAL(queryFinished()));
+
+    setObjectName("series");
 }
 
 SeriesModel::~SeriesModel()
 {
-    if(ConqSettings::cacheOnStartUp()) {
-        saveCache();
-    }
 }
 
 int SeriesModel::columnCount(const QModelIndex &parent) const
@@ -108,9 +107,4 @@ QList<int> SeriesModel::fixedWidthSections() const
     fixedWith << SeriesQuery::Column_StarRate;
 
     return fixedWith;
-}
-
-QString SeriesModel::id()
-{
-    return QLatin1String("series");
 }

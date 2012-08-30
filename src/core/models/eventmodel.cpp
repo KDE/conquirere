@@ -32,13 +32,12 @@ EventModel::EventModel(QObject *parent)
     connect(m_queryClient, SIGNAL(removeCacheEntries(QList<QUrl>)), this, SLOT(removeCacheData(QList<QUrl>)));
 
     connect(m_queryClient, SIGNAL(queryFinished()), this, SIGNAL(queryFinished()));
+
+    setObjectName("events");
 }
 
 EventModel::~EventModel()
 {
-    if(ConqSettings::cacheOnStartUp()) {
-        saveCache();
-    }
 }
 
 int EventModel::columnCount(const QModelIndex &parent) const
@@ -109,9 +108,4 @@ QList<int> EventModel::fixedWidthSections() const
     fixedWith << EventQuery::Column_StarRate << EventQuery::Column_Akonadi;
 
     return fixedWith;
-}
-
-QString EventModel::id()
-{
-    return QLatin1String("events");
 }

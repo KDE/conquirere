@@ -41,8 +41,6 @@ public:
 
     int defaultSectionSize(int i) const;
     QList<int> fixedWidthSections() const;
-
-    QString id();
 };
 
 #endif // EVENTMODEL_H

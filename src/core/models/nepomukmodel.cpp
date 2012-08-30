@@ -35,6 +35,7 @@ NepomukModel::NepomukModel(QObject *parent)
     , m_library(0)
     , m_queryClient(0)
 {
+    setObjectName("abstract");
 }
 
 NepomukModel::~NepomukModel()
@@ -110,85 +111,9 @@ Nepomuk2::Resource NepomukModel::documentResource(const QModelIndex &selection)
     return ret;
 }
 
-QString NepomukModel::id()
-{
-    return QString("abstract");
-}
-
-void NepomukModel::saveCache()
-{
-    QString cacheName = QString("%1_%2").arg(m_library->settings()->name()).arg(id());
-    QString cachePath = KStandardDirs::locateLocal("appdata", cacheName);
-
-    QFile file(cachePath);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qWarning() << "can't open model cache file" << cachePath;
-        return;
-    }
-
-    QTextStream out(&file);
-
-    foreach(const CachedRowEntry &cre, m_modelCacheData) {
-        foreach(const QVariant &v, cre.displayColums) {
-            out << v.toString() << "|#|";
-        }
-        out << "\n";
-        foreach(const QVariant &v, cre.decorationColums) {
-            out << v.toString() << "|#|";
-        }
-        out << "\n";
-        //DEBUG save the timestamp when the entry was actually inserted into the program?
-        out << cre.resource.uri().toString() << "|#|" << QDateTime::currentDateTime().toString() << "\n";
-    }
-    file.close();
-}
-
-void NepomukModel::loadCache()
-{
-    qDebug() << "loadCache :: " << id();
-    QString cacheName = QString("%1_%2").arg(m_library->settings()->name()).arg(id());
-    QString cachePath = KStandardDirs::locateLocal("appdata", cacheName);
-
-    QFile file(cachePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning() << "can't open model cache file" << cachePath;
-        return;
-    }
-
-    QTextStream in(&file);
-    QList<CachedRowEntry> cachedEntries;
-    while (!in.atEnd()) {
-        CachedRowEntry cre;
-        QString displayLine = in.readLine();
-        foreach(const QString &col, displayLine.split(QLatin1String("|#|"))) {
-            cre.displayColums.append(col);
-        }
-        QString decorationLine = in.readLine();
-        foreach(const QString &col, decorationLine.split(QLatin1String("|#|"))) {
-            if(col.isEmpty()) {
-                cre.decorationColums.append(QVariant());
-            }
-            else {
-                cre.decorationColums.append(col);
-            }
-        }
-        QStringList resInfo = in.readLine().split(QLatin1String("|#|"));
-        cre.resource = Nepomuk2::Resource::fromResourceUri(resInfo.first());
-        cre.timestamp = QDateTime::fromString( resInfo.last() );
-
-        // don't add entries which are removed already
-        if(cre.resource.isValid()) {
-            cachedEntries.append(cre);
-        }
-    }
-
-    addCacheData(cachedEntries);
-    qDebug() << "loadCache finished :: " << id();
-}
-
 void NepomukModel::addCacheData(const QList<CachedRowEntry> &entries)
 {
-    kDebug() << "add" << entries.size() << "new entries to model" << id() << ". Current size" << m_modelCacheData.size();
+    kDebug() << "add" << entries.size() << "new entries to model" << objectName() << ". Current size" << m_modelCacheData.size();
     if(entries.size() > 0) {
         beginInsertRows(QModelIndex(), m_modelCacheData.size(), m_modelCacheData.size() + entries.size()-1);
         foreach(const CachedRowEntry &cre, entries) {

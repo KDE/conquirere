@@ -79,39 +79,11 @@ public:
      */
     void startFetchData();
 
-    /**
-      * @return a unique id for the table model.
-      *
-      * used to save/load table content to disk.
-      */
-    virtual QString id();
-
 signals:
     // connects to the library treeview
     void dataSizeChaged(int size);
     void queryStarted();
     void queryFinished();
-
-public slots:
-    /**
-      * saves the content of the table to disk
-      *
-      * Can be used to speed up the startup time of the program when very large
-      * data sets are used.
-      *
-      * @see loadCache
-      */
-    void saveCache();
-
-    /**
-      * load the saved content of the table from disk
-      *
-      * Can be used to speed up the startup time of the program when very large
-      * data sets are used.
-      *
-      * @see saveCache
-      */
-    void loadCache();
 
 private slots:
     void addCacheData(const QList<CachedRowEntry> &entries);
