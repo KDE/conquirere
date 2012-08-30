@@ -51,12 +51,12 @@ void CoreModel::benchmarkSystemModelTest() {
     Library *l = new Library();
     l->loadSystemLibrary();
 
-    NepomukModel *documentModel = qobject_cast<NepomukModel *>( l->viewModels().value(Resource_Document)->sourceModel() );
-    NepomukModel *referenceModel = qobject_cast<NepomukModel *>( l->viewModels().value(Resource_Reference)->sourceModel() );
-    NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModels().value(Resource_Publication)->sourceModel() );
-    NepomukModel *seriesModel = qobject_cast<NepomukModel *>( l->viewModels().value(Resource_Series)->sourceModel() );
-    NepomukModel *noteModel = qobject_cast<NepomukModel *>( l->viewModels().value(Resource_Note)->sourceModel() );
-    NepomukModel *eventModel = qobject_cast<NepomukModel *>( l->viewModels().value(Resource_Event)->sourceModel() );
+    NepomukModel *documentModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Document)->sourceModel() );
+    NepomukModel *referenceModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Reference)->sourceModel() );
+    NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Publication)->sourceModel() );
+    NepomukModel *seriesModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Series)->sourceModel() );
+    NepomukModel *noteModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Note)->sourceModel() );
+    NepomukModel *eventModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Event)->sourceModel() );
 
     QBENCHMARK {
         documentModel->startFetchData();

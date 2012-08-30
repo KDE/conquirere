@@ -56,6 +56,7 @@
 #include <KDE/KIO/NetAccess>
 #include <QDBusInterface>
 #include <QNetworkReply>
+#include <QtCore/QFileInfo>
 
 using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;

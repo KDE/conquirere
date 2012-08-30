@@ -22,11 +22,6 @@
 
 #include "nbibio/conquirere.h"
 
-#include "onlinestorage/storageinfo.h"
-#include "onlinestorage/storageglobals.h"
-#include "onlinestorage/zotero/zoteroinfo.h"
-#include "onlinestorage/kbibtexfile/kbtfileinfo.h"
-
 #include "models/nepomukmodel.h"
 #include "models/referencemodel.h"
 #include "models/publicationmodel.h"
@@ -41,17 +36,17 @@
 #include <Nepomuk2/SimpleResource>
 #include <Nepomuk2/SimpleResourceGraph>
 #include <Nepomuk2/StoreResourcesJob>
-
 #include <KDE/KJob>
-#include "sro/pimo/thing.h"
-#include "sro/nao/tag.h"
-#include "sro/nie/dataobject.h"
-#include "sro/nfo/document.h"
 
 #include <Nepomuk2/Variant>
 #include <Nepomuk2/Resource>
 #include <Nepomuk2/Tag>
 #include <Nepomuk2/File>
+
+#include "sro/pimo/project.h"
+#include "sro/nao/tag.h"
+#include "sro/nie/dataobject.h"
+#include "sro/nfo/document.h"
 
 #include "nbib.h"
 #include <Nepomuk2/Vocabulary/NIE>
@@ -69,10 +64,11 @@
 
 #include <QtCore/QUuid>
 #include <QtCore/QDir>
+#include <QtCore/QFileInfo>
 #include <QtCore/QFileInfoList>
 
-const QString DOCPATH = I18N_NOOP2("Name of the documents folder to store user library documents","documents");  /**< @todo make this configurable */
-const QString NOTEPATH = I18N_NOOP2("Name of the notes folder to store user library documents","notes");     /**< @todo make this configurable */
+const QString DOCPATH = I18N_NOOP2("Name of the documents folder to store user library documents","documents");  /**< @todo TODO: make this configurable */
+const QString NOTEPATH = I18N_NOOP2("Name of the notes folder to store user library documents","notes");     /**< @todo TODO: make this configurable */
 
 using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
@@ -82,7 +78,6 @@ Library::Library()
     , m_libraryType(Library_Project)
     , m_dirWatcher(0)
     , m_tagCloud(0)
-    , m_initialImportFinished(false)
 {
     m_projectSettings = new ProjectSettings(this);
 }
@@ -107,30 +102,26 @@ Nepomuk2::Resource Library::createLibrary(const QString & name, const QString & 
     // We create a new pimo:Project and tag via the DMS system.
     // this ensures we handle duplicates and set the nao:maintainedBy correctly
     Nepomuk2::SimpleResourceGraph graph;
-    Nepomuk2::PIMO::Thing newThing;
-    newThing.addType( PIMO::Project() );
-    newThing.setProperty( NAO::prefLabel() , name );
-    newThing.setProperty( NAO::description() , description );
-
-    graph << newThing;
+    Nepomuk2::PIMO::Project newProject;
+    newProject.setProperty( NAO::prefLabel() , name );
+    newProject.setProperty( NAO::description() , description );
 
     Nepomuk2::NAO::Tag newTag;
     newTag.setProperty( NAO::identifier(), QUrl::toPercentEncoding(name) );
     newTag.addPrefLabel( name );
-    newThing.addProperty(NAO::hasSubResource(), newTag.uri() ); // remove tag when project is deleted
+    newProject.addProperty(NAO::hasSubResource(), newTag.uri() ); // remove tag when project is deleted
 
-    graph << newTag;
-    newThing.addTag( newTag.uri() );
+    graph << newTag << newProject;
 
     //blocking graph save
     Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties);
     if( !srj->exec() ) {
-        kWarning() << "could not create pimo:Project" << srj->errorString();
+        kWarning() << "Could not create pimo:Project" << srj->errorString();
         return projectThing;
     }
     else {
         // get the pimo project from the return job mappings
-        projectThing = Nepomuk2::Resource( srj->mappings().value( newThing.uri() ) );
+        projectThing = Nepomuk2::Resource( srj->mappings().value( newProject.uri() ) );
     }
 
     // check if a library path is set
@@ -209,7 +200,6 @@ void Library::loadLibrary(const QString & projectFile, LibraryType type)
     connect(m_projectSettings, SIGNAL(projectDirChanged(QString)), m_dirWatcher, SLOT(changeListenDir(QString)));
 
     m_tagCloud = new TagCloud;
-    m_initialImportFinished = 0;
     m_tagCloud->pauseUpdates(true);
 
     setupModels();
@@ -415,7 +405,7 @@ TagCloud *Library::tagCloud()
 void Library::nepomukDMSfinishedInfo(KJob *job)
 {
     if(job->error()) {
-        kWarning() << "error during Nepomuk DMS call";
+        kWarning() << "Error during Nepomuk DMS call:";
         kWarning() << job->errorString();
     }
 }

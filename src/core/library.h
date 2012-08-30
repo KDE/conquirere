@@ -21,34 +21,27 @@
 #include "globals.h"
 
 #include <Nepomuk2/Resource>
-#include <Nepomuk2/Tag>
 
 #include <QtCore/QObject>
-#include <QtCore/QFileInfo>
 #include <QtCore/QString>
 
-class LibraryWidget;
+class ProjectSettings;
 class QSortFilterProxyModel;
 class TagCloud;
-class NepomukModel;
 class DirWatcher;
-class NBibSync;
-class BackgroundSync;
-class ProjectSettings;
 class KJob;
-class SplashScreen;
 
 /**
   * @brief A Library is a collection of files and Nepomuk2::Resource data of a specific topic
   *
-  * The Library can be either a @c System @c library containing all known entities or a specific
-  * library containing only a subset of the system entities grouped together for a
+  * The Library can be either a <i> ystem library</i> containing all known entities or a
+  * <i>Project library</i> containing only a subset of the system entities grouped together for a
   * specific topic.
   *
   * The Library fulfils the task of organizing all necessary resource parts.
   *
   * For specific libraries the creation of the corresponding folder structure,
-  * the creation of a pimo:Project resource and creation of a settings file is done by this class
+  * the creation of a @c pimo:Project resource and creation of a settings file is done by this class
   *
   * Also the possibility to relate resources from the system library is the
   * responsibility of this class.
@@ -56,7 +49,7 @@ class SplashScreen;
   * For all libraries the necessary model data used in connected views
   * are handled by this class.
   *
-  * Usually a new unique System Library is created on the start of the program.
+  * Usually the <i>System Library</i> is created on the start of the program.
   * Additional librarys will be created/loaded/closed/deleted on request.
   */
 class Library : public QObject
@@ -65,37 +58,41 @@ class Library : public QObject
 public:
 
     /**
-      * Creates a new Library
+      * Creates a new dummy Library
       */
     explicit Library();
     virtual ~Library();
 
     /**
-      * Creates a new project library
+      * @brief Creates a new project library
       *
-      * This function creates the document structure, the Nepomuk2::Thing and Nepomuk2::Tag.
+      * This function creates the document structure, the Nepomuk2::Resource (@c pimo:Project ) and Nepomuk2::Tag.
       *
-      * Has to be called when a new project is created
+      * Has to be called when a new project is created.
       */
     static Nepomuk2::Resource createLibrary(const QString & name, const QString & description, const QString & path);
     static QString createIniFile(Nepomuk2::Resource & pimoProject, const QString & path = QString());
 
     /**
-      * Loads an existing project .ini file
+      * @brief Loads an existing project .ini file
       *
       * @p projectFile the .ini project file
       * @p type the type of the library
       */
     void loadLibrary(const QString & projectFile, LibraryType type = Library_Project);
+
+    /**
+     * @brief Load the system library with all resources in the Nepomuk database
+     */
     void loadSystemLibrary( );
 
     /**
-      * Loads a project by its pimo:Project resource uri.
+      * @brief Loads a project by its pimo:Project resource uri.
       *
-      * This means it either has a .ini file attached as groundingOccurence already
-      * So we check all groundingOccurences for a file in the applications project path
+      * This means it either has a .ini file attached as @c pimo:groundingOccurence already
+      * So we check all @c pimo:groundingOccurences for a file in the applications project path
       *
-      * Or it was a pimo:Project created from some other program and we have to create the .ini file again
+      * Or it was a @c pimo:Project created from some other program and we have to create the .ini file again
       */
     void loadLibrary(Nepomuk2::Resource &pimoProject);
     ProjectSettings * settings();
@@ -103,15 +100,15 @@ public:
     /**
       * The type of the Library
       *
-      * @return Either System or Project
+      * @return Either @c System or @c Project
       */
     LibraryType libraryType() const;
 
     /**
-      * Deletes the current project library
+      * brief Deletes the current project library
       *
-      * Removes the pimo:Project Resource and all connections to it.
-      * Also deletres the .ini file
+      * Removes the @c pimo:Project Resource and all connections to it.
+      * Also deletes the .ini file (all files connected via pimo::groundingOcurence)
       */
     void deleteLibrary();
 
@@ -121,31 +118,30 @@ public:
     TagCloud *tagCloud();
 
     /**
-      * Relates a Nepomuk2::Resource to this project
-      *
-      * If this sycdetaisl for this item was in the "to be removed" section of the .ini provider settings
-      * They will be removed from there too
+      * @brief Relates a Nepomuk2::Resource to this project
       *
       * @p res the used Nepomuk2::Resource
       */
     void addResource(const Nepomuk2::Resource & res);
 
     /**
-      * removes the pimo::isRelated elation again and also adds the sync data to the syncprovider
-      * ini files so we know we need to remove it from the online storage too.
+      * @brief Removes the pimo::isRelated relation again
       */
     void removeResource(const Nepomuk2::Resource & res);
 
     /**
-      * Deletes the resource and also any subresources
+      * @brief Deletes the resource and also any subresources
       *
-      * Also detects if this removed the only @c article in a @c collection or only @c publication in a @c series
-      * and removes them too.
+      * Also detects if this deletes the only @c article in a @c collection or
+      * only @c publication in a @c series
+      * and deletes them too.
+      *
+      * @todo TODO: subresource removal via NAO::hasSubresource, add to nepomukpipe
       */
     void deleteResource(const Nepomuk2::Resource & resource);
 
     /**
-      * Returns the model for a specific library Resource.
+      * @brief Returns the model for a specific library Resource.
       *
       * @p selection one of the ResourceSelection types
       *
@@ -154,23 +150,26 @@ public:
     QSortFilterProxyModel* viewModel(ResourceSelection selection);
 
     /**
-      * Returns all available sortmodels and their usage
+      * @brief Returns all available tablemodels as a map sorted by its Content
+      *
+      * @see ResourceSelection
       */
     QMap<ResourceSelection, QSortFilterProxyModel*> viewModels();
 
-signals:
-    void statusMessage(const QString & message);
-
 private slots:
+    /**
+     * @brief Small helper function to print the error string when the nepomuk DMS call failed
+     * @param job the Nepomuk job for teh DMS call
+     */
     void nepomukDMSfinishedInfo(KJob *job);
 
 private:
     /**
-      * Creates all data models for the library
+      * @brief Creates all data models for the library
       *
-      * For each ResourceSelection there exists one model
-      * The model fetches all data from the Nepomuk storage and update itself
-      * when a Nepomuk2::Resource is created or removed
+      * For each ResourceSelection there exists one model.
+      * The model fetches all data from the Nepomuk storage and updates itself
+      * when a Nepomuk2::Resource is created or removed.
       */
     void setupModels();
 
@@ -181,7 +180,6 @@ private:
     TagCloud *m_tagCloud;
 
     QMap<ResourceSelection, QSortFilterProxyModel*> m_resources;
-    int m_initialImportFinished;
 
 };
 

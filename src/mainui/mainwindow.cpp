@@ -599,8 +599,6 @@ void MainWindow::setupLibrary( SplashScreen *splash )
     //create the system library
     Library *l = new Library();
 
-    connect(l, SIGNAL(statusMessage(QString)), splash, SLOT(message(QString)));
-
     l->loadSystemLibrary( );
     m_libraryManager->addSystemLibrary(l);
 
