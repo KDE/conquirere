@@ -17,78 +17,162 @@
 
 #include "tagcloud.h"
 
-#include "nbib.h"
-#include <Nepomuk2/Variant>
-#include <Nepomuk2/Vocabulary/PIMO>
-#include <Soprano/Vocabulary/NAO>
+#include "library.h"
+#include "projectsettings.h"
+#include "nbibio/conquirere.h"
 
-#include <QtCore/QThread>
-#include <QtCore/QtConcurrentRun>
-#include <QtCore/QTimer>
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/ResourceManager>
+#include <Nepomuk2/ResourceWatcher>
+#include <Soprano/Model>
+#include <Soprano/QueryResultIterator>
+
+#include "nbib.h"
+#include <Soprano/Vocabulary/NAO>
 
 using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
-TagCloud::TagCloud(QObject *parent)
+
+
+/*
+select distinct ?label (COUNT(?label) as ?rcount) {
+
+?r a nbib:Publication .
+?r nao:hasTopic ?topic .
+?topic nao:prefLabel ?label .
+
+}
+
+Order By DESC (?rcount)
+LIMIT 20
+*/
+
+
+
+
+
+
+TagCloud::TagCloud(Library *lib, QObject *parent)
     : QObject(parent)
-    , m_futureWatcher(0)
+    , m_library(lib)
+    , m_pauseUpdates(false)
 {
-    m_missingUpdate = false;
-    m_pauseUpdates = true;
+    setup();
 }
 
 TagCloud::~TagCloud()
 {
-    delete m_futureWatcher;
+    m_newWatcher->stop();
+    delete m_newWatcher;
 }
 
-void TagCloud::addResource(const Nepomuk2::Resource &resource)
+void TagCloud::setup()
 {
-    if(resource.hasType(NBIB::Publication())) {
-        m_resourceList.append(resource);
-        updateTagCloud();
+    // watch for new publications
+    m_newWatcher = new Nepomuk2::ResourceWatcher(this);
+    m_newWatcher->addType(NBIB::Publication());
+    //FIXME: add/remove resource from changewatcher
+    connect(m_newWatcher, SIGNAL(resourceCreated(Nepomuk2::Resource,QList<QUrl>)), this, SLOT(generateCloud()) );
+    connect(m_newWatcher, SIGNAL(resourceCreated(Nepomuk2::Resource,QList<QUrl>)), this, SLOT(addToWatcher(Nepomuk2::Resource,QList<QUrl>)) );
+    connect(m_newWatcher, SIGNAL(resourceRemoved(QUrl,QList<QUrl>)), this, SLOT(generateCloud()) );
+    m_newWatcher->start();
+
+    // call for items when added/removed from a library
+    m_libWatcher = new Nepomuk2::ResourceWatcher(this);
+    m_libWatcher->addType(NBIB::Publication());
+    m_libWatcher->addProperty(NAO::isRelated());
+    //FIXME: add/remove resource from libwatcher
+    connect(m_libWatcher, SIGNAL(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)),
+            this, SLOT(generateCloud()) );
+    connect(m_libWatcher, SIGNAL(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)),
+            this, SLOT(generateCloud()) );
+    m_libWatcher->start();
+
+    // watch existing resources when hasTopic changes
+    m_changeWatcher = new Nepomuk2::ResourceWatcher(this);
+    m_changeWatcher->addProperty(NAO::hasTopic());
+    connect(m_changeWatcher, SIGNAL(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)),
+            this, SLOT(generateCloud()) );
+
+    QString hideTypes;
+    // add a filter to hide several publication types
+    foreach(int i, ConqSettings::hiddenNbibPublications()) {
+        hideTypes.append(QString(" FILTER NOT EXISTS { ?r a <%1> . } ").arg(BibEntryTypeURL.at(i).toString()));
     }
-}
 
-void TagCloud::updateResource(const Nepomuk2::Resource &resource)
-{
-    updateTagCloud();
-}
-
-void TagCloud::removeResource(const QUrl &resourceUrl)
-{
-    int i = 0;
-    foreach(const Nepomuk2::Resource &r, m_resourceList) {
-        if(!r.isValid()) {
-            m_resourceList.removeAt(i);
-        }
-        i++;
+    // fetch all publications for this library
+    // helping string to filter for all documents that are related to the current project
+    QString projectRelated;
+    QString projectTag;
+    if(m_library->libraryType() == Library_Project) {
+        projectRelated = QString("?r nao:isRelated  <%1> .").arg(m_library->settings()->projectThing().uri().toString());
+        projectTag = QString("UNION { ?r nao:hasTag  <%1> . }").arg(m_library->settings()->projectTag().uri().toString() );
     }
-    updateTagCloud();
-}
 
-void TagCloud::updateTagCloud()
-{
-    if(!m_pauseUpdates) {
-        QFuture<QList<QPair<int, QString> > > future = QtConcurrent::run(this, &TagCloud::createTagCloud, m_resourceList);
-        m_futureWatcher = new QFutureWatcher<QList<QPair<int, QString> > >();
+    QString query = QString::fromLatin1("select distinct ?r where { {"
+                                        " { ?r a nbib:Publication . "  + hideTypes.toLatin1() + " }"
+                                        + projectRelated.toLatin1() + " }" + projectTag.toLatin1() +
+                                        "}");
 
-        m_futureWatcher->setFuture(future);
+    Soprano::Model* model = Nepomuk2::ResourceManager::instance()->mainModel();
+    Soprano::QueryResultIterator it = model->executeQuery( query, Soprano::Query::QueryLanguageSparql );
 
-        connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(tagCloudUpdated()));
+    while( it.next() ) {
+        Soprano::BindingSet p = it.current();
+
+        m_changeWatcher->addResource( Nepomuk2::Resource::fromResourceUri(p.value("r").toString()));
     }
+    m_libWatcher->start();
+
+    generateCloud();
 }
 
-void TagCloud::tagCloudUpdated()
+void TagCloud::generateCloud()
 {
-    QList<QPair<int, QString> > newCloud = m_futureWatcher->future().result();
+    m_tagCloud.clear();
 
-    m_tagCloud = newCloud;
+    QString hideTypes;
+    // add a filter to hide several publication types
+    foreach(int i, ConqSettings::hiddenNbibPublications()) {
+        hideTypes.append(QString(" FILTER NOT EXISTS { ?r a <%1> . } ").arg(BibEntryTypeURL.at(i).toString()));
+    }
+
+    QString projectRelated;
+    QString projectTag;
+    if(m_library->libraryType() == Library_Project) {
+        projectRelated = QString("?r nao:isRelated  <%1> .").arg(m_library->settings()->projectThing().uri().toString());
+        projectTag = QString("UNION { ?r nao:hasTag  <%1> . }").arg(m_library->settings()->projectTag().uri().toString() );
+    }
+
+    QString query = QString::fromLatin1("select distinct ?label (COUNT(?label) as ?count) where { {"
+                                        " { ?r a nbib:Publication . "  + hideTypes.toLatin1() + " }"
+                                        "?r nao:hasTopic ?topic ."
+                                        "?topic nao:prefLabel ?label ."
+                                        + projectRelated.toLatin1() + " }" + projectTag.toLatin1() +
+                                        "}"
+                                        "Order By DESC (?count)"
+                                        "LIMIT 20");
+
+    Soprano::Model* model = Nepomuk2::ResourceManager::instance()->mainModel();
+    Soprano::QueryResultIterator it = model->executeQuery( query, Soprano::Query::QueryLanguageSparql );
+
+    while( it.next() ) {
+        Soprano::BindingSet p = it.current();
+        // the count will be devided by 2 beacuse the SPARQL results in double counting
+        // seems any ?label will be listed twice as muc has it really appears
+        m_tagCloud.append(QPair<int, QString>( p.value("count").toString().toInt() / 2,
+                                              p.value("label").toString()));
+    }
 
     emit tagCloudChanged();
+}
 
-    //delete m_futureWatcher;
-    //m_futureWatcher = 0;
+void TagCloud::addToWatcher(Nepomuk2::Resource resource ,QList<QUrl> types)
+{
+    Q_UNUSED(types);
+
+    m_changeWatcher->addResource( resource );
 }
 
 QList<QPair<int, QString> > TagCloud::tagCloud()
@@ -98,43 +182,17 @@ QList<QPair<int, QString> > TagCloud::tagCloud()
 
 void TagCloud::pauseUpdates(bool pause)
 {
+    m_newWatcher->stop();
+    m_libWatcher->stop();
+    m_changeWatcher->stop();
+
     m_pauseUpdates = pause;
 
     if(!m_pauseUpdates) {
-        updateTagCloud();
+        m_newWatcher->start();
+        m_libWatcher->start();
+        m_changeWatcher->start();
+
+        generateCloud();
     }
-}
-
-bool sortTagPair(const QPair<int, QString> &s1, const QPair<int, QString> &s2)
-{
-    return s1.first > s2.first;
-}
-
-QList<QPair<int, QString> > TagCloud::createTagCloud(QList<Nepomuk2::Resource> resourceList)
-{
-    // step one create a map with all tags and their ocurence count
-    QMap<QString, int> cloudMap;
-    foreach(const Nepomuk2::Resource &r, resourceList) {
-
-        QList<Nepomuk2::Resource> tagList = r.property(NAO::hasTopic()).toResourceList();
-
-        foreach(const Nepomuk2::Resource &t, tagList) {
-            QString topicLabel = t.property(PIMO::tagLabel()).toString();
-            int count = cloudMap.value(topicLabel, 0);
-            count ++;
-            cloudMap.insert(topicLabel, count);
-        }
-    }
-
-    // step two sort the map by ocurence into a List
-    QList<QPair<int, QString> > cloudList;
-    QMapIterator<QString, int> iterator(cloudMap);
-    while (iterator.hasNext()) {
-        iterator.next();
-        cloudList.append(QPair<int, QString>(iterator.value(),iterator.key()));
-    }
-
-    qSort(cloudList.begin(), cloudList.end(), sortTagPair);
-
-    return cloudList;
 }

@@ -20,54 +20,77 @@
 
 #include <QObject>
 
-#include <Nepomuk2/Resource>
-
-#include <QtCore/QFutureWatcher>
-#include <QtCore/QUrl>
 #include <QtCore/QPair>
 #include <QtCore/QList>
+#include <QtCore/QUrl>
+
+#include <Nepomuk2/Resource>
+
+namespace Nepomuk2 {
+    class ResourceWatcher;
+}
+
+class Library;
 
 /**
-  * @brief Create the tagcloud for a @c Library to display on the @c WelcomeWidget
+  * @brief Create the tagcloud for a @c Library to display it on the @c WelcomeWidget
   *
-  * Lists only the tags used by  resources in the current library
+  * Lists only the @c pimo:Topic for all @c nbib:Publications in the Library
   */
 class TagCloud : public QObject
 {
     Q_OBJECT
 public:
-    explicit TagCloud(QObject *parent = 0);
+    /**
+     * @brief TagCloud Constructor
+     *
+     * @param lib the library which tags should be fetched
+     * @param parent some parent
+     */
+    explicit TagCloud(Library *lib, QObject *parent = 0);
     ~TagCloud();
 
+    /**
+     * @return Returns the list of tags with the label and number of occurence
+     */
     QList<QPair<int, QString> > tagCloud();
 
     /**
-      * Pause the tagcloud generation
+      * @brief Pause/unpause the tagcloud generation (starts/stops the ResourceWatcher)
       *
       * Used when large data is imported
       */
     void pauseUpdates(bool pause);
 
-public slots:
-    void addResource(const Nepomuk2::Resource &resource);
-    void updateResource(const Nepomuk2::Resource &resource);
-    void removeResource(const QUrl &resourceUrl);
-
-    void updateTagCloud();
-
 signals:
+    /**
+     * @brief emits when the cloud changed and the Welcome widget needs to update the data
+     */
     void tagCloudChanged();
 
 private slots:
-    void tagCloudUpdated();
+    /**
+     * @brief fetches the actual tags
+     */
+    void generateCloud();
+
+    /**
+     * @brief adds new resources to the watcher
+     */
+    void addToWatcher(Nepomuk2::Resource resource ,QList<QUrl> types);
 
 private:
-    QList<QPair<int, QString> > createTagCloud(QList<Nepomuk2::Resource> resourceList);
+    /**
+     * @brief setup the ResourceWatcher
+     */
+    void setup();
 
-    QFutureWatcher<QList<QPair<int, QString> > > *m_futureWatcher;
+    Library *m_library;
+    Nepomuk2::ResourceWatcher* m_newWatcher;
+    Nepomuk2::ResourceWatcher* m_libWatcher;
+    Nepomuk2::ResourceWatcher* m_changeWatcher;
+
     QList<QPair<int, QString> > m_tagCloud;
-    QList<Nepomuk2::Resource> m_resourceList;
-    bool m_missingUpdate;
     bool m_pauseUpdates;
 };
 

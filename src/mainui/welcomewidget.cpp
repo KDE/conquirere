@@ -27,8 +27,6 @@
 #include <KDE/DOM/HTMLDocument>
 #include <KDE/KStandardDirs>
 
-#include <Nepomuk2/Vocabulary/PIMO>
-
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QSortFilterProxyModel>
 #include <QtCore/QFile>
@@ -71,6 +69,8 @@ void WelcomeWidget::setupGui()
     }
 
     connect(m_library->tagCloud(), SIGNAL(tagCloudChanged()), this, SLOT(updateTagCloud()));
+
+    updateTagCloud();
 }
 
 void WelcomeWidget::updateStatistics()
@@ -126,8 +126,13 @@ void WelcomeWidget::updateStatistics()
             jsFunction.append(QLatin1String("')"));
             break;
         case Resource_Series:
+            jsFunction = QLatin1String("makeTxt('countseries','");
+            jsFunction.append(rowCount);
+            jsFunction.append(QLatin1String("')"));
+            break;
         case Resource_SearchResults:
         case Resource_Library:
+        case Max_ResourceTypes:
             break;
         }
         m_htmlPart->executeScript(m_htmlPart->htmlDocument(), jsFunction );
@@ -138,16 +143,13 @@ void WelcomeWidget::updateTagCloud()
 {
     QString tagCloud;
     QListIterator<QPair<int, QString> > k(m_library->tagCloud()->tagCloud());
-    int l=0;
+
     while (k.hasNext()) {
         QPair<int, QString> p = k.next();
         tagCloud.append(p.second);
         tagCloud.append(QLatin1String(" ("));
         tagCloud.append(QString::number(p.first));
         tagCloud.append(QLatin1String("), "));
-        l++;
-        if(l>10) // show max 10 tags
-            break;
     }
     tagCloud.chop(2);
 
@@ -170,7 +172,7 @@ void WelcomeWidget::generateHtml()
     const QString cssFilename = KGlobal::dirs()->findResource("appdata", QLatin1String("html/application.css"));
     QFile file(htmlFilename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "can't open html file " << htmlFilename;
+        kDebug() << "can't open html file " << htmlFilename;
         return;
     }
 
@@ -196,7 +198,7 @@ void WelcomeWidget::generateHtml()
     htmlPage.replace(QLatin1String("#LIBRARYNAME#"), libraryName);
     htmlPage.replace(QLatin1String("#LIBRARYINTRO#"), libraryIntro);
     htmlPage.replace(QLatin1String("#STATISTICHEADER#"), i18n("Statistics"));
-    htmlPage.replace(QLatin1String("#TAGCLOUDHEADER#"), i18n("Tag Cloud"));
+    htmlPage.replace(QLatin1String("#TAGCLOUDHEADER#"), i18n("Topic Cloud"));
 
     if(m_library->libraryType() == Library_System) {
         htmlPage.replace(QLatin1String("#LATESTPROJECTSHEADER#"), i18n("Latest Research"));

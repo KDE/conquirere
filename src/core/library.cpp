@@ -199,8 +199,8 @@ void Library::loadLibrary(const QString & projectFile, LibraryType type)
 
     connect(m_projectSettings, SIGNAL(projectDirChanged(QString)), m_dirWatcher, SLOT(changeListenDir(QString)));
 
-    m_tagCloud = new TagCloud;
-    m_tagCloud->pauseUpdates(true);
+    m_tagCloud = new TagCloud(this);
+    //m_tagCloud->pauseUpdates(true);
 
     setupModels();
 }
