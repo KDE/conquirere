@@ -112,8 +112,8 @@ void ProjectSettings::setName(const QString &newName)
     if(m_projectTag.exists()) {
         kDebug() << "project tag existed with name" << name() << ", rename it to" << newName;
         m_projectTag.removeProperty( Soprano::Vocabulary::NAO::prefLabel());
-        m_projectTag.setLabel( newName.toUtf8() );
-        m_projectTag.removeProperty( Soprano::Vocabulary::NAO::identifier());
+        m_projectTag.setLabel( newName );
+        //m_projectTag.removeProperty( Soprano::Vocabulary::NAO::identifier());
         QStringList identifiers;
         identifiers << QUrl::toPercentEncoding(newName);
         m_projectTag.setIdentifiers(identifiers);
@@ -127,7 +127,7 @@ void ProjectSettings::setName(const QString &newName)
     // update the project thing
     if(projectThing().isValid()) {
         projectThing().removeProperty( Soprano::Vocabulary::NAO::prefLabel() );
-        projectThing().setProperty( Soprano::Vocabulary::NAO::prefLabel() , QString(newName.toUtf8()) );
+        projectThing().setProperty( Soprano::Vocabulary::NAO::prefLabel() , newName );
     }
 
     emit projectDetailsChanged(m_library);
@@ -151,15 +151,18 @@ QString ProjectSettings::name() const
     return name;
 }
 
-void ProjectSettings::setDescription(const QString &description)
+void ProjectSettings::setDescription(const QString &newDescription)
 {
+    if( newDescription == description())
+        return;
+
     KConfigGroup generalGroup( m_projectConfig, "Conquirere" );
-    generalGroup.writeEntry("description", description);
+    generalGroup.writeEntry("description", newDescription);
     generalGroup.sync();
 
     // update the project thing
     if(projectThing().isValid()) {
-        projectThing().setProperty( Soprano::Vocabulary::NAO::description() , QString(description.toUtf8()));
+        projectThing().setProperty( Soprano::Vocabulary::NAO::description() , newDescription );
     }
 
     emit projectDetailsChanged(m_library);

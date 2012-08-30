@@ -114,14 +114,13 @@ Nepomuk2::Resource Library::createLibrary(const QString & name, const QString & 
 
     graph << newThing;
 
-    Nepomuk2::SimpleResource tagResource;
-    Nepomuk2::NAO::Tag newTag(tagResource);
-    tagResource.setProperty( NAO::identifier(), QUrl::toPercentEncoding(name) );
+    Nepomuk2::NAO::Tag newTag;
+    newTag.setProperty( NAO::identifier(), QUrl::toPercentEncoding(name) );
     newTag.addPrefLabel( name );
-    newThing.addProperty(NAO::hasSubResource(), tagResource.uri() ); // remove tag when project is deleted
+    newThing.addProperty(NAO::hasSubResource(), newTag.uri() ); // remove tag when project is deleted
 
-    graph << tagResource;
-    newThing.addTag( tagResource.uri() );
+    graph << newTag;
+    newThing.addTag( newTag.uri() );
 
     //blocking graph save
     Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties);
@@ -326,7 +325,9 @@ void Library::addResource(const Nepomuk2::Resource & res)
 
     // if we added a publication, add also all its references and the pdf to the project
     if(res.hasType(Nepomuk2::Vocabulary::NBIB::Publication())) {
+
         QList<Nepomuk2::Resource> refs = res.property(Nepomuk2::Vocabulary::NBIB::reference()).toResourceList();
+        kDebug() << "##### add isRelated to reference" << refs.size();
 
         foreach(const Nepomuk2::Resource r, refs) {
             publicationUrisToAddProject << r.uri();
