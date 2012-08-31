@@ -117,8 +117,7 @@ void NepomukBibtex::initTestCase()
     series.setTitle(QLatin1String("UNITTEST-Series"));
     series.setIssn(QLatin1String("UNITTEST-ISSN"));
 
-    QDateTime publicationDate = QDateTime::fromString("1987-01-01", "yyyy-MM-dd");
-
+    QDateTime publicationDate = QDateTime::fromString("1986-04-03T12:12:12Z", Qt::ISODate);
 
     //##############################################
     //# Article in a journal
@@ -385,13 +384,13 @@ void NepomukBibtex::exportArticleTest()
     QStringList originalLine;
     originalLine << "@article{UNITTEST-article,";
     originalLine << "	author = {UNITTEST-Author},";
-    originalLine << "	date = {1986-12-31T23:00:00Z},";
+    originalLine << "	date = {1986-04-03T12:12:12Z},";
     originalLine << "	doi = {10.4204/EPTCS},";
     originalLine << "	editor = {UNITTEST-Editor},";
     originalLine << "	howpublished = {UNITTEST-Howpublished},";
     originalLine << "	issn = {UNITTEST-ISSN},";
     originalLine << "	journal = {UNITTEST-Jounal},";
-    originalLine << "	month = {dec},";
+    originalLine << "	month = {apr},";
     originalLine << "	number = {21},";
     originalLine << "	pages = {1-999},";
     originalLine << "	series = {{UNITTEST-Series}},";
@@ -410,11 +409,11 @@ void NepomukBibtex::exportBookTest()
     QStringList originalLine;
     originalLine << "@book{UNITTEST-book,";
     originalLine << "	author = {UNITTEST-Author},";
-    originalLine << "	date = {1986-12-31T23:00:00Z},";
+    originalLine << "	date = {1986-04-03T12:12:12Z},";
     originalLine << "	edition = {UNITTEST-second},";
     originalLine << "	editor = {UNITTEST-Editor},";
     originalLine << "	issn = {UNITTEST-ISSN},";
-    originalLine << "	month = {dec},";
+    originalLine << "	month = {apr},";
     originalLine << "	number = {UNITTEST-number},";
     originalLine << "	publisher = {UNITTEST-Publisher},";
     originalLine << "	series = {{UNITTEST-Series}},";
@@ -433,12 +432,12 @@ void NepomukBibtex::exportBookletTest()
     QStringList originalLine;
     originalLine << "@booklet{UNITTEST-booklet,";
     originalLine << "	author = {UNITTEST-Author},";
-    originalLine << "	date = {1986-12-31T23:00:00Z},";
+    originalLine << "	date = {1986-04-03T12:12:12Z},";
     originalLine << "	edition = {UNITTEST-second},";
     originalLine << "	editor = {UNITTEST-Editor},";
     originalLine << "	howpublished = {UNITTEST-how published},";
     originalLine << "	issn = {UNITTEST-ISSN},";
-    originalLine << "	month = {dec},";
+    originalLine << "	month = {apr},";
     originalLine << "	series = {{UNITTEST-Series}},";
     originalLine << "	title = {{UNITTEST-book}},";
     originalLine << "	year = {1986}";
@@ -455,10 +454,10 @@ void NepomukBibtex::exportInBookTest()
     originalLine << "@inbook{UNITTEST-inBook,";
     originalLine << "	author = {UNITTEST-Author},";
     originalLine << "	chapter = {UNITTEST-II},";
-    originalLine << "	date = {1986-12-31T23:00:00Z},";
+    originalLine << "	date = {1986-04-03T12:12:12Z},";
     originalLine << "	edition = {UNITTEST-second},";
     originalLine << "	editor = {UNITTEST-Editor},";
-    originalLine << "	month = {dec},";
+    originalLine << "	month = {apr},";
     originalLine << "	publisher = {UNITTEST-Publisher},";
     originalLine << "	title = {{UNITTEST-inbook}},";
     originalLine << "	year = {1986}";
@@ -478,10 +477,10 @@ void NepomukBibtex::exportInCollectionTest()
     originalLine << "	booktitle = {{UNITTEST-incollection}},";
     originalLine << "	chapter = {UNITTEST-II},";
     originalLine << "	chaptername = {UNITTEST-Chapter-Title},";
-    originalLine << "	date = {1986-12-31T23:00:00Z},";
+    originalLine << "	date = {1986-04-03T12:12:12Z},";
     originalLine << "	edition = {UNITTEST-second},";
     originalLine << "	editor = {UNITTEST-Editor},";
-    originalLine << "	month = {dec},";
+    originalLine << "	month = {apr},";
     originalLine << "	publisher = {UNITTEST-Publisher},";
     originalLine << "	title = {{UNITTEST-Chapter-Title}},";
     originalLine << "	year = {1986}";
@@ -496,10 +495,10 @@ void NepomukBibtex::exportProceedingsTest()
 
     QStringList originalLine;
     originalLine << "@proceedings{UNITTEST-proceedings,";
-    originalLine << "	date = {1986-12-31T23:00:00Z},";
+    originalLine << "	date = {1986-04-03T12:12:12Z},";
     originalLine << "	event = {UNITTEST-Title},";
     originalLine << "	issn = {UNITTEST-ISSN},";
-    originalLine << "	month = {dec},";
+    originalLine << "	month = {apr},";
     originalLine << "	organization = {UNITTEST-Organization},";
     originalLine << "	pages = {1-999},";
     originalLine << "	publisher = {UNITTEST-Publisher},";
@@ -519,14 +518,14 @@ void NepomukBibtex::exportInProceedingsTest()
     originalLine << "@inproceedings{UNITTEST-inproceedings,";
     originalLine << "	author = {UNITTEST-Author},";
     originalLine << "	booktitle = {{UNITTEST-Title: A Proceedings}},";
-    originalLine << "	date = {1986-12-31T23:00:00Z},";
+    originalLine << "	date = {1986-04-03T12:12:12Z},";
     originalLine << "	doi = {10.4204/EPTCS},";
     originalLine << "	editor = {UNITTEST-Editor},";
     originalLine << "	event = {UNITTEST-Title},";
     originalLine << "	howpublished = {UNITTEST-Howpublished},";
     originalLine << "	issn = {UNITTEST-ISSN},";
     originalLine << "	journal = {UNITTEST-Series},";
-    originalLine << "	month = {dec},";
+    originalLine << "	month = {apr},";
     originalLine << "	pages = {1-999},";
     originalLine << "	title = {{UNITTEST-Title: An Inproceedings}},";
     originalLine << "	year = {1986}";
@@ -542,10 +541,10 @@ void NepomukBibtex::exportTechreportTest()
     QStringList originalLine;
     originalLine << "@techreport{UNITTEST-techreport,";
     originalLine << "	author = {UNITTEST-Author},";
-    originalLine << "	date = {1986-12-31T23:00:00Z},";
+    originalLine << "	date = {1986-04-03T12:12:12Z},";
     originalLine << "	howpublished = {UNITTEST-how published},";
     originalLine << "	institution = {UNITTEST-Publisher},";
-    originalLine << "	month = {dec},";
+    originalLine << "	month = {apr},";
     originalLine << "	organization = {UNITTEST-Organization},";
     originalLine << "	title = {{UNITTEST-techreport}},";
     originalLine << "	type = {UNITTEST-publication-type},";
