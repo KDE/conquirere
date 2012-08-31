@@ -20,6 +20,24 @@
 
 #include <QtGui/QSortFilterProxyModel>
 
+#include <Nepomuk2/Variant>
+#include <Nepomuk2/Resource>
+#include <Nepomuk2/DataManagement>
+#include <Nepomuk2/SimpleResource>
+#include <Nepomuk2/SimpleResourceGraph>
+#include <Nepomuk2/StoreResourcesJob>
+#include <KDE/KJob>
+
+#include <Nepomuk2/Vocabulary/NIE>
+#include "sro/nbib/book.h"
+#include "sro/nbib/publication.h"
+#include "sro/nbib/journal.h"
+#include "sro/nco/contact.h"
+#include "sro/nco/organizationcontact.h"
+#include "sro/nbib/reference.h"
+
+#include "core/queryclients/publicationquery.h"
+
 #include <QtTest>
 #include <QtDebug>
 
@@ -35,10 +53,16 @@ class CoreModel: public QObject
 private slots:
 
     void benchmarkSystemModelTest();
+    void addPublicationTest();
+    void changePublicationTest();
+    void addSeriesTest();
+    void changeSeriesTest();
 
+    void cleanupTestCase();
 private:
     bool waitForSignal(QObject *sender, const char *signal, int timeout = 1000);
 
+    Library *l;
 };
 
 QTEST_MAIN(CoreModel)
@@ -48,7 +72,7 @@ void CoreModel::benchmarkSystemModelTest() {
     //########################################################
     //# Load library based on pimoProject resource again
 
-    Library *l = new Library();
+    l = new Library();
     l->loadSystemLibrary();
 
     NepomukModel *documentModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Document)->sourceModel() );
@@ -86,6 +110,140 @@ void CoreModel::benchmarkSystemModelTest() {
     qDebug() << "Number of Notes :: " << noteModel->rowCount();
     qDebug() << "Number of events :: " << eventModel->rowCount();
     qDebug() << "#################################################";
+
+}
+
+void CoreModel::addPublicationTest()
+{
+    NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Publication)->sourceModel() );
+
+    // lets add a very simple book
+    Nepomuk2::SimpleResourceGraph graph;
+
+    //BUG: ResourceWatcher does not seem to work with subtypes. adding book does not show a change, Publication does
+    Nepomuk2::NCO::Contact editor;
+    editor.setFullname(QLatin1String("UNITTEST-Editor"));
+
+    Nepomuk2::NCO::Contact author;
+    author.setFullname(QLatin1String("UNITTEST-Author"));
+
+    Nepomuk2::NCO::OrganizationContact publisher;
+    publisher.setFullname(QLatin1String("UNITTEST-Publisher"));
+
+    QDateTime publicationDate = QDateTime::fromString("1986-04-03T12:12:12Z", Qt::ISODate);
+
+    Nepomuk2::NBIB::Publication book;
+    book.setTitle(QLatin1String("UNITTEST-book"));
+    book.addCreator(author.uri());
+    book.addEditor(editor.uri());
+    book.addPublisher( publisher.uri() );
+    book.setPublicationDate( publicationDate );
+
+    Nepomuk2::NBIB::Reference bookReference;
+    bookReference.setCiteKey(QLatin1String("UNITTEST-bookCiteKey"));
+
+    bookReference.setPublication( book.uri() );
+    book.addReference(bookReference.uri());
+
+    graph << book << bookReference << editor << author << publisher;
+
+    Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNone);
+
+    // check that the data was actually added to the model
+    QVERIFY(waitForSignal(publicationModel, SIGNAL(dataSizeChaged(int)), 10000));
+
+    // now check if the data was correctly added t othe model
+    int lastEntry = publicationModel->rowCount()-1;
+    QString addresourceType = publicationModel->data( publicationModel->index(lastEntry,PublicationQuery::Column_ResourceType), Qt::DisplayRole).toString();
+    QString addtitle = publicationModel->data( publicationModel->index(lastEntry,PublicationQuery::Column_Title), Qt::DisplayRole).toString();
+    QString addauthor = publicationModel->data( publicationModel->index(lastEntry,PublicationQuery::Column_Author), Qt::DisplayRole).toString();
+    QString addpublisher = publicationModel->data( publicationModel->index(lastEntry,PublicationQuery::Column_Publisher), Qt::DisplayRole).toString();
+    QString adddate = publicationModel->data( publicationModel->index(lastEntry,PublicationQuery::Column_Date), Qt::DisplayRole).toString();
+    QString addcitekey = publicationModel->data( publicationModel->index(lastEntry,PublicationQuery::Column_CiteKey), Qt::DisplayRole).toString();
+    QString addeditor = publicationModel->data( publicationModel->index(lastEntry,PublicationQuery::Column_Editor), Qt::DisplayRole).toString();
+
+    QCOMPARE(addresourceType, QLatin1String("Misc"));
+    QCOMPARE(addtitle, QLatin1String("UNITTEST-book"));
+    QCOMPARE(addauthor, QLatin1String("UNITTEST-Author"));
+    QCOMPARE(addpublisher, QLatin1String("UNITTEST-Publisher"));
+    QCOMPARE(adddate, QLatin1String("03.04.1986"));
+    QCOMPARE(addcitekey, QLatin1String("UNITTEST-bookCiteKey"));
+    QCOMPARE(addeditor, QLatin1String("UNITTEST-Editor"));
+}
+
+//BUG: test fails see https://bugs.kde.org/show_bug.cgi?id=306108
+void CoreModel::changePublicationTest()
+{
+    NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Publication)->sourceModel() );
+
+    QVERIFY2( publicationModel->rowCount() != 0, "No resources in the model that can be changed");
+
+    // get the last added resource
+    int lastEntry = publicationModel->rowCount()-1;
+    Nepomuk2::Resource entry = publicationModel->documentResource(publicationModel->index(lastEntry,PublicationQuery::Column_ResourceType));
+
+    Nepomuk2::setProperty(QList<QUrl>() << entry.uri(), Nepomuk2::Vocabulary::NIE::title(),QVariantList() << QLatin1String("UNITTEST-Changed-Name"));
+
+    // check that the data was actually changed in the model
+    QVERIFY(waitForSignal(publicationModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), 10000));
+    QString changedTitle = publicationModel->data( publicationModel->index(lastEntry,PublicationQuery::Column_Title), Qt::DisplayRole).toString();
+
+    QCOMPARE(changedTitle, QLatin1String("UNITTEST-Changed-Name"));
+}
+
+void CoreModel::addSeriesTest()
+{
+    NepomukModel *seriesModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Series)->sourceModel() );
+
+    // lets add a very simple book
+    Nepomuk2::SimpleResourceGraph graph;
+
+    Nepomuk2::NBIB::Journal journal;
+    journal.setTitle(QLatin1String("UNITTEST-journal"));
+
+    graph << journal;
+
+    Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNone);
+
+    // check that the data was actually added to the model
+    QVERIFY(waitForSignal(seriesModel, SIGNAL(dataSizeChaged(int)), 10000));
+
+    // now check if the data was correctly added t othe model
+    int lastEntry = seriesModel->rowCount()-1;
+    QString addresourceType = seriesModel->data( seriesModel->index(lastEntry,PublicationQuery::Column_ResourceType), Qt::DisplayRole).toString();
+    QString addtitle = seriesModel->data( seriesModel->index(lastEntry,PublicationQuery::Column_Title), Qt::DisplayRole).toString();
+
+    QCOMPARE(addresourceType, QLatin1String("Journal"));
+    QCOMPARE(addtitle, QLatin1String("UNITTEST-journal"));
+}
+
+void CoreModel::changeSeriesTest()
+{
+    NepomukModel *seriesModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Series)->sourceModel() );
+
+    QVERIFY2( seriesModel->rowCount() != 0, "No resources in the model that can be changed");
+
+    // get the last added resource
+    int lastEntry = seriesModel->rowCount()-1;
+    Nepomuk2::Resource entry = seriesModel->documentResource(seriesModel->index(lastEntry,PublicationQuery::Column_ResourceType));
+
+    Nepomuk2::setProperty(QList<QUrl>() << entry.uri(), Nepomuk2::Vocabulary::NIE::title(),QVariantList() << QLatin1String("UNITTEST-Changed-Name"));
+
+    // check that the data was actually changed in the model
+    QVERIFY(waitForSignal(seriesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), 10000));
+    QString changedTitle = seriesModel->data( seriesModel->index(lastEntry,PublicationQuery::Column_Title), Qt::DisplayRole).toString();
+
+    QCOMPARE(changedTitle, QLatin1String("UNITTEST-Changed-Name"));
+}
+
+void CoreModel::cleanupTestCase()
+{
+    // remove all data created by this unittest from the nepomuk database again
+    KJob *job = Nepomuk2::removeDataByApplication();
+    if(!job->exec()) {
+        qWarning() << job->errorString();
+        QFAIL("Cleanup did not work");
+    }
 
     delete l;
 }
