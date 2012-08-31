@@ -47,6 +47,7 @@ public:
     explicit NBibExporterFile();
 
     void setFileType(FileType type);
+
     /**
       * Exports a list of publication or reference resources to a file
       *

@@ -254,4 +254,4 @@ void CoreProject::cleanupTestCase()
 }
 
 
-#include "coreproject.moc"
+#include "coremodel.moc"

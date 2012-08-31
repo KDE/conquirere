@@ -391,7 +391,7 @@ public:
     /**
      * Get property http://www.w3.org/2003/01/geo/wgs84_pos#long. 
      */
-    double long() const {
+    double FAILlong() const {
         double value;
         if(contains(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#long", QUrl::StrictMode)))
             value = property(QUrl::fromEncoded("http://www.w3.org/2003/01/geo/wgs84_pos#long", QUrl::StrictMode)).first().value<double>();

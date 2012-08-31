@@ -70,6 +70,9 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk2::Resource> resources)
         Nepomuk2::Resource reference;
         Nepomuk2::Resource publication;
 
+        //BUG: not all types are fetched correctly, fixed in 4.9.1
+        kDebug() << resource.types();
+
         // first check if we operate on a Reference or a Publication
         if(resource.hasType( NBIB::Reference() )) {
             // we have a Reference
@@ -82,6 +85,10 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk2::Resource> resources)
             // or we try to export pimo:Note or some attachment information
             publication = resource;
         }
+
+        //BUG: not all types are fetched correctly, fixed in 4.9.1
+        kDebug() << publication.types();
+        kDebug() << reference.types();
 
         QString citeKey = reference.property(NBIB::citeKey()).toString();
         if(citeKey.isEmpty()) {
@@ -155,7 +162,7 @@ void NepomukToBibTexPipe::useStrictTypes(bool strict)
 QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk2::Resource reference, Nepomuk2::Resource publication)
 {
     QString type;
-
+    //FIXME: simplyfy this via globals.h refactoring, not all types are recocnized currently
     if(publication.hasType(NBIB::Dictionary())) {
         QString pages = reference.property(NBIB::pages()).toString();
         Nepomuk2::Resource chapter = reference.property(NBIB::referencedPart()).toResource();
@@ -184,8 +191,12 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk2::Resource reference, Nep
             }
         }
         else {
-            Nepomuk2::Resource typeResource(publication.type());
-            type = typeResource.genericLabel();
+            // check for publisher, its book with and booklet without
+            QList<Nepomuk2::Resource> publisher = publication.property( NCO::publisher() ).toResourceList();
+            if(publisher.isEmpty())
+                type = QLatin1String("Booklet");
+            else
+                type = QLatin1String("Book");
         }
     }
     else if(publication.hasType(NBIB::Proceedings())) {
@@ -203,9 +214,17 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk2::Resource reference, Nep
     else if(publication.hasType(NBIB::Website())) {
         type = QLatin1String("Website");
     }
+    else if(publication.hasType(NBIB::Techreport())) {
+        type = QLatin1String("Techreport");
+    }
+    else if(publication.hasType(NBIB::Manual())) {
+        type = QLatin1String("Manual");
+    }
     // handle special articles
     else if(publication.hasType(NBIB::Article())) {
         Nepomuk2::Resource collection = publication.property(NBIB::collection()).toResource();
+        //BUG:: Not all types are fetched, fixed in 4.9.1
+        collection.types();
         if(collection.hasType(NBIB::Proceedings())) {
             type = QLatin1String("Inproceedings"); //article in some proceedings paper
         }
@@ -222,13 +241,8 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk2::Resource reference, Nep
     }
     // all other cases
     else {
-        Nepomuk2::Resource typeResource(publication.type());
-        type = typeResource.genericLabel();
-
-        Nepomuk2::Resource typeResource2(NBIB::Publication());
-        if(type == typeResource2.genericLabel()) {
-            type = QLatin1String("Misc");
-        }
+        //FIXME: not everything here is misc type, use global function to get the correct type
+        type = QLatin1String("Misc");
     }
 
     // if we have strict export, transforn into standard types

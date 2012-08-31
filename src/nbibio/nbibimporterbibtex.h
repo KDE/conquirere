@@ -56,7 +56,7 @@ public:
     virtual ~NBibImporterBibTex();
 
     /**
-      * loads the bibtex file directly into the nepomuk staorage without using Akonadi or the possibility
+      * loads the bibtex file directly into the nepomuk storage without using Akonadi or the possibility
       * to find duplicates first.
       *
       * @p iodevice the device to read from via KBibTeX::FileImporterBibTeX

@@ -68,6 +68,7 @@ bool NBibExporterFile::save(QIODevice *iodevice, const QList<Nepomuk2::Resource>
     case EXPORT_BIBTEX:
     {
         FileExporterBibTeX feb;
+        //FIXME: define strings for BibTex Config enum values and use the min the exporters
         /*
         feb.setEncoding(ConqSettings::encoding())
         feb.keyEncoding = ConqSettings::encoding();

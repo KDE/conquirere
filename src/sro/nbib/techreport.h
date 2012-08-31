@@ -10,7 +10,7 @@
 
 #include <nepomuk2/simpleresource.h>
 
-#include "nbib/report.h"
+#include "report.h"
 
 namespace Nepomuk2 {
 namespace NBIB {

@@ -11,3 +11,4 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/testdatadir.h.in ${CMAKE_CURRENT_BINA
 add_subdirectory( Test-core.project )
 add_subdirectory( Test-core.model )
 
+add_subdirectory( Test-nbibio.nepomuk2bibtex )
