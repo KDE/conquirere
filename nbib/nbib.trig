@@ -779,7 +779,6 @@ nbib: {
           rdfs:comment "The organization that held the conference where the proceedings comes from or that is otherwise responsible for the publication" ;
           rdfs:label "Organization" ;
           rdfs:range nco:OrganizationContact ;
-          nrl:inverseProperty nbib:conference ;
           nrl:maxCardinality 1 .
 
     nbib:event
