@@ -12,3 +12,4 @@ add_subdirectory( Test-core.project )
 add_subdirectory( Test-core.model )
 
 add_subdirectory( Test-nbibio.nepomuk2bibtex )
+add_subdirectory( Test-nbibio.bibtex2nepomuk )
