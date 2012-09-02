@@ -24,69 +24,62 @@
 #include "nbibio/nbibimporterbibtex.h"
 #include "nbibio/pipe/nepomuktobibtexpipe.h"
 
-#include "nbib.h"
-#include <Soprano/Vocabulary/NAO>
+#include <Nepomuk2/ResourceManager>
+#include <Soprano/Model>
+#include <Soprano/QueryResultIterator>
+#include <Nepomuk2/DataManagement>
+#include <KDE/KJob>
 
-#include <Nepomuk2/Query/ComparisonTerm>
-#include <Nepomuk2/Query/LiteralTerm>
-#include <Nepomuk2/Query/ResourceTypeTerm>
-#include <Nepomuk2/Query/AndTerm>
 #include <Nepomuk2/Variant>
+#include <Nepomuk2/Resource>
 
-#include <Nepomuk2/Query/QueryServiceClient>
-#include <Nepomuk2/Query/Query>
-#include <Nepomuk2/Query/Result>
-#include <Nepomuk2/Query/QueryParser>
+#include "nbib.h"
+#include <Nepomuk2/Vocabulary/NCO>
+#include <Nepomuk2/Vocabulary/NIE>
+#include <Soprano/Vocabulary/NAO>
+#include <Nepomuk2/Vocabulary/NCAL>
 
 #include <QtTest>
 #include <QtDebug>
-#include <QDateTime>
 
-class BibtexNepomukTest: public QObject
+using namespace Nepomuk2::Vocabulary;
+using namespace Soprano::Vocabulary;
+
+/**
+ * @brief UnitTest for the nbibio exporter/importer Bibtex -> Nepomuk -> Bibtex
+ *
+ * checks: full data driven test see data folder for the used bibtex files
+ */
+class BibtexBibtex: public QObject
 {
     Q_OBJECT
+
 private slots:
+
     void initTestCase();
-    void cleanupTestCase();
     void importExportTest_data();
 
     void init();
     void importExportTest();
     void cleanup();
 
+    void cleanupTestCase();
+
 private:
     QDateTime startDate;
-    QDateTime endDate;
 
     NBibImporterBibTex *nbImBib;
     NepomukToBibTexPipe *ntnp;
-    File *importedFile;
-    File *exportedFile;
 };
 
-QTEST_MAIN(BibtexNepomukTest)
+QTEST_MAIN(BibtexBibtex)
 
-void BibtexNepomukTest::initTestCase()
+void BibtexBibtex::initTestCase()
 {
-    nbImBib = 0;
-    ntnp = 0;
-    importedFile = 0;
-    exportedFile = 0;
+    // nothing to do here
 }
 
-void BibtexNepomukTest::cleanupTestCase()
-{
-//    exportedFile->clear();
-//    importedFile->clear();
-    delete exportedFile;
-    delete importedFile;
-    delete nbImBib;
-    nbImBib = 0;
-    delete ntnp;
-    ntnp = 0;
-}
-
-void BibtexNepomukTest::importExportTest_data()
+void BibtexBibtex::importExportTest_data()
 {
     QTest::addColumn<QString>("bibfile");
 
@@ -98,14 +91,15 @@ void BibtexNepomukTest::importExportTest_data()
     QTest::newRow("generic name import") << QString("%1/generic_names_bibtex.bib").arg(testFileDir);
 }
 
-void BibtexNepomukTest::init()
+void BibtexBibtex::init()
 {
     // create importer
     nbImBib = new NBibImporterBibTex;
     ntnp = new NepomukToBibTexPipe;
 }
 
-void BibtexNepomukTest::importExportTest()
+
+void BibtexBibtex::importExportTest()
 {
     startDate = QDateTime::currentDateTime();
     //######################################################################################
@@ -124,7 +118,7 @@ void BibtexNepomukTest::importExportTest()
         QFAIL("Errors occurred while reading the bibfile");
     }
 
-    importedFile = nbImBib->bibFile();
+    File *importedFile = nbImBib->bibFile();
     QVERIFY( importedFile != 0 );
 
     //######################################################################################
@@ -141,56 +135,33 @@ void BibtexNepomukTest::importExportTest()
         QFAIL("Errors occurred while importing the bibfile to Nepomuk");
     }
 
-    QVERIFY( errorReadFile.isEmpty() );
-
     //######################################################################################
     //#
     //# Step 3 fetch all newly created references
     //#
     //######################################################################################
 
-    endDate = QDateTime::currentDateTime();
-    const Nepomuk2::Query::LiteralTerm dateFrom( startDate );
-    const Nepomuk2::Query::LiteralTerm dateTo( endDate );
+    QString query = QString::fromLatin1("select ?r ?t ?created where {"
+                                        "?r a nbib:Reference ."
+                                        "?r nbib:citeKey ?t ."
 
-    Nepomuk2::Query::ComparisonTerm createdStartDate = Soprano::Vocabulary::NAO::created() > dateFrom;
-    Nepomuk2::Query::ComparisonTerm createdEndDate = Soprano::Vocabulary::NAO::created() < dateTo;
-    Nepomuk2::Query::AndTerm andTerm;
+                                        "?r nao:created ?created ."
+                                        "FILTER ( ?created > \"" + startDate.toString(Qt::ISODate).toLatin1() + "\"^^xsd:dateTime ) ."
+                                        "}");
 
-    andTerm.addSubTerm(createdStartDate);
-    andTerm.addSubTerm(createdEndDate);
-    andTerm.addSubTerm(Nepomuk2::Query::ResourceTypeTerm(Nepomuk2::Vocabulary::NBIB::Reference()));
-
-    Nepomuk2::Query::Query query( andTerm );
-    QList<Nepomuk2::Query::Result> queryResult = Nepomuk2::Query::QueryServiceClient::syncQuery(query);
-
-    if( queryResult.size() != importedFile->size()) {
-
-        foreach(QSharedPointer<Element> elementImport, *importedFile) {
-            Entry *entryImport = dynamic_cast<Entry *>(elementImport.data());
-            if(!entryImport) continue;
-
-            bool citeKeyFound = false;
-            foreach(const Nepomuk2::Query::Result & r, queryResult) {
-                QString citekey = r.resource().property(Nepomuk2::Vocabulary::NBIB::citeKey()).toString();
-                if(citekey == entryImport->id()) {
-                    citeKeyFound = true;
-                    break;
-                }
-            }
-
-            if( !citeKeyFound )
-                qDebug() << "could not retrive citekey " << entryImport->id();
-        }
-    }
-
-
-    QCOMPARE( importedFile->size(), queryResult.size() );
+    qDebug() << "get all references from: " << query;
+    Soprano::Model* model = Nepomuk2::ResourceManager::instance()->mainModel();
+    Soprano::QueryResultIterator it = model->executeQuery( query, Soprano::Query::QueryLanguageSparql );
 
     QList<Nepomuk2::Resource> references;
-    foreach(const Nepomuk2::Query::Result & r, queryResult) {
-        references.append(r.resource());
+
+    while( it.next() ) {
+        Soprano::BindingSet p = it.current();
+        KUrl uri = KUrl(p.value("r").toString());
+        references.append( Nepomuk2::Resource( uri ) );
     }
+
+    QVERIFY2( !references.isEmpty(), "Could not find imported references in the Nepomuk database");
 
     //######################################################################################
     //#
@@ -201,7 +172,7 @@ void BibtexNepomukTest::importExportTest()
     ntnp->addNepomukUries(false);
     ntnp->pipeExport(references);
 
-    exportedFile = ntnp->bibtexFile();
+    File *exportedFile = ntnp->bibtexFile();
 
     QCOMPARE( importedFile->size(), exportedFile->size() );
 
@@ -232,7 +203,7 @@ void BibtexNepomukTest::importExportTest()
                 }
 
                 // now check each and every key/value if they are the same
-                // run over any import entry keys and check if the exported has the same with the same value
+                // run over any import entry keys and check if the exported has the same key with the same value
                 QMapIterator<QString, Value> i(*entryImport);
                 while (i.hasNext()) {
                     i.next();
@@ -270,32 +241,35 @@ void BibtexNepomukTest::importExportTest()
         }
     }
 
-    if(compareTestFailed) {
-        QFAIL("Exported data from nepomuk is not equal the imported data from the file");
-    }
+    QVERIFY2(compareTestFailed == false, "Exported data from nepomuk is not equal the imported data from the file");
 }
 
-void BibtexNepomukTest::cleanup()
+void BibtexBibtex::cleanup()
 {
-    // create our range
-    const Nepomuk2::Query::LiteralTerm dateFrom( startDate );
-    const Nepomuk2::Query::LiteralTerm dateTo( endDate );
+    // remove all data created by this unittest from the nepomuk database again
+    KJob *job = Nepomuk2::removeDataByApplication();
+    if(!job->exec()) {
+        qWarning() << job->errorString();
+        QFAIL("Cleanup did not work");
+    }
 
-    Nepomuk2::Query::ComparisonTerm lastModifiedStart = Soprano::Vocabulary::NAO::created() > dateFrom;
-    Nepomuk2::Query::ComparisonTerm lastModifiedEnd = Soprano::Vocabulary::NAO::created() < dateTo;
-    Nepomuk2::Query::AndTerm andTerm;
+    delete nbImBib;
+    delete ntnp;
+}
 
-    andTerm.addSubTerm(lastModifiedStart);
-    andTerm.addSubTerm(lastModifiedEnd);
+void BibtexBibtex::cleanupTestCase()
+{
+    // there shouldn't be anything left, as all data should be removed by the cleanup()
+    // but just in case
 
-    // fetch data
-    Nepomuk2::Query::Query query( andTerm );
-
-    QList<Nepomuk2::Query::Result> queryResult = Nepomuk2::Query::QueryServiceClient::syncQuery(query);
-
-    foreach(const Nepomuk2::Query::Result & r, queryResult) {
-        r.resource().remove();
+    // remove all data created by this unittest from the nepomuk database again
+    KJob *job = Nepomuk2::removeDataByApplication();
+    if(!job->exec()) {
+        qWarning() << job->errorString();
+        QFAIL("Cleanup did not work");
     }
 }
 
-#include "bibtexnepomuktest.moc"
+#include "nepomukbibtex.moc"
+
+

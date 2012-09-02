@@ -71,7 +71,7 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk2::Resource> resources)
         Nepomuk2::Resource publication;
 
         //BUG: not all types are fetched correctly, fixed in 4.9.1
-        kDebug() << resource.types();
+        resource.types();
 
         // first check if we operate on a Reference or a Publication
         if(resource.hasType( NBIB::Reference() )) {
@@ -87,8 +87,8 @@ void NepomukToBibTexPipe::pipeExport(QList<Nepomuk2::Resource> resources)
         }
 
         //BUG: not all types are fetched correctly, fixed in 4.9.1
-        kDebug() << publication.types();
-        kDebug() << reference.types();
+        publication.types();
+        reference.types();
 
         QString citeKey = reference.property(NBIB::citeKey()).toString();
         if(citeKey.isEmpty()) {

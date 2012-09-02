@@ -1,11 +1,10 @@
 
 
-kde4_add_unit_test(bibtexnepomuktest
-  TESTNAME core-bibtexnepomuktest
-  bibtexnepomuktest.cpp
+kde4_add_unit_test(Test-nbibio.bibtex2bibtex
+  bibtexbibtex.cpp
 )
 
-target_link_libraries(bibtexnepomuktest
+target_link_libraries(Test-nbibio.bibtex2bibtex
 # include static libs from conquirere
         ontology
         core
@@ -18,8 +17,8 @@ target_link_libraries(bibtexnepomuktest
         ${KDE4_KDECORE_LIBS}
         ${KDE4_KDEUI_LIBS}
         ${KDE4_KIO_LIBS}
-        ${KDE4_KPARTS_LIBS}
-        ${KDE4_KHTML_LIBS}
+        #${KDE4_KPARTS_LIBS}
+        #${KDE4_KHTML_LIBS}
 
         ${QT_QTTEST_LIBRARY}
 
@@ -36,9 +35,5 @@ target_link_libraries(bibtexnepomuktest
 
 #include kbibtex
         ${KBIBTEX_LIBRARIES}
-        #kbibtexio
-        #kbibtexnetworking
-        #kbibtexgui
-        #kbibtexproc
 
 )
