@@ -19,25 +19,16 @@
 #define PROPERTYEDIT_H
 
 #include <Nepomuk2/Resource>
-#include <Nepomuk2/Query/QueryServiceClient>
-#include <Nepomuk2/Query/Result>
 
 #include <QtGui/QWidget>
-#include <QtCore/QModelIndex>
-#include <QtCore/QHash>
 #include <QtCore/QUrl>
-#include <QtCore/QFutureWatcher>
 
 class KMultiItemEdit;
 class KSqueezedTextLabel;
-class QCompleter;
-class QAbstractItemModel;
-class QFocusEvent;
 class QToolButton;
-class QStandardItemModel;
-class QStandardItem;
 class QMouseEvent;
 class QKeyEvent;
+class KJob;
 
 /**
   * @brief Helper class to easily manipulate Nepomuk data
@@ -49,21 +40,19 @@ class QKeyEvent;
   * updateResource()
   *
   * This class offers than the possibility to show a simple QLabel
-  * with the content of the property from @p propertyUrl() from the resource
-  * @p resource()
+  * with the content of the property from @p propertyUrl() of the resource @p resource()
   *
   * When the user clicks on the label, a QLineEdit field is shown instead.
   * The user can directly manipulate the data there. In addition nepomuk is
   * querried with a simple sparql search to alow autocompletions
   *
   * Only the name as one would enter directly into the lineedit is shown and will be
-  * inserted on selection. This could be the nco:fullname for contacts or nie:title for other
-  * resources. When the user saves his choices a new resoruce is created for this selecten and based
-  * on same name/resource type merged thanks to the nepomuk DMS
+  * inserted on selection. This could be the @c nco:fullname for contacts or @c nie:title for other
+  * resources. When the user saves his choices a new resource is created for this selecten and based
+  * on same name/resource type merged thanks to the nepomuk DMS or the current resource is updated.
   *
-  * The user will be offered a list of already available resources to select from.
   * Furthermore if @p hasMultipleCardinality() returns true the user can split each
-  * new entry with a ";" and the completer ofers new selection from this start on
+  * new entry with a @c ";" and the completer ofers new selection from this start on
   *
   */
 class PropertyEdit : public QWidget
@@ -99,7 +88,7 @@ public:
     /**
       * Defines if the values are one single entry or various.
       *
-      * This is multiple by default.
+      * This is single by default.
       * The default delimiter is ';'.
       */
     void setPropertyCardinality(PropertyEdit::Cardinality cardinality);
@@ -120,7 +109,7 @@ public:
     /**
       * If @p directEdit is false no editbox will be shown when the user clicks on the label.
       *
-      * In this case setUseDetailDialog() will be set to true automatically and the vale can
+      * In this case setUseDetailDialog() will be set to true automatically and the value can
       * only be changed externally.
       */
     void setDirectEdit(bool directEdit);
@@ -149,17 +138,10 @@ signals:
     /**
       * Hide / Show the widget.
       *
-      * Used to hide/show the setVisible property of the QLabel/QEditlabel
+      * Used to hide/show the setVisible property of the QLabel and QEditlabel
       */
     void widgetShown(bool shown);
     void widgetHidden(bool hidden);
-
-    /**
-      * This signal gets thrown when the resource was changed and must be updated in the table model cache
-      *
-      * @todo This should be replaced by the Nepomuk2::ResourceWatcher later
-      */
-    void resourceCacheNeedsUpdate(Nepomuk2::Resource resource);
 
 public slots:
     /**
@@ -191,19 +173,13 @@ public slots:
 
     void setVisible(bool visible);
 
-    /**
-      * updates the modelcache after the DMS changed the values
-      * @todo remove when resourcewatcher is working
-      */
-    void updateEditedCacheResource();
-
 protected:
     /**
       * Defines how the Nepomuk2::Resource of the widget should be shown.
       *
       * Subclasses must implement this. If the property has a rage of xsd:string a simple call
       * to setLabelText() is enough. If the propery has a specific resource on its own its possible to define
-      * what values will be shown here. For example fullname() of a nco:Contact
+      * what values will be shown here. For example @c nco:fullname() of a @c nco:Contact
       */
     virtual void setupLabel() = 0;
 
@@ -211,9 +187,9 @@ protected:
       * update the resource with the @p text from the edit field
       *
       * Must be implemented by any subclass. This defines how the text entered in the editbox will be used
-      * to create the data for the property. If the range of the property is not xsd:string
-      * this function allows to create a new resource type and se tthe proper data on it.
-      * For example interprete the enteret text as fullname for a nco:Contact resource
+      * to create the data for the property. If the range of the property is not @c xsd:string
+      * this function allows to create a new resource type and set the proper data on it.
+      * For example interprete the enteret text as @c fullname for a @c nco:Contact resource
       */
     virtual void updateResource(const QString & text) = 0;
 
@@ -221,16 +197,15 @@ protected slots:
     virtual void editingFinished();
     virtual void editingAborted();
 
+    /**
+     * @brief Prints the errorStrong of a failed DMS KJob execution to kDebug()
+     */
+    void showDMSError(KJob *job);
+
 protected:
     virtual void mousePressEvent ( QMouseEvent * event );
     KSqueezedTextLabel *m_label;
     KMultiItemEdit *m_lineEdit;
-
-    // chache the resource used for the asynchron change.
-    // otherwise if we switch to a different resource while the KJob
-    // hasn't finished jet, we add the tags to the wrong resource
-    //TODO remove when resourcewatcher is working ...
-    Nepomuk2::Resource m_changedResource;
 
 private:
     void keyPressEvent(QKeyEvent * e);

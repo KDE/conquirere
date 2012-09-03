@@ -23,7 +23,7 @@
 class KJob;
 
 /**
-  * @brief Edits the @c pimo:Event and adds the @c nbib:event and @c nbib:eventPublication connection to the @c nbib:Publication
+  * @brief Edits the @c ncal:Event and adds the @c nbib:event and @c nbib:eventPublication connection to the @c nbib:Publication
   */
 class EventEdit : public PropertyEdit
 {

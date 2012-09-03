@@ -242,6 +242,7 @@ QString NepomukToBibTexPipe::retrieveEntryType(Nepomuk2::Resource reference, Nep
     // all other cases
     else {
         //FIXME: not everything here is misc type, use global function to get the correct type
+        //REFACTOR: Add function for type detection t oglobal static class
         type = QLatin1String("Misc");
     }
 

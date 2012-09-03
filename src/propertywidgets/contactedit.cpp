@@ -34,7 +34,6 @@
 #include <Nepomuk2/Variant>
 
 #include <KDE/KDebug>
-#include <QtCore/QDateTime>
 
 using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
@@ -72,10 +71,10 @@ void ContactEdit::setupLabel()
 
 void ContactEdit::updateResource(const QString & newContactNames)
 {
+    // first get rid off the old contacts
+    Nepomuk2::removeProperties(QList<QUrl>() << resource().uri(), QList<QUrl> () << propertyUrl());
+
     if(newContactNames.isEmpty()) {
-        QList<QUrl> resourceUris; resourceUris << resource().uri();
-        QList<QUrl> value; value << propertyUrl();
-        Nepomuk2::removeProperties(resourceUris, value);
         return;
     }
 
@@ -87,31 +86,26 @@ void ContactEdit::updateResource(const QString & newContactNames)
         entryList.append(newContactNames);
     }
 
+    // Now add all th enew ones
     Nepomuk2::SimpleResourceGraph graph;
-    Nepomuk2::SimpleResource publicationRes(resource().uri());
-    Nepomuk2::NBIB::Publication publication(publicationRes);
-    //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
-    QDateTime datetime = QDateTime::currentDateTimeUtc();
-    publicationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+    Nepomuk2::NBIB::Publication publication(resource().uri());
 
-    QVariantList contactUris;
     foreach(const QString & s, entryList) {
         if(s.trimmed().isEmpty()) { continue; }
 
         Nepomuk2::NCO::Contact contact;
 
-        contact.addProperty( NCO::fullname(), s.trimmed() );
+        contact.setFullname( s.trimmed() );
         contact.addProperty( NAO::prefLabel(), s.trimmed() );
+        publication.addProperty(propertyUrl(), contact.uri());
+        publication.addProperty(NAO::hasSubResource(), contact.uri() );
 
         graph << contact;
-        contactUris << contact.uri();
     }
 
-    publication.setProperty(propertyUrl(), contactUris);
     graph << publication;
 
-    m_changedResource = resource();
     connect(Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties),
-            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
+            SIGNAL(result(KJob*)),this, SLOT(showDMSError(KJob*)) );
 
 }

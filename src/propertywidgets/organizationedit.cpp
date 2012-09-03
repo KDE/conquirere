@@ -30,13 +30,13 @@
 
 #include "nbib.h"
 #include <Nepomuk2/Vocabulary/NCO>
-#include <Nepomuk2/Vocabulary/NUAO>
+#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk2/Variant>
 
 #include <KDE/KDebug>
-#include <QtCore/QDateTime>
 
 using namespace Nepomuk2::Vocabulary;
+using namespace Soprano::Vocabulary;
 
 OrganizationEdit::OrganizationEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -49,7 +49,7 @@ void OrganizationEdit::setupLabel()
 {
     QString title;
 
-    //different cases are handled here
+    //two different cases are handled here
     Nepomuk2::Resource organization;
 
     // I. the resource is an Article, means the organization is attached to the Collection
@@ -88,10 +88,9 @@ void OrganizationEdit::updateResource(const QString & text)
     }
 
     if(currentOrganization.exists()) {
-        // remove the crosslink reference <-> publication
-        QList<QUrl> resourceUris; resourceUris << resource().uri();
-        QVariantList value; value << currentOrganization.uri();
-        Nepomuk2::removeProperty(resourceUris, NBIB::organization(), value);
+        Nepomuk2::removeProperty(QList<QUrl>() << resource().uri(), NBIB::organization(), QVariantList() << currentOrganization.uri());
+
+        Nepomuk2::removeProperty(QList<QUrl>() << resource().uri(), NAO::hasSubResource(), QVariantList() << currentOrganization.uri());
     }
 
     if(text.isEmpty()) {
@@ -101,20 +100,18 @@ void OrganizationEdit::updateResource(const QString & text)
     // ok the user changed the text in the list
     // let the DMS create a new Organization and merge it to the right place
     Nepomuk2::SimpleResourceGraph graph;
-    Nepomuk2::SimpleResource publicationRes(resource().uri());
-    Nepomuk2::NBIB::Publication publication(publicationRes);
-    //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
-    QDateTime datetime = QDateTime::currentDateTimeUtc();
-    publicationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+    Nepomuk2::NBIB::Publication publication(resource().uri());
 
     Nepomuk2::NCO::OrganizationContact newOrganization;
 
     newOrganization.setProperty(NCO::fullname(), text.trimmed());
     publication.setOrganization( newOrganization.uri() );
 
+    // delete organization if the publication got deleted (and no other resource is using it)
+    publication.addProperty(NAO::hasSubResource(), newOrganization.uri());
+
     graph << newOrganization << publication;
 
-    m_changedResource = resource();
     connect(Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties),
-            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
+            SIGNAL(result(KJob*)),this, SLOT(showDMSError(KJob*)) );
 }

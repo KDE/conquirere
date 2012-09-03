@@ -29,7 +29,7 @@ class KDatePicker;
 /**
   * @brief Edits the @c nbib:publicationDate or the @c nbib:accessDate of an @c nbib:Publication
   *
-  * The date is saved as @c "yyyy-MM-ddTHH:mm:ssZ"
+  * The date is saved as Qt:IsoDate @c "yyyy-MM-ddTHH:mm:ssZ"
   */
 class DateEdit : public PropertyEdit
 {

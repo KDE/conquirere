@@ -41,7 +41,7 @@
 DateEdit::DateEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
-//    setDirectEdit(false);
+    setDirectEdit(false);
     setUseDetailDialog(true);
 
     m_dateMenu = new QMenu(this);
@@ -72,6 +72,7 @@ void DateEdit::setupLabel()
     //[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]Z
     QDateTime date = QDateTime::fromString(dateString, Qt::ISODate);
     if(date.isValid()) {
+        //TODO: get date format from system locale settings
         setLabelText(date.toString("dd.MMM.yyyy"));
     }
     else {
@@ -81,22 +82,16 @@ void DateEdit::setupLabel()
 
 void DateEdit::updateResource(const QString & newDateText)
 {
-    QList<QUrl> resourceUris; resourceUris << resource().uri();
-    QList<QUrl> propertyUris; propertyUris << propertyUrl();
-
     if(newDateText.isEmpty()) {
-        connect(Nepomuk2::removeProperties(resourceUris, propertyUris),
-                SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
-
+        connect(Nepomuk2::removeProperties(QList<QUrl>() << resource().uri(), QList<QUrl>() << propertyUrl()),
+                SIGNAL(result(KJob*)),this, SLOT(showDMSError(KJob*)));
     }
     else {
+        //TODO: get date format from system locale settings
         QDateTime date = QDateTime::fromString(newDateText, "dd.MMM.yyyy");
 
-        QList<QUrl> resourceUris; resourceUris << resource().uri();
-        QVariantList value; value << date.toString(Qt::ISODate);
-        m_changedResource = resource();
-        connect(Nepomuk2::setProperty(resourceUris, propertyUrl(), value),
-                SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
+        connect(Nepomuk2::setProperty(QList<QUrl>() << resource().uri(), propertyUrl(), QVariantList() << date.toString(Qt::ISODate)),
+                SIGNAL(result(KJob*)),this, SLOT(showDMSError(KJob*)) );
     }
 }
 
@@ -133,6 +128,7 @@ void DateEdit::dateChanged(QDate date)
     setLabelText(date.toString("dd.MMM.yyyy"));
     updateResource(date.toString("dd.MMM.yyyy"));
 }
+
 void DateEdit::mousePressEvent ( QMouseEvent * e )
 {
     QDateTime date = QDateTime::fromString(m_label->fullText(), "dd.MMM.yyyy");
@@ -161,7 +157,6 @@ void DateEdit::mousePressEvent ( QMouseEvent * e )
 void DateEdit::editingFinished()
 {
     //don't switch to label view when enter is pressed for the completion
-
     QDateTime date = QDateTime::fromString(m_label->fullText(), "dd.MMM.yyyy");
     QString dateEditString =date.toString(Qt::ISODate);
 
@@ -170,8 +165,6 @@ void DateEdit::editingFinished()
         QString inputString = date.toString("dd.MMM.yyyy");
         updateResource(inputString);
         setLabelText(inputString);
-
-        emit resourceCacheNeedsUpdate(resource());
     }
 
     m_lineEdit->hide();

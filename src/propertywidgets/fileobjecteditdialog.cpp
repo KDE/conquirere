@@ -34,6 +34,7 @@
 #include <Nepomuk2/Vocabulary/NUAO>
 #include <Nepomuk2/Vocabulary/NFO>
 #include <Soprano/Vocabulary/RDF>
+#include <Soprano/Vocabulary/NAO>
 
 #include <Nepomuk2/Query/QueryServiceClient>
 #include <Nepomuk2/Query/Result>
@@ -105,7 +106,7 @@ void FileObjectEditDialog::createNewResource()
 {
     Nepomuk2::SimpleResourceGraph graph;
     Nepomuk2::NFO::Website newWebsite;
-    //newWebsite.addType(NFO::WebDataObject());
+    newWebsite.addType(NFO::WebDataObject());
     newWebsite.addType(NIE::InformationElement());
 
     newWebsite.setProperty( NIE::title(), i18n("New Website"));
@@ -118,13 +119,12 @@ void FileObjectEditDialog::createNewResource()
         return;
     }
 
-    // get the pimo project from the return job mappings
-    Nepomuk2::Resource newWebsiteResource = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( newWebsite.uri() ) );
+    // get the resource from the return job mappings
+    Nepomuk2::Resource newWebsiteResource( srj->mappings().value( newWebsite.uri() ) );
 
-    QList<QUrl> publicationUri; publicationUri << m_publication.uri();
-    QVariantList fileObjectValue; fileObjectValue << newWebsiteResource.uri();
-
-    Nepomuk2::addProperty(publicationUri, NIE::links(), fileObjectValue);
+    // add the crosslinking
+    Nepomuk2::addProperty(QList<QUrl>() << m_publication.uri(), NIE::links(), QVariantList() << newWebsiteResource.uri());
+    Nepomuk2::addProperty(QList<QUrl>() << m_publication.uri(), NAO::hasSubResource(), QVariantList() << newWebsiteResource.uri());
 
     setResource(newWebsiteResource);
 }
@@ -186,7 +186,7 @@ void FileObjectEditDialog::typeChanged(int newType)
         }
 
         currentTypes.removeAll(NFO::Website());
-        //currentTypes.removeAll(NFO::WebDataObject());
+        currentTypes.removeAll(NFO::WebDataObject());
         currentTypes.removeAll(NFO::RemoteDataObject());
 
         if(!currentTypes.contains( NFO::FileDataObject() )) {
@@ -203,7 +203,7 @@ void FileObjectEditDialog::typeChanged(int newType)
         }
 
         currentTypes.removeAll(NFO::Website());
-        //currentTypes.removeAll(NFO::WebDataObject());
+        currentTypes.removeAll(NFO::WebDataObject());
 
         if(!currentTypes.contains( NFO::FileDataObject() )) {
             currentTypes.append( NFO::FileDataObject() );
@@ -225,9 +225,9 @@ void FileObjectEditDialog::typeChanged(int newType)
         currentTypes.removeAll(NFO::FileDataObject());
         currentTypes.removeAll(NFO::RemoteDataObject());
 
-//        if(!currentTypes.contains( NFO::WebDataObject() )) {
-//            currentTypes.append( NFO::WebDataObject() );
-//        }
+        if(!currentTypes.contains( NFO::WebDataObject() )) {
+            currentTypes.append( NFO::WebDataObject() );
+        }
         if(!currentTypes.contains( NFO::Website() )) {
             currentTypes.append( NFO::Website() );
         }
@@ -243,20 +243,24 @@ void FileObjectEditDialog::typeChanged(int newType)
         typeValue << url;
     }
 
-    m_fileObject.setTypes(currentTypes);
+    //m_fileObject.setTypes(currentTypes);
 
     // this appraoch is not working
-//    QList<QUrl> removeAllTypes; removeAllTypes << RDF::type();
-//    KJob *job = Nepomuk2::removeProperties(fileObjectUri, removeAllTypes);
-//    job->exec();
-//    KJob *job2 = Nepomuk2::setProperty(fileObjectUri, RDF::type(), typeValue);
-//    job2->exec();
+    QList<QUrl> removeAllTypes; removeAllTypes << RDF::type();
+    KJob *job = Nepomuk2::removeProperties(fileObjectUri, removeAllTypes);
+    if(!job->exec() ) {
+        kDebug() << job->errorString();
+    }
+    KJob *job2 = Nepomuk2::setProperty(fileObjectUri, RDF::type(), typeValue);
+    if(!job->exec() ) {
+        kDebug() << job2->errorString();
+    }
 
     // change crosslink from nbib:publicationOf / nbib:isPublishedAs to nie:links
     if( switchToFile ) {
         Nepomuk2::removeProperty(publicationUri, NIE::links(), fileObjectValue);
         Nepomuk2::addProperty(publicationUri, NBIB::isPublicationOf(), fileObjectValue);
-        Nepomuk2::setProperty(fileObjectUri, NBIB::publishedAs(), publicationValue);
+        Nepomuk2::addProperty(fileObjectUri, NBIB::publishedAs(), publicationValue);
     }
     else if( switchToWebsite ) {
         Nepomuk2::removeProperty(publicationUri, NBIB::isPublicationOf(), fileObjectValue);

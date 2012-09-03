@@ -35,22 +35,26 @@ void VolumeNumberEdit::setupLabel()
 {
     QString string;
 
-    // three different cases must be checked here
+    // four different cases must be checked here
     Nepomuk2::Resource issueResource;
 
     // I. resource() is an article, with an attached Collection, from a Series
     if(resource().hasType(NBIB::Article())) {
         issueResource = resource().property(NBIB::collection()).toResource();
     }
+    // II. resource() is a Legislation
+    // the number in this case is for the nbib:Bill
+    // while the volume if for the nbib:CodeOfLaw
     else if(resource().hasType(NBIB::Legislation())) {
-        // the number in this case is for the bill not the codeOfLaw
-        if(propertyUrl() == NBIB::volume())
+        if(propertyUrl() == NBIB::volume()) {
             issueResource = resource().property(NBIB::codeOfLaw()).toResource();
+        }
     }
+    // III. the number in this case is for the case not the courtreporter
     else if(resource().hasType(NBIB::LegalCaseDocument())) {
-        // the number in this case is for the case not the courtreporter
-        if(propertyUrl() == NBIB::volume())
+        if(propertyUrl() == NBIB::volume()) {
             issueResource = resource().property(NBIB::courtReporter()).toResource();
+        }
     }
     // IV. resource() is an Collection, from a Series
     else if(resource().hasType(NBIB::Collection())) {
@@ -102,7 +106,7 @@ void VolumeNumberEdit::updateResource(const QString & text)
     }
 
     QVariantList value; value << text;
-    m_changedResource = resource();
-    connect(Nepomuk2::setProperty(resourceUris, propertyUrl(), value),
-            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
+
+    connect(Nepomuk2::setProperty(resourceUris, propertyUrl(), value), SIGNAL(result(KJob*)),this,
+            SLOT(showDMSError(KJob*)) );
 }

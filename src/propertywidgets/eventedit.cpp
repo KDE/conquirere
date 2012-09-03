@@ -23,18 +23,15 @@
 #include <Nepomuk2/SimpleResource>
 
 #include <KDE/KJob>
-#include "sro/pimo/event.h"
+#include "sro/ncal/event.h"
 #include "sro/nbib/publication.h"
 
 #include "nbib.h"
 #include <Nepomuk2/Vocabulary/NIE>
-#include <Nepomuk2/Vocabulary/PIMO>
 #include <Soprano/Vocabulary/NAO>
-#include <Nepomuk2/Vocabulary/NUAO>
 #include <Nepomuk2/Variant>
 
 #include <KDE/KDebug>
-#include <QtCore/QDateTime>
 
 using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
@@ -49,9 +46,9 @@ void EventEdit::setupLabel()
     Nepomuk2::Resource event = resource().property(NBIB::event()).toResource();
 
     QString title;
-    title = event.property(NAO::prefLabel()).toString();
+    title = event.property(NIE::title()).toString();
     if(title.isEmpty()) {
-        title = event.property(NIE::title()).toString();
+        title = event.property(NAO::prefLabel()).toString();
     }
 
     setLabelText(title);
@@ -63,9 +60,9 @@ void EventEdit::updateResource(const QString & newEventTitle)
 
     QString curentTitle;
 
-    curentTitle = currentEvent.property(NAO::prefLabel()).toString();
+    curentTitle = currentEvent.property(NIE::title()).toString();
     if(curentTitle.isEmpty()) {
-        curentTitle = currentEvent.property(NIE::title()).toString();
+        curentTitle = currentEvent.property(NAO::prefLabel()).toString();
     }
 
     if(newEventTitle == curentTitle) {
@@ -74,13 +71,19 @@ void EventEdit::updateResource(const QString & newEventTitle)
 
     if(currentEvent.exists()) {
         // remove the crosslink event <-> publication
-        QList<QUrl> resourceUris; resourceUris << resource().uri();
-        QVariantList value; value << currentEvent.uri();
-        Nepomuk2::removeProperty(resourceUris, NBIB::event(), value);
+        Nepomuk2::removeProperty(QList<QUrl>() << resource().uri(), NBIB::event(), QVariantList() << currentEvent.uri());
+        Nepomuk2::removeProperty(QList<QUrl>() << currentEvent.uri(), NBIB::eventPublication(), QVariantList() << resource().uri());
 
-        resourceUris.clear(); resourceUris << currentEvent.uri();
-        value.clear(); value << resource().uri();
-        Nepomuk2::removeProperty(resourceUris, NBIB::eventPublication(), value);
+        // remove hasSubresource
+        Nepomuk2::removeProperty(QList<QUrl>() << resource().uri(), NAO::hasSubResource(), QVariantList() << currentEvent.uri());
+
+        //TODO: maybe make an option of the "event deletion" if it has no publication and is not in akonadi
+        // if the event has no other publication and is not in akonadi tha ndelete it
+//        QList<Nepomuk2::Resource> publist = currentEvent.property( NBIB::eventPublication()).toResourceList();
+//        if(publist.isEmpty() || (publist.size() == 1 && publist.first().uri() == resource().uri())) {
+//            //FIXME: check if event has akonadi information
+//            Nepomuk2::removeResources(QList<QUrl>() << currentEvent.uri());
+//        }
     }
 
     if(newEventTitle.isEmpty()) {
@@ -91,24 +94,18 @@ void EventEdit::updateResource(const QString & newEventTitle)
     // let the DMS create a new event and merge it to the right place
     Nepomuk2::SimpleResourceGraph graph;
 
-    Nepomuk2::SimpleResource publicationRes(resource().uri());
-    Nepomuk2::NBIB::Publication publication(publicationRes);
-    //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
-    QDateTime datetime = QDateTime::currentDateTimeUtc();
-    publicationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
-
-    Nepomuk2::PIMO::Event newEvent;
-    newEvent.addType(NIE::InformationElement());
+    Nepomuk2::NBIB::Publication publication(resource().uri());
+    Nepomuk2::NCAL::Event newEvent;
 
     newEvent.setProperty(NIE::title(), newEventTitle.trimmed());
     newEvent.setProperty(NAO::prefLabel(), newEventTitle.trimmed());
 
     newEvent.addProperty( NBIB::eventPublication(), publication );
     publication.setEvent( newEvent.uri() );
+    publication.addProperty(NAO::hasSubResource(), newEvent.uri());
 
     graph << newEvent << publication;
 
-    m_changedResource = resource();
     connect(Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties),
-            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
+            SIGNAL(result(KJob*)),this, SLOT(showDMSError(KJob*)) );
 }

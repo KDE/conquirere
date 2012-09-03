@@ -29,13 +29,13 @@
 
 #include "nbib.h"
 #include <Nepomuk2/Vocabulary/NIE>
-#include <Nepomuk2/Vocabulary/NUAO>
+#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk2/Variant>
 
 #include <KDE/KDebug>
-#include <QtCore/QDateTime>
 
 using namespace Nepomuk2::Vocabulary;
+using namespace Soprano::Vocabulary;
 
 CollectionEdit::CollectionEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -64,13 +64,18 @@ void CollectionEdit::updateResource(const QString & newCollectionTitle)
 
     if(currentCollection.exists()) {
         // remove the crosslink collection <-> article
-        QList<QUrl> resourceUris; resourceUris << resource().uri();
-        QVariantList value; value << currentCollection.uri();
-        Nepomuk2::removeProperty(resourceUris, NBIB::collection(), value);
+        Nepomuk2::removeProperty(QList<QUrl>() << resource().uri(), NBIB::collection(), QVariantList() << currentCollection.uri());
+        Nepomuk2::removeProperty(QList<QUrl>() << currentCollection.uri(), NBIB::article(), QVariantList() << resource().uri());
 
-        resourceUris.clear(); resourceUris << currentCollection.uri();
-        value.clear(); value << resource().uri();
-        Nepomuk2::removeProperty(resourceUris, NBIB::article(), value);
+        Nepomuk2::removeProperty(QList<QUrl>() << resource().uri(), NAO::hasSubResource(), QVariantList() << currentCollection.uri());
+
+
+        //TODO: maybe make an option of the "collection deletion" if it has no publication
+        // if the old collection has no other publication attached to it anymore
+        QList<Nepomuk2::Resource> publist = currentCollection.property( NBIB::article()).toResourceList();
+        if(publist.isEmpty() || (publist.size() == 1 && publist.first().uri() == resource().uri())) {
+            Nepomuk2::removeResources(QList<QUrl>() << currentCollection.uri());
+        }
     }
 
     if(newCollectionTitle.isEmpty()) {
@@ -80,11 +85,7 @@ void CollectionEdit::updateResource(const QString & newCollectionTitle)
     // ok the user changed the text in the list
     // let the DMS create a new event and merge it to the right place
     Nepomuk2::SimpleResourceGraph graph;
-    Nepomuk2::SimpleResource articleRes(resource().uri());
-    Nepomuk2::NBIB::Article article(articleRes);
-    //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
-    QDateTime datetime = QDateTime::currentDateTimeUtc();
-    articleRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+    Nepomuk2::NBIB::Article article(resource().uri());
 
     Nepomuk2::NBIB::Collection newCollection;
 
@@ -92,10 +93,10 @@ void CollectionEdit::updateResource(const QString & newCollectionTitle)
 
     newCollection.addArticle( article.uri() );
     article.setCollection( newCollection.uri() );
+    article.addProperty(NAO::hasSubResource(), newCollection.uri());
 
     graph << newCollection << article;
 
-    m_changedResource = resource();
     connect(Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties),
-            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
+            SIGNAL(result(KJob*)),this, SLOT(showDMSError(KJob*)) );
 }

@@ -1,4 +1,4 @@
-#/*
+/*
  * Copyright 2011 Jörg Ehrichs <joerg.ehichs@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@
 #include <Nepomuk2/Variant>
 #include <Nepomuk2/Resource>
 
+#include <KDE/KDebug>
 StringEdit::StringEdit(QWidget *parent)
     : PropertyEdit(parent)
 {
@@ -40,9 +41,8 @@ void StringEdit::setupLabel()
         stringLabel.chop(2);
     }
     else {
-
+        stringLabel = resource().property(propertyUrl()).toString();
     }
-    stringLabel = resource().property(propertyUrl()).toString();
 
     setLabelText(stringLabel);
 }
@@ -63,7 +63,6 @@ void StringEdit::updateResource(const QString & text)
     }
 
     QList<QUrl> resourceUris; resourceUris << resource().uri();
-    m_changedResource = resource();
     connect(Nepomuk2::setProperty(resourceUris, propertyUrl(), value),
-            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
+            SIGNAL(result(KJob*)),this, SLOT(showDMSError(KJob*)) );
 }

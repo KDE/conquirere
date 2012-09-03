@@ -10,7 +10,7 @@
 
 #include <nepomuk2/simpleresource.h>
 
-#include "nbib/legaldocument.h"
+#include "legaldocument.h"
 
 namespace Nepomuk2 {
 namespace NBIB {

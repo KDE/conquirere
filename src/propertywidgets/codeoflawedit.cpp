@@ -28,13 +28,13 @@
 
 #include "nbib.h"
 #include <Nepomuk2/Vocabulary/NIE>
-#include <Nepomuk2/Vocabulary/NUAO>
+#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk2/Variant>
 
 #include <KDE/KDebug>
-#include <QtCore/QDateTime>
 
 using namespace Nepomuk2::Vocabulary;
+using namespace Soprano::Vocabulary;
 
 CodeOfLawEdit::CodeOfLawEdit(QWidget *parent) :
     PropertyEdit(parent)
@@ -53,7 +53,6 @@ void CodeOfLawEdit::setupLabel()
 void CodeOfLawEdit::updateResource(const QString & newCodeOfLawTitle)
 {
     Nepomuk2::Resource currentCodeOfLaw = resource().property(NBIB::codeOfLaw()).toResource();
-
     QString curentTitle = currentCodeOfLaw.property(NIE::title()).toString();
 
     if(newCodeOfLawTitle == curentTitle) {
@@ -62,13 +61,18 @@ void CodeOfLawEdit::updateResource(const QString & newCodeOfLawTitle)
 
     if(currentCodeOfLaw.exists()) {
         // remove the crosslink event <-> publication
-        QList<QUrl> resourceUris; resourceUris << resource().uri();
-        QVariantList value; value << currentCodeOfLaw.uri();
-        Nepomuk2::removeProperty(resourceUris, NBIB::codeOfLaw(), value);
+        Nepomuk2::removeProperty(QList<QUrl>() << resource().uri(), NBIB::codeOfLaw(), QVariantList() << currentCodeOfLaw.uri());
+        Nepomuk2::removeProperty(QList<QUrl>() << currentCodeOfLaw.uri(), NBIB::legislation(), QVariantList() << resource().uri());
 
-        resourceUris.clear(); resourceUris << currentCodeOfLaw.uri();
-        value.clear(); value << resource().uri();
-        Nepomuk2::removeProperty(resourceUris, NBIB::legislation(), value);
+        // remove subresource
+        Nepomuk2::removeProperty(QList<QUrl>() << resource().uri(), NAO::hasSubResource(), QVariantList() << currentCodeOfLaw.uri());
+
+        //TODO: maybe make an option of the "codeOfLaw deletion" if it has no legislation
+        // if the codeOfLaw has no othe rlegislation attached to it, delete it
+        QList<Nepomuk2::Resource> legislationList = currentCodeOfLaw.property( NBIB::legislation()).toResourceList();
+        if(legislationList.isEmpty() || (legislationList.size() == 1 && legislationList.first().uri() == resource().uri())) {
+            Nepomuk2::removeResources(QList<QUrl>() << currentCodeOfLaw.uri());
+        }
     }
 
     if(newCodeOfLawTitle.isEmpty()) {
@@ -78,11 +82,7 @@ void CodeOfLawEdit::updateResource(const QString & newCodeOfLawTitle)
     // ok the user changed the text in the list
     // let the DMS create a new event and merge it to the right place
     Nepomuk2::SimpleResourceGraph graph;
-    Nepomuk2::SimpleResource legislationRes(resource().uri());
-    Nepomuk2::NBIB::Legislation legislation(legislationRes);
-    //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
-    QDateTime datetime = QDateTime::currentDateTimeUtc();
-    legislationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+    Nepomuk2::NBIB::Legislation legislation(resource().uri());
 
     Nepomuk2::NBIB::CodeOfLaw newCodeOfLaw;
 
@@ -90,10 +90,10 @@ void CodeOfLawEdit::updateResource(const QString & newCodeOfLawTitle)
 
     newCodeOfLaw.addLegislation( legislation.uri() );
     legislation.setCodeOfLaw( newCodeOfLaw.uri() );
+    legislation.addProperty(NAO::hasSubResource(), newCodeOfLaw.uri() );
 
     graph << newCodeOfLaw << legislation;
 
-    m_changedResource = resource();
     connect(Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties),
-            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
+            SIGNAL(result(KJob*)),this, SLOT(showDMSError(KJob*)) );
 }

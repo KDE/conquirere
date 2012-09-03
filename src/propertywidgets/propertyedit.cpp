@@ -19,27 +19,14 @@
 
 #include "kmultiitemedit.h"
 
-#include <Nepomuk2/Query/Term>
-#include <Nepomuk2/Query/QueryServiceClient>
-#include <Nepomuk2/Query/Result>
-#include <Nepomuk2/Query/ResourceTypeTerm>
-#include <Nepomuk2/Query/OrTerm>
-#include <Nepomuk2/Variant>
 #include <Nepomuk2/Types/Property>
 #include <Nepomuk2/Types/Class>
 #include <Nepomuk2/Types/Literal>
 
-#include "nbib.h"
-#include <Nepomuk2/Vocabulary/PIMO>
-#include <Nepomuk2/Vocabulary/NCAL>
-#include <Nepomuk2/Vocabulary/NFO>
-#include <Soprano/Vocabulary/RDFS>
-
 #include <KDE/KIcon>
 #include <KDE/KSqueezedTextLabel>
-#include <KDE/KLineEdit>
-#include <KDE/KCompletion>
-#include <KDE/KCompletionBox>
+#include <KDE/KJob>
+
 #include <KDE/KDebug>
 
 #include <QtGui/QLabel>
@@ -50,7 +37,7 @@
 
 PropertyEdit::PropertyEdit(QWidget *parent)
     : QWidget(parent)
-    , m_isListEdit(true)
+    , m_isListEdit(false)
     , m_useDetailDialog(false)
     , m_directEditAllowed(true)
 {
@@ -61,7 +48,6 @@ PropertyEdit::PropertyEdit(QWidget *parent)
 
     m_lineEdit = new KMultiItemEdit();
     m_lineEdit->hide();
-//    connect(m_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(updateCompleter()));
     connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
 
     m_detailView = new QToolButton();
@@ -94,6 +80,9 @@ PropertyEdit::~PropertyEdit()
 void PropertyEdit::setResource(Nepomuk2::Resource & resource)
 {
     m_resource = resource;
+
+    //BUG: not all types are fetched correctly, fixed in 4.9.1
+    m_resource.types();
 
     setupLabel();
 }
@@ -140,8 +129,10 @@ void PropertyEdit::setUseDetailDialog(bool useIt)
 void PropertyEdit::setDirectEdit(bool directEdit)
 {
     m_directEditAllowed = directEdit;
-    if(!m_directEditAllowed)
+
+    if(!m_directEditAllowed) {
         setUseDetailDialog(true);
+    }
 }
 
 void PropertyEdit::setPropertyUrl(const QUrl & propertyUrl)
@@ -168,12 +159,15 @@ QUrl PropertyEdit::propertyUrl()
 void PropertyEdit::mousePressEvent ( QMouseEvent * e )
 {
     if(m_directEditAllowed) {
+
+        // start edit mode
         if(m_label->isVisible()) {
             m_lineEdit->setText(m_label->fullText());
             m_label->hide();
             m_lineEdit->show();
             m_lineEdit->setFocus();
         }
+        // leave edit mode if we click outside the editlabel
         else {
             if(m_label->fullText() != m_lineEdit->text()) {
                 setLabelText(m_lineEdit->text());
@@ -209,8 +203,6 @@ void PropertyEdit::editingFinished()
         inputString = inputString.trimmed();
         updateResource(inputString);
         setLabelText(m_lineEdit->text());
-
-        emit resourceCacheNeedsUpdate(resource());
     }
 
     m_lineEdit->hide();
@@ -223,6 +215,13 @@ void PropertyEdit::editingAborted()
     m_label->show();
 }
 
+void PropertyEdit::showDMSError(KJob *job)
+{
+    if(job->error()) {
+        kDebug() << "Failed to store information in Nepomuk. " << job->errorString();
+    }
+}
+
 void PropertyEdit::detailEditRequested()
 {
     emit externalEditRequested(m_resource, m_propertyUrl);
@@ -230,23 +229,16 @@ void PropertyEdit::detailEditRequested()
 
 void PropertyEdit::resourceUpdatedExternally()
 {
+    //FIXME: see what happens if we update the resource externally
     setupLabel();
-    editingFinished();
+
+    m_lineEdit->hide();
+    m_label->show();
+    //editingFinished();
 }
 
 void PropertyEdit::setVisible(bool visible)
 {
     QWidget::setVisible(visible);
     emit widgetShown(visible);
-}
-
-void PropertyEdit::updateEditedCacheResource()
-{
-    //TODO remove when resourcewatcher is working..
-    if(m_changedResource.exists()) {
-        emit resourceCacheNeedsUpdate(m_changedResource);
-    }
-    else {
-        emit resourceCacheNeedsUpdate(resource());
-    }
 }

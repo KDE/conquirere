@@ -28,15 +28,15 @@
 #include "sro/nbib/series.h"
 #include "sro/nbib/publication.h"
 
-#include "nbib.h"
+#include "nbib/nbib.h"
 #include <Nepomuk2/Vocabulary/NIE>
-#include <Nepomuk2/Vocabulary/NUAO>
+#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk2/Variant>
 
 #include <KDE/KDebug>
-#include <QtCore/QDateTime>
 
 using namespace Nepomuk2::Vocabulary;
+using namespace Soprano::Vocabulary;
 
 SeriesEdit::SeriesEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -73,9 +73,16 @@ void SeriesEdit::updateResource(const QString & text)
         resourceUris.clear(); resourceUris << currentSeriesResource.uri();
         value.clear(); value << resource().uri();
         Nepomuk2::removeProperty(resourceUris, NBIB::seriesOf(), value);
+
+        //TODO: maybe make an option of the "series deletion" if it has no publication
+        // if the series is not the series of any other publication delete it
+        QList<Nepomuk2::Resource> publist = currentSeriesResource.property( NBIB::seriesOf()).toResourceList();
+        if(publist.isEmpty() || (publist.size() == 1 && publist.first().uri() == resource().uri())) {
+            Nepomuk2::removeResources(QList<QUrl>() << currentSeriesResource.uri());
+        }
     }
 
-    // if the text is empty, remove Series from resource and its backlink
+    // if the text is empty just remove the series but nothing else
     if(text.isEmpty()) {
         return;
     }
@@ -83,11 +90,7 @@ void SeriesEdit::updateResource(const QString & text)
     // ok the user changed the text in the list
     // let the DMS create a new Series and merge it to the right place
     Nepomuk2::SimpleResourceGraph graph;
-    Nepomuk2::SimpleResource publicationRes(resource().uri());
-    Nepomuk2::NBIB::Publication publication(publicationRes);
-    //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
-    QDateTime datetime = QDateTime::currentDateTimeUtc();
-    publicationRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+    Nepomuk2::NBIB::Publication publication(resource().uri());
 
     Nepomuk2::NBIB::Series newSeries;
     QUrl subType = findSeriesType();
@@ -95,21 +98,23 @@ void SeriesEdit::updateResource(const QString & text)
         newSeries.addType( subType );
     }
 
-    newSeries.setProperty(NIE::title(), text.trimmed());
+    newSeries.setTitle( text.trimmed() );
     newSeries.addSeriesOf( publication.uri() );
     publication.setInSeries( newSeries.uri() );
+    // delete series if publication got deleted
+    publication.addProperty(NAO::hasSubResource(), newSeries.uri());
 
     graph << newSeries << publication;
 
-    m_changedResource = resource();
     connect(Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties),
-            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
+            SIGNAL(result(KJob*)),this, SLOT(showDMSError(KJob*)) );
 }
 
 QUrl SeriesEdit::findSeriesType()
 {
+    //REFACTOR: move this in a global BibType Helper class with all the other static functions
     QUrl subType;
-    if(resource().hasType(NBIB::Book())) {
+    if(resource().hasType(NBIB::Book()) || resource().hasType(NBIB::Booklet())) {
         subType = NBIB::BookSeries();
     }
     if(resource().hasType(NBIB::JournalIssue())) {

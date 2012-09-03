@@ -50,4 +50,6 @@ void ChapterEdit::setupLabel()
 
 void ChapterEdit::updateResource(const QString & newChapterTitle)
 {
+    Q_UNUSED(newChapterTitle)
+    // direct edit is not allowed, so we do not need this
 }

@@ -25,6 +25,7 @@
 #include <Nepomuk2/SimpleResource>
 
 #include <KDE/KJob>
+#include "sro/nbib/publication.h"
 #include "sro/nao/tag.h"
 #include "sro/pimo/topic.h"
 
@@ -43,15 +44,16 @@ TagEdit::TagEdit(QWidget *parent)
 {
 }
 
-void TagEdit::setPropertyUrl(const QUrl & m_propertyUrl)
+void TagEdit::setPropertyUrl(const QUrl & propertyUrl)
 {
-    PropertyEdit::setPropertyUrl(m_propertyUrl);
+    PropertyEdit::setPropertyUrl(propertyUrl);
 
-    if(m_propertyUrl == NAO::hasTag()) {
+    // change which resources the completer will select
+    if(propertyUrl == NAO::hasTag()) {
         m_lineEdit->setNepomukCompleterLabel( NAO::prefLabel());
         m_lineEdit->setNepomukCompleterRange( NAO::Tag() );
     }
-    else if(m_propertyUrl == NAO::hasTopic()) {
+    else if(propertyUrl == NAO::hasTopic()) {
         m_lineEdit->setNepomukCompleterLabel( PIMO::tagLabel());
         m_lineEdit->setNepomukCompleterRange( PIMO::Topic() );
     }
@@ -76,10 +78,23 @@ void TagEdit::setupLabel()
 
 void TagEdit::updateResource(const QString & newTagNames)
 {
+
+    // first get all tags/topic depending on propertyUrl
+    QList<Nepomuk2::Resource> tlist = resource().property( propertyUrl() ).toResourceList();
+
+    QVariantList valuelist;
+    foreach(const Nepomuk2::Resource &r, tlist) {
+        valuelist << r.uri();
+    }
+
+    // now remove them from the resource() and remove the hasSubresource for them
+    Nepomuk2::removeProperty(QList<QUrl>() << resource().uri(), propertyUrl(), valuelist);
+    Nepomuk2::removeProperty(QList<QUrl>() << resource().uri(), NAO::hasSubResource(), valuelist);
+
+    //FIXME: delete Tags/Topics which are not used by any other resource anymore
+
+    // exit here if no tags/topic are specified
     if(newTagNames.isEmpty()) {
-        QList<QUrl> resourceUris; resourceUris << resource().uri();
-        QList<QUrl> value; value << propertyUrl();
-        Nepomuk2::removeProperties(resourceUris, value);
         return;
     }
 
@@ -91,18 +106,22 @@ void TagEdit::updateResource(const QString & newTagNames)
         entryList.append(newTagNames);
     }
 
+    // creates the tags/topics again
     Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::NBIB::Publication publication(resource().uri());
+
     foreach(const QString & s, entryList) {
         if(s.trimmed().isEmpty()) { continue; }
 
         if( propertyUrl() == NAO::hasTag()) {
-            Nepomuk2::SimpleResource tagResource;
-            Nepomuk2::NAO::Tag tag (tagResource);
+            Nepomuk2::NAO::Tag tag;
 
-            tagResource.addProperty( NAO::identifier(), KUrl::fromEncoded(s.trimmed().toUtf8()) );
+            tag.addProperty( NAO::identifier(), KUrl::fromEncoded(s.trimmed().toUtf8()) );
             tag.addPrefLabel( s.trimmed() );
+            publication.addProperty(NAO::hasTag(), tag);
+            publication.addProperty(NAO::hasSubResource(), tag);
 
-            graph << tagResource;
+            graph << tag;
         }
         else if(propertyUrl() == NAO::hasTopic()) {
 
@@ -110,6 +129,8 @@ void TagEdit::updateResource(const QString & newTagNames)
 
             topic.addProperty( NAO::identifier(), KUrl::fromEncoded(s.trimmed().toUtf8()) );
             topic.setTagLabel( s.trimmed() );
+            publication.addProperty(NAO::hasTopic(), topic);
+            publication.addProperty(NAO::hasSubResource(), topic);
 
             graph << topic;
         }
@@ -118,29 +139,8 @@ void TagEdit::updateResource(const QString & newTagNames)
         }
     }
 
-    m_editedResource = resource();
-    connect(Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties), SIGNAL(result(KJob*)),this, SLOT(addTags(KJob*)));
-}
+    graph << publication;
 
-void TagEdit::addTags(KJob *job)
-{
-    if( job->error() != 0) {
-        kDebug() << "could not create new tags" << job->errorString();
-        return;
-    }
-
-    Nepomuk2::StoreResourcesJob *srj = dynamic_cast<Nepomuk2::StoreResourcesJob *>(job);
-
-    // now get all the uris for the new tags
-    QVariantList tagUris;
-    foreach (const QUrl &uri, srj->mappings()) {
-         tagUris << uri;
-    }
-
-    // and attach all tags to the current Nepomuk resource
-    QList<QUrl> resourceUris; resourceUris << m_editedResource.uri();
-    Nepomuk2::setProperty(resourceUris, propertyUrl(), tagUris);
-
-    //TODO remove when resourcewatcher is working..
-    emit resourceCacheNeedsUpdate(m_editedResource);
+    connect(Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties),
+            SIGNAL(result(KJob*)),this, SLOT(showDMSError(KJob*)) );
 }

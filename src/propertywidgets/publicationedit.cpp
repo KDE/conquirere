@@ -30,13 +30,14 @@
 
 #include "nbib.h"
 #include <Nepomuk2/Vocabulary/NIE>
-#include <Nepomuk2/Vocabulary/NUAO>
+#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk2/Variant>
 
 #include <KDE/KDebug>
 #include <QtCore/QDateTime>
 
 using namespace Nepomuk2::Vocabulary;
+using namespace Soprano::Vocabulary;
 
 PublicationEdit::PublicationEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -67,13 +68,11 @@ void PublicationEdit::updateResource(const QString & newPublicationTitle)
 
     if(currentPublication.exists()) {
         // remove the crosslink reference <-> publication
-        QList<QUrl> resourceUris; resourceUris << resource().uri();
-        QVariantList value; value << currentPublication.uri();
-        Nepomuk2::removeProperty(resourceUris, NBIB::publication(), value);
+        Nepomuk2::removeProperty(QList<QUrl>() << resource().uri(), NBIB::publication(), QVariantList() << currentPublication.uri());
+        Nepomuk2::removeProperty(QList<QUrl>() << currentPublication.uri(), NBIB::reference(), QVariantList() << resource().uri());
 
-        resourceUris.clear(); resourceUris << currentPublication.uri();
-        value.clear(); value << resource().uri();
-        Nepomuk2::removeProperty(resourceUris, NBIB::reference(), value);
+        // remove subresource info
+        Nepomuk2::removeProperty(QList<QUrl>() << currentPublication.uri(), NAO::hasSubResource(), QVariantList() << resource().uri());
     }
 
     if(newPublicationTitle.isEmpty()) {
@@ -83,21 +82,17 @@ void PublicationEdit::updateResource(const QString & newPublicationTitle)
     // ok the user changed the text in the list
     // let the DMS create a new Publication and merge it to the right place
     Nepomuk2::SimpleResourceGraph graph;
-    Nepomuk2::SimpleResource referenceRes(resource().uri());
-    Nepomuk2::NBIB::Reference reference(referenceRes);
-    //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
-    QDateTime datetime = QDateTime::currentDateTimeUtc();
-    referenceRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
-
+    Nepomuk2::NBIB::Reference reference(resource().uri());
     Nepomuk2::NBIB::Publication newPublication;
 
     newPublication.setProperty(NIE::title(), newPublicationTitle.trimmed());
     reference.setPublication( newPublication.uri() );
     newPublication.addReference( reference.uri() );
+    // delete reference when publication is removed
+    newPublication.addProperty(NAO::hasSubResource(), resource().uri());
 
     graph << newPublication << reference;
 
-    m_changedResource = resource();
     connect(Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties),
-            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
+            SIGNAL(result(KJob*)),this, SLOT(showDMSError(KJob*)) );
 }

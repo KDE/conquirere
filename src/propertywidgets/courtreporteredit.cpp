@@ -28,13 +28,13 @@
 
 #include "nbib.h"
 #include <Nepomuk2/Vocabulary/NIE>
-#include <Nepomuk2/Vocabulary/NUAO>
+#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk2/Variant>
 
 #include <KDE/KDebug>
-#include <QtCore/QDateTime>
 
 using namespace Nepomuk2::Vocabulary;
+using namespace Soprano::Vocabulary;
 
 CourtReporterEdit::CourtReporterEdit(QWidget *parent)
     : PropertyEdit(parent)
@@ -62,13 +62,17 @@ void CourtReporterEdit::updateResource(const QString & newCRTitle)
 
     if(currentCourtReporter.exists()) {
         // remove the crosslink CourtReporter <-> publication
-        QList<QUrl> resourceUris; resourceUris << resource().uri();
-        QVariantList value; value << currentCourtReporter.uri();
-        Nepomuk2::removeProperty(resourceUris, NBIB::courtReporter(), value);
+        Nepomuk2::removeProperty(QList<QUrl>() << resource().uri(), NBIB::courtReporter(), QVariantList() << currentCourtReporter.uri());
+        Nepomuk2::removeProperty(QList<QUrl>() << currentCourtReporter.uri(), NBIB::legalCase(), QVariantList() << resource().uri());
 
-        resourceUris.clear(); resourceUris << currentCourtReporter.uri();
-        value.clear(); value << resource().uri();
-        Nepomuk2::removeProperty(resourceUris, NBIB::legalCase(), value);
+        // remove subresource
+        Nepomuk2::removeProperty(QList<QUrl>() << resource().uri(), NAO::hasSubResource(), QVariantList() << currentCourtReporter.uri());
+
+        //TODO: maybe make an option of the "courtreport deletion" if it has no publication
+        QList<Nepomuk2::Resource> legalCases = currentCourtReporter.property( NBIB::legalCase()).toResourceList();
+        if(legalCases.isEmpty() || (legalCases.size() == 1 && legalCases.first().uri() == resource().uri())) {
+            Nepomuk2::removeResources(QList<QUrl>() << currentCourtReporter.uri());
+        }
     }
 
     if(newCRTitle.isEmpty()) {
@@ -78,11 +82,7 @@ void CourtReporterEdit::updateResource(const QString & newCRTitle)
     // ok the user changed the text in the list
     // let the DMS create a new event and merge it to the right place
     Nepomuk2::SimpleResourceGraph graph;
-    Nepomuk2::SimpleResource legalCaseRes(resource().uri());
-    Nepomuk2::NBIB::LegalCaseDocument legalCase(legalCaseRes);
-    //BUG we need to set some property otherwise the DataManagement server complains the resource is invalid
-    QDateTime datetime = QDateTime::currentDateTimeUtc();
-    legalCaseRes.setProperty( NUAO::lastModification(), datetime.toString("yyyy-MM-ddTHH:mm:ssZ"));
+    Nepomuk2::NBIB::LegalCaseDocument legalCase(resource().uri());
 
     Nepomuk2::NBIB::CourtReporter newCourtReporter;
 
@@ -90,10 +90,10 @@ void CourtReporterEdit::updateResource(const QString & newCRTitle)
 
     newCourtReporter.addLegalCase( legalCase.uri() );
     legalCase.setCourtReporter( newCourtReporter.uri() );
+    legalCase.addProperty( NAO::hasSubResource(), newCourtReporter.uri());
 
     graph << newCourtReporter << legalCase;
 
-    m_changedResource = resource();
     connect(Nepomuk2::storeResources(graph, Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties),
-            SIGNAL(result(KJob*)),this, SLOT(updateEditedCacheResource()));
+            SIGNAL(result(KJob*)),this, SLOT(showDMSError(KJob*)) );
 }

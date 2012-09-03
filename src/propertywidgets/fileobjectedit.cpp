@@ -25,6 +25,7 @@
 #include "nbib.h"
 #include <Nepomuk2/Vocabulary/NIE>
 #include <Nepomuk2/Vocabulary/NFO>
+#include <Soprano/Vocabulary/NAO>
 #include <Nepomuk2/Variant>
 
 #include <KDE/KMimeType>
@@ -33,6 +34,7 @@
 #include <QtCore/QPointer>
 
 using namespace Nepomuk2::Vocabulary;
+using namespace Soprano::Vocabulary;
 
 FileObjectEdit::FileObjectEdit(QWidget *parent) :
     QWidget(parent),
@@ -88,7 +90,7 @@ void FileObjectEdit::fileObjectEdit()
     QListWidgetItem *i = ui->fileListWidget->currentItem();
     if(!i) { return; }
 
-    Nepomuk2::Resource resource = Nepomuk2::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
+    Nepomuk2::Resource resource(i->data(Qt::UserRole).toUrl());
 
     QPointer<FileObjectEditDialog> foed = new FileObjectEditDialog(this);
 
@@ -116,11 +118,11 @@ void FileObjectEdit::fileObjectAdd()
     int ret = foed->exec();
 
     if(ret == QDialog::Rejected) {
+        //TODO: is this still necessary? check FileObjectEditDialog and how the resource is created there
         // remove crosslink, but do not delete the resource
-        QList<QUrl> publication; publication << m_publication.uri();
-        QVariantList uris; uris << foed->resource().uri();
-        Nepomuk2::removeProperty( publication, NIE::links(), uris );
-        Nepomuk2::removeProperty( publication, NBIB::isPublicationOf(), uris );
+        Nepomuk2::removeProperty( QList<QUrl>() << m_publication.uri(), NIE::links(), QVariantList() << foed->resource().uri() );
+        Nepomuk2::removeProperty( QList<QUrl>() << m_publication.uri(), NBIB::isPublicationOf(), QVariantList() << foed->resource().uri() );
+        Nepomuk2::removeProperty( QList<QUrl>() << foed->resource().uri(), NBIB::publishedAs(), QVariantList() << m_publication.uri() );
         return;
     }
 
@@ -142,35 +144,30 @@ void FileObjectEdit::fileObjectRemove()
     QListWidgetItem *i = ui->fileListWidget->currentItem();
     if(!i) { return; }
 
-    Nepomuk2::Resource resource = Nepomuk2::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
+    QUrl resourceUrl = i->data(Qt::UserRole).toUrl();
     ui->fileListWidget->removeItemWidget(i);
     delete i;
 
-    if(resource.hasType(NFO::Website())) {
-        QList<QUrl> resourceUris; resourceUris << m_publication.uri();
-        QVariantList value; value <<  resource.uri();
-        Nepomuk2::removeProperty(resourceUris, NIE::links(), value);
-    }
-    else {
-        QList<QUrl> resourceUris; resourceUris << m_publication.uri();
-        QVariantList value; value <<  resource.uri();
-        Nepomuk2::removeProperty(resourceUris, NBIB::isPublicationOf(), value);
+    Nepomuk2::removeProperty(QList<QUrl>() << m_publication.uri(), NIE::links(), QVariantList() << resourceUrl);
 
-        resourceUris.clear(); resourceUris << resource.uri();
-        value.clear(); value <<  m_publication.uri();
-        Nepomuk2::removeProperty(resourceUris, NBIB::publishedAs(), value);
-    }
+    Nepomuk2::removeProperty(QList<QUrl>() << m_publication.uri(), NBIB::isPublicationOf(), QVariantList() << resourceUrl);
+    Nepomuk2::removeProperty(QList<QUrl>() << resourceUrl, NBIB::publishedAs(), QVariantList() << m_publication.uri());
+
+
+    Nepomuk2::removeProperty(QList<QUrl>() << m_publication.uri(), NAO::hasSubResource(), QVariantList() << resourceUrl);
+
+    //TODO: delete the resource too? might still be needed
 }
 
 void FileObjectEdit::doubleClicked(QListWidgetItem* item, QPoint point)
 {
     Q_UNUSED(point);
-
+    Q_UNUSED(item);
 
     QListWidgetItem *i = ui->fileListWidget->currentItem();
     if(!i) { return; }
 
-    Nepomuk2::Resource resource = Nepomuk2::Resource::fromResourceUri(i->data(Qt::UserRole).toUrl());
+    Nepomuk2::Resource resource(i->data(Qt::UserRole).toUrl());
 
     emit openDocument(resource, true);
 }
@@ -181,8 +178,10 @@ void FileObjectEdit::addItemInfo(QListWidgetItem *i, const Nepomuk2::Resource &r
     KUrl url(resource.property(NIE::url()).toString());
     QString showString = url.prettyUrl(KUrl::RemoveTrailingSlash);
 
+    //BUG: not all resource types are fetched correctly, fixed in 4.9.1
+    resource.types();
 
-    if( resource.hasType(Nepomuk2::Vocabulary::NFO::Website()) // || resource.hasType(Nepomuk2::Vocabulary::NFO::WebDataObject())
+    if( resource.hasType(Nepomuk2::Vocabulary::NFO::Website()) || resource.hasType(Nepomuk2::Vocabulary::NFO::WebDataObject())
         || url.scheme() == QLatin1String("http")) {
         icon = KMimeType::favIconForUrl(url);
         if(icon.isEmpty()) {

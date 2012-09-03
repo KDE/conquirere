@@ -36,8 +36,8 @@ namespace Ui {
   * If the user selects/entered an existing file into the url box, it will be merged manually with the
   * existing one based on the url.
   *
-  * @bug switch types via DMS (currently setProperty or removeProperties do not remove types)
-  * @bug change url via dms ... not allowed via the DMS
+  * @bug BUG: Needs to be changed, when somone changing nie:url/rdf:types cann corrupt existing data when somone changes a nfo:FiledataObject into a website
+  *      Better ask the user beforehand what resource he wants to add and create it instead of changing/merging all this stuff here
   */
 class FileObjectEditDialog : public QDialog
 {

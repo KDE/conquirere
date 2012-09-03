@@ -25,7 +25,7 @@ class KJob;
 /**
   * @brief Used to edit the publication for a specific reference
   *
-  * Edits the @c nbib:publication to connect @c nbib:Publication to its Reference
+  * Edits the @c nbib:publication to connect @c nbib:Publication to its @c nbib:Reference
   * The label edits/shows the @c nie:title of the publication
   */
 class PublicationEdit : public PropertyEdit
