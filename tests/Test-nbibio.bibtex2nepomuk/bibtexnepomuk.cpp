@@ -66,6 +66,7 @@ private slots:
 
 private:
     void checknames(const Nepomuk2::Resource &r, QStringList &names, const QUrl &property);
+
     NBibImporterBibTex nbImBib;
     File *importedFile;
 
@@ -206,6 +207,7 @@ void BibtexNepomuk::importArticleTest()
     authorNames << QString::fromUtf8("UNITTEST-A. UNITTEST-Ut");
     authorNames << QString::fromUtf8("UNITTEST-H. UNITTEST-Ör");
     authorNames << QString::fromUtf8("UNITTEST-Co UNITTEST-Author");
+    authorNames << QString::fromUtf8("L. Tøffner-Clausen");
     checknames(publication, authorNames, NCO::creator());
 
     if(!authorNames.isEmpty()) {

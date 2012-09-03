@@ -66,8 +66,6 @@ private slots:
     void cleanupTestCase();
 
 private:
-    QDateTime startDate;
-
     NBibImporterBibTex *nbImBib;
     NepomukToBibTexPipe *ntnp;
 };
@@ -101,7 +99,7 @@ void BibtexBibtex::init()
 
 void BibtexBibtex::importExportTest()
 {
-    startDate = QDateTime::currentDateTime();
+    QDateTime startDate = QDateTime::currentDateTime();
     //######################################################################################
     //#
     //# Step 1 read data from testfile
