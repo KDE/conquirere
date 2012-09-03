@@ -54,19 +54,20 @@ classcanvas 133892 class_ref 184964 // nbib:Quote
 end
 note 135940 "DocumentPart should also \"bookmark/link\" to the real occurence in the document, if the document is available"
   xyzwh 869 127 2000 225 105
-classcanvas 137220 class_ref 143620 // pimo:Event
-  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
-  xyzwh 194 281 2000 93 81
-end
 note 137604 "conference
 meeting
 etc..."
   xyzwh 52 330 2005 99 83
+classcanvas 138500 class_ref 198532 // ncal:Event
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyzwh 201 279 2011 87 91
+end
 relationcanvas 128260 relation_ref 131844 // nbib:publishedAs
-  decenter_end 190
-  from ref 128132 z 3006 label "nbib:publishedAs" italic xyz 318 212 3006 to ref 128004
+  decenter_begin 852
+  decenter_end 178
+  from ref 128132 z 3006 label "nbib:publishedAs" italic xyz 318 207.5 3006 to ref 128004
   no_role_a no_role_b
-  multiplicity_a_pos 417 241 3000 no_multiplicity_b
+  multiplicity_a_pos 417 237 3000 no_multiplicity_b
 end
 relationcanvas 128388 relation_ref 131972 // nbib:isPublicationOf
   decenter_begin 46
@@ -108,7 +109,7 @@ relationcanvas 129796 relation_ref 130308 // nbib:publication
   decenter_end 246
   from ref 129540 z 2013 label "nbib:publication" italic xyz 600 227 2013 to ref 128004
   no_role_a no_role_b
-  multiplicity_a_pos 606 259 3000 no_multiplicity_b
+  multiplicity_a_pos 604 259 3000 no_multiplicity_b
 end
 relationcanvas 130692 relation_ref 130692 // nco:editor
   decenter_begin 950
@@ -126,7 +127,7 @@ relationcanvas 130948 relation_ref 130948 // nco:publisher
   decenter_begin 950
   from ref 128004 z 2007 label "nco:publisher" italic xyz 301 425 2007 stereotype "<<publisher>>" xyz 293 516 2007 to ref 130564
   no_role_a no_role_b
-  multiplicity_a_pos 271 488 3000 no_multiplicity_b
+  multiplicity_a_pos 265 488 3000 no_multiplicity_b
 end
 relationcanvas 132484 relation_ref 174212 // <generalisation>
   from ref 132356 z 3006 to point 764 50
@@ -138,22 +139,22 @@ relationcanvas 132612 relation_ref 187780 // <aggregation>
   decenter_begin 731
   decenter_end 422
   from ref 132356 z 3006 to ref 128004
-  role_a_pos 513 143 3000 no_role_b
+  role_a_pos 511 121 3000 no_role_b
   multiplicity_a_pos 487 143 3000 no_multiplicity_b
 end
 relationcanvas 132740 relation_ref 187908 // <aggregation>
   decenter_begin 55
   decenter_end 96
   from ref 128004 z 3006 to ref 132356
-  role_a_pos 356 123 3000 no_role_b
+  role_a_pos 357 116 3000 no_role_b
   multiplicity_a_pos 426 104 3000 no_multiplicity_b
 end
 relationcanvas 133124 relation_ref 189572 // <aggregation>
   decenter_begin 465
   decenter_end 501
-  from ref 128004 z 2007 to point 508 550
+  from ref 128004 z 2007 to point 507 550
   line 136964 z 2007 to ref 132996
-  role_a_pos 527 526 3000 no_role_b
+  role_a_pos 530 526 3000 no_role_b
   multiplicity_a_pos 657 562 3000 no_multiplicity_b
 end
 relationcanvas 133380 relation_ref 203140 // <generalisation>
@@ -184,53 +185,39 @@ relationcanvas 135044 relation_ref 203652 // <aggregation>
   decenter_begin 614
   decenter_end 590
   from ref 133252 z 2001 stereotype "<<isLogicalPartOf>>" xyz 705 367 3000 to ref 128004
-  role_a_pos 606 335 3000 no_role_b
-  multiplicity_a_pos 606 371 3000 no_multiplicity_b
+  role_a_pos 604 335 3000 no_role_b
+  multiplicity_a_pos 604 371 3000 no_multiplicity_b
 end
 relationcanvas 135812 relation_ref 203908 // <aggregation>
   decenter_begin 747
   decenter_end 929
   from ref 128004 z 2001 to ref 133252
-  role_a_pos 845 386 3000 no_role_b
+  role_a_pos 847 386 3000 no_role_b
   multiplicity_a_pos 962 422 3000 no_multiplicity_b
 end
 relationcanvas 137092 relation_ref 212356 // <aggregation>
   decenter_begin 427
   decenter_end 891
   from ref 128004 z 2013 to ref 129540
-  role_a_pos 596 282 3000 no_role_b
+  role_a_pos 598 282 3000 no_role_b
   multiplicity_a_pos 691 318 3000 no_multiplicity_b
-end
-relationcanvas 137348 relation_ref 219012 // <aggregation>
-  decenter_begin 123
-  decenter_end 372
-  from ref 137220 z 2001 to ref 128004
-  role_a_pos 287 264 3000 no_role_b
-  multiplicity_a_pos 419 300 3000 no_multiplicity_b
-end
-relationcanvas 137476 relation_ref 219140 // <aggregation>
-  decenter_begin 560
-  decenter_end 888
-  from ref 128004 z 2001 to ref 137220
-  role_a_pos 296 326 3000 no_role_b
-  multiplicity_a_pos 296 362 3000 no_multiplicity_b
 end
 relationcanvas 137860 relation_ref 259460 // <aggregation>
   decenter_begin 950
   from ref 128004 z 2007 to ref 130564
-  role_a_pos 300 382 3000 no_role_b
+  role_a_pos 297 382 3000 no_role_b
   no_multiplicity_a no_multiplicity_b
 end
 relationcanvas 137988 relation_ref 259588 // <aggregation>
   decenter_begin 950
   from ref 128004 z 2007 to ref 130564
-  role_a_pos 297 397 3000 no_role_b
+  role_a_pos 289 396 3000 no_role_b
   no_multiplicity_a no_multiplicity_b
 end
 relationcanvas 138116 relation_ref 259716 // <aggregation>
   decenter_begin 950
   from ref 128004 z 2007 to ref 130564
-  role_a_pos 279 411 3000 no_role_b
+  role_a_pos 277 410 3000 no_role_b
   no_multiplicity_a no_multiplicity_b
 end
 relationcanvas 138244 relation_ref 289156 // <aggregation>
@@ -241,8 +228,22 @@ relationcanvas 138244 relation_ref 289156 // <aggregation>
   role_a_pos 604 187 3000 no_role_b
   multiplicity_a_pos 720 205 3000 no_multiplicity_b
 end
+relationcanvas 138756 relation_ref 302340 // <aggregation>
+  decenter_begin 780
+  decenter_end 553
+  from ref 138500 z 2012 to ref 128004
+  role_a_pos 289 323 3000 no_role_b
+  multiplicity_a_pos 419 359 3000 no_multiplicity_b
+end
+relationcanvas 138884 relation_ref 302468 // <aggregation>
+  decenter_begin 363
+  decenter_end 98
+  from ref 128004 z 2012 to ref 138500
+  role_a_pos 297 261 3000 no_role_b
+  multiplicity_a_pos 297 297 3000 no_multiplicity_b
+end
 line 136068 -_-_ decenter_end 261
   from ref 135940 z 2001 to ref 133252
-line 137732 -_-_
-  from ref 137604 z 2006 to ref 137220
+line 139140 -_-_
+  from ref 137604 z 2012 to ref 138500
 end

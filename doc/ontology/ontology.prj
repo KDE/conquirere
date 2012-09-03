@@ -1,6 +1,6 @@
 format 74
 "ontology"
-  revision 30
+  revision 31
   modified_by 4 "joerg"
 
 
@@ -53,7 +53,7 @@ format 74
     package_name_in_tab default show_context default show_opaque_action_definition default auto_label_position default write_flow_label_horizontally default draw_all_relations default shadow default
     show_infonote default drawing_language default show_stereotype_properties default
     classdiagram 134532 "Publication Overview"
-      draw_all_relations default hide_attributes no hide_operations yes hide_getset_operations yes show_members_full_definition default show_members_visibility no show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+      draw_all_relations no hide_attributes no hide_operations yes hide_getset_operations yes show_members_full_definition default show_members_visibility no show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
       size D
     end
 
@@ -70,11 +70,6 @@ format 74
     classdiagram 134788 "NBIB other"
       draw_all_relations default hide_attributes default hide_operations yes hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
       size A4
-    end
-
-    classdiagram 147972 "Event usage"
-      draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
-      size A4-Landscape
     end
 
     class 128004 "nbib:Publication"
@@ -342,22 +337,6 @@ ${inlines}
 	    classrelation_ref 218500 // <aggregation>
       end
 
-      classrelation 225412 // <aggregation>
-	relation_ref 219012 // <aggregation>
-      end
-
-      classrelation 225540 // nbib:event (<aggregation>)
-	relation 219140 o---
-	  a role_name "nbib:event" multiplicity "*" private
-	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
-"
-	    classrelation_ref 225540 // nbib:event (<aggregation>)
-	  b role_name "" private
-	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
-"
-	    classrelation_ref 225668 // <aggregation>
-      end
-
       classrelation 266628 // nbib:translator (<aggregation>)
 	relation 259460 o---
 	  a role_name "nbib:translator" private
@@ -436,6 +415,22 @@ ${inlines}
 	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
 "
 	    classrelation_ref 300036 // <aggregation>
+      end
+
+      classrelation 313604 // <aggregation>
+	relation_ref 302340 // <aggregation>
+      end
+
+      classrelation 313732 // nbib:event (<aggregation>)
+	relation 302468 o---
+	  a role_name "nbib:event" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 313732 // nbib:event (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 313860 // <aggregation>
       end
     end
 
@@ -1106,63 +1101,6 @@ ${inlines}
 	    cpp default "${type}"
 	    classrelation_ref 140676 // <generalisation>
 	  b parent class_ref 129540 // nbib:Series
-      end
-    end
-
-    class 143620 "pimo:Event"
-      visibility package 
-      cpp_decl "${comment}${template}class ${name}${inherit} {
-${members}};
-${inlines}
-"
-      java_decl ""
-      php_decl ""
-      python_2_2 python_decl ""
-      idl_decl ""
-      explicit_switch_type ""
-      
-      classrelation 225284 // nbib:eventPublication (<aggregation>)
-	relation 219012 o---
-	  a role_name "nbib:eventPublication" multiplicity "*" private
-	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
-"
-	    classrelation_ref 225284 // nbib:eventPublication (<aggregation>)
-	  b role_name "" private
-	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
-"
-	    classrelation_ref 225412 // <aggregation>
-      end
-
-      classrelation 225668 // <aggregation>
-	relation_ref 219140 // <aggregation>
-      end
-
-      classrelation 252804 // pimo:groundingOccurence (<aggregation>)
-	relation 245764 o---
-	  a role_name "pimo:groundingOccurence" private
-	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
-"
-	    classrelation_ref 252804 // pimo:groundingOccurence (<aggregation>)
-	  b role_name "" private
-	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
-"
-	    classrelation_ref 252932 // <aggregation>
-      end
-
-      classrelation 297348 // <aggregation>
-	relation_ref 287748 // <aggregation>
-      end
-
-      classrelation 298500 // nao:isRelated (<aggregation>)
-	relation 288388 o---
-	  a role_name "nao:isRelated" private
-	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
-"
-	    classrelation_ref 298500 // nao:isRelated (<aggregation>)
-	  b role_name "" private
-	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
-"
-	    classrelation_ref 298628 // <aggregation>
       end
     end
 
@@ -2185,8 +2123,20 @@ ${inlines}
       idl_decl ""
       explicit_switch_type ""
       
-      classrelation 252932 // <aggregation>
-	relation_ref 245764 // <aggregation>
+      classrelation 313476 // nbib:eventPublication (<aggregation>)
+	relation 302340 o---
+	  a role_name "nbib:eventPublication" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 313476 // nbib:eventPublication (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 313604 // <aggregation>
+      end
+
+      classrelation 313860 // <aggregation>
+	relation_ref 302468 // <aggregation>
       end
     end
 
@@ -2705,18 +2655,6 @@ ${inlines}
 	    classrelation_ref 297092 // <aggregation>
       end
 
-      classrelation 297220 // pimo:isRelated (<aggregation>)
-	relation 287748 o---
-	  a role_name "pimo:isRelated" private
-	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
-"
-	    classrelation_ref 297220 // pimo:isRelated (<aggregation>)
-	  b role_name "" private
-	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
-"
-	    classrelation_ref 297348 // <aggregation>
-      end
-
       classrelation 297860 // <aggregation>
 	relation_ref 288004 // <aggregation>
       end
@@ -2727,10 +2665,6 @@ ${inlines}
 
       classrelation 298372 // <aggregation>
 	relation_ref 288260 // <aggregation>
-      end
-
-      classrelation 298628 // <aggregation>
-	relation_ref 288388 // <aggregation>
       end
 
       classrelation 298884 // <aggregation>

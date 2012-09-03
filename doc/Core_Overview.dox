@@ -1,0 +1,36 @@
+/**
+\page core Core Overview
+
+The Core part contains all classes necessary to get and display the Nepomuk Resources in an organized manner.
+
+Therefore 3 different Parts exist:
+@li \ref library
+@li \ref tablemodels
+@li \ref delegates
+
+\image html core_overview.jpeg "Core overview"
+
+\section library Library
+A Library contains all information about a set of Nepomuk Resources. There exist two different types of Library @c System and @c Project .
+
+The <i>System Library</i> contains all resources known to Nepomuk while the <i>Project Library</i> contains only a subset of this data.
+A new project library can be created by the user and is realized as @c pimo:Project where all resources the user is interrested in is added to via @c nao:isRelated .
+
+To handle project related settings the ProjectSettings class handles all this information which is saved as @c .ini file in the program folder.
+If the user decides to add a folder to his project the DirWatcher will watch the folder for new files and add them to the project automatically either during runtime or when the library is loaded the next time.
+
+The TagCloud is a small helper that uses the Nepomuk::ResourceWatcher to generate a cloud with all @c pimo:Topic tags to give a small overview about the content of the library.
+
+\section tablemodels TableModels
+The tablemodels are extended AbstractTableModel classes which can fetch data from Nepomuk. For each resourcetype that will be shown in Conquirere there exist one NepomukModel subclass and the QueryClient that fetches the data from Nepomuk.
+
+The NepomukModel has an internal cache that saves for each Nepomuk Resource the data that will be shown as a QString to speedup the scrolling/searchign in large models.
+To get the data out of Nepomuk the QueryClient is used.
+
+The QueryClient fetches all data for the current Resource type once it starts and watches over any changes via Nepomuks ResourceWatcher afterwards. All changes in the Database will be transformed into the CachedRowEntry and given to the NepomukModel.
+
+\section delegates Delegates
+The delegates are used to enhance the visual representation of some data in the  \ref tablemodels .
+Currently there exist only the HtmlDelegate and RatingDelegate
+
+*/ 

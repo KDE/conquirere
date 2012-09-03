@@ -1,0 +1,81 @@
+format 74
+
+classcanvas 128004 class_ref 129156 // PropertyEdit
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyzwh 111 89 2000 239 105
+end
+classcanvas 128132 class_ref 129284 // ContactEdit
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 172 242 2000
+end
+classcanvas 128260 class_ref 129412 // StringEdit
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 272 241 2000
+end
+classcanvas 128388 class_ref 129540 // TagEdit
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 104 242 2000
+end
+classcanvas 128516 class_ref 129668 // KMultiItemEdit
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 475 156 2000
+end
+classcanvas 128644 class_ref 129796 // KSqueezedTextLabel
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 450 85 2000
+end
+note 129540 "Switch between them vie left click / enter"
+  xyzwh 653 74 2000 167 65
+classcanvas 129924 class_ref 129924 // KLineEdit
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 676 157 2000
+end
+fragment 130180 "Nepomuk:Query"
+  xyzwh 438 234 2000 327 95
+end
+note 130308 "Fetch data for KCompletion"
+  xyzwh 482 278 2005 213 39
+relationcanvas 128772 relation_ref 129028 // <aggregation>
+  decenter_begin 857
+  from ref 128004 z 2001 to ref 128516
+  no_role_a no_role_b
+  multiplicity_a_pos 456 188 3000 no_multiplicity_b
+end
+relationcanvas 128900 relation_ref 129156 // <aggregation>
+  decenter_begin 180
+  from ref 128004 z 2001 to ref 128644
+  no_role_a no_role_b
+  multiplicity_a_pos 431 117 3000 no_multiplicity_b
+end
+relationcanvas 129028 relation_ref 129284 // <generalisation>
+  decenter_begin 507
+  decenter_end 109
+  from ref 128388 z 2001 to ref 128004
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 129156 relation_ref 129412 // <generalisation>
+  decenter_end 459
+  from ref 128132 z 2001 to ref 128004
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 129284 relation_ref 129540 // <generalisation>
+  decenter_begin 481
+  decenter_end 839
+  from ref 128260 z 2001 to ref 128004
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 130052 relation_ref 129668 // <generalisation>
+  from ref 128516 z 2001 to ref 129924
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+line 129668 -_-_
+  from ref 129540 z 2001 to ref 128644
+line 129796 -_-_
+  from ref 129540 z 2001 to ref 128516
+line 130436 -_-_ decenter_end 333
+  from ref 128516 z 2001 to ref 130180
+end

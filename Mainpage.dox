@@ -55,8 +55,6 @@ Here is a small list of other publications that can be handled by this ontology
 The ontology part below is used for law related publications
 \image html nbib_law.jpeg "Law related"
 
-The ontology part below is used for event related stuff
-\image html nbib_event.jpeg "Event related"
 */
 
 /** \page hacking Source structure
@@ -74,28 +72,12 @@ In the case you want to help developing this program or fix some bugs the follow
 The heart of Conquirere is the Nepomuk storage and the developed \ref ontology.
 
 The source part is split into a few areas:
- - core
+ - \ref core
+ - \ref widgets
  - mainui
  - nbibio
  - onlinestorage
- - propertywidgets
 
-\subsection src_core src/core
-
-In this folder the basic structure for the project handling and nepomuk connections is done.
-
-The Library class holds all importent connections to get information about a Library.
-
-Most importantly the ProjectSettings which is an abstraction to the .ini settings.
-Also the DirWatcher and TagCloud are available to gather more information and automatic processes to find Library information.
-
-Conquirere always starts with the system library that represents all of nepomuk content. Furthermore the User can create new personal librarys that contain only a subset of this data.
-The connection in nepomuk is done via the PIMO::isRelated() property.
-
-The other important classes are the NepomukModel and its subclasses.
-They fetch the nepomuk content via the QueryClient and its subclasses and press them into a QAbstractTableModel representation that can be viewed in a QTableView.
-
-Some other helpers are the HtmlDelegate and RatingDelegate that defines how some things are displayed in a table entry.
 
 \subsection src_nbibio src/nbibio
 
@@ -136,23 +118,6 @@ Some important widgets are:
 \li NoteWidget
 
 Also when more than 1 Nepomuk::Resource  is selected the MergeResourcesWidget is shown that lets the user merge several Nepomuk::Resources into 1.
-
-
-\subsection src_propertywidgets src/propertywidgets
-
-These classes are input helper to handle input and display of Nepomuk data. The abstract baseclass PropertyEdit is the starting point for any other edit widget.
-
-All these widget will show a KSqueezedTextLabel in the normal state. As soon as the user clicks on it, it will show a KLineEdit to alter the data. Each string represents one Nepomuk entry. Multiple strings are seperated by a "; ".
-In the case a simple line edit does not justify the complex data of a nepomuk entry a small button for a detail dialog can be shown via PropertyEdit::setUseDetailDialog() to avoid direct editing without such a detail dialog you can set PropertyEdit::setDirectEdit() to false.
-
-To define "what" the property edit actually represents the Nepomuk::Resource must be set via PropertyEdit::setResource() and the property that will be altered via PropertyEdit::setPropertyUrl().
-
-The neat thing about this widgets are the QCompleter function. Whenever a widget is used, it fetches all Nepomuk data in the range of the property url.
-So any resource that might fitt in this case and offers automatic completion.
-
-If you want to add your own propertywidgets have a look at StringEdit, ContactEdit, DateEdit or FileObjectEdit as reference.
-
-The propertywidgets are used mainly in the SidbarWidget subclasses. See \ref src_sidebar
 
 */
 
