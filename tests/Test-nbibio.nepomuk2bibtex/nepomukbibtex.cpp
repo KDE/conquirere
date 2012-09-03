@@ -125,7 +125,7 @@ void NepomukBibtex::initTestCase()
     journal.setTitle( QLatin1String("UNITTEST-Jounal"));
 
     Nepomuk2::NBIB::JournalIssue journalIssue;
-    //TODO: should we allow to add a title to the sournalIssue? (collection) usually this should be covered by the Journal (Series) the issue is in
+    //TODO: should we allow to add a title to the journalIssue? (collection) usually this should be covered by the Journal (Series) the issue is in
     //journalIssue.setTitle( QLatin1String("UNITTEST-JounalIssue"));
     journalIssue.setVolume(QString("443"));
     journalIssue.setNumber(QString("21"));
