@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NBIBEXPORTER_H
-#define NBIBEXPORTER_H
+#ifndef BIBFILEEXPORTER_H
+#define BIBFILEEXPORTER_H
 
 #include <Nepomuk2/Resource>
 
@@ -25,22 +25,19 @@
 class QIODevice;
 
 /**
-  * @brief Abstract base class for any kind of file exporter
+  * @brief Abstract base class for any kind of Nepomuk to file exporter
   *
-  * If possible subclasses should make use of the NepomukToBibTexPipe and the actual exporter implemented in the KBibTeX
-  * svn repo and reused here.
-  *
-  * Only if the way via KBibTeX is not possible a completely own way should be used.
+  * The BibFileExporter handles most filetypes via @c KBibTeX.
   */
-class NBibExporter : public QObject
+class BibFileExporter : public QObject
 {
     Q_OBJECT
 public:
-    explicit NBibExporter();
-    virtual ~NBibExporter();
+    explicit BibFileExporter();
+    virtual ~BibFileExporter();
 
     /**
-      * Exports a list of publication or reference resources to @p filename
+      * @brief Exports a list of @c nbib:Publication or @c nbib:Reference resources to @p filename
       *
       * calls save() internally
       *
@@ -48,12 +45,12 @@ public:
       * @p referenceList list of all Nepomuk2::Resources used for the export
       * @p errorLog pointer to the error list
       *
-      * @pre referenceList must be a list of NBIB::Publication or NBIB::Resource
+      * @pre referenceList must be a list of @c nbib::Publication or @c nbib::Resource
       */
     bool toFile( const QString &filename, const QList<Nepomuk2::Resource> referenceList, QStringList *errorLog = NULL);
 
     /**
-      * Exports a list of publication or reference resources
+      * @brief Exports a list of @c nbib:Publication or @c nbib:Reference resources
       *
       * Must be implemented in any subclass
       *
@@ -61,7 +58,7 @@ public:
       * @p referenceList list of all Nepomuk2::Resources used for the export
       * @p errorLog pointer to the error list
       *
-      * @pre referenceList must be a list of NBIB::Publication or NBIB::Resource
+      * @pre referenceList must be a list of @c nbib::Publication or @c nbib::Resource
       */
     virtual bool save(QIODevice *iodevice, const QList<Nepomuk2::Resource> referenceList, QStringList *errorLog = NULL) = 0;
 
@@ -73,7 +70,7 @@ signals:
 
 public slots:
     /**
-      * cancels the export process.
+      * @brief cancels the export process.
       *
       * subclasses must check the m_cancel value to see if they have to cancel the process
       */
@@ -83,4 +80,4 @@ protected:
     bool m_cancel;
 };
 
-#endif // NBIBEXPORTER_H
+#endif // BIBFILEEXPORTER_H

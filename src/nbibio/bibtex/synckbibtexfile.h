@@ -18,7 +18,7 @@
 #ifndef SYNCKBIBTEXFILE_H
 #define SYNCKBIBTEXFILE_H
 
-#include "nbibsync.h"
+#include "../nbibsync.h"
 
 #include <kbibtex/file.h>
 

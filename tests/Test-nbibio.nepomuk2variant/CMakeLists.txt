@@ -1,10 +1,10 @@
 
 
-kde4_add_unit_test(Test-nbibio.bibtex2nepomuk
-  bibtexnepomuk.cpp
+kde4_add_unit_test(Test-nbibio.nepomuk2variant
+  nepomukvariant.cpp
 )
 
-target_link_libraries(Test-nbibio.bibtex2nepomuk
+target_link_libraries(Test-nbibio.nepomuk2variant
 # include static libs from conquirere
         ontology
         core

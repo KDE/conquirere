@@ -19,9 +19,6 @@
 
 #include "nbibio/conquirere.h"
 
-#include <kbibtex/element.h>
-#include <kbibtex/entry.h>
-
 #include "nbib.h"
 #include <Nepomuk2/Resource>
 #include <Nepomuk2/Variant>
@@ -33,8 +30,9 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 
-KileLyxPipe::KileLyxPipe()
-    :m_errorLog(new QStringList)
+KileLyxPipe::KileLyxPipe(QObject *parent)
+    :QObject(parent)
+    , m_errorLog(new QStringList)
 {
 }
 
@@ -49,25 +47,27 @@ void KileLyxPipe::setErrorLog(QStringList *errorLog)
     m_errorLog = errorLog;
 }
 
-void KileLyxPipe::pipeExport(File & bibEntries)
+void KileLyxPipe::pipeExport(const QVariantList & bibEntries)
 {
     QString refs;
-    foreach(const QSharedPointer<Element> &e, bibEntries) {
-        const Entry *bibEntry = dynamic_cast<const Entry *>(e.data());
-        if(bibEntry) {
-            refs.append(bibEntry->id());
+    foreach(const QVariant &entry, bibEntries) {
+
+        QVariantMap entryMap = entry.toMap();
+        QString ref = entryMap.value(QLatin1String("bibtexcitekey")).toString();
+        if(!ref.isEmpty()) {
+            refs.append(ref);
             refs.append(QLatin1String(", "));
         }
     }
-    refs.chop(2);
+    refs.chop(2); // remove last ", "
 
     sendReferences(refs);
 }
 
-void KileLyxPipe::pipeExport(QList<Nepomuk2::Resource> resources)
+void KileLyxPipe::pipeExport(QList<Nepomuk2::Resource> bibEntries)
 {
     QStringList refList;
-    foreach(const Nepomuk2::Resource &r, resources) {
+    foreach(const Nepomuk2::Resource &r, bibEntries) {
         if(r.hasType(Nepomuk2::Vocabulary::NBIB::Publication())) {
             QList<Nepomuk2::Resource> references = r.property(Nepomuk2::Vocabulary::NBIB::reference()).toResourceList();
             foreach(const Nepomuk2::Resource &refs, references) {

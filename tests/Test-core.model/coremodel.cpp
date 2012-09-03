@@ -262,4 +262,4 @@ bool CoreModel::waitForSignal(QObject *sender, const char *signal, int timeout) 
     return timer.isActive();
 }
 
-#include "coreproject.moc"
+#include "coremodel.moc"

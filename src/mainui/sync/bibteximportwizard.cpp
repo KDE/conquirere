@@ -22,7 +22,7 @@
 #include "core/tagcloud.h"
 #include "core/projectsettings.h"
 #include "mainui/librarymanager.h"
-#include "nbibio/nbibimporterbibtex.h"
+#include "nbibio/bibtex/bibteximporter.h"
 
 #include <kbibtex/fileimporterbibtex.h>
 #include <kbibtex/file.h>
@@ -226,7 +226,7 @@ void IntroPage::collectionsReceived( const Akonadi::Collection::List& list)
  *
  * KBibTeX import of the bib file
  */
-bool concurrentBibImport(NBibImporterBibTex *importer, const QString &fileName)
+bool concurrentBibImport(BibTexImporter *importer, const QString &fileName)
 {
     return importer->readBibFile(fileName);
 }
@@ -300,11 +300,11 @@ void ParseFile::initializePage()
 
     delete futureWatcher;
     delete importer;
-    importer = new NBibImporterBibTex;
+    importer = new BibTexImporter;
 
     int fileType = field(QLatin1String("fileType")).toInt();
     fileType = 0; //disable other fileimporters for now, don't seem to work
-    importer->setFileType( NBibImporterBibTex::FileType(fileType) );
+    importer->setFileType( BibTexImporter::FileType(fileType) );
     importer->setFindDuplicates(field(QLatin1String("duplicates")).toBool());
 
     bool importContactToAkonadi = field(QLatin1String("akonadiContact")).toBool();
@@ -392,7 +392,7 @@ void ParseFile::showMergeDialog()
  *
  * pipe the bibtex File from the previous page to the nepomuk storage
  */
-void concurrentNepomukImport(NBibImporterBibTex *importer)
+void concurrentNepomukImport(BibTexImporter *importer)
 {
     QStringList errorLog;
     importer->pipeToNepomuk(&errorLog);
@@ -403,7 +403,6 @@ void concurrentNepomukImport(NBibImporterBibTex *importer)
 NepomukImport::NepomukImport(QWidget *parent)
     : QWizardPage(parent)
 {
-    btnp = 0;
     m_futureWatcher = 0;
     setTitle(i18n("Importing to Nepomuk / Akonadi"));
     setSubTitle(i18n("This might take a while until all entries are processed"));

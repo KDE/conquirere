@@ -138,7 +138,7 @@ QList<CachedRowEntry> PublicationQuery::queryNepomuk()
 
                                         // this might hide valid resources that are not further defined as book or some thing else. Won't happen often though
                                         // but this would double the number of results we need to query due to the ?type query
-                                        "Filter (?type != nbib:Publication)"
+                                        //"Filter (?type != nbib:Publication)"
                                         + projectRelated.toLatin1() + " }" + projectTag.toLatin1() +
                                         "}");
 

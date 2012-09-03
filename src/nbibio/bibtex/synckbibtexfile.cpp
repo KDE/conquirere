@@ -17,8 +17,10 @@
 
 #include "synckbibtexfile.h"
 
-#include "pipe/bibtextonepomukpipe.h"
-#include "pipe/nepomuktobibtexpipe.h"
+#include "pipe/varianttonepomukpipe.h"
+#include "pipe/nepomuktovariantpipe.h"
+#include "bibtex/bibtexvariant.h"
+
 #include "onlinestorage/kbibtexfile/kbtfileinfo.h"
 #include "onlinestorage/kbibtexfile/readfromfile.h"
 #include "onlinestorage/kbibtexfile/writetofile.h"
@@ -59,6 +61,7 @@ SyncKBibTeXFile::~SyncKBibTeXFile()
 
 void SyncKBibTeXFile::startDownload()
 {
+    /*
     qDebug() << "SyncKBibTeXFile::startDownload()";
     m_rff = new ReadFromFile;
     m_rff->setProviderSettings(m_psd);
@@ -80,11 +83,12 @@ void SyncKBibTeXFile::startDownload()
     //lets start by retrieving all items from the input file
     connect(m_rff, SIGNAL(itemsInfo(File)), this, SLOT(readDownloadSync(File)));
     m_rff->fetchItems(m_psd.collection);
+    */
 }
 
 void SyncKBibTeXFile::readDownloadSync(const File & zoteroData)
 {
-
+/*
     //m_tmpUserDeleteRequest.clear();
     //findDeletedEntries(zoteroData, m_tmpUserDeleteRequest);
 
@@ -92,10 +96,12 @@ void SyncKBibTeXFile::readDownloadSync(const File & zoteroData)
     m_bibCache = zoteroData;
 
     readDownloadSyncAfterDelete(m_bibCache);
+    */
 }
 
 void SyncKBibTeXFile::readDownloadSyncAfterDelete(const File &zoteroData)
 {
+    /*
     m_tmpUserMergeRequest.clear();
     File newEntries = zoteroData;
 //    findDuplicates(zoteroData, newEntries, m_tmpUserMergeRequest);
@@ -140,10 +146,12 @@ void SyncKBibTeXFile::readDownloadSyncAfterDelete(const File &zoteroData)
     else {
         mergeFinished();
     }
+    */
 }
 
 void SyncKBibTeXFile::mergeFinished()
 {
+    /*
     emit calculateProgress(100);
     //we finished everything, so cleanup
     delete m_btnp;
@@ -154,17 +162,19 @@ void SyncKBibTeXFile::mergeFinished()
     if(m_syncMode) {
         startUpload();
     }
+    */
 }
 
 void SyncKBibTeXFile::startUpload()
 {
+    /*
     m_wtf = new WriteToFile;
     m_wtf->setProviderSettings(m_psd);
     m_wtf->setAdoptBibtexTypes(true);
     connect(m_wtf, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
 
     delete m_ntnp;
-    m_ntnp = new NepomukToBibTexPipe;
+    m_ntnp = new NepomukToVariantPipe;
     connect(m_ntnp, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
 
     // step 1 fetch data from nepomuk
@@ -213,10 +223,12 @@ void SyncKBibTeXFile::startUpload()
 
     connect(m_wtf, SIGNAL(itemsInfo(File)), this, SLOT(readUploadSync(File)));
     m_wtf->pushItems(&m_bibCache, m_psd.collection);
+    */
 }
 
 void SyncKBibTeXFile::readUploadSync(File zoteroData)
 {
+    /*
     qDebug() << "SyncKBibTeXFile::readUploadSync(File zoteroData)";
     m_curStep++;
     emit calculateProgress(100);
@@ -229,14 +241,17 @@ void SyncKBibTeXFile::readUploadSync(File zoteroData)
 
     m_syncMode = false;
     return;
+    */
 }
 
 void SyncKBibTeXFile::startSync()
 {
+    /*
     m_syncMode = true;
     m_syncSteps = 9;
     m_curStep = 0;
     startDownload();
+    */
 }
 
 void SyncKBibTeXFile::cancel()

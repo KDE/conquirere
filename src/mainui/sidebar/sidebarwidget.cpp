@@ -36,7 +36,8 @@
 #include "core/library.h"
 #include "core/projectsettings.h"
 
-#include "nbibio/pipe/nepomuktobibtexpipe.h"
+#include "nbibio/pipe/nepomuktovariantpipe.h"
+#include "nbibio/bibtex/bibtexvariant.h"
 
 #include <kbibtex/findpdfui.h>
 #include <nepomukmetadataextractor/fetcherdialog.h>
@@ -231,13 +232,13 @@ void SidebarWidget::removeFromSelectedProject()
 
 void SidebarWidget::findPdf()
 {
-    NepomukToBibTexPipe bibtexPipe;
-    QList<Nepomuk2::Resource> exportList;
-    exportList.append(m_curResource);
-    bibtexPipe.pipeExport(exportList);
-    File bibFile = *bibtexPipe.bibtexFile();
+    NepomukToVariantPipe ntvp;
+    ntvp.pipeExport( QList<Nepomuk2::Resource>() << m_curResource);
+    QVariantList list = ntvp.variantList();
 
-    Entry *e = dynamic_cast<Entry *>(bibFile.first().data());
+    File *bibFile = BibTexVariant::fromVariant(list);
+
+    Entry *e = dynamic_cast<Entry *>(bibFile->first().data());
 
     // cache previous file/url values
     QString localFile = PlainTextValue::text(e->value(Entry::ftLocalFile));
@@ -258,7 +259,7 @@ void SidebarWidget::findPdf()
         nrUF = 2;
     }
 
-    FindPDFUI::interactiveFindPDF(*e, bibFile, this);
+    FindPDFUI::interactiveFindPDF(*e, *bibFile, this);
 
     // find newly added localfileXX entries
     bool haveLocalfile = true;
@@ -311,6 +312,8 @@ void SidebarWidget::findPdf()
             dataObject.setProperty(NBIB::publishedAs(), m_curResource);
         }
     }
+
+    delete bibFile;
 }
 
 

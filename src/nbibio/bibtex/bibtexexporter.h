@@ -15,23 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NBIBEXPORTERFILE_H
-#define NBIBEXPORTERFILE_H
+#ifndef BIBTEXEXPORTER_H
+#define BIBTEXEXPORTER_H
 
-#include "nbibexporter.h"
+#include "../bibfileexporter.h"
 
 /**
-  * @brief Exports a list of publication or reference resources to a file
+  * @brief Exports a list of @c nbib:Publication or @c nbib:Rreference resources to a file
   *
-  * Makes use of the NepomukToBibTexPipe to transform all Nepomuk data into KBibTeX format and
-  * uses KBibTeX::FileExporter* to export it to a file.
+  * Makes use of the NepomukToBibTexPipe to transform all Nepomuk data into @c KBibTeX format and
+  * uses @c KBibTeX::FileExporter* to export it to a file.
   *
   * The files supported are listed in the @p FileType enum
   *
   */
-class NBibExporterFile : public NBibExporter
+class BibTexExporter : public BibFileExporter
 {
 public:
+    /**
+     * @brief Enum for all supported filetypes from KBibTeX
+     */
     enum FileType {
         EXPORT_BIBTEX,
         EXPORT_BLG,
@@ -44,12 +47,12 @@ public:
         EXPORT_XSLT
     };
 
-    explicit NBibExporterFile();
+    explicit BibTexExporter();
 
     void setFileType(FileType type);
 
     /**
-      * Exports a list of publication or reference resources to a file
+      * Exports a list of @c nbib:Publication or @c nbib:Rreference resources to a file
       *
       * calls the FileExporter* from KBibTeX to do its task after all resources are piped to a KBibTex File
       *
@@ -72,4 +75,4 @@ private:
     FileType m_fileType;
 };
 
-#endif // NBIBEXPORTERFILE_H
+#endif // BIBTEXEXPORTER_H

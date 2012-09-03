@@ -30,7 +30,8 @@
 #include "listpublicationsdialog.h"
 #include "listpartswidget.h"
 
-#include "nbibio/pipe/nepomuktobibtexpipe.h"
+#include "nbibio/pipe/nepomuktovariantpipe.h"
+#include "nbibio/bibtex/bibtexvariant.h"
 #include <kbibtex/idsuggestions.h>
 
 #include <Nepomuk2/DataManagement>
@@ -207,10 +208,12 @@ void ReferenceWidget::showChapterList()
 void ReferenceWidget::showCiteKeySuggetion()
 {
     // transform current reference to bibtex
-    NepomukToBibTexPipe ntbp;
-    QList<Nepomuk2::Resource> list; list << m_reference;
-    ntbp.pipeExport(list);
-    File *f = ntbp.bibtexFile();
+
+    NepomukToVariantPipe ntvp;
+    ntvp.pipeExport( QList<Nepomuk2::Resource>() << m_reference);
+    QVariantList list = ntvp.variantList();
+
+    File *f = BibTexVariant::fromVariant(list);
 
     Entry *entry = dynamic_cast<Entry *>(f->first().data());
     if(!entry) { qDebug() << "cast not possible"; return; }
@@ -229,6 +232,8 @@ void ReferenceWidget::showCiteKeySuggetion()
 
         ui->citeKeyEdit->setLabelText(selection);
     }
+
+    delete f;
 }
 
 void ReferenceWidget::enableReferenceDetails()

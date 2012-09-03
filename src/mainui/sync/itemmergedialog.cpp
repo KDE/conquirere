@@ -19,7 +19,7 @@
 #include "ui_itemmergedialog.h"
 
 #include "globals.h"
-#include "nbibio/pipe/bibtextonepomukpipe.h"
+//#include "nbibio/pipe/bibtextonepomukpipe.h"
 #include "core/library.h"
 #include "core/projectsettings.h"
 
@@ -145,6 +145,7 @@ ItemMergeDialog::~ItemMergeDialog()
 
 void ItemMergeDialog::setItemsToMerge(QList<SyncDetails> items)
 {
+    /*
     foreach(const SyncDetails &sd, items) {
         Nepomuk2::Resource publication;
 
@@ -179,6 +180,7 @@ void ItemMergeDialog::setItemsToMerge(QList<SyncDetails> items)
     }
 
     showItem(0);
+    */
 }
 
 void ItemMergeDialog::setProviderDetails(ProviderSyncDetails psd)
@@ -229,6 +231,7 @@ void ItemMergeDialog::showPrevious()
 
 void ItemMergeDialog::finish()
 {
+    /*
     BibTexToNepomukPipe btnp;
     btnp.setSyncDetails(m_psd.url, m_psd.userName);
 
@@ -241,6 +244,7 @@ void ItemMergeDialog::finish()
     }
 
     accept();
+    */
 }
 
 void ItemMergeDialog::replaceSelection()

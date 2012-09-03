@@ -27,8 +27,7 @@ class KUrlRequester;
 class QProgressBar;
 class QLineEdit;
 class File;
-class BibTexToNepomukPipe;
-class NBibImporterBibTex;
+class BibTexImporter;
 class QPushButton;
 class KComboBox;
 class Library;
@@ -101,7 +100,7 @@ private slots:
     void showMergeDialog();
 
 public:
-    NBibImporterBibTex *importer;
+    BibTexImporter *importer;
 
 private:
     QProgressBar *progressBar;
@@ -131,7 +130,6 @@ private slots:
 private:
     QProgressBar *progressBar;
     QFutureWatcher<void> *m_futureWatcher;
-    BibTexToNepomukPipe *btnp;
 };
 
 

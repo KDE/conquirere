@@ -15,9 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "nbibexporterfile.h"
+#include "bibtexexporter.h"
 
-#include "pipe/nepomuktobibtexpipe.h"
+#include "pipe/nepomuktovariantpipe.h"
+#include "bibtex/bibtexvariant.h"
 
 #include <kbibtex/file.h>
 
@@ -33,17 +34,17 @@
 
 #include "nbibio/conquirere.h"
 
-NBibExporterFile::NBibExporterFile()
+BibTexExporter::BibTexExporter()
     : m_fileType(EXPORT_BIBTEX)
 {
 }
 
-void NBibExporterFile::setFileType(FileType type)
+void BibTexExporter::setFileType(FileType type)
 {
     m_fileType = type;
 }
 
-bool NBibExporterFile::save(QIODevice *iodevice, const QList<Nepomuk2::Resource> referenceList, QStringList *errorLog)
+bool BibTexExporter::save(QIODevice *iodevice, const QList<Nepomuk2::Resource> referenceList, QStringList *errorLog)
 {
     if(referenceList.isEmpty()) {
         QString error = i18n("No resources specified for the export to bibtex.");
@@ -51,10 +52,13 @@ bool NBibExporterFile::save(QIODevice *iodevice, const QList<Nepomuk2::Resource>
         return false;
     }
 
-    NepomukToBibTexPipe ntbp;
-    ntbp.pipeExport(referenceList);
-    File f;
-    f.append(*ntbp.bibtexFile());
+    // pipe all stuff to QVariantList
+    NepomukToVariantPipe ntvp;
+    ntvp.pipeExport(referenceList);
+    QVariantList list = ntvp.variantList();
+
+    //Pipe all stuff to the BibTexFileFormat
+    File *f = BibTexVariant::fromVariant(list);
 
     emit progress( 50 );
 
@@ -68,6 +72,7 @@ bool NBibExporterFile::save(QIODevice *iodevice, const QList<Nepomuk2::Resource>
     case EXPORT_BIBTEX:
     {
         FileExporterBibTeX feb;
+
         //FIXME: define strings for BibTex Config enum values and use the min the exporters
         /*
         feb.setEncoding(ConqSettings::encoding())
@@ -78,59 +83,60 @@ bool NBibExporterFile::save(QIODevice *iodevice, const QList<Nepomuk2::Resource>
         feb.keyKeywordCasing = (KBibTeX::Casing)ConqSettings::keywordCasing();
         feb.keyProtectCasing;
 */
-        feb.save(iodevice, &f, errorLog);
+        feb.save(iodevice, f, errorLog);
         break;
     }
     case EXPORT_PDF:
     {
         FileExporterPDF fepdf;
-        fepdf.save(iodevice, &f, errorLog);
+        fepdf.save(iodevice, f, errorLog);
         break;
     }
     case EXPORT_HTML:
     {
         FileExporterBibTeX2HTML feb2html;
-        feb2html.save(iodevice, &f, errorLog);
+        feb2html.save(iodevice, f, errorLog);
         break;
     }
     case EXPORT_BLG:
     {
         FileExporterBLG feblg;
-        feblg.save(iodevice, &f, errorLog);
+        feblg.save(iodevice, f, errorLog);
         break;
     }
     case EXPORT_PS:
     {
         FileExporterPS feps;
-        feps.save(iodevice, &f, errorLog);
+        feps.save(iodevice, f, errorLog);
         break;
     }
     case EXPORT_RIS:
     {
         FileExporterRIS feris;
-        feris.save(iodevice, &f, errorLog);
+        feris.save(iodevice, f, errorLog);
         break;
     }
     case EXPORT_RTF:
     {
         FileExporterRTF fertf;
-        fertf.save(iodevice, &f, errorLog);
+        fertf.save(iodevice, f, errorLog);
         break;
     }
     case EXPORT_XML:
     {
         FileExporterXML fexml;
-        fexml.save(iodevice, &f, errorLog);
+        fexml.save(iodevice, f, errorLog);
         break;
     }
     case EXPORT_XSLT:
     {
         FileExporterXSLT fexslt;
-        fexslt.save(iodevice, &f, errorLog);
+        fexslt.save(iodevice, f, errorLog);
         break;
     }
     }
 
+    delete f;
     emit progress( 100 );
     return true;
 }

@@ -15,10 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NBIBIMPORTERBIBTEX_H
-#define NBIBIMPORTERBIBTEX_H
+#ifndef BIBTEXIMPORTER_H
+#define BIBTEXIMPORTER_H
 
-#include "nbibimporter.h"
+#include "../bibfileimporter.h"
 
 #include <Akonadi/Collection>
 #include <Nepomuk2/Resource>
@@ -37,7 +37,7 @@ class EntryClique;
   * also into Akonadi and not only into Nepomuk.
   *
   */
-class NBibImporterBibTex : public NBibImporter
+class BibTexImporter : public BibFileImporter
 {
     Q_OBJECT
 public:
@@ -52,8 +52,8 @@ public:
         EXPORT_RIS
     };
 
-    explicit NBibImporterBibTex();
-    virtual ~NBibImporterBibTex();
+    explicit BibTexImporter();
+    virtual ~BibTexImporter();
 
     /**
       * loads the bibtex file directly into the nepomuk storage without using Akonadi or the possibility
@@ -85,7 +85,7 @@ public:
       */
     void setFindDuplicates(bool findThem);
 
-    void setFileType(NBibImporterBibTex::FileType selectedFileType);
+    void setFileType(BibTexImporter::FileType selectedFileType);
 
     /**
       * Calls KBibTeX::FileImporterBibTeX to read the bibtex file @p filename into the system.
@@ -137,7 +137,7 @@ private:
     File *m_importedEntries;
     KUrl m_importFile;
     bool m_findDuplicates;
-    NBibImporterBibTex::FileType m_selectedFileType;
+    BibTexImporter::FileType m_selectedFileType;
     QList<EntryClique*> m_cliques;
     Akonadi::Collection m_addressbook;
     Nepomuk2::Resource m_projectThing;

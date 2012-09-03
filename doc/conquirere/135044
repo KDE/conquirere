@@ -1,0 +1,271 @@
+format 74
+"nbibio" // nbibio
+  revision 1
+  modified_by 4 "joerg"
+  // class settings
+  //class diagram settings
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  //use case diagram settings
+  package_name_in_tab default show_context default auto_label_position default draw_all_relations default class_drawing_mode default shadow default show_stereotype_properties default
+  //sequence diagram settings
+  show_full_operations_definition default write_horizontally default class_drawing_mode default drawing_language default draw_all_relations default shadow default show_stereotype_properties default show_class_context_mode default show_msg_context_mode default
+  //collaboration diagram settings
+  show_full_operations_definition default show_hierarchical_rank default write_horizontally default drawing_language default package_name_in_tab default show_context default show_msg_context default draw_all_relations default shadow default show_stereotype_properties default
+  //object diagram settings
+   write_horizontally default package_name_in_tab default show_context default auto_label_position default draw_all_relations default shadow default show_stereotype_properties default
+  //component diagram settings
+  package_name_in_tab default show_context default auto_label_position default draw_all_relations default shadow default
+  draw_component_as_icon default show_component_req_prov default show_component_rea default show_stereotype_properties default
+  //deployment diagram settings
+  package_name_in_tab default show_context default write_horizontally default auto_label_position default draw_all_relations default shadow default
+  draw_component_as_icon default show_component_req_prov default show_component_rea default show_stereotype_properties default
+  //state diagram settings
+  package_name_in_tab default show_context default auto_label_position default write_trans_label_horizontally default show_trans_definition default draw_all_relations default shadow default
+  show_activities default region_horizontally default drawing_language default show_stereotype_properties default
+  //activity diagram settings
+  package_name_in_tab default show_context default show_opaque_action_definition default auto_label_position default write_flow_label_horizontally default draw_all_relations default shadow default
+  show_infonote default drawing_language default show_stereotype_properties default
+  
+  classview 134788 "nbibio"
+    //class diagram settings
+    draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+    //collaboration diagram settings
+    show_full_operations_definition default show_hierarchical_rank default write_horizontally default drawing_language default package_name_in_tab default show_context default show_msg_context default draw_all_relations default shadow default show_stereotype_properties default
+    //object diagram settings
+     write_horizontally default package_name_in_tab default show_context default auto_label_position default draw_all_relations default shadow default show_stereotype_properties default
+    //sequence diagram settings
+    show_full_operations_definition default write_horizontally default class_drawing_mode default drawing_language default draw_all_relations default shadow default show_stereotype_properties default show_class_context_mode default show_msg_context_mode default
+    //state diagram settings
+    package_name_in_tab default show_context default auto_label_position default write_trans_label_horizontally default show_trans_definition default draw_all_relations default shadow default
+    show_activities default region_horizontally default drawing_language default show_stereotype_properties default
+    //class settings
+    //activity diagram settings
+    package_name_in_tab default show_context default show_opaque_action_definition default auto_label_position default write_flow_label_horizontally default draw_all_relations default shadow default
+    show_infonote default drawing_language default show_stereotype_properties default
+    classdiagram 134916 "Overview"
+      draw_all_relations no hide_attributes yes hide_operations yes hide_getset_operations yes show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+      size A4-Landscape
+    end
+
+    class 136452 "BibFileImporter"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+
+    class 136580 "BibTexImporter"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 136964 // <generalisation>
+	relation 136196 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 136964 // <generalisation>
+	  b parent class_ref 136452 // BibFileImporter
+      end
+
+      classrelation 137092 // <dependency>
+	relation 136324 -_->
+	  a default
+	    cpp default "#include in source"
+	    classrelation_ref 137092 // <dependency>
+	  b parent class_ref 136708 // BibTexVariant
+      end
+
+      classrelation 137348 // <dependency>
+	relation 136580 -_->
+	  a default
+	    cpp default "#include in source"
+	    classrelation_ref 137348 // <dependency>
+	  b parent class_ref 136836 // PublicationPipe
+      end
+    end
+
+    class 136708 "BibTexVariant"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+
+    class 136836 "PublicationPipe"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 137220 // <generalisation>
+	relation 136452 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 137220 // <generalisation>
+	  b parent class_ref 136964 // NepomukPipe
+      end
+    end
+
+    class 136964 "NepomukPipe"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+
+    class 137092 "BibFileExporter"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+
+    class 137220 "BibTexExporter"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 137476 // <dependency>
+	relation 136708 -_->
+	  a default
+	    cpp default "#include in source"
+	    classrelation_ref 137476 // <dependency>
+	  b parent class_ref 136708 // BibTexVariant
+      end
+
+      classrelation 137604 // <generalisation>
+	relation 136836 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 137604 // <generalisation>
+	  b parent class_ref 137092 // BibFileExporter
+      end
+
+      classrelation 137988 // <dependency>
+	relation 137220 -_->
+	  a default
+	    cpp default "#include in source"
+	    classrelation_ref 137988 // <dependency>
+	  b parent class_ref 137476 // NepomukExporter
+      end
+    end
+
+    class 137348 "VariantPipe"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+
+    class 137476 "NepomukExporter"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+
+    class 137604 "ClipboardPipe"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 138116 // <generalisation>
+	relation 137348 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 138116 // <generalisation>
+	  b parent class_ref 137348 // VariantPipe
+      end
+    end
+
+    class 137732 "KyleLyxPipe"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 138244 // <generalisation>
+	relation 137476 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 138244 // <generalisation>
+	  b parent class_ref 137348 // VariantPipe
+      end
+    end
+  end
+end

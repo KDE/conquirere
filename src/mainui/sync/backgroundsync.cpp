@@ -26,7 +26,7 @@
 #include "onlinestorage/storageinfo.h"
 
 #include "nbibio/zotero/synczoteronepomuk.h"
-#include "nbibio/synckbibtexfile.h"
+#include "nbibio/bibtex/synckbibtexfile.h"
 
 #include <KDE/KMessageBox>
 #include <KWallet/Wallet>

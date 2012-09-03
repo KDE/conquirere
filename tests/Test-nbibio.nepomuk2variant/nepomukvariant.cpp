@@ -37,7 +37,7 @@
 #include "sro/nco/contact.h"
 #include "sro/nco/organizationcontact.h"
 
-#include "nbibio/nbibexporterfile.h"
+#include "nbibio/pipe/nepomuktovariantpipe.h"
 
 #include <QtTest>
 #include <QtDebug>
@@ -48,7 +48,7 @@
  * checks: a few defined test cases.
  * for a full data driven test see Test-nbibio.bibtex2bibtex
  */
-class NepomukBibtex: public QObject
+class NepomukVariant: public QObject
 {
     Q_OBJECT
 
@@ -57,6 +57,7 @@ private slots:
     void initTestCase();
 
     void exportArticleTest();
+
     void exportBookTest();
     void exportBookletTest();
     void exportInBookTest();
@@ -68,7 +69,7 @@ private slots:
     void cleanupTestCase();
 
 private:
-    void checkEquality(Nepomuk2::Resource ref, const QStringList & original);
+    void checkEquality(Nepomuk2::Resource ref, const QVariantMap &originalMap);
 
     QUrl articleReferenceUri;
     QUrl proceedingsReferenceUri;
@@ -81,9 +82,9 @@ private:
 
 };
 
-QTEST_MAIN(NepomukBibtex)
+QTEST_MAIN(NepomukVariant)
 
-void NepomukBibtex::initTestCase()
+void NepomukVariant::initTestCase()
 {
     //insert some test publication
     Nepomuk2::SimpleResourceGraph graph;
@@ -94,7 +95,7 @@ void NepomukBibtex::initTestCase()
     author.setFullname(QLatin1String("UNITTEST-Author"));
 
     Nepomuk2::NCO::Contact bookAuthor;
-    bookAuthor.setFullname(QLatin1String("UNITTEST-Author"));
+    bookAuthor.setFullname(QLatin1String("UNITTEST-BookAuthor"));
 
     Nepomuk2::NCO::Contact seriesAuthor;
     seriesAuthor.setFullname(QLatin1String("UNITTEST-SeriesAuthor"));
@@ -341,220 +342,210 @@ void NepomukBibtex::initTestCase()
     techreportReferenceUri = srj->mappings().value(techreportReference.uri());
 }
 
-void NepomukBibtex::checkEquality(Nepomuk2::Resource ref, const QStringList &original)
+void NepomukVariant::checkEquality(Nepomuk2::Resource ref, const QVariantMap &originalMap)
 {
-    NBibExporterFile exporter;
-    exporter.setFileType( NBibExporterFile::EXPORT_BIBTEX );
+    // Pipe Nepomuk to QVariantList
+    NepomukToVariantPipe ntvp;
+    ntvp.pipeExport(QList<Nepomuk2::Resource>() << ref);
 
-    QByteArray byteArray;
-    QBuffer iodev(&byteArray);
-    iodev.open(QBuffer::ReadWrite);
+    QVariantList exportedList = ntvp.variantList();
 
-    QStringList errorLog;
-    exporter.save(&iodev, QList<Nepomuk2::Resource>() << ref, &errorLog);
-
-    if(!errorLog.isEmpty()) {
-        qDebug() << errorLog;
-        QFAIL("Errors occured while exporting the data");
+    if(exportedList.isEmpty()) {
+        QFAIL("No publication was exported");
     }
 
-    QTextStream output(&byteArray);
+    QVariantMap exportedMap = exportedList.first().toMap();
 
-    bool equal = true;
-    int line = 0;
-    while ( !output.atEnd() && line < original.size()) {
-        QString outputLine = output.readLine();
+    // now see if for each key in the originalMap we hava similar entry in the exported map
+    QMapIterator<QString, QVariant> i( originalMap );
+     while (i.hasNext()) {
+         i.next();
 
-        if(outputLine != original.at(line)) {
-            qDebug() << "OUT:" << outputLine << " NOT EQUAL Original: " << original.at(line);
-            equal = false;
-        }
-        line++;
-    }
-
-    if(!equal) {
-        QFAIL("exported data not equal reference data");
-    }
+         if(exportedMap.contains(i.key())) {
+             QCOMPARE(exportedMap.value(i.key()).toString(),
+                     i.value().toString() );
+         }
+         else { QFAIL("Missing Key:: \"" + i.key().toLatin1() + "\""); }
+     }
 }
 
-void NepomukBibtex::exportArticleTest()
+void NepomukVariant::exportArticleTest()
 {
     Nepomuk2::Resource ref = Nepomuk2::Resource( articleReferenceUri );
 
-    QStringList originalLine;
-    originalLine << "@article{UNITTEST-article,";
-    originalLine << "	author = {UNITTEST-Author},";
-    originalLine << "	date = {1986-04-03T12:12:12Z},";
-    originalLine << "	doi = {10.4204/EPTCS},";
-    originalLine << "	editor = {UNITTEST-Editor},";
-    originalLine << "	howpublished = {UNITTEST-Howpublished},";
-    originalLine << "	issn = {UNITTEST-ISSN},";
-    originalLine << "	journal = {UNITTEST-Jounal},";
-    originalLine << "	month = {apr},";
-    originalLine << "	number = {21},";
-    originalLine << "	pages = {1-999},";
-    originalLine << "	series = {{UNITTEST-Series}},";
-    originalLine << "	title = {{UNITTEST-Article-Title}},";
-    originalLine << "	volume = {443},";
-    originalLine << "	year = {1986}";
-    originalLine << "}";
+    QVariantMap entryMap;
+    entryMap.insert(QLatin1String("bibtexentrytype"), QString::fromUtf8("article"));
+    entryMap.insert(QLatin1String("bibtexcitekey"), QString::fromUtf8("UNITTEST-article"));
+    entryMap.insert(QLatin1String("author"), QString::fromUtf8("UNITTEST-Author"));
+    entryMap.insert(QLatin1String("date"), QString::fromUtf8("1986-04-03T12:12:12Z"));
+    entryMap.insert(QLatin1String("doi"), QString::fromUtf8("10.4204/EPTCS"));
+    entryMap.insert(QLatin1String("editor"), QString::fromUtf8("UNITTEST-Editor"));
+    entryMap.insert(QLatin1String("howpublished"), QString::fromUtf8("UNITTEST-Howpublished"));
+    entryMap.insert(QLatin1String("issn"), QString::fromUtf8("UNITTEST-ISSN"));
+    entryMap.insert(QLatin1String("journal"), QString::fromUtf8("UNITTEST-Jounal"));
+    entryMap.insert(QLatin1String("month"), QString::fromUtf8("apr"));
+    entryMap.insert(QLatin1String("number"), QString::fromUtf8("21"));
+    entryMap.insert(QLatin1String("pages"), QString::fromUtf8("1-999"));
+    entryMap.insert(QLatin1String("series"), QString::fromUtf8("UNITTEST-Series"));
+    entryMap.insert(QLatin1String("title"), QString::fromUtf8("UNITTEST-Article-Title"));
+    entryMap.insert(QLatin1String("volume"), QString::fromUtf8("443"));
+    entryMap.insert(QLatin1String("year"), QString::fromUtf8("1986"));
 
-    checkEquality(ref, originalLine);
+    checkEquality(ref, entryMap);
 }
 
-void NepomukBibtex::exportBookTest()
+void NepomukVariant::exportBookTest()
 {
     Nepomuk2::Resource ref = Nepomuk2::Resource( bookReferenceUri );
 
-    QStringList originalLine;
-    originalLine << "@book{UNITTEST-book,";
-    originalLine << "	author = {UNITTEST-Author},";
-    originalLine << "	date = {1986-04-03T12:12:12Z},";
-    originalLine << "	edition = {UNITTEST-second},";
-    originalLine << "	editor = {UNITTEST-Editor},";
-    originalLine << "	issn = {UNITTEST-ISSN},";
-    originalLine << "	month = {apr},";
-    originalLine << "	number = {UNITTEST-number},";
-    originalLine << "	publisher = {UNITTEST-Publisher},";
-    originalLine << "	series = {{UNITTEST-Series}},";
-    originalLine << "	title = {{UNITTEST-book}},";
-    originalLine << "	volume = {UNITTEST-volume},";
-    originalLine << "	year = {1986}";
-    originalLine << "}";
+    QVariantMap entryMap;
+    entryMap.insert(QLatin1String("bibtexentrytype"), QString::fromUtf8("book"));
+    entryMap.insert(QLatin1String("bibtexcitekey"), QString::fromUtf8("UNITTEST-book"));
+    entryMap.insert(QLatin1String("author"), QString::fromUtf8("UNITTEST-Author"));
+    entryMap.insert(QLatin1String("date"), QString::fromUtf8("1986-04-03T12:12:12Z"));
+    entryMap.insert(QLatin1String("edition"), QString::fromUtf8("UNITTEST-second"));
+    entryMap.insert(QLatin1String("editor"), QString::fromUtf8("UNITTEST-Editor"));
+    entryMap.insert(QLatin1String("issn"), QString::fromUtf8("UNITTEST-ISSN"));
+    entryMap.insert(QLatin1String("month"), QString::fromUtf8("apr"));
+    entryMap.insert(QLatin1String("number"), QString::fromUtf8("UNITTEST-number"));
+    entryMap.insert(QLatin1String("publisher"), QString::fromUtf8("UNITTEST-Publisher"));
+    entryMap.insert(QLatin1String("series"), QString::fromUtf8("UNITTEST-Series"));
+    entryMap.insert(QLatin1String("title"), QString::fromUtf8("UNITTEST-book"));
+    entryMap.insert(QLatin1String("volume"), QString::fromUtf8("UNITTEST-volume"));
+    entryMap.insert(QLatin1String("year"), QString::fromUtf8("1986"));
 
-    checkEquality(ref, originalLine);
+    checkEquality(ref, entryMap);
 }
 
-void NepomukBibtex::exportBookletTest()
+void NepomukVariant::exportBookletTest()
 {
     Nepomuk2::Resource ref = Nepomuk2::Resource( bookletReferenceUri );
 
-    QStringList originalLine;
-    originalLine << "@booklet{UNITTEST-booklet,";
-    originalLine << "	author = {UNITTEST-Author},";
-    originalLine << "	date = {1986-04-03T12:12:12Z},";
-    originalLine << "	edition = {UNITTEST-second},";
-    originalLine << "	editor = {UNITTEST-Editor},";
-    originalLine << "	howpublished = {UNITTEST-how published},";
-    originalLine << "	issn = {UNITTEST-ISSN},";
-    originalLine << "	month = {apr},";
-    originalLine << "	series = {{UNITTEST-Series}},";
-    originalLine << "	title = {{UNITTEST-book}},";
-    originalLine << "	year = {1986}";
-    originalLine << "}";
+    QVariantMap entryMap;
+    entryMap.insert(QLatin1String("bibtexentrytype"), QString::fromUtf8("booklet"));
+    entryMap.insert(QLatin1String("bibtexcitekey"), QString::fromUtf8("UNITTEST-booklet"));
+    entryMap.insert(QLatin1String("author"), QString::fromUtf8("UNITTEST-Author"));
+    entryMap.insert(QLatin1String("date"), QString::fromUtf8("1986-04-03T12:12:12Z"));
+    entryMap.insert(QLatin1String("edition"), QString::fromUtf8("UNITTEST-second"));
+    entryMap.insert(QLatin1String("editor"), QString::fromUtf8("UNITTEST-Editor"));
+    entryMap.insert(QLatin1String("howpublished"), QString::fromUtf8("UNITTEST-how published"));
+    entryMap.insert(QLatin1String("issn"), QString::fromUtf8("UNITTEST-ISSN"));
+    entryMap.insert(QLatin1String("month"), QString::fromUtf8("apr"));
+    entryMap.insert(QLatin1String("series"), QString::fromUtf8("UNITTEST-Series"));
+    entryMap.insert(QLatin1String("title"), QString::fromUtf8("UNITTEST-book"));
+    entryMap.insert(QLatin1String("year"), QString::fromUtf8("1986"));
 
-    checkEquality(ref, originalLine);
+    checkEquality(ref, entryMap);
 }
 
-void NepomukBibtex::exportInBookTest()
+void NepomukVariant::exportInBookTest()
 {
     Nepomuk2::Resource ref = Nepomuk2::Resource( inBookReferenceUri );
 
-    QStringList originalLine;
-    originalLine << "@inbook{UNITTEST-inBook,";
-    originalLine << "	author = {UNITTEST-Author},";
-    originalLine << "	chapter = {UNITTEST-II},";
-    originalLine << "	date = {1986-04-03T12:12:12Z},";
-    originalLine << "	edition = {UNITTEST-second},";
-    originalLine << "	editor = {UNITTEST-Editor},";
-    originalLine << "	month = {apr},";
-    originalLine << "	publisher = {UNITTEST-Publisher},";
-    originalLine << "	title = {{UNITTEST-inbook}},";
-    originalLine << "	year = {1986}";
-    originalLine << "}";
+    QVariantMap entryMap;
+    entryMap.insert(QLatin1String("bibtexentrytype"), QString::fromUtf8("inbook"));
+    entryMap.insert(QLatin1String("bibtexcitekey"), QString::fromUtf8("UNITTEST-inBook"));
+    entryMap.insert(QLatin1String("author"), QString::fromUtf8("UNITTEST-Author"));
+    entryMap.insert(QLatin1String("date"), QString::fromUtf8("1986-04-03T12:12:12Z"));
+    entryMap.insert(QLatin1String("edition"), QString::fromUtf8("UNITTEST-second"));
+    entryMap.insert(QLatin1String("editor"), QString::fromUtf8("UNITTEST-Editor"));
+    entryMap.insert(QLatin1String("month"), QString::fromUtf8("apr"));
+    entryMap.insert(QLatin1String("publisher"), QString::fromUtf8("UNITTEST-Publisher"));
+    entryMap.insert(QLatin1String("title"), QString::fromUtf8("UNITTEST-inbook"));
+    entryMap.insert(QLatin1String("year"), QString::fromUtf8("1986"));
 
-    checkEquality(ref, originalLine);
+    checkEquality(ref, entryMap);
 }
 
-void NepomukBibtex::exportInCollectionTest()
+void NepomukVariant::exportInCollectionTest()
 {
     Nepomuk2::Resource ref = Nepomuk2::Resource( inCollectionReferenceUri );
 
-    QStringList originalLine;
-    originalLine << "@incollection{UNITTEST-inCollection,";
-    originalLine << "	author = {, UNITTEST-Author},";
-    originalLine << "	bookauthor = {UNITTEST-Author},";
-    originalLine << "	booktitle = {{UNITTEST-incollection}},";
-    originalLine << "	chapter = {UNITTEST-II},";
-    originalLine << "	chaptername = {UNITTEST-Chapter-Title},";
-    originalLine << "	date = {1986-04-03T12:12:12Z},";
-    originalLine << "	edition = {UNITTEST-second},";
-    originalLine << "	editor = {UNITTEST-Editor},";
-    originalLine << "	month = {apr},";
-    originalLine << "	publisher = {UNITTEST-Publisher},";
-    originalLine << "	title = {{UNITTEST-Chapter-Title}},";
-    originalLine << "	year = {1986}";
-    originalLine << "}";
+    QVariantMap entryMap;
+    entryMap.insert(QLatin1String("bibtexentrytype"), QString::fromUtf8("incollection"));
+    entryMap.insert(QLatin1String("bibtexcitekey"), QString::fromUtf8("UNITTEST-inCollection"));
+    entryMap.insert(QLatin1String("author"), QString::fromUtf8("UNITTEST-Author"));
+    entryMap.insert(QLatin1String("bookauthor"), QString::fromUtf8("UNITTEST-BookAuthor"));
+    entryMap.insert(QLatin1String("booktitle"), QString::fromUtf8("UNITTEST-incollection"));
+    entryMap.insert(QLatin1String("chapter"), QString::fromUtf8("UNITTEST-II"));
+    entryMap.insert(QLatin1String("chaptername"), QString::fromUtf8("UNITTEST-Chapter-Title"));
+    entryMap.insert(QLatin1String("date"), QString::fromUtf8("1986-04-03T12:12:12Z"));
+    entryMap.insert(QLatin1String("edition"), QString::fromUtf8("UNITTEST-second"));
+    entryMap.insert(QLatin1String("editor"), QString::fromUtf8("UNITTEST-Editor"));
+    entryMap.insert(QLatin1String("month"), QString::fromUtf8("apr"));
+    entryMap.insert(QLatin1String("publisher"), QString::fromUtf8("UNITTEST-Publisher"));
+    entryMap.insert(QLatin1String("title"), QString::fromUtf8("UNITTEST-Chapter-Title"));
+    entryMap.insert(QLatin1String("year"), QString::fromUtf8("1986"));
 
-    checkEquality(ref, originalLine);
+    checkEquality(ref, entryMap);
 }
 
-void NepomukBibtex::exportProceedingsTest()
+void NepomukVariant::exportProceedingsTest()
 {
     Nepomuk2::Resource ref = Nepomuk2::Resource( proceedingsReferenceUri );
 
-    QStringList originalLine;
-    originalLine << "@proceedings{UNITTEST-proceedings,";
-    originalLine << "	date = {1986-04-03T12:12:12Z},";
-    originalLine << "	event = {UNITTEST-Title},";
-    originalLine << "	issn = {UNITTEST-ISSN},";
-    originalLine << "	month = {apr},";
-    originalLine << "	organization = {UNITTEST-Organization},";
-    originalLine << "	pages = {1-999},";
-    originalLine << "	publisher = {UNITTEST-Publisher},";
-    originalLine << "	series = {{UNITTEST-Series}},";
-    originalLine << "	title = {{UNITTEST-Title: A Proceedings}},";
-    originalLine << "	year = {1986}";
-    originalLine << "}";
+    QVariantMap entryMap;
+    entryMap.insert(QLatin1String("bibtexentrytype"), QString::fromUtf8("proceedings"));
+    entryMap.insert(QLatin1String("bibtexcitekey"), QString::fromUtf8("UNITTEST-proceedings"));
+    entryMap.insert(QLatin1String("date"), QString::fromUtf8("1986-04-03T12:12:12Z"));
+    entryMap.insert(QLatin1String("event"), QString::fromUtf8("UNITTEST-Title"));
+    entryMap.insert(QLatin1String("issn"), QString::fromUtf8("UNITTEST-ISSN"));
+    entryMap.insert(QLatin1String("month"), QString::fromUtf8("apr"));
+    entryMap.insert(QLatin1String("organization"), QString::fromUtf8("UNITTEST-Organization"));
+    entryMap.insert(QLatin1String("pages"), QString::fromUtf8("1-999"));
+    entryMap.insert(QLatin1String("publisher"), QString::fromUtf8("UNITTEST-Publisher"));
+    entryMap.insert(QLatin1String("series"), QString::fromUtf8("UNITTEST-Series"));
+    entryMap.insert(QLatin1String("title"), QString::fromUtf8("UNITTEST-Title: A Proceedings"));
+    entryMap.insert(QLatin1String("year"), QString::fromUtf8("1986"));
 
-    checkEquality(ref, originalLine);
+    checkEquality(ref, entryMap);
 }
 
-void NepomukBibtex::exportInProceedingsTest()
+void NepomukVariant::exportInProceedingsTest()
 {
     Nepomuk2::Resource ref = Nepomuk2::Resource( inProceedingsReferenceUri );
 
-    QStringList originalLine;
-    originalLine << "@inproceedings{UNITTEST-inproceedings,";
-    originalLine << "	author = {UNITTEST-Author},";
-    originalLine << "	booktitle = {{UNITTEST-Title: A Proceedings}},";
-    originalLine << "	date = {1986-04-03T12:12:12Z},";
-    originalLine << "	doi = {10.4204/EPTCS},";
-    originalLine << "	editor = {UNITTEST-Editor},";
-    originalLine << "	event = {UNITTEST-Title},";
-    originalLine << "	howpublished = {UNITTEST-Howpublished},";
-    originalLine << "	issn = {UNITTEST-ISSN},";
-    originalLine << "	journal = {UNITTEST-Series},";
-    originalLine << "	month = {apr},";
-    originalLine << "	pages = {1-999},";
-    originalLine << "	title = {{UNITTEST-Title: An Inproceedings}},";
-    originalLine << "	year = {1986}";
-    originalLine << "}";
+    QVariantMap entryMap;
+    entryMap.insert(QLatin1String("bibtexentrytype"), QString::fromUtf8("inproceedings"));
+    entryMap.insert(QLatin1String("bibtexcitekey"), QString::fromUtf8("UNITTEST-inproceedings"));
+    entryMap.insert(QLatin1String("author"), QString::fromUtf8("UNITTEST-Author"));
+    entryMap.insert(QLatin1String("booktitle"), QString::fromUtf8("UNITTEST-Title: A Proceedings"));
+    entryMap.insert(QLatin1String("date"), QString::fromUtf8("1986-04-03T12:12:12Z"));
+    entryMap.insert(QLatin1String("doi"), QString::fromUtf8("10.4204/EPTCS"));
+    entryMap.insert(QLatin1String("editor"), QString::fromUtf8("UNITTEST-Editor"));
+    entryMap.insert(QLatin1String("event"), QString::fromUtf8("UNITTEST-Title"));
+    entryMap.insert(QLatin1String("howpublished"), QString::fromUtf8("UNITTEST-Howpublished"));
+    entryMap.insert(QLatin1String("issn"), QString::fromUtf8("UNITTEST-ISSN"));
+    entryMap.insert(QLatin1String("journal"), QString::fromUtf8("UNITTEST-Series"));
+    entryMap.insert(QLatin1String("month"), QString::fromUtf8("apr"));
+    entryMap.insert(QLatin1String("pages"), QString::fromUtf8("1-999"));
+    entryMap.insert(QLatin1String("title"), QString::fromUtf8("UNITTEST-Title: An Inproceedings"));
+    entryMap.insert(QLatin1String("year"), QString::fromUtf8("1986"));
 
-    checkEquality(ref, originalLine);
+    checkEquality(ref, entryMap);
 }
 
-void NepomukBibtex::exportTechreportTest()
+void NepomukVariant::exportTechreportTest()
 {
     Nepomuk2::Resource ref = Nepomuk2::Resource( techreportReferenceUri );
 
-    QStringList originalLine;
-    originalLine << "@techreport{UNITTEST-techreport,";
-    originalLine << "	author = {UNITTEST-Author},";
-    originalLine << "	date = {1986-04-03T12:12:12Z},";
-    originalLine << "	howpublished = {UNITTEST-how published},";
-    originalLine << "	institution = {UNITTEST-Publisher},";
-    originalLine << "	month = {apr},";
-    originalLine << "	organization = {UNITTEST-Organization},";
-    originalLine << "	title = {{UNITTEST-techreport}},";
-    originalLine << "	type = {UNITTEST-publication-type},";
-    originalLine << "	year = {1986}";
-    originalLine << "}";
+    QVariantMap entryMap;
+    entryMap.insert(QLatin1String("bibtexentrytype"), QString::fromUtf8("techreport"));
+    entryMap.insert(QLatin1String("bibtexcitekey"), QString::fromUtf8("UNITTEST-techreport"));
+    entryMap.insert(QLatin1String("author"), QString::fromUtf8("UNITTEST-Author"));
+    entryMap.insert(QLatin1String("date"), QString::fromUtf8("1986-04-03T12:12:12Z"));
+    entryMap.insert(QLatin1String("howpublished"), QString::fromUtf8("UNITTEST-how published"));
+    entryMap.insert(QLatin1String("institution"), QString::fromUtf8("UNITTEST-Publisher"));
+    entryMap.insert(QLatin1String("month"), QString::fromUtf8("apr"));
+    entryMap.insert(QLatin1String("organization"), QString::fromUtf8("UNITTEST-Organization"));
+    entryMap.insert(QLatin1String("title"), QString::fromUtf8("UNITTEST-techreport"));
+    entryMap.insert(QLatin1String("type"), QString::fromUtf8("UNITTEST-publication-type"));
+    entryMap.insert(QLatin1String("year"), QString::fromUtf8("1986"));
 
-    checkEquality(ref, originalLine);
+    checkEquality(ref, entryMap);
 }
 
-void NepomukBibtex::cleanupTestCase()
+void NepomukVariant::cleanupTestCase()
 {
     // remove all data created by this unittest from the nepomuk database again
     KJob *job = Nepomuk2::removeDataByApplication();
@@ -564,4 +555,4 @@ void NepomukBibtex::cleanupTestCase()
     }
 }
 
-#include "nepomukbibtex.moc"
+#include "nepomukvariant.moc"

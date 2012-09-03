@@ -15,11 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "nbibimporterbibtex.h"
+#include "bibteximporter.h"
 
 #include "globals.h"
 
-#include "pipe/bibtextonepomukpipe.h"
+#include "bibtex/bibtexvariant.h"
+#include "pipe/varianttonepomukpipe.h"
+
 #include <kbibtex/fileimporterbibtex.h>
 #include <kbibtex/fileimporterpdf.h>
 #include <kbibtex/fileimporterris.h>
@@ -29,35 +31,35 @@
 
 using namespace Akonadi;
 
-NBibImporterBibTex::NBibImporterBibTex()
-    : NBibImporter()
+BibTexImporter::BibTexImporter()
+    : BibFileImporter()
     , m_importedEntries(0)
     , m_findDuplicates(false)
     , m_selectedFileType(EXPORT_BIBTEX)
 {
 }
 
-NBibImporterBibTex::~NBibImporterBibTex()
+BibTexImporter::~BibTexImporter()
 {
     delete m_importedEntries;
 }
 
-void NBibImporterBibTex::setAkonadiAddressbook(Akonadi::Collection & addressbook)
+void BibTexImporter::setAkonadiAddressbook(Akonadi::Collection & addressbook)
 {
     m_addressbook = addressbook;
 }
 
-void NBibImporterBibTex::setFindDuplicates(bool findThem)
+void BibTexImporter::setFindDuplicates(bool findThem)
 {
     m_findDuplicates = findThem;
 }
 
-void NBibImporterBibTex::setFileType(NBibImporterBibTex::FileType selectedFileType)
+void BibTexImporter::setFileType(BibTexImporter::FileType selectedFileType)
 {
     m_selectedFileType = selectedFileType;
 }
 
-bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
+bool BibTexImporter::load(QIODevice *iodevice, QStringList *errorLog)
 {
     FileImporter *importer;
     switch(m_selectedFileType) {
@@ -112,7 +114,7 @@ bool NBibImporterBibTex::load(QIODevice *iodevice, QStringList *errorLog)
     return true;
 }
 
-bool NBibImporterBibTex::readBibFile(const QString & filename, QStringList *errorLog)
+bool BibTexImporter::readBibFile(const QString & filename, QStringList *errorLog)
 {
     QFile bibFile(filename);
     if (!bibFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -137,12 +139,12 @@ bool NBibImporterBibTex::readBibFile(const QString & filename, QStringList *erro
     return true;
 }
 
-File *NBibImporterBibTex::bibFile()
+File *BibTexImporter::bibFile()
 {
     return m_importedEntries;
 }
 
-bool NBibImporterBibTex::findDuplicates()
+bool BibTexImporter::findDuplicates()
 {
     m_cliques.clear();
     int sensitivity = 4000; // taken from KBibTeX
@@ -159,33 +161,32 @@ bool NBibImporterBibTex::findDuplicates()
     return true;
 }
 
-void NBibImporterBibTex::setProjectPimoThing(Nepomuk2::Resource projectThing)
+void BibTexImporter::setProjectPimoThing(Nepomuk2::Resource projectThing)
 {
     m_projectThing = projectThing;
 }
 
-QList<EntryClique*> NBibImporterBibTex::duplicates()
+QList<EntryClique*> BibTexImporter::duplicates()
 {
     return m_cliques;
 }
 
-bool NBibImporterBibTex::pipeToNepomuk(QStringList *errorLog)
+bool BibTexImporter::pipeToNepomuk(QStringList *errorLog)
 {
-    BibTexToNepomukPipe * importer = new BibTexToNepomukPipe;
+    // pipe bibtex file to variant
+    QVariantList list = BibTexVariant::toVariant( *m_importedEntries );
 
-    connect (importer, SIGNAL(progress(int)), this, SIGNAL(progress(int)));
+    // push the Variantlist to nepomuk
+    VariantToNepomukPipe vtnp;
+    connect (&vtnp, SIGNAL(progress(int)), this, SIGNAL(progress(int)));
 
-    importer->setAkonadiAddressbook(m_addressbook);
-    importer->setProjectPimoThing(m_projectThing);
-    importer->setErrorLog(errorLog);
-    importer->pipeExport(*m_importedEntries, m_importFile);
-
-    delete importer;
+    vtnp.setProjectPimoThing(m_projectThing);
+    vtnp.pipeExport(list);
 
     return true;
 }
 
-void NBibImporterBibTex::calculateImportProgress(int current, int max)
+void BibTexImporter::calculateImportProgress(int current, int max)
 {
     int max2;
     if(false && m_findDuplicates) { // ignore for now

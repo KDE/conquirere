@@ -15,30 +15,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef NBIBIMPORTER_H
-#define NBIBIMPORTER_H
+#ifndef BIBFILEIMPORTER_H
+#define BIBFILEIMPORTER_H
 
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
 
 class QIODevice;
 /**
-  * @brief Abstract base class for any kind of file importer
+  * @brief Abstract base class for any kind of file to Nepomuk importer
   *
-  * If possible subclasses should make use of the BibTexToNepomukPipe and the actual importer implemented in the KBibTeX
-  * svn repo and reused here.
-  *
-  * Only if the way via KBibTeX is not possible a completely own way should be used.
+  * The FileImporterBibTex handles most filetypes via @c KBibTeX.
   */
-class NBibImporter : public QObject
+class BibFileImporter : public QObject
 {
     Q_OBJECT
 public:
-    explicit NBibImporter();
-    virtual ~NBibImporter();
+    explicit BibFileImporter();
+    virtual ~BibFileImporter();
 
     /**
-      * imports the file from @p fileName
+      * @brief imports the file from @p fileName
       *
       * calls load() internally
       * @p filename the path and name of the file the importer reads from
@@ -47,7 +44,7 @@ public:
     bool fromFile(QString fileName, QStringList *errorLog = NULL);
 
     /**
-      * Imports a file into the Nepomuk storage using the NBIB ontology
+      * @brief Imports a file into the Nepomuk storage using the @c NBIB @c ontology
       *
       * subclasses must define how their fileformat fits into the nepomuk ontology
       *
@@ -64,7 +61,7 @@ signals:
 
 public slots:
     /**
-      * cancels the import process.
+      * @brief cancels the import process.
       *
       * subclasses must check the m_cancel value to see if they have to cancel the process
       */
@@ -74,4 +71,4 @@ protected:
     bool m_cancel;
 };
 
-#endif // NBIBIMPORTER_H
+#endif // BIBFILEIMPORTER_H

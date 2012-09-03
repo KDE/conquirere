@@ -23,7 +23,7 @@
 #include <Nepomuk2/Query/Result>
 #include <Nepomuk2/Query/QueryServiceClient>
 
-#include "nbibio/nbibexporterfile.h"
+#include "nbibio/bibtex/bibtexexporter.h"
 
 namespace Ui {
     class BibTexExportDialog;
@@ -44,7 +44,7 @@ public:
     explicit BibTexExportDialog(QWidget *parent = 0);
     virtual ~BibTexExportDialog();
 
-    void setInitialFileType(NBibExporterFile::FileType selectedFileType);
+    void setInitialFileType(BibTexExporter::FileType selectedFileType);
 
     void setLibraryManager(LibraryManager *lm);
     void setExportLibrary(Library* l);
@@ -59,11 +59,11 @@ private slots:
 private:
     Ui::BibTexExportDialog *ui;
 
-    NBibExporterFile::FileType m_selectedFileType;
+    BibTexExporter::FileType m_selectedFileType;
     LibraryManager *m_libraryManager;
     Library* m_importLibrary;
     QList<Nepomuk2::Resource> m_exportList;
-    NBibExporterFile *m_exporter;
+    BibTexExporter *m_exporter;
     KProgressDialog *m_progress;
     Nepomuk2::Query::QueryServiceClient *m_queryClient;
     QFutureWatcher<QStringList> *m_futureWatcher;

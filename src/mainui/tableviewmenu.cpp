@@ -22,9 +22,11 @@
 
 #include "mainui/librarymanager.h"
 
-#include "nbibio/pipe/bibtextoclipboardpipe.h"
-#include "nbibio/pipe/bibtextonepomukpipe.h"
-#include "nbibio/pipe/nepomuktobibtexpipe.h"
+#include "nbibio/bibtex/bibtexvariant.h"
+#include "nbibio/pipe/clipboardpipe.h"
+#include "nbibio/bibtex/bibtexvariant.h"
+#include "nbibio/pipe/varianttonepomukpipe.h"
+#include "nbibio/pipe/nepomuktovariantpipe.h"
 #include "nbibio/pipe/kilelyxpipe.h"
 
 #include <kbibtex/value.h>
@@ -381,50 +383,47 @@ void TableViewMenu::importSearchResult()
 
     f.append(m_bibtexEntry);
 
-    BibTexToNepomukPipe btnp;
-    btnp.pipeExport(f);
+    QVariantList list = BibTexVariant::toVariant(f);
+
+    VariantToNepomukPipe vtnp;
+    vtnp.pipeExport(list);
 }
 
 void TableViewMenu::exportBibTexReference()
 {
-    File f;
-    NepomukToBibTexPipe ntbp;
+    ClipboardPipe btcp;
+    btcp.setCiteCommand(ConqSettings::referenceCommand());
+    btcp.setExportType(ClipboardPipe::Export_SOURCE);
+
 
     if(m_bibtexEntry) {
+        File f;
         f.append(m_bibtexEntry);
+        QVariantList list = BibTexVariant::toVariant(f);
+        btcp.pipeExport(list);
     }
     else {
+        btcp.pipeExport(QList<Nepomuk2::Resource>() << m_nepomukResource);
         QList<Nepomuk2::Resource> resourcelist;
         resourcelist.append(m_nepomukResource);
-        ntbp.pipeExport(resourcelist);
-
-        f = *ntbp.bibtexFile();
     }
-
-    BibTexToClipboardPipe btcp;
-    btcp.setExportType(BibTexToClipboardPipe::Export_SOURCE);
-    btcp.pipeExport(f);
 }
 
 void TableViewMenu::exportCiteKey()
 {
-    File f;
-    NepomukToBibTexPipe ntbp;
+    ClipboardPipe btcp;
+    btcp.setCiteCommand(ConqSettings::referenceCommand());
+    btcp.setExportType(ClipboardPipe::Export_CITEKEY);
 
     if(m_bibtexEntry) {
+        File f;
         f.append(m_bibtexEntry);
+        QVariantList list = BibTexVariant::toVariant(f);
+        btcp.pipeExport(list);
     }
     else {
-        QList<Nepomuk2::Resource> resourcelist;
-        resourcelist.append(m_nepomukResource);
-        ntbp.pipeExport(resourcelist);
-
-        f = *ntbp.bibtexFile();
+        btcp.pipeExport(QList<Nepomuk2::Resource>() << m_nepomukResource);
     }
-
-    BibTexToClipboardPipe btcp;
-    btcp.setExportType(BibTexToClipboardPipe::Export_CITEKEY);
-    btcp.pipeExport(f);
 }
 
 void TableViewMenu::sendToKileLyX()
@@ -434,7 +433,8 @@ void TableViewMenu::sendToKileLyX()
 
     if(m_bibtexEntry) {
         f.append(m_bibtexEntry);
-        klp.pipeExport(f);
+        QVariantList list = BibTexVariant::toVariant(f);
+        klp.pipeExport(list);
     }
     else {
         QList<Nepomuk2::Resource> resourcelist;

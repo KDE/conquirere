@@ -22,9 +22,9 @@
 #include "mainui/librarymanager.h"
 #include "core/projectsettings.h"
 
-#include "nbibio/pipe/bibtextoclipboardpipe.h"
-#include "nbibio/pipe/bibtextonepomukpipe.h"
-#include "nbibio/pipe/nepomuktobibtexpipe.h"
+#include "nbibio/bibtex/bibtexvariant.h"
+#include "nbibio/pipe/clipboardpipe.h"
+
 #include "nbibio/pipe/kilelyxpipe.h"
 #include "sync/bibtexexportdialog.h"
 
@@ -267,28 +267,18 @@ void MergeResourcesWidget::removeFromSystem()
 
 void MergeResourcesWidget::bibtexToClipboard()
 {
-    NepomukToBibTexPipe ntbp;
-    ntbp.pipeExport(m_resourceList);
-
-    File *f = ntbp.bibtexFile();
-
-    BibTexToClipboardPipe btcp;
-    btcp.setExportType(BibTexToClipboardPipe::Export_SOURCE);
-    btcp.pipeExport(*f);
-    delete f;
+    ClipboardPipe btcp;
+    btcp.setCiteCommand(ConqSettings::referenceCommand());
+    btcp.setExportType(ClipboardPipe::Export_SOURCE);
+    btcp.pipeExport(m_resourceList);
 }
 
 void MergeResourcesWidget::citekeyToClipboard()
 {
-    NepomukToBibTexPipe ntbp;
-    ntbp.pipeExport(m_resourceList);
-
-    File *f = ntbp.bibtexFile();
-
-    BibTexToClipboardPipe btcp;
-    btcp.setExportType(BibTexToClipboardPipe::Export_CITEKEY);
-    btcp.pipeExport(*f);
-    delete f;
+    ClipboardPipe btcp;
+    btcp.setCiteCommand(ConqSettings::referenceCommand());
+    btcp.setExportType(ClipboardPipe::Export_CITEKEY);
+    btcp.pipeExport(m_resourceList);
 }
 
 void MergeResourcesWidget::sendToLyXKile()
@@ -306,7 +296,7 @@ void MergeResourcesWidget::sendToLyXKile()
 void MergeResourcesWidget::exportToFile()
 {
     BibTexExportDialog bed;
-    bed.setInitialFileType(NBibExporterFile::EXPORT_BIBTEX);
+    bed.setInitialFileType(BibTexExporter::EXPORT_BIBTEX);
     bed.setResourceList(m_resourceList);
 
     bed.exec();

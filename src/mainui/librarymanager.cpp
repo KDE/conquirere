@@ -221,7 +221,7 @@ void LibraryManager::exportData(Library *l, ModeSelection mode)
     }
     else {
         BibTexExportDialog bed;
-        bed.setInitialFileType(NBibExporterFile::EXPORT_BIBTEX);
+        bed.setInitialFileType(BibTexExporter::EXPORT_BIBTEX);
         bed.setLibraryManager(this);
 
         if(l != m_systemLibrary) {

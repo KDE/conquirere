@@ -28,8 +28,8 @@
 #include "mainui/sync/itemmergedialog.h"
 
 #include "nbibio/zotero/synczoteronepomuk.h"
-#include "nbibio/synckbibtexfile.h"
-#include "nbibio/pipe/bibtextonepomukpipe.h"
+#include "nbibio/bibtex/synckbibtexfile.h"
+//#include "nbibio/pipe/bibtextonepomukpipe.h"
 
 #include <Akonadi/CollectionFetchJob>
 #include <Akonadi/CollectionFetchScope>

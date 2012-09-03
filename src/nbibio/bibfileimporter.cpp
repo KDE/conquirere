@@ -15,38 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "nbibexporter.h"
+#include "bibfileimporter.h"
+
+#include <KDE/KLocalizedString>
 
 #include <QtCore/QFile>
+#include <QtCore/QIODevice>
 
-NBibExporter::NBibExporter()
+BibFileImporter::BibFileImporter()
     : QObject(0)
     , m_cancel(false)
 {
 }
 
-NBibExporter::~NBibExporter()
+BibFileImporter::~BibFileImporter()
 {
 }
 
-bool NBibExporter::toFile( const QString &filename, const QList<Nepomuk2::Resource> referenceList, QStringList *errorLog)
+bool BibFileImporter::fromFile(QString fileName, QStringList *errorLog)
 {
-    QFile bibFile(filename);
-    if (!bibFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QString error = i18n("can't open file %1", filename);
+    QFile bibFile(fileName);
+    if (!bibFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QString error = i18n("can't open file %1", fileName);
         errorLog->append(error);
-
         return false;
     }
 
-    bool result = save(&bibFile, referenceList, errorLog);
-
-    bibFile.close();
-
-    return result;
+    return load(&bibFile, errorLog);
 }
 
-void NBibExporter::cancel()
+void BibFileImporter::cancel()
 {
     m_cancel=true;
 }

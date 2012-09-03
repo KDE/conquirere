@@ -15,45 +15,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef KILELYXPIPE_H
-#define KILELYXPIPE_H
+#ifndef VARIANTTONEPOMUKPIPE_H
+#define VARIANTTONEPOMUKPIPE_H
 
 #include <QtCore/QObject>
 #include <QtCore/QVariantList>
 
 #include <Nepomuk2/Resource>
 
-/**
-  * @brief pipe the current entry to @c LyX or @c Kile
-  *
-  * The path for the pipe file has to be set in teh settings first
-  */
-class KileLyxPipe : public QObject
+class VariantToNepomukPipe : public QObject
 {
+    Q_OBJECT
 public:
-    KileLyxPipe(QObject *parent = 0);
-    virtual ~KileLyxPipe();
+    explicit VariantToNepomukPipe(QObject *parent = 0);
 
     /**
-      * @brief Sets the pointer for the error log
+      * Does the piping action
       *
-      * used to find out what errors happend during the export
+      * @p resources list of publications
       */
-    void setErrorLog(QStringList *errorLog = NULL);
+    void pipeExport(QVariantList &publicationList);
 
-    void pipeExport(const QVariantList & bibEntries);
+    void setSyncDetails(const QString &url, const QString &userid);
 
-    void pipeExport(QList<Nepomuk2::Resource> bibEntries);
+    /**
+      * if the @p projectThing is valid all imported data will be related via @c pimo:isRelated to the project
+      */
+    void setProjectPimoThing(Nepomuk2::Resource projectThing);
+
+signals:
+    void progress(int value);
 
 private:
-    /**
-      * @todo TODO: automatically find the pipe name from LyX / Kile pipe settings
-      */
-    QString findLyXKilePipe();
-    void sendReferences(const QString &refs);
+    void importNote(const QVariantMap &noteEntry);
+    void importAttachment(const QVariantMap &attachmentEntry);
 
-protected:
-    QStringList *m_errorLog;
+private:
+    QString m_syncUrl;
+    QString m_syncUserId;
+    Nepomuk2::Resource m_projectThing;
 };
 
-#endif // KILELYXPIPE_H
+#endif // VARIANTTONEPOMUKPIPE_H

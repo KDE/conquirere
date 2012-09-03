@@ -20,7 +20,7 @@
 #include "core/library.h"
 #include "core/projectsettings.h"
 
-#include "nbibio/pipe/nepomuktobibtexpipe.h"
+#include "nbibio/pipe/nepomuktovariantpipe.h"
 
 #include "onlinestorage/zotero/zoteroinfo.h"
 #include "onlinestorage/zotero/writetozotero.h"
@@ -103,6 +103,7 @@ File *ZoteroUpload::corruptedUploads()
 
 void ZoteroUpload::startUpload()
 {
+    /*
     Q_ASSERT( m_systemLibrary != 0);
 
     if(m_psd.exportAttachments) {
@@ -199,10 +200,12 @@ void ZoteroUpload::startUpload()
     connect(m_wtz, SIGNAL(entryItemUpdated(QString,QString,QString)), this, SLOT(updateSyncDetailsToNepomuk(QString,QString,QString)));
 
     m_wtz->pushItems(itemsToPush, m_psd.collection);
+    */
 }
 
 void ZoteroUpload::readUploadSync()
 {
+    /*
     m_corruptedUploads = m_wtz->getFailedPushRequestItems();
 
     File *newItemWithSyncDetails = m_wtz->getFile();
@@ -300,10 +303,12 @@ void ZoteroUpload::readUploadSync()
     }
 
     removeFilesFromGroup();
+    */
 }
 
 void ZoteroUpload::removeFilesFromGroup()
 {
+    /*
     // lets reuse the writeToZotero object but disconnect the signals in this case
     disconnect(m_wtz, SIGNAL(finished()), this, SLOT(readUploadSync()));
     disconnect(m_wtz, SIGNAL(entryItemUpdated(QString,QString,QString)), this, SLOT(updateSyncDetailsToNepomuk(QString,QString,QString)));
@@ -375,10 +380,12 @@ void ZoteroUpload::removeFilesFromGroup()
     else {
         removeFilesFromGroup(true);
     }
+    */
 }
 
 void ZoteroUpload::removeFilesFromGroup(bool removeThem)
 {
+    /*
     if(removeThem) {
 
         QStringList idsToBeRemoved;
@@ -406,10 +413,12 @@ void ZoteroUpload::removeFilesFromGroup(bool removeThem)
 
         removeFilesFromZotero();
     }
+    */
 }
 
 void ZoteroUpload::removeFilesFromZotero()
 {
+    /*
     disconnect(m_wtz, SIGNAL(finished()), this, SLOT(removeFilesFromZotero()));
 
     if(!m_psd.collection.isEmpty()) {
@@ -478,10 +487,12 @@ void ZoteroUpload::removeFilesFromZotero()
     else {
         removeFilesFromZotero(true);
     }
+    */
 }
 
 void ZoteroUpload::removeFilesFromZotero(bool removeThem)
 {
+    /*
     if(removeThem) {
         QList<QPair<QString, QString> > idsToBeRemoved;
         foreach(const SyncDetails &sd, m_tmpUserDeleteRequest) {
@@ -510,10 +521,12 @@ void ZoteroUpload::removeFilesFromZotero(bool removeThem)
 
         cleanupAfterUpload();
     }
+    */
 }
 
 void ZoteroUpload::cleanupAfterUpload()
 {
+    /*
     calculateProgress(100);
 
     QList<QUrl> uris;
@@ -539,10 +552,12 @@ void ZoteroUpload::cleanupAfterUpload()
     else {
         emit finished();
     }
+    */
 }
 
 void ZoteroUpload::startAttachmentUpload()
 {
+    /*
     m_attachmentMode = true;
     kDebug() << "start attachment upload ...";
 
@@ -619,19 +634,23 @@ void ZoteroUpload::startAttachmentUpload()
     connect(m_wtz, SIGNAL(entryItemUpdated(QString,QString,QString)), this, SLOT(updateSyncDetailsToNepomuk(QString,QString,QString)));
 
     m_wtz->pushItems(itemsToPush, m_psd.collection);
+    */
 }
 
 void ZoteroUpload::cancel()
 {
+    /*
     m_cancel = true;
 
     if(m_wtz) {
         m_wtz->cancelUpload();
     }
+    */
 }
 
 void ZoteroUpload::updateSyncDetailsToNepomuk(const QString &id, const QString &etag, const QString &updated)
 {
+    /*
     //step 1 get Nepomuk resource
     QString query = "select DISTINCT ?r where {  "
                      "?r a sync:ServerSyncData . "
@@ -656,10 +675,12 @@ void ZoteroUpload::updateSyncDetailsToNepomuk(const QString &id, const QString &
     QVariantList lmValue; lmValue << updated;
     Nepomuk2::setProperty(ssdUri, SYNC::etag(), etagValue);
     Nepomuk2::setProperty(ssdUri, NUAO::lastModification(), lmValue);
+    */
 }
 
 void ZoteroUpload::writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated)
 {
+    /*
     // This one is only called when we upload data to the server
     // or if we fix a corrupted upload. (so we downloaded items we uploaded last time but couldn't add sync details before)
     // downloaded stuff is handled by the bibtexToNepomukPipe.cpp directly
@@ -747,6 +768,7 @@ void ZoteroUpload::writeNewSyncDetailsToNepomuk(Entry *localData, const QString 
         kWarning() << "could not new ServerSyncData" << srj->errorString();
         return;
     }
+    */
 }
 
 void ZoteroUpload::calculateProgress(int value)

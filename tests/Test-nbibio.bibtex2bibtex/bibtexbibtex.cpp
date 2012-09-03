@@ -21,8 +21,9 @@
 #include <kbibtex/element.h>
 #include <kbibtex/entry.h>
 
-#include "nbibio/nbibimporterbibtex.h"
-#include "nbibio/pipe/nepomuktobibtexpipe.h"
+#include "nbibio/bibtex/bibteximporter.h"
+#include "nbibio/bibtex/bibtexvariant.h"
+#include "nbibio/pipe/nepomuktovariantpipe.h"
 
 #include <Nepomuk2/ResourceManager>
 #include <Soprano/Model>
@@ -56,26 +57,15 @@ class BibtexBibtex: public QObject
 
 private slots:
 
-    void initTestCase();
     void importExportTest_data();
 
-    void init();
     void importExportTest();
     void cleanup();
 
     void cleanupTestCase();
-
-private:
-    NBibImporterBibTex *nbImBib;
-    NepomukToBibTexPipe *ntnp;
 };
 
 QTEST_MAIN(BibtexBibtex)
-
-void BibtexBibtex::initTestCase()
-{
-    // nothing to do here
-}
 
 void BibtexBibtex::importExportTest_data()
 {
@@ -83,19 +73,13 @@ void BibtexBibtex::importExportTest_data()
 
     QString testFileDir = TESTDATADIR + QLatin1String("/data");
 
+    QTest::newRow("generic standard bibtex") << QString("%1/generic_bibtex_single.bib").arg(testFileDir);
     QTest::newRow("generic standard bibtex") << QString("%1/generic_bibtex.bib").arg(testFileDir);
     QTest::newRow("generic extended bibtex") << QString("%1/generic_extended_bibtex.bib").arg(testFileDir);
-    QTest::newRow("generic zotero import") << QString("%1/generic_zotero.bib").arg(testFileDir);
     QTest::newRow("generic name import") << QString("%1/generic_names_bibtex.bib").arg(testFileDir);
+    QTest::newRow("generic zotero import") << QString("%1/generic_zotero.bib").arg(testFileDir);
+//    QTest::newRow("generic zotero import") << QString("%1/generic_zotero_extended.bib").arg(testFileDir);
 }
-
-void BibtexBibtex::init()
-{
-    // create importer
-    nbImBib = new NBibImporterBibTex;
-    ntnp = new NepomukToBibTexPipe;
-}
-
 
 void BibtexBibtex::importExportTest()
 {
@@ -109,14 +93,15 @@ void BibtexBibtex::importExportTest()
     QFETCH(QString, bibfile);
     QStringList errorReadFile;
 
-    nbImBib->readBibFile(bibfile, &errorReadFile);
+    BibTexImporter bti;
+    bti.readBibFile(bibfile, &errorReadFile);
 
     if(!errorReadFile.isEmpty()) {
         qWarning() << errorReadFile;
         QFAIL("Errors occurred while reading the bibfile");
     }
 
-    File *importedFile = nbImBib->bibFile();
+    File *importedFile = bti.bibFile();
     QVERIFY( importedFile != 0 );
 
     //######################################################################################
@@ -126,7 +111,7 @@ void BibtexBibtex::importExportTest()
     //######################################################################################
 
     QStringList errorImportData;
-    nbImBib->pipeToNepomuk(&errorImportData);
+    bti.pipeToNepomuk(&errorImportData);
 
     if(!errorReadFile.isEmpty()) {
         qWarning() << errorReadFile;
@@ -167,12 +152,15 @@ void BibtexBibtex::importExportTest()
     //#
     //######################################################################################
 
-    ntnp->addNepomukUries(false);
-    ntnp->pipeExport(references);
+    // Transform Nepomuk Resources to QVariantList
+    NepomukToVariantPipe ntvp;
+    ntvp.addNepomukUries(false);
+    ntvp.pipeExport(references);
 
-    File *exportedFile = ntnp->bibtexFile();
+    QVariantList list = ntvp.variantList();
+    File *exportedFile = BibTexVariant::fromVariant(list);
 
-    QCOMPARE( importedFile->size(), exportedFile->size() );
+    QCOMPARE( exportedFile->size(), importedFile->size() );
 
     //######################################################################################
     //#
@@ -209,7 +197,7 @@ void BibtexBibtex::importExportTest()
                     Value importedValue = entryImport->value(i.key());
                     Value exportedValue = entryExport->value(i.key());
 
-                    // some special cases with person/keywords, as alue contains multiple valueitems where the order is not equal
+                    // some special cases with person/keywords, as value contains multiple valueitems where the order is not equal
                     if(i.key() == QString("keywords") || i.key() == QString("author") || i.key() == QString("editor")) {
                         foreach(QSharedPointer<ValueItem> vi, importedValue) {
                             if(!exportedValue.containsPattern( PlainTextValue::text(*vi.data()) )) {
@@ -250,9 +238,6 @@ void BibtexBibtex::cleanup()
         qWarning() << job->errorString();
         QFAIL("Cleanup did not work");
     }
-
-    delete nbImBib;
-    delete ntnp;
 }
 
 void BibtexBibtex::cleanupTestCase()
@@ -261,13 +246,13 @@ void BibtexBibtex::cleanupTestCase()
     // but just in case
 
     // remove all data created by this unittest from the nepomuk database again
-    KJob *job = Nepomuk2::removeDataByApplication();
-    if(!job->exec()) {
-        qWarning() << job->errorString();
-        QFAIL("Cleanup did not work");
-    }
+//    KJob *job = Nepomuk2::removeDataByApplication();
+//    if(!job->exec()) {
+//        qWarning() << job->errorString();
+//        QFAIL("Cleanup did not work");
+//    }
 }
 
-#include "nepomukbibtex.moc"
+#include "bibtexbibtex.moc"
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Jörg Ehrichs <joerg.ehichs@gmx.de>
+ * Copyright 2012 Jörg Ehrichs <joerg.ehrichs@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,36 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "nbibimporter.h"
+#ifndef BIBTEXTOVARIANT_H
+#define BIBTEXTOVARIANT_H
 
-#include <KDE/KLocalizedString>
+#include <QObject>
+#include <QVariantMap>
 
-#include <QtCore/QFile>
-#include <QtCore/QIODevice>
+class File;
+class Entry;
 
-NBibImporter::NBibImporter()
-    : QObject(0)
-    , m_cancel(false)
+class BibTexVariant : public QObject
 {
-}
+    Q_OBJECT
+public:
+    static QVariantList toVariant(const File &bibtexFile);
+    static QVariantMap entryToMap(const Entry *e, QMap<QString, QString> lookup);
 
-NBibImporter::~NBibImporter()
-{
-}
+    static File *fromVariant(const QVariantList &bibtexList);
+};
 
-bool NBibImporter::fromFile(QString fileName, QStringList *errorLog)
-{
-    QFile bibFile(fileName);
-    if (!bibFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QString error = i18n("can't open file %1", fileName);
-        errorLog->append(error);
-        return false;
-    }
-
-    return load(&bibFile, errorLog);
-}
-
-void NBibImporter::cancel()
-{
-    m_cancel=true;
-}
+#endif // BIBTEXTOVARIANT_H

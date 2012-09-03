@@ -44,7 +44,7 @@
 
 #include <KDE/KDebug>
 
-QStringList concurrentExport(NBibExporter *exporter, const QString &fileName, QList<Nepomuk2::Resource> resources)
+QStringList concurrentExport(BibTexExporter *exporter, const QString &fileName, QList<Nepomuk2::Resource> resources)
 {
     QStringList errorLog;
     exporter->toFile(fileName, resources, &errorLog);
@@ -55,7 +55,7 @@ QStringList concurrentExport(NBibExporter *exporter, const QString &fileName, QL
 BibTexExportDialog::BibTexExportDialog(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::BibTexExportDialog)
-    , m_selectedFileType(NBibExporterFile::EXPORT_BIBTEX)
+    , m_selectedFileType(BibTexExporter::EXPORT_BIBTEX)
     , m_libraryManager(0)
     , m_importLibrary(0)
     , m_exporter(0)
@@ -71,7 +71,7 @@ BibTexExportDialog::BibTexExportDialog(QWidget *parent)
     connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(queryFinished()));
 }
 
-void BibTexExportDialog::setInitialFileType(NBibExporterFile::FileType selectedFileType)
+void BibTexExportDialog::setInitialFileType(BibTexExporter::FileType selectedFileType)
 {
     m_selectedFileType = selectedFileType;
 
@@ -131,8 +131,8 @@ void BibTexExportDialog::accept()
     m_progress->show();
     m_progress->setFocus();
 
-    m_selectedFileType = NBibExporterFile::FileType(ui->selectedFileType->currentIndex());
-    m_exporter = new NBibExporterFile;
+    m_selectedFileType = BibTexExporter::FileType(ui->selectedFileType->currentIndex());
+    m_exporter = new BibTexExporter;
 
     m_exporter->setFileType(m_selectedFileType);
     connect(m_exporter, SIGNAL(progress(int)), m_progress->progressBar(), SLOT(setValue(int)));

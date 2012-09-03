@@ -20,7 +20,8 @@
 #include "core/library.h"
 #include "core/projectsettings.h"
 
-#include "pipe/bibtextonepomukpipe.h"
+#include "bibtex/bibtexvariant.h"
+#include "pipe/varianttonepomukpipe.h"
 
 #include "onlinestorage/zotero/zoteroinfo.h"
 #include "onlinestorage/zotero/readfromzotero.h"
@@ -109,6 +110,7 @@ void ZoteroDownload::setCorruptedUploadEntries(File *corruptedOnUpload)
 
 void ZoteroDownload::startDownload()
 {
+    /*
     Q_ASSERT( m_systemLibrary != 0);
 
     m_currentStep = 0;
@@ -132,10 +134,12 @@ void ZoteroDownload::startDownload()
     //lets start by retrieving all items from the server and merge them with the current data
     connect(m_rfz, SIGNAL(finished()), this, SLOT(readDownloadSync()));
     m_rfz->fetchItems(m_psd.collection);
+    */
 }
 
 void ZoteroDownload::readDownloadSync()
 {
+    /*
     m_bibCache = m_rfz->getFile();
 
     if(m_cancel) { finishAndCleanUp(); return; }
@@ -185,10 +189,12 @@ void ZoteroDownload::readDownloadSync()
         // default is to delete the resource or remove the isRelated connection
         deleteLocalFiles(true);
     }
+    */
 }
 
 void ZoteroDownload::readDownloadSyncAfterDelete()
 {
+    /*
     m_newEntries = new File;
     QList<Nepomuk2::Resource> existingItems;
 
@@ -258,10 +264,12 @@ void ZoteroDownload::readDownloadSyncAfterDelete()
     else {
         mergeFinished();
     }
+    */
 }
 
 void ZoteroDownload::downloadNextAttachment()
 {
+    /*
     // if we have nothing to download anymore, proceed
     if(m_newEntriesToDownload->isEmpty()) {
         if(m_tmpUserMergeRequest.size() > 0) {
@@ -319,10 +327,12 @@ void ZoteroDownload::downloadNextAttachment()
     connect(m_downloadReply, SIGNAL(finished()),this, SLOT(attachmentDownloadFinished()));
     connect(m_downloadReply, SIGNAL(readyRead()),this, SLOT(attachmentReadyRead()));
     connect(m_downloadReply, SIGNAL(downloadProgress(qint64,qint64)),this, SLOT(updateDataReadProgress(qint64,qint64)));
+    */
 }
 
 void ZoteroDownload::attachmentDownloadFinished()
 {
+    /*
     if(m_cancel) {
         if (m_attachmentFile) {
             m_attachmentFile->close();
@@ -403,10 +413,12 @@ void ZoteroDownload::attachmentDownloadFinished()
     delete btnp;
 
     downloadNextAttachment();
+    */
 }
 
 void ZoteroDownload::attachmentReadyRead()
 {
+    /*
     // this slot gets called every time the QNetworkReply has new data.
     // We read all of its new data and write it into the file.
     // That way we use less RAM than when reading it at the finished()
@@ -418,16 +430,18 @@ void ZoteroDownload::attachmentReadyRead()
     if(m_cancel) {
         m_downloadReply->abort();
     }
+    */
 }
 
 void ZoteroDownload::updateDataReadProgress(qint64 bytesReceived,qint64 bytesTotal)
 {
-    qreal percent = (100.0/(qreal)bytesTotal) * (qreal)bytesReceived;
+    //qreal percent = (100.0/(qreal)bytesTotal) * (qreal)bytesReceived;
     //kDebug() << "downloaded" << percent;
 }
 
 void ZoteroDownload::startAttachmentDownload()
 {
+    /*
     m_attachmentMode = true;
 
     kDebug() << "start attachment Download";
@@ -448,10 +462,12 @@ void ZoteroDownload::startAttachmentDownload()
     //lets start by retrieving all items from the server and merge them with the current data
     connect(m_rfz, SIGNAL(finished()), this, SLOT(readDownloadSync()));
     m_rfz->fetchItems(m_psd.collection);
+    */
 }
 
 void ZoteroDownload::deleteLocalFiles(bool deleteThem)
 {
+    /*
     // step 3 delete either some local resources or the sync part to upload it again
     m_currentStep++;
     if(deleteThem)
@@ -543,10 +559,12 @@ void ZoteroDownload::deleteLocalFiles(bool deleteThem)
 
     calculateProgress(100);
     readDownloadSyncAfterDelete();
+    */
 }
 
 void ZoteroDownload::mergeFinished()
 {
+    /*
     //Step 6 merge finished
     m_currentStep++;
     calculateProgress(100);
@@ -563,25 +581,29 @@ void ZoteroDownload::mergeFinished()
     else {
         finishAndCleanUp();
     }
+    */
 }
 
 void ZoteroDownload::cancel()
 {
+    /*
     m_cancel = true;
 
     if(m_rfz)
         m_rfz->cancelDownload();
+        */
 }
 
 void ZoteroDownload::finishAndCleanUp()
 {
-    calculateProgress(100);
-    kDebug() << "finishAndCleanUp";
-    emit finished();
+//    calculateProgress(100);
+//    kDebug() << "finishAndCleanUp";
+//    emit finished();
 }
 
 void ZoteroDownload::writeNewSyncDetailsToNepomuk(Entry *localData, const QString &id, const QString &etag, const QString &updated)
 {
+    /*
     // This one is only called when we upload data to the server
     // or if we fix a corrupted upload. (so we downloaded items we uploaded last time but couldn't add sync details before)
     // downloaded stuff is handled by the bibtexToNepomukPipe.cpp directly
@@ -669,10 +691,12 @@ void ZoteroDownload::writeNewSyncDetailsToNepomuk(Entry *localData, const QStrin
         kWarning() << "could not new ServerSyncData" << srj->errorString();
         return;
     }
+    */
 }
 
 void ZoteroDownload::findRemovedEntries()
 {
+    /*
     // ok here we ask nepomuk to give us all sync:ServerSyncData resources that have a publication that is related
     // the the current "project in use" and is valid for the current zotero sync object
     // but has not a zoteroKey that is in the list of key from the "zoteroData" file
@@ -731,10 +755,12 @@ void ZoteroDownload::findRemovedEntries()
 
     // nothing to return
     // userDeleteRequest has all the resources we operate on in the next step
+    */
 }
 
 void ZoteroDownload::findDuplicates(QList<Nepomuk2::Resource> &existingItems)
 {
+    /*
     // for each downloaded item from zotero we try to find the item in the local storage
     // we can itentify this via the unique zotero Key
 
@@ -851,10 +877,12 @@ void ZoteroDownload::findDuplicates(QList<Nepomuk2::Resource> &existingItems)
 
     curProgress += percentPerFile;
     calculateProgress(curProgress);
+    */
 }
 
 void ZoteroDownload::fixCorrputedUpload()
 {
+    /*
     qreal curProgress = 0.0;
     qreal percentPerFile = 100.0/(qreal)m_bibCache->size();
 
@@ -932,10 +960,12 @@ void ZoteroDownload::fixCorrputedUpload()
     if(entriesFound != m_corruptedUploads->size()) {
         qWarning() << "could not update all corrupted entries from the last update :: " << m_corruptedUploads->size() - entriesFound << "are missing";
     }
+    */
 }
 
 void ZoteroDownload::fixMergingAutomatically()
 {
+    /*
     BibTexToNepomukPipe mergePipe;
     mergePipe.setSyncDetails(m_psd.url, m_psd.userName);
 
@@ -954,12 +984,14 @@ void ZoteroDownload::fixMergingAutomatically()
     }
 
     m_tmpUserMergeRequest.clear();
+    */
 }
 
 // small helper function to sort all bibtex entries that have a zoteroparent key to the end of the list
 // so we are sure that the parent item was created first
 bool childItemsLast(const QSharedPointer<Element> &s1, const QSharedPointer<Element> &s2)
 {
+
     Entry *entryS1 = dynamic_cast<Entry *>(s1.data());
     bool S1hasParent = entryS1->contains(QLatin1String("zoteroparent"));
 
@@ -967,10 +999,12 @@ bool childItemsLast(const QSharedPointer<Element> &s1, const QSharedPointer<Elem
         return false;
     else
         return true;
+
 }
 
 void ZoteroDownload::importNewResources()
 {
+    /*
     BibTexToNepomukPipe *btnp = new BibTexToNepomukPipe;
 
     if(m_libraryToSyncWith->libraryType() == Library_Project) {
@@ -1000,10 +1034,12 @@ void ZoteroDownload::importNewResources()
     delete btnp;
     delete m_newEntries;
     m_newEntries = 0;
+    */
 }
 
 void ZoteroDownload::importNewAttachments()
 {
+    /*
     m_newEntriesToDownload = new File;
 
     // now we check the returned fileinfo from zotero
@@ -1053,15 +1089,16 @@ void ZoteroDownload::importNewAttachments()
         delete m_newEntries;
         m_newEntries = 0;
     }
+    */
 }
 
 void ZoteroDownload::calculateProgress(int value)
 {
-    qreal curProgress = ((qreal)value * 1.0/m_syncSteps);
+//    qreal curProgress = ((qreal)value * 1.0/m_syncSteps);
 
-    curProgress += (qreal)(100.0/m_syncSteps) * m_currentStep;
+//    curProgress += (qreal)(100.0/m_syncSteps) * m_currentStep;
 
 //    kDebug() << curProgress << m_syncSteps << m_currentStep;
 
-    emit progress(curProgress);
+//    emit progress(curProgress);
 }

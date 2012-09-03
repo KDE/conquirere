@@ -1,6 +1,6 @@
 format 74
 "conquirere"
-  revision 1
+  revision 2
   modified_by 4 "joerg"
 
 
@@ -37,4 +37,6 @@ format 74
   mark_for_import
   
   package_ref 128132 // core
+
+  package_ref 135044 // nbibio
 end

@@ -1,0 +1,116 @@
+format 74
+
+classcanvas 128004 class_ref 136452 // BibFileImporter
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 614 142 2000
+end
+classcanvas 128132 class_ref 136580 // BibTexImporter
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 613 218 2000
+end
+classcanvas 128388 class_ref 136708 // BibTexVariant
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 530 298 2000
+end
+classcanvas 128644 class_ref 136836 // PublicationPipe
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 784 221 2000
+end
+classcanvas 128772 class_ref 136964 // NepomukPipe
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 791 143 2000
+end
+fragment 129028 "MetadataExtractor"
+  xyzwh 767 100 2005 168 188
+end
+classcanvas 129284 class_ref 137092 // BibFileExporter
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 477 143 2000
+end
+classcanvas 129412 class_ref 137220 // BibTexExporter
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 477 217 2000
+end
+classcanvas 129796 class_ref 137348 // VariantPipe
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 126 121 2000
+end
+note 130052 "Transforms:
+BibTeX <-> QVariantList"
+  xyzwh 509 357 2000 185 63
+note 130308 "Imports QVariantList into Nepomuk"
+  xyzwh 766 321 2000 161 63
+note 130564 "Exports Nepomuk to QVariantList"
+  xyzwh 303 285 2000 151 61
+classcanvas 131076 class_ref 137476 // NepomukExporter
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 308 218 2006
+end
+classcanvas 131460 class_ref 137604 // ClipboardPipe
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 49 217 2000
+end
+classcanvas 131716 class_ref 137732 // KyleLyxPipe
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 183 218 2011
+end
+note 131972 "Pipes QVariantList to something else"
+  xyzwh 257 110 2000 151 61
+relationcanvas 128260 relation_ref 136196 // <generalisation>
+  from ref 128132 z 2001 to ref 128004
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 128516 relation_ref 136324 // <dependency>
+  decenter_begin 305
+  decenter_end 851
+  from ref 128132 z 2001 to ref 128388
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 128900 relation_ref 136452 // <generalisation>
+  from ref 128644 z 2001 to ref 128772
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 129156 relation_ref 136580 // <dependency>
+  from ref 128132 z 2001 to ref 128644
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 129540 relation_ref 136708 // <dependency>
+  decenter_begin 691
+  decenter_end 226
+  from ref 129412 z 2001 to ref 128388
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 129668 relation_ref 136836 // <generalisation>
+  from ref 129412 z 2001 to ref 129284
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 131204 relation_ref 137220 // <dependency>
+  from ref 129412 z 2007 to ref 131076
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 131588 relation_ref 137348 // <generalisation>
+  from ref 131460 z 2001 to ref 129796
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 131844 relation_ref 137476 // <generalisation>
+  from ref 131716 z 2012 to ref 129796
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+line 130180 -_-_
+  from ref 130052 z 2001 to ref 128388
+line 130436 -_-_
+  from ref 130308 z 2001 to ref 128644
+line 131332 -_-_
+  from ref 130564 z 2007 to ref 131076
+line 132100 -_-_
+  from ref 131972 z 2001 to ref 129796
+end
