@@ -92,7 +92,7 @@ sync: {
     sync:etag
           a       rdf:Property ;
           rdfs:domain sync:ServerSyncData ;
-          rdfs:comment "Special hash to denote if teh item was manipulated on the server since last sync" ;
+          rdfs:comment "Special hash to denote if the item was manipulated on the server since last sync" ;
           rdfs:label "etag" ;
           rdfs:range xsd:string ;
           nrl:cardinality 1 ;

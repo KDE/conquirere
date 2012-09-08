@@ -67,7 +67,7 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>Here you can select all categories that hsould be hidden in the program. Hidden categories will not be listed in the project view, displayed in the resource view or be available on resource creation.</string>
+          <string>Here you can select all categories that should be hidden in the program. Hidden categories will not be listed in the project view, displayed in the resource view or be available on resource creation.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>

@@ -274,7 +274,7 @@ void FileObjectEditDialog::openUrlSelectionDialog()
     QString selectedUrl;
 
     if( ui->editType->currentIndex() == 2) {
-        selectedUrl = KInputDialog::getText(i18n("Enter website url"),i18n("Please enter the url of the webseite you want to add"),
+        selectedUrl = KInputDialog::getText(i18n("Enter website url"),i18n("Please enter the url of the website you want to add"),
                                     ui->editUrl->fullText());
     }
     else {

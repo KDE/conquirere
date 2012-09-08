@@ -698,7 +698,7 @@ void ZoteroDownload::findRemovedEntries()
 {
     /*
     // ok here we ask nepomuk to give us all sync:ServerSyncData resources that have a publication that is related
-    // the the current "project in use" and is valid for the current zotero sync object
+    // the current "project in use" and is valid for the current zotero sync object
     // but has not a zoteroKey that is in the list of key from the "zoteroData" file
 
     // this means we have more sync objects than returned from the server and thus these elements must be removed locally

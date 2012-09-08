@@ -886,7 +886,7 @@ void NepomukToVariantPipe::setSyncDetails(Nepomuk2::Resource publication)
         syncDataType = SYNC::Attachment();
     }
 
-    // only add the sync details the the right storage
+    // only add the sync details the right storage
     foreach(const Nepomuk2::Resource &r, sycList) {
         if(r.property(SYNC::provider()).toString() != QString("zotero")) { //TODO: make this possible for others too
             continue;

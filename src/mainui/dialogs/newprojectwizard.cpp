@@ -154,7 +154,7 @@ SyncPage::SyncPage(QWidget *parent)
     m_syncWithFolder->setCheckable(true);
     m_syncWithFolder->setChecked(false);
     m_syncWithFolder->setTitle(i18n("Use folder on disk"));
-    m_syncWithFolder->setToolTip(i18n("Connects all documents in this folder automatically to the project and saves the pfoject settings there"));
+    m_syncWithFolder->setToolTip(i18n("Connects all documents in this folder automatically to the project and saves the project settings there"));
     registerField("syncWithFolder", m_syncWithFolder);
 
     QVBoxLayout *groupBoxLayout = new QVBoxLayout(m_syncWithFolder);

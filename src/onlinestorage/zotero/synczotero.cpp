@@ -129,7 +129,7 @@ void SyncZotero::readSync(const File &serverFiles)
     }
 
     if(m_psd.askBeforeDeletion && !toBeDeleted.isEmpty()) {
-        int ret = KMessageBox::warningYesNo(0,i18n("%1 items are deleted on the server.\n\nDo you want to delete them locally too?.\nOtherwise they will be uploaded again.", toBeDeleted.size()));
+        int ret = KMessageBox::warningYesNo(0,i18n("%1 items are deleted on the server.\n\nDo you want to delete them locally too?\nOtherwise they will be uploaded again.", toBeDeleted.size()));
 
         if(ret == KMessageBox::Yes) {
             foreach(QSharedPointer<Element> e, toBeDeleted) {

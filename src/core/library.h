@@ -159,7 +159,7 @@ public:
 private slots:
     /**
      * @brief Small helper function to print the error string when the nepomuk DMS call failed
-     * @param job the Nepomuk job for teh DMS call
+     * @param job the Nepomuk job for the DMS call
      */
     void nepomukDMSfinishedInfo(KJob *job);
 

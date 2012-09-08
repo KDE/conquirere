@@ -135,7 +135,7 @@ public:
 
     /**
      * Get property http://www.example.com/sync#etag. Special 
-     * hash to denote if teh item was manipulated on the server since 
+     * hash to denote if the item was manipulated on the server since 
      * last sync 
      */
     QString etag() const {
@@ -147,7 +147,7 @@ public:
 
     /**
      * Set property http://www.example.com/sync#etag. Special 
-     * hash to denote if teh item was manipulated on the server since 
+     * hash to denote if the item was manipulated on the server since 
      * last sync 
      */
     void setEtag(const QString& value) {
@@ -158,7 +158,7 @@ public:
 
     /**
      * Add value to property http://www.example.com/sync#etag. 
-     * Special hash to denote if teh item was manipulated on the server 
+     * Special hash to denote if the item was manipulated on the server 
      * since last sync 
      */
     void addEtag(const QString& value) {

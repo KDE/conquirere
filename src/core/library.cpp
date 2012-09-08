@@ -169,7 +169,7 @@ QString Library::createIniFile(Nepomuk2::Resource &pimoProject, const QString & 
     iniFileSimpleResource.addType(NIE::InformationElement());
     QString settingsFileName = QLatin1String("file://") + iniFile;
     iniFileSimpleResource.setProperty( NIE::url(), settingsFileName );
-    iniFileSimpleResource.setProperty( NIE::title(), i18n("Conquirer settings for project: %1", pimoProject.property( NAO::prefLabel()).toString()) );
+    iniFileSimpleResource.setProperty( NIE::title(), i18n("Conquirere settings for project: %1", pimoProject.property( NAO::prefLabel()).toString()) );
 
     graph << iniFileSimpleResource;
 

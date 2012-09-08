@@ -257,7 +257,7 @@ void MainWindow::switchView(ResourceSelection selection, BibEntryType filter, Li
         m_documentPreview->clear();
     }
     // This shows the normal table view with all the data
-    // the contend is based on teh users selection from te hgiven values of this function
+    // the contend is based on the users selection from the given values of this function
     else {
         m_tableWidget->show();
 

@@ -26,7 +26,7 @@
 /**
   * @brief pipe the current entry to @c LyX or @c Kile
   *
-  * The path for the pipe file has to be set in teh settings first
+  * The path for the pipe file has to be set in the settings first
   */
 class KileLyxPipe : public QObject
 {

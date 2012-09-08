@@ -44,10 +44,10 @@ void ItemDeleteDialog::setItems(QList<SyncDetails> items)
 {
     switch(m_mode) {
     case LocalDelete:
-        ui->infoLabel->setText(i18n("%1 items are deleted on the server.\n\nDo you want to delete them locally too?.\nOtherwise they will be uploaded again with the next sync.", items.size()));
+        ui->infoLabel->setText(i18n("%1 items are deleted on the server.\n\nDo you want to delete them locally too?\nOtherwise they will be uploaded again with the next sync.", items.size()));
         break;
     case ServerDelete:
-        ui->infoLabel->setText(i18n("%1 items are deleted locally.\n\nDo you want to delete them on the server too?.\nOtherwise they will be downloaded again with the next sync.", items.size()));
+        ui->infoLabel->setText(i18n("%1 items are deleted locally.\n\nDo you want to delete them on the server too?\nOtherwise they will be downloaded again with the next sync.", items.size()));
         break;
     case ServerGroupRemoval:
         ui->infoLabel->setText(i18n("%1 items are removed from the local project.\n\nDo you want to remove them from the server group too?.\nOtherwise they will be attached to the group again with the next sync.", items.size()));

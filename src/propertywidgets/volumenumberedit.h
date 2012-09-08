@@ -25,7 +25,7 @@
   *
   * Also we handle special cases for the @c nbib:CodeOfLaw and @c nbib:CourtReporter
   *
-  * This means even when we show the the Publication resource we can add this edit and manipulate the right collections
+  * This means even when we show the Publication resource we can add this edit and manipulate the right collections
   * instead of the publication when we change values in the widget,
   *
   * Shows manipulates either @c nbib:volume or @c nbib:numer depending on the propertyUrl()

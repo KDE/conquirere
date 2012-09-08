@@ -128,7 +128,7 @@ ItemMergeDialog::ItemMergeDialog(QWidget *parent)
     m_keyTranslate.insert(QLatin1String("biburl"), i18n("Abstract"));
     m_keyTranslate.insert(QLatin1String("bibsource"), i18n("BibURL"));
     m_keyTranslate.insert(QLatin1String("ee"), i18n("ee"));
-    m_keyTranslate.insert(QLatin1String("address"), i18n("Addrerss"));
+    m_keyTranslate.insert(QLatin1String("address"), i18n("Address"));
     m_keyTranslate.insert(QLatin1String("year"), i18n("Year"));
     m_keyTranslate.insert(QLatin1String("keywords"), i18n("Keywords"));
     m_keyTranslate.insert(QLatin1String("assignee"), i18n("Assignee"));

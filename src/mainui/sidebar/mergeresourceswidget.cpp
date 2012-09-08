@@ -220,7 +220,7 @@ void MergeResourcesWidget::merge()
         itemList << r.genericLabel();
     }
 
-    QString selectedMainResource = KInputDialog::getItem(i18n("Merge Resources"), i18n("Select sthe reource where all others should be merged into"), itemList);
+    QString selectedMainResource = KInputDialog::getItem(i18n("Merge Resources"), i18n("Select the resource where all others should be merged into"), itemList);
 
     if(selectedMainResource.isEmpty()) {
         return;

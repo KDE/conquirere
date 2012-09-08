@@ -122,7 +122,7 @@ private:
       *
       * All those keys that are available locally but not online, are deleted and have to be deleted locally too
       *
-      * fills m_tmpUserDeleteRequest if the list is not empty the signal askForDeletion() is called if teh user whants that
+      * fills m_tmpUserDeleteRequest if the list is not empty the signal askForDeletion() is called if the user whants that
       */
     void findRemovedEntries();
 

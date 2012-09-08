@@ -56,8 +56,8 @@ class File;
   * Any reference/publication that is synced with a storage has it @c sync:ServerSyncData when the reference/publication is deleted
   * by conquirere or any other program the @c sync:ServerSyncData is still there but without a valid reference/publication
   *
-  * Now when we download data from te hserver and check for teh duplicates, we find the @c sync:ServerSyncData and see that the ref/pub was deleted
-  * We know now teh user wanted to delete it (remove it from teh group) and we do not import this entyr again. Instead we
+  * Now when we download data from te hserver and check for the duplicates, we find the @c sync:ServerSyncData and see that the ref/pub was deleted
+  * We know now teh user wanted to delete it (remove it from the group) and we do not import this entyr again. Instead we
   * will delete it from the server side as soon as the next upload happens.
   *
   */

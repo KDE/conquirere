@@ -544,7 +544,7 @@ void ListPartsWidget::deleteFromSeries(Nepomuk2::Resource  publication)
 void ListPartsWidget::addToCollection()
 {
     // create temp Resource via DMS
-    // if teh user clikcs cancel in teh next dialog, the resource will be deleted again
+    // if teh user clikcs cancel in the next dialog, the resource will be deleted again
     Nepomuk2::SimpleResourceGraph graph;
     Nepomuk2::NBIB::Article tempArticle;
 

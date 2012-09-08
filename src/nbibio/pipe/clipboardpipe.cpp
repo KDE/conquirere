@@ -43,7 +43,7 @@ void ClipboardPipe::pipeExport(const QVariantList & bibEntries)
     QString text;
     switch(m_exportType) {
 
-    // export all citekeys with the specified modifier from teh settings. The modifier are used for LaTeX formating
+    // export all citekeys with the specified modifier from the settings. The modifier are used for LaTeX formatting
     case Export_CITEKEY: {
         foreach(const QVariant &entry, bibEntries) {
             QVariantMap entryMap = entry.toMap();
@@ -136,7 +136,7 @@ void ClipboardPipe::pipeExport(QList<Nepomuk2::Resource> resources)
     QString text;
     switch(m_exportType) {
 
-    // export all citekeys with the specified modifier from teh settings. The modifier are used for LaTeX formating
+    // export all citekeys with the specified modifier from the settings. The modifier are used for LaTeX formatting
     case Export_CITEKEY: {
         foreach(const Nepomuk2::Resource &entry, resources) {
             QString citeKey = entry.property(Nepomuk2::Vocabulary::NBIB::citeKey()).toString();

@@ -365,7 +365,7 @@ void WriteToZotero::requestFinished()
         // well was an error but if this came from an itemCreation request it was very likely the
         // 299 "Error downloading https://.... - server replied: Internal Server Error"
         // means .. the items are stored successfully on the server but we did not get the server details
-        // back. Thats bad, as we can't add teh sync information to these files
+        // back. Thats bad, as we can't add the sync information to these files
         // so on the next sync we will create duplications ... >_<
 
         // none the less if we have more items to send, send them and hope for the best
