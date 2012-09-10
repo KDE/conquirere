@@ -575,6 +575,9 @@ void MainWindow::setupMainWindow()
     connect(m_tableWidget, SIGNAL(selectedResource(Nepomuk2::Resource&, bool)),
             m_sidebarWidget, SLOT(setResource(Nepomuk2::Resource&)));
 
+    connect(m_tableWidget, SIGNAL(selectedResource(SearchResultModel::SRCachedRowEntry,bool)),
+            m_sidebarWidget, SLOT(setResource(SearchResultModel::SRCachedRowEntry)));
+
     connect(m_tableWidget, SIGNAL(selectedMultipleResources(QList<Nepomuk2::Resource>)),
             m_sidebarWidget, SLOT(setMultipleResources(QList<Nepomuk2::Resource>)));
 

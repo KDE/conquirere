@@ -20,7 +20,7 @@
 
 #include <QtCore/QObject>
 
-#include <kbibtex/entry.h>
+#include "core/models/searchresultmodel.h"
 #include <Nepomuk2/Resource>
 
 #include <QtCore/QSharedPointer>
@@ -37,7 +37,7 @@ public:
     explicit TableViewMenu(QObject *parent = 0);
 
     void showNepomukEntryMenu(Nepomuk2::Resource resource);
-    void showBibTeXEntryMenu(QSharedPointer<Entry> entry);
+    void showWebResultEntryMenu(const SearchResultModel::SRCachedRowEntry & entry);
     void setLibraryManager(LibraryManager *lm);
 
     signals:
@@ -58,7 +58,7 @@ public slots:
 private:
     LibraryManager *m_libraryManager;
     Nepomuk2::Resource m_nepomukResource;
-    QSharedPointer<Entry> m_bibtexEntry;
+    SearchResultModel::SRCachedRowEntry m_webResultEntry;
 };
 
 #endif // TABLEVIEWMENU_H

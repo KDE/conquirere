@@ -20,46 +20,40 @@
 
 #include "globals.h"
 
-#include <Nepomuk2/Query/Result>
 #include <KDE/KIcon>
 
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QList>
 #include <QtCore/QString>
-#include <QtCore/QMetaType>
 
 class Entry;
-class FileExporterXSLT;
-class OnlineSearchAbstract;
 
 /**
-  * @brief Holds the date for one search entry as retrieved from the @c SearchWidget
-  */
-struct SearchResultEntry {
-    Nepomuk2::Query::Result nepomukResult; /**< The valid resource if the result was found in the nepomuk storage */
-    OnlineSearchAbstract *webEngine;      /**< The OnlineSearch Engine details if the result comes from a websearch */
-    QSharedPointer<Entry> webResult;      /**< The BibTeX entry if the result comes from a websearch */
-};
-
-Q_DECLARE_METATYPE(SearchResultEntry)
-
-/**
-  * @brief Model to list all the serach results from the KBibTeX websearch
+  * @brief Model to list all the search results from Nepomuk and the WebExtractor
   *
   * Unlike most other TableModels this one does not get its data from nepomuk.
-  * Instead this ListModel will be populated by the Websearch widget and each
-  * KBibTeX file parsed with a simple citation style xsl file.
+  * Instead this ListModel will be populated by the SearchWidget
   *
-  * @see FileExporterXSLT
   * @see HtmlDelegate
   * @see SearchWidget
   *
-  * @todo make the citation.xsl file configurable
   */
 class SearchResultModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
+    enum BibTeXColumnList {
+        Column_StarRate,
+        Column_EngineIcon,
+        Column_EntryType,
+        Column_Details,
+        Column_Name,
+        Column_Author,
+        Column_Date,
+
+        Max_columns
+    };
+
     /**
       * @brief Holds the cached processed table data for one search row
       *
@@ -69,8 +63,12 @@ public:
         QVariantList displayColums;
         QVariantList decorationColums;
         QVariantList toolTipColums;
+         // for nepomuk results
         Nepomuk2::Resource resource;
-        QSharedPointer<Entry> entry;
+         // for web results
+        QUrl detailsurl;
+        QString engineId;
+        QString engineScript;
     };
 
     explicit SearchResultModel(QObject *parent = 0);
@@ -95,41 +93,37 @@ public:
     QList<int> fixedWithSections() const;
 
     /**
-      * @return the resource for the current search entry or an invalid resource if it contains a BibTeX entry
+      * @return the resource for the current search entry or an invalid resource if it contains a Webresult entry
       */
     Nepomuk2::Resource nepomukResourceAt(const QModelIndex &selection);
 
     /**
-      * @return the BibTeX entry for the current search entry or an invalid sharedpointer if it contains a Nepomuk Resource
+      * @return return the entry for the web search result for the current row
       */
-    QSharedPointer<Entry> bibTeXResourceAt(const QModelIndex &selection);
+    SearchResultModel::SRCachedRowEntry webResultAt(const QModelIndex &selection);
 
 public slots:
     void clearData();
-    void addSearchResult(SearchResultEntry newEntry);
+    void addSearchResult(const QVariantList &searchResult);
 
 private:
-    QVariantList createDisplayData(const Nepomuk2::Query::Result & nepomukResult) const;
-    QVariantList createDecorationData(const Nepomuk2::Query::Result & nepomukResult) const;
-    QVariantList createToolTipData(const Nepomuk2::Query::Result & nepomukResult) const;
-    QVariantList createDisplayData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const;
-    QVariantList createDecorationData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const;
-    QVariantList createToolTipData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const;
+    QVariantList createDisplayData(const QVariantMap &entryMap) const;
+    QVariantList createDecorationData(const QVariantMap &entryMap) const;
+    QVariantList createToolTipData(const QVariantMap &entryMap) const;
 
     /**
       * Generates a Translated string for the type of the nepomuk resource document from the entry
       */
-    QString translateEntryType(const Nepomuk2::Resource & resource) const;
+    QString translateEntryType(const QString &typeList) const;
 
     /**
       * Generates an Icon for the mimetype of the entry that is being displayed
       *
       * @todo find better icons based on mimetype from nepomuk or the url extension rather than using a fixed generic icon
       */
-    KIcon iconizeEntryType(const Nepomuk2::Resource & resource) const;
+    KIcon iconizeEntryType(const QString &typeList, const QString &url) const;
 
     QList<SRCachedRowEntry> m_modelCacheData;
-    FileExporterXSLT *m_exporterXSLT;
 };
 
 #endif // SEARCHRESULTMODEL_H

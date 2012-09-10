@@ -22,6 +22,8 @@
 
 #include <Nepomuk2/Resource>
 
+#include "core/models/searchresultmodel.h"
+
 #include <QtGui/QWidget>
 #include <QtGui/QItemSelection>
 
@@ -55,6 +57,8 @@ public:
 
 signals:
     void selectedResource(Nepomuk2::Resource & nr, bool);
+    void selectedResource(const SearchResultModel::SRCachedRowEntry & nr, bool);
+
     void selectedMultipleResources(QList<Nepomuk2::Resource> resourceList);
 
 public slots:

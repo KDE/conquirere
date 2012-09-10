@@ -111,6 +111,13 @@ void SidebarWidget::setResource(Nepomuk2::Resource & resource)
     }
 }
 
+void SidebarWidget::setResource(SearchResultModel::SRCachedRowEntry webResult)
+{
+    if(m_currentWidget == m_searchResultInfoWidget) {
+        m_searchResultInfoWidget->setResource(webResult);
+    }
+}
+
 void SidebarWidget::setMultipleResources(QList<Nepomuk2::Resource> resourcelist)
 {
     m_stackedLayout->setCurrentWidget(m_mergeWidget);

@@ -20,6 +20,9 @@
 
 #include "sidebarcomponent.h"
 
+#include "core/models/searchresultmodel.h"
+#include <nepomukmetadataextractor/batchextractor.h>
+
 #include <Nepomuk2/Resource>
 
 namespace Ui {
@@ -37,11 +40,18 @@ public:
     Nepomuk2::Resource resource();
 
     void setResource(Nepomuk2::Resource & resource);
+    void setResource(SearchResultModel::SRCachedRowEntry webResult);
     void newButtonClicked();
     void deleteButtonClicked();
 
+private slots:
+    void importItem();
+    void importWithReferences();
+
 private:
     Ui::SearchResultInfoWidget *ui;
+    SearchResultModel::SRCachedRowEntry m_currentEntry;
+    NepomukMetaDataExtractor::UI::BatchExtractor m_extractor;
 };
 
 #endif // SEARCHRESULTINFOWIDGET_H

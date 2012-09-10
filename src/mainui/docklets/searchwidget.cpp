@@ -18,38 +18,11 @@
 #include "searchwidget.h"
 #include "ui_searchwidget.h"
 
-#include <kbibtex/onlinesearchabstract.h>
-#include <kbibtex/onlinesearchgeneral.h>
-#include <kbibtex/onlinesearchbibsonomy.h>
-#include <kbibtex/onlinesearchgooglescholar.h>
-#include <kbibtex/onlinesearchpubmed.h>
-#include <kbibtex/onlinesearchieeexplore.h>
-#include <kbibtex/onlinesearchacmportal.h>
-#include <kbibtex/onlinesearchsciencedirect.h>
-#include <kbibtex/onlinesearchspringerlink.h>
-#include <kbibtex/onlinesearcharxiv.h>
-#include <kbibtex/onlinesearchjstor.h>
-#include <kbibtex/onlinesearchmathscinet.h>
-#include <kbibtex/onlinesearchingentaconnect.h>
+#include <nepomukmetadataextractor/extractorfactory.h>
 
-#include <kbibtex/entry.h>
-
-#include "nbib.h"
-#include <Nepomuk2/Vocabulary/NFO>
-#include <Nepomuk2/Vocabulary/NMO>
-#include <Nepomuk2/Vocabulary/NIE>
-#include <Nepomuk2/Vocabulary/NCO>
-#include <Nepomuk2/Vocabulary/PIMO>
-#include <Soprano/Vocabulary/NAO>
-#include <Nepomuk2/Resource>
-#include <Nepomuk2/Variant>
-#include <Nepomuk2/Query/QueryServiceClient>
-#include <Nepomuk2/Query/ResourceTypeTerm>
-#include <Nepomuk2/Query/ResourceTerm>
-#include <Nepomuk2/Query/LiteralTerm>
-#include <Nepomuk2/Query/ComparisonTerm>
-#include <Nepomuk2/Query/AndTerm>
-#include <Nepomuk2/Query/OrTerm>
+#include <Nepomuk2/ResourceManager>
+#include <Soprano/Model>
+#include <Soprano/QueryResultIterator>
 
 #include <KDE/KConfigGroup>
 #include <KDE/KConfig>
@@ -57,13 +30,16 @@
 #include <KDE/KUrl>
 #include <KDE/KDebug>
 
+#include <QtCore/QtConcurrentRun>
+
 #include <QtGui/QListWidgetItem>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QMenu>
 
 const int HomepageRole = Qt::UserRole + 5;
 const int WidgetRole = Qt::UserRole + 6;
-const int NameRole = Qt::UserRole + 7;
+const int IdentifierRole = Qt::UserRole + 7;
+const int DescriptionRole = Qt::UserRole + 7;
 
 enum SearchSource {
     Search_Everywhere,
@@ -75,22 +51,18 @@ SearchWidget::SearchWidget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::SearchWidget)
     , m_actionOpenHomepage(0)
-    , m_queryClient(0)
     , m_searchResultModel(0)
+    , m_ef(0)
+    , m_currentWebExtractor(0)
+    , m_futureWatcherNepomuk(0)
 {
     ui->setupUi(this);
     setupUi();
 
+    //TODO: why has is the widget owner of the SearchResultModel?
     m_searchResultModel = new SearchResultModel();
     connect(this, SIGNAL(newSearchStarted()), m_searchResultModel, SLOT(clearData()));
-    connect(this, SIGNAL(searchResult(SearchResultEntry)), m_searchResultModel, SLOT(addSearchResult(SearchResultEntry)));
-
-    m_queryClient = new Nepomuk2::Query::QueryServiceClient();
-    connect(m_queryClient, SIGNAL(newEntries(QList<Nepomuk2::Query::Result>)), this, SLOT(foundNepomukEntry(QList<Nepomuk2::Query::Result>)));
-    connect(m_queryClient, SIGNAL(finishedListing()), this, SLOT(nepomukQueryFinished()));
-
-    m_projectQueryClient = new Nepomuk2::Query::QueryServiceClient();
-    connect(m_projectQueryClient, SIGNAL(newEntries(QList<Nepomuk2::Query::Result>)), this, SLOT(fillProjectList(QList<Nepomuk2::Query::Result>)));
+    connect(this, SIGNAL(searchResult(QVariantList)), m_searchResultModel, SLOT(addSearchResult(QVariantList)) );
 
     loadSettings();
 
@@ -108,21 +80,15 @@ SearchWidget::~SearchWidget()
     saveSettings();
 
     delete ui;
-    m_queryClient->close();
-    delete m_queryClient;
-    m_projectQueryClient->close();
-    delete m_projectQueryClient;
     delete m_actionOpenHomepage;
-
-    qDeleteAll(m_itemToOnlineSearch);
     delete m_searchResultModel;
+    delete m_ef;
 }
 
 SearchResultModel* SearchWidget::searchResultModel()
 {
     return m_searchResultModel;
 }
-
 
 void SearchWidget::sourceChanged(int selection)
 {
@@ -131,10 +97,7 @@ void SearchWidget::sourceChanged(int selection)
         ui->editLibrary->setEnabled(false);
     }
     else {
-         // only fetch new projects when we di not have a list already
-        // but fetch them always if we select aeverywhere or nepomuk only
-        // so we can update when new projects are created in between
-        // basically a Nepomuk Resource watcher would be cleaner, but maybe over the top
+        //TODO: use resourcewatcher for project fetching
         if(!ui->labelLibrary->isEnabled()) {
             fetchProjects();
         }
@@ -146,23 +109,23 @@ void SearchWidget::sourceChanged(int selection)
 
 void SearchWidget::fetchProjects()
 {
-    m_projectQueryClient->close();
     ui->editLibrary->clear();
 
     ui->editLibrary->addItem(i18n("Full Library"));
 
-    QString query = "select DISTINCT ?r where { "
-                     "?r a pimo:Project ."
+    QString query = "select DISTINCT ?resource ?name where { "
+                     "?resource a pimo:Project ."
+                     "?resource nao:prefLabel ?name ."
                      "}";
 
-     m_projectQueryClient->sparqlQuery( query );
-}
+    Soprano::Model* model = Nepomuk2::ResourceManager::instance()->mainModel();
+    Soprano::QueryResultIterator it = model->executeQuery( query, Soprano::Query::QueryLanguageSparql );
 
-void SearchWidget::fillProjectList( const QList< Nepomuk2::Query::Result > &entries )
-{
-    foreach(const Nepomuk2::Query::Result &r, entries) {
-        ui->editLibrary->addItem(r.resource().property(Soprano::Vocabulary::NAO::prefLabel()).toString(),
-                                 r.resource().uri());
+    while( it.next() ) {
+        Soprano::BindingSet p = it.current();
+
+        ui->editLibrary->addItem(p.value("name").toString(),
+                                 p.value("resource").toString());
     }
 }
 
@@ -182,31 +145,37 @@ void SearchWidget::enginesListCurrentChanged(QListWidgetItem *current)
 
 void SearchWidget::itemCheckChanged(QListWidgetItem* item)
 {
-    int numCheckedEngines = 0;
-    for (QMap<QListWidgetItem*, OnlineSearchAbstract*>::ConstIterator it = m_itemToOnlineSearch.constBegin(); it != m_itemToOnlineSearch.constEnd(); ++it) {
-        if (it.key()->checkState() == Qt::Checked) {
-            ++numCheckedEngines;
-        }
+    if(!item)
+        return;
+
+    QString identifier = item->data(IdentifierRole).toString();
+
+    if(item->checkState() == Qt::Checked) {
+        m_pluginList << identifier;
+    }
+    else {
+        m_pluginList.removeAll( identifier );
     }
 
     // do not allow to start a search without any checked search engine
     SearchSource source = SearchSource(ui->selectSource->currentIndex());
     if(source == Search_Web) {
-        ui->buttonSearch->setEnabled(numCheckedEngines > 0);
+        ui->buttonSearch->setEnabled(m_pluginList.size() > 0);
     }
 
-    if (item != NULL) {
-        KConfig config;
-        KConfigGroup searchSettingsGroup( &config, QLatin1String("SearchSettings") );
-        QString name = item->data(NameRole).toString();
-        searchSettingsGroup.writeEntry(name, item->checkState() == Qt::Checked);
-        searchSettingsGroup.config()->sync();
-    }
+    // save user selection to config
+    KConfig config;
+    KConfigGroup searchSettingsGroup( &config, QLatin1String("SearchSettings") );
+    searchSettingsGroup.writeEntry(identifier, item->checkState() == Qt::Checked);
+    searchSettingsGroup.config()->sync();
 }
 
 void SearchWidget::startSearch()
 {
+    emit newSearchStarted();
+
     switchToCancel();
+    m_maxProgress = 0;
     ui->progressBar->setValue(0);
     int numResults = ui->editNumberOfResults->value();
     if(numResults < 1) numResults = 9999;
@@ -214,189 +183,159 @@ void SearchWidget::startSearch()
     SearchSource source = SearchSource(ui->selectSource->currentIndex());
 
     // start the nepomuk search
-    if(source == Search_Everywhere ||
-       source == Search_Nepomuk) {
-        m_nepomukSearchInProgress = true;
+    if(source == Search_Everywhere || source == Search_Nepomuk) {
+        m_maxProgress++;
+        bool orQuery = true;
 
-        Nepomuk2::Query::AndTerm andTerm;
-
-        QString content = ui->editContent->text();
-        QString title =  ui->editTitle->text();
-        QString author =  ui->editAuthor->text();
-
-        if(!content.isEmpty()) {
-            Nepomuk2::Query::OrTerm orTerm;
-            orTerm.addSubTerm(Nepomuk2::Query::LiteralTerm(content));
-
-            Nepomuk2::Query::ComparisonTerm fullTextSearch( Nepomuk2::Vocabulary::NIE::plainTextContent(), Nepomuk2::Query::LiteralTerm(content) );
-            fullTextSearch.setComparator(Nepomuk2::Query::ComparisonTerm::Contains);
-            orTerm.addSubTerm(fullTextSearch);
-
-            andTerm.addSubTerm(orTerm);
+        //limit all results by its rdf:type if one is selected
+        QStringList rdfTypes;
+        if(ui->cbDocument->isChecked()) {
+            rdfTypes.append(QLatin1String("nfo:Document"));
+            rdfTypes.append(QLatin1String("nfo:PaginatedTextDocument"));
+            rdfTypes.append(QLatin1String("nfo:PlainTextDocument"));
         }
-
-        if(!title.isEmpty())
-             andTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Nepomuk2::Vocabulary::NIE::title(),
-                                                                 Nepomuk2::Query::LiteralTerm(content) ));
-
-        if(!author.isEmpty()) {
-            Nepomuk2::Query::OrTerm orTerm;
-
-            Nepomuk2::Query::ComparisonTerm naoSearch( Soprano::Vocabulary::NAO::creator(), Nepomuk2::Query::LiteralTerm(author) );
-            naoSearch.setComparator(Nepomuk2::Query::ComparisonTerm::Contains);
-            orTerm.addSubTerm(naoSearch);
-
-            Nepomuk2::Query::ComparisonTerm ncoSearch( Nepomuk2::Vocabulary::NCO::creator(), Nepomuk2::Query::LiteralTerm(author) );
-            ncoSearch.setComparator(Nepomuk2::Query::ComparisonTerm::Contains);
-            orTerm.addSubTerm(ncoSearch);
-
-            andTerm.addSubTerm( orTerm );
+        if(ui->cbAudio->isChecked()) {
+            rdfTypes.append(QLatin1String("nfo:Audio"));
         }
-
-        Nepomuk2::Query::OrTerm orTerm;
-        if(ui->cbDocument->isChecked())
-            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::Document() ) );
-        if(ui->cbAudio->isChecked())
-            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::Audio() ) );
-        if(ui->cbVideo->isChecked())
-            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::Video() ) );
-        if(ui->cbImage->isChecked())
-            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::Image() ) );
-        if(ui->cbEmail->isChecked())
-            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NMO::Email() ) );
-        if(ui->cbNote->isChecked())
-            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::PIMO::Note() ) );
+        if(ui->cbVideo->isChecked()) {
+            rdfTypes.append(QLatin1String("nfo:Video"));
+        }
+        if(ui->cbImage->isChecked()) {
+            rdfTypes.append(QLatin1String("nfo:Image"));
+        }
+        if(ui->cbEmail->isChecked()) {
+            rdfTypes.append(QLatin1String("nmo:Email"));
+        }
+        if(ui->cbNote->isChecked()) {
+            rdfTypes.append(QLatin1String("pimo:Note"));
+        }
+        if(ui->cbNote->isChecked()) {
+            rdfTypes.append(QLatin1String("pimo:Note"));
+        }
         if(ui->cbPublication->isChecked()) {
-            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NBIB::Publication() ) );
-            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NBIB::Series() ) );
+            rdfTypes.append(QLatin1String("nbib:Publication"));
+            rdfTypes.append(QLatin1String("nbib:Series"));
         }
         if(ui->cbWebpage->isChecked()) {
-            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::Website() ) );
-            orTerm.addSubTerm( Nepomuk2::Query::ResourceTypeTerm( Nepomuk2::Vocabulary::NFO::Bookmark() ) );
+            rdfTypes.append(QLatin1String("nfo:Website"));
+            rdfTypes.append(QLatin1String("nfo:Webpage"));
+            rdfTypes.append(QLatin1String("nfo:Bookmark"));
         }
 
+        QString limit_by_rdfTypes;
+        if(!rdfTypes.isEmpty()) {
+            limit_by_rdfTypes = QString::fromLatin1("?resource a ?type . FILTER (?type in ("+ rdfTypes.join(",").toLatin1() +") ).");
+        }
+
+        QString limit_by_content;
+        if(!ui->editContent->text().isEmpty()) {
+            limit_by_content = QString::fromLatin1("?resource nie:plainTextContent ?plainText ."
+                                                   "FILTER(bif:contains(?plainText, \"'"+ ui->editContent->text().toLatin1() +"'\")) ."
+                                                   "OPTIONAL { ?resource nie:title ?title . }"
+                                                   "OPTIONAL { ?resource ?v ?creator . FILTER (?v in (nco:creator,nco:publisher,nbib:editor) ). ?creator nco:fullname ?name .}");
+        }
+
+        QString limit_by_title;
+        if(!ui->editTitle->text().isEmpty()) {
+            limit_by_title = QString::fromLatin1("?resource nie:title ?title ."
+                                                 "FILTER(bif:contains(?title, \"'"+ ui->editTitle->text().toLatin1() +"'\")) ."
+                                                 "OPTIONAL { ?resource nie:title ?title . }"
+                                                 "OPTIONAL { ?resource ?v ?creator . FILTER (?v in (nco:creator,nco:publisher,nbib:editor) ). ?creator nco:fullname ?name .}");
+        }
+
+        QString limit_by_author;
+        if(!ui->editAuthor->text().isEmpty()) {
+            limit_by_author = QString::fromLatin1("?r ?v ?creator ."
+                                                  "FILTER (?v in (nco:creator,nco:publisher,nbib:editor) )."
+                                                  "?creator nco:fullname ?name ."
+                                                  "FILTER(bif:contains(?name, \"'" + ui->editAuthor->text().toLatin1() + "'\")) ."
+                                                  "OPTIONAL  { ?resource nie:label ?title . }");
+        }
+
+        QString limit_by_project;
         if(ui->editLibrary->currentIndex() != 0) {
-            Nepomuk2::Resource project = Nepomuk2::Resource::fromResourceUri( ui->editLibrary->itemData(ui->editLibrary->currentIndex()).toString());
-            Nepomuk2::Query::OrTerm orTerm;
-            orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::hasTag(),
-                                                               Nepomuk2::Query::ResourceTerm( project )));
-            orTerm.addSubTerm( Nepomuk2::Query::ComparisonTerm( Soprano::Vocabulary::NAO::isRelated(),
-                                                               Nepomuk2::Query::ResourceTerm( project )));
-            andTerm.addSubTerm(orTerm);
+            limit_by_project = QString("?resource nao:isRelated  <%1> .").arg(ui->editLibrary->itemData(ui->editLibrary->currentIndex()).toString());
         }
 
-        andTerm.addSubTerm(orTerm);
+        QString orQueryString;
+        if(orQuery) {
+            orQueryString = QLatin1String("UNION");
+        }
 
-        // build the query
-        Nepomuk2::Query::Query query( andTerm );
+        QString query = QString::fromLatin1("select distinct ?resource ?title ?name ?type ?plaintext ?star ?url where {"
+                                            + limit_by_rdfTypes.toLatin1()
+                                            + limit_by_project.toLatin1() +
+                                            "{" + limit_by_content.toLatin1() + "} " + orQueryString.toLatin1() +
+                                            "{" + limit_by_title.toLatin1() + "} " + orQueryString.toLatin1() +
+                                            "{" + limit_by_author.toLatin1() + "}"
+                                            "OPTIONAL{?resource nie:url ?url . }"
+                                            "OPTIONAL{?resource nao:numericRating ?star . }"
+                                            "} LIMIT " + QString("%1").arg(numResults).toLatin1()
+                                            );
 
-        query.setLimit(numResults);
+        kDebug() << query;
 
-        m_queryClient->query(query);
+        QFuture<QVariantList > future = QtConcurrent::run(this, &SearchWidget::queryNepomuk, query);
+        m_futureWatcherNepomuk = new QFutureWatcher<QVariantList >();
+
+        m_futureWatcherNepomuk->setFuture(future);
+        connect(m_futureWatcherNepomuk, SIGNAL(finished()),this, SLOT(finishedNepomukQuery()));
     }
 
     // start the websearch
     if(source == Search_Everywhere ||
        source == Search_Web) {
+        m_maxProgress += m_pluginList.size();
 
-        m_runningWebSearches.clear();
-        m_websearchProgressMap.clear();
-
-        /// start search using the general-purpose form's values
-        QMap<QString, QString> queryTerms;
-        queryTerms.insert("title", ui->editTitle->text());
-        queryTerms.insert("free", ui->editContent->text());
-        queryTerms.insert("author", ui->editAuthor->text());
-
-        for (QMap<QListWidgetItem*, OnlineSearchAbstract*>::ConstIterator it = m_itemToOnlineSearch.constBegin(); it != m_itemToOnlineSearch.constEnd(); ++it) {
-            if (it.key()->checkState() == Qt::Checked) {
-                it.value()->startSearch(queryTerms, numResults);
-                m_runningWebSearches.insert(it.value());
-            }
-        }
+        m_currentExtractor = 0;
+        queryWebExtractor(m_currentExtractor);
     }
 
-    emit newSearchStarted();
 }
 
-void SearchWidget::foundOnlineEntry(QSharedPointer<Entry> newEntry)
+void SearchWidget::finishedNepomukQuery()
 {
-    OnlineSearchAbstract *engine = qobject_cast<OnlineSearchAbstract *>(sender());
+    QVariantList resultList = m_futureWatcherNepomuk->future().result();
+    // now we have all nepomuk resources
+    emit searchResult(resultList);
 
-    SearchResultEntry sre;
-    sre.webEngine = engine;
-    sre.webResult = newEntry;
-
-    emit searchResult(sre);
+    updateProgress();
 }
 
-void SearchWidget::foundNepomukEntry(QList<Nepomuk2::Query::Result> newEntry)
+void SearchWidget::finishedWebextractorQuery(const QVariantList &searchResults)
 {
-    foreach(const Nepomuk2::Query::Result &r, newEntry) {
-        SearchResultEntry sre;
-        sre.nepomukResult = r;
-        //sre.webResult = 0;
-        sre.webEngine = 0;
+    kDebug() << "finished websearch";
+    QVariantList resultList;
 
-        emit searchResult(sre);
+    // now add engine details to each result, so we can add more info in teh searchresultmodel
+    foreach(const QVariant &v, searchResults) {
+        QVariantMap vm = v.toMap();
+        vm.insert(QLatin1String("engine-type"),QLatin1String("web"));
+        vm.insert(QLatin1String("engine-name"), m_currentWebExtractor->info().name);
+        vm.insert(QLatin1String("engine-id"), m_currentWebExtractor->info().identifier);
+        vm.insert(QLatin1String("engine-icon"), m_currentWebExtractor->info().icon);
+        vm.insert(QLatin1String("engine-script"), m_currentWebExtractor->info().file);
+        resultList.append(vm);
+    }
+
+    updateProgress();
+    emit searchResult(resultList);
+
+    m_currentExtractor++;
+    if(m_currentExtractor < m_pluginList.size()) {
+        queryWebExtractor(m_currentExtractor);
     }
 }
 
-void SearchWidget::nepomukQueryFinished()
+void SearchWidget::updateProgress()
 {
-    m_nepomukSearchInProgress = false;
-    updateProgress(1,1);
+    qreal progressPerItem = 100/m_maxProgress;
+    ui->progressBar->setValue( ui->progressBar->value() + progressPerItem);
 
-    SearchSource source = SearchSource(ui->selectSource->currentIndex());
-    if(source == Search_Nepomuk) {
+    if( ui->progressBar->value() > 98) { // might get stuck at 99 due to rounding
+        ui->progressBar->setValue( 100 );
         switchToSearch();
     }
-    if(source == Search_Everywhere && m_runningWebSearches.isEmpty()) {
-        switchToSearch();
-    }
-}
-
-void SearchWidget::websearchStopped(int resultCode)
-{
-    Q_UNUSED(resultCode);
-
-    OnlineSearchAbstract *engine = static_cast<OnlineSearchAbstract *>(sender());
-    if (m_runningWebSearches.remove(engine)) {
-        /// last search engine stopped
-        if (m_runningWebSearches.isEmpty()) {
-            SearchSource source = SearchSource(ui->selectSource->currentIndex());
-            if(source == Search_Everywhere && !m_nepomukSearchInProgress) {
-                switchToSearch();
-            }
-            if(source == Search_Web) {
-                switchToSearch();
-            }
-
-            ui->progressBar->setValue(100);
-        }
-//        else {
-//            QStringList remainingEngines;
-//            foreach(OnlineSearchAbstract *running, m_runningSearches) {
-//                remainingEngines.append(running->label());
-//            }
-//        }
-    }
-}
-
-void SearchWidget::updateProgress(int cur, int total)
-{
-    OnlineSearchAbstract *ws = static_cast<OnlineSearchAbstract*>(sender());
-    if(ws)
-        m_websearchProgressMap[ws] = total > 0 ? cur * 1000 / total : 0;
-
-    int progress = 0, count = 0;
-    for (QMap<OnlineSearchAbstract*, int>::ConstIterator it = m_websearchProgressMap.constBegin(); it != m_websearchProgressMap.constEnd(); ++it, ++count)
-        progress += it.value();
-
-    if(!m_nepomukSearchInProgress)
-        progress += 100/(m_websearchProgressMap.size()+1);
-
-    ui->progressBar->setValue(count >= 1 ? progress / count : 0);
 }
 
 void SearchWidget::saveSettings()
@@ -450,17 +389,24 @@ void SearchWidget::setupUi()
 {
     ui->buttonSearch->setIcon(KIcon(QLatin1String("media-playback-start")));
 
-    addEngine(new OnlineSearchAcmPortal(this));
-    addEngine(new OnlineSearchArXiv(this));
-    addEngine(new OnlineSearchBibsonomy(this));
-    addEngine(new OnlineSearchGoogleScholar(this));
-    addEngine(new OnlineSearchIEEEXplore(this));
-    addEngine(new OnlineSearchJStor(this));
-    addEngine(new OnlineSearchMathSciNet(this));
-    addEngine(new OnlineSearchPubMed(this));
-    addEngine(new OnlineSearchScienceDirect(this));
-    addEngine(new OnlineSearchSpringerLink(this));
-    addEngine(new OnlineSearchIngentaConnect(this));
+    KConfig config;
+    KConfigGroup searchSettingsGroup( &config, QLatin1String("SearchSettings") );
+
+    m_ef = new NepomukMetaDataExtractor::Extractor::ExtractorFactory;
+    QList<NepomukMetaDataExtractor::Extractor::WebExtractor::Info> plugins = m_ef->listAvailablePlugins(QLatin1String("publication"));
+
+    foreach(const NepomukMetaDataExtractor::Extractor::WebExtractor::Info & info, plugins) {
+        QListWidgetItem *item = new QListWidgetItem(info.name, ui->listWebEngines);
+
+        item->setCheckState(searchSettingsGroup.readEntry(info.identifier, false) ? Qt::Checked : Qt::Unchecked);
+        item->setIcon( KIcon( info.icon ));
+        item->setData(IdentifierRole, info.identifier);
+        item->setData(Qt::ToolTipRole, info.description);
+
+        if(item->checkState() == Qt::Checked) {
+            m_pluginList << info.identifier;
+        }
+    }
 
     connect(ui->listWebEngines, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(itemCheckChanged(QListWidgetItem*)));
 
@@ -472,28 +418,8 @@ void SearchWidget::setupUi()
     switchToSearch();
 }
 
-void SearchWidget::addEngine(OnlineSearchAbstract *engine)
-{
-    KConfig config;
-    KConfigGroup searchSettingsGroup( &config, QLatin1String("SearchSettings") );
-
-    QListWidgetItem *item = new QListWidgetItem(engine->label(), ui->listWebEngines);
-    item->setCheckState(searchSettingsGroup.readEntry(engine->name(), false) ? Qt::Checked : Qt::Unchecked);
-    item->setIcon(engine->icon());
-    item->setData(HomepageRole, engine->homepage());
-    item->setData(NameRole, engine->name());
-
-    m_itemToOnlineSearch.insert(item, engine);
-    connect(engine, SIGNAL(foundEntry(QSharedPointer<Entry>)), this, SLOT(foundOnlineEntry(QSharedPointer<Entry>)));
-    connect(engine, SIGNAL(stoppedSearch(int)), this, SLOT(websearchStopped(int)));
-    connect(engine, SIGNAL(progress(int,int)), this, SLOT(updateProgress(int,int)));
-}
-
 void SearchWidget::switchToSearch()
 {
-    for (QMap<QListWidgetItem*, OnlineSearchAbstract*>::ConstIterator it = m_itemToOnlineSearch.constBegin(); it != m_itemToOnlineSearch.constEnd(); ++it)
-        disconnect(ui->buttonSearch, SIGNAL(clicked()), it.value(), SLOT(cancel()));
-
     connect(ui->buttonSearch, SIGNAL(clicked()), this, SLOT(startSearch()));
     ui->buttonSearch->setText(i18nc("Button that starts the search","Search"));
     ui->buttonSearch->setIcon(KIcon(QLatin1String("media-playback-start")));
@@ -505,11 +431,90 @@ void SearchWidget::switchToCancel()
 {
     disconnect(ui->buttonSearch, SIGNAL(clicked()), this, SLOT(startSearch()));
 
-    for (QMap<QListWidgetItem*, OnlineSearchAbstract*>::ConstIterator it = m_itemToOnlineSearch.constBegin(); it != m_itemToOnlineSearch.constEnd(); ++it)
-        connect(ui->buttonSearch, SIGNAL(clicked()), it.value(), SLOT(cancel()));
-
     ui->buttonSearch->setText(i18n("Cancel"));
     ui->buttonSearch->setIcon(KIcon(QLatin1String("media-playback-stop")));
     ui->optionsTab->setEnabled(false);
     ui->enginesTab->setEnabled(false);
+}
+
+QVariantList SearchWidget::queryNepomuk(const QString &query)
+{
+    Soprano::Model* model = Nepomuk2::ResourceManager::instance()->mainModel();
+    Soprano::QueryResultIterator it = model->executeQuery( query, Soprano::Query::QueryLanguageSparql );
+
+    // combine all search results again, as we get lots of double resources for the different persons and so on
+    QMap<QString, QStringList> resultList;
+    int count = 0;
+    while( it.next() ) {
+        Soprano::BindingSet p = it.current();
+
+        // get either a new entry or what we have inserted beforehand
+        QStringList curEntry = resultList.value( p.value("resource").toString(), QStringList());
+
+        // now set / add each queried value into the StringList
+        if (curEntry.isEmpty() ) {
+            curEntry << p.value("title").toString() << p.value("name").toString()
+                     << p.value("type").toString() << p.value("plaintext").toString()
+                     << p.value("star").toString() << p.value("url").toString();
+        }
+        else {
+            // add additional info to existing resource (as a list splitted by ;
+            QString type = p.value("type").toString();
+            if(!type.isEmpty() && !curEntry.at(3).contains(type))
+                curEntry.replace(3, QString("%1;%2").arg(curEntry.at(3)).arg(type) );
+
+            QString name = p.value("name").toString();
+            if(!name.isEmpty() && !curEntry.at(2).contains(name))
+                curEntry.replace(3, QString("%1;%2").arg(curEntry.at(2)).arg(name) );
+        }
+
+        // and save the result back into the map
+        resultList.insert(p.value("resource").toString(), curEntry);
+        count++;
+    }
+
+    // now tha twe have combined all search results properly.
+    // press the min the same form as we get the web results, so we jus tneed 1 way to add the dta to teh searchresult model
+
+    QVariantList finalResultList;
+    QMapIterator<QString, QStringList> i(resultList);
+    while(i.hasNext()) {
+        i.next();
+
+        QVariantMap vm;
+        vm.insert(QLatin1String("engine-type"), QLatin1String("nepomuk"));
+        vm.insert(QLatin1String("engine-name"), i18n("Nepomuk"));
+        vm.insert(QLatin1String("engine-icon"), QLatin1String("nepomuk"));
+        vm.insert(QLatin1String("nepomuk-uri"), i.key());
+
+        vm.insert(QLatin1String("title"), i.value().at(0));
+        vm.insert(QLatin1String("authors"), i.value().at(1));
+        vm.insert(QLatin1String("publicationtype"), i.value().at(2));
+        //vm.insert(QLatin1String("details"), i.value().at(3)); //TODO: plaintext excerpt handling
+        vm.insert(QLatin1String("date"), QLatin1String("")); //TODO: fetch date from nepomuk
+        vm.insert(QLatin1String("star"), i.value().at(4));
+        vm.insert(QLatin1String("fileurl"), i.value().at(5));
+
+        finalResultList.append(vm);
+    }
+
+    return finalResultList;
+}
+
+void SearchWidget::queryWebExtractor(int nextExtractor)
+{
+    if(m_currentWebExtractor)
+        disconnect(m_currentWebExtractor, SIGNAL(searchResults(QVariantList)), this, SLOT(finishedWebextractorQuery(QVariantList)));
+    m_currentWebExtractor = m_ef->getExtractor(m_pluginList.at(nextExtractor));
+    connect(m_currentWebExtractor, SIGNAL(searchResults(QVariantList)), this, SLOT(finishedWebextractorQuery(QVariantList)));
+
+    QVariantMap searchParameters;
+    searchParameters.insert("title", ui->editTitle->text());
+    searchParameters.insert("alttitle", ui->editContent->text()); //TODO: enable content based websearch(abstract?)
+    searchParameters.insert("author", ui->editAuthor->text());
+    searchParameters.insert("yearMin", QString(""));
+    searchParameters.insert("yearMax", QString(""));
+    searchParameters.insert("journal", QString(""));
+
+    m_currentWebExtractor->search( QLatin1String("publication"), searchParameters );
 }

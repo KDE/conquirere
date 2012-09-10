@@ -20,6 +20,8 @@
 
 #include "globals.h"
 
+#include "core/models/searchresultmodel.h"
+
 #include <Nepomuk2/Resource>
 
 #include <QtGui/QWidget>
@@ -34,6 +36,7 @@ class QStackedLayout;
 class MergeResourcesWidget;
 class SidebarComponent;
 class LibraryInfoWidget;
+class SearchResultInfoWidget;
 
 /**
   * @brief The SidebarWidget contains all contents for the right side widget
@@ -85,6 +88,11 @@ public slots:
       * Updates the current widget
       */
     void setResource(Nepomuk2::Resource & resource);
+
+    /**
+     * @brief called when a web search result was called in the SearchResultModel
+     */
+    void setResource(SearchResultModel::SRCachedRowEntry webResult);
 
     void setMultipleResources(QList<Nepomuk2::Resource> resourcelist);
 
@@ -145,7 +153,7 @@ private:
     SidebarComponent *m_eventWidget;
     SidebarComponent *m_seriesWidget;
     LibraryInfoWidget *m_libraryInfoWidget;
-    SidebarComponent *m_searchResultInfoWidget;
+    SearchResultInfoWidget *m_searchResultInfoWidget;
     SidebarComponent *m_mailWidget;
 
     MergeResourcesWidget *m_mergeWidget;

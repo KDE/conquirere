@@ -54,7 +54,6 @@ using namespace Soprano::Vocabulary;
 TableViewMenu::TableViewMenu(QObject *parent)
     : QObject(parent)
     , m_libraryManager(0)
-    , m_bibtexEntry(0)
 {
 }
 
@@ -240,9 +239,9 @@ void TableViewMenu::showNepomukEntryMenu(Nepomuk2::Resource resource)
     qDeleteAll(actionCollection);
 }
 
-void TableViewMenu::showBibTeXEntryMenu(QSharedPointer<Entry> entry)
+void TableViewMenu::showWebResultEntryMenu(const SearchResultModel::SRCachedRowEntry & entry)
 {
-    m_bibtexEntry = entry;
+    m_webResultEntry = entry;
 
     QMenu menu;
     QList<QAction *> actionCollection; //we throw all temp actions into it and delete them again after execution
@@ -256,30 +255,12 @@ void TableViewMenu::showBibTeXEntryMenu(QSharedPointer<Entry> entry)
 
     bool hasUrl = false;
 
-    QString url = PlainTextValue::text(entry->value(QLatin1String("url")));
-    if(!url.isEmpty()) {
+    if(!entry.detailsurl.isEmpty()) {
         hasUrl = true;
         KIcon icon = KIcon("text-html");
 
-        QAction *a = new QAction(icon, url, this);
-        a->setData(QUrl(url));
-        connect(a, SIGNAL(triggered(bool)),this, SLOT(openSelected()));
-        openExternal.addAction(a);
-        actionCollection.append(a);
-    }
-
-    // this adds the doi link
-    QString doi = PlainTextValue::text(entry->value(QLatin1String("doi")));
-
-    if(!doi.isEmpty()) {
-        hasUrl = true;
-        if(!doi.startsWith(QLatin1String("http"))) {
-            doi = QLatin1String("http://dx.doi.org/") + doi;
-        }
-        KIcon icon = KIcon("text-html");
-
-        QAction *a = new QAction(icon, doi, this);
-        a->setData(QUrl(doi));
+        QAction *a = new QAction(icon, entry.detailsurl.host(), this);
+        a->setData(QUrl(entry.detailsurl));
         connect(a, SIGNAL(triggered(bool)),this, SLOT(openSelected()));
         openExternal.addAction(a);
         actionCollection.append(a);
@@ -297,24 +278,6 @@ void TableViewMenu::showBibTeXEntryMenu(QSharedPointer<Entry> entry)
     connect(import, SIGNAL(triggered(bool)),this, SLOT(importSearchResult()));
     menu.addAction(import);
     actionCollection.append(import);
-
-    // ###########################################################
-    // # add export menu
-    QMenu openExport;
-    openExport.setTitle(i18n("Export"));
-    openExport.setIcon(KIcon(QLatin1String("document-export")));
-    menu.addMenu(&openExport);
-
-    QAction *exportBibTeX = new QAction(KIcon(QLatin1String("document-export")), i18n("Export BibTex to Clipboard"), this);
-    connect(exportBibTeX, SIGNAL(triggered(bool)),this, SLOT(exportBibTexReference()));
-    openExport.addAction(exportBibTeX);
-    actionCollection.append(exportBibTeX);
-
-    QAction *exportCiteKey = new QAction(KIcon(QLatin1String("document-export")), i18n("Export Citekey to Clipboard"), this);
-    connect(exportCiteKey, SIGNAL(triggered(bool)),this, SLOT(exportCiteKey()));
-    openExport.addAction(exportCiteKey);
-    actionCollection.append(exportCiteKey);
-
 
     menu.exec(QCursor::pos());
 
@@ -379,14 +342,15 @@ void TableViewMenu::openSelected()
 
 void TableViewMenu::importSearchResult()
 {
-    File f;
+    //FIXME: fetch webresult and import it to nepomuk
+//    File f;
 
-    f.append(m_bibtexEntry);
+//    f.append(m_bibtexEntry);
 
-    QVariantList list = BibTexVariant::toVariant(f);
+//    QVariantList list = BibTexVariant::toVariant(f);
 
-    VariantToNepomukPipe vtnp;
-    vtnp.pipeExport(list);
+//    VariantToNepomukPipe vtnp;
+//    vtnp.pipeExport(list);
 }
 
 void TableViewMenu::exportBibTexReference()
@@ -395,18 +359,9 @@ void TableViewMenu::exportBibTexReference()
     btcp.setCiteCommand(ConqSettings::referenceCommand());
     btcp.setExportType(ClipboardPipe::Export_SOURCE);
 
-
-    if(m_bibtexEntry) {
-        File f;
-        f.append(m_bibtexEntry);
-        QVariantList list = BibTexVariant::toVariant(f);
-        btcp.pipeExport(list);
-    }
-    else {
-        btcp.pipeExport(QList<Nepomuk2::Resource>() << m_nepomukResource);
-        QList<Nepomuk2::Resource> resourcelist;
-        resourcelist.append(m_nepomukResource);
-    }
+    btcp.pipeExport(QList<Nepomuk2::Resource>() << m_nepomukResource);
+    QList<Nepomuk2::Resource> resourcelist;
+    resourcelist.append(m_nepomukResource);
 }
 
 void TableViewMenu::exportCiteKey()
@@ -415,32 +370,16 @@ void TableViewMenu::exportCiteKey()
     btcp.setCiteCommand(ConqSettings::referenceCommand());
     btcp.setExportType(ClipboardPipe::Export_CITEKEY);
 
-    if(m_bibtexEntry) {
-        File f;
-        f.append(m_bibtexEntry);
-        QVariantList list = BibTexVariant::toVariant(f);
-        btcp.pipeExport(list);
-    }
-    else {
-        btcp.pipeExport(QList<Nepomuk2::Resource>() << m_nepomukResource);
-    }
+    btcp.pipeExport(QList<Nepomuk2::Resource>() << m_nepomukResource);
 }
 
 void TableViewMenu::sendToKileLyX()
 {
-    File f;
     KileLyxPipe klp;
 
-    if(m_bibtexEntry) {
-        f.append(m_bibtexEntry);
-        QVariantList list = BibTexVariant::toVariant(f);
-        klp.pipeExport(list);
-    }
-    else {
-        QList<Nepomuk2::Resource> resourcelist;
-        resourcelist.append(m_nepomukResource);
-        klp.pipeExport(resourcelist);
-    }
+    QList<Nepomuk2::Resource> resourcelist;
+    resourcelist.append(m_nepomukResource);
+    klp.pipeExport(resourcelist);
 }
 
 void TableViewMenu::openInTab()

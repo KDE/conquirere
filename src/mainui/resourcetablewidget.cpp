@@ -309,7 +309,13 @@ void ResourceTableWidget::selectedResource( const QItemSelection & selected, con
             SearchResultModel *srm = qobject_cast<SearchResultModel *>(sfpm->sourceModel());
             if(srm) {
                 Nepomuk2::Resource nr = srm->nepomukResourceAt(sfpm->mapToSource(selectedIndex.first()));
-                emit selectedResource(nr,false);
+                if(nr.isValid()) {
+                    emit selectedResource(nr,false);
+                }
+                else {
+                    SearchResultModel::SRCachedRowEntry webResult = srm->webResultAt( sfpm->mapToSource(selectedIndex.first()) );
+                    emit selectedResource(webResult,false);
+                }
             }
             else {
                 Nepomuk2::Resource empty;
@@ -344,7 +350,7 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
     if(selectedIndex.isEmpty()) { return; }
 
     Nepomuk2::Resource nepomukRescource;
-    QSharedPointer<Entry> bibTeXResource;
+    SearchResultModel::SRCachedRowEntry webResource;
 
     QSortFilterProxyModel *sfpm = qobject_cast<QSortFilterProxyModel *>(m_documentView->model());
     NepomukModel *nm = qobject_cast<NepomukModel *>(sfpm->sourceModel());
@@ -356,7 +362,7 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
         SearchResultModel *srm = qobject_cast<SearchResultModel *>(sfpm->sourceModel());
         if(srm) {
             nepomukRescource = srm->nepomukResourceAt(sfpm->mapToSource(selectedIndex.first()));
-            bibTeXResource = srm->bibTeXResourceAt(sfpm->mapToSource(selectedIndex.first()));
+            webResource = srm->webResultAt(sfpm->mapToSource(selectedIndex.first()));
         }
         else {
             kDebug() << "ResourceTableWidget::tableContextMenu no model found";
@@ -371,8 +377,8 @@ void ResourceTableWidget::tableContextMenu(const QPoint & pos)
     if(nepomukRescource.isValid()) {
         tvm.showNepomukEntryMenu(nepomukRescource);
     }
-    else if(bibTeXResource) {
-        tvm.showBibTeXEntryMenu(bibTeXResource);
+    else {
+        tvm.showWebResultEntryMenu(webResource);
     }
 }
 

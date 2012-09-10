@@ -18,19 +18,31 @@
 #include "searchresultinfowidget.h"
 #include "ui_searchresultinfowidget.h"
 
+#include <KDE/KDebug>
+
+#include <nepomukmetadataextractor/krossextractor.h>
+#include <nepomukmetadataextractor/publicationpipe.h>
+
+using namespace NepomukMetaDataExtractor::Extractor;
+using namespace NepomukMetaDataExtractor::Pipe;
+
 SearchResultInfoWidget::SearchResultInfoWidget(QWidget *parent) :
     SidebarComponent(parent),
     ui(new Ui::SearchResultInfoWidget)
 {
     ui->setupUi(this);
+
+    connect(ui->importButton, SIGNAL(clicked()), this, SLOT(importItem()) );
+    connect(ui->importWithRefsButton, SIGNAL(clicked()), this, SLOT(importWithReferences()) );
+
+    ui->importButton->setIcon(KIcon("download"));
+    ui->importWithRefsButton->setIcon(KIcon("download"));
 }
 
 SearchResultInfoWidget::~SearchResultInfoWidget()
 {
     delete ui;
 }
-
-
 
 Nepomuk2::Resource SearchResultInfoWidget::resource()
 {
@@ -44,6 +56,26 @@ void SearchResultInfoWidget::setResource(Nepomuk2::Resource & resource)
     Q_UNUSED(resource);
 }
 
+void SearchResultInfoWidget::setResource(SearchResultModel::SRCachedRowEntry webResult)
+{
+    kDebug() << "show info for" << webResult.detailsurl << webResult.engineScript;
+
+    ui->infoTitle->setText( webResult.displayColums.at(SearchResultModel::Column_Name).toString() );
+    ui->infoDate->setText( webResult.displayColums.at(SearchResultModel::Column_Date).toString() );
+    ui->infoType->setText( webResult.displayColums.at(SearchResultModel::Column_EntryType).toString() );
+    ui->infoAuthors->setText( webResult.displayColums.at(SearchResultModel::Column_Author).toString() );
+
+    // remove the html tags added for the tablemodel
+    QString excerpt = webResult.displayColums.at(SearchResultModel::Column_Details).toString();
+    excerpt.remove(QLatin1String("<font size=\"90%\">"));
+    excerpt.remove(QLatin1String("</font>"));
+    ui->infoExcerpt->setText( excerpt );
+
+    ui->kurllabel->setUrl( webResult.detailsurl.toString() );
+
+    m_currentEntry = webResult;
+}
+
 void SearchResultInfoWidget::newButtonClicked()
 {
 
@@ -52,4 +84,20 @@ void SearchResultInfoWidget::newButtonClicked()
 void SearchResultInfoWidget::deleteButtonClicked()
 {
 
+}
+
+void SearchResultInfoWidget::importItem()
+{
+    QVariantMap options;
+    options.insert(QString("references"), false);
+
+    m_extractor.addJob(m_currentEntry.detailsurl, options, m_currentEntry.displayColums.at(SearchResultModel::Column_Name).toString());
+}
+
+void SearchResultInfoWidget::importWithReferences()
+{
+    QVariantMap options;
+    options.insert(QString("references"), true);
+
+    m_extractor.addJob(m_currentEntry.detailsurl, options, m_currentEntry.displayColums.at(SearchResultModel::Column_Name).toString());
 }

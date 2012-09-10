@@ -87,7 +87,7 @@ MergeResourcesWidget::MergeResourcesWidget(QWidget *parent)
     connect(ui->buttonFetchMetaData, SIGNAL(clicked()), this, SLOT(fetchMetaData()));
     ui->buttonFetchMetaData->setEnabled(false);
 
-    m_nepomukDBus = new QDBusInterface( "org.kde.nepomuk.services.nepomukfileindexer", "/nepomukfileindexer" );
+    //m_nepomukDBus = new QDBusInterface( "org.kde.nepomuk.services.nepomukfileindexer", "/nepomukfileindexer" );
 }
 
 MergeResourcesWidget::~MergeResourcesWidget()
@@ -304,12 +304,12 @@ void MergeResourcesWidget::exportToFile()
 
 void MergeResourcesWidget::reindexFiles()
 {
-    foreach(const Nepomuk2::Resource &r, m_resourceList) {
-        QString filePath = r.property(NIE::url()).toString().remove(QLatin1String("file://"));
+//    foreach(const Nepomuk2::Resource &r, m_resourceList) {
+//        QString filePath = r.property(NIE::url()).toString().remove(QLatin1String("file://"));
 
-        if(!filePath.isEmpty())
-            m_nepomukDBus->call("org.kde.nepomuk.FileIndexer.indexFile", filePath);
-    }
+//        if(!filePath.isEmpty())
+//            m_nepomukDBus->call("org.kde.nepomuk.FileIndexer.indexFile", filePath);
+//    }
 }
 
 void MergeResourcesWidget::fetchMetaData()

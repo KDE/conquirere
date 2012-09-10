@@ -20,31 +20,28 @@
 
 #include "core/models/searchresultmodel.h"
 
-#include <Nepomuk2/Query/Result>
-#include <Nepomuk2/Query/QueryServiceClient>
+#include <QtCore/QFutureWatcher>
 
 #include <QtGui/QWidget>
 #include <QtCore/QMap>
-#include <QtCore/QSet>
 
 namespace Ui {
     class SearchWidget;
 }
 
-namespace Nepomuk2 {
-    namespace Query {
-        class QueryServiceClient;
-    }
+namespace NepomukMetaDataExtractor {
+namespace Extractor {
+class ExtractorFactory;
+class WebExtractor;
 }
-
-class Entry;
-class OnlineSearchAbstract;
+}
 class KAction;
 class QListWidgetItem;
 
 /**
   * @brief Dockwidget to set some search options and allow the user to search Nepomuk and KBibTeX online engines
   *
+  * @todo TODO: ad ResourceWatcher to check for created/changed/deleted projects
   */
 class SearchWidget : public QWidget
 {
@@ -58,46 +55,46 @@ public:
 
 signals:
     void newSearchStarted();
-    void searchResult(SearchResultEntry newEntry);
+    void searchResult(QMap<QString, QStringList> nepomukResults);
+    void searchResult(const QVariantList &searchResult);
 
 private slots:
     void sourceChanged(int selection);
     void fetchProjects();
-    void fillProjectList( const QList< Nepomuk2::Query::Result > &entries );
 
     void openHomepage();
     void enginesListCurrentChanged(QListWidgetItem *current);
     void itemCheckChanged(QListWidgetItem* item);
 
     void startSearch();
-    void foundOnlineEntry(QSharedPointer<Entry> newEntry);
-    void foundNepomukEntry(QList<Nepomuk2::Query::Result> newEntry);
 
-    void nepomukQueryFinished();
-    void websearchStopped(int resultCode);
-    void updateProgress(int cur, int total);
+    void finishedNepomukQuery();
+    void finishedWebextractorQuery(const QVariantList &searchResults);
+
+    void updateProgress();
 
     void saveSettings();
     void loadSettings();
 
 private:
     void setupUi();
-    void addEngine(OnlineSearchAbstract *engine);
     void switchToSearch();
     void switchToCancel();
 
+    QVariantList queryNepomuk(const QString &query);
+    void queryWebExtractor(int nextExtractor);
+
     Ui::SearchWidget *ui;
     KAction *m_actionOpenHomepage;
-
-    Nepomuk2::Query::QueryServiceClient *m_queryClient;
-    Nepomuk2::Query::QueryServiceClient *m_projectQueryClient;
-    bool m_nepomukSearchInProgress;
-
-    QMap<QListWidgetItem*, OnlineSearchAbstract*> m_itemToOnlineSearch;
-    QSet<OnlineSearchAbstract*> m_runningWebSearches;
-    QMap<OnlineSearchAbstract*, int> m_websearchProgressMap;
-
     SearchResultModel *m_searchResultModel;
+
+    NepomukMetaDataExtractor::Extractor::ExtractorFactory *m_ef;
+    NepomukMetaDataExtractor::Extractor::WebExtractor *m_currentWebExtractor;
+    QStringList m_pluginList;
+    int m_currentExtractor;
+    int m_maxProgress;
+
+    QFutureWatcher<QVariantList > *m_futureWatcherNepomuk;
 };
 
 #endif // SEARCHWIDGET_H

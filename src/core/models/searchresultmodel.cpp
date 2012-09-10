@@ -18,49 +18,23 @@
 #include "searchresultmodel.h"
 
 #include <kbibtex/entry.h>
-#include <kbibtex/fileexporterxslt.h>
-#include <kbibtex/onlinesearchabstract.h>
-
-#include <Nepomuk2/Variant>
-#include <Nepomuk2/Vocabulary/NFO>
-#include <Nepomuk2/Vocabulary/NMO>
-#include <Nepomuk2/Vocabulary/NIE>
-#include <Nepomuk2/Vocabulary/NCO>
-#include <Soprano/Vocabulary/NAO>
-#include <Nepomuk2/Vocabulary/PIMO>
 
 #include <KDE/KGlobalSettings>
 #include <KDE/KStandardDirs>
 #include <KDE/KMimeType>
 
 #include <QtGui/QFont>
-#include <QtCore/QBuffer>
 
-enum BibTeXColumnList {
-    Column_StarRate,
-    Column_EngineIcon,
-    Column_EntryType,
-    Column_Details,
-    Column_Name,
-    Column_Author,
-    Column_Date,
-
-    Max_columns
-};
+#include <KDE/KDebug>
 
 SearchResultModel::SearchResultModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
-    qRegisterMetaType<SearchResultEntry>("SearchResultEntry");
-
-    m_exporterXSLT = new FileExporterXSLT();
-    m_exporterXSLT->setXSLTFilename(KStandardDirs::locate("data", QLatin1String("conquirere/simple.xsl")));
 }
 
 SearchResultModel::~SearchResultModel()
 {
     //qDeleteAll(m_modelCacheData);
-    delete m_exporterXSLT;
 }
 
 int SearchResultModel::rowCount(const QModelIndex &parent) const
@@ -167,6 +141,15 @@ Nepomuk2::Resource SearchResultModel::nepomukResourceAt(const QModelIndex &selec
     return ret;
 }
 
+SearchResultModel::SRCachedRowEntry SearchResultModel::webResultAt(const QModelIndex &selection)
+{
+    if(!m_modelCacheData.isEmpty() && selection.row() >= 0) {
+        return m_modelCacheData.at(selection.row());
+    }
+
+    return SRCachedRowEntry();
+}
+
 int SearchResultModel::defaultSectionSize(int i) const
 {
     switch (i) {
@@ -197,18 +180,6 @@ QList<int> SearchResultModel::fixedWithSections() const
     return fixedWith;
 }
 
-QSharedPointer<Entry> SearchResultModel::bibTeXResourceAt(const QModelIndex &selection)
-{
-    QSharedPointer<Entry> entry;
-
-    if(!m_modelCacheData.isEmpty() && selection.row() >= 0) {
-        SRCachedRowEntry entryCache = m_modelCacheData.at(selection.row());
-        entry = entryCache.entry;
-    }
-
-    return entry;
-}
-
 void SearchResultModel::clearData()
 {
     if (m_modelCacheData.isEmpty()) {
@@ -220,165 +191,40 @@ void SearchResultModel::clearData()
     endRemoveRows();
 }
 
-void SearchResultModel::addSearchResult(SearchResultEntry newEntry)
+void SearchResultModel::addSearchResult(const QVariantList &searchResult)
 {
-    SRCachedRowEntry srcre;
+    QList<SRCachedRowEntry> entryList;
 
-    if(newEntry.webResult) {
-        srcre.displayColums = createDisplayData(newEntry.webResult, newEntry.webEngine);
-        srcre.decorationColums = createDecorationData(newEntry.webResult, newEntry.webEngine);
-        srcre.toolTipColums = createToolTipData(newEntry.webResult, newEntry.webEngine);
-        srcre.entry = newEntry.webResult;
-    }
-    else {
-        srcre.displayColums = createDisplayData(newEntry.nepomukResult);
-        srcre.decorationColums = createDecorationData(newEntry.nepomukResult);
-        srcre.toolTipColums = createToolTipData(newEntry.nepomukResult);
-        srcre.resource = newEntry.nepomukResult.resource();
-        //srcre.entry = 0;
+    foreach(const QVariant &entry, searchResult) {
+        QVariantMap entryMap = entry.toMap();
+
+        SRCachedRowEntry srcre;
+        srcre.displayColums = createDisplayData(entryMap);
+        srcre.decorationColums = createDecorationData(entryMap);
+        srcre.toolTipColums = createToolTipData(entryMap);
+
+        if(entryMap.value(QLatin1String("engine-type")).toString() == QLatin1String("web")) {
+            srcre.detailsurl = entryMap.value(QLatin1String("url")).toString();
+            srcre.engineId = entryMap.value(QLatin1String("engine-id")).toString();
+            srcre.engineScript = entryMap.value(QLatin1String("engine-script")).toString();
+        }
+        else {
+            srcre.resource = Nepomuk2::Resource( entryMap.value(QLatin1String("nepomuk-uri")).toString() );
+        }
+
+        entryList.append(srcre);
     }
 
-    beginInsertRows(QModelIndex(), m_modelCacheData.size(), m_modelCacheData.size());
-    m_modelCacheData.append(srcre);
+    kDebug() << "add entries" << entryList.size();
+    beginInsertRows(QModelIndex(), m_modelCacheData.size(), m_modelCacheData.size() + entryList.size() - 1);
+    m_modelCacheData.append(entryList);
     endInsertRows();
+
+    kDebug() << "m_modelCacheData" << m_modelCacheData.size();
 }
 
-QVariantList SearchResultModel::createDisplayData(const Nepomuk2::Query::Result & nepomukResult) const
-{
-    Nepomuk2::Resource res = nepomukResult.resource();
-    QVariantList displayList;
-    displayList.reserve(Max_columns-1);
 
-    for(int i = 0; i < Max_columns; i++) {
-        QVariant newEntry;
-        switch(i) {
-        case Column_EntryType: {
-            newEntry = translateEntryType(res);
-            break;
-        }
-        case Column_Author: {
-            QString authorSting;
-            QList<Nepomuk2::Resource> authorList = res.property(Nepomuk2::Vocabulary::NCO::creator()).toResourceList();
-
-            foreach(const Nepomuk2::Resource & a, authorList) {
-                authorSting.append(a.genericLabel());
-                authorSting.append(QLatin1String("; "));
-            }
-            authorSting.chop(2);
-
-            newEntry = authorSting;
-            break;
-        }
-        case Column_Name: {
-            QString titleSting = res.property(Nepomuk2::Vocabulary::NIE::title()).toString();
-
-            newEntry = titleSting;
-            break;
-        }
-        case Column_Date: {
-            QString dateString;
-            if(res.hasType(Nepomuk2::Vocabulary::NBIB::Publication()))
-                dateString = res.property(Nepomuk2::Vocabulary::NBIB::publicationDate()).toString();
-            else {
-                dateString = res.property(Nepomuk2::Vocabulary::NMO::sentDate()).toString();
-                if(dateString.isEmpty())
-                    dateString = res.property(Nepomuk2::Vocabulary::NIE::contentCreated()).toString();
-            }
-
-            QDateTime date = QDateTime::fromString(dateString, Qt::ISODate);
-            if(date.isValid()) {
-                newEntry = date.toString("dd.MM.yyyy");
-            }
-            else {
-                newEntry = dateString;
-            }
-
-            newEntry = dateString;
-            break;
-        }
-        case Column_Details: {
-            QString titleSting = res.property(Nepomuk2::Vocabulary::NIE::title()).toString();
-            if(titleSting.isEmpty())
-                titleSting = res.genericLabel();
-
-            QString detailText;
-            detailText.append(QLatin1String("<font size=\"100%\"><b>"));
-            detailText.append(titleSting);
-            detailText.append(QLatin1String("</b></font><br/><font size=\"85%\">"));
-            detailText.append(nepomukResult.excerpt());
-            detailText.append(QLatin1String("</font>"));
-
-            newEntry = detailText;
-            break;
-        }
-        case Column_StarRate: {
-            int rating = res.property(Soprano::Vocabulary::NAO::numericRating()).toInt();
-
-            newEntry = rating;
-            break;
-        }
-        default:
-            newEntry = QVariant();
-        }
-
-        displayList.append(newEntry);
-    }
-
-    return displayList;
-}
-
-QVariantList SearchResultModel::createDecorationData(const Nepomuk2::Query::Result & nepomukResult) const
-{
-    QVariantList decorationList;
-    decorationList.reserve(Max_columns-1);
-
-    for(int i = 0; i < Max_columns; i++) {
-        QVariant newEntry;
-        switch(i) {
-        case Column_EngineIcon:
-        {
-            newEntry = KIcon(QLatin1String("nepomuk"));
-            break;
-        }
-        case Column_EntryType:
-        {
-            newEntry = iconizeEntryType(nepomukResult.resource());
-            break;
-        }
-        default:
-            newEntry = QVariant();
-        }
-
-        decorationList.append(newEntry);
-    }
-
-    return decorationList;
-}
-
-QVariantList SearchResultModel::createToolTipData(const Nepomuk2::Query::Result & nepomukResult) const
-{
-    QVariantList decorationList;
-    decorationList.reserve(Max_columns-1);
-
-    for(int i = 0; i < Max_columns; i++) {
-        QVariant newEntry;
-        switch(i) {
-        case Column_EngineIcon:
-        {
-            newEntry = i18n("Nepomuk");
-            break;
-        }
-        default:
-            newEntry = QVariant();
-        }
-
-        decorationList.append(newEntry);
-    }
-
-    return decorationList;
-}
-
-QVariantList SearchResultModel::createDisplayData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const
+QVariantList SearchResultModel::createDisplayData(const QVariantMap &entryMap) const
 {
     QVariantList displayList;
     displayList.reserve(Max_columns-1);
@@ -387,45 +233,23 @@ QVariantList SearchResultModel::createDisplayData(QSharedPointer<Entry> entry, O
         QVariant newEntry;
         switch(i) {
         case Column_EntryType: {
-            newEntry = entry->type();
+            newEntry = translateEntryType(entryMap.value(QLatin1String("publicationtype")).toString());
             break;
         }
         case Column_Author: {
-            QString authorSting = PlainTextValue::text(entry->value(QLatin1String("author")));
-
-            if(authorSting.isEmpty()) {
-                QString editorSting = PlainTextValue::text(entry->value(QLatin1String("editor")));
-                newEntry = editorSting;
-            }
-            else {
-                newEntry = authorSting;
-            }
+            newEntry = entryMap.value(QLatin1String("authors"));
             break;
         }
         case Column_Name: {
-            QString titleSting = PlainTextValue::text(entry->value(QLatin1String("title")));
-
-            newEntry = titleSting;
+            newEntry = entryMap.value(QLatin1String("title"));
             break;
         }
         case Column_Date: {
-            QString dateSting = PlainTextValue::text(entry->value(QLatin1String("year")));
-
-            newEntry = dateSting;
+            newEntry = entryMap.value(QLatin1String("date"));
             break;
         }
         case Column_Details: {
-            QStringList errorLog;
-            QBuffer buffer;
-
-            buffer.open(QBuffer::WriteOnly);
-            m_exporterXSLT->save(&buffer, entry, &errorLog);
-            buffer.close();
-
-            buffer.open(QBuffer::ReadOnly);
-            QTextStream ts(&buffer);
-            QString text = ts.readAll();
-            buffer.close();
+            QString text = entryMap.value(QLatin1String("plaintext")).toString();
 
             text.prepend(QLatin1String("<font size=\"90%\">"));
             text.append(QLatin1String("</font>"));
@@ -435,6 +259,10 @@ QVariantList SearchResultModel::createDisplayData(QSharedPointer<Entry> entry, O
             newEntry = text;
             break;
         }
+        case Column_StarRate: {
+            newEntry = entryMap.value(QLatin1String("star"));
+            break;
+        }
         default:
             newEntry = QVariant();
         }
@@ -445,7 +273,7 @@ QVariantList SearchResultModel::createDisplayData(QSharedPointer<Entry> entry, O
     return displayList;
 }
 
-QVariantList SearchResultModel::createDecorationData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const
+QVariantList SearchResultModel::createDecorationData(const QVariantMap &entryMap) const
 {
     QVariantList decorationList;
     decorationList.reserve(Max_columns-1);
@@ -455,7 +283,13 @@ QVariantList SearchResultModel::createDecorationData(QSharedPointer<Entry> entry
         switch(i) {
         case Column_EngineIcon:
         {
-            newEntry = engine->icon();
+            newEntry = KIcon(entryMap.value(QLatin1String("engine-icon")).toString() );
+            break;
+        }
+        case Column_EntryType:
+        {
+            newEntry = iconizeEntryType(entryMap.value(QLatin1String("publicationtype")).toString(),
+                                        entryMap.value(QLatin1String("fileurl")).toString());
             break;
         }
         default:
@@ -468,7 +302,7 @@ QVariantList SearchResultModel::createDecorationData(QSharedPointer<Entry> entry
     return decorationList;
 }
 
-QVariantList SearchResultModel::createToolTipData(QSharedPointer<Entry> entry, OnlineSearchAbstract *engine) const
+QVariantList SearchResultModel::createToolTipData(const QVariantMap &entryMap) const
 {
     QVariantList decorationList;
     decorationList.reserve(Max_columns-1);
@@ -478,7 +312,7 @@ QVariantList SearchResultModel::createToolTipData(QSharedPointer<Entry> entry, O
         switch(i) {
         case Column_EngineIcon:
         {
-            newEntry = engine->name();
+            newEntry = entryMap.value(QLatin1String("engine-name"));
             break;
         }
         default:
@@ -491,67 +325,89 @@ QVariantList SearchResultModel::createToolTipData(QSharedPointer<Entry> entry, O
     return decorationList;
 }
 
-QString SearchResultModel::translateEntryType(const Nepomuk2::Resource & resource) const
+QString SearchResultModel::translateEntryType(const QString & typeList) const
 {
-    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Publication())) {
-        BibEntryType type = BibEntryTypeFromUrl(resource);
-        return BibEntryTypeTranslation.at(type);
+    //REFACTOR: nepomuk types to usefull string
+    if(typeList.toLower().contains("publication")) {
+        return i18nc("General publication type","Publication");
+        //BibEntryType type = BibEntryTypeFromUrl(resource);
+        //return BibEntryTypeTranslation.at(type);
     }
-    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Document())) {
+    if(typeList.toLower().contains("article")) {
+        return i18n("Article");
+    }
+    if(typeList.toLower().contains("inproceedings")) {
+        return i18n("InProceedings");
+    }
+    if(typeList.toLower().contains("book")) {
+        return i18n("Book");
+    }
+    if(typeList.toLower().contains("document")) {
         return i18nc("General document type","Document");
     }
-    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Audio())) {
+    if(typeList.toLower().contains("audio")) {
         return i18nc("Audio resource type","Audio");
     }
-    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Video())) {
+    if(typeList.toLower().contains("video")) {
         return i18nc("Video resource type","Video");
     }
-    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Image())) {
+    if(typeList.toLower().contains("image")) {
         return i18nc("Image resource type","Image");
     }
-    if(resource.hasType(Nepomuk2::Vocabulary::NMO::Message())) {
+    if(typeList.toLower().contains("message")) {
         return i18nc("Email resource type","EMail");
     }
-    if(resource.hasType(Nepomuk2::Vocabulary::PIMO::Note())) {
+    if(typeList.toLower().contains("note")) {
         return i18nc("Note resource type","Note");
     }
-    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Website())) {
+    if(typeList.toLower().contains("website")) {
         return i18nc("Website or bookmark","Website");
     }
 
     return i18nc("other unknown resource type","other");
 }
 
-KIcon SearchResultModel::iconizeEntryType(const Nepomuk2::Resource & resource) const
+KIcon SearchResultModel::iconizeEntryType(const QString & typeList, const QString & url) const
 {
-    if(resource.hasType(Nepomuk2::Vocabulary::NBIB::Publication())) {
-        BibEntryType type = BibEntryTypeFromUrl(resource);
-        return KIcon(BibEntryTypeIcon.at(type));
+    if(typeList.toLower().contains("publication")) {
+        //BibEntryType type = BibEntryTypeFromUrl(resource);
+        return KIcon(BibEntryTypeIcon.at(BibType_Book));
     }
-    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Document())) {
-        KUrl path = resource.property(Nepomuk2::Vocabulary::NIE::url()).toUrl();
+    if(typeList.toLower().contains("article")) {
+        //BibEntryType type = BibEntryTypeFromUrl(resource);
+        return KIcon(BibEntryTypeIcon.at(BibType_Article));
+    }
+    if(typeList.toLower().contains("inproceedings")) {
+        //BibEntryType type = BibEntryTypeFromUrl(resource);
+        return KIcon(BibEntryTypeIcon.at(BibType_Proceedings));
+    }
+    if(typeList.toLower().contains("book")) {
+        return KIcon(BibEntryTypeIcon.at(BibType_Book));
+    }
+    if(typeList.toLower().contains("document")) {
+        KUrl path( url );
         return KIcon(KMimeType::iconNameForUrl(path));
     }
-    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Audio())) {
-        KUrl path = resource.property(Nepomuk2::Vocabulary::NIE::url()).toUrl();
+    if(typeList.toLower().contains("audio")) {
+        KUrl path(url );
         return KIcon(KMimeType::iconNameForUrl(path));
     }
-    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Video())) {
-        KUrl path = resource.property(Nepomuk2::Vocabulary::NIE::url()).toUrl();
+    if(typeList.toLower().contains("video")) {
+        KUrl path( url );
         return KIcon(KMimeType::iconNameForUrl(path));
     }
-    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Image())) {
-        KUrl path = resource.property(Nepomuk2::Vocabulary::NIE::url()).toUrl();
+    if(typeList.toLower().contains("image")) {
+        KUrl path( url );
         return KIcon(KMimeType::iconNameForUrl(path));
     }
-    if(resource.hasType(Nepomuk2::Vocabulary::NMO::Message())) {
+    if(typeList.toLower().contains("message")) {
         return KIcon(QLatin1String("internet-mail"));
     }
-    if(resource.hasType(Nepomuk2::Vocabulary::PIMO::Note())) {
+    if(typeList.toLower().contains("note")) {
         return KIcon(QLatin1String("knotes"));
     }
-    if(resource.hasType(Nepomuk2::Vocabulary::NFO::Website())) {
-        KUrl path = resource.property(Nepomuk2::Vocabulary::NIE::url()).toUrl();
+    if(typeList.toLower().contains("website")) {
+        KUrl path( url );
         QString iconName = KMimeType::favIconForUrl(path);
         if(iconName.isEmpty()) {
             iconName = QLatin1String("text-html");
