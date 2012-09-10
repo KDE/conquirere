@@ -27,6 +27,8 @@
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk2/Variant>
 
+#include <QtCore/QEventLoop>
+#include <QtCore/QTimer>
 
 QueryClient::QueryClient(QObject *parent)
     :QObject(parent)
@@ -51,6 +53,13 @@ void QueryClient::setLibrary(Library *selectedLibrary)
 void QueryClient::propertyChanged (const Nepomuk2::Resource &resource, const Nepomuk2::Types::Property &property, const QVariantList &addedValues, const QVariantList &removedValues)
 {
     Q_UNUSED(property);
+
+    // @see https://bugs.kde.org/show_bug.cgi?id=306108
+    // The reason this is required, is cause the Resource class is also updated via
+    // dbus, and we have no way of controlling which slot would be called first.
+    QEventLoop loop;
+    QTimer::singleShot( 500, &loop, SLOT(quit()) );
+    loop.exec();
 
     // see if we need to add / remove the changed resource from the project model
     if(property.uri() == Soprano::Vocabulary::NAO::isRelated() ) {
