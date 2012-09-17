@@ -959,8 +959,8 @@ nbib:  a       nrl:Ontology ;
           nao:status "Unstable" ;
           nao:updatable "0 " ;
           nao:version "0.1" ;
-          nao:prefLabel "Sync NBIB Ontology" ;
-          nao:description "Describes all necessary parts to keep the publication from NBIB insync with an online storage such as zotero" .
+          nao:prefLabel "Nepomuk BibTex Ontology" ;
+          nao:description "The Nepomuk BibTex Ontology provides vocabulary to express bibliografic information" .
 
 }
 

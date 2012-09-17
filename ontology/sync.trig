@@ -74,7 +74,7 @@ sync: {
     sync:userId
           a       rdf:Property ;
           rdfs:domain sync:ServerSyncData ;
-          rdfs:comment "The user name  or user id the sync is done" ;
+          rdfs:comment "The user name or user id the sync is done" ;
           rdfs:label "User id" ;
           rdfs:range xsd:string ;
           nrl:cardinality 1 ;
@@ -159,7 +159,7 @@ sync: {
 
     sync:BibResource
           a       sync:SyncDataType ;
-          rdfs:comment "Sync data BibResource (Publication and/or Reference" ;
+          rdfs:comment "Sync data BibResource (Publication and/or Reference)" ;
           rdfs:label "BibResource" .
 
     sync:syncDataType
@@ -201,8 +201,8 @@ sync:  a       nrl:Ontology ;
           nao:status "Unstable" ;
           nao:updatable "0 " ;
           nao:version "0.1" ;
-          nao:prefLabel "Nepomuk BibTex Ontology" ;
-          nao:description "The Nepomuk BibTex Ontology provides vocabulary to express bibliografic information" .
+          nao:prefLabel "Sync NBIB Ontology" ;
+          nao:description "Describes all necessary parts to keep the publication from NBIB insync with an online storage such as zotero" .
 
 }
 
