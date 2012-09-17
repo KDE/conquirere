@@ -66,8 +66,6 @@ public:
 
 private slots:
     bool isComplete() const;
-    void contactCollectionsReceived( const Akonadi::Collection::List& list);
-    void eventCollectionsReceived( const Akonadi::Collection::List& list);
 
 public:
     void setupUi();
@@ -96,13 +94,13 @@ signals:
 
 private slots:
     bool isComplete() const;
-/*
-    void popLocalDeletionQuestion(QList<SyncDetails> items);
-    void popServerDeletionQuestion(QList<SyncDetails> items);
-    void popGroupRemovalQuestion(QList<SyncDetails> items);
-    void popMergeDialog(QList<SyncDetails> items);
+
+//    void popLocalDeletionQuestion(QList<SyncDetails> items);
+//    void popServerDeletionQuestion(QList<SyncDetails> items);
+//    void popGroupRemovalQuestion(QList<SyncDetails> items);
+//    void popMergeDialog(QList<SyncDetails> items);
     void syncFinished();
-*/
+
 private:
     void setupUi();
     void initializePage();

@@ -19,8 +19,8 @@
 
 //#include "../testdatadir.h"
 
-#include "storageglobals.h"
-#include "provider/zotero/zoterosync.h"
+#include "nbibio/storageglobals.h"
+#include "nbibio/provider/zotero/zoterosync.h"
 
 #include <QtTest>
 #include <QtDebug>

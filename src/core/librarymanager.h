@@ -52,12 +52,19 @@ public slots:
     void closeLibrary(Library *l);
     void deleteLibrary(Library *l);
 
-    void openSettings();
-    void openSettings(Library *l);
+    void doOpenSettings(Library *l = 0);
+    void doImportFile(Library *l = 0);
+    void doExportFile(Library *l = 0);
+    void doSyncStorage(Library *l = 0);
 
 signals:
     void libraryAdded(Library *l);
     void libraryRemoved(const QUrl &projectThingUrl);
+
+    void openSettings(Library *l);
+    void importFile(Library *l);
+    void exportFile(Library *l);
+    void syncStorage(Library *l);
 
 private:
     QList<Library*> m_openProjectList;

@@ -25,6 +25,7 @@
 #include "resourcetablewidget.h"
 #include "splashscreen.h"
 
+#include "settings/projectsettingsdialog.h"
 #include "settings/conquireresettingsdialog.h"
 
 #include "sidebar/sidebarwidget.h"
@@ -191,26 +192,45 @@ void MainWindow::closeLibrarySelection()
     m_libraryManager->closeLibrary(selectedLib);
 }
 
-void MainWindow::fileImport()
+void MainWindow::openSettings(Library *l)
+{
+    if(l->libraryType() == Library_Project) {
+        ProjectSettingsDialog settingsDialog;
+        settingsDialog.setProjectSettings(l->settings());
+
+        settingsDialog.exec();
+    }
+    else {
+        ConquirereSettingsDialog csd;
+        csd.setProjectSettings(l->settings());
+
+        csd.exec();
+    }
+}
+
+void MainWindow::fileImport(Library *l)
 {
     BibTeXImportWizard bid;
     bid.setLibraryManager(m_libraryManager);
+    bid.setImportLibrary(l);
     bid.setupUi();
     bid.exec();
 }
 
-void MainWindow::fileExport()
+void MainWindow::fileExport(Library *l)
 {
     BibTexExportDialog bed;
     bed.setInitialFileType(BibTexExporter::EXPORT_BIBTEX);
     bed.setLibraryManager(m_libraryManager);
+    bed.setExportLibrary(l);
     bed.exec();
 }
 
-void MainWindow::storageSync()
+void MainWindow::storageSync(Library *l)
 {
     StorageSyncWizard ssw;
 
+    //FIXME: set library for storage sync
     ssw.setLibraryManager(m_libraryManager);
 
     ssw.exec();
@@ -436,27 +456,28 @@ void MainWindow::setupActions()
     importBibTexAction->setText(i18n("Import from File"));
     importBibTexAction->setIcon(KIcon(QLatin1String("document-import")));
     actionCollection()->addAction(QLatin1String("db_import_file"), importBibTexAction);
-    connect(importBibTexAction, SIGNAL(triggered(bool)),this, SLOT(fileImport()) );
+    connect(importBibTexAction, SIGNAL(triggered(bool)),m_libraryManager, SLOT(doImportFile()) );
 
     // export section
     KAction* exportBibTexAction = new KAction(this);
     exportBibTexAction->setText(i18n("Export to File"));
     exportBibTexAction->setIcon(KIcon(QLatin1String("document-export")));
     actionCollection()->addAction(QLatin1String("db_export_file"), exportBibTexAction);
-    connect(exportBibTexAction, SIGNAL(triggered(bool)),this, SLOT(fileExport()) );
+    connect(exportBibTexAction, SIGNAL(triggered(bool)),m_libraryManager, SLOT(doExportFile()) );
 
     // sync actions
     KAction* syncZoteroAction = new KAction(this);
     syncZoteroAction->setText(i18n("External Storage Sync"));
     syncZoteroAction->setIcon(KIcon(QLatin1String("svn-update")));
     actionCollection()->addAction(QLatin1String("db_sync_storage"), syncZoteroAction);
-    connect(syncZoteroAction, SIGNAL(triggered(bool)),this, SLOT(storageSync()));
+    connect(syncZoteroAction, SIGNAL(triggered(bool)),m_libraryManager, SLOT(doSyncStorage()) );
 
+    //FIXME: full sync (background sync)
     KAction* triggerBackgroundSyncAction = new KAction(this);
     triggerBackgroundSyncAction->setText(i18n("Synchronize Collection"));
     triggerBackgroundSyncAction->setIcon(KIcon(QLatin1String("view-refresh")));
     actionCollection()->addAction(QLatin1String("db_background_sync"), triggerBackgroundSyncAction);
-    connect(triggerBackgroundSyncAction, SIGNAL(triggered(bool)), this, SLOT(startFullSync()));
+    connect(triggerBackgroundSyncAction, SIGNAL(triggered(bool)), m_libraryManager, SLOT(startFullSync()));
 
     // other database actions
     KAction* dbCheckAction = new KAction(this);
@@ -510,6 +531,10 @@ void MainWindow::setupMainWindow()
     m_libraryManager = new LibraryManager;
     connect(m_libraryManager, SIGNAL(libraryAdded(Library*)), this, SLOT(openLibrary(Library*)));
     connect(m_libraryManager, SIGNAL(libraryRemoved(QUrl)), this, SLOT(closeLibrary(QUrl)));
+    connect(m_libraryManager, SIGNAL(exportFile(Library*)), this, SLOT(fileExport(Library*)) );
+    connect(m_libraryManager, SIGNAL(importFile(Library*)), this, SLOT(fileImport(Library*)) );
+    connect(m_libraryManager, SIGNAL(syncStorage(Library*)), this, SLOT(storageSync(Library*)) );
+    connect(m_libraryManager, SIGNAL(openSettings(Library*)), this, SLOT(openSettings(Library*)) );
 
     // we start by applying all hidden sections from the "OnRestart" key to the real hidden part
     // without ths difference, we could end up badly when the user chanegs the hiddens election and

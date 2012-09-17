@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>480</width>
-    <height>457</height>
+    <height>395</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -233,168 +233,118 @@
      <property name="title">
       <string>Sync Settings</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>Sync mode:</string>
-          </property>
-          <property name="buddy">
-           <cstring>syncMode</cstring>
-          </property>
-         </widget>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Sync mode:</string>
+        </property>
+        <property name="buddy">
+         <cstring>syncMode</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="KComboBox" name="syncMode">
+        <property name="currentIndex">
+         <number>2</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>Download only</string>
+         </property>
         </item>
-        <item row="0" column="1">
-         <widget class="KComboBox" name="syncMode">
-          <property name="currentIndex">
-           <number>2</number>
-          </property>
-          <item>
-           <property name="text">
-            <string>Download only</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Upload only</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Synchronize Database</string>
-           </property>
-          </item>
-         </widget>
+        <item>
+         <property name="text">
+          <string>Upload only</string>
+         </property>
         </item>
-        <item row="3" column="0" colspan="2">
-         <widget class="QCheckBox" name="importAttachments">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Import Attachments</string>
-          </property>
-         </widget>
+        <item>
+         <property name="text">
+          <string>Synchronize Database</string>
+         </property>
         </item>
-        <item row="3" column="2">
-         <widget class="QCheckBox" name="exportAttachments">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Export Attachments</string>
-          </property>
-         </widget>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Merge mode:</string>
+        </property>
+        <property name="buddy">
+         <cstring>mergeMode</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="KComboBox" name="mergeMode">
+        <item>
+         <property name="text">
+          <string>Merge manually</string>
+         </property>
         </item>
-        <item row="6" column="0" colspan="2">
-         <widget class="QCheckBox" name="addContactsToAkonadi">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Add Contacts to Akonadi</string>
-          </property>
-         </widget>
+        <item>
+         <property name="text">
+          <string>User server version</string>
+         </property>
         </item>
-        <item row="6" column="2">
-         <widget class="KComboBox" name="contactCollection">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
+        <item>
+         <property name="text">
+          <string>Keep local changes</string>
+         </property>
         </item>
-        <item row="7" column="0" colspan="2">
-         <widget class="QCheckBox" name="addEventsToAkonadi">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Add Events to Akonadi</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="2">
-         <widget class="KComboBox" name="eventCollection">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_8">
-          <property name="text">
-           <string>Merge mode:</string>
-          </property>
-          <property name="buddy">
-           <cstring>mergeMode</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="KComboBox" name="mergeMode">
-          <item>
-           <property name="text">
-            <string>Merge manually</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>User server version</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Keep local changes</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="3">
-         <widget class="QCheckBox" name="askDeletion">
-          <property name="text">
-           <string>Ask before entries are deleted</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1" colspan="2">
-         <widget class="KUrlRequester" name="localStorageUrl">
-          <property name="mode">
-           <set>KFile::Directory|KFile::LocalOnly</set>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="storageLabel">
-          <property name="text">
-           <string>Local Storage:</string>
-          </property>
-          <property name="buddy">
-           <cstring>localStorageUrl</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1" colspan="2">
-         <widget class="QLabel" name="localStoragePath">
-          <property name="text">
-           <string notr="true"/>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QCheckBox" name="askDeletion">
+        <property name="text">
+         <string>Ask before entries are deleted</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="QCheckBox" name="importAttachments">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Import Attachments</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QCheckBox" name="exportAttachments">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Export Attachments</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="storageLabel">
+        <property name="text">
+         <string>Local Storage:</string>
+        </property>
+        <property name="buddy">
+         <cstring>localStorageUrl</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLabel" name="localStoragePath">
+        <property name="text">
+         <string notr="true"/>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1" colspan="2">
+       <widget class="KUrlRequester" name="localStorageUrl">
+        <property name="mode">
+         <set>KFile::Directory|KFile::LocalOnly</set>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -434,38 +384,6 @@
     <hint type="destinationlabel">
      <x>93</x>
      <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>addContactsToAkonadi</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>contactCollection</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>163</x>
-     <y>407</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>350</x>
-     <y>404</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>addEventsToAkonadi</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>eventCollection</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>182</x>
-     <y>433</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>334</x>
-     <y>430</y>
     </hint>
    </hints>
   </connection>

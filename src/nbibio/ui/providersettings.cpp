@@ -18,7 +18,7 @@
 #include "providersettings.h"
 #include "ui_providersettings.h"
 
-#include "nbibio/onlinestorage.h"
+#include "nbibio/provider/onlinestorage.h"
 #include "nbibio/provider/zotero/zoterosync.h"
 
 #include <KDE/KMessageBox>
@@ -30,7 +30,6 @@ ProviderSettings::ProviderSettings(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->contactCollection->setEnabled(false);
     ui->localStorageUrl->setEnabled(false);
     ui->storageLabel->setEnabled(false);
 

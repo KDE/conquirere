@@ -19,7 +19,6 @@ set(nbibio_LIB_SRCS
 
     ui/bibtexexportdialog.cpp
     ui/bibteximportwizard.cpp
-    ui/synczoterodialog.cpp
     ui/storagesyncwizard.cpp
     ui/itemdeletedialog.cpp
     ui/itemmergedialog.cpp
@@ -33,7 +32,6 @@ kde4_add_ui_files( nbibio_LIB_SRCS
     ui/itemdeletedialog.ui
     ui/itemmergedialog.ui
     ui/providersettings.ui
-    ui/synczoterodialog.ui
 )
 
 kde4_add_library( nbibio STATIC ${nbibio_LIB_SRCS} )

@@ -20,7 +20,7 @@
 
 #include <QtGui/QWidget>
 
-//#include "nbibio/ui/providersettings.h"
+#include "nbibio/ui/providersettings.h"
 
 namespace Ui {
     class ProviderSelectionWidget;
@@ -51,7 +51,6 @@ private slots:
     void removeProvider();
 
 private:
-    void fetchAkonadiCollection();
     Ui::ProviderSelectionWidget *ui;
     ProjectSettings *m_settings;
 

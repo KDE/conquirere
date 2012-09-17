@@ -37,8 +37,6 @@ ProviderSelectionWidget::ProviderSelectionWidget(QWidget *parent) :
     connect(ui->addButton, SIGNAL(clicked()), this, SLOT(addProvider()));
     ui->removeButton->setIcon(KIcon("list-remove"));
     connect(ui->removeButton, SIGNAL(clicked()), this, SLOT(removeProvider()));
-
-//    fetchAkonadiCollection();
 }
 
 ProviderSelectionWidget::~ProviderSelectionWidget()
@@ -50,22 +48,22 @@ void ProviderSelectionWidget::setProjectSettings(ProjectSettings *ps)
 {
     m_settings = ps;
 
-    //resetSettings(); called by overlying widgets
+//    resetSettings(); called by overlying widgets
 }
 
 void ProviderSelectionWidget::resetSettings()
 {
-    /*
     ui->listProvider->clear();
 
     QList<ProviderSyncDetails> syncList = m_settings->allProviderSyncDetails();
 
     foreach(const ProviderSyncDetails & psd, syncList) {
-        QListWidgetItem *qlwi = new QListWidgetItem(psd.providerInfo->providerIcon(), psd.providerInfo->providerName());
+        //FIXME: get provider icon and name from provider ID
+        //QListWidgetItem *qlwi = new QListWidgetItem(psd.providerInfo->providerIcon(), psd.providerInfo->providerName());
+        QListWidgetItem *qlwi = new QListWidgetItem(psd.providerId);
         qlwi->setData(PROVIDER_UUID, psd.uuid);
         ui->listProvider->addItem(qlwi);
     }
-    */
 }
 
 void ProviderSelectionWidget::applySettings()
@@ -75,7 +73,6 @@ void ProviderSelectionWidget::applySettings()
 
 void ProviderSelectionWidget::editProvider()
 {
-    /*
     QListWidgetItem *qlwi = ui->listProvider->currentItem();
 
     if(!qlwi)
@@ -86,7 +83,7 @@ void ProviderSelectionWidget::editProvider()
     ProviderSyncDetails oldPsd = m_settings->providerSyncDetails(uuid);
 
     KDialog dlg;
-    ProviderSettings ps(&dlg, true);
+    ProviderSettings ps(&dlg);
     ps.setProviderSettingsDetails(oldPsd);
     dlg.setMainWidget(&ps);
 
@@ -97,44 +94,38 @@ void ProviderSelectionWidget::editProvider()
 
         m_settings->setProviderSyncDetails(newPsd, uuid);
 
-        QString itemName = newPsd.providerInfo->providerName();
+        //FIXME: get provider icon and name from provider ID
+//        QString itemName = newPsd.providerInfo->providerName();
+        QString itemName = newPsd.providerId;
         qlwi->setText(itemName);
 
         ps.savePasswordInKWallet();
     }
-    */
 }
 
 void ProviderSelectionWidget::addProvider()
 {
-    /*
     KDialog dlg;
 
-    ProviderSettings ps(&dlg, true);
+    ProviderSettings ps(&dlg);
     dlg.setMainWidget(&ps);
-
-    ps.setAkonadiContactDetails(m_contactList);
-    ps.setAkonadiEventDetails(m_eventList);
-
-    connect(this, SIGNAL(addContactCollection(QList<ProviderSettings::AkonadiDetails>)), &ps, SLOT(setAkonadiContactDetails(QList<ProviderSettings::AkonadiDetails>)));
-    connect(this, SIGNAL(addEventCollection(QList<ProviderSettings::AkonadiDetails>)), &ps, SLOT(setAkonadiEventDetails(QList<ProviderSettings::AkonadiDetails>)));
 
     int ret = dlg.exec();
 
     if(ret == KDialog::Accepted) {
         ProviderSyncDetails newPsd = ps.providerSettingsDetails();
         QString uuid = m_settings->setProviderSyncDetails(newPsd, QString());
-        QListWidgetItem *qlwi = new QListWidgetItem(newPsd.providerInfo->providerIcon(), newPsd.providerInfo->providerName());
+        //FIXME: get provider icon and name from provider ID
+//        QListWidgetItem *qlwi = new QListWidgetItem(newPsd.providerInfo->providerIcon(), newPsd.providerInfo->providerName());
+        QListWidgetItem *qlwi = new QListWidgetItem(newPsd.providerId);
         qlwi->setData(PROVIDER_UUID, uuid);
         ui->listProvider->addItem(qlwi);
         ps.savePasswordInKWallet();
     }
-    */
 }
 
 void ProviderSelectionWidget::removeProvider()
 {
-    /*
     QListWidgetItem *qlwi = ui->listProvider->currentItem();
 
     if(!qlwi)
@@ -146,6 +137,5 @@ void ProviderSelectionWidget::removeProvider()
     delete qlwi;
 
     m_settings->removeProviderSyncDetails(uuid);
-    */
 }
 

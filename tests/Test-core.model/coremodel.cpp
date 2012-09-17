@@ -171,7 +171,6 @@ void CoreModel::addPublicationTest()
     QCOMPARE(addeditor, QLatin1String("UNITTEST-Editor"));
 }
 
-//BUG: test fails see https://bugs.kde.org/show_bug.cgi?id=306108
 void CoreModel::changePublicationTest()
 {
     NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Publication)->sourceModel() );
@@ -186,6 +185,14 @@ void CoreModel::changePublicationTest()
 
     // check that the data was actually changed in the model
     QVERIFY(waitForSignal(publicationModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), 10000));
+
+    // @see BUG: https://bugs.kde.org/show_bug.cgi?id=306108
+    // The reason this is required, is cause the Resource class is also updated via
+    // dbus, and we have no way of controlling which slot would be called first.
+    QEventLoop loop;
+    QTimer::singleShot( 500, &loop, SLOT(quit()) );
+    loop.exec();
+
     QString changedTitle = publicationModel->data( publicationModel->index(lastEntry,PublicationQuery::Column_Title), Qt::DisplayRole).toString();
 
     QCOMPARE(changedTitle, QLatin1String("UNITTEST-Changed-Name"));

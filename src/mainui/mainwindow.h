@@ -53,13 +53,14 @@ public slots:
     void closeLibrarySelection();
 
     // database menu
-    void fileImport();
-    void fileExport();
-    void storageSync();
+    void fileImport(Library *l);
+    void fileExport(Library *l);
+    void storageSync(Library *l);
 
     void dbCheck();
     void dbBackup();
 
+    void openSettings(Library *l);
     void showConqSettings();
 
     // other helping slots

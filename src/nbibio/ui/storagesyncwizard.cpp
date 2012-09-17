@@ -19,21 +19,14 @@
 #include "ui_storagesyncwizard.h"
 
 #include "core/librarymanager.h"
-/*
-#include "onlinestorage/providersettings.h"
-#include "onlinestorage/storageglobals.h"
-#include "onlinestorage/storageinfo.h"
 
-#include "mainui/sync/itemdeletedialog.h"
-#include "mainui/sync/itemmergedialog.h"
+#include "providersettings.h"
+#include "nbibio/storageglobals.h"
 
-#include "nbibio/zotero/synczoteronepomuk.h"
-#include "nbibio/bibtex/synckbibtexfile.h"
-*/
-//#include "nbibio/pipe/bibtextonepomukpipe.h"
+#include "ui/itemdeletedialog.h"
+#include "ui/itemmergedialog.h"
 
-#include <Akonadi/CollectionFetchJob>
-#include <Akonadi/CollectionFetchScope>
+#include "nbibio/pipe/varianttonepomukpipe.h"
 
 #include <KDE/KMessageBox>
 #include <KDE/KDebug>
@@ -86,59 +79,17 @@ bool SettingsPage::isComplete() const
     return true;
 }
 
-void SettingsPage::contactCollectionsReceived( const Akonadi::Collection::List& list)
-{
-    /*
-    QList<ProviderSettings::AkonadiDetails> contactList;
-    foreach(const Akonadi::Collection & c, list) {
-        ProviderSettings::AkonadiDetails ad;
-        ad.collectionName = c.name();
-        ad.collectionID = c.id();
-        contactList.append(ad);
-    }
-
-    providerSettings->setAkonadiContactDetails(contactList);
-    */
-}
-
-void SettingsPage::eventCollectionsReceived( const Akonadi::Collection::List& list)
-{
-    /*
-    QList<ProviderSettings::AkonadiDetails> evntList;
-    foreach(const Akonadi::Collection & c, list) {
-        ProviderSettings::AkonadiDetails ad;
-        ad.collectionName = c.name();
-        ad.collectionID = c.id();
-        evntList.append(ad);
-    }
-
-    providerSettings->setAkonadiEventDetails(evntList);
-    */
-}
-
 void SettingsPage::setupUi()
 {
-    /*
     setTitle(i18n("Sync Storage Settings"));
     setSubTitle(i18n("Select the provider and specify the settings for it to sync your system library"));
 
-    providerSettings = new ProviderSettings(this, true);
+    providerSettings = new ProviderSettings(this);
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(providerSettings);
     setLayout(layout);
 
-    // fetching all collections containing contacts recursively, starting at the root collection
-    Akonadi::CollectionFetchJob *job = new Akonadi::CollectionFetchJob( Akonadi::Collection::root(), Akonadi::CollectionFetchJob::Recursive, this );
-    job->fetchScope().setContentMimeTypes( QStringList() << "application/x-vnd.kde.contactgroup" );
-    connect( job, SIGNAL(collectionsReceived(Akonadi::Collection::List)),
-             this, SLOT(contactCollectionsReceived(Akonadi::Collection::List)) );
-
-    Akonadi::CollectionFetchJob *job2 = new Akonadi::CollectionFetchJob( Akonadi::Collection::root(), Akonadi::CollectionFetchJob::Recursive, this );
-    job2->fetchScope().setContentMimeTypes( QStringList() << "x-vnd.akonadi.calendar.event" << "application/x-vnd.akonadi.calendar.todo" );
-    connect( job2, SIGNAL(collectionsReceived(Akonadi::Collection::List)),
-             this, SLOT(eventCollectionsReceived(Akonadi::Collection::List)) );
-             */
 }
 
 
@@ -171,12 +122,13 @@ void ProgressPage::setupUi()
 
 void ProgressPage::initializePage()
 {
-    /*
      //start the actual sync
     StorageSyncWizard *ssw = qobject_cast<StorageSyncWizard *>(wizard());
 
     ProviderSyncDetails psd = ssw->sp->providerSettings->providerSettingsDetails();
-
+/*
+    //TODO: add NepomukSyncClient
+    // configure the provider via provider id
     delete m_syncNepomuk;
     if(psd.providerInfo->providerId() == QLatin1String("zotero")) {
         m_syncNepomuk = new SyncZoteroNepomuk;
@@ -292,10 +244,10 @@ void ProgressPage::popMergeDialog(QList<SyncDetails> items)
 
     emit mergeFinished();
 }
+*/
 
 void ProgressPage::syncFinished()
 {
     isSyncFinished = true;
     emit completeChanged();
 }
-*/

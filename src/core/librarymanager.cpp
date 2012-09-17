@@ -22,9 +22,6 @@
 #include "core/projectsettings.h"
 #include "core/models/nepomukmodel.h"
 
-#include "mainui/settings/projectsettingsdialog.h"
-#include "mainui/settings/conquireresettingsdialog.h"
-
 #include <QtGui/QSortFilterProxyModel>
 
 #include <KDE/KDebug>
@@ -129,23 +126,43 @@ void LibraryManager::deleteLibrary(Library *l)
     l->deleteLater();
 }
 
-void LibraryManager::openSettings()
+void LibraryManager::doOpenSettings(Library *l)
 {
-    openSettings(m_systemLibrary);
-}
-
-void LibraryManager::openSettings(Library *l)
-{
-    if(l->libraryType() == Library_Project) {
-        ProjectSettingsDialog settingsDialog;
-        settingsDialog.setProjectSettings(l->settings());
-
-        settingsDialog.exec();
+    if(l) {
+        emit openSettings(l);
     }
     else {
-        ConquirereSettingsDialog csd;
-        csd.setProjectSettings(l->settings());
-
-        csd.exec();
+        emit openSettings(m_systemLibrary);
     }
 }
+
+void LibraryManager::doImportFile(Library *l)
+{
+    if(l) {
+        emit importFile(l);
+    }
+    else {
+        emit importFile(m_systemLibrary);
+    }
+}
+
+void LibraryManager::doExportFile(Library *l)
+{
+    if(l) {
+        emit exportFile(l);
+    }
+    else {
+        emit exportFile(m_systemLibrary);
+    }
+}
+
+void LibraryManager::doSyncStorage(Library *l)
+{
+    if(l) {
+        emit syncStorage(l);
+    }
+    else {
+        emit syncStorage(m_systemLibrary);
+    }
+}
+

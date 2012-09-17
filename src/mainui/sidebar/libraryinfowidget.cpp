@@ -102,21 +102,17 @@ void LibraryInfoWidget::deleteButtonClicked()
 
 void LibraryInfoWidget::importData()
 {
-    //FIXME: enable file import from library info widget
-    kWarning() << "disabled for now";
-    //libraryManager()->importData(m_curLibrary);
+    libraryManager()->doImportFile(m_curLibrary);
 }
 
 void LibraryInfoWidget::exportData()
 {
-    //FIXME: enable file export from library widget
-    kWarning() << "disabled for now";
-    //libraryManager()->exportData(m_curLibrary);
+    libraryManager()->doExportFile(m_curLibrary);
 }
 
 void LibraryInfoWidget::openSettings()
 {
-    libraryManager()->openSettings(m_curLibrary);
+    libraryManager()->doOpenSettings(m_curLibrary);
 }
 
 void LibraryInfoWidget::syncData()

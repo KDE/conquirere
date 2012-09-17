@@ -205,9 +205,8 @@ void LibraryWidget::exportToFile()
     if(!selectedLibrary) {
         return;
     }
-    //FIXME: enable file export from library widget
-    kWarning() << "disabled for now";
-    //m_libraryManager->exportData(selectedLibrary);
+
+    m_libraryManager->doExportFile(selectedLibrary);
 }
 
 void LibraryWidget::importFromFile()
@@ -217,9 +216,8 @@ void LibraryWidget::importFromFile()
     if(!selectedLibrary) {
         return;
     }
-    //FIXME: enable file import from library widget
-    kWarning() << "disabled for now";
-    //m_libraryManager->importData(selectedLibrary);
+
+    m_libraryManager->doImportFile(selectedLibrary);
 }
 
 void LibraryWidget::openSettings()
@@ -229,7 +227,7 @@ void LibraryWidget::openSettings()
     if(!selectedLibrary) {
         return;
     }
-    m_libraryManager->openSettings(selectedLibrary);
+    m_libraryManager->doOpenSettings(selectedLibrary);
 }
 
 void LibraryWidget::closeProject()
