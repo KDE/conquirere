@@ -9,7 +9,6 @@ set(nbibio_LIB_SRCS
     bibtex/bibtexvariant.cpp
     bibtex/bibtexexporter.cpp
     bibtex/bibteximporter.cpp
-    bibtex/synckbibtexfile.cpp
 
     pipe/clipboardpipe.cpp
     pipe/kilelyxpipe.cpp
@@ -17,11 +16,23 @@ set(nbibio_LIB_SRCS
     pipe/varianttonepomukpipe.cpp
 
     nepomuksyncclient.cpp
+    backgroundsync.cpp
+
+    ui/bibtexexportdialog.cpp
+    ui/bibteximportwizard.cpp
+    ui/synczoterodialog.cpp
+    ui/storagesyncwizard.cpp
+    ui/itemdeletedialog.cpp
+    ui/itemmergedialog.cpp
 )
 
-kde4_add_kcfg_files(nbibio_LIB_SRCS ../conquirere.kcfgc)
-install(FILES ../conquirere.kcfg DESTINATION ${KCFG_INSTALL_DIR})
-
+kde4_add_ui_files( nbibio_LIB_SRCS
+    ui/bibtexexportdialog.ui
+    ui/bibteximportwizard.ui
+    ui/storagesyncwizard.ui
+    ui/itemdeletedialog.ui
+    ui/itemmergedialog.ui
+)
 
 kde4_add_library( nbibio STATIC ${nbibio_LIB_SRCS} )
 

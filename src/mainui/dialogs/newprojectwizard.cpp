@@ -18,14 +18,14 @@
 #include "newprojectwizard.h"
 #include "ui_newprojectwizard.h"
 
-#include "nbibio/nbibsync.h"
-#include "nbibio/zotero/synczoteronepomuk.h"
+//#include "nbibio/nbibsync.h"
+//#include "nbibio/zotero/synczoteronepomuk.h"
 
 #include "core/library.h"
 #include "core/projectsettings.h"
 #include "../settings/projectgeneralsettings.h"
 
-#include "onlinestorage/storageinfo.h"
+//#include "nbibio/storageinfo.h"
 
 #include <KDE/KLineEdit>
 #include <KDE/KUrlRequester>
@@ -244,6 +244,7 @@ void SyncPage::updateFolderTextLabel(const QString &folder)
 
 void SyncPage::editProvider()
 {
+    /*
     int selectedProvider = m_syncList->currentIndex().row();
     ProviderSyncDetails oldPsd = m_psdList.at(selectedProvider);
 
@@ -269,10 +270,12 @@ void SyncPage::editProvider()
         }
         ps.savePasswordInKWallet();
     }
+    */
 }
 
 void SyncPage::addProvider()
 {
+    /*
     KDialog dlg;
 
     ProviderSettings ps(&dlg, true);
@@ -292,16 +295,19 @@ void SyncPage::addProvider()
         m_syncList->addItem(qlwi);
         ps.savePasswordInKWallet();
     }
+    */
 }
 
 void SyncPage::removeProvider()
 {
+    /*
     int selectedProvider = m_syncList->currentIndex().row();
 
     QListWidgetItem *qlwi = m_syncList->item(selectedProvider);
     m_syncList->removeItemWidget(qlwi);
     delete qlwi;
     m_psdList.removeAt(selectedProvider);
+    */
 }
 
 void SyncPage::fetchAkonadiCollection()
@@ -320,6 +326,7 @@ void SyncPage::fetchAkonadiCollection()
 
 void SyncPage::akonadiContactCollectionFetched(const Akonadi::Collection::List &list)
 {
+    /*
     QList<ProviderSettings::AkonadiDetails> contactList;
     foreach(const Akonadi::Collection & c, list) {
         ProviderSettings::AkonadiDetails ad;
@@ -329,10 +336,12 @@ void SyncPage::akonadiContactCollectionFetched(const Akonadi::Collection::List &
     }
 
     emit addContactCollection(contactList);
+    */
 }
 
 void SyncPage::akonadiEventCollectionFetched(const Akonadi::Collection::List &list)
 {
+    /*
     QList<ProviderSettings::AkonadiDetails> evntList;
     foreach(const Akonadi::Collection & c, list) {
         ProviderSettings::AkonadiDetails ad;
@@ -342,4 +351,5 @@ void SyncPage::akonadiEventCollectionFetched(const Akonadi::Collection::List &li
     }
 
     emit addEventCollection(evntList);
+    */
 }

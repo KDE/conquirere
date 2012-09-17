@@ -21,7 +21,7 @@
 #include "core/library.h"
 #include "core/tagcloud.h"
 #include "core/projectsettings.h"
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 #include "nbibio/bibtex/bibteximporter.h"
 
 #include <kbibtex/fileimporterbibtex.h>

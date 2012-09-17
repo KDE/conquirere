@@ -20,7 +20,7 @@
 #include "tagcloud.h"
 #include "dirwatcher.h"
 
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 #include "models/nepomukmodel.h"
 #include "models/referencemodel.h"

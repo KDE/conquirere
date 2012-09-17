@@ -18,7 +18,7 @@
 #include "librarywidget.h"
 #include "ui_librarywidget.h"
 
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 #include "mainui/settings/projectsettingsdialog.h"
 #include "mainui/docklets/searchwidget.h"
 
@@ -29,7 +29,7 @@
 #include "qlibrarytreewidgetitem.h"
 #include "projecttreedelegate.h"
 
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 #include <KDE/KStandardDirs>
 

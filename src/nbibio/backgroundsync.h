@@ -21,7 +21,7 @@
 #include <QObject>
 
 #include "core/projectsettings.h"
-#include "nbibio/nbibsync.h"
+//#include "nbibio/nbibsync.h"
 
 class LibraryManager;
 class Library;
@@ -81,14 +81,15 @@ public slots:
     void startSync();
 
 private slots:
-    void startSync(const ProviderSyncDetails &psd);
+//    void startSync(const ProviderSyncDetails &psd);
     void currentSyncFinished();
-
+/*
     void popLocalDeletionQuestion(QList<SyncDetails> items);
     void popServerDeletionQuestion(QList<SyncDetails> items);
     void popGroupRemovalQuestion(QList<SyncDetails> items);
     void popMergeDialog(QList<SyncDetails> items);
     void cancelSync();
+    */
 
     /**
       * press the 0-100 from several syncs into an overal 0-100

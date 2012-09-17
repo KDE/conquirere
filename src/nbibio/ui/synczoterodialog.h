@@ -20,8 +20,8 @@
 
 #include <KDialog>
 
-#include "onlinestorage/storageglobals.h"
-#include "nbibio/nbibsync.h"
+#include "nbibio/storageglobals.h"
+//#include "nbibio/nbibsync.h"
 
 #include <Akonadi/Collection>
 
@@ -44,7 +44,7 @@ public:
 private slots:
     void slotButtonClicked(int button);
     void setProgressStatus(const QString &status);
-
+/*
     void popLocalDeletionQuestion(QList<SyncDetails> items);
     void popServerDeletionQuestion(QList<SyncDetails> items);
     void popGroupRemovalQuestion(QList<SyncDetails> items);
@@ -52,12 +52,12 @@ private slots:
 
     void akonadiContactCollectionFetched(const Akonadi::Collection::List &list);
     void akonadiEventCollectionFetched(const Akonadi::Collection::List &list);
-
+*/
 signals:
     void deleteLocalFiles(bool deleteThem);
     void deleteServerFiles(bool deleteThem);
     void removeGroupFiles(bool deleteThem);
-    void mergedResults(QList<SyncDetails> items);
+//    void mergedResults(QList<SyncDetails> items);
     void mergeFinished();
 
 private:

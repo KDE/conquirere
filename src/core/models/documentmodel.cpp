@@ -18,7 +18,7 @@
 #include "documentmodel.h"
 
 #include "../queryclients/documentquery.h"
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 #include <KDE/KIcon>
 

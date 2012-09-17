@@ -52,26 +52,6 @@ void NepomukSyncClient::syncData()
 
 }
 
-void NepomukSyncClient::status(const QString &message)
-{
-
-}
-
-void NepomukSyncClient::progress(int currentProgress)
-{
-
-}
-
-void NepomukSyncClient::error(const QString &message)
-{
-
-}
-
-void NepomukSyncClient::finished()
-{
-
-}
-
 void NepomukSyncClient::cancel()
 {
 

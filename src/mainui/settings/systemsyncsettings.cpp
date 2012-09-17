@@ -20,7 +20,7 @@
 
 #include "core/projectsettings.h"
 
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 SystemSyncSettings::SystemSyncSettings(QWidget *parent)
     : QWidget(parent)

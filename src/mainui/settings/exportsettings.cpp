@@ -18,7 +18,7 @@
 #include "exportsettings.h"
 #include "ui_exportsettings.h"
 
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 #include <kbibtex/iconvlatex.h>
 

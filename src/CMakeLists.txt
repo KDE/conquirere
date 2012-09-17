@@ -1,7 +1,9 @@
 
-add_subdirectory( nbibio )
+
+
+add_subdirectory( config )
 add_subdirectory( core )
-add_subdirectory( onlinestorage )
+add_subdirectory( nbibio )
 add_subdirectory( mainui )
 add_subdirectory( propertywidgets )
 
@@ -13,17 +15,17 @@ kde4_add_app_icon(conquirere_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/../icons/hi*-app-
 kde4_add_executable(conquirere ${conquirere_SRCS})
 
 ADD_DEPENDENCIES(conquirere version)
-ADD_DEPENDENCIES(conquirere nbibio)
+ADD_DEPENDENCIES(conquirere config)
 
 target_link_libraries(conquirere
         nepomukcore
         nepomuksync
 # include static libs from conquirere
         ontology
+        config
         core
         nbibio
         propertywidgets
-        onlinestorage
         mainui
 
 # include general kde libs

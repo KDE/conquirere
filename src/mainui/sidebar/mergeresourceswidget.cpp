@@ -19,14 +19,14 @@
 #include "ui_mergeresourceswidget.h"
 
 #include "core/library.h"
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 #include "core/projectsettings.h"
 
 #include "nbibio/bibtex/bibtexvariant.h"
 #include "nbibio/pipe/clipboardpipe.h"
 
 #include "nbibio/pipe/kilelyxpipe.h"
-#include "sync/bibtexexportdialog.h"
+#include "nbibio/ui/bibtexexportdialog.h"
 
 #include <Nepomuk2/Vocabulary/PIMO>
 #include <Nepomuk2/Vocabulary/NIE>

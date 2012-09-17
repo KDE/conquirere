@@ -22,7 +22,7 @@
 
 #include <Akonadi/Collection>
 
-#include "nbibio/nbibsync.h"
+//#include "nbibio/nbibsync.h"
 
 namespace Ui {
     class StorageSyncWizard;
@@ -96,13 +96,13 @@ signals:
 
 private slots:
     bool isComplete() const;
-
+/*
     void popLocalDeletionQuestion(QList<SyncDetails> items);
     void popServerDeletionQuestion(QList<SyncDetails> items);
     void popGroupRemovalQuestion(QList<SyncDetails> items);
     void popMergeDialog(QList<SyncDetails> items);
     void syncFinished();
-
+*/
 private:
     void setupUi();
     void initializePage();

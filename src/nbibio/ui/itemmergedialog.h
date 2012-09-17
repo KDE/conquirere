@@ -20,7 +20,9 @@
 
 #include <QtGui/QDialog>
 
-#include "nbibio/nbibsync.h"
+//#include "nbibio/nbibsync.h"
+#include "nbibio/storageglobals.h"
+#include "core/library.h"
 
 namespace Ui {
     class ItemMergeDialog;
@@ -36,10 +38,11 @@ class ItemMergeDialog : public QDialog
 public:
     explicit ItemMergeDialog(QWidget *parent = 0);
     ~ItemMergeDialog();
-
+/*
     void setItemsToMerge(QList<SyncDetails> items);
     void setProviderDetails(ProviderSyncDetails psd);
     void setLibraryToSyncWith(Library *l);
+    */
 
 private slots:
     void showNext();

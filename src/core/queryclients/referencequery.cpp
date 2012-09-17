@@ -24,7 +24,7 @@
 
 #include <KDE/KIcon>
 
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 #include <Nepomuk2/Variant>
 

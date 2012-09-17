@@ -18,8 +18,8 @@
 #include "storagesyncwizard.h"
 #include "ui_storagesyncwizard.h"
 
-#include "mainui/librarymanager.h"
-
+#include "core/librarymanager.h"
+/*
 #include "onlinestorage/providersettings.h"
 #include "onlinestorage/storageglobals.h"
 #include "onlinestorage/storageinfo.h"
@@ -29,6 +29,7 @@
 
 #include "nbibio/zotero/synczoteronepomuk.h"
 #include "nbibio/bibtex/synckbibtexfile.h"
+*/
 //#include "nbibio/pipe/bibtextonepomukpipe.h"
 
 #include <Akonadi/CollectionFetchJob>
@@ -87,6 +88,7 @@ bool SettingsPage::isComplete() const
 
 void SettingsPage::contactCollectionsReceived( const Akonadi::Collection::List& list)
 {
+    /*
     QList<ProviderSettings::AkonadiDetails> contactList;
     foreach(const Akonadi::Collection & c, list) {
         ProviderSettings::AkonadiDetails ad;
@@ -96,10 +98,12 @@ void SettingsPage::contactCollectionsReceived( const Akonadi::Collection::List& 
     }
 
     providerSettings->setAkonadiContactDetails(contactList);
+    */
 }
 
 void SettingsPage::eventCollectionsReceived( const Akonadi::Collection::List& list)
 {
+    /*
     QList<ProviderSettings::AkonadiDetails> evntList;
     foreach(const Akonadi::Collection & c, list) {
         ProviderSettings::AkonadiDetails ad;
@@ -109,10 +113,12 @@ void SettingsPage::eventCollectionsReceived( const Akonadi::Collection::List& li
     }
 
     providerSettings->setAkonadiEventDetails(evntList);
+    */
 }
 
 void SettingsPage::setupUi()
 {
+    /*
     setTitle(i18n("Sync Storage Settings"));
     setSubTitle(i18n("Select the provider and specify the settings for it to sync your system library"));
 
@@ -132,6 +138,7 @@ void SettingsPage::setupUi()
     job2->fetchScope().setContentMimeTypes( QStringList() << "x-vnd.akonadi.calendar.event" << "application/x-vnd.akonadi.calendar.todo" );
     connect( job2, SIGNAL(collectionsReceived(Akonadi::Collection::List)),
              this, SLOT(eventCollectionsReceived(Akonadi::Collection::List)) );
+             */
 }
 
 
@@ -164,6 +171,7 @@ void ProgressPage::setupUi()
 
 void ProgressPage::initializePage()
 {
+    /*
      //start the actual sync
     StorageSyncWizard *ssw = qobject_cast<StorageSyncWizard *>(wizard());
 
@@ -213,8 +221,9 @@ void ProgressPage::initializePage()
     }
 
     newThread->start();
+    */
 }
-
+/*
 void ProgressPage::popLocalDeletionQuestion(QList<SyncDetails> items)
 {
     QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::LocalDelete);
@@ -289,3 +298,4 @@ void ProgressPage::syncFinished()
     isSyncFinished = true;
     emit completeChanged();
 }
+*/

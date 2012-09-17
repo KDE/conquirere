@@ -18,7 +18,7 @@
 #include "resourcetablewidget.h"
 
 #include "tableviewmenu.h"
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 
 #include "core/library.h"
 #include "core/projectsettings.h"

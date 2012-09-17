@@ -17,7 +17,7 @@
 
 #include "queryclient.h"
 
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 #include "globals.h"
 #include "../library.h"
 #include "../projectsettings.h"

@@ -30,7 +30,7 @@
 #include "mailwidget.h"
 #include "mergeresourceswidget.h"
 
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 #include "mainui/resourcetablewidget.h"
 
 #include "core/library.h"

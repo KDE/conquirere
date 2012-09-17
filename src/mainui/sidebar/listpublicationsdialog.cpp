@@ -18,7 +18,7 @@
 #include "listpublicationsdialog.h"
 #include "ui_listpublicationsdialog.h"
 
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 #include "core/library.h"
 #include "core/projectsettings.h"
 #include "core/models/nepomukmodel.h"

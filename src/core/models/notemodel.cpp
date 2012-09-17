@@ -18,7 +18,7 @@
 #include "notemodel.h"
 
 #include "../queryclients/notequery.h"
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 #include <QtCore/QModelIndex>
 

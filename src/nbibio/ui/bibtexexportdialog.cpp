@@ -18,7 +18,7 @@
 #include "bibtexexportdialog.h"
 #include "ui_bibtexexportdialog.h"
 
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 #include "core/library.h"
 #include "core/projectsettings.h"
 

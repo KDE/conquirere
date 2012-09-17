@@ -19,7 +19,7 @@
 #include "ui_listannotationswidget.h"
 
 #include "core/library.h"
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 #include "notewidget.h"
 
 #include <Nepomuk2/DataManagement>

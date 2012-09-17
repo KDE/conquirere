@@ -21,7 +21,7 @@
 #include "listpublicationsdialog.h"
 
 #include "mainui/mainwindow.h"
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 
 #include <Nepomuk2/DataManagement>
 #include <KDE/KJob>

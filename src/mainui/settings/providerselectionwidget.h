@@ -20,9 +20,7 @@
 
 #include <QtGui/QWidget>
 
-#include "onlinestorage/providersettings.h"
-
-#include <Akonadi/Collection>
+//#include "nbibio/ui/providersettings.h"
 
 namespace Ui {
     class ProviderSelectionWidget;
@@ -42,8 +40,6 @@ public:
 
 signals:
     void contentChanged();
-    void addContactCollection( const QList<ProviderSettings::AkonadiDetails> &contactCollections );
-    void addEventCollection( const QList<ProviderSettings::AkonadiDetails> &eventCollections );
 
 public slots:
     void resetSettings();
@@ -53,8 +49,6 @@ private slots:
     void editProvider();
     void addProvider();
     void removeProvider();
-    void akonadiContactCollectionFetched(const Akonadi::Collection::List &list);
-    void akonadiEventCollectionFetched(const Akonadi::Collection::List &list);
 
 private:
     void fetchAkonadiCollection();
@@ -62,8 +56,6 @@ private:
     ProjectSettings *m_settings;
 
     void setupGui();
-    QList<ProviderSettings::AkonadiDetails> m_eventList;
-    QList<ProviderSettings::AkonadiDetails> m_contactList;
 };
 
 #endif // PROVIDERSELECTIONWIDGET_H

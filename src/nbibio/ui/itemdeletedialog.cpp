@@ -39,7 +39,7 @@ ItemDeleteDialog::~ItemDeleteDialog()
 {
     delete ui;
 }
-
+/*
 void ItemDeleteDialog::setItems(QList<SyncDetails> items)
 {
     switch(m_mode) {
@@ -64,7 +64,7 @@ void ItemDeleteDialog::setItems(QList<SyncDetails> items)
         break;
     }
 }
-
+*/
 void ItemDeleteDialog::showDetails()
 {
     if(ui->detailsLabel->isVisible()) {
@@ -74,7 +74,7 @@ void ItemDeleteDialog::showDetails()
        ui->detailsLabel->setVisible(true);
     }
 }
-
+/*
 void ItemDeleteDialog::localDeleteDetails(QList<SyncDetails> items)
 {
     QString details;
@@ -131,4 +131,4 @@ void ItemDeleteDialog::serverDeleteDetails(QList<SyncDetails> items)
     ui->detailsLabel->setText(details);
     ui->detailsLabel->setWordWrap(true);
 }
-
+*/

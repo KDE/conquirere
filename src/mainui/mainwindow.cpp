@@ -20,7 +20,7 @@
 #include "core/library.h"
 #include "core/projectsettings.h"
 
-#include "librarymanager.h"
+#include "core/librarymanager.h"
 #include "welcomewidget.h"
 #include "resourcetablewidget.h"
 #include "splashscreen.h"
@@ -38,10 +38,10 @@
 #include "docklets/documentpreview.h"
 #include "docklets/searchwidget.h"
 
-#include "sync/backgroundsync.h"
-#include "sync/storagesyncwizard.h"
+#include "nbibio/backgroundsync.h"
+#include "nbibio/ui/storagesyncwizard.h"
 
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 #include <KDE/KApplication>
 #include <KDE/KAction>

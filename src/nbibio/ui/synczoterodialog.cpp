@@ -17,15 +17,15 @@
 
 #include "synczoterodialog.h"
 
-#include "onlinestorage/providersettings.h"
-#include "onlinestorage/storageinfo.h"
+//#include "nbibio/providersettings.h"
+//#include "onlinestorage/storageinfo.h"
 
-#include "nbibio/zotero/synczoteronepomuk.h"
-#include "nbibio/bibtex/synckbibtexfile.h"
+//#include "nbibio/zotero/synczoteronepomuk.h"
+//#include "nbibio/bibtex/synckbibtexfile.h"
 //#include "nbibio/pipe/bibtextonepomukpipe.h"
 
-#include "mainui/sync/itemdeletedialog.h"
-#include "mainui/sync/itemmergedialog.h"
+#include "nbibio/ui/itemdeletedialog.h"
+#include "nbibio/ui/itemmergedialog.h"
 
 #include <kbibtex/file.h>
 #include <kbibtex/entry.h>
@@ -53,7 +53,8 @@ SyncZoteroDialog::SyncZoteroDialog(QWidget *parent)
     , m_MergeDialog(new KDialog)
     , m_mw(0)
 {
-    m_ps = new ProviderSettings(this, true);
+    /*
+    m_ps = 0;//new ProviderSettings(this, true);
     setMainWidget(m_ps);
 
     // fetching all collections containing contacts recursively, starting at the root collection
@@ -69,12 +70,13 @@ SyncZoteroDialog::SyncZoteroDialog(QWidget *parent)
 
     KMessageBox::information(this, i18n("Be aware that the sync is still experimental.\nBackup your data before you start to upload something."),
     i18n("Warning!"),QLatin1String("syncwarning"));
+    */
 }
 
 SyncZoteroDialog::~SyncZoteroDialog()
 {
     delete m_syncNepomuk;
-    delete m_ps;
+//    delete m_ps;
     delete m_mainDialog;
     delete m_MergeDialog;
     delete m_mw;
@@ -82,7 +84,7 @@ SyncZoteroDialog::~SyncZoteroDialog()
 
 void SyncZoteroDialog::setupWidget(ProviderSyncDetails psd)
 {
-    m_ps->setProviderSettingsDetails(psd);
+//    m_ps->setProviderSettingsDetails(psd);
 }
 
 void SyncZoteroDialog::slotButtonClicked(int button)
@@ -91,7 +93,7 @@ void SyncZoteroDialog::slotButtonClicked(int button)
          KDialog::slotButtonClicked(button);
          return;
     }
-
+/*
     ProviderSyncDetails psd = m_ps->providerSettingsDetails();
 
     delete m_syncNepomuk;
@@ -145,8 +147,9 @@ void SyncZoteroDialog::slotButtonClicked(int button)
     newThread->start();
 
     m_pdlg->exec();
+    */
 }
-
+/*
 void SyncZoteroDialog::popLocalDeletionQuestion(QList<SyncDetails> items)
 {
     QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::LocalDelete);
@@ -236,7 +239,7 @@ void SyncZoteroDialog::akonadiEventCollectionFetched(const Akonadi::Collection::
 
     m_ps->setAkonadiEventDetails(evntList);
 }
-
+*/
 
 void SyncZoteroDialog::setProgressStatus(const QString &status)
 {

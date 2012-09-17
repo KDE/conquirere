@@ -27,7 +27,7 @@
 
 #include <QtNetwork/QNetworkAccessManager>
 
-#include "storageglobals.h"
+#include "../../storageglobals.h"
 
 class QNetworkReply;
 

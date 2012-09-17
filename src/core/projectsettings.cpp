@@ -19,9 +19,6 @@
 
 #include "core/library.h"
 
-#include "onlinestorage/zotero/zoteroinfo.h"
-#include "onlinestorage/kbibtexfile/kbtfileinfo.h"
-
 #include <Nepomuk2/Variant>
 #include <Nepomuk2/File>
 #include <Nepomuk2/Vocabulary/NIE>
@@ -241,7 +238,7 @@ QString ProjectSettings::setProviderSyncDetails(const ProviderSyncDetails &psd, 
 
     KConfigGroup syncGroup( m_projectConfig, "SyncProvider" );
     KConfigGroup providerGroup( &syncGroup, validUuid );
-    providerGroup.writeEntry(QLatin1String("provider"), psd.providerInfo->providerId());
+    providerGroup.writeEntry(QLatin1String("provider"), psd.providerId);
     providerGroup.writeEntry(QLatin1String("name"), psd.userName);
     providerGroup.writeEntry(QLatin1String("url"), psd.url);
     providerGroup.writeEntry(QLatin1String("collection"), psd.collection);
@@ -251,8 +248,6 @@ QString ProjectSettings::setProviderSyncDetails(const ProviderSyncDetails &psd, 
     providerGroup.writeEntry(QLatin1String("importAttachments"), psd.importAttachments);
     providerGroup.writeEntry(QLatin1String("exportAttachments"), psd.exportAttachments);
     providerGroup.writeEntry(QLatin1String("localStoragePath"), psd.localStoragePath);
-    providerGroup.writeEntry(QLatin1String("akonadiContactsUUid"), psd.akonadiContactsUUid);
-    providerGroup.writeEntry(QLatin1String("akonadiEventsUUid"), psd.akonadiEventsUUid);
 
     providerGroup.sync();
     syncGroup.sync();
@@ -287,19 +282,7 @@ ProviderSyncDetails ProjectSettings::providerSyncDetails(const QString &uuid) co
 
     ProviderSyncDetails psd;
     psd.uuid = uuid;
-
-    QString providerType = providerGroup.readEntry("provider", QString());
-    if(providerType == QLatin1String("zotero")) {
-        psd.providerInfo = new ZoteroInfo;
-    }
-    else if(providerType == QLatin1String("kbibtexfile")) {
-        psd.providerInfo = new KBTFileInfo;
-    }
-    else {
-        qWarning() << providerType;
-        qFatal("ProjectSettings::providerSyncDetails unknown sync provider found");
-    }
-
+    psd.providerId = providerGroup.readEntry("provider", QString());
     psd.userName = providerGroup.readEntry("name", QString());
     psd.pwd = providerGroup.readEntry("pwd", QString());
     psd.url = providerGroup.readEntry("url", QString());
@@ -330,12 +313,6 @@ ProviderSyncDetails ProjectSettings::providerSyncDetails(const QString &uuid) co
         psd.exportAttachments = true;
 
     psd.localStoragePath = providerGroup.readEntry("localStoragePath", QString());
-
-    QString akonadiContactsUUid = providerGroup.readEntry("akonadiContactsUUid", QString());
-    psd.akonadiContactsUUid = akonadiContactsUUid.toInt();
-
-    QString akonadiEventsUUid = providerGroup.readEntry("akonadiEventsUUid", QString());
-    psd.akonadiEventsUUid = akonadiEventsUUid.toInt();
 
     return psd;
 }

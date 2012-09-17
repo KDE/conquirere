@@ -19,7 +19,8 @@
 #define NEWPROJECTWIZARD_H
 
 #include <QtGui/QWizard>
-#include "onlinestorage/providersettings.h"
+//#include "onlinestorage/providersettings.h"
+#include "nbibio/storageglobals.h"
 
 #include <Akonadi/Collection>
 
@@ -98,8 +99,8 @@ public:
     void initializePage();
 
 signals:
-    void addContactCollection( const QList<ProviderSettings::AkonadiDetails> &contactCollections );
-    void addEventCollection( const QList<ProviderSettings::AkonadiDetails> &eventCollections );
+//    void addContactCollection( const QList<ProviderSettings::AkonadiDetails> &contactCollections );
+//    void addEventCollection( const QList<ProviderSettings::AkonadiDetails> &eventCollections );
 
 private slots:
     bool isComplete() const;

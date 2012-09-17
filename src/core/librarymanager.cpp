@@ -25,9 +25,9 @@
 #include "mainui/settings/projectsettingsdialog.h"
 #include "mainui/settings/conquireresettingsdialog.h"
 
-#include "sync/bibtexexportdialog.h"
-#include "sync/bibteximportwizard.h"
-#include "sync/synczoterodialog.h"
+//#include "nbibio/ui/bibtexexportdialog.h"
+//#include "nbibio/ui/bibteximportwizard.h"
+//#include "nbibio/ui/synczoterodialog.h"
 
 #include <QtGui/QSortFilterProxyModel>
 
@@ -37,7 +37,7 @@ LibraryManager::LibraryManager(QObject *parent)
     : QObject(parent)
     , m_systemLibrary(0)
     , m_currentUsedLibrary(0)
-    , m_backgroundSyncManager(0)
+//    , m_backgroundSyncManager(0)
 {
 }
 
@@ -162,6 +162,7 @@ void LibraryManager::importData(ModeSelection mode)
 
 void LibraryManager::importData(Library *l, ModeSelection mode)
 {
+    /*
     // disable tagcloud generation during import for all libraries
     // TODO the same for the qcompleter in the property widgets
     systemLibrary()->tagCloud()->pauseUpdates(true);
@@ -199,6 +200,7 @@ void LibraryManager::importData(Library *l, ModeSelection mode)
     foreach(Library *p, m_openProjectList) {
         p->tagCloud()->pauseUpdates(false);
     }
+    */
 }
 
 void LibraryManager::exportData(ModeSelection mode)
@@ -208,6 +210,7 @@ void LibraryManager::exportData(ModeSelection mode)
 
 void LibraryManager::exportData(Library *l, ModeSelection mode)
 {
+    /*
     if(mode == Zotero_Sync) {
         SyncZoteroDialog szd;
 //        szd.setLibraryManager(this);
@@ -230,6 +233,7 @@ void LibraryManager::exportData(Library *l, ModeSelection mode)
 
         bed.exec();
     }
+    */
 }
 
 void LibraryManager::syncData(ModeSelection mode)
@@ -239,6 +243,7 @@ void LibraryManager::syncData(ModeSelection mode)
 
 void LibraryManager::syncData(Library *l, ModeSelection mode)
 {
+    /*
     if(mode == Zotero_Sync) {
         SyncZoteroDialog szd;
 //        szd.setLibraryManager(this);
@@ -253,4 +258,5 @@ void LibraryManager::syncData(Library *l, ModeSelection mode)
     else {
 
     }
+    */
 }

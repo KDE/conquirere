@@ -18,15 +18,15 @@
 #include "backgroundsync.h"
 
 #include "core/library.h"
-#include "../librarymanager.h"
+#include "core/librarymanager.h"
 
-#include "mainui/sync/itemdeletedialog.h"
-#include "mainui/sync/itemmergedialog.h"
+#include "nbibio/ui/itemdeletedialog.h"
+#include "nbibio/ui/itemmergedialog.h"
 
-#include "onlinestorage/storageinfo.h"
+//#include "onlinestorage/storageinfo.h"
 
-#include "nbibio/zotero/synczoteronepomuk.h"
-#include "nbibio/bibtex/synckbibtexfile.h"
+//#include "nbibio/zotero/synczoteronepomuk.h"
+//#include "nbibio/bibtex/synckbibtexfile.h"
 
 #include <KDE/KMessageBox>
 #include <KWallet/Wallet>
@@ -88,9 +88,10 @@ void BackgroundSync::startSync()
 
     bool found = findPasswordInKWallet(psd);
 
-    startSync(psd);
+//    startSync(psd);
 }
 
+/*
 void BackgroundSync::startSync(const ProviderSyncDetails &psd)
 {
 //    kDebug() << "start to sync" << m_libraryToSync->settings()->name() << "with" << psd.providerInfo->providerName();
@@ -98,7 +99,6 @@ void BackgroundSync::startSync(const ProviderSyncDetails &psd)
     kDebug() << "pwd" << psd.pwd;
     kDebug() << "collection" << psd.collection;
     m_currentPsd = psd;
-
 //    delete m_syncNepomuk;
     if(psd.providerInfo->providerId() == QLatin1String("zotero")) {
         m_syncNepomuk = new SyncZoteroNepomuk;
@@ -151,7 +151,8 @@ void BackgroundSync::startSync(const ProviderSyncDetails &psd)
 
     m_syncThread->start();
 }
-
+*/
+/*
 void BackgroundSync::popLocalDeletionQuestion(QList<SyncDetails> items)
 {
     QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::LocalDelete);
@@ -224,7 +225,7 @@ void BackgroundSync::cancelSync()
     m_syncNepomuk->cancel();
     m_syncList.clear();
 }
-
+*/
 void BackgroundSync::calculateProgress(int value)
 {
     qreal curProgress = ((qreal)value * 1.0/m_syncSteps);
@@ -251,13 +252,13 @@ void BackgroundSync::currentSyncFinished()
     }
 
     ProviderSyncDetails psd = m_syncList.first();
-    startSync(psd);
+//    startSync(psd);
 }
 
 bool BackgroundSync::findPasswordInKWallet(ProviderSyncDetails &psd)
 {
     QString pwdKey;
-    pwdKey.append(psd.providerInfo->providerId());
+    pwdKey.append(psd.providerId);
     pwdKey.append(QLatin1String(":"));
     pwdKey.append(psd.userName);
     pwdKey.append(QLatin1String(":"));

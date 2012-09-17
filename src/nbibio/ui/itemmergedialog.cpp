@@ -142,10 +142,10 @@ ItemMergeDialog::~ItemMergeDialog()
 {
     delete ui;
 }
-
+/*
 void ItemMergeDialog::setItemsToMerge(QList<SyncDetails> items)
 {
-    /*
+
     foreach(const SyncDetails &sd, items) {
         Nepomuk2::Resource publication;
 
@@ -180,7 +180,7 @@ void ItemMergeDialog::setItemsToMerge(QList<SyncDetails> items)
     }
 
     showItem(0);
-    */
+
 }
 
 void ItemMergeDialog::setProviderDetails(ProviderSyncDetails psd)
@@ -192,7 +192,7 @@ void ItemMergeDialog::setLibraryToSyncWith(Library *l)
 {
     m_libraryToSyncWith = l;
 }
-
+*/
 void ItemMergeDialog::showNext()
 {
     m_currentItem++;

@@ -17,7 +17,7 @@
 
 #include "chapteredit.h"
 
-#include "nbib.h"
+#include "ontology/nbib.h"
 #include <Nepomuk2/Vocabulary/NIE>
 #include <Nepomuk2/Variant>
 

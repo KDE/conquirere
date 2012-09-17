@@ -19,7 +19,7 @@
 #include "ui_appearancesettings.h"
 
 #include "globals.h"
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 #include <QtGui/QListWidget>
 #include <QtGui/QListWidgetItem>

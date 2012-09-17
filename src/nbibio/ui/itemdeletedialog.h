@@ -20,7 +20,7 @@
 
 #include <QDialog>
 
-#include "nbibio/nbibsync.h"
+//#include "nbibio/nbibsync.h"
 
 namespace Ui {
     class ItemDeleteDialog;
@@ -40,14 +40,16 @@ public:
     explicit ItemDeleteDialog(Mode mode, QWidget *parent = 0);
     ~ItemDeleteDialog();
 
-    void setItems(QList<SyncDetails> items);
+//    void setItems(QList<SyncDetails> items);
 
 private slots:
     void showDetails();
 
 private:
+    /*
     void localDeleteDetails(QList<SyncDetails> items);
     void serverDeleteDetails(QList<SyncDetails> items);
+    */
 
     Ui::ItemDeleteDialog *ui;
     Mode m_mode;

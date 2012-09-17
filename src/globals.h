@@ -25,7 +25,7 @@
 
 #include <KLocale>
 
-#include "nbib.h"
+#include "ontology/nbib.h"
 
 enum ProjectTreeRole {
     Role_LibraryType = Qt::UserRole,    /**< keeps the LibraryType */

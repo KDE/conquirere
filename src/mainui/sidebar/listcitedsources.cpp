@@ -20,7 +20,7 @@
 
 #include "globals.h"
 
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 #include "listpublicationsdialog.h"
 #include "referencewidget.h"
 

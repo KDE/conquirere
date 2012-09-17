@@ -28,7 +28,7 @@
 #include "sro/nbib/series.h"
 #include "sro/nbib/publication.h"
 
-#include "nbib/nbib.h"
+#include "ontology/nbib.h"
 #include <Nepomuk2/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk2/Variant>

@@ -20,9 +20,9 @@
 
 #include "core/library.h"
 #include "core/projectsettings.h"
-#include "mainui/sync/backgroundsync.h"
+#include "nbibio/backgroundsync.h"
 
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 
 #include "mainui/dialogs/newprojectwizard.h"
 
