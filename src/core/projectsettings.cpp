@@ -228,7 +228,7 @@ void ProjectSettings::deleteProjectDir()
 
 QString ProjectSettings::setProviderSyncDetails(const ProviderSyncDetails &psd, const QString &uuid)
 {
-    Q_ASSERT_X( psd.providerInfo, "setProviderSyncDetails", "no valid StorageInfo pointer" );
+    Q_ASSERT_X( !psd.providerId.isEmpty(), "setProviderSyncDetails", "no valid StorageInfo pointer" );
 
     QString validUuid = uuid;
     if(validUuid.isEmpty()) {

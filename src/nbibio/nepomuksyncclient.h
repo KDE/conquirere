@@ -24,6 +24,13 @@
 
 #include <Nepomuk2/Resource>
 
+class OnlineStorage;
+
+struct SyncMergeDetails {
+    Nepomuk2::Resource syncResource;
+    QVariantMap        externalResource;
+};
+
 class NepomukSyncClient : public QObject
 {
     Q_OBJECT
@@ -34,6 +41,31 @@ public:
     ProviderSyncDetails providerSettings() const;
 
     void setProject(const Nepomuk2::Resource &project);
+
+signals:
+    void status(const QString &message);
+    void progress(int currentProgress);
+    void error(const QString &message);
+
+    /**
+      * emitted if items from the server are deleted
+      * emits a signal so we can show a dialog box not possible here as we run this class in a different thread than the gui thread
+      *
+      * call deleteLocalFiles() when the user made his choice to proceed sync
+      */
+    void askForLocalDeletion(QList<Nepomuk2::Resource> &listOfRemovedResources);
+
+    /**
+      * emitted when the user needs to decide how to merge certain items
+      *
+      * call mergeFinished() when the user finished merging (merging should be done directly in nepomuk)
+      */
+    void userMerge(QList<SyncMergeDetails> &itemsThatNeedMerge);
+
+    void finished();
+
+public slots:
+    void cancel();
 
     /**
      * @brief importData from onlinestorage to nepomuk
@@ -46,18 +78,33 @@ public:
     void exportData();
     void syncData();
 
-signals:
-    void status(const QString &message);
-    void progress(int currentProgress);
-    void error(const QString &message);
-    void finished();
+    void deleteLocalFiles(bool deleteThem);
+    void mergeFinished();
 
-public slots:
-    void cancel();
+private slots:
+    void dataDownloadFinisher();
+    void calculateProgress(int value);
+
+private:
+    void findRemovedEntries();
+    void readDownloadSyncAfterDelete();
+    void findDuplicates(QList<Nepomuk2::Resource> &existingItems);
+    void fixMergingAutomatically();
+    void importNewResources();
 
 private:
     ProviderSyncDetails m_psd;
     Nepomuk2::Resource m_project;
+    OnlineStorage *m_storage;
+
+    QVariantList m_cacheDownloaded;
+    QVariantList m_newEntries;
+    QList<Nepomuk2::Resource> m_tmpUserDeleteRequest;
+    QList<SyncMergeDetails> m_tmpUserMergeRequest;
+
+    int m_syncSteps;
+    int m_currentStep;
+    bool m_attachmentMode;
 };
 
 #endif // NEPOMUKSYNCCLIENT_H

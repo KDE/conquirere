@@ -27,6 +27,7 @@
 #include "ui/itemmergedialog.h"
 
 #include "nbibio/pipe/varianttonepomukpipe.h"
+#include "nbibio/nepomuksyncclient.h"
 
 #include <KDE/KMessageBox>
 #include <KDE/KDebug>
@@ -95,7 +96,7 @@ void SettingsPage::setupUi()
 
 ProgressPage::ProgressPage(QWidget *parent)
     : QWizardPage(parent)
-    , m_syncNepomuk(0)
+    , m_nepomukSyncClient(0)
     , isSyncFinished(false)
 {
     setupUi();
@@ -126,57 +127,52 @@ void ProgressPage::initializePage()
     StorageSyncWizard *ssw = qobject_cast<StorageSyncWizard *>(wizard());
 
     ProviderSyncDetails psd = ssw->sp->providerSettings->providerSettingsDetails();
-/*
+
     //TODO: add NepomukSyncClient
     // configure the provider via provider id
-    delete m_syncNepomuk;
-    if(psd.providerInfo->providerId() == QLatin1String("zotero")) {
-        m_syncNepomuk = new SyncZoteroNepomuk;
-    }
-    else if(psd.providerInfo->providerId() == QLatin1String("kbibtexfile")) {
-        m_syncNepomuk = new SyncKBibTeXFile;
-    }
+    delete m_nepomukSyncClient;
+    m_nepomukSyncClient = new NepomukSyncClient();
 
-    m_syncNepomuk->setProviderDetails(psd);
+    m_nepomukSyncClient->setProviderSettings(psd);
+//    m_nepomukSyncClient->setProject();
 
-    m_syncNepomuk->setSystemLibrary(ssw->libraryManager->systemLibrary());
-    m_syncNepomuk->setLibraryToSyncWith(ssw->libraryManager->systemLibrary());
+//    m_nepomukSyncClient->setSystemLibrary(ssw->libraryManager->systemLibrary());
+//    m_nepomukSyncClient->setLibraryToSyncWith(ssw->libraryManager->systemLibrary());
 
-    connect(m_syncNepomuk, SIGNAL(progress(int)), progressBar, SLOT(setValue(int)));
-    connect(m_syncNepomuk, SIGNAL(progressStatus(QString)), infoLabel, SLOT(setText(QString)));
+    connect(m_nepomukSyncClient, SIGNAL(progress(int)), progressBar, SLOT(setValue(int)));
+    connect(m_nepomukSyncClient, SIGNAL(status(QString)), infoLabel, SLOT(setText(QString)));
 
-    connect(m_syncNepomuk, SIGNAL(askForLocalDeletion(QList<SyncDetails>)), this, SLOT(popLocalDeletionQuestion(QList<SyncDetails>)));
-    connect(this, SIGNAL(deleteLocalFiles(bool)), m_syncNepomuk, SLOT(deleteLocalFiles(bool)));
-    connect(m_syncNepomuk, SIGNAL(askForServerDeletion(QList<SyncDetails>)), this, SLOT(popServerDeletionQuestion(QList<SyncDetails>)));
-    connect(this, SIGNAL(deleteServerFiles(bool)), m_syncNepomuk, SLOT(deleteServerFiles(bool)));
-    connect(m_syncNepomuk, SIGNAL(askForGroupRemoval(QList<SyncDetails>)), this, SLOT(popGroupRemovalQuestion(QList<SyncDetails>)));
-    connect(this, SIGNAL(removeGroupFiles(bool)), m_syncNepomuk, SLOT(deleteFromGroup(bool)));
+    connect(m_nepomukSyncClient, SIGNAL(askForLocalDeletion(QList<Nepomuk2::Resource>)), this, SLOT(popLocalDeletionQuestion(QList<Nepomuk2::Resource>)));
+    connect(this, SIGNAL(deleteLocalFiles(bool)), m_nepomukSyncClient, SLOT(deleteLocalFiles(bool)));
+    connect(m_nepomukSyncClient, SIGNAL(askForServerDeletion(QList<Nepomuk2::Resource>)), this, SLOT(popServerDeletionQuestion(QList<Nepomuk2::Resource>)));
+    connect(this, SIGNAL(deleteServerFiles(bool)), m_nepomukSyncClient, SLOT(deleteServerFiles(bool)));
+    connect(m_nepomukSyncClient, SIGNAL(askForGroupRemoval(QList<Nepomuk2::Resource>)), this, SLOT(popGroupRemovalQuestion(QList<Nepomuk2::Resource>)));
+    connect(this, SIGNAL(removeGroupFiles(bool)), m_nepomukSyncClient, SLOT(deleteFromGroup(bool)));
 
-    connect(m_syncNepomuk, SIGNAL(userMerge(QList<SyncDetails>)), this, SLOT(popMergeDialog(QList<SyncDetails>)));
-    connect(this, SIGNAL(mergeFinished()), m_syncNepomuk, SLOT(mergeFinished()));
-    connect(m_syncNepomuk, SIGNAL(syncFinished()), this, SLOT(syncFinished()));
+    connect(m_nepomukSyncClient, SIGNAL(userMerge(QList<SyncMergeDetails>&)), this, SLOT(popMergeDialog(QList<SyncMergeDetails>&)));
+    connect(this, SIGNAL(mergeFinished()), m_nepomukSyncClient, SLOT(mergeFinished()));
+    connect(m_nepomukSyncClient, SIGNAL(syncFinished()), this, SLOT(syncFinished()));
 
     QThread *newThread = new QThread;
-    m_syncNepomuk->moveToThread(newThread);
+    m_nepomukSyncClient->moveToThread(newThread);
 
     //what mode should we use?
     switch(psd.syncMode) {
     case Download_Only:
-        connect(newThread, SIGNAL(started()),m_syncNepomuk, SLOT(startDownload()) );
+        connect(newThread, SIGNAL(started()),m_nepomukSyncClient, SLOT(importData()) );
         break;
     case Upload_Only:
-        connect(newThread, SIGNAL(started()),m_syncNepomuk, SLOT(startUpload()) );
+        connect(newThread, SIGNAL(started()),m_nepomukSyncClient, SLOT(exportData()) );
         break;
     case Full_Sync:
-        connect(newThread, SIGNAL(started()),m_syncNepomuk, SLOT(startSync()) );
+        connect(newThread, SIGNAL(started()),m_nepomukSyncClient, SLOT(syncData()) );
         break;
     }
 
     newThread->start();
-    */
 }
-/*
-void ProgressPage::popLocalDeletionQuestion(QList<SyncDetails> items)
+
+void ProgressPage::popLocalDeletionQuestion(QList<Nepomuk2::Resource> items)
 {
     QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::LocalDelete);
 
@@ -193,7 +189,7 @@ void ProgressPage::popLocalDeletionQuestion(QList<SyncDetails> items)
     delete idd;
 }
 
-void ProgressPage::popServerDeletionQuestion(QList<SyncDetails> items)
+void ProgressPage::popServerDeletionQuestion(QList<Nepomuk2::Resource> items)
 {
     QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::ServerDelete);
 
@@ -210,7 +206,7 @@ void ProgressPage::popServerDeletionQuestion(QList<SyncDetails> items)
     delete idd;
 }
 
-void ProgressPage::popGroupRemovalQuestion(QList<SyncDetails> items)
+void ProgressPage::popGroupRemovalQuestion(QList<Nepomuk2::Resource> items)
 {
     QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::ServerGroupRemoval);
 
@@ -227,8 +223,7 @@ void ProgressPage::popGroupRemovalQuestion(QList<SyncDetails> items)
     delete idd;
 }
 
-
-void ProgressPage::popMergeDialog(QList<SyncDetails> items)
+void ProgressPage::popMergeDialog(const QList<SyncMergeDetails> &items)
 {
     ItemMergeDialog imd;
 
@@ -237,14 +232,13 @@ void ProgressPage::popMergeDialog(QList<SyncDetails> items)
     ProviderSyncDetails psd = ssw->sp->providerSettings->providerSettingsDetails();
 
     imd.setProviderDetails(psd);
-
     imd.setItemsToMerge(items);
 
     imd.exec();
 
     emit mergeFinished();
 }
-*/
+
 
 void ProgressPage::syncFinished()
 {

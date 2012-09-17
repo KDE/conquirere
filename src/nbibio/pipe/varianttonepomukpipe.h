@@ -20,8 +20,11 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QVariantList>
+#include <QtCore/QVariantMap>
 
 #include <Nepomuk2/Resource>
+#include <Nepomuk2/SimpleResource>
+#include <Nepomuk2/SimpleResourceGraph>
 
 class VariantToNepomukPipe : public QObject
 {
@@ -36,7 +39,7 @@ public:
       */
     void pipeExport(QVariantList &publicationList);
 
-    void setSyncDetails(const QString &url, const QString &userid);
+    void setSyncDetails(const QString &url, const QString &userid, const QString &providerId);
 
     /**
       * if the @p projectThing is valid all imported data will be related via @c pimo:isRelated to the project
@@ -50,9 +53,12 @@ private:
     void importNote(const QVariantMap &noteEntry);
     void importAttachment(const QVariantMap &attachmentEntry);
 
+    void addZoteroSyncDetails(Nepomuk2::SimpleResourceGraph &graph, Nepomuk2::SimpleResource &mainResource, Nepomuk2::SimpleResource &referenceResource,const QVariantMap &item);
+
 private:
     QString m_syncUrl;
     QString m_syncUserId;
+    QString m_syncProviderId;
     Nepomuk2::Resource m_projectThing;
 };
 

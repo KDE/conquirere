@@ -20,9 +20,9 @@
 
 #include <QtGui/QWizard>
 
-#include <Akonadi/Collection>
+#include <Nepomuk2/Resource>
 
-//#include "nbibio/nbibsync.h"
+#include "nbibio/nepomuksyncclient.h"
 
 namespace Ui {
     class StorageSyncWizard;
@@ -74,7 +74,7 @@ public:
 
 class QProgressBar;
 class QLabel;
-class NBibSync;
+class NepomukSyncClient;
 
 /**
   * Progress page
@@ -95,10 +95,10 @@ signals:
 private slots:
     bool isComplete() const;
 
-//    void popLocalDeletionQuestion(QList<SyncDetails> items);
-//    void popServerDeletionQuestion(QList<SyncDetails> items);
-//    void popGroupRemovalQuestion(QList<SyncDetails> items);
-//    void popMergeDialog(QList<SyncDetails> items);
+    void popLocalDeletionQuestion(QList<Nepomuk2::Resource> items);
+    void popServerDeletionQuestion(QList<Nepomuk2::Resource> items);
+    void popGroupRemovalQuestion(QList<Nepomuk2::Resource> items);
+    void popMergeDialog(const QList<SyncMergeDetails> &items);
     void syncFinished();
 
 private:
@@ -109,7 +109,7 @@ private:
     QProgressBar *progressBar;
     QLabel *infoLabel;
 
-    NBibSync *m_syncNepomuk;
+    NepomukSyncClient *m_nepomukSyncClient;
     bool isSyncFinished;
 };
 

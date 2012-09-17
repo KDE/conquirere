@@ -354,6 +354,8 @@ void Library::deleteResource(const Nepomuk2::Resource & resource )
     QList<QUrl> removeResourcesUris;
     removeResourcesUris << resource.uri();
 
+    //FIXME: This should be done by nao:hasSubresource automatically. No need to find the connected resources
+/*
     //check if the resource is in a collection that has no other articles attached to it anymore
     Nepomuk2::Resource collection = resource.property(NBIB::collection()).toResource();
     if( collection.exists() ) {
@@ -380,6 +382,7 @@ void Library::deleteResource(const Nepomuk2::Resource & resource )
             removeResourcesUris << series.uri();
         }
     }
+    */
 
     // now delete everything and its subresources
 

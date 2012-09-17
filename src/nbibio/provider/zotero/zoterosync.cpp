@@ -508,7 +508,7 @@ QByteArray ZoteroSync::writeJsonContent(const QVariantList &items, bool updateIt
             entryType = entry.value(QLatin1String("articletype")).toString();
         }
         else {
-            entryType = entry.value(QLatin1String("publicationtype")).toString();
+            entryType = entry.value(QLatin1String("bibtexentrytype")).toString();
         }
 
         if(entryType.isEmpty()) {
@@ -815,6 +815,9 @@ void ZoteroSync::readJsonContent(const QString &json, QVariantMap &entry)
         return;
     }
 
+    QString citeKey = entry.value( QLatin1String("sync-key") ).toString();
+    entry.insert(QLatin1String("bibtexcitekey"), citeKey);
+
     QString zoteroType;
     QVariantMap keyTranslation = m_fromZoteroMapping.value( result.value( QLatin1String("itemType") ).toString()).toMap();
     QStringList creators = keyTranslation.value(QLatin1String("creators")).toString().split(QLatin1String(";"));
@@ -852,47 +855,47 @@ void ZoteroSync::readJsonContent(const QString &json, QVariantMap &entry)
 
             if(zoteroType == QLatin1String("booksection")) {
                 // as inbook/incollection is part of a book with its own name
-                entry.insert(QLatin1String("publicationtype"), QLatin1String("incollection"));
+                entry.insert(QLatin1String("bibtexentrytype"), QLatin1String("incollection"));
             }
             else if(zoteroType == QLatin1String("conferencepaper")) {
-                entry.insert(QLatin1String("publicationtype"), QLatin1String("inproceedings"));
+                entry.insert(QLatin1String("bibtexentrytype"), QLatin1String("inproceedings"));
             }
             else if(zoteroType == QLatin1String("document")) {
-                entry.insert(QLatin1String("publicationtype"), QLatin1String("misc"));
+                entry.insert(QLatin1String("bibtexentrytype"), QLatin1String("misc"));
             }
             else if(zoteroType == QLatin1String("manuscript")) {
-                entry.insert(QLatin1String("publicationtype"), QLatin1String("script"));
+                entry.insert(QLatin1String("bibtexentrytype"), QLatin1String("script"));
             }
             else if(zoteroType == QLatin1String("journalarticle")) {
-                entry.insert(QLatin1String("publicationtype"), QLatin1String("article"));
+                entry.insert(QLatin1String("bibtexentrytype"), QLatin1String("article"));
                 entry.insert(QLatin1String("articletype"), QLatin1String("journal"));
             }
             else if(zoteroType == QLatin1String("magazinearticle")) {
-                entry.insert(QLatin1String("publicationtype"), QLatin1String("article"));
+                entry.insert(QLatin1String("bibtexentrytype"), QLatin1String("article"));
                 entry.insert(QLatin1String("articletype"), QLatin1String("magazine"));
             }
             else if(zoteroType == QLatin1String("newspaperarticle")) {
-                entry.insert(QLatin1String("publicationtype"), QLatin1String("article"));
+                entry.insert(QLatin1String("bibtexentrytype"), QLatin1String("article"));
                 entry.insert(QLatin1String("articletype"), QLatin1String("newspaper"));
             }
             else if(zoteroType == QLatin1String("encyclopediaarticle")) {
-                entry.insert(QLatin1String("publicationtype"), QLatin1String("article"));
+                entry.insert(QLatin1String("bibtexentrytype"), QLatin1String("article"));
                 entry.insert(QLatin1String("articletype"), QLatin1String("encyclopedia"));
             }
             else if(zoteroType == QLatin1String("blogpost")) {
-                entry.insert(QLatin1String("publicationtype"), QLatin1String("article"));
+                entry.insert(QLatin1String("bibtexentrytype"), QLatin1String("article"));
                 entry.insert(QLatin1String("articletype"), QLatin1String("blog"));
             }
             else if(zoteroType == QLatin1String("forumpost")) {
-                entry.insert(QLatin1String("publicationtype"), QLatin1String("article"));
+                entry.insert(QLatin1String("bibtexentrytype"), QLatin1String("article"));
                 entry.insert(QLatin1String("articletype"), QLatin1String("forum"));
             }
             else if(zoteroType == QLatin1String("webpage")) {
-                entry.insert(QLatin1String("publicationtype"), QLatin1String("article"));
+                entry.insert(QLatin1String("bibtexentrytype"), QLatin1String("article"));
                 entry.insert(QLatin1String("articletype"), QLatin1String("webpage"));
             }
             else {
-                entry.insert(QLatin1String("publicationtype"), zoteroType);
+                entry.insert(QLatin1String("bibtexentrytype"), zoteroType);
             }
         }
 

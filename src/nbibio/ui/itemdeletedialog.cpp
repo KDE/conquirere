@@ -39,8 +39,8 @@ ItemDeleteDialog::~ItemDeleteDialog()
 {
     delete ui;
 }
-/*
-void ItemDeleteDialog::setItems(QList<SyncDetails> items)
+
+void ItemDeleteDialog::setItems(QList<Nepomuk2::Resource> items)
 {
     switch(m_mode) {
     case LocalDelete:
@@ -64,7 +64,7 @@ void ItemDeleteDialog::setItems(QList<SyncDetails> items)
         break;
     }
 }
-*/
+
 void ItemDeleteDialog::showDetails()
 {
     if(ui->detailsLabel->isVisible()) {
@@ -74,24 +74,24 @@ void ItemDeleteDialog::showDetails()
        ui->detailsLabel->setVisible(true);
     }
 }
-/*
-void ItemDeleteDialog::localDeleteDetails(QList<SyncDetails> items)
+
+void ItemDeleteDialog::localDeleteDetails(QList<Nepomuk2::Resource> items)
 {
     QString details;
-    foreach(const SyncDetails &sd, items) {
+    foreach(const Nepomuk2::Resource &syncResource, items) {
         Nepomuk2::Resource deletedResource;
         QString type;
-        QUrl syncType = sd.syncResource.property(Nepomuk2::Vocabulary::SYNC::syncDataType()).toUrl();
+        QUrl syncType = syncResource.property(Nepomuk2::Vocabulary::SYNC::syncDataType()).toUrl();
         if(syncType == Nepomuk2::Vocabulary::SYNC::Note()) {
-            deletedResource = sd.syncResource.property(Nepomuk2::Vocabulary::SYNC::note()).toResource();
+            deletedResource = syncResource.property(Nepomuk2::Vocabulary::SYNC::note()).toResource();
             type = i18n("Note");
         }
         else if(syncType == Nepomuk2::Vocabulary::SYNC::Attachment()) {
-            deletedResource = sd.syncResource.property(Nepomuk2::Vocabulary::SYNC::attachment()).toResource();
+            deletedResource = syncResource.property(Nepomuk2::Vocabulary::SYNC::attachment()).toResource();
             type = i18n("Attachment");
         }
         else {
-            deletedResource = sd.syncResource.property(Nepomuk2::Vocabulary::SYNC::publication()).toResource();
+            deletedResource = syncResource.property(Nepomuk2::Vocabulary::SYNC::publication()).toResource();
             type = i18n("Reference");
         }
 
@@ -105,12 +105,12 @@ void ItemDeleteDialog::localDeleteDetails(QList<SyncDetails> items)
     ui->detailsLabel->setWordWrap(true);
 }
 
-void ItemDeleteDialog::serverDeleteDetails(QList<SyncDetails> items)
+void ItemDeleteDialog::serverDeleteDetails(QList<Nepomuk2::Resource> items)
 {
     QString details;
-    foreach(const SyncDetails &sd, items) {
-        QUrl syncType = sd.syncResource.property(Nepomuk2::Vocabulary::SYNC::syncDataType()).toUrl();
-        QString id = sd.syncResource.property(Nepomuk2::Vocabulary::SYNC::id()).toString();
+    foreach(const Nepomuk2::Resource &syncResource, items) {
+        QUrl syncType = syncResource.property(Nepomuk2::Vocabulary::SYNC::syncDataType()).toUrl();
+        QString id = syncResource.property(Nepomuk2::Vocabulary::SYNC::id()).toString();
         QString type;
         if(syncType == Nepomuk2::Vocabulary::SYNC::Note()) {
             type = i18n("Note");
@@ -131,4 +131,4 @@ void ItemDeleteDialog::serverDeleteDetails(QList<SyncDetails> items)
     ui->detailsLabel->setText(details);
     ui->detailsLabel->setWordWrap(true);
 }
-*/
+

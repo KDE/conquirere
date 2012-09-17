@@ -20,7 +20,7 @@
 
 #include <QtGui/QDialog>
 
-//#include "nbibio/nbibsync.h"
+#include "nbibio/nepomuksyncclient.h"
 #include "nbibio/storageglobals.h"
 #include "core/library.h"
 
@@ -38,11 +38,11 @@ class ItemMergeDialog : public QDialog
 public:
     explicit ItemMergeDialog(QWidget *parent = 0);
     ~ItemMergeDialog();
-/*
-    void setItemsToMerge(QList<SyncDetails> items);
+
+    void setItemsToMerge(const QList<SyncMergeDetails> &items);
     void setProviderDetails(ProviderSyncDetails psd);
     void setLibraryToSyncWith(Library *l);
-    */
+
 
 private slots:
     void showNext();

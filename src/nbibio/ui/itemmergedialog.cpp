@@ -142,11 +142,11 @@ ItemMergeDialog::~ItemMergeDialog()
 {
     delete ui;
 }
-/*
-void ItemMergeDialog::setItemsToMerge(QList<SyncDetails> items)
+
+void ItemMergeDialog::setItemsToMerge(const QList<SyncMergeDetails> &items)
 {
 
-    foreach(const SyncDetails &sd, items) {
+    foreach(const SyncMergeDetails &sd, items) {
         Nepomuk2::Resource publication;
 
         QUrl syncType = sd.syncResource.property(SYNC::syncDataType()).toUrl();
@@ -160,13 +160,15 @@ void ItemMergeDialog::setItemsToMerge(QList<SyncDetails> items)
         else {
             publication = sd.syncResource.property(SYNC::reference()).toResource();
         }
-
+/*
+ //FIXME: fix merge ite mdialog
         MergedResults mr;
         mr.localSyncResource = sd.syncResource;
         mr.originalServerEntry = sd.externalResource;
         mr.serverChanges = BibTexToNepomukPipe::getDiff(publication, sd.externalResource, false, mr.localEntry);
         mr.mergedChanges = mr.serverChanges;
         m_mergeResults.append(mr);
+        */
     }
 
     ui->previousButton->setEnabled(false);
@@ -192,7 +194,7 @@ void ItemMergeDialog::setLibraryToSyncWith(Library *l)
 {
     m_libraryToSyncWith = l;
 }
-*/
+
 void ItemMergeDialog::showNext()
 {
     m_currentItem++;

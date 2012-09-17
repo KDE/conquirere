@@ -162,7 +162,6 @@ void LibraryInfoWidget::syncFinished()
 {
     delete m_kpd;
     m_kpd = 0;
-    kDebug() << "cleanup again";
 
     BackgroundSync *bs = qobject_cast<BackgroundSync *>(sender());
     if(bs)

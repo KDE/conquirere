@@ -20,7 +20,7 @@
 
 #include <QDialog>
 
-//#include "nbibio/nbibsync.h"
+#include <Nepomuk2/Resource>
 
 namespace Ui {
     class ItemDeleteDialog;
@@ -40,16 +40,15 @@ public:
     explicit ItemDeleteDialog(Mode mode, QWidget *parent = 0);
     ~ItemDeleteDialog();
 
-//    void setItems(QList<SyncDetails> items);
+    void setItems(QList<Nepomuk2::Resource> items);
 
 private slots:
     void showDetails();
 
 private:
-    /*
-    void localDeleteDetails(QList<SyncDetails> items);
-    void serverDeleteDetails(QList<SyncDetails> items);
-    */
+    void localDeleteDetails(QList<Nepomuk2::Resource> items);
+    void serverDeleteDetails(QList<Nepomuk2::Resource> items);
+
 
     Ui::ItemDeleteDialog *ui;
     Mode m_mode;
