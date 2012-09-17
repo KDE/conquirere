@@ -61,9 +61,6 @@ void NepomukToVariantPipe::pipeExport(QList<Nepomuk2::Resource> resources)
         Nepomuk2::Resource reference;
         Nepomuk2::Resource publication;
 
-        //BUG: not all types are fetched correctly, fixed in 4.9.1
-        resource.types();
-
         // first check if we operate on a Reference or a Publication
         if(resource.hasType( NBIB::Reference() )) {
             // we have a Reference
@@ -76,10 +73,6 @@ void NepomukToVariantPipe::pipeExport(QList<Nepomuk2::Resource> resources)
             // or we try to export pimo:Note or some attachment information
             publication = resource;
         }
-
-        //BUG: not all types are fetched correctly, fixed in 4.9.1
-        publication.types();
-        reference.types();
 
         QString citeKey = reference.property(NBIB::citeKey()).toString();
         if(citeKey.isEmpty()) {
@@ -246,8 +239,6 @@ QString NepomukToVariantPipe::retrieveEntryType(Nepomuk2::Resource reference, Ne
     // handle special articles
     else if(publication.hasType(NBIB::Article())) {
         Nepomuk2::Resource collection = publication.property(NBIB::collection()).toResource();
-        //BUG:: Not all types are fetched, fixed in 4.9.1
-        collection.types();
         if(collection.hasType(NBIB::Proceedings())) {
             type = QLatin1String("Inproceedings"); //article in some proceedings paper
         }
@@ -611,9 +602,6 @@ void NepomukToVariantPipe::setPublisher(Nepomuk2::Resource publication)
     QString publisherEntry = QLatin1String("publisher");
     QList<Nepomuk2::Resource> publisher = publication.property(NCO::publisher()).toResourceList();
 
-    //BUG: not all types are fetched. Fixed in 4.9.1
-    publication.types();
-
     if(publication.hasType(NBIB::Thesis())) {
         publisherEntry = QLatin1String("school");
     }
@@ -836,8 +824,6 @@ void NepomukToVariantPipe::setNote(Nepomuk2::Resource publication)
 
     int i=0;
     foreach(const Nepomuk2::Resource & r, resourceList) {
-        //BUG: not all types are fetched correctly fixed in 4.9.1
-        r.types();
         if( !r.hasType( PIMO::Note() ) ) { continue; }
 
         if(i == 0) {
@@ -934,15 +920,9 @@ void NepomukToVariantPipe::addNepomukUries(bool addThem)
 
 void NepomukToVariantPipe::setArticleType(Nepomuk2::Resource publication)
 {
-    //BUG: not all types are fetched correctly. Fixed in 4.9.1
-    publication.types();
-
     if(publication.hasType(NBIB::Article())) {
         QString articleType;
         Nepomuk2::Resource collection = publication.property(NBIB::collection()).toResource();
-
-        //BUG: not all types are fetched correctly. Fixed in 4.9.1
-        collection.types();
 
         if(collection.hasType(NBIB::JournalIssue())) {
             articleType = QLatin1String("journal"); //article in some proceedings paper

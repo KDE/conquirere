@@ -81,9 +81,6 @@ void PropertyEdit::setResource(Nepomuk2::Resource & resource)
 {
     m_resource = resource;
 
-    //BUG: not all types are fetched correctly, fixed in 4.9.1
-    m_resource.types();
-
     setupLabel();
 }
 
