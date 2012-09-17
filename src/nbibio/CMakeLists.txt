@@ -1,4 +1,7 @@
 
+add_subdirectory( provider/zotero )
+#add_subdirectory( provider/mendeley )
+
 set(nbibio_LIB_SRCS
     bibfileexporter.cpp
     bibfileimporter.cpp
@@ -8,15 +11,12 @@ set(nbibio_LIB_SRCS
     bibtex/bibteximporter.cpp
     bibtex/synckbibtexfile.cpp
 
-    nbibsync.cpp
-    zotero/synczoteronepomuk.cpp
-    zotero/zoterodownload.cpp
-    zotero/zoteroupload.cpp
-
     pipe/clipboardpipe.cpp
     pipe/kilelyxpipe.cpp
     pipe/nepomuktovariantpipe.cpp
     pipe/varianttonepomukpipe.cpp
+
+    nepomuksyncclient.cpp
 )
 
 kde4_add_kcfg_files(nbibio_LIB_SRCS ../conquirere.kcfgc)
