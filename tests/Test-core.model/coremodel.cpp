@@ -213,7 +213,7 @@ void CoreModel::addSeriesTest()
     Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNone);
 
     // check that the data was actually added to the model
-    QVERIFY(waitForSignal(seriesModel, SIGNAL(dataSizeChaged(int)), 10000));
+    QVERIFY(waitForSignal(seriesModel, SIGNAL(dataSizeChaged(int)), 50000));
 
     // now check if the data was correctly added t othe model
     int lastEntry = seriesModel->rowCount()-1;

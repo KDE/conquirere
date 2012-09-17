@@ -172,7 +172,7 @@ void CoreProject::addResourceProjectTest()
     QVERIFY2( seriesAdded, "Series not added to the project");
     */
 
-    QEXPECT_FAIL("", "res.types not loaded correctly, should be fixed in 4.9.1", Continue);
+    //QEXPECT_FAIL("", "res.types not loaded correctly, should be fixed in 4.9.1", Continue);
     bool referenceAdded = referenceCheck.isRelateds().contains(pimoProject);
     QVERIFY2( referenceAdded, "Reference not added to the project");
 }
