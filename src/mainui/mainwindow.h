@@ -53,9 +53,9 @@ public slots:
     void closeLibrarySelection();
 
     // database menu
-    void importZotero();
-    void exportZotero();
-    void syncStorage();
+    void fileImport();
+    void fileExport();
+    void storageSync();
 
     void dbCheck();
     void dbBackup();

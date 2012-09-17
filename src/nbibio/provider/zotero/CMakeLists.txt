@@ -9,6 +9,8 @@ set(zoterosync_LIB_SRCS
 kde4_add_library( zoterosync STATIC ${zoterosync_LIB_SRCS} )
 
 target_link_libraries(zoterosync
+                      syncProvider
+                      
                       ${QJSON_LIBRARIES} # added because the macro seems to exist with upper and lowercase depending on the distribution
                       ${qjson_LIBRARIES}
                       ${KDE4_KDEUI_LIBS}

@@ -20,7 +20,7 @@
 
 #include <QtGui/QWidget>
 
-#include "storageglobals.h"
+#include "nbibio/storageglobals.h"
 
 #include <KDE/KIcon>
 #include <KWallet/Wallet>
@@ -29,8 +29,7 @@ namespace Ui {
     class ProviderSettings;
 }
 
-class StorageInfo;
-class SyncStorage;
+class OnlineStorage;
 
 class ProviderSettings : public QWidget
 {
@@ -42,7 +41,7 @@ public:
 
     void setProviderSettingsDetails(const ProviderSyncDetails &psd);
     ProviderSyncDetails providerSettingsDetails() const;
-    StorageInfo *storageInfoByString(const QString &providerId);
+    OnlineStorage *storageInfoByString(const QString &providerId);
 
     void savePasswordInKWallet();
 
@@ -60,7 +59,7 @@ private:
     Ui::ProviderSettings *ui;
     ProviderSyncDetails m_oldPsd;
 
-    QList<StorageInfo*> m_availableProvider;
+    QList<OnlineStorage*> m_availableProvider;
     KWallet::Wallet* m_wallet;
 };
 

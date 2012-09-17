@@ -16,19 +16,15 @@
  */
 
 #include "providersettings.h"
-#include "ui/ui_providersettings.h"
+#include "ui_providersettings.h"
 
-#include "storageinfo.h"
-#include "syncstorage.h"
-#include "readfromstorage.h"
-
-#include "zotero/zoteroinfo.h"
-#include "kbibtexfile/kbtfileinfo.h"
+#include "nbibio/onlinestorage.h"
+#include "nbibio/provider/zotero/zoterosync.h"
 
 #include <KDE/KMessageBox>
 #include <QtCore/QDebug>
 
-ProviderSettings::ProviderSettings(QWidget *parent, bool showAkonadiStuff)
+ProviderSettings::ProviderSettings(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::ProviderSettings)
 {
@@ -45,13 +41,13 @@ ProviderSettings::ProviderSettings(QWidget *parent, bool showAkonadiStuff)
     m_wallet->setFolder(QLatin1String("kbibtex"));
 
     // add all available plugins for the synchronization
-    StorageInfo *zotero = new ZoteroInfo;
+    OnlineStorage *zotero = new ZoteroSync;
     m_availableProvider.append(zotero);
     ui->providerSelection->addItem(zotero->providerIcon(),zotero->providerName());
 
-    StorageInfo *kbibtexfile = new KBTFileInfo();
-    m_availableProvider.append(kbibtexfile);
-    ui->providerSelection->addItem(kbibtexfile->providerIcon(),kbibtexfile->providerName());
+//    StorageInfo *kbibtexfile = new KBTFileInfo();
+//    m_availableProvider.append(kbibtexfile);
+//    ui->providerSelection->addItem(kbibtexfile->providerIcon(),kbibtexfile->providerName());
 
     ui->providerSelection->setCurrentIndex(0);
     switchProvider(0);
@@ -86,8 +82,8 @@ void ProviderSettings::setProviderSettingsDetails(const ProviderSyncDetails &psd
 
     // switch to the selected provider
     int curIndex=0;
-    foreach(StorageInfo *si, m_availableProvider) {
-        if(si->providerId() == psd.providerInfo->providerId())
+    foreach(OnlineStorage *si, m_availableProvider) {
+        if(si->providerId() == psd.providerId)
             break;
         else
             curIndex++;
@@ -110,7 +106,7 @@ void ProviderSettings::setProviderSettingsDetails(const ProviderSyncDetails &psd
     }
 
     QString pwdKey;
-    pwdKey.append(psd.providerInfo->providerId());
+    pwdKey.append(psd.providerId);
     pwdKey.append(QLatin1String(":"));
     pwdKey.append(psd.userName);
     pwdKey.append(QLatin1String(":"));
@@ -137,19 +133,6 @@ void ProviderSettings::setProviderSettingsDetails(const ProviderSyncDetails &psd
 
     ui->localStorageUrl->setEnabled( psd.importAttachments );
     ui->localStorageUrl->setUrl( psd.localStoragePath );
-
-    if(psd.akonadiContactsUUid < 1) {
-        ui->addContactsToAkonadi->setChecked(false);
-    }
-    else {
-        ui->addContactsToAkonadi->setChecked(true);
-    }
-    if(psd.akonadiEventsUUid < 1) {
-        ui->addEventsToAkonadi->setChecked(false);
-    }
-    else {
-        ui->addEventsToAkonadi->setChecked(true);
-    }
 }
 
 ProviderSyncDetails ProviderSettings::providerSettingsDetails() const
@@ -157,7 +140,7 @@ ProviderSyncDetails ProviderSettings::providerSettingsDetails() const
     ProviderSyncDetails psd;
 
     int curProviderIndex = ui->providerSelection->currentIndex();
-    psd.providerInfo = m_availableProvider.at(curProviderIndex);
+    psd.providerId = m_availableProvider.at(curProviderIndex)->providerId();
     psd.userName = ui->providerUserName->text();
     psd.pwd = ui->providerPwd->text();
 
@@ -181,9 +164,9 @@ ProviderSyncDetails ProviderSettings::providerSettingsDetails() const
     return psd;
 }
 
-StorageInfo *ProviderSettings::storageInfoByString(const QString &providerId)
+OnlineStorage *ProviderSettings::storageInfoByString(const QString &providerId)
 {
-    foreach(StorageInfo *si, m_availableProvider) {
+    foreach(OnlineStorage *si, m_availableProvider) {
         if(si->providerId() == providerId)
             return si;
     }
@@ -237,8 +220,8 @@ void ProviderSettings::findPasswordInKWallet()
 
 void ProviderSettings::switchProvider(int curIndex)
 {
-    foreach(StorageInfo* si, m_availableProvider)
-        disconnect(si->readHandle(), SIGNAL(finished()), this, SLOT(fillCollectionList()));
+    foreach(OnlineStorage* si, m_availableProvider)
+        disconnect(si, SIGNAL(finished()), this, SLOT(fillCollectionList()));
 
     ui->listCollection->clear();
 
@@ -263,7 +246,7 @@ void ProviderSettings::switchProvider(int curIndex)
         ui->removeCollection->setEnabled(true);
         ui->fetchCollection->setEnabled(true);
         ui->listCollection->setEnabled(true);
-        connect(m_availableProvider.at(curIndex)->readHandle(), SIGNAL(finished()), this, SLOT(fillCollectionList()));
+        connect(m_availableProvider.at(curIndex), SIGNAL(finished()), this, SLOT(fillCollectionList()));
     }
     else {
         ui->collectionLabel->setEnabled(false);
@@ -286,7 +269,7 @@ void ProviderSettings::fetchCollection()
 {
     int curIndex = ui->providerSelection->currentIndex();
 
-    ReadFromStorage *rfs = m_availableProvider.at(curIndex)->readHandle();
+    OnlineStorage *storage = m_availableProvider.at(curIndex);
 
     ProviderSyncDetails psd;
     psd.userName = ui->providerUserName->text();
@@ -298,15 +281,15 @@ void ProviderSettings::fetchCollection()
         psd.url = ui->providerUrl->text();
     }
 
-    rfs->setProviderSettings(psd);
+    storage->setProviderSettings(psd);
 
-    rfs->fetchCollections();
+    storage->fetchCollections();
 }
 
 void ProviderSettings::fillCollectionList()
 {
-    ReadFromStorage *rfs = qobject_cast<ReadFromStorage *>(sender());
-    QList<CollectionInfo> collectionList = rfs->getCollectionInfo();
+    OnlineStorage *storage = qobject_cast<OnlineStorage *>(sender());
+    QList<CollectionInfo> collectionList = storage->collectionInfo();
 
     ui->listCollection->clear();
 

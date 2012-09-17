@@ -26,7 +26,6 @@
 
 class Library;
 class QWidget;
-//class BackgroundSync;
 
 /**
   * @brief Manager to hold all Library instances used in the system
@@ -37,13 +36,6 @@ class LibraryManager : public QObject
 {
     Q_OBJECT
 public:
-    enum ModeSelection {
-        KBibTeX_Local,
-        KBibTeX_Sync,
-        Zotero_Sync,
-        Select_Mode
-    };
-
     explicit LibraryManager(QObject *parent = 0);
     ~LibraryManager();
 
@@ -63,15 +55,6 @@ public slots:
     void openSettings();
     void openSettings(Library *l);
 
-    void importData(ModeSelection mode = Select_Mode);
-    void importData(Library *l, ModeSelection mode = Select_Mode);
-
-    void exportData(ModeSelection mode = Select_Mode);
-    void exportData(Library *l, ModeSelection mode = Select_Mode);
-
-    void syncData(ModeSelection mode = Select_Mode);
-    void syncData(Library *l, ModeSelection mode = Select_Mode);
-
 signals:
     void libraryAdded(Library *l);
     void libraryRemoved(const QUrl &projectThingUrl);
@@ -80,7 +63,6 @@ private:
     QList<Library*> m_openProjectList;
     Library *m_systemLibrary;
     Library *m_currentUsedLibrary;
-//    BackgroundSync *m_backgroundSyncManager;
 };
 
 #endif // LIBRARYMANAGER_H

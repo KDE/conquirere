@@ -37,8 +37,6 @@ ADD_DEPENDENCIES(core config)
 
 target_link_libraries(core
         config
-#include kbibtex
-#        ${KBIBTEX_LIBRARIES}
 )
 
 install( TARGETS core ${INSTALL_TARGETS_DEFAULT_ARGS} )

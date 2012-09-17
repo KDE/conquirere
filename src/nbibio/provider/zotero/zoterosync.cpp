@@ -26,6 +26,7 @@
 #include <QtNetwork/QNetworkReply>
 #include <QtCore/QXmlStreamReader>
 
+#include <KDE/KLocalizedString>
 #include <KDE/KDebug>
 
 const QString BASE_URL      = QLatin1String("https://api.zotero.org/");
@@ -33,7 +34,7 @@ const int MAX_ITEM_REQUEST  = 50;
 const int MAX_ITEMS_TO_PUSH = 50;
 
 ZoteroSync::ZoteroSync(QObject *parent)
-    : QObject(parent)
+    : OnlineStorage(parent)
     , m_cancel(false)
 {
     qRegisterMetaType<CollectionInfo>("CollectionInfo");
@@ -74,14 +75,43 @@ ZoteroSync::ZoteroSync(QObject *parent)
     }
 }
 
-void ZoteroSync::setProviderSettings(const ProviderSyncDetails &psd)
+QString ZoteroSync::providerId() const
 {
-    m_psd = psd;
+    return QLatin1String("zotero");
 }
 
-ProviderSyncDetails ZoteroSync::providerSettings() const
+QString ZoteroSync::providerName() const
 {
-    return m_psd;
+    return QLatin1String("Zotero");
+}
+
+KIcon ZoteroSync::providerIcon() const
+{
+    return KIcon(QLatin1String("storage-zotero"));
+}
+
+bool ZoteroSync::supportCollections() const
+{
+    return true;
+}
+
+QString ZoteroSync::helpText() const
+{
+    return i18n("Provider to sync your data with http://www.Zotero.org\n\n"
+                "Name : your userID number\n"
+                "Password : your created API key\n"
+                "url : either 'users' or 'group'\n"
+                "collection : the collection to sync with\n");
+}
+
+QString ZoteroSync::defaultUrl() const
+{
+    return QLatin1String("users");
+}
+
+bool ZoteroSync::useUrlSelector() const
+{
+    return false;
 }
 
 QVariantList ZoteroSync::data() const

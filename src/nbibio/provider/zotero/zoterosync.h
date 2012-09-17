@@ -18,8 +18,9 @@
 #ifndef ZOTEROSYNC_H
 #define ZOTEROSYNC_H
 
-#include <QtCore/QObject>
+#include "nbibio/provider/onlinestorage.h"
 
+#include <QtCore/QObject>
 #include <QtCore/QVariantMap>
 #include <QtCore/QVariantList>
 #include <QtCore/QStringList>
@@ -27,18 +28,22 @@
 
 #include <QtNetwork/QNetworkAccessManager>
 
-#include "../../storageglobals.h"
-
 class QNetworkReply;
 
-class ZoteroSync : public QObject
+class ZoteroSync : public OnlineStorage
 {
     Q_OBJECT
 public:
     explicit ZoteroSync(QObject *parent = 0);
 
-    void setProviderSettings(const ProviderSyncDetails &psd);
-    ProviderSyncDetails providerSettings() const;
+    QString providerId() const;
+    QString providerName() const;
+    KIcon providerIcon() const;
+
+    bool supportCollections() const;
+    QString helpText() const;
+    QString defaultUrl() const;
+    bool useUrlSelector() const;
 
     QVariantList data() const;
     QList<CollectionInfo> collectionInfo() const;
@@ -103,7 +108,6 @@ private:
     QVariantList transformCreators(const QString &zoteroType,const QString &personList);
 
 private:
-    ProviderSyncDetails m_psd;
     bool m_cancel;
 
     QVariantMap m_fromZoteroMapping;

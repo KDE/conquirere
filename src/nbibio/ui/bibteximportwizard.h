@@ -20,7 +20,6 @@
 
 #include <QWizard>
 #include <QtCore/QFutureWatcher>
-#include <Akonadi/Collection>
 
 class QLabel;
 class KUrlRequester;
@@ -71,11 +70,9 @@ public:
 
 private slots:
     bool isComplete() const;
-    void collectionsReceived( const Akonadi::Collection::List& );
 
 public:
     void setupUi();
-    KComboBox *addressComboBox;
     KComboBox *fileType;
     KUrlRequester *fileName;
     KComboBox *projectImport;

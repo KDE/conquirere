@@ -1,6 +1,5 @@
 
-add_subdirectory( provider/zotero )
-#add_subdirectory( provider/mendeley )
+add_subdirectory( provider )
 
 set(nbibio_LIB_SRCS
     bibfileexporter.cpp
@@ -24,6 +23,7 @@ set(nbibio_LIB_SRCS
     ui/storagesyncwizard.cpp
     ui/itemdeletedialog.cpp
     ui/itemmergedialog.cpp
+    ui/providersettings.cpp
 )
 
 kde4_add_ui_files( nbibio_LIB_SRCS
@@ -32,6 +32,8 @@ kde4_add_ui_files( nbibio_LIB_SRCS
     ui/storagesyncwizard.ui
     ui/itemdeletedialog.ui
     ui/itemmergedialog.ui
+    ui/providersettings.ui
+    ui/synczoterodialog.ui
 )
 
 kde4_add_library( nbibio STATIC ${nbibio_LIB_SRCS} )
@@ -40,9 +42,13 @@ target_link_libraries(nbibio
     # include static libs from conquirere
     ontology
 
+    # storage provider
+    syncProvider
+    zoterosync
+
     # additional libs
     ${NEPOMUK_METADATA_EXTRACTOR_LIBS}
 )
 
-install( TARGETS nbibio  ${INSTALL_TARGETS_DEFAULT_ARGS} )
+install( TARGETS nbibio ${INSTALL_TARGETS_DEFAULT_ARGS} )
 

@@ -38,9 +38,6 @@
 #include <KDE/KParts/Part>
 #include <KDE/KStandardDirs>
 
-#include <Akonadi/CollectionFetchJob>
-#include <Akonadi/CollectionFetchScope>
-
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
 #include <QtGui/QProgressBar>
@@ -103,7 +100,6 @@ void BibTeXImportWizard::setupUi()
  */
 IntroPage::IntroPage(QWidget *parent)
     : QWizardPage(parent)
-    , addressComboBox(0)
     , fileType(0)
     , fileName(0)
     , projectImport(0)
@@ -112,12 +108,6 @@ IntroPage::IntroPage(QWidget *parent)
 
 void IntroPage::setupUi()
 {
-    // fetching all collections containing emails recursively, starting at the root collection
-    Akonadi::CollectionFetchJob *job = new Akonadi::CollectionFetchJob( Akonadi::Collection::root(), Akonadi::CollectionFetchJob::Recursive, this );
-    job->fetchScope().setContentMimeTypes( QStringList() << "application/x-vnd.kde.contactgroup" );
-    connect( job, SIGNAL(collectionsReceived(Akonadi::Collection::List)),
-             this, SLOT(collectionsReceived(Akonadi::Collection::List)) );
-
     setTitle(i18n("BibTeX Importer"));
     setSubTitle(i18n("This wizard will guide you through the import process."));
     //setPixmap(QWizard::WatermarkPixmap, QPixmap(":/images/watermark1.png"));
@@ -136,7 +126,6 @@ void IntroPage::setupUi()
     registerField("fileName", fileName);
     connect(fileName, SIGNAL(textChanged(QString)), this, SIGNAL(completeChanged()));
 
-    //fileLayout->addRow(i18n("File type:"), fileType);
     fileLayout->addRow(i18n("File:"), fileName);
     mainLayout->addLayout(fileLayout);
 
@@ -150,20 +139,6 @@ void IntroPage::setupUi()
     registerField("duplicates", fdBox);
     fdBox->setChecked(true);
     groupBoxLayout->addWidget(fdBox);
-
-    //##################################################################
-    //# Import Contacts to Akonadi
-    QCheckBox *cb2 = new QCheckBox(i18n("Add contacts to Akonadi"));
-    registerField("akonadiContact", cb2);
-    groupBoxLayout->addWidget(cb2);
-    QHBoxLayout *comboLayout = new QHBoxLayout();
-    addressComboBox = new KComboBox();
-    addressComboBox->setEnabled(false);
-    addressComboBox->setMaximumSize(200,50);
-    comboLayout->addSpacing(20);
-    comboLayout->addWidget(addressComboBox);
-    groupBoxLayout->addLayout(comboLayout);
-    connect(cb2, SIGNAL(clicked(bool)), addressComboBox, SLOT(setEnabled(bool)));
 
     //##################################################################
     //# Import to Project
@@ -212,13 +187,6 @@ bool IntroPage::isComplete() const
         return false;
     else
         return true;
-}
-
-void IntroPage::collectionsReceived( const Akonadi::Collection::List& list)
-{
-    foreach(const Akonadi::Collection & c, list) {
-        addressComboBox->addItem(c.name(), c.id());
-    }
 }
 
 /*
@@ -307,12 +275,6 @@ void ParseFile::initializePage()
     importer->setFileType( BibTexImporter::FileType(fileType) );
     importer->setFindDuplicates(field(QLatin1String("duplicates")).toBool());
 
-    bool importContactToAkonadi = field(QLatin1String("akonadiContact")).toBool();
-    if(importContactToAkonadi) {
-        int curAddressBook = ip->addressComboBox->currentIndex();
-        Akonadi::Collection c(ip->addressComboBox->itemData(curAddressBook).toInt());
-        importer->setAkonadiAddressbook(c);
-    }
 
     bool importToProject = field(QLatin1String("projectImport")).toBool();
     if(importToProject) {

@@ -50,6 +50,7 @@ include_directories (
                      ${CMAKE_BINARY_DIR}/ontology
                      ${CMAKE_BINARY_DIR}/src
                      ${CMAKE_BINARY_DIR}/src/mainui
+                     ${CMAKE_BINARY_DIR}/src/nbibio/ui
 )
 
 # Set a version that will be used if we're not building from git

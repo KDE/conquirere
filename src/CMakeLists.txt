@@ -18,8 +18,6 @@ ADD_DEPENDENCIES(conquirere version)
 ADD_DEPENDENCIES(conquirere config)
 
 target_link_libraries(conquirere
-        nepomukcore
-        nepomuksync
 # include static libs from conquirere
         ontology
         config
@@ -43,15 +41,11 @@ target_link_libraries(conquirere
 #include nepomuk
         ${NEPOMUK_LIBRARIES}
         ${NEPOMUK_QUERY_LIBRARIES}
-        #nepomukcore
-        #nepomukdatamanagement
+        nepomukcore
+        nepomuksync
 
 #include kbibtex
         ${KBIBTEX_LIBRARIES}
-        #kbibtexio
-        #kbibtexnetworking
-        #kbibtexgui
-        #kbibtexproc
 
         ${NEPOMUK_METADATA_EXTRACTOR_LIBS}
 )
