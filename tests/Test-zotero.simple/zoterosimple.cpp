@@ -125,7 +125,7 @@ void ZoteroSimple::createItemTest()
     QVariantMap artwork;
     artwork.insert(QLatin1String("artworkSize"), QLatin1String("UNITTEST-artworkSize"));
     artwork.insert(QLatin1String("accessDate"), QLatin1String("2011-05-05"));
-    artwork.insert(QLatin1String("publicationtype"), QLatin1String("artwork"));
+    artwork.insert(QLatin1String("bibtexentrytype"), QLatin1String("artwork"));
     artwork.insert(QLatin1String("language"), QLatin1String("UNITTEST-language"));
     artwork.insert(QLatin1String("title"), QLatin1String("UNITTEST-title"));
     artwork.insert(QLatin1String("archiveLocation"), QLatin1String("UNITTEST-archiveLocation"));

@@ -44,7 +44,7 @@ private slots:
 private:
     ProviderSyncDetails psd;
     ZoteroSync client;
-    QString currentId;
+    QVariantMap currentItem;
 };
 
 QTEST_MAIN(ZoteroData)
@@ -72,7 +72,7 @@ void ZoteroData::importExportTest_data()
     QVariantMap artwork;
     artwork.insert(QLatin1String("artworkSize"), QLatin1String("UNITTEST-artworkSize"));
     artwork.insert(QLatin1String("accessDate"), QLatin1String("2011-05-05"));
-    artwork.insert(QLatin1String("publicationtype"), QLatin1String("artwork"));
+    artwork.insert(QLatin1String("bibtexentrytype"), QLatin1String("artwork"));
     artwork.insert(QLatin1String("language"), QLatin1String("UNITTEST-language"));
     artwork.insert(QLatin1String("title"), QLatin1String("UNITTEST-title"));
     artwork.insert(QLatin1String("archiveLocation"), QLatin1String("UNITTEST-archiveLocation"));
@@ -113,8 +113,7 @@ void ZoteroData::importExportTest()
     QVERIFY2(returnedItem.size() == 1, "Returned more than 1 item for a new item request");
 
     // now check that each uploaded entry is also in the returned data
-    QVariantMap downloadedEntry = returnedItem.first().toMap();
-    currentId = downloadedEntry.value(QLatin1String("sync-key")).toString();
+    currentItem = returnedItem.first().toMap();
 
     bool error = false;
     QStringList errorString;
@@ -123,14 +122,14 @@ void ZoteroData::importExportTest()
     while(i.hasNext()) {
         i.next();
 
-        if( !downloadedEntry.contains(i.key()) ) {
+        if( !currentItem.contains(i.key()) ) {
             error = true;
             errorString << QLatin1String("Key missing ::" + i.key().toAscii());
 
         }
-        else if( downloadedEntry.value(i.key()) != i.value()) {
+        else if( currentItem.value(i.key()) != i.value()) {
             error = true;
-            errorString << QLatin1String("Value not the same :: shouldbe: " + i.value().toString().toAscii() + " | is: " + downloadedEntry.value(i.key()).toString().toAscii());
+            errorString << QLatin1String("Value not the same :: shouldbe: " + i.value().toString().toAscii() + " | is: " + currentItem.value(i.key()).toString().toAscii());
         }
     }
 
@@ -144,7 +143,7 @@ void ZoteroData::cleanup()
 {
     QSignalSpy spy(&client, SIGNAL(finished()));
     QSignalSpy spy2(&client, SIGNAL(error(QString)));
-    client.deleteItems( QVariantList() << currentId );
+    client.deleteItems( QVariantList() << currentItem );
 
     while (spy.count() == 0 && spy2.count() == 0) {
         QTest::qWait(200);
