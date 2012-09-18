@@ -15,16 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-//#include "../testdatadir.h"
-
 #include "nbibio/storageglobals.h"
 #include "nbibio/provider/zotero/zoterosync.h"
 
 #include <QtTest>
 #include <QtDebug>
 
+/**
+ * @brief Unittest to test the Zotero provider functionality
+ *
+ * Checks collections creation/change/removal and for 1 item creation/change/removal
+ *
+ * For a data driven test that checks all supported item types see Test-zotero.data
+ */
 class ZoteroSimple: public QObject
 {
     Q_OBJECT
@@ -81,6 +84,7 @@ void ZoteroSimple::createCollectionTest()
     while (spy.count() == 0 && spy2.count() == 0) {
         QTest::qWait(200);
     }
+    QVERIFY2(spy2.count() == 0, "Error during zotero upload");
 
     QVERIFY2( !client.collectionInfo().isEmpty(), "No collection information returned");
 
@@ -103,6 +107,8 @@ void ZoteroSimple::editCollectionTest()
     while (spy.count() == 0 && spy2.count() == 0) {
         QTest::qWait(200);
     }
+
+    QVERIFY2(spy2.count() == 0, "Error during zotero upload");
 
     QVERIFY2( !client.collectionInfo().isEmpty(), "No collection information returned");
     CollectionInfo changedCollection = client.collectionInfo().first();
@@ -146,6 +152,8 @@ void ZoteroSimple::createItemTest()
     while (spy.count() == 0 && spy2.count() == 0) {
         QTest::qWait(200);
     }
+
+    QVERIFY2(spy2.count() == 0, "Error during zotero upload");
 
     QVariantList returnedItem = client.data();
 
@@ -191,6 +199,8 @@ void ZoteroSimple::changeItemTest()
         QTest::qWait(200);
     }
 
+    QVERIFY2(spy2.count() == 0, "Error during zotero upload");
+
     QVariantList returnedItem = client.data();
 
     QVERIFY2(!returnedItem.isEmpty(), "No items returned");
@@ -219,6 +229,8 @@ void ZoteroSimple::addItemToCollectionTest()
         QTest::qWait(200);
     }
 
+    QVERIFY2(spy2.count() == 0, "Error during zotero upload");
+
     //TODO: check that the item got really added to the collection
 }
 
@@ -238,6 +250,8 @@ void ZoteroSimple::removeItemFromCollectionTest()
         QTest::qWait(200);
     }
 
+    QVERIFY2(spy2.count() == 0, "Error during zotero upload");
+
     //TODO: check that the item got really removed from the collection
 }
 
@@ -253,6 +267,7 @@ void ZoteroSimple::deleteCollectionTest()
         QTest::qWait(200);
     }
 
+    QVERIFY2(spy2.count() == 0, "Error during zotero upload");
     //CollectionInfo changedCollection = wtz.collectionInfo();
 
     //TODO: test that collection got deleted
@@ -271,6 +286,7 @@ void ZoteroSimple::deleteItemTest()
         QTest::qWait(200);
     }
 
+    QVERIFY2(spy2.count() == 0, "Error during zotero upload");
     //TODO: Verfiy that the item got deleted properly
 }
 
@@ -278,4 +294,4 @@ void ZoteroSimple::cleanupTestCase()
 {
 }
 
-#include "zoterowrite.moc"
+#include "zoterosimple.moc"

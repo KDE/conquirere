@@ -44,7 +44,7 @@
 /**
  * @brief UnitTest for the Library Project and its Project settings
  *
- * checks: creation/change/removala and deletion of the library and some resoruces
+ * checks: creation/change/removal and deletion of the library and some resoruces
  */
 class CoreModel: public QObject
 {
@@ -132,7 +132,7 @@ void CoreModel::addPublicationTest()
 
     QDateTime publicationDate = QDateTime::fromString("1986-04-03T12:12:12Z", Qt::ISODate);
 
-    Nepomuk2::NBIB::Publication book;
+    Nepomuk2::NBIB::Book book;
     book.setTitle(QLatin1String("UNITTEST-book"));
     book.addCreator(author.uri());
     book.addEditor(editor.uri());
@@ -205,6 +205,7 @@ void CoreModel::addSeriesTest()
     // lets add a very simple book
     Nepomuk2::SimpleResourceGraph graph;
 
+    //BUG: ResourceWatcher does not seem to work with subtypes. adding Journal does not show a change, Series does
     Nepomuk2::NBIB::Journal journal;
     journal.setTitle(QLatin1String("UNITTEST-journal"));
 
