@@ -41,9 +41,10 @@ using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
 /**
- * @brief UnitTest for the nbibio exporter Nepomuk -> Bibtex
+ * @file variantnepomuk.cpp
+ * @test UnitTest for the nbibio exporter Nepomuk -> Bibtex
+ *       checks: a few defined test cases.
  *
- * checks: a few defined test cases.
  * for a full data driven test see Test-nbibio.bibtex2bibtex
  */
 class VariantNepomuk: public QObject

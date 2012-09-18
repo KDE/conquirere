@@ -1,6 +1,6 @@
 format 74
 "nbibio" // nbibio
-  revision 1
+  revision 2
   modified_by 4 "joerg"
   // class settings
   //class diagram settings
@@ -42,8 +42,8 @@ format 74
     //activity diagram settings
     package_name_in_tab default show_context default show_opaque_action_definition default auto_label_position default write_flow_label_horizontally default draw_all_relations default shadow default
     show_infonote default drawing_language default show_stereotype_properties default
-    classdiagram 134916 "Overview"
-      draw_all_relations no hide_attributes yes hide_operations yes hide_getset_operations yes show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+    classdiagram 134916 "IO Overview"
+      draw_all_relations no hide_attributes yes hide_operations yes hide_getset_operations yes show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab yes class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
       size A4-Landscape
     end
 
@@ -189,30 +189,9 @@ ${inlines}
 	  b parent class_ref 137092 // BibFileExporter
       end
 
-      classrelation 137988 // <dependency>
-	relation 137220 -_->
-	  a default
-	    cpp default "#include in source"
-	    classrelation_ref 137988 // <dependency>
-	  b parent class_ref 137476 // NepomukExporter
-      end
     end
 
     class 137348 "VariantPipe"
-      visibility package 
-      cpp_decl "${comment}${template}class ${name}${inherit} {
-${members}};
-${inlines}
-"
-      java_decl ""
-      php_decl ""
-      python_2_2 python_decl ""
-      idl_decl ""
-      explicit_switch_type ""
-      
-    end
-
-    class 137476 "NepomukExporter"
       visibility package 
       cpp_decl "${comment}${template}class ${name}${inherit} {
 ${members}};
@@ -267,5 +246,494 @@ ${inlines}
 	  b parent class_ref 137348 // VariantPipe
       end
     end
+
+    classdiagram 141444 "Sync Overview"
+      draw_all_relations default hide_attributes yes hide_operations yes hide_getset_operations yes show_members_full_definition no show_members_visibility no show_members_stereotype no show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab yes class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+      size A4-Landscape
+    end
+
+    class 144388 "NepomukSyncClient"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 146308 // <aggregation>
+	relation 145284 o---
+	  a role_name "" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 146308 // <aggregation>
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 146436 // <aggregation>
+      end
+
+      classrelation 146564 // <aggregation>
+	relation 145412 o---
+	  a role_name "" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 146564 // <aggregation>
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 146692 // <aggregation>
+      end
+
+      classrelation 146948 // <aggregation>
+	relation_ref 145540 // <aggregation>
+      end
+
+      classrelation 147460 // <aggregation>
+	relation_ref 145796 // <aggregation>
+      end
+    end
+
+    class 144516 "OnlineStorage"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 146692 // <aggregation>
+	relation_ref 145412 // <aggregation>
+      end
+    end
+
+    class 144644 "ZoteroSync"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 145924 // <generalisation>
+	relation 145028 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 145924 // <generalisation>
+	  b parent class_ref 144516 // OnlineStorage
+      end
+    end
+
+    class 144772 "ProviderSettings"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 146052 // <aggregation>
+	relation 145156 o---
+	  a role_name "" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 146052 // <aggregation>
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 146180 // <aggregation>
+      end
+    end
+
+    class 144900 "StorageSyncWizard"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 145540 // <dependency>
+	relation 144644 -_->
+	  a default
+	    cpp default "#include in source"
+	    classrelation_ref 145540 // <dependency>
+	  b parent class_ref 145156 // ItemDeleteDialog
+      end
+
+      classrelation 145668 // <dependency>
+	relation 144772 -_->
+	  a default
+	    cpp default "#include in source"
+	    classrelation_ref 145668 // <dependency>
+	  b parent class_ref 145284 // ItemMergeDialog
+      end
+
+      classrelation 145796 // <dependency>
+	relation 144900 -_->
+	  a default
+	    cpp default "#include in source"
+	    classrelation_ref 145796 // <dependency>
+	  b parent class_ref 144772 // ProviderSettings
+      end
+
+      classrelation 146820 // <aggregation>
+	relation 145540 o---
+	  a role_name "" multiplicity "1" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 146820 // <aggregation>
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 146948 // <aggregation>
+      end
+    end
+
+    class 145028 "BackgroundSync"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 147076 // <aggregation>
+	relation 145668 o---
+	  a role_name "" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 147076 // <aggregation>
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 147204 // <aggregation>
+      end
+
+      classrelation 147332 // <aggregation>
+	relation 145796 o---
+	  a role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 147332 // <aggregation>
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 147460 // <aggregation>
+      end
+    end
+
+    class 145156 "ItemDeleteDialog"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+
+    class 145284 "ItemMergeDialog"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+
+    class 145412 "BibTeXImportWizard"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+
+    class 145540 "BibTexExportDialog"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+
+    class 145668 "VariantToNepomukPipe"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 145156 // <unidirectional association>
+	relation 144260 --->
+	  a role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 145156 // <unidirectional association>
+	  b parent class_ref 137348 // VariantPipe
+      end
+
+      classrelation 145284 // <dependency>
+	relation 144388 -_->
+	  a default
+	    cpp default "#include in source"
+	    classrelation_ref 145284 // <dependency>
+	  b parent class_ref 136836 // PublicationPipe
+      end
+    end
+
+    class 145796 "NepomukToVariantPipe"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 145028 // <dependency>
+	relation 144132 -_->
+	  a default
+	    cpp default "#include in source"
+	    classrelation_ref 145028 // <dependency>
+	  b parent class_ref 136836 // PublicationPipe
+      end
+
+      classrelation 145412 // <unidirectional association>
+	relation 144516 --->
+	  a role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 145412 // <unidirectional association>
+	  b parent class_ref 137348 // VariantPipe
+      end
+    end
+
+    class 145924 "ProviderSyncDetails"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 146180 // <aggregation>
+	relation_ref 145156 // <aggregation>
+      end
+
+      classrelation 146436 // <aggregation>
+	relation_ref 145284 // <aggregation>
+      end
+
+      attribute 134532 "providerId"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 134660 "uuid"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 134788 "userName"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 134916 "pwd"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 135044 "url"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 135172 "collection"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 135300 "localStoragePath"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 135428 "syncMode"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 135556 "mergeMode"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 135684 "askBeforeDeletion"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 135812 "importAttachments"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 135940 "exportAttachments"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      classrelation 147204 // <aggregation>
+	relation_ref 145668 // <aggregation>
+      end
+    end
+
+    class 146052 "MendeleySync"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 147588 // <generalisation>
+	relation 145924 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 147588 // <generalisation>
+	  b parent class_ref 144516 // OnlineStorage
+      end
+    end
   end
+
+  package_ref 141572 // ui
+
+  package_ref 141700 // bibtex
+
+  package_ref 141828 // pipe
+
+  package_ref 141956 // provider
 end

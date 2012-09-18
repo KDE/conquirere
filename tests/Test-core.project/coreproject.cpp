@@ -39,9 +39,10 @@
 #include <QtDebug>
 
 /**
- * @brief UnitTest for the Library Project and its Project settings
+ * @file coreproject.cpp
  *
- * checks: creation/change/removala and deletion of the library and some resoruces
+ * @test UnitTest for the Library, Project and its Project settings
+ *       checks: creation/change/removal and deletion of the library and some resoruces
  */
 class CoreProject: public QObject
 {

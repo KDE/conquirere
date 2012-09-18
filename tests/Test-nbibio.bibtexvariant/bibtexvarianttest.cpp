@@ -29,9 +29,10 @@
 #include <QtDebug>
 
 /**
- * @brief UnitTest for the bibtex importer Bibtex -> QVariantList
+ *@file bibtexvarianttest.cpp
+ * @test UnitTest for the bibtex importer Bibtex -> QVariantList
+ *       checks: a one defined test cases.
  *
- * checks: a one defined test cases.
  * for a full data driven test see Test-nbibio.bibtex2bibtex
  */
 class BibtexVariantTest: public QObject

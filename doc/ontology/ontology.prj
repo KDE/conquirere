@@ -1,6 +1,6 @@
 format 74
 "ontology"
-  revision 31
+  revision 32
   modified_by 4 "joerg"
 
 
@@ -431,6 +431,30 @@ ${inlines}
 	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
 "
 	    classrelation_ref 313860 // <aggregation>
+      end
+
+      classrelation 320644 // <association>
+	relation 309124 ----
+	  a role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 320644 // <association>
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 320772 // <association>
+      end
+
+      classrelation 320900 // nao::isRelated (<aggregation>)
+	relation 309252 o---
+	  a role_name "nao::isRelated" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 320900 // nao::isRelated (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 321028 // <aggregation>
       end
     end
 
@@ -2441,7 +2465,7 @@ ${inlines}
 
       classrelation 296196 // sync:attachment (<aggregation>)
 	relation 287236 o---
-	  a role_name "sync:attachment" multiplicity "1" private
+	  a role_name "sync:attachment" multiplicity "*" private
 	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
 "
 	    classrelation_ref 296196 // sync:attachment (<aggregation>)
@@ -2457,7 +2481,7 @@ ${inlines}
 
       classrelation 299268 // sync:note (<aggregation>)
 	relation 288772 o---
-	  a role_name "sync:note" multiplicity "1" private
+	  a role_name "sync:note" multiplicity "*" private
 	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
 "
 	    classrelation_ref 299268 // sync:note (<aggregation>)
@@ -2483,6 +2507,36 @@ ${inlines}
 	    classrelation_ref 306820 // sync:syncDataType (<aggregation>)
 	  b role_name "" private
 	    classrelation_ref 306948 // <aggregation>
+      end
+
+      classrelation 320388 // nao:hasSubResource (<aggregation>)
+	relation 308996 o---
+	  a role_name "nao:hasSubResource" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 320388 // nao:hasSubResource (<aggregation>)
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 320516 // <aggregation>
+      end
+
+      classrelation 320516 // <aggregation>
+	relation_ref 308996 // <aggregation>
+      end
+
+      classrelation 320772 // <association>
+	relation_ref 309124 // <association>
+      end
+
+      attribute 212868 "sync:id"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
       end
     end
 
@@ -2528,6 +2582,10 @@ ${inlines}
 	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
 "
 	    classrelation_ref 300292 // <aggregation>
+      end
+
+      classrelation 321028 // <aggregation>
+	relation_ref 309252 // <aggregation>
       end
     end
 
@@ -2582,6 +2640,135 @@ ${items}};
       classrelation 306948 // <aggregation>
 	relation_ref 295812 // <aggregation>
       end
+    end
+
+    objectdiagram 161156 "Sync-Parent-Child"
+       write_horizontally no package_name_in_tab default show_context default auto_label_position no draw_all_relations yes shadow yes show_stereotype_properties yes
+      size A4-Landscape
+    end
+
+    classinstance 128132 "Parent"
+      type class_ref 225412 // sync:ServerSyncData
+      attributes
+        attribute_ref 199556 // sync:etag
+          "123456"
+        attribute_ref 212868 // sync:id
+          "ABC-1"
+        attribute_ref 199172 // sync:provider
+          "zotero"
+        attribute_ref 199300 // sync:url
+          "users"
+        attribute_ref 199428 // sync:userId
+          "65432"
+        end
+      relations
+        relation_ref 308996 // <aggregation>
+          classinstance_ref 128388 // ChildFile
+        relation_ref 286852 // <aggregation>
+          classinstance_ref 128516 // 
+        relation_ref 308996 // <aggregation>
+          classinstance_ref 128644 // ChildNote
+        relation_ref 286980 // <aggregation>
+          classinstance_ref 129028 // 
+        end
+    end
+
+    classinstance 128388 "ChildFile"
+      type class_ref 225412 // sync:ServerSyncData
+      attributes
+        attribute_ref 199556 // sync:etag
+          "363636"
+        attribute_ref 212868 // sync:id
+          "ABC-2"
+        attribute_ref 199172 // sync:provider
+          "zotero"
+        attribute_ref 199300 // sync:url
+          "users"
+        attribute_ref 199428 // sync:userId
+          "65432"
+        end
+      relations
+        relation_ref 287236 // <aggregation>
+          classinstance_ref 128900 // File
+        end
+    end
+
+    classinstance 128516 ""
+      type class_ref 128004 // nbib:Publication
+      attributes
+        attribute_ref 128772 // nbib:isbn
+          "1341"
+        attribute_ref 129028 // nbib:mrNumber
+          "141"
+        attribute_ref 130308 // nbib:number
+          "1414"
+        end
+      relations
+        relation_ref 286596 // <aggregation>
+          classinstance_ref 128132 // Parent
+        relation_ref 309252 // <aggregation>
+          classinstance_ref 128772 // Note
+        relation_ref 131972 // nbib:isPublicationOf
+          classinstance_ref 128900 // File
+        end
+    end
+
+    classinstance 128644 "ChildNote"
+      type class_ref 225412 // sync:ServerSyncData
+      attributes
+        attribute_ref 199556 // sync:etag
+          "2645252"
+        attribute_ref 212868 // sync:id
+          "ABC-3"
+        attribute_ref 199172 // sync:provider
+          "zotero"
+        attribute_ref 199300 // sync:url
+          "users"
+        attribute_ref 199428 // sync:userId
+          "65432"
+        end
+      relations
+        relation_ref 288772 // <aggregation>
+          classinstance_ref 128772 // Note
+        end
+    end
+
+    classinstance 128772 "Note"
+      type class_ref 225668 // pimo:Note
+      attributes
+        end
+      relations
+        relation_ref 288644 // <aggregation>
+          classinstance_ref 128644 // ChildNote
+        end
+    end
+
+    classinstance 128900 "File"
+      type class_ref 130436 // nfo:Document
+      attributes
+        end
+      relations
+        relation_ref 287108 // <aggregation>
+          classinstance_ref 128388 // ChildFile
+        relation_ref 131844 // nbib:publishedAs
+          classinstance_ref 128516 // 
+        end
+    end
+
+    classinstance 129028 ""
+      type class_ref 130052 // nbib:Reference
+      attributes
+        attribute_ref 128132 // nbib:citeKey
+          "ABC-1"
+        attribute_ref 128004 // nbib:pages
+          "5-23"
+        end
+      relations
+        relation_ref 286724 // <aggregation>
+          classinstance_ref 128132 // Parent
+        relation_ref 130308 // nbib:publication
+          classinstance_ref 128516 // 
+        end
     end
   end
 

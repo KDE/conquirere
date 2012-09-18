@@ -1,16 +1,8 @@
 window_sizes 1600 843 292 1302 763 0
-diagrams
-  active  classdiagram_ref 134532 // Publication Overview
-    1302 763 100 9 0 0
-  classdiagram_ref 134660 // NBIB Article/Book/Proceedings
-    1041 610 100 18 0 0
-  classdiagram_ref 134788 // NBIB other
-    1041 610 100 4 0 0
-end
 show_stereotypes
-selected classdiagram_ref 134532 // Publication Overview
+selected 
+  package_ref 129 // ontology
 open
-  classview_ref 128004 // nbib ontology
   classview_ref 134660 // project concept
 end
 end

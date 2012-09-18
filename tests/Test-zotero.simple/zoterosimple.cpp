@@ -22,9 +22,9 @@
 #include <QtDebug>
 
 /**
- * @brief Unittest to test the Zotero provider functionality
- *
- * Checks collections creation/change/removal and for 1 item creation/change/removal
+ * @file zoterosimple.cpp
+ * @test Unittest to test the Zotero provider functionality
+ *       Checks collections creation/change/removal and for 1 item creation/change/removal
  *
  * For a data driven test that checks all supported item types see Test-zotero.data
  */

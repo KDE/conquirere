@@ -1,0 +1,93 @@
+format 74
+
+classinstancecanvas 128132 classinstance_ref 128132 // Parent
+  xyz 325 333 2000
+end
+classinstancecanvas 128516 classinstance_ref 128388 // ChildFile
+  xyz 659 434 2000
+end
+classinstancecanvas 129412 classinstance_ref 128516 // 
+  xyz 347 212 2000
+end
+classinstancecanvas 130180 classinstance_ref 128644 // ChildNote
+  xyz 659 265 2000
+end
+classinstancecanvas 130692 classinstance_ref 128772 // Note
+  xyz 956 321 2000
+end
+classinstancecanvas 131332 classinstance_ref 128900 // File
+  xyz 996 514 2000
+end
+classinstancecanvas 133124 classinstance_ref 129028 // 
+  xyz 24 376 2000
+end
+objectlinkcanvas 129028 rel relation_ref 308996 // <aggregation>
+  decenter_begin 879
+  decenter_end 263
+  from ref 128132 z 2001 to ref 128516
+  role_a_pos 506 452 3000 no_role_b
+objectlinkcanvas 129540 rel relation_ref 286596 // <aggregation>
+  decenter_begin 136
+  decenter_end 245
+  from ref 129412 z 2001 to ref 128132
+  role_a_pos 216 263 3000 no_role_b
+objectlinkcanvas 129796 rel relation_ref 286852 // <aggregation>
+  decenter_begin 722
+  decenter_end 769
+  from ref 128132 z 2001 to ref 129412
+  role_a_pos 449 263 3000 no_role_b
+objectlinkcanvas 130308 rel relation_ref 308996 // <aggregation>
+  decenter_begin 79
+  from ref 128132 z 2001 to ref 130180
+  role_a_pos 512 324 3000 no_role_b
+objectlinkcanvas 130820 rel relation_ref 288772 // <aggregation>
+  decenter_begin 398
+  decenter_end 183
+  from ref 130180 z 2001 to ref 130692
+  role_a_pos 858 303 3000 no_role_b
+objectlinkcanvas 130948 rel relation_ref 288644 // <aggregation>
+  decenter_begin 816
+  decenter_end 588
+  from ref 130692 z 2001 to ref 130180
+  role_a_pos 815 364 3000 no_role_b
+objectlinkcanvas 131204 rel relation_ref 309252 // <aggregation>
+  decenter_begin 482
+  from ref 129412 z 2003 to point 993 223
+  line 131076 z 2003 to ref 130692
+  role_a_pos 724 226 3000 no_role_b
+objectlinkcanvas 131460 rel relation_ref 287236 // <aggregation>
+  decenter_begin 546
+  decenter_end 183
+  from ref 128516 z 2001 to ref 131332
+  role_a_pos 835 497 3000 no_role_b
+objectlinkcanvas 131588 rel relation_ref 287108 // <aggregation>
+  decenter_begin 816
+  decenter_end 736
+  from ref 131332 z 2001 to ref 128516
+  role_a_pos 817 555 3000 no_role_b
+objectlinkcanvas 132100 rel relation_ref 131972 // nbib:isPublicationOf
+  decenter_begin 871
+  decenter_end 504
+  from ref 129412 z 2001 label "nbib:isPublicationOf" italic xyz 694 153 3000 to point 446 170
+  line 132612 z 2001 to point 1045 170
+  line 132228 z 2001 to ref 131332
+  no_role_a no_role_b
+objectlinkcanvas 132996 rel relation_ref 131844 // nbib:publishedAs
+  decenter_begin 815
+  from ref 131332 z 2001 label "nbib:publishedAs" italic xyz 699 114 3000 to point 1077 133
+  line 132868 z 2001 to point 402 133
+  line 132740 z 2001 to ref 129412
+  no_role_a no_role_b
+objectlinkcanvas 133252 rel relation_ref 286724 // <aggregation>
+  decenter_begin 883
+  decenter_end 680
+  from ref 133124 z 2001 to ref 128132
+  role_a_pos 182 449 3000 no_role_b
+objectlinkcanvas 133380 rel relation_ref 286980 // <aggregation>
+  from ref 128132 z 2001 to ref 133124
+  role_a_pos 203 387 3000 no_role_b
+objectlinkcanvas 133636 rel relation_ref 130308 // nbib:publication
+  from ref 133124 z 2003 label "nbib:publication" italic xyz 156 204 3000 to point 96 224
+  line 133508 z 2003 to ref 129412
+  no_role_a no_role_b
+end

@@ -26,10 +26,10 @@
 #include <QtDebug>
 
 /**
- * @brief Data driven unittest
- *
- * Checks all supported item types for zotero. Uploads the items and checks if the returned item is the same.
- * Helps to identify key name translations.
+ * @file zoterodata.cpp
+ * @test Data driven unittest for the zotero read/write
+ *       Checks all supported item types for zotero. Uploads the items and checks if the returned item is the same.
+ *       Helps to identify key name translations.
  */
 class ZoteroData: public QObject
 {

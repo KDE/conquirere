@@ -47,9 +47,9 @@ using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
 /**
- * @brief UnitTest for the nbibio exporter/importer Bibtex -> Nepomuk -> Bibtex
- *
- * checks: full data driven test see data folder for the used bibtex files
+ * @file bibtexbibtex.cpp
+ * @test UnitTest for the nbibio exporter/importer Bibtex -> Nepomuk -> Bibtex.
+ *       checks: full data driven test see data folder for the used bibtex files
  */
 class BibtexBibtex: public QObject
 {

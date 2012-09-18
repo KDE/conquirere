@@ -42,9 +42,10 @@
 #include <QtDebug>
 
 /**
- * @brief UnitTest for the Library Project and its Project settings
+ * @file coremodel.cpp
  *
- * checks: creation/change/removal and deletion of the library and some resoruces
+ * @test UnitTest for the Library table models.
+ *       checks: benchmark loading and ResourceWatcher adding/changing of entries
  */
 class CoreModel: public QObject
 {

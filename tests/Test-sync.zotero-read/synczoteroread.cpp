@@ -31,10 +31,10 @@
 using namespace Nepomuk2::Vocabulary;
 
 /**
- * @brief Test reading from zotero and adding data to Nepomuk
- *
- * Checks for 1 defiend case if all nepomuk resources together with the SyncResources are created correctly
- * This includes Note parent items and the download of attachments
+ * @file synczoteroread.cpp
+ * @test Test reading from zotero and adding data to Nepomuk
+ *       Checks for 1 defiend case if all nepomuk resources together with the SyncResources are created correctly
+ *       This includes Note parent items and the download of attachments
  */
 class SyncZoteroRead: public QObject
 {
