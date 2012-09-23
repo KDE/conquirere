@@ -1,6 +1,6 @@
 format 74
 "ontology"
-  revision 32
+  revision 33
   modified_by 4 "joerg"
 
 
@@ -2509,12 +2509,12 @@ ${inlines}
 	    classrelation_ref 306948 // <aggregation>
       end
 
-      classrelation 320388 // nao:hasSubResource (<aggregation>)
+      classrelation 320388 // nao:isRelated (<aggregation>)
 	relation 308996 o---
-	  a role_name "nao:hasSubResource" multiplicity "*" private
+	  a role_name "nao:isRelated" multiplicity "*" private
 	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
 "
-	    classrelation_ref 320388 // nao:hasSubResource (<aggregation>)
+	    classrelation_ref 320388 // nao:isRelated (<aggregation>)
 	  b role_name "" private
 	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
 "
@@ -2530,6 +2530,16 @@ ${inlines}
       end
 
       attribute 212868 "sync:id"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      attribute 219396 "sync::syncDataType"
 	private explicit_type ""
 	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
 "
@@ -2650,6 +2660,8 @@ ${items}};
     classinstance 128132 "Parent"
       type class_ref 225412 // sync:ServerSyncData
       attributes
+        attribute_ref 219396 // sync::syncDataType
+          "BibResource"
         attribute_ref 199556 // sync:etag
           "123456"
         attribute_ref 212868 // sync:id
@@ -2676,6 +2688,8 @@ ${items}};
     classinstance 128388 "ChildFile"
       type class_ref 225412 // sync:ServerSyncData
       attributes
+        attribute_ref 219396 // sync::syncDataType
+          "Attachment"
         attribute_ref 199556 // sync:etag
           "363636"
         attribute_ref 212868 // sync:id
@@ -2716,6 +2730,8 @@ ${items}};
     classinstance 128644 "ChildNote"
       type class_ref 225412 // sync:ServerSyncData
       attributes
+        attribute_ref 219396 // sync::syncDataType
+          "Note"
         attribute_ref 199556 // sync:etag
           "2645252"
         attribute_ref 212868 // sync:id

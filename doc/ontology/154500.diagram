@@ -46,14 +46,14 @@ relationcanvas 128644 relation_ref 286596 // <aggregation>
   decenter_begin 852
   decenter_end 239
   from ref 128132 z 2001 to ref 128004
-  role_a_pos 397 233 3000 no_role_b
+  role_a_pos 390 233 3000 no_role_b
   multiplicity_a_pos 525 269 3000 no_multiplicity_b
 end
 relationcanvas 128772 relation_ref 286724 // <aggregation>
   decenter_begin 843
   decenter_end 882
   from ref 128260 z 2007 to ref 128004
-  role_a_pos 397 397 3000 no_role_b
+  role_a_pos 390 397 3000 no_role_b
   multiplicity_a_pos 525 433 3000 no_multiplicity_b
 end
 relationcanvas 129028 relation_ref 286852 // <aggregation>
@@ -89,14 +89,14 @@ relationcanvas 130180 relation_ref 287108 // <aggregation>
   decenter_end 85
   from ref 129540 z 2007 to point 555 107
   line 130308 z 2007 to ref 128004
-  role_a_pos 370 116 3000 no_role_b
+  role_a_pos 567 172 3000 no_role_b
   multiplicity_a_pos 539 172 3000 no_multiplicity_b
 end
 relationcanvas 130436 relation_ref 287236 // <aggregation>
   decenter_end 163
   from ref 128004 z 2007 to point 623 72
   line 130564 z 2007 to ref 129540
-  role_a_pos 336 48 3000 no_role_b
+  role_a_pos 431 53 3000 no_role_b
   multiplicity_a_pos 336 84 3000 no_multiplicity_b
 end
 relationcanvas 130820 relation_ref 288644 // <aggregation>
@@ -104,14 +104,14 @@ relationcanvas 130820 relation_ref 288644 // <aggregation>
   decenter_end 159
   from ref 130692 z 2001 to point 567 504
   line 131076 z 2001 to ref 128004
-  role_a_pos 399 484 3000 no_role_b
+  role_a_pos 579 463 3000 no_role_b
   multiplicity_a_pos 551 463 3000 no_multiplicity_b
 end
 relationcanvas 131204 relation_ref 288772 // <aggregation>
   decenter_end 857
   from ref 128004 z 2001 to point 623 544
   line 131332 z 2001 to ref 130692
-  role_a_pos 451 521 3000 no_role_b
+  role_a_pos 417 548 3000 no_role_b
   multiplicity_a_pos 329 556 3000 no_multiplicity_b
 end
 relationcanvas 131588 relation_ref 288900 // <aggregation>
@@ -136,7 +136,7 @@ end
 relationcanvas 132612 relation_ref 295812 // <aggregation>
   decenter_begin 694
   from ref 128004 z 2001 to ref 132484
-  role_a_pos 722 349 3000 no_role_b
+  role_a_pos 715 349 3000 no_role_b
   multiplicity_a_pos 839 385 3000 no_multiplicity_b
 end
 relationcanvas 132740 relation_ref 308996 // <aggregation>

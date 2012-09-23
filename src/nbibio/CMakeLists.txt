@@ -39,6 +39,7 @@ kde4_add_library( nbibio STATIC ${nbibio_LIB_SRCS} )
 target_link_libraries(nbibio
     # include static libs from conquirere
     ontology
+    core
 
     # storage provider
     syncProvider

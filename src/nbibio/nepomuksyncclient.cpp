@@ -43,6 +43,7 @@ using namespace Soprano::Vocabulary;
 NepomukSyncClient::NepomukSyncClient(QObject *parent)
     : QObject(parent)
     , m_storage(0)
+    , m_cancel(false)
 {
 }
 
@@ -65,9 +66,11 @@ void NepomukSyncClient::setProject(const Nepomuk2::Resource &project)
 
 void NepomukSyncClient::importData()
 {
-    m_attachmentMode = false;
+    m_cancel = false;
 
     if(!m_storage) {
+        Q_ASSERT_X( !m_psd.providerId.isEmpty(), "Missing provider Id","no provider specified" );
+        //TODO: add more than the zotero storage
         if(m_psd.providerId == QLatin1String("zotero")) {
             m_storage = new ZoteroSync();
         }
@@ -79,17 +82,19 @@ void NepomukSyncClient::importData()
     calculateProgress(0);
 
     // Step 1: first download all data from the storage
-    connect(m_storage, SIGNAL(finished()), this, SLOT(dataDownloadFinisher()));
+    connect(m_storage, SIGNAL(finished()), this, SLOT(dataDownloadFinished()));
     connect(m_storage, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)) );
     m_storage->fetchItems(m_psd.collection);
 }
 
-void NepomukSyncClient::dataDownloadFinisher()
+void NepomukSyncClient::dataDownloadFinished()
 {
     calculateProgress(100);
 
     m_cacheDownloaded = m_storage->data();
     kDebug() << "Storage download finished. Fetched items :: " << m_cacheDownloaded.size();
+
+    if(m_cancel) { emit finished(); return; }
 
     // Step 2: check if we removed some entries from the server and need to remove them locally too
     m_currentStep++;
@@ -97,8 +102,12 @@ void NepomukSyncClient::dataDownloadFinisher()
     findRemovedEntries();
     calculateProgress(100);
 
+    kDebug() << "We need to remove" << m_tmpUserDeleteRequest.size() << "files locally, beacuse they are removed from the server";
+    if(m_cancel) { emit finished(); return; }
+
     // now we have all files from the server and those that should be removed
     if(m_tmpUserDeleteRequest.isEmpty()) {
+        m_currentStep++; //no need to delete anything, skip step 3
         readDownloadSyncAfterDelete();
         return;
     }
@@ -118,11 +127,12 @@ void NepomukSyncClient::findRemovedEntries()
 {
     // ok here we ask nepomuk to give us all sync:ServerSyncData resources that have a publication that is related
     // the the current "project in use" and is valid for the current zotero sync object
-    // but has not a zoteroKey that is in the list of key from the "zoteroData" file
+    // but has not a sync-key that is in the list of keys from the "zoteroData" file
 
-    // this means we have more sync objects than returned from the server and thus these elements must be removed locally
+    // this means we have more sync objects in nepomuk than returned from the server and thus these elements must be removed locally
+    // we fill m_tmpUserDeleteRequest with all nepomu kresources which should be removed
 
-    QString keyFilter; // match only sync resources that are NOT having one of the returned zotero key
+    QString keyFilter; // match only sync resources that are NOT having one of the returned sync-key
     foreach(const QVariant &v, m_cacheDownloaded) {
         QVariantMap entry = v.toMap();
 
@@ -139,14 +149,6 @@ void NepomukSyncClient::findRemovedEntries()
                          "?publication pimo:isRelated <" + m_project.uri().toString() + "> . ";
     }
 
-    QString dataTypeFilter;
-    if(m_attachmentMode) {
-        dataTypeFilter = "?r sync:syncDataType ?dataType . Filter ( regex(?dataType, sync:Attachment) )";
-    }
-    else {
-        dataTypeFilter = "?r sync:syncDataType ?dataType . Filter ( regex(?dataType, sync:BibResource) || regex(?dataType, sync:Note) )";
-    }
-
     calculateProgress(40);
 
     QString query = "select DISTINCT ?r where {  "
@@ -154,7 +156,6 @@ void NepomukSyncClient::findRemovedEntries()
                     "?r sync:provider ?provider . FILTER regex(?provider, \"" + m_psd.providerId + "\") "
                     "?r sync:userId ?userId . FILTER regex(?userId, \"" + m_psd.userName + "\") "
                     "?r sync:url ?url . FILTER regex(?url, \"" + m_psd.url + "\") "
-                    + dataTypeFilter
                     + projectFilter +
                     "?r sync:id ?synckey ."
                     "FILTER (" + keyFilter + ")"
@@ -174,6 +175,8 @@ void NepomukSyncClient::findRemovedEntries()
 
 void NepomukSyncClient::deleteLocalFiles(bool deleteThem)
 {
+    if(m_cancel) { emit finished(); return; }
+
     // step 3 delete either some local resources or the sync part to upload it again
     m_currentStep++;
     calculateProgress(0);
@@ -189,12 +192,17 @@ void NepomukSyncClient::deleteLocalFiles(bool deleteThem)
     // now go through all entries the user wants to be removed
     foreach(const Nepomuk2::Resource &syncResource, m_tmpUserDeleteRequest) {
 
+        if(m_cancel) { emit finished(); return; }
+
         if(deleteThem) {
             // if we operate on the system library remove the resources completely
             // if we operate only on a project, remove only the isRelated part
-            // after all the resource could be part of a different group too
+            // after all, the resource could be part of a different group too
             Nepomuk2::Resource mainResource;
             QUrl syncDataType = syncResource.property( SYNC::syncDataType() ).toUrl();
+
+            kDebug() << "check sync resource of type " << syncDataType;
+
             bool deleteFileFromDisk = false;
             if( syncDataType == SYNC::Note()) {
                 mainResource = syncResource.property( SYNC::note() ).toResource();
@@ -234,7 +242,7 @@ void NepomukSyncClient::deleteLocalFiles(bool deleteThem)
             Nepomuk2::removeResources(resUri);
         }
         else {
-            // the user decided to keep the file in his storage so we want to upload it again next time we upload files
+            // the user decided to keep the file in his storage so we wants to upload it again next time he uploads.
             // we simply remove the sync::ServerSyncData so the item will be uploaded as a new item in zotero
             Nepomuk2::Resource mainResource;
             Nepomuk2::Resource reference;
@@ -268,6 +276,7 @@ void NepomukSyncClient::deleteLocalFiles(bool deleteThem)
 
 void NepomukSyncClient::readDownloadSyncAfterDelete()
 {
+    if(m_cancel) { emit finished(); return; }
     QList<Nepomuk2::Resource> existingItems;
 
     // step 4 find duplicates for the merge process
@@ -279,6 +288,8 @@ void NepomukSyncClient::readDownloadSyncAfterDelete()
     emit status(i18n("Find duplicated entries") );
     findDuplicates(existingItems);
 
+    if(m_cancel) { emit finished(); return; }
+
     if(!m_tmpUserMergeRequest.isEmpty()) {
         if(m_psd.mergeMode == Manual) {
             emit userMerge(m_tmpUserMergeRequest);
@@ -287,6 +298,8 @@ void NepomukSyncClient::readDownloadSyncAfterDelete()
             fixMergingAutomatically();
         }
     }
+
+    if(m_cancel) { emit finished(); return; }
 
     // if we operate on a library project add the is related part to all existingItems
     if(m_project.isValid()) {
@@ -300,26 +313,12 @@ void NepomukSyncClient::readDownloadSyncAfterDelete()
         // up to this point we have a list of new entries we need to add
         // and merged all items with the server or local version
         // unless the user wanted to merge on its own
-        if(m_attachmentMode) {
-            emit status(i18n("push %1 new Zotero attachments into Nepomuk", m_newEntries.size()));
-        }
-        else {
-            emit status(i18n("push %1 new Zotero references into Nepomuk", m_newEntries.size()));
-        }
+        emit status(i18n("push %1 new Zotero items into Nepomuk", m_newEntries.size()));
+
         //Step 5 import new resources
         m_currentStep++;
         calculateProgress(0);
-        if(m_attachmentMode) {
-//            importNewAttachments();
-
-//            if(!m_newEntriesToDownload->isEmpty()) {
-//                downloadNextAttachment();
-//                return;
-//            }
-        }
-        else {
-            importNewResources();
-        }
+        importNewResources();
 
         calculateProgress(50);
     }
@@ -330,7 +329,7 @@ void NepomukSyncClient::readDownloadSyncAfterDelete()
         calculateProgress(50);
     }
 
-//    if(m_cancel) { mergeFinished(); }
+    if(m_cancel) { emit finished(); return; }
 
     // wait until the user merged all entries on its own
     if(m_tmpUserMergeRequest.size() > 0) {
@@ -344,7 +343,7 @@ void NepomukSyncClient::readDownloadSyncAfterDelete()
 void NepomukSyncClient::findDuplicates(QList<Nepomuk2::Resource> &existingItems)
 {
     // for each downloaded item from zotero we try to find the item in the local storage
-    // we can itentify this via the unique zotero Key
+    // we can identify this via the unique zotero Key
 
     // In the case we found such an entry, we check if the zotero etag value is different
     // If this is the case, the item has been changed on the server side and we need to merge them
@@ -355,6 +354,7 @@ void NepomukSyncClient::findDuplicates(QList<Nepomuk2::Resource> &existingItems)
     foreach(const QVariant &variant, m_cacheDownloaded) {
         QVariantMap entry = variant.toMap();
 
+        //TODO: might be faster if we do 1 query at the beginning and search for the right entry again, than searching for 1 item always in teh foreach loop
         // define what we are looking for in the nepomuk storage
         QString itemID = entry.value( QLatin1String("sync-key") ).toString();
         QString query = "select DISTINCT ?r where {  "
@@ -362,7 +362,7 @@ void NepomukSyncClient::findDuplicates(QList<Nepomuk2::Resource> &existingItems)
                         "?r sync:provider ?provider . FILTER regex(?provider, \"" + m_psd.providerId + "\") "
                         "?r sync:userId ?userId . FILTER regex(?userId, \"" + m_psd.userName + "\") "
                         "?r sync:url ?url . FILTER regex(?url, \"" + m_psd.url + "\") "
-                        "?r sync:id ?zoterokey . FILTER regex(?zoterokey, \"" + itemID + "\") "
+                        "?r sync:id ?synckey . FILTER regex(?synckey, \"" + itemID + "\") "
                         "}";
 
         Soprano::Model* model = Nepomuk2::ResourceManager::instance()->mainModel();
@@ -504,11 +504,9 @@ bool childItemsLast(const QVariant &s1, const QVariant &s2)
 
 void NepomukSyncClient::importNewResources()
 {
-    kDebug() << "import new items" << m_newEntries;
-
     VariantToNepomukPipe vtnp;
-    vtnp.setProjectPimoThing(m_project);
-    vtnp.setSyncDetails(m_psd.url, m_psd.userName, m_psd.providerId);
+    vtnp.setProjectPimoThing( m_project );
+    vtnp.setSyncStorageProvider( m_storage );
 
     connect(&vtnp, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
 
@@ -527,35 +525,45 @@ void NepomukSyncClient::mergeFinished()
     m_currentStep++;
     calculateProgress(100);
 
+    kDebug() << "m_currentStep" << m_currentStep;
+
     //we finished everything, so cleanup
     m_cacheDownloaded.clear();
     m_newEntries.clear();
     m_tmpUserDeleteRequest.clear();
     m_tmpUserMergeRequest.clear();
 
-    if(m_psd.importAttachments && !m_attachmentMode) {
-//        startAttachmentDownload();
-    }
-    else {
-//        calculateProgress(100);
+    //TODO: in sync mode start upload now
+
+    if(providerSettings().syncMode == Download_Only) {
         emit finished();
     }
+    else {
+        if(m_cancel) { emit finished(); return; }
+        exportData();
+    }
 }
-
 
 void NepomukSyncClient::exportData()
 {
     if(!m_storage) {
+        Q_ASSERT_X( !m_psd.providerId.isEmpty(), "Missing procide Id","no provider specified" );
+
         if(m_psd.providerId == QLatin1String("zotero")) {
             m_storage = new ZoteroSync();
         }
         m_storage->setProviderSettings(m_psd);
     }
 
+    kDebug() << "todo export data";
+    emit finished();
+
 }
 
 void NepomukSyncClient::syncData()
 {
+    Q_ASSERT_X( !m_psd.providerId.isEmpty(), "Missing procide Id","no provider specified" );
+
     if(m_psd.providerId == QLatin1String("zotero")) {
         m_storage = new ZoteroSync();
     }
@@ -565,7 +573,8 @@ void NepomukSyncClient::syncData()
 
 void NepomukSyncClient::cancel()
 {
-
+    m_cancel = true;
+    //TODO: emit signal to cancel variantToNepomuk pipe
 }
 
 void NepomukSyncClient::calculateProgress(int value)

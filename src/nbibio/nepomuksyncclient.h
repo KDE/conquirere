@@ -82,7 +82,7 @@ public slots:
     void mergeFinished();
 
 private slots:
-    void dataDownloadFinisher();
+    void dataDownloadFinished();
     void calculateProgress(int value);
 
 private:
@@ -104,7 +104,7 @@ private:
 
     int m_syncSteps;
     int m_currentStep;
-    bool m_attachmentMode;
+    bool m_cancel;
 };
 
 #endif // NEPOMUKSYNCCLIENT_H

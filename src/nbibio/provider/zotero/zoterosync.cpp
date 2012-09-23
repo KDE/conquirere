@@ -26,6 +26,8 @@
 #include <QtNetwork/QNetworkReply>
 #include <QtCore/QXmlStreamReader>
 
+#include <KDE/KUrl>
+#include <KDE/KIO/CopyJob>
 #include <KDE/KLocalizedString>
 #include <KDE/KDebug>
 
@@ -156,7 +158,9 @@ void ZoteroSync::fetchItem(const QString &itemId )
         apiCommand.append( QLatin1String("&key=") + providerSettings().pwd);
     }
 
-    apiCommand.append( QLatin1String("&itemType=-attachment") ); // ignore file download
+    if( !providerSettings().importAttachments ) {
+        apiCommand.append( QLatin1String("&itemType=-attachment") ); // ignore file download
+    }
 
     m_reply = m_qnam.get( QNetworkRequest(QUrl( apiCommand )) );
     connect(m_reply, SIGNAL(finished()),this, SLOT(itemRequestFinished()) );
@@ -186,7 +190,9 @@ void ZoteroSync::fetchItems(int limit, int start)
         apiCommand.append( QLatin1String("&key=") + providerSettings().pwd);
     }
 
-    apiCommand.append( QLatin1String("&itemType=-attachment") ); // ignore file download
+    if( !providerSettings().importAttachments ) {
+        apiCommand.append( QLatin1String("&itemType=-attachment") ); // ignore file download
+    }
 
     m_reply = m_qnam.get( QNetworkRequest(QUrl( apiCommand )) );
     connect(m_reply, SIGNAL(finished()),this, SLOT(itemsRequestFinished()) );
@@ -229,6 +235,37 @@ void ZoteroSync::fetchCollections(int limit, int start)
     connect(m_reply, SIGNAL(finished()),this, SLOT(collectionsRequestFinished()) );
 }
 
+KUrl ZoteroSync::downloadFile(const QString &file, const QString &filename)
+{
+    KUrl destination( providerSettings().localStoragePath + filename );
+    if(!destination.isValid()) {
+        kDebug() << "local folder storage is not valid :: " << destination;
+        return KUrl();
+    }
+
+    QString fileUrl = file + QLatin1String("?key=") + providerSettings().pwd;
+    KUrl source( fileUrl );
+
+    //download the file attachment into the user specified folder
+    KIO::CopyJob *downloadJob = KIO::copy(source, destination);
+
+    //TODO: emit download status in percent 0-100% so it can be shown whats going on
+    // maybe also speed? see what KIO offers
+    // QLatin1String("sync-attachment-filesize") full size of the file
+
+    // blocking download, we need to have the file on the disk before we can proceed any further
+    if( !downloadJob->exec() ) {
+        kDebug() << downloadJob->errorText();
+        kDebug() << downloadJob->errorString();
+
+        return KUrl();
+    }
+
+    kDebug() << "downloaded the file into ::" << downloadJob->destUrl();
+
+    return downloadJob->destUrl();
+}
+
 void ZoteroSync::pushItems(const QVariantList &items, const QString &collection)
 {
     resetState();
@@ -238,6 +275,7 @@ void ZoteroSync::pushItems(const QVariantList &items, const QString &collection)
     foreach(const QVariant &item, items) {
         QVariantMap entryMap = item.toMap();
 
+        //FIXME: add support for note and attachment uploads
         if(entryMap.contains(QLatin1String("sync-key"))) {
             m_cacheUpdateItems.append(entryMap);
         }
@@ -644,7 +682,7 @@ QVariantList ZoteroSync::transformCreators(const QString &zoteroType,const QStri
 // Below here we deal with the server response evaluation
 //
 //---------------------------------------------------------------
-void ZoteroSync::itemRequestFinished()
+void ZoteroSync::itemRequestFinished() // response for a single item request
 {
     if(m_reply->error()) {
         kDebug() << m_reply->error() << m_reply->errorString();
@@ -670,7 +708,7 @@ void ZoteroSync::itemRequestFinished()
     m_reply->deleteLater();
 }
 
-void ZoteroSync::itemsRequestFinished()
+void ZoteroSync::itemsRequestFinished() // response from several item requests
 {
     if(m_reply->error()) {
         kDebug() << m_reply->error() << m_reply->errorString();
@@ -695,7 +733,7 @@ void ZoteroSync::itemsRequestFinished()
         if(xmlReader.name() == QLatin1String("link")) {
             QXmlStreamAttributes linkAttributes = xmlReader.attributes();
 
-            // if there does exist more items we need to fetch get the right values for the next start
+            // if there does exist more items we need to fetch the right values for the next start
             if(QLatin1String("next") == linkAttributes.value(QLatin1String("rel")) ) {
                 QString href = linkAttributes.value(QLatin1String("href")).toString();
 

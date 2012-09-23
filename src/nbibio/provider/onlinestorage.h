@@ -22,6 +22,7 @@
 
 #include "nbibio/storageglobals.h"
 
+#include <KDE/KUrl>
 #include <KDE/KIcon>
 #include <QtCore/QVariantList>
 
@@ -62,6 +63,7 @@ public slots:
     virtual void fetchItems(const QString &collectionId = QString()) = 0;
     virtual void fetchCollections(const QString &parent = QString() ) = 0;
     virtual void fetchCollection(const QString &collectionId ) = 0;
+    virtual KUrl downloadFile(const QString &file, const QString &filename) = 0;
 
     //-------------------------------------------------
     // write request

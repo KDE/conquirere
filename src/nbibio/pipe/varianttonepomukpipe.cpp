@@ -17,6 +17,7 @@
 
 #include "varianttonepomukpipe.h"
 
+#include "nbibio/provider/onlinestorage.h"
 #include <nepomukmetadataextractor/publicationpipe.h>
 
 #include <KDE/KJob>
@@ -45,6 +46,7 @@
 #include <Nepomuk2/ResourceManager>
 #include <Soprano/Model>
 #include <Soprano/QueryResultIterator>
+#include <Nepomuk2/DataManagement>
 
 #include <KDE/KDebug>
 
@@ -67,6 +69,7 @@ void VariantToNepomukPipe::pipeExport(QVariantList &publicationList)
     qreal perResourceProgress = (100.0/(qreal)maxValue);
     qreal currentProgress = 0.0;
 
+    // We must ensure that child notes (from zotero) are always added last, so the QVariantlist must be sorted
     foreach(const QVariant &v, publicationList) {
         QVariantMap publicationEntry = v.toMap();
 
@@ -80,10 +83,11 @@ void VariantToNepomukPipe::pipeExport(QVariantList &publicationList)
         else if( entryType == QLatin1String("attachment") ) {
             importAttachment(publicationEntry);
         }
+        // this handles all normal bibtex entries via MetaDataExtractors publication pipe
         else {
             NepomukMetaDataExtractor::Pipe::PublicationPipe publicationPipe;
 
-            // either conquirere or one of the unittests
+            // either conquirere or one of the unittests (overrides "metadata-extractor" component)
             publicationPipe.overrideComponentName( KGlobal::mainComponent().componentName() );
 
             publicationPipe.setProjectPimoThing(m_projectThing);
@@ -92,17 +96,10 @@ void VariantToNepomukPipe::pipeExport(QVariantList &publicationList)
             QPair<QUrl,QUrl> importedPublication = publicationPipe.importedPublication();
 
             // do the sync part
-            if(publicationEntry.contains(QLatin1String("sync-key"))) {
-                Nepomuk2::SimpleResourceGraph graph;
-                Nepomuk2::SimpleResource main(importedPublication.first);
-                Nepomuk2::SimpleResource ref(importedPublication.second);
-                addZoteroSyncDetails(graph, main, ref, publicationEntry);
-
-                Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties);
-                connect(srj, SIGNAL(result(KJob*)), this, SLOT(slotSaveToNepomukDone(KJob*)));
-                if(!srj->exec()) {
-                    kDebug() << srj->errorString();
-                }
+            if( publicationEntry.contains(QLatin1String("sync-key")) ) {
+                Nepomuk2::Resource main(importedPublication.first);
+                Nepomuk2::Resource ref(importedPublication.second);
+                addStorageSyncDetails(main, ref, publicationEntry);
             }
         }
 
@@ -111,14 +108,11 @@ void VariantToNepomukPipe::pipeExport(QVariantList &publicationList)
     }
 
     emit progress(100);
-
 }
 
-void VariantToNepomukPipe::setSyncDetails(const QString &url, const QString &userid, const QString &providerId)
+void VariantToNepomukPipe::setSyncStorageProvider(OnlineStorage *storage)
 {
-    m_syncUrl = url;
-    m_syncUserId = userid;
-    m_syncProviderId = providerId;
+    m_storage = storage;
 }
 
 void VariantToNepomukPipe::setProjectPimoThing(Nepomuk2::Resource projectThing)
@@ -130,7 +124,7 @@ void VariantToNepomukPipe::importNote(const QVariantMap &noteEntry)
 {
     Nepomuk2::SimpleResourceGraph graph;
 
-    kDebug() << "import note " << noteEntry.value("zoterotitle").toString();
+    kDebug() << "import note " << noteEntry.value("sync-title").toString();
 
     QTextDocument content( noteEntry.value("note").toString() );
     if(content.isEmpty()) {
@@ -140,9 +134,16 @@ void VariantToNepomukPipe::importNote(const QVariantMap &noteEntry)
     Nepomuk2::PIMO::Note note;
     note.addType(NIE::InformationElement());
 
-    //FIXME: remove zotero parts and make it more general
-    note.setProperty( NAO::prefLabel(), noteEntry.value(QLatin1String("title")).toString() );
-    note.setProperty( NIE::title(), noteEntry.value(QLatin1String("title")).toString() );
+    QString title = noteEntry.value(QLatin1String("title")).toString();
+    if(title.isEmpty()) {
+        title = noteEntry.value(QLatin1String("sync-title")).toString();
+    }
+    if(title.isEmpty()) {
+        title = noteEntry.value(QLatin1String("sync-parent")).toString();
+    }
+
+    note.setProperty( NAO::prefLabel(), title );
+    note.setProperty( NIE::title(), title );
 
     note.setProperty( NIE::plainTextContent(), content.toPlainText());
     note.setProperty( NIE::htmlContent(), content.toHtml());
@@ -160,22 +161,26 @@ void VariantToNepomukPipe::importNote(const QVariantMap &noteEntry)
         graph << tag;
     }
 
-    Nepomuk2::SimpleResource empty;
-    if(noteEntry.contains(QLatin1String("sync-key"))) {
-        addZoteroSyncDetails(graph, note, empty, noteEntry);
-    }
-
     graph << note;
 
     Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties);
-    connect(srj, SIGNAL(result(KJob*)), this, SLOT(slotSaveToNepomukDone(KJob*)));
     if(!srj->exec()) {
-        kDebug() << srj->errorString();
+        kDebug() << "Import error :: " << srj->errorString();
+    }
+
+    // now get the uri of the newly created attachment and add the sync details to it
+    // and if necessary the parent/child connection
+    if(noteEntry.contains(QLatin1String("sync-key"))) {
+        QUrl noteUrl = srj->mappings().value( note.uri() );
+        Nepomuk2::Resource noteResource = Nepomuk2::Resource(noteUrl);
+
+        addStorageSyncDetails(noteResource, noteEntry);
     }
 }
 
 void VariantToNepomukPipe::importAttachment(const QVariantMap &attachmentEntry)
 {
+    kDebug() << "import attachment" << attachmentEntry.value("title").toString();
     Nepomuk2::SimpleResourceGraph graph;
 
     Nepomuk2::NFO::FileDataObject attachment;
@@ -183,14 +188,16 @@ void VariantToNepomukPipe::importAttachment(const QVariantMap &attachmentEntry)
 
     attachment.setProperty( NIE::title(), attachmentEntry.value("title").toString() );
 
-    if(attachmentEntry.contains("zoteroAttachmentFile")) {
+    if(attachmentEntry.contains("sync-attachment-file")) {
 
-        QString localFilePath = attachmentEntry.value("localFile").toString();
-        localFilePath.prepend(QLatin1String("file://"));
-        attachment.setProperty( NIE::url(), localFilePath);
-        attachment.setProperty( NAO::identifier(), localFilePath);
+        //FIXME: emit download details (status speed/progress etc)
+        KUrl downloadedFile = m_storage->downloadFile( attachmentEntry.value("sync-attachment-file").toString(),
+                                                       attachmentEntry.value("sync-title").toString()); //TODO: check if filename is always in sync-title or just in Zotero
 
-        kDebug() << "create attachment with url" << localFilePath;
+//        QString localFilePath = attachmentEntry.value("localFile").toString();
+//        localFilePath.prepend(QLatin1String("file://"));
+        attachment.setProperty( NIE::url(), downloadedFile);
+        attachment.setProperty( NAO::identifier(), downloadedFile);
     }
     else {
         attachment.addType(NFO::RemoteDataObject());
@@ -228,78 +235,156 @@ void VariantToNepomukPipe::importAttachment(const QVariantMap &attachmentEntry)
     QString comment = attachmentEntry.value("note").toString();
     attachment.setProperty( NIE::comment(), comment);
 
-    Nepomuk2::SimpleResource empty;
-    if(attachmentEntry.contains(QLatin1String("sync-key"))) {
-        addZoteroSyncDetails(graph, attachment, empty, attachmentEntry);
-    }
-
     graph << attachment;
 
     Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties);
-    connect(srj, SIGNAL(result(KJob*)), this, SLOT(slotSaveToNepomukDone(KJob*)));
     if(!srj->exec()) {
         kDebug() << srj->errorString();
     }
+
+    // now get the uri of the newly created attachment and add the sync details to it
+    // and if necessary the parent/child connection
+    if(attachmentEntry.contains(QLatin1String("sync-key"))) {
+        QUrl attachmentUrl = srj->mappings().value( attachment.uri() );
+        Nepomuk2::Resource attachmentResource = Nepomuk2::Resource(attachmentUrl);
+
+        addStorageSyncDetails(attachmentResource, attachmentEntry);
+    }
 }
 
-void VariantToNepomukPipe::addZoteroSyncDetails(Nepomuk2::SimpleResourceGraph &graph, Nepomuk2::SimpleResource &mainResource,
-                                                Nepomuk2::SimpleResource &referenceResource, const QVariantMap &item)
+void VariantToNepomukPipe::addStorageSyncDetails(Nepomuk2::Resource &publicationResource, Nepomuk2::Resource &referenceResource, const QVariantMap &item)
 {
+    Q_ASSERT_X(m_storage,"Add Sync Details","no online storage set, can't add Sync details");
+    ProviderSyncDetails psd = m_storage->providerSettings();
+
+    kDebug() << "add zotero sync details for the publication/reference";
+    Nepomuk2::SimpleResourceGraph graph;
+
     QString id = item.value(QLatin1String("sync-key")).toString();
     QString etag = item.value(QLatin1String("sync-etag")).toString();
     QString updated = item.value(QLatin1String("sync-updated")).toString();
-    QString parentId = item.value(QLatin1String("sync-parent")).toString();
-    QString itemType = item.value(QLatin1String("publicationtype")).toString();
 
     Nepomuk2::SYNC::ServerSyncData serverSyncData;
     serverSyncData.addType(NIE::DataObject());
 
     // first set an identifier, when the object already exist we merge them together
-    QString identifier = QLatin1String("zotero") + m_syncUserId + m_syncUrl + id;
+    QString identifier = psd.providerId + psd.userName + psd.url + id;
     serverSyncData.addProperty( NAO::identifier(), KUrl::fromEncoded( identifier.toLatin1()) );
 
     // now we set the new values
-    serverSyncData.setProvider( m_syncProviderId );
-    serverSyncData.setUrl( m_syncUrl );
-    serverSyncData.setUserId( m_syncUserId );
+    serverSyncData.setProvider( psd.providerId );
+    serverSyncData.setUrl( psd.url );
+    serverSyncData.setUserId( psd.userName );
     serverSyncData.setId( id );
     serverSyncData.setEtag( etag );
     serverSyncData.setProperty( NUAO::lastModification(), updated);
 
-    // now depending on what kind of mainResource we have, we add another TypeClass
+    serverSyncData.setSyncDataType( SYNC::BibResource() );                   // here mainResource is a nbib:Publication and referenceResource the nbib:Reference
+
+    //publicationResource.setProperty(SYNC::serverSyncData(), serverSyncData );
+    serverSyncData.setPublication( publicationResource.uri() );
+
+    //referenceResource.setProperty(SYNC::serverSyncData(), serverSyncData );
+    serverSyncData.setReference( referenceResource.uri() );
+
+    graph << serverSyncData;
+
+
+    Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties);
+    if(!srj->exec()) {
+        kDebug() << srj->errorString();
+    }
+    else {
+        kDebug() << "Publication sync resource created sucessfully";
+
+        QUrl syncUrl = srj->mappings().value( serverSyncData.uri() );
+
+        // link back publication and reference to the newly created sync object.
+        // seems this can't be done in one go, as the DMS complains when creating SimpleResources with the existing nbib:Publication/nbib:Reference
+        // during the save.
+        //TODO: check if this two stage resource ading is really necessary or using existing resource in SimpleResource should work
+        KJob *job = Nepomuk2::addProperty(QList<QUrl>() << publicationResource.uri() << referenceResource.uri(),SYNC::serverSyncData(), QVariantList() << syncUrl);
+        if(!job->exec()) {
+            kDebug() << job->errorString();
+        }
+    }
+}
+
+void VariantToNepomukPipe::addStorageSyncDetails(Nepomuk2::Resource attachment, const QVariantMap &item)
+{
+    Q_ASSERT_X(m_storage,"Add Sync Details","no online storage set, can't add Sync details");
+    ProviderSyncDetails psd = m_storage->providerSettings();
+
+    kDebug() << "add zotero sync details for the attachment";
+
+    QString id = item.value(QLatin1String("sync-key")).toString();
+    QString etag = item.value(QLatin1String("sync-etag")).toString();
+    QString updated = item.value(QLatin1String("sync-updated")).toString();
+    QString parentId = item.value(QLatin1String("sync-parent")).toString();
+    QString itemType = item.value(QLatin1String("bibtexentrytype")).toString();
+
+    Nepomuk2::SimpleResourceGraph graph;
+
+    Nepomuk2::SYNC::ServerSyncData serverSyncData;
+    serverSyncData.addType(NIE::DataObject());
+
+    // first set an identifier, when the object already exist we merge them together
+    QString identifier = psd.providerId + psd.userName + psd.url + id;
+    serverSyncData.addProperty( NAO::identifier(), KUrl::fromEncoded( identifier.toLatin1()) );
+
+    // now we set the new values
+    serverSyncData.setProvider( psd.providerId );
+    serverSyncData.setUrl( psd.url );
+    serverSyncData.setUserId( psd.userName );
+    serverSyncData.setId( id );
+    serverSyncData.setEtag( etag );
+    serverSyncData.setProperty( NUAO::lastModification(), updated);
+
+    // now depending on what kind of mainResource we have, we set a different SyncDataType
     // helps to find the right data later on again and create the right links between Resource and syncData
     if(itemType == QLatin1String("note")) {
         serverSyncData.setSyncDataType( SYNC::Note() );
-        serverSyncData.setNote( mainResource.uri() );
-        mainResource.setProperty(SYNC::serverSyncData(), serverSyncData.uri() );
+        serverSyncData.setNote( attachment.uri() );
     }
     else if(itemType == QLatin1String("attachment")) {
         serverSyncData.setSyncDataType( SYNC::Attachment() );
-        serverSyncData.setAttachment( mainResource.uri() );
-        mainResource.setProperty(SYNC::serverSyncData(), serverSyncData );
-    }
-    else {
-        serverSyncData.setSyncDataType( SYNC::BibResource() );
-        serverSyncData.setPublication( mainResource.uri() );
-        mainResource.setProperty(SYNC::serverSyncData(), serverSyncData );
-
-        serverSyncData.setReference( referenceResource.uri() );
-        referenceResource.setProperty(SYNC::serverSyncData(), serverSyncData );
+        serverSyncData.setAttachment( attachment.uri() );
     }
 
     graph << serverSyncData;
 
-    // check if the current item we added as a child item and need to be added to a parent too
+    // save graph
+    Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties);
+    if(!srj->exec()) { kDebug() << srj->errorString(); return; }
+
+    // add  backlinks
+    QUrl syncUrl = srj->mappings().value( serverSyncData.uri() );
+    KJob *job = Nepomuk2::addProperty(QList<QUrl>() << attachment.uri(), SYNC::serverSyncData(), QVariantList() << syncUrl);
+    if(!job->exec()) { kDebug() << job->errorString(); return; }
+
+    //----------------------------------------------------------------------------
+    // If note/attachment is not the child of a publication/reference
+    // we stop here. This can happen, but not that often.
+    //----------------------------------------------------------------------------
     if( parentId.isEmpty() ) {
+        kDebug() << "no parent id available";
         return;
     }
+    else {
+        kDebug() << "parent found, try to add it";
+    }
+
+    //----------------------------------------------------------------------------
+    // Add note/file attachment as a parent child to the publication/reference.
+    // This is nearly always the case for zotero
+    //----------------------------------------------------------------------------
 
     //now we do have a parent id, so find the parent and make the important isRealated relation
     QString query = "select DISTINCT ?r where {  "
                      "?r a sync:ServerSyncData . "
-                     "?r sync:provider ?provider . FILTER regex(?provider, \"zotero\") "
-                     "?r sync:userId ?userId . FILTER regex(?userId, \"" + m_syncUserId + "\") "
-                     "?r sync:url ?url . FILTER regex(?url, \"" + m_syncUrl + "\") "
+                     "?r sync:provider ?provider . FILTER regex(?provider, \"" + psd.providerId + "\") "
+                     "?r sync:userId ?userId . FILTER regex(?userId, \"" + psd.userName + "\") "
+                     "?r sync:url ?url . FILTER regex(?url, \"" + psd.url + "\") "
                      "?r sync:id ?id . FILTER regex(?id, \""+ parentId + "\") "
                      "}";
 
@@ -309,58 +394,50 @@ void VariantToNepomukPipe::addZoteroSyncDetails(Nepomuk2::SimpleResourceGraph &g
     QList<Nepomuk2::Resource> results;
     while( it.next() ) {
         Soprano::BindingSet p = it.current();
-        results << Nepomuk2::Resource(p.value(QLatin1String("?r")).toString());
+        results << Nepomuk2::Resource( QUrl(p.value(QLatin1String("r")).toString()) );
     }
 
     if(results.size() > 1 || results.isEmpty()) {
-        kDebug() << "could not find the right sync details for the current parent item query" << "zotero" << m_syncUserId << m_syncUrl << parentId;
+        kDebug() << "could not find the right sync details for the current parent item query" << "zotero" << psd.userName << psd.url << parentId;
         return;
     }
 
     Nepomuk2::Resource parentSyncResourceNepomuk = results.first();
-    Nepomuk2::SimpleResource parentSyncResource(results.first().uri());
-
-    QUrl syncDataType = parentSyncResourceNepomuk.property(SYNC::syncDataType()).toUrl();
-
-    if(syncDataType == SYNC::Attachment()) { //ignore
-    }
-    else if(syncDataType == SYNC::Note()) { //ignore
-    }
-    else if(syncDataType == SYNC::BibResource()) {
-        // here we add the information that a note as related(a child) of the reference and the publication.
+        // here we add the information that a note is related (a child) of the reference and the publication.
         // and that the attachment (nfo:FileDataObject) is the publicationOf/publishedAs of the nbib:Publication
 
-        if( mainResource.contains(RDF::type(), PIMO::Note())) {
-            Nepomuk2::Resource parentPublicationxx = parentSyncResourceNepomuk.property(SYNC::publication()).toResource();
-            Nepomuk2::SimpleResource parentPublication(parentPublicationxx.uri());
-            parentPublication.addProperty( NAO::isRelated(), mainResource.uri());
-            mainResource.addProperty( NAO::isRelated(), parentPublication.uri());
+    if( attachment.hasType(PIMO::Note()) ) {
+        kDebug() << "add parent to pimo:Note";
+        // connect Note <-> publication
+        Nepomuk2::Resource parentPublication = parentSyncResourceNepomuk.property(SYNC::publication()).toResource();
+        Nepomuk2::addProperty(QList<QUrl>() << parentPublication.uri(), NAO::hasSubResource(), QVariantList() << attachment.uri()); //delete note when publication is deleted
+        Nepomuk2::addProperty(QList<QUrl>() << attachment.uri(), NAO::isRelated(), QVariantList() << parentPublication.uri());
 
-            parentPublication.addProperty( NAO::hasSubResource(), mainResource.uri()); //delete note when publication is deleted
+        // connect Note <-> reference
+        //TODO: check if a zotero Note should be related to a reference too and not only the publication
+        //            Nepomuk2::Resource parentReference = parentSyncResourceNepomuk.property(SYNC::reference()).toResource();
+        //            Nepomuk2::addProperty(QList<QUrl>() << parentReference.uri(), NAO::hasSubResource(), QVariantList() << attachment.uri()); //delete note when publication is deleted
+        //            Nepomuk2::addProperty(QList<QUrl>() << attachment.uri(), NAO::hasSubResource(), QVariantList() << parentReference.uri());
+    }
+    else if( attachment.hasType(NFO::Document()) ) {
+        kDebug() << "add parent to file attachment";
+        Nepomuk2::Resource parentPublication = parentSyncResourceNepomuk.property(SYNC::publication()).toResource();
 
-            Nepomuk2::Resource parentReferencexx = parentSyncResourceNepomuk.property(SYNC::reference()).toResource();
-            Nepomuk2::SimpleResource parentReference(parentReferencexx.uri());
-            parentReference.addProperty( NAO::isRelated(), mainResource.uri());
-            mainResource.addProperty( NAO::isRelated(), parentReference.uri());
-            graph << parentReference << parentPublication;
-        }
-        else if( mainResource.contains(RDF::type(), NFO::FileDataObject()) || mainResource.contains(RDF::type(), NFO::RemoteDataObject())) {
-            Nepomuk2::Resource parentPublicationxx = parentSyncResourceNepomuk.property(SYNC::publication()).toResource();
-            Nepomuk2::SimpleResource parentPublication(parentPublicationxx.uri());
-            parentPublication.addProperty( NBIB::isPublicationOf(), mainResource.uri());
-            mainResource.addProperty( NBIB::publishedAs(), parentPublication.uri());
-
-            parentPublication.addProperty( NAO::hasSubResource(), mainResource.uri()); // delete file when publication is deleted
-            graph << parentPublication;
-        }
+        Nepomuk2::addProperty(QList<QUrl>() << parentPublication.uri(), NBIB::isPublicationOf(), QVariantList() << attachment.uri());
+        Nepomuk2::addProperty(QList<QUrl>() << attachment.uri(), NBIB::publishedAs(), QVariantList() << parentPublication.uri());
+        Nepomuk2::addProperty(QList<QUrl>() << parentPublication.uri(), NAO::hasSubResource(), QVariantList() << attachment.uri()); // delete file when publication is deleted
+        Nepomuk2::addProperty(QList<QUrl>() << attachment.uri(), NAO::isRelated(), QVariantList() << parentPublication.uri());
+    }
+    else {
+        kDebug() << "can't find type of the attachment!";
     }
 
     // this creates the link for the syncResources so we know how they are connected
     // connect child syncDetails to its parent syncDetails
-    serverSyncData.setProperty(NAO::isRelated(), parentSyncResource );
-    parentSyncResource.setProperty( SYNC::provider(), m_syncProviderId); // we need to add some kind of property, or the resource is invalid
-
-    graph << serverSyncData << parentSyncResource;
-
+    KJob *job2 = Nepomuk2::addProperty(QList<QUrl>() << syncUrl, NAO::isRelated(), QVariantList() << parentSyncResourceNepomuk.uri());
+    if(!job2->exec()) { kDebug() << job2->errorString(); return; }
+    KJob *job3 = Nepomuk2::addProperty(QList<QUrl>() << parentSyncResourceNepomuk.uri(), NAO::isRelated(), QVariantList() << syncUrl);
+    if(!job3->exec()) { kDebug() << job3->errorString(); return; }
 }
+
 

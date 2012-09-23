@@ -20,6 +20,8 @@
 
 #include "nbibio/provider/onlinestorage.h"
 
+#include <KDE/KUrl>
+
 #include <QtCore/QObject>
 #include <QtCore/QVariantMap>
 #include <QtCore/QVariantList>
@@ -65,6 +67,7 @@ public slots:
     void fetchItems(const QString &collectionId = QString());
     void fetchCollections(const QString &parent = QString() );
     void fetchCollection(const QString &collectionId );
+    KUrl downloadFile(const QString &file, const QString &filename);
 
     //-------------------------------------------------
     // write request

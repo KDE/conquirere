@@ -1,8 +1,14 @@
 window_sizes 1600 843 292 1302 763 0
+diagrams
+  classdiagram_ref 154500 // Sync ontology
+    1041 610 100 18 0 0
+  active  objectdiagram_ref 161156 // Sync-Parent-Child
+    1302 763 100 18 0 0
+end
 show_stereotypes
-selected 
-  package_ref 129 // ontology
+selected attribute_ref 219396 // sync::syncDataType
 open
+  class_ref 225412 // sync:ServerSyncData
   classview_ref 134660 // project concept
 end
 end

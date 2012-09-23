@@ -10,7 +10,6 @@ target_link_libraries(Test-nbibio.nepomuk2variant
         core
         nbibio
         propertywidgets
-        onlinestorage
         mainui
 
 # include general kde libs
