@@ -1,11 +1,13 @@
 
+add_definitions(-DQT_GUI_LIB)
 
-kde4_add_unit_test(Test-zotero.simple
-  zoterosimple.cpp
+kde4_add_unit_test(Test-sync.zotero-write
+  synczoterowrite.cpp
 )
 
-target_link_libraries(Test-zotero.simple
+target_link_libraries(Test-sync.zotero-write
 # include static sync libs
+        ontology
         core
         nbibio
 
@@ -16,9 +18,17 @@ target_link_libraries(Test-zotero.simple
 
         ${QT_QTTEST_LIBRARY}
 
+#include akonadi stuff
+        ${KDE4_AKONADI_LIBS}
+        ${KDE4_KABC_LIBS}
+        akonadi-contact
+
 #include nepomuk
         ${NEPOMUK_LIBRARIES}
         ${NEPOMUK_QUERY_LIBRARIES}
         nepomukcore
         nepomuksync
+
+#include kbibtex
+        ${KBIBTEX_LIBRARIES}
 )

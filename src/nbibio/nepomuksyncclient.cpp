@@ -20,8 +20,10 @@
 #include "nbibio/provider/onlinestorage.h"
 #include "nbibio/provider/zotero/zoterosync.h"
 #include "nbibio/pipe/varianttonepomukpipe.h"
+#include "nbibio/pipe/nepomuktovariantpipe.h"
 
 #include "ontology/sync.h"
+#include "ontology/nbib.h"
 #include <Nepomuk2/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk2/Vocabulary/PIMO>
@@ -75,7 +77,7 @@ void NepomukSyncClient::importData()
             m_storage = new ZoteroSync();
         }
         m_storage->setProviderSettings(m_psd);
-        m_syncSteps = 8;
+        m_syncSteps = 6;
         m_currentStep = 0;
     }
 
@@ -493,6 +495,7 @@ void NepomukSyncClient::fixMergingAutomatically()
 // so we are sure that the parent item was created first
 bool childItemsLast(const QVariant &s1, const QVariant &s2)
 {
+    Q_UNUSED(s2)
     QVariantMap entryS1 = s1.toMap();
     bool S1hasParent = entryS1.contains(QLatin1String("sync-key"));
 
@@ -547,22 +550,252 @@ void NepomukSyncClient::mergeFinished()
 void NepomukSyncClient::exportData()
 {
     if(!m_storage) {
-        Q_ASSERT_X( !m_psd.providerId.isEmpty(), "Missing procide Id","no provider specified" );
+        Q_ASSERT_X( !m_psd.providerId.isEmpty(), "Missing provider Id","no provider specified" );
 
         if(m_psd.providerId == QLatin1String("zotero")) {
             m_storage = new ZoteroSync();
         }
         m_storage->setProviderSettings(m_psd);
     }
+    else {
+        disconnect(m_storage, SIGNAL(finished()) );
+    }
 
-    kDebug() << "todo export data";
-    emit finished();
+    m_syncSteps = 8;
+    m_currentStep = 0;
 
+    emit status( i18n("Fetch data from Nepomuk") );
+    calculateProgress(0);
+
+    QString projectFilter;
+    if( m_project.isValid() ) {
+        projectFilter =  "?r nao:isRelated <" + m_project.uri().toString() + "> . ";
+    }
+
+    kDebug() << "1a";
+    //----------------------------------------------------------------------------------------------------
+    // Step 1a) Get all new References without ServerSyncData attached
+    QString query = "select distinct ?r where {"
+                    "?r a nbib:Reference ."
+                    "OPTIONAL { ?r sync:serverSyncData ?ssd . }"
+                    "FILTER ( !bound(?ssd) ) ."
+                    + projectFilter +
+                    "}";
+
+    Soprano::Model* model = Nepomuk2::ResourceManager::instance()->mainModel();
+    Soprano::QueryResultIterator it = model->executeQuery( query, Soprano::Query::QueryLanguageSparql );
+
+    QList<Nepomuk2::Resource> pushNewItems;
+    while( it.next() ) {
+        Soprano::BindingSet p = it.current();
+        pushNewItems << Nepomuk2::Resource(p.value(QLatin1String("r")).toString());
+    }
+
+    kDebug() << "New Nepomuk resources to upload :: " << pushNewItems.size();
+
+    // transform the new entries to a QVariantList
+    NepomukToVariantPipe ntvp;
+    ntvp.addNepomukUries(true);
+    //TODO: add a mode to define how notes are handled (either as noteX = entry or @note{ .. entry)
+    ntvp.pipeExport( pushNewItems );
+
+    m_tmpNewItemList = ntvp.variantList();
+
+    kDebug() << "1b";
+    calculateProgress(25);
+    //----------------------------------------------------------------------------------------------------
+    //Step 1b) Get all references with an attached ServerSyncData that fits the current provider details
+    //         this will update the info and, if necessary edit/add notes/file attachments
+
+    QString query2 = "select distinct ?r where {"
+                     "?r a nbib:Reference ."
+                     "?r sync:serverSyncData ?ssd ."
+                     "?ssd sync:provider ?provider . FILTER regex(?provider, \"" + m_psd.providerId + "\") "
+                     "?ssd sync:userId ?userId . FILTER regex(?userId, \"" + m_psd.userName + "\") "
+                     "?ssd sync:url ?url . FILTER regex(?url, \"" + m_psd.url + "\") "
+                      + projectFilter +
+                     "}";
+
+    Soprano::QueryResultIterator it2 = model->executeQuery( query2, Soprano::Query::QueryLanguageSparql );
+
+    m_pushEditedItems.clear();
+    while( it2.next() ) {
+        Soprano::BindingSet p = it2.current();
+        m_pushEditedItems << Nepomuk2::Resource(p.value(QLatin1String("r")).toString());
+    }
+
+    kDebug() << "1c";
+    calculateProgress(50);
+    //----------------------------------------------------------------------------------------------------
+    //Step 1c) Get all items that should be removed from the current collection
+    //         Means all items that fit the current server sync details that are not in the current project anymore
+
+    if( m_project.isValid() ) {
+        //FIXME: check remove from group SPARQL
+        QString query3 = "select distinct ?id where {"
+                         "?r a nbib:Reference ."
+                         "?r sync:serverSyncData ?ssd ."
+                         "?ssd sync:id ?id ."
+                         "?ssd sync:provider ?provider . FILTER regex(?provider, \"" + m_psd.providerId + "\") "
+                         "?ssd sync:userId ?userId . FILTER regex(?userId, \"" + m_psd.userName + "\") "
+                         "?ssd sync:url ?url . FILTER regex(?url, \"" + m_psd.url + "\") "
+                         "?r nao:isRelated ?project ."
+                         //"FILTER !regex(?project, \"<" + m_project.uri().toString() + ">\" ) ."
+                         "}";
+
+        Soprano::QueryResultIterator it3 = model->executeQuery( query3, Soprano::Query::QueryLanguageSparql );
+
+        m_pushRemoveFromCollection.clear();
+        while( it3.next() ) {
+            Soprano::BindingSet p = it3.current();
+            m_pushRemoveFromCollection << p.value(QLatin1String("id")).toString();
+        }
+    }
+
+    kDebug() << "1d";
+    calculateProgress(75);
+    //----------------------------------------------------------------------------------------------------
+    //Step 1d) Get all deleted items
+    //         Means all ServerSyncData objects that fit the provider details but have no valid reference/publication anymore
+
+    QString query4 = "select distinct ?id where {"
+                     "?r a sync:ServerSyncData."
+                     "?ssd sync:id ?id ."
+                     "?ssd sync:provider ?provider . FILTER regex(?provider, \"" + m_psd.providerId + "\") "
+                     "?ssd sync:userId ?userId . FILTER regex(?userId, \"" + m_psd.userName + "\") "
+                     "?ssd sync:url ?url . FILTER regex(?url, \"" + m_psd.url + "\") "
+
+                     //TODO: make union and filter it
+                     "?ssd sync:note ?note ."
+                     "?ssd sync:attachment ?note ."
+                     "?ssd sync:publication ?note ."
+                     "?ssd sync:reference ?note ."
+                     "}";
+
+
+    Soprano::QueryResultIterator it4 = model->executeQuery( query4, Soprano::Query::QueryLanguageSparql );
+
+    m_pushDeleteItems.clear();
+    while( it4.next() ) {
+        Soprano::BindingSet p = it4.current();
+        m_pushDeleteItems << p.value(QLatin1String("id")).toString();
+    }
+
+    calculateProgress(100);
+    m_currentStep++;
+
+    // now that we have all data from nepomuk we need, start adding it to the onlineprovider
+    connect( m_storage, SIGNAL(finished()), this, SLOT(newItemUploadFinished()) );
+    pushNewItemCache();
+}
+
+void NepomukSyncClient::pushNewItemCache()
+{
+    // ok this is called for each item and at th estart as well es after each item push request.
+    // several things need to be concidered.
+    // a) did we finished pushing all nbib:references => exit here start uploading edited items
+    // b) did we push the all notes/attachments of the current item
+    // c) Do we need to push the next nbib:reference
+
+    // Case a) all finished start with next upload (editied items)
+    if(m_tmpNewItemList.isEmpty() && m_tmpNewNotesItemList.isEmpty() && m_tmpNewFilesItemList.isEmpty()) {
+        //TODO: not finished but start uploading the changed items
+        emit finished();
+    }
+
+    // Case b) take next note  /file and upload it
+    else if( !m_tmpNewNotesItemList.isEmpty() ) {
+        m_tmpCurPushedAttachmentItem = m_tmpNewNotesItemList.takeFirst().toMap();
+
+        kDebug() << "upload next note :: " << m_tmpCurPushedAttachmentItem;
+
+        emit status( i18n("Upload note %1", m_tmpCurPushedAttachmentItem.value(QLatin1String("title")).toString()) );
+        m_storage->pushItems( QVariantList() << m_tmpCurPushedAttachmentItem, m_psd.collection );
+    }
+    else if( !m_tmpNewFilesItemList.isEmpty() ) {
+        m_tmpCurPushedAttachmentItem = m_tmpNewFilesItemList.takeFirst().toMap();
+
+        kDebug() << "upload next file :: " << m_tmpCurPushedAttachmentItem;
+
+        emit status( i18n("Upload file %1", m_tmpCurPushedAttachmentItem.value(QLatin1String("url")).toString()) );
+        m_storage->pushItems( QVariantList() << m_tmpCurPushedAttachmentItem, m_psd.collection );
+    }
+
+    // Case c) no current item to upload take next reference
+    else {
+        m_tmpCurPushedItem = m_tmpNewItemList.takeFirst().toMap();
+
+        emit status( i18n("Upload item: %1", m_tmpCurPushedItem.value(QLatin1String("title")).toString()) );
+        m_storage->pushItems( QVariantList() << m_tmpCurPushedItem, m_psd.collection );
+    }
+}
+
+void NepomukSyncClient::newItemUploadFinished()
+{
+    kDebug() << "item upload sucessful";
+    QVariantMap retrievedData = m_storage->data().first().toMap();
+
+    kDebug() << retrievedData;
+
+    // as we already have existing Nepomuk resources add the information if available to the retrieved object
+    // the VariantToNepomukPipe takes the entry it needs to get the right Nepomuk2::Resource from it again
+    retrievedData.insert(QLatin1String("nepomuk-note-uri"), m_tmpCurPushedAttachmentItem.value(QLatin1String("nepomuk-note-uri")).toString());
+    retrievedData.insert(QLatin1String("nepomuk-attachment-uri"), m_tmpCurPushedAttachmentItem.value(QLatin1String("nepomuk-attachment-uri")).toString());
+    retrievedData.insert(QLatin1String("nepomuk-publication-uri"), m_tmpCurPushedItem.value(QLatin1String("nepomuk-publication-uri")).toString());
+    retrievedData.insert(QLatin1String("nepomuk-reference-uri"), m_tmpCurPushedItem.value(QLatin1String("nepomuk-reference-uri")).toString());
+
+    // now add the ServerSyncData to this item
+    VariantToNepomukPipe vtnp;
+    vtnp.setProjectPimoThing( m_project );
+    vtnp.setSyncStorageProvider(m_storage);
+    vtnp.pipeExport( QVariantList() << retrievedData );
+
+    // in case we have a reference, check here if we need to upload notes/files now too
+    if( !m_tmpCurPushedItem.isEmpty() ) {
+        Nepomuk2::Resource publication = Nepomuk2::Resource(m_tmpCurPushedItem.value(QLatin1String("nepomuk-publication-uri")).toString());
+        NepomukToVariantPipe ntvp;
+        ntvp.setSyncProviderDetails(m_storage->providerSettings());
+        ntvp.addNepomukUries(true);
+
+        // get all notes
+        //TODO: skip this step for bibtex/mendeley export, define a parameter to say we upload them with the reference rather than as a single object
+        QList<Nepomuk2::Resource> relatedList = publication.property(NAO::isRelated()).toResourceList();
+
+        kDebug() << "found " << relatedList.size() << "items related to the Publication";
+        QList<Nepomuk2::Resource> noteList;
+        foreach(const Nepomuk2::Resource &r, relatedList) {
+            if(r.hasType(PIMO::Note())) {
+                noteList << r;
+            }
+        }
+        // transform the new notes to a QVariantList
+        ntvp.pipeExport( noteList ); // this adds the parent sync info we just created to it, so we know where to add it it
+        m_tmpNewNotesItemList = ntvp.variantList();
+
+        kDebug() << "export " << m_tmpNewNotesItemList.size() << "notes for the current publication" << m_tmpCurPushedItem.value(QLatin1String("title")).toString();
+
+        // get all file attachments
+        QList<Nepomuk2::Resource> fileList = publication.property(NBIB::isPublicationOf()).toResourceList();
+
+        ntvp.pipeExport( fileList ); // this adds the parent sync info we jus tcreated to it, so we know where to add it it
+        m_tmpNewFilesItemList = ntvp.variantList();
+
+        kDebug() << "export " << m_tmpNewFilesItemList.size() << "files for the current publication" << m_tmpCurPushedItem.value(QLatin1String("title")).toString();
+
+        // we setup all note/file upload informations, remove m_tmpCurPushedItem information so once note/file upload is finished
+        // we can start with the next reference
+        m_tmpCurPushedItem.clear();
+    }
+
+    m_tmpCurPushedAttachmentItem.clear();
+
+    // upload next item
+    pushNewItemCache();
 }
 
 void NepomukSyncClient::syncData()
 {
-    Q_ASSERT_X( !m_psd.providerId.isEmpty(), "Missing procide Id","no provider specified" );
+    Q_ASSERT_X( !m_psd.providerId.isEmpty(), "Missing provider Id","no provider specified" );
 
     if(m_psd.providerId == QLatin1String("zotero")) {
         m_storage = new ZoteroSync();

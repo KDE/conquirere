@@ -25,8 +25,12 @@
 
 #include <QtNetwork/QNetworkReply>
 #include <QtCore/QXmlStreamReader>
+#include <QtCore/QFileInfo>
+#include <QtCore/QCryptographicHash>
+#include <QSslConfiguration>
 
 #include <KDE/KUrl>
+#include <KDE/KMimeType>
 #include <KDE/KIO/CopyJob>
 #include <KDE/KLocalizedString>
 #include <KDE/KDebug>
@@ -42,7 +46,8 @@ ZoteroSync::ZoteroSync(QObject *parent)
     qRegisterMetaType<CollectionInfo>("CollectionInfo");
     qRegisterMetaType<QList<CollectionInfo> >("QList<CollectionInfo>");
 
-    KConfig keyMapping("/home/joerg/Development/KDE/publicationdata-sync/lib/provider/zotero/zoteromapping.ini", KConfig::SimpleConfig);
+    //FIXME: relative path for provider.ini
+    KConfig keyMapping("/home/joerg/Development/KDE/conquirere/src/nbibio/provider/zotero/zoteromapping.ini", KConfig::SimpleConfig);
 
     QStringList groups = keyMapping.groupList();
 
@@ -141,6 +146,10 @@ void ZoteroSync::resetState()
     m_cacheDeleteItem.clear();
     m_idsForCollectionAdd.clear();
     m_idsForCollectionRemove.clear();
+    m_cacheNewItems.clear();
+    m_cacheNewChildItems.clear();
+    m_cacheUpdateItems.clear();
+    m_cacheFileUpload.clear();
 }
 
 //---------------------------------------------------------------
@@ -275,9 +284,12 @@ void ZoteroSync::pushItems(const QVariantList &items, const QString &collection)
     foreach(const QVariant &item, items) {
         QVariantMap entryMap = item.toMap();
 
-        //FIXME: add support for note and attachment uploads
+        //FIXME: add support for attachment uploads
         if(entryMap.contains(QLatin1String("sync-key"))) {
             m_cacheUpdateItems.append(entryMap);
+        }
+        else if(entryMap.contains(QLatin1String("sync-parent"))) {
+            m_cacheNewChildItems.append(entryMap);
         }
         else {
             m_cacheNewItems.append(entryMap);
@@ -318,6 +330,30 @@ void ZoteroSync::pushItemCache()
         m_reply = m_qnam.post(request, writeJsonContent(tmpList));
         connect(m_reply, SIGNAL(finished()),this, SLOT(itemPushFinished()));
     }
+    else if( !m_cacheNewChildItems.isEmpty() ) {
+        // take a single child and push it to zotero
+        QVariantMap nextChild = m_cacheNewChildItems.takeFirst().toMap();
+
+        //POST /users/1/items
+        //Content-Type: application/json
+        //Optional
+        //X-Zotero-Write-Token: 19a4f01ad623aa7214f82347e3711f56
+        QString pushString = BASE_URL + providerSettings().url + QLatin1String("/") + providerSettings().userName + QLatin1String("/items/") +
+                             nextChild.value(QLatin1String("sync-parent")).toString() + QLatin1String("/children");
+
+        if(!providerSettings().pwd.isEmpty()) {
+            pushString.append(QLatin1String("?&key=") + providerSettings().pwd);
+        }
+
+        QUrl pushUrl(pushString);
+
+        QNetworkRequest request(pushUrl);
+        request.setHeader(QNetworkRequest::ContentTypeHeader,QLatin1String("application/json"));
+
+        m_reply = m_qnam.post(request, writeJsonContent(QVariantList() << nextChild));
+        connect(m_reply, SIGNAL(finished()),this, SLOT(itemPushFinished()));
+
+    }
     else if( !m_cacheUpdateItems.isEmpty() ) {
         //PUT /users/1/items/ABCD2345
         //If-Match: "8e984e9b2a8fb560b0085b40f6c2c2b7"
@@ -343,6 +379,45 @@ void ZoteroSync::pushItemCache()
     }
     else {
         emit finished();
+    }
+}
+
+void ZoteroSync::pushFile(const QVariantMap &fileData)
+{
+    resetState();
+
+    m_cacheFileUpload = fileData;
+
+    // update existing file
+    if( fileData.contains(QLatin1String("sync-key")) ) {
+        //FIXME: update file upload
+
+    }
+    // push new file
+    else {
+        //POST /users/<userID>/items/<parentItemKey>/children
+        //Content-Type: application/json
+        //X-Zotero-Write-Token: <token>
+
+        QString pushString = BASE_URL + providerSettings().url + QLatin1String("/") + providerSettings().userName + QLatin1String("/items");
+
+        if( fileData.contains(QLatin1String("sync-parent")) ) {
+            pushString.append(QLatin1String("/"));
+            pushString.append(fileData.value(QLatin1String("sync-parent")).toString());
+            pushString.append(QLatin1String("/children"));
+        }
+
+        if(!providerSettings().pwd.isEmpty()) {
+            pushString.append(QLatin1String("?&key=") + providerSettings().pwd);
+        }
+
+        QUrl pushUrl(pushString);
+
+        QNetworkRequest request(pushUrl);
+        request.setHeader(QNetworkRequest::ContentTypeHeader,QLatin1String("application/json"));
+
+        m_reply = m_qnam.post(request, writeJsonContent(QVariantList() << fileData));
+        connect(m_reply, SIGNAL(finished()),this, SLOT(fileItemPushFinished()));
     }
 }
 
@@ -581,7 +656,7 @@ QVariantMap ZoteroSync::transformToJsonMap(const QString &entryType, const QVari
     // first get the right mappingentry
     QVariantMap mapping = m_fromZoteroMapping.value(entryType).toMap();
 
-    // now foreach entry in the mapping find the right entyr in the item map
+    // now foreach entry in the mapping find the right entry in the item map
     QMapIterator<QString, QVariant> i(mapping);
     while (i.hasNext()) {
         i.next();
@@ -597,6 +672,9 @@ QVariantMap ZoteroSync::transformToJsonMap(const QString &entryType, const QVari
 
             QVariantList tagList;
             foreach(const QString &tag, tags) {
+                if(tag.isEmpty())
+                    continue;
+
                 QVariantMap tagMap;
                 tagMap.insert(QLatin1String("tag"), tag);
                 tagList.append(tagMap);
@@ -610,10 +688,14 @@ QVariantMap ZoteroSync::transformToJsonMap(const QString &entryType, const QVari
 
             QVariantList creatorsList;
             foreach(const QString &creator,creators) {
-                // if we get artist:author fetch all author entries from the publication item and add the as artist person
+                // if we get artist:author fetch all author entries from the publication item and add them as artist person
                 QStringList keys = creator.split(QLatin1String(":"));
-                creatorsList.append( transformCreators(keys.first(),
-                                                       item.value(keys.last(), QString()).toString()) );
+
+                QString personName = item.value(keys.last(), QString()).toString();
+                if(personName.isEmpty())
+                    continue;
+
+                creatorsList.append( transformCreators(keys.first(),personName) );
             }
             jsonMap.insert(i.key(), creatorsList);
 
@@ -1111,6 +1193,7 @@ CollectionInfo ZoteroSync::readCollectionEntry(QXmlStreamReader &xmlReader)
 
 void ZoteroSync::itemPushFinished()
 {
+    kDebug() << "got a response from the item push request";
     if(m_reply->error()) {
         kDebug() << m_reply->error() << m_reply->errorString();
 
@@ -1133,8 +1216,8 @@ void ZoteroSync::itemPushFinished()
         }
     }
 
-    pushItemCache();
     m_reply->deleteLater();
+    pushItemCache();
 }
 
 void ZoteroSync::itemDeleteFinished()
@@ -1179,4 +1262,199 @@ void ZoteroSync::itemCollectionRemoveFinished()
     m_reply->deleteLater();
 
     removeItemFromCollectionCache();
+}
+
+void ZoteroSync::fileItemPushFinished()
+{
+    if(m_reply->error()) {
+        kDebug() << m_reply->error() << m_reply->errorString();
+        kDebug() << m_reply->readAll();
+
+        QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
+        emit error(errorString);
+        m_reply->deleteLater();
+        return;
+    }
+
+    // we parse the response
+    QXmlStreamReader xmlReader;
+    xmlReader.setDevice(m_reply);
+
+    while(!xmlReader.atEnd()) {
+        if(!xmlReader.readNextStartElement()) { continue; }
+
+        if(xmlReader.name() == QLatin1String("entry")) {
+            m_returnedData.append( readItemEntry(xmlReader) );
+
+            break;
+        }
+    }
+
+    m_reply->deleteLater();
+
+    if( m_returnedData.isEmpty()) {
+        kDebug() << "file creation failed could not read response entry";
+        emit error(i18n("file creation failed could not read response entry"));
+        return;
+    }
+
+    QString syncKey = m_returnedData.first().toMap().value(QLatin1String("sync-key")).toString();
+
+    // ok we got a response from the server with the created item (child or normal)
+    // to upload the actual file, we need to get upload authorization
+
+    // @see https://www.zotero.org/support/dev/server_api/file_upload
+    //POST /users/<userID>/items/<itemKey>/file
+    //Content-Type: application/x-www-form-urlencoded
+    //If-None-Match: *
+    //md5=<hash>&filename=<filename>&filesize=<bytes>&mtime=<milliseconds>[&contentType=<type>&charset=<charset>]
+    QString pushString = BASE_URL + providerSettings().url + QLatin1String("/") + providerSettings().userName + QLatin1String("/items/") +
+                         syncKey + QLatin1String("/file?params=0");
+
+    if(!providerSettings().pwd.isEmpty()) {
+        pushString.append(QLatin1String("&key=") + providerSettings().pwd);
+    }
+
+    // add necessary file info data
+    QFileInfo file( m_cacheFileUpload.value(QLatin1String("url")).toString() );
+    QFile file2( m_cacheFileUpload.value(QLatin1String("url")).toString() );
+    if (!file2.open(QIODevice::ReadOnly)) {
+        kError() << "could not open file for upload";
+        emit error(i18n("Error opening the file for the upload"));
+        return;
+    }
+
+    QCryptographicHash md5(QCryptographicHash::Md5);
+    md5.addData( file2.readAll() );
+    KMimeType::Ptr mimeTypePtr = KMimeType::findByUrl( m_cacheFileUpload.value(QLatin1String("url")).toString() );
+
+    QString fileFormData = QString("md5=%1&filename=%2&filesize=%3&mtime=%4&contentType=%5&charset=None")
+                           .arg( QString(md5.result().toHex()) )
+                           .arg( QString(QUrl::toPercentEncoding(file.fileName())) )
+                           .arg( file.size() )
+                           .arg( file.lastModified().toMSecsSinceEpoch())
+                           .arg( QString(QUrl::toPercentEncoding(mimeTypePtr->name())) );
+
+    QUrl pushUrl(pushString);
+
+    QNetworkRequest request(pushUrl);
+    request.setHeader(QNetworkRequest::ContentTypeHeader,QLatin1String("application/x-www-form-urlencoded"));
+    request.setRawHeader("If-None-Match", "*");
+    //QString etag = m_cacheFileUpload.value(QLatin1String("sync-etag"));
+    //request.setRawHeader("If-Match", etag.toAscii());
+
+    m_reply = m_qnam.post(request, fileFormData.toAscii() );
+    connect(m_reply, SIGNAL(finished()),this, SLOT(fileAuthorizationFinished()));
+}
+
+void ZoteroSync::fileAuthorizationFinished()
+{
+    if(m_reply->error()) {
+        kDebug() << m_reply->error() << m_reply->errorString();
+        kDebug() << m_reply->readAll();
+
+        QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
+        emit error(errorString);
+        m_reply->deleteLater();
+        return;
+    }
+
+    QJson::Parser parser;
+    bool ok;
+
+    QVariantMap result = parser.parse(m_reply->readAll(), &ok).toMap();
+    if (!ok) {
+        kWarning() << "An error occurred during json parsing";
+        emit error(i18n("An error occurred during json parsing for the file authorization request"));
+        return;
+    }
+
+    m_reply->deleteLater();
+
+    if( result.contains(QLatin1String("exists"))) {
+        kDebug() << "file already exist";
+        emit finished();
+        return;
+    }
+
+    m_curUploadKey = result.value(QLatin1String("uploadKey")).toString();
+
+    //the multipart data
+    QByteArray data;
+    data.append(result.value(QLatin1String("prefix")).toByteArray());
+
+    QFile file( m_cacheFileUpload.value(QLatin1String("url")).toString() );
+    if (!file.open(QIODevice::ReadOnly)) {
+        kError() << "could not open file for upload";
+        emit error(i18n("Error opening the file for the upload"));
+        return;
+    }
+    data.append(file.readAll());
+
+    data.append(result.value(QLatin1String("suffix")).toByteArray());
+
+    QNetworkRequest request(result.value(QLatin1String("url")).toUrl());
+    request.setHeader(QNetworkRequest::ContentTypeHeader,result.value(QLatin1String("contentType")).toString());
+    request.setRawHeader(QString("Content-Length").toAscii(), QString::number(data.length()).toAscii());
+
+//    QSslConfiguration config; //after this, above error pops up
+//    config.setProtocol(QSsl::SecureProtocols);
+//    request.setSslConfiguration(config);
+
+    m_reply = m_qnam.post(request, data);
+    connect(m_reply, SIGNAL(finished()),this, SLOT(fileUploadFinished()));
+}
+
+void ZoteroSync::fileUploadFinished()
+{
+    if(m_reply->error()) {
+        kDebug() << m_reply->error() << m_reply->errorString();
+        kDebug() << m_reply->readAll();
+
+        QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
+        emit error(errorString);
+        m_reply->deleteLater();
+        return;
+    }
+
+    QString syncKey = m_returnedData.first().toMap().value(QLatin1String("sync-key")).toString();
+
+    // great, file upload worked, now register the file
+
+    //POST /users/<userID>/items/<itemKey>/file
+    //Content-Type: application/x-www-form-urlencoded
+    //If-None-Match: *
+    QString pushString = BASE_URL + providerSettings().url + QLatin1String("/") + providerSettings().userName + QLatin1String("/items/") +
+                         syncKey + QLatin1String("/file");
+
+    if(!providerSettings().pwd.isEmpty()) {
+        pushString.append(QLatin1String("?key=") + providerSettings().pwd);
+    }
+    QUrl pushUrl(pushString);
+
+    QString fileFormData = QString("upload=%1").arg( m_curUploadKey );
+
+    QNetworkRequest request(pushUrl);
+    request.setHeader(QNetworkRequest::ContentTypeHeader,QLatin1String("application/x-www-form-urlencoded"));
+    request.setRawHeader("If-None-Match", "*");
+
+    m_reply = m_qnam.post(request, fileFormData.toAscii());
+    connect(m_reply, SIGNAL(finished()),this, SLOT(fileRegisterFinished()));
+}
+
+void ZoteroSync::fileRegisterFinished()
+{
+    if(m_reply->error()) {
+        kDebug() << m_reply->error() << m_reply->errorString();
+        kDebug() << m_reply->readAll();
+
+        QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
+        emit error(errorString);
+        m_reply->deleteLater();
+        return;
+    }
+
+    m_reply->deleteLater();
+
+    emit finished();
 }

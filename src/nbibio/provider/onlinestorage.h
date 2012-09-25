@@ -69,6 +69,7 @@ public slots:
     // write request
     //-------------------------------------------------
     virtual void pushItems(const QVariantList &items, const QString &collection = QString()) = 0;
+    virtual void pushFile(const QVariantMap &fileData) = 0;
     virtual void addItemsToCollection(const QStringList &ids, const QString &collection) = 0;
     virtual void removeItemsFromCollection(const QStringList&ids, const QString &collection) = 0;
     virtual void deleteItems(const QVariantList &items) = 0;

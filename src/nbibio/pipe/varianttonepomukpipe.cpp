@@ -85,15 +85,24 @@ void VariantToNepomukPipe::pipeExport(QVariantList &publicationList)
         }
         // this handles all normal bibtex entries via MetaDataExtractors publication pipe
         else {
-            NepomukMetaDataExtractor::Pipe::PublicationPipe publicationPipe;
+            QPair<QUrl,QUrl> importedPublication;
 
-            // either conquirere or one of the unittests (overrides "metadata-extractor" component)
-            publicationPipe.overrideComponentName( KGlobal::mainComponent().componentName() );
+            // we have an existing resource just update the sync details
+            if( publicationEntry.contains(QLatin1String("nepomuk-reference-uri")) ) {
+                importedPublication.first = publicationEntry.value(QLatin1String("nepomuk-publication-uri")).toUrl();
+                importedPublication.second = publicationEntry.value(QLatin1String("nepomuk-reference-uri")).toUrl();
+            }
+            else {
+                NepomukMetaDataExtractor::Pipe::PublicationPipe publicationPipe;
 
-            publicationPipe.setProjectPimoThing(m_projectThing);
-            publicationPipe.pipeImport( publicationEntry );
+                // either conquirere or one of the unittests (overrides "metadata-extractor" component)
+                publicationPipe.overrideComponentName( KGlobal::mainComponent().componentName() );
 
-            QPair<QUrl,QUrl> importedPublication = publicationPipe.importedPublication();
+                publicationPipe.setProjectPimoThing(m_projectThing);
+                publicationPipe.pipeImport( publicationEntry );
+
+                importedPublication = publicationPipe.importedPublication();
+            }
 
             // do the sync part
             if( publicationEntry.contains(QLatin1String("sync-key")) ) {
@@ -423,10 +432,14 @@ void VariantToNepomukPipe::addStorageSyncDetails(Nepomuk2::Resource attachment, 
         kDebug() << "add parent to file attachment";
         Nepomuk2::Resource parentPublication = parentSyncResourceNepomuk.property(SYNC::publication()).toResource();
 
-        Nepomuk2::addProperty(QList<QUrl>() << parentPublication.uri(), NBIB::isPublicationOf(), QVariantList() << attachment.uri());
-        Nepomuk2::addProperty(QList<QUrl>() << attachment.uri(), NBIB::publishedAs(), QVariantList() << parentPublication.uri());
-        Nepomuk2::addProperty(QList<QUrl>() << parentPublication.uri(), NAO::hasSubResource(), QVariantList() << attachment.uri()); // delete file when publication is deleted
-        Nepomuk2::addProperty(QList<QUrl>() << attachment.uri(), NAO::isRelated(), QVariantList() << parentPublication.uri());
+        KJob *job1 = Nepomuk2::addProperty(QList<QUrl>() << parentPublication.uri(), NBIB::isPublicationOf(), QVariantList() << attachment.uri());
+        if(!job1->exec()) { kDebug() << job1->errorString(); return; }
+        KJob *job2 =  Nepomuk2::addProperty(QList<QUrl>() << attachment.uri(), NBIB::publishedAs(), QVariantList() << parentPublication.uri());
+        if(!job2->exec()) { kDebug() << job2->errorString(); return; }
+        KJob *job3 = Nepomuk2::addProperty(QList<QUrl>() << parentPublication.uri(), NAO::hasSubResource(), QVariantList() << attachment.uri()); // delete file when publication is deleted
+        if(!job3->exec()) { kDebug() << job3->errorString(); return; }
+        KJob *job4 = Nepomuk2::addProperty(QList<QUrl>() << attachment.uri(), NAO::isRelated(), QVariantList() << parentPublication.uri());
+        if(!job4->exec()) { kDebug() << job4->errorString(); return; }
     }
     else {
         kDebug() << "can't find type of the attachment!";

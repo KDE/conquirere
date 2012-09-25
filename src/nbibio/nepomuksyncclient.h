@@ -83,6 +83,7 @@ public slots:
 
 private slots:
     void dataDownloadFinished();
+    void newItemUploadFinished();
     void calculateProgress(int value);
 
 private:
@@ -90,6 +91,8 @@ private:
     void readDownloadSyncAfterDelete();
     void findDuplicates(QList<Nepomuk2::Resource> &existingItems);
     void fixMergingAutomatically();
+
+    void pushNewItemCache();
     void importNewResources();
 
 private:
@@ -101,6 +104,17 @@ private:
     QVariantList m_newEntries;
     QList<Nepomuk2::Resource> m_tmpUserDeleteRequest;
     QList<SyncMergeDetails> m_tmpUserMergeRequest;
+
+    QVariantList m_tmpNewItemList;
+    QVariantList m_tmpNewNotesItemList;
+    QVariantList m_tmpNewFilesItemList;
+
+    QVariantMap m_tmpCurPushedItem;
+    QVariantMap m_tmpCurPushedAttachmentItem;
+
+    QList<Nepomuk2::Resource> m_pushEditedItems;
+    QStringList m_pushRemoveFromCollection;
+    QStringList m_pushDeleteItems;
 
     int m_syncSteps;
     int m_currentStep;

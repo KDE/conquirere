@@ -18,6 +18,8 @@
 #include "nbibio/storageglobals.h"
 #include "nbibio/provider/zotero/zoterosync.h"
 
+#include "../testdatadir.h"
+
 #include <QtTest>
 #include <QtDebug>
 
@@ -42,6 +44,7 @@ private slots:
 
     void addItemToCollectionTest();
     void removeItemFromCollectionTest();
+    void uploadFileTest();
 
     void deleteCollectionTest();
     void deleteItemTest();
@@ -253,6 +256,30 @@ void ZoteroSimple::removeItemFromCollectionTest()
     QVERIFY2(spy2.count() == 0, "Error during zotero upload");
 
     //TODO: check that the item got really removed from the collection
+}
+
+void ZoteroSimple::uploadFileTest()
+{
+    QString fileurl = TESTDATADIR + QLatin1String("/data/test-pdf-file.pdf");
+
+    QVariantMap file;
+    file.insert(QLatin1String("bibtexentrytype"), QLatin1String("attachment"));
+    file.insert(QLatin1String("url"), fileurl);
+    file.insert(QLatin1String("title"), QLatin1String("unittest-pdf-file"));
+    file.insert(QLatin1String("linkMode"), QLatin1String("imported_file"));
+    file.insert(QLatin1String("sync-parent"), QLatin1String("S9PIQIPK"));
+
+    QSignalSpy spy(&client, SIGNAL(finished()));
+    QSignalSpy spy2(&client, SIGNAL(error(QString)));
+    client.pushFile(file);
+
+    while (spy.count() == 0 && spy2.count() == 0) {
+        QTest::qWait(200);
+    }
+
+    QVERIFY2(spy2.count() == 0, "Error during zotero upload");
+
+    qDebug() << client.data();
 }
 
 void ZoteroSimple::deleteCollectionTest()

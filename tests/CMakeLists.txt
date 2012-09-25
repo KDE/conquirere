@@ -17,3 +17,4 @@ add_subdirectory( Test-zotero.data )
 
 
 add_subdirectory( Test-sync.zotero-read )
+add_subdirectory( Test-sync.zotero-write )

@@ -73,6 +73,7 @@ public slots:
     // write request
     //-------------------------------------------------
     void pushItems(const QVariantList &items, const QString &collection = QString());
+    void pushFile(const QVariantMap &fileData);
     void addItemsToCollection(const QStringList &ids, const QString &collection);
     void removeItemsFromCollection(const QStringList&ids, const QString &collection);
     void deleteItems(const QVariantList &items);
@@ -91,6 +92,11 @@ private slots:
 
     void itemPushFinished();
     void itemDeleteFinished();
+
+    void fileItemPushFinished();
+    void fileAuthorizationFinished();
+    void fileUploadFinished();
+    void fileRegisterFinished();
 
 private:
     void resetState();
@@ -124,8 +130,11 @@ private:
     QStringList m_idsForCollectionAdd;
     QStringList m_idsForCollectionRemove;
     QVariantList m_cacheNewItems;
+    QVariantList m_cacheNewChildItems;
     QVariantList m_cacheUpdateItems;
     QList<QPair<QString,QString> > m_cacheDeleteItem;
+    QVariantMap m_cacheFileUpload;
+    QString m_curUploadKey;
 
     QVariantList m_returnedData;
     QList<CollectionInfo> m_returnedCollectionInfo;
