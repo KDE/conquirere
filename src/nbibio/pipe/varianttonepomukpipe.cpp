@@ -131,58 +131,63 @@ void VariantToNepomukPipe::setProjectPimoThing(Nepomuk2::Resource projectThing)
 
 void VariantToNepomukPipe::importNote(const QVariantMap &noteEntry)
 {
-    Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::Resource noteResource;
+    if( !noteEntry.contains(QLatin1String("nepomuk-note-uri")) ) {
+        Nepomuk2::SimpleResourceGraph graph;
 
-    kDebug() << "import note " << noteEntry.value("sync-title").toString();
+        kDebug() << "import note " << noteEntry.value("sync-title").toString();
 
-    QTextDocument content( noteEntry.value("note").toString() );
-    if(content.isEmpty()) {
-        return;
+        QTextDocument content( noteEntry.value("note").toString() );
+        if(content.isEmpty()) {
+            return;
+        }
+
+        Nepomuk2::PIMO::Note note;
+        note.addType(NIE::InformationElement());
+
+        QString title = noteEntry.value(QLatin1String("title")).toString();
+        if(title.isEmpty()) {
+            title = noteEntry.value(QLatin1String("sync-title")).toString();
+        }
+        if(title.isEmpty()) {
+            title = noteEntry.value(QLatin1String("sync-parent")).toString();
+        }
+
+        note.setProperty( NAO::prefLabel(), title );
+        note.setProperty( NIE::title(), title );
+
+        note.setProperty( NIE::plainTextContent(), content.toPlainText());
+        note.setProperty( NIE::htmlContent(), content.toHtml());
+
+        QStringList keywords = noteEntry.value(QLatin1String("keywords")).toString().split(";");
+        foreach(const QString &tagText, keywords) {
+            Nepomuk2::NAO::Tag tag;
+
+            tag.addPrefLabel( tagText );
+            tag.addProperty( NAO::identifier(), KUrl::fromEncoded(tagText.toLatin1()));
+
+            note.addProperty( NAO::hasTag(), tag.uri());
+            note.addProperty( NAO::hasSubResource(), tag.uri());
+
+            graph << tag;
+        }
+
+        graph << note;
+
+        Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties);
+        if(!srj->exec()) {
+            kDebug() << "Import error :: " << srj->errorString();
+        }
+        QUrl noteUrl = srj->mappings().value( note.uri() );
+        noteResource = Nepomuk2::Resource(noteUrl);
     }
-
-    Nepomuk2::PIMO::Note note;
-    note.addType(NIE::InformationElement());
-
-    QString title = noteEntry.value(QLatin1String("title")).toString();
-    if(title.isEmpty()) {
-        title = noteEntry.value(QLatin1String("sync-title")).toString();
-    }
-    if(title.isEmpty()) {
-        title = noteEntry.value(QLatin1String("sync-parent")).toString();
-    }
-
-    note.setProperty( NAO::prefLabel(), title );
-    note.setProperty( NIE::title(), title );
-
-    note.setProperty( NIE::plainTextContent(), content.toPlainText());
-    note.setProperty( NIE::htmlContent(), content.toHtml());
-
-    QStringList keywords = noteEntry.value(QLatin1String("keywords")).toString().split(";");
-    foreach(const QString &tagText, keywords) {
-        Nepomuk2::NAO::Tag tag;
-
-        tag.addPrefLabel( tagText );
-        tag.addProperty( NAO::identifier(), KUrl::fromEncoded(tagText.toLatin1()));
-
-        note.addProperty( NAO::hasTag(), tag.uri());
-        note.addProperty( NAO::hasSubResource(), tag.uri());
-
-        graph << tag;
-    }
-
-    graph << note;
-
-    Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties);
-    if(!srj->exec()) {
-        kDebug() << "Import error :: " << srj->errorString();
+    else {
+        noteResource = Nepomuk2::Resource(noteEntry.value(QLatin1String("nepomuk-note-uri")).toUrl());
     }
 
     // now get the uri of the newly created attachment and add the sync details to it
     // and if necessary the parent/child connection
     if(noteEntry.contains(QLatin1String("sync-key"))) {
-        QUrl noteUrl = srj->mappings().value( note.uri() );
-        Nepomuk2::Resource noteResource = Nepomuk2::Resource(noteUrl);
-
         addStorageSyncDetails(noteResource, noteEntry);
     }
 }
@@ -190,73 +195,80 @@ void VariantToNepomukPipe::importNote(const QVariantMap &noteEntry)
 void VariantToNepomukPipe::importAttachment(const QVariantMap &attachmentEntry)
 {
     kDebug() << "import attachment" << attachmentEntry.value("title").toString();
-    Nepomuk2::SimpleResourceGraph graph;
 
-    Nepomuk2::NFO::FileDataObject attachment;
-    attachment.addType(NFO::Document());
+    Nepomuk2::Resource attachmentResource;
 
-    attachment.setProperty( NIE::title(), attachmentEntry.value("title").toString() );
+    if( !attachmentEntry.contains(QLatin1String("nepomuk-attachment-uri")) ) {
+        Nepomuk2::SimpleResourceGraph graph;
 
-    if(attachmentEntry.contains("sync-attachment-file")) {
+        Nepomuk2::NFO::FileDataObject attachment;
+        attachment.addType(NFO::Document());
 
-        //FIXME: emit download details (status speed/progress etc)
-        KUrl downloadedFile = m_storage->downloadFile( attachmentEntry.value("sync-attachment-file").toString(),
-                                                       attachmentEntry.value("sync-title").toString()); //TODO: check if filename is always in sync-title or just in Zotero
+        attachment.setProperty( NIE::title(), attachmentEntry.value("title").toString() );
 
-//        QString localFilePath = attachmentEntry.value("localFile").toString();
-//        localFilePath.prepend(QLatin1String("file://"));
-        attachment.setProperty( NIE::url(), downloadedFile);
-        attachment.setProperty( NAO::identifier(), downloadedFile);
+        if(attachmentEntry.contains("sync-attachment-file")) {
+
+            //FIXME: emit download details (status speed/progress etc)
+            KUrl downloadedFile = m_storage->downloadFile( attachmentEntry.value("sync-attachment-file").toString(),
+                                                           attachmentEntry.value("sync-title").toString()); //TODO: check if filename is always in sync-title or just in Zotero
+
+            //        QString localFilePath = attachmentEntry.value("localFile").toString();
+            //        localFilePath.prepend(QLatin1String("file://"));
+            attachment.setProperty( NIE::url(), downloadedFile);
+            attachment.setProperty( NAO::identifier(), downloadedFile);
+        }
+        else {
+            attachment.addType(NFO::RemoteDataObject());
+            QString url = attachmentEntry.value("url").toString();
+            attachment.setProperty( NIE::url(), url);
+            attachment.setProperty( NAO::identifier(), url);
+
+            kDebug() << "create attachment with url" << url;
+        }
+
+        QStringList keywords = attachmentEntry.value(QLatin1String("keywords")).toString().split(";");
+        foreach(const QString &tagText, keywords) {
+            Nepomuk2::NAO::Tag tag;
+
+            tag.addPrefLabel( tagText );
+            tag.addProperty( NAO::identifier(), KUrl::fromEncoded(tagText.toLatin1()));
+
+            attachment.addProperty( NAO::hasTag(), tag.uri());
+            attachment.addProperty( NAO::hasSubResource(), tag.uri());
+
+            graph << tag;
+        }
+
+        QString accessdate = attachmentEntry.value("accessdate").toString();
+        QDateTime dateTime = NepomukMetaDataExtractor::Pipe::NepomukPipe::createDateTime( accessdate );
+
+        if(dateTime.isValid()) {
+            QString date = dateTime.toString(Qt::ISODate);
+            attachment.setProperty( NUAO::lastUsage(), date);
+        }
+        else {
+            kDebug() << "could not parse accessdate" << accessdate;
+        }
+
+        QString comment = attachmentEntry.value("note").toString();
+        attachment.setProperty( NIE::comment(), comment);
+
+        graph << attachment;
+
+        Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties);
+        if(!srj->exec()) {
+            kDebug() << srj->errorString();
+        }
+        QUrl attachmentUrl = srj->mappings().value( attachment.uri() );
+        attachmentResource = Nepomuk2::Resource(attachmentUrl);
     }
     else {
-        attachment.addType(NFO::RemoteDataObject());
-        QString url = attachmentEntry.value("url").toString();
-        attachment.setProperty( NIE::url(), url);
-        attachment.setProperty( NAO::identifier(), url);
-
-        kDebug() << "create attachment with url" << url;
-    }
-
-    QStringList keywords = attachmentEntry.value(QLatin1String("keywords")).toString().split(";");
-    foreach(const QString &tagText, keywords) {
-        Nepomuk2::NAO::Tag tag;
-
-        tag.addPrefLabel( tagText );
-        tag.addProperty( NAO::identifier(), KUrl::fromEncoded(tagText.toLatin1()));
-
-        attachment.addProperty( NAO::hasTag(), tag.uri());
-        attachment.addProperty( NAO::hasSubResource(), tag.uri());
-
-        graph << tag;
-    }
-
-    QString accessdate = attachmentEntry.value("accessdate").toString();
-    QDateTime dateTime = NepomukMetaDataExtractor::Pipe::NepomukPipe::createDateTime( accessdate );
-
-    if(dateTime.isValid()) {
-        QString date = dateTime.toString(Qt::ISODate);
-        attachment.setProperty( NUAO::lastUsage(), date);
-    }
-    else {
-        kDebug() << "could not parse accessdate" << accessdate;
-    }
-
-    QString comment = attachmentEntry.value("note").toString();
-    attachment.setProperty( NIE::comment(), comment);
-
-    graph << attachment;
-
-    Nepomuk2::StoreResourcesJob *srj = Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNew, Nepomuk2::OverwriteProperties);
-    if(!srj->exec()) {
-        kDebug() << srj->errorString();
+        attachmentResource = Nepomuk2::Resource(attachmentEntry.value(QLatin1String("nepomuk-attachment-uri")).toUrl());
     }
 
     // now get the uri of the newly created attachment and add the sync details to it
     // and if necessary the parent/child connection
     if(attachmentEntry.contains(QLatin1String("sync-key"))) {
-        QUrl attachmentUrl = srj->mappings().value( attachment.uri() );
-        Nepomuk2::Resource attachmentResource = Nepomuk2::Resource(attachmentUrl);
-
         addStorageSyncDetails(attachmentResource, attachmentEntry);
     }
 }

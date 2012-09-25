@@ -707,18 +707,14 @@ void NepomukSyncClient::pushNewItemCache()
     else if( !m_tmpNewNotesItemList.isEmpty() ) {
         m_tmpCurPushedAttachmentItem = m_tmpNewNotesItemList.takeFirst().toMap();
 
-        kDebug() << "upload next note :: " << m_tmpCurPushedAttachmentItem;
-
         emit status( i18n("Upload note %1", m_tmpCurPushedAttachmentItem.value(QLatin1String("title")).toString()) );
         m_storage->pushItems( QVariantList() << m_tmpCurPushedAttachmentItem, m_psd.collection );
     }
     else if( !m_tmpNewFilesItemList.isEmpty() ) {
         m_tmpCurPushedAttachmentItem = m_tmpNewFilesItemList.takeFirst().toMap();
 
-        kDebug() << "upload next file :: " << m_tmpCurPushedAttachmentItem;
-
         emit status( i18n("Upload file %1", m_tmpCurPushedAttachmentItem.value(QLatin1String("url")).toString()) );
-        m_storage->pushItems( QVariantList() << m_tmpCurPushedAttachmentItem, m_psd.collection );
+        m_storage->pushFile( m_tmpCurPushedAttachmentItem);
     }
 
     // Case c) no current item to upload take next reference
@@ -734,8 +730,6 @@ void NepomukSyncClient::newItemUploadFinished()
 {
     kDebug() << "item upload sucessful";
     QVariantMap retrievedData = m_storage->data().first().toMap();
-
-    kDebug() << retrievedData;
 
     // as we already have existing Nepomuk resources add the information if available to the retrieved object
     // the VariantToNepomukPipe takes the entry it needs to get the right Nepomuk2::Resource from it again

@@ -74,6 +74,11 @@ private:
     NepomukSyncClient client;
     ProviderSyncDetails psd;
     Nepomuk2::Resource pimoProject;
+    Nepomuk2::Resource bookRef1;
+    Nepomuk2::Resource br1File;
+    Nepomuk2::Resource bookRef2;
+    Nepomuk2::Resource br2Note1;
+    Nepomuk2::Resource br2Note2;
 };
 
 QTEST_MAIN(SyncZoteroWrite)
@@ -173,6 +178,11 @@ void SyncZoteroWrite::initTestCase()
     else {
         // get the pimo project from the return job mappings
         pimoProject = Nepomuk2::Resource( srj->mappings().value( project.uri() ) );
+        bookRef1 = Nepomuk2::Resource( srj->mappings().value( bookReference.uri() ) );
+        bookRef2 = Nepomuk2::Resource( srj->mappings().value( bookReference2.uri() ) );
+        br1File = Nepomuk2::Resource( srj->mappings().value( file.uri() ) );
+        br2Note1 = Nepomuk2::Resource( srj->mappings().value( note1.uri() ) );
+        br2Note2 = Nepomuk2::Resource( srj->mappings().value( note2.uri() ) );
     }
 }
 
@@ -191,113 +201,33 @@ void SyncZoteroWrite::exportTest()
 
     QVERIFY2(spy2.count() == 0, "Error during zotero download / item import");
 
-    /*
-    // now check that all data got added to nepomuk correctly
-
-    // search for the imported reference
-    QString query = QString::fromLatin1("select ?r where {"
-                                        "?r a sync:ServerSyncData ."
-
-                                        "?r nao:identifier ?id ."
-                                        "FILTER regex(?id, \"^zotero" + psd.userName.toAscii() + psd.url.toAscii() + itemToFetch.toAscii() + "\") ."
-                                        "}");
-
-    qDebug() << "Find SyncResource for :: " << query;
-    Soprano::Model* model = Nepomuk2::ResourceManager::instance()->mainModel();
-    Soprano::QueryResultIterator it = model->executeQuery( query, Soprano::Query::QueryLanguageSparql );
-
-    Nepomuk2::Resource syncData;
-    int count = 0;
-    while( it.next() ) {
-        count++;
-        Soprano::BindingSet p = it.current();
-        syncData = Nepomuk2::Resource(p.value("r").toString());
-        break; // can't be more than 1 anyway
-    }
-
-    QVERIFY2(syncData.isValid() && syncData.exists(), "Could not get the ServerSyncData resource");
+    // now check that the ServerSyncData got added correctly to all items
 
     //----------------------------------------------------------------------
-    // first check if the reference was added correctly
+    // BookRef1 + File
     //----------------------------------------------------------------------
-    Nepomuk2::Resource reference = syncData.property(SYNC::reference()).toResource();
-    QVERIFY2(reference.isValid() && reference.exists(), "Reference does not exist");
+    Nepomuk2::Resource ssdBook1 = bookRef1.property(SYNC::serverSyncData()).toResource();
+    QVERIFY2(ssdBook1.isValid() && ssdBook1.exists(), "Book reference 1 has no valid ServerSyncData");
 
-    Nepomuk2::Resource refsyncResource = reference.property(SYNC::serverSyncData()).toResource();
-    QVERIFY2(refsyncResource.isValid() && refsyncResource.exists(), "Reference does not link to the ServerSyncData Object");
-    QCOMPARE(refsyncResource.uri(), syncData.uri());
+    Nepomuk2::Resource ssdBR1File = br1File.property(SYNC::serverSyncData()).toResource();
+    QVERIFY2(ssdBR1File.isValid() && ssdBR1File.exists(), "File has no valid ServerSyncData");
 
-    // check that the reference citekey is the ZoteroID
-    QString citekey = reference.property(NBIB::citeKey()).toString();
-    QCOMPARE(citekey, itemToFetch);
-
-    Nepomuk2::Resource refPub = reference.property(NBIB::publication()).toResource();
-    QVERIFY2(refPub.isValid() && refPub.exists(), "Could not get the connected publication from the reference");
+    Nepomuk2::Resource ssdFileParent = ssdBR1File.property(NAO::isRelated()).toResource();
+    QVERIFY2(ssdFileParent.uri() == ssdBook1.uri(), "File ServerSyncData parent is not BookRef ServerSyncParent");
 
     //----------------------------------------------------------------------
-    // now check that the ServerSyncData has "the" publication attached
+    // BookRef2 + Notes 1 and Note 2
     //----------------------------------------------------------------------
-    Nepomuk2::Resource publication = syncData.property(SYNC::publication()).toResource();
-    QVERIFY2(publication.isValid() && publication.exists(), "Publication does not exist");
+    Nepomuk2::Resource ssdBook2 = bookRef2.property(SYNC::serverSyncData()).toResource();
+    QVERIFY2(ssdBook2.isValid() && ssdBook2.exists(), "Book reference 2 has no valid ServerSyncData");
 
-    Nepomuk2::Resource pubsyncResource = publication.property(SYNC::serverSyncData()).toResource();
-    QVERIFY2(pubsyncResource.isValid() && pubsyncResource.exists(), "publication does not link to the ServerSyncData Object");
-    QCOMPARE(pubsyncResource.uri(), syncData.uri());
+    Nepomuk2::Resource ssdBR2Note1 = br2Note1.property(SYNC::serverSyncData()).toResource();
+    QVERIFY2(ssdBR2Note1.isValid() && ssdBR2Note1.exists(), "Note1 has no valid ServerSyncData");
 
-    //----------------------------------------------------------------------
-    // now check that the Notes File attachments are added correctly
-    //----------------------------------------------------------------------
+    Nepomuk2::Resource ssdBR2Note2 = br2Note2.property(SYNC::serverSyncData()).toResource();
+    QVERIFY2(ssdBR2Note2.isValid() && ssdBR2Note2.exists(), "Note2 has no valid ServerSyncData");
 
-    // we must have 2 note serverSync Details and 1 file attachment connected via nao:isRelated
-    QList<Nepomuk2::Resource> childSyncList = syncData.property(NAO::isRelated()).toResourceList();
-    QVERIFY2(childSyncList.size() == 3, "Could not find both notes and the file attachment via nao:isRelated");
-
-    // now iterate over all childs and check if they are added correctly
-    foreach(const Nepomuk2::Resource &syncChild, childSyncList) {
-
-        // check that the child links back to the parent
-        Nepomuk2::Resource parentFromChildResource = syncChild.property(NAO::isRelated()).toResource();
-        QCOMPARE(parentFromChildResource.uri(), syncData.uri());
-
-        QUrl childSyncType = syncChild.property(SYNC::syncDataType()).toUrl();
-
-        if( childSyncType == SYNC::Note() ) {
-            //the note syncDetails have a pimo:Note connected that is related to the publication
-            Nepomuk2::Resource note = syncChild.property(SYNC::note()).toResource();
-            QVERIFY( note.isValid() && note.exists() );
-
-            QUrl noteParentPublication = note.property(NAO::isRelated()).toResource().uri();
-            QCOMPARE(noteParentPublication, publication.uri());
-
-            // also the note should link to its serverSyncData obejct
-            QUrl noteSyncUrl = note.property(SYNC::serverSyncData()).toResource().uri();
-            QCOMPARE(noteSyncUrl, syncChild.uri());
-
-        }
-        else if( childSyncType == SYNC::Attachment() ) {
-            //the note syncDetails have a nfo:Document connected that is related to the publication
-            Nepomuk2::Resource attachment = syncChild.property(SYNC::attachment()).toResource();
-            QVERIFY( attachment.isValid() && attachment.exists() );
-
-            // the attachment is connected to the publication
-            QUrl attachmentPublicationUrl = attachment.property(NBIB::isPublicationOf()).toResource().uri();
-            QCOMPARE(attachmentPublicationUrl, publication.uri());
-
-            // and vise versa
-            QUrl publicationAttachmentUrl = publication.property(NBIB::publishedAs()).toResource().uri();
-            QCOMPARE(publicationAttachmentUrl, attachment.uri());
-
-            // also the file should link to its serverSyncData obejct
-            QUrl attachmentSyncUrl = attachment.property(SYNC::serverSyncData()).toResource().uri();
-            QCOMPARE(attachmentSyncUrl, syncChild.uri());
-        }
-        else {
-            qDebug() << syncChild;
-            QFAIL("unknown syncDataType");
-        }
-    }
-    */
-
+    //TODO: check note parent
 }
 
 void SyncZoteroWrite::cleanupTestCase()
