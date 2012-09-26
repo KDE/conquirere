@@ -56,6 +56,7 @@ signals:
     void finished();
 
     void error(const QString &errorMessage);
+    void itemNeedMerge(const QVariantMap & item);
 
 public slots:
     void cancel();
@@ -115,6 +116,7 @@ private:
 
     QVariantMap transformToJsonMap(const QString &entryType, const QVariantMap &item);
     QVariantList transformCreators(const QString &zoteroType,const QString &personList);
+    bool networkError(QNetworkReply *reply);
 
 private:
     bool m_cancel;
@@ -133,6 +135,7 @@ private:
     QVariantList m_cacheNewChildItems;
     QVariantList m_cacheUpdateItems;
     QList<QPair<QString,QString> > m_cacheDeleteItem;
+    QVariantMap m_cacheItemEditUpload;
     QVariantMap m_cacheFileUpload;
     QString m_curUploadKey;
 

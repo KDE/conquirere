@@ -867,18 +867,21 @@ void NepomukToVariantPipe::setSyncDetails(Nepomuk2::Resource publication)
     QList<Nepomuk2::Resource> sycList = publication.property(SYNC::serverSyncData()).toResourceList();
 
     // nothing to add so return
-    if(sycList.isEmpty())
+    if(sycList.isEmpty()) {
+        kDebug() << "Resource has no ServerSyncData attached";
         return;
+    }
 
     QUrl syncDataType;
     if(publication.hasType(PIMO::Note())) {
         syncDataType = SYNC::Note();
     }
-    else if(publication.hasType(NBIB::Reference()) || publication.hasType(NBIB::Publication())) {
-        syncDataType = SYNC::BibResource();
-    }
-    else{
+    else if(publication.hasType(NFO::Document()) || publication.hasType(NFO::FileDataObject()) ) {
         syncDataType = SYNC::Attachment();
+    }
+//    else if(publication.hasType(NBIB::Reference()) || publication.hasType(NBIB::Publication())) {
+    else {
+        syncDataType = SYNC::BibResource();
     }
 
     // only add the sync details from the right storage
@@ -895,7 +898,7 @@ void NepomukToVariantPipe::setSyncDetails(Nepomuk2::Resource publication)
         // this step is necessary to find the right sync detail resource when we double type.
         // As we might have Attachment and bibresource on the same nepomukresource (double typed)
         if(r.property(SYNC::syncDataType()).toUrl() != syncDataType) {
-            kDebug() << "wrong data type";
+            kDebug() << "wrong data type" << r.property(SYNC::syncDataType()).toUrl() << "should be" << syncDataType;
             continue;
         }
 
@@ -911,6 +914,10 @@ void NepomukToVariantPipe::setSyncDetails(Nepomuk2::Resource publication)
 
         QString updated = r.property(NUAO::lastModification()).toString();
         m_curEntryMap.insert(QLatin1String("sync-updated"), updated);
+
+        if(m_addNepomukUris) {
+            m_curEntryMap.insert(QLatin1String("nepomuk-ssd-uri"), r.uri());
+        }
 
         break;
     }

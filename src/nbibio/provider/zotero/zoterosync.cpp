@@ -42,6 +42,7 @@ const int MAX_ITEMS_TO_PUSH = 50;
 ZoteroSync::ZoteroSync(QObject *parent)
     : OnlineStorage(parent)
     , m_cancel(false)
+    , m_reply(0)
 {
     qRegisterMetaType<CollectionInfo>("CollectionInfo");
     qRegisterMetaType<QList<CollectionInfo> >("QList<CollectionInfo>");
@@ -140,16 +141,17 @@ void ZoteroSync::cancel()
 
 void ZoteroSync::resetState()
 {
-    m_returnedData.clear();
-    m_returnedCollectionInfo.clear();
     m_currentCollection.clear();
-    m_cacheDeleteItem.clear();
     m_idsForCollectionAdd.clear();
     m_idsForCollectionRemove.clear();
     m_cacheNewItems.clear();
     m_cacheNewChildItems.clear();
     m_cacheUpdateItems.clear();
+    m_cacheDeleteItem.clear();
     m_cacheFileUpload.clear();
+    m_curUploadKey.clear();
+    m_returnedData.clear();
+    m_returnedCollectionInfo.clear();
 }
 
 //---------------------------------------------------------------
@@ -163,6 +165,7 @@ void ZoteroSync::fetchItem(const QString &itemId )
 
     QString apiCommand = BASE_URL + providerSettings().url + QLatin1String("/") + providerSettings().userName +
                          QLatin1String("/items/") + itemId + QLatin1String("?format=atom&content=json");
+
     if(!providerSettings().pwd.isEmpty()) {
         apiCommand.append( QLatin1String("&key=") + providerSettings().pwd);
     }
@@ -284,7 +287,6 @@ void ZoteroSync::pushItems(const QVariantList &items, const QString &collection)
     foreach(const QVariant &item, items) {
         QVariantMap entryMap = item.toMap();
 
-        //FIXME: add support for attachment uploads
         if(entryMap.contains(QLatin1String("sync-key"))) {
             m_cacheUpdateItems.append(entryMap);
         }
@@ -296,11 +298,16 @@ void ZoteroSync::pushItems(const QVariantList &items, const QString &collection)
         }
     }
 
+    kDebug() << "#############################################################################################################################################";
+    kDebug() << "push items :: New:" << m_cacheNewItems.size() << " New Children::" << m_cacheNewChildItems.size() << " Update: " << m_cacheUpdateItems.size();
+
     pushItemCache();
 }
 
 void ZoteroSync::pushItemCache()
 {
+    kDebug() << "push next item cache New :: " << m_cacheNewItems.size() << " NewChild :: " << m_cacheNewChildItems.size() << "edit : " << m_cacheUpdateItems.size();
+
     // push new items if cache is not empty
     if( !m_cacheNewItems.isEmpty() ) {
         QVariantList tmpList;
@@ -319,10 +326,12 @@ void ZoteroSync::pushItemCache()
         QString pushString = BASE_URL + providerSettings().url + QLatin1String("/") + providerSettings().userName + QLatin1String("/items");
 
         if(!providerSettings().pwd.isEmpty()) {
-            pushString.append(QLatin1String("?&key=") + providerSettings().pwd);
+            pushString.append(QLatin1String("?key=") + providerSettings().pwd);
         }
 
         QUrl pushUrl(pushString);
+
+        kDebug() << pushString;
 
         QNetworkRequest request(pushUrl);
         request.setHeader(QNetworkRequest::ContentTypeHeader,QLatin1String("application/json"));
@@ -342,7 +351,7 @@ void ZoteroSync::pushItemCache()
                              nextChild.value(QLatin1String("sync-parent")).toString() + QLatin1String("/children");
 
         if(!providerSettings().pwd.isEmpty()) {
-            pushString.append(QLatin1String("?&key=") + providerSettings().pwd);
+            pushString.append(QLatin1String("?key=") + providerSettings().pwd);
         }
 
         QUrl pushUrl(pushString);
@@ -352,20 +361,19 @@ void ZoteroSync::pushItemCache()
 
         m_reply = m_qnam.post(request, writeJsonContent(QVariantList() << nextChild));
         connect(m_reply, SIGNAL(finished()),this, SLOT(itemPushFinished()));
-
     }
     else if( !m_cacheUpdateItems.isEmpty() ) {
         //PUT /users/1/items/ABCD2345
         //If-Match: "8e984e9b2a8fb560b0085b40f6c2c2b7"
-        QVariantMap currentItem = m_cacheUpdateItems.takeFirst().toMap();
+        m_cacheItemEditUpload = m_cacheUpdateItems.takeFirst().toMap();
 
-        QString zoteroKey = currentItem.value(QLatin1String("sync-key")).toString();
-        QString etag =currentItem.value(QLatin1String("sync-etag")).toString();
+        QString zoteroKey = m_cacheItemEditUpload.value(QLatin1String("sync-key")).toString();
+        QString etag = m_cacheItemEditUpload.value(QLatin1String("sync-etag")).toString();
 
-        QString pushString = BASE_URL+ providerSettings().url + QLatin1String("/") + providerSettings().userName + QLatin1String("/items/") + zoteroKey;
+        QString pushString = BASE_URL + providerSettings().url + QLatin1String("/") + providerSettings().userName + QLatin1String("/items/") + zoteroKey;
 
         if(!providerSettings().pwd.isEmpty()) {
-            pushString.append(QLatin1String("?&key=") + providerSettings().pwd);
+            pushString.append(QLatin1String("?key=") + providerSettings().pwd);
         }
 
         QUrl pushUrl(pushString);
@@ -374,7 +382,7 @@ void ZoteroSync::pushItemCache()
         request.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
         request.setRawHeader("If-Match", etag.toAscii());
 
-        m_reply = m_qnam.put(request, writeJsonContent(QVariantList() << currentItem, true));
+        m_reply = m_qnam.put(request, writeJsonContent(QVariantList() << m_cacheItemEditUpload, true));
         connect(m_reply, SIGNAL(finished()),this, SLOT(itemPushFinished()));
     }
     else {
@@ -390,8 +398,26 @@ void ZoteroSync::pushFile(const QVariantMap &fileData)
 
     // update existing file
     if( fileData.contains(QLatin1String("sync-key")) ) {
-        //FIXME: update file upload
 
+        QString zoteroKey = fileData.value(QLatin1String("sync-key")).toString();
+        QString etag = fileData.value(QLatin1String("sync-etag")).toString();
+
+        QString pushString = BASE_URL + providerSettings().url + QLatin1String("/") + providerSettings().userName + QLatin1String("/items/") + zoteroKey;
+
+        if(!providerSettings().pwd.isEmpty()) {
+            pushString.append(QLatin1String("?key=") + providerSettings().pwd);
+        }
+
+        QUrl pushUrl(pushString);
+
+        kDebug() << pushString;
+
+        QNetworkRequest request(pushUrl);
+        request.setHeader(QNetworkRequest::ContentTypeHeader,QLatin1String("application/json"));
+        request.setRawHeader("If-Match", etag.toAscii());
+
+        m_reply = m_qnam.post(request, writeJsonContent(QVariantList() << fileData));
+        connect(m_reply, SIGNAL(finished()),this, SLOT(fileItemPushFinished()));
     }
     // push new file
     else {
@@ -408,7 +434,7 @@ void ZoteroSync::pushFile(const QVariantMap &fileData)
         }
 
         if(!providerSettings().pwd.isEmpty()) {
-            pushString.append(QLatin1String("?&key=") + providerSettings().pwd);
+            pushString.append(QLatin1String("?key=") + providerSettings().pwd);
         }
 
         QUrl pushUrl(pushString);
@@ -646,6 +672,8 @@ QByteArray ZoteroSync::writeJsonContent(const QVariantList &items, bool updateIt
         json = serializer.serialize(jsonMap);
     }
 
+    kDebug() << json;
+
     return json;
 }
 
@@ -709,12 +737,8 @@ QVariantMap ZoteroSync::transformToJsonMap(const QString &entryType, const QVari
 //            noteList.append(note);
 
             //jsonMap.insert(QLatin1String("notes"), noteList);
-            //TODO: handle note updates in zotero
-            kWarning() << "notes are ignored at the moment";
-        }
-        else if(i.key() == QLatin1String("attachments") ) {
-            //TODO: handle attachment updates in zotero
-            kWarning() << "attachments are ignored at the moment";
+            //TODO: handle note updates without child in zotero
+            //kWarning() << "notes are ignored at the moment";
         }
         // otherwise insert the direct entry
         else {
@@ -764,14 +788,10 @@ QVariantList ZoteroSync::transformCreators(const QString &zoteroType,const QStri
 // Below here we deal with the server response evaluation
 //
 //---------------------------------------------------------------
-void ZoteroSync::itemRequestFinished() // response for a single item request
+void ZoteroSync::itemRequestFinished() // response from a single item request
 {
-    if(m_reply->error()) {
-        kDebug() << m_reply->error() << m_reply->errorString();
-
-        QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
-        emit error(errorString);
-        m_reply->deleteLater();
+    if( networkError(m_reply) ) {
+        return;
     }
 
     // read the data retrieved from the server
@@ -786,18 +806,15 @@ void ZoteroSync::itemRequestFinished() // response for a single item request
         }
     }
 
-    emit finished();
+    disconnect(m_reply);
     m_reply->deleteLater();
+    emit finished();
 }
 
 void ZoteroSync::itemsRequestFinished() // response from several item requests
 {
-    if(m_reply->error()) {
-        kDebug() << m_reply->error() << m_reply->errorString();
-
-        QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
-        emit error(errorString);
-        m_reply->deleteLater();
+    if( networkError(m_reply) ) {
+        return;
     }
 
     int nextFetchLimit = MAX_ITEM_REQUEST;
@@ -846,17 +863,20 @@ void ZoteroSync::itemsRequestFinished() // response from several item requests
     }
 
     if(nextFetchStart != -1) {
+        disconnect(m_reply);
         m_reply->deleteLater();
         fetchItems(nextFetchLimit, nextFetchStart);
     }
     else {
-        emit finished();
+        disconnect(m_reply);
         m_reply->deleteLater();
+        emit finished();
     }
 }
 
 QVariantMap ZoteroSync::readItemEntry(QXmlStreamReader &xmlReader)
 {
+    kDebug() << "found an entry, try to parse it";
     QVariantMap entry;
 
     bool finishEntry = false;
@@ -878,7 +898,7 @@ QVariantMap ZoteroSync::readItemEntry(QXmlStreamReader &xmlReader)
                     entry.insert( QLatin1String("sync-parent"), itemParent);
                 }
                 else {
-                    qWarning() << "could not parse parent item for the note/attachment!";
+                    kWarning() << "could not parse parent item for the note/attachment!";
                 }
             }
             else if(QLatin1String("enclosure") == linkAttributes.value(QLatin1String("rel")) ) {
@@ -1053,7 +1073,6 @@ void ZoteroSync::readJsonContent(const QString &json, QVariantMap &entry)
             QString key = keyTranslation.value(i.key(), i.key()).toString();
             entry.insert(key, text);
         }
-
     }
 
     // now fill the entry with empty values for any key that was not downloaded but is supported by the server
@@ -1065,17 +1084,12 @@ void ZoteroSync::readJsonContent(const QString &json, QVariantMap &entry)
             entry.insert(key.toLower().trimmed(), QLatin1String(""));
         }
     }
-
 }
 
 void ZoteroSync::collectionRequestFinished()
 {
-    if(m_reply->error()) {
-        kDebug() << m_reply->error() << m_reply->errorString();
-
-        QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
-        emit error(errorString);
-        m_reply->deleteLater();
+    if( networkError(m_reply) ) {
+        return;
     }
 
     // we parse the response
@@ -1092,18 +1106,15 @@ void ZoteroSync::collectionRequestFinished()
         }
     }
 
-    emit finished();
+    disconnect(m_reply);
     m_reply->deleteLater();
+    emit finished();
 }
 
 void ZoteroSync::collectionsRequestFinished()
 {
-    if(m_reply->error()) {
-        kDebug() << m_reply->error() << m_reply->errorString();
-
-        QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
-        emit error(errorString);
-        m_reply->deleteLater();
+    if( networkError(m_reply) ) {
+        return;
     }
 
     int nextFetchLimit = MAX_ITEM_REQUEST;
@@ -1152,12 +1163,14 @@ void ZoteroSync::collectionsRequestFinished()
     }
 
     if(nextFetchStart != -1) {
+        disconnect(m_reply);
         m_reply->deleteLater();
         fetchCollections(nextFetchLimit, nextFetchStart);
     }
     else {
-        emit finished();
+        disconnect(m_reply);
         m_reply->deleteLater();
+        emit finished();
     }
 }
 
@@ -1193,86 +1206,21 @@ CollectionInfo ZoteroSync::readCollectionEntry(QXmlStreamReader &xmlReader)
 
 void ZoteroSync::itemPushFinished()
 {
-    kDebug() << "got a response from the item push request";
     if(m_reply->error()) {
-        kDebug() << m_reply->error() << m_reply->errorString();
-
-        QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
-        emit error(errorString);
-        m_reply->deleteLater();
-    }
-
-    // we parse the response
-    QXmlStreamReader xmlReader;
-    xmlReader.setDevice(m_reply);
-
-    while(!xmlReader.atEnd()) {
-        if(!xmlReader.readNextStartElement()) { continue; }
-
-        if(xmlReader.name() == QLatin1String("entry")) {
-            m_returnedData.append( readItemEntry(xmlReader) );
-
-            break;
+        if(QString(m_reply->readAll()) == QLatin1String("ETag does not match current version of item")) {
+            kDebug() << "Etag error, item changed on the server, needs manual merging";
+            emit itemNeedMerge(m_cacheItemEditUpload);
         }
-    }
+        else {
+            kDebug() << m_reply->readAll();
+            kDebug() << m_reply->error() << m_reply->errorString();
 
-    m_reply->deleteLater();
-    pushItemCache();
-}
-
-void ZoteroSync::itemDeleteFinished()
-{
-    if(m_reply->error()) {
-        kDebug() << m_reply->error() << m_reply->errorString();
-
-        QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
-        emit error(errorString);
+            QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
+            emit error(errorString);
+        }
+        disconnect(m_reply);
         m_reply->deleteLater();
-    }
-
-    deleteItemCache();
-    m_reply->deleteLater();
-}
-
-void ZoteroSync::itemCollectionFinished()
-{
-    if(m_reply->error()) {
-        kDebug() << m_reply->error() << m_reply->errorString();
-
-        QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
-        emit error(errorString);
-        m_reply->deleteLater();
-    }
-
-    m_reply->deleteLater();
-
-    emit finished();
-}
-
-void ZoteroSync::itemCollectionRemoveFinished()
-{
-    if(m_reply->error()) {
-        kDebug() << m_reply->error() << m_reply->errorString();
-
-        QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
-        emit error(errorString);
-        m_reply->deleteLater();
-    }
-
-    m_reply->deleteLater();
-
-    removeItemFromCollectionCache();
-}
-
-void ZoteroSync::fileItemPushFinished()
-{
-    if(m_reply->error()) {
-        kDebug() << m_reply->error() << m_reply->errorString();
-        kDebug() << m_reply->readAll();
-
-        QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
-        emit error(errorString);
-        m_reply->deleteLater();
+        pushItemCache();
         return;
     }
 
@@ -1290,11 +1238,74 @@ void ZoteroSync::fileItemPushFinished()
         }
     }
 
+    disconnect(m_reply);
+    m_reply->deleteLater();
+    pushItemCache();
+}
+
+void ZoteroSync::itemDeleteFinished()
+{
+    if( networkError(m_reply) ) {
+        return;
+    }
+
+    disconnect(m_reply);
+    m_reply->deleteLater();
+
+    deleteItemCache();
+}
+
+void ZoteroSync::itemCollectionFinished()
+{
+    if( networkError(m_reply) ) {
+        return;
+    }
+
+    disconnect(m_reply);
+    m_reply->deleteLater();
+
+    emit finished();
+}
+
+void ZoteroSync::itemCollectionRemoveFinished()
+{
+    if( networkError(m_reply) ) {
+        return;
+    }
+
+    disconnect(m_reply);
+    m_reply->deleteLater();
+
+    removeItemFromCollectionCache();
+}
+
+void ZoteroSync::fileItemPushFinished()
+{
+    if( networkError(m_reply) ) {
+        return;
+    }
+
+    // we parse the response
+    QXmlStreamReader xmlReader;
+    xmlReader.setDevice(m_reply);
+
+    while(!xmlReader.atEnd()) {
+        if(!xmlReader.readNextStartElement()) { continue; }
+
+        if(xmlReader.name() == QLatin1String("entry")) {
+            m_returnedData.append( readItemEntry(xmlReader) );
+
+            break;
+        }
+    }
+
+    disconnect(m_reply);
     m_reply->deleteLater();
 
     if( m_returnedData.isEmpty()) {
         kDebug() << "file creation failed could not read response entry";
-        emit error(i18n("file creation failed could not read response entry"));
+        //emit error(i18n("file creation failed could not read response entry"));
+        emit finished();
         return;
     }
 
@@ -1339,9 +1350,15 @@ void ZoteroSync::fileItemPushFinished()
 
     QNetworkRequest request(pushUrl);
     request.setHeader(QNetworkRequest::ContentTypeHeader,QLatin1String("application/x-www-form-urlencoded"));
-    request.setRawHeader("If-None-Match", "*");
-    //QString etag = m_cacheFileUpload.value(QLatin1String("sync-etag"));
-    //request.setRawHeader("If-Match", etag.toAscii());
+
+    if(m_cacheFileUpload.contains(QLatin1String("sync-etag"))) {
+        // seems we already added a file, so we want to update the current
+        //QString etag = m_cacheFileUpload.value(QLatin1String("sync-etag"));
+        //request.setRawHeader("If-Match", etag.toAscii());
+    }
+    else {
+        request.setRawHeader("If-None-Match", "*");
+    }
 
     m_reply = m_qnam.post(request, fileFormData.toAscii() );
     connect(m_reply, SIGNAL(finished()),this, SLOT(fileAuthorizationFinished()));
@@ -1349,13 +1366,7 @@ void ZoteroSync::fileItemPushFinished()
 
 void ZoteroSync::fileAuthorizationFinished()
 {
-    if(m_reply->error()) {
-        kDebug() << m_reply->error() << m_reply->errorString();
-        kDebug() << m_reply->readAll();
-
-        QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
-        emit error(errorString);
-        m_reply->deleteLater();
+    if( networkError(m_reply) ) {
         return;
     }
 
@@ -1369,6 +1380,7 @@ void ZoteroSync::fileAuthorizationFinished()
         return;
     }
 
+    disconnect(m_reply);
     m_reply->deleteLater();
 
     if( result.contains(QLatin1String("exists"))) {
@@ -1407,13 +1419,7 @@ void ZoteroSync::fileAuthorizationFinished()
 
 void ZoteroSync::fileUploadFinished()
 {
-    if(m_reply->error()) {
-        kDebug() << m_reply->error() << m_reply->errorString();
-        kDebug() << m_reply->readAll();
-
-        QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
-        emit error(errorString);
-        m_reply->deleteLater();
+    if( networkError(m_reply) ) {
         return;
     }
 
@@ -1444,17 +1450,29 @@ void ZoteroSync::fileUploadFinished()
 
 void ZoteroSync::fileRegisterFinished()
 {
-    if(m_reply->error()) {
-        kDebug() << m_reply->error() << m_reply->errorString();
-        kDebug() << m_reply->readAll();
-
-        QString errorString = QString("%1\n%2").arg(m_reply->error()).arg(m_reply->errorString());
-        emit error(errorString);
-        m_reply->deleteLater();
+    if( networkError(m_reply) ) {
         return;
     }
 
+    disconnect(m_reply);
     m_reply->deleteLater();
 
     emit finished();
+}
+
+bool ZoteroSync::networkError(QNetworkReply *reply)
+{
+    if(reply->error()) {
+        kDebug() << reply->readAll();
+        kDebug() << reply->error() << reply->errorString();
+
+        QString errorString = QString("%1\n%2").arg(reply->error()).arg(reply->errorString());
+        emit error(errorString);
+        reply->deleteLater();
+
+        return true;
+    }
+    else {
+        return false;
+    }
 }

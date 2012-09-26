@@ -64,6 +64,9 @@ signals:
 
     void finished();
 
+    void pushNextItem();
+    void deleteNextItem();
+
 public slots:
     void cancel();
 
@@ -83,17 +86,27 @@ public slots:
 
 private slots:
     void dataDownloadFinished();
+
+    void pushNewItemCache();
     void newItemUploadFinished();
+    void errorDuringUpload(const QString &msg);
+    void itemNeedMerge(const QVariantMap & item);
+
+    void deleteItemsCache();
+    void deleteItemFinished();
+    void errorDuringDelete(const QString &msg);
+
     void calculateProgress(int value);
 
 private:
     void findRemovedEntries();
     void readDownloadSyncAfterDelete();
     void findDuplicates(QList<Nepomuk2::Resource> &existingItems);
-    void fixMergingAutomatically();
-
-    void pushNewItemCache();
+    void fixMergingItems();
     void importNewResources();
+
+    void endSyncStep();
+    void clearInternalData();
 
 private:
     ProviderSyncDetails m_psd;
@@ -105,20 +118,26 @@ private:
     QList<Nepomuk2::Resource> m_tmpUserDeleteRequest;
     QList<SyncMergeDetails> m_tmpUserMergeRequest;
 
-    QVariantList m_tmpNewItemList;
-    QVariantList m_tmpNewNotesItemList;
-    QVariantList m_tmpNewFilesItemList;
+    QVariantList m_tmpPushItemList;
+    QVariantMap  m_tmpCurPushedItem;
 
-    QVariantMap m_tmpCurPushedItem;
+    QVariantList m_tmpPushNotesItemList;
+    QVariantList m_tmpPushFilesItemList;
     QVariantMap m_tmpCurPushedAttachmentItem;
 
-    QList<Nepomuk2::Resource> m_pushEditedItems;
     QStringList m_pushRemoveFromCollection;
-    QStringList m_pushDeleteItems;
+    QVariantList m_pushDeleteItems;
 
     int m_syncSteps;
     int m_currentStep;
     bool m_cancel;
+
+    bool m_mergeFinished;
+    bool m_downloadFinished;
+    bool m_uploadFinished;
+
+    qreal m_curProgressPerItem;
+    qreal m_curProgress;
 };
 
 #endif // NEPOMUKSYNCCLIENT_H

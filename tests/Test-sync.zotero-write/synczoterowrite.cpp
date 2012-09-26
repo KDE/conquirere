@@ -42,6 +42,7 @@
 #include <Nepomuk2/StoreResourcesJob>
 #include <KDE/KJob>
 
+#include <QtGui/QMessageBox>
 #include <QtTest>
 #include <QtDebug>
 
@@ -67,16 +68,24 @@ private slots:
     void initTestCase();
 
     void exportTest();
+    void changeTest();
+    void deleteTest();
+    void serverChangeTest();
 
     void cleanupTestCase();
+
+    void statusOutput(const QString &msg);
+    void errorOutput(const QString &msg);
 
 private:
     NepomukSyncClient client;
     ProviderSyncDetails psd;
     Nepomuk2::Resource pimoProject;
     Nepomuk2::Resource bookRef1;
+    Nepomuk2::Resource bookPub1;
     Nepomuk2::Resource br1File;
     Nepomuk2::Resource bookRef2;
+    Nepomuk2::Resource bookPub2;
     Nepomuk2::Resource br2Note1;
     Nepomuk2::Resource br2Note2;
 };
@@ -99,6 +108,12 @@ void SyncZoteroWrite::initTestCase()
     psd.importAttachments = true;
     psd.exportAttachments = false;
 
+    client.setProviderSettings( psd );
+    client.setProject( pimoProject );
+
+    connect(&client, SIGNAL(status(QString)), this, SLOT(statusOutput(QString)) );
+    connect(&client, SIGNAL(error(QString)), this, SLOT(errorOutput(QString)) );
+
     Nepomuk2::SimpleResourceGraph graph;
 
     Nepomuk2::NCO::Contact bookAuthor;
@@ -117,6 +132,7 @@ void SyncZoteroWrite::initTestCase()
 
     // create a test book
     Nepomuk2::NBIB::Book book;
+    book.addType(NBIB::Publication());
     book.setTitle(QLatin1String("UNITTEST-book"));
     book.addCreator( bookAuthor.uri() );
     book.addPublisher( publisher.uri() );
@@ -127,6 +143,9 @@ void SyncZoteroWrite::initTestCase()
 
     bookReference.setPublication( book.uri() );
     book.addReference(bookReference.uri());
+    book.addProperty(NAO::hasSubResource(), bookReference.uri());
+    book.addProperty(NAO::hasSubResource(), publisher.uri());
+    book.addProperty(NAO::hasSubResource(), bookAuthor.uri());
 
     Nepomuk2::NFO::FileDataObject file;
     file.addType(NFO::Document());
@@ -138,11 +157,13 @@ void SyncZoteroWrite::initTestCase()
 
     file.setProperty(NBIB::publishedAs(), book.uri());
     book.setProperty(NBIB::isPublicationOf(), file.uri());
+    book.addProperty(NAO::hasSubResource(), file.uri());
 
     graph << book << bookReference << file;
 
     // create another test book
     Nepomuk2::NBIB::Book book2;
+    book2.addType(NBIB::Publication());
     book2.setTitle(QLatin1String("UNITTEST-book2"));
     book2.addCreator( bookAuthor.uri() );
     book2.addPublisher( publisher.uri() );
@@ -167,6 +188,11 @@ void SyncZoteroWrite::initTestCase()
 
     bookReference2.setPublication( book2.uri() );
     book2.addReference(bookReference2.uri());
+    book2.addProperty(NAO::hasSubResource(), bookReference2.uri());
+    book2.addProperty(NAO::hasSubResource(), publisher.uri());
+    book2.addProperty(NAO::hasSubResource(), bookAuthor.uri());
+    book2.addProperty(NAO::hasSubResource(), note1.uri());
+    book2.addProperty(NAO::hasSubResource(), note2.uri());
 
     graph << book2 << bookReference2 << note1 << note2;
 
@@ -178,9 +204,13 @@ void SyncZoteroWrite::initTestCase()
     else {
         // get the pimo project from the return job mappings
         pimoProject = Nepomuk2::Resource( srj->mappings().value( project.uri() ) );
+
         bookRef1 = Nepomuk2::Resource( srj->mappings().value( bookReference.uri() ) );
-        bookRef2 = Nepomuk2::Resource( srj->mappings().value( bookReference2.uri() ) );
+        bookPub1 = Nepomuk2::Resource( srj->mappings().value( book.uri() ) );
         br1File = Nepomuk2::Resource( srj->mappings().value( file.uri() ) );
+
+        bookRef2 = Nepomuk2::Resource( srj->mappings().value( bookReference2.uri() ) );
+        bookPub2 = Nepomuk2::Resource( srj->mappings().value( book2.uri() ) );
         br2Note1 = Nepomuk2::Resource( srj->mappings().value( note1.uri() ) );
         br2Note2 = Nepomuk2::Resource( srj->mappings().value( note2.uri() ) );
     }
@@ -191,8 +221,6 @@ void SyncZoteroWrite::exportTest()
     QSignalSpy spy(&client, SIGNAL(finished()));
     QSignalSpy spy2(&client, SIGNAL(error(QString)) );
 
-    client.setProviderSettings( psd );
-    client.setProject( pimoProject );
     client.exportData();
 
     while (spy.count() == 0 && spy2.count() == 0) {
@@ -230,14 +258,104 @@ void SyncZoteroWrite::exportTest()
     //TODO: check note parent
 }
 
+void SyncZoteroWrite::changeTest()
+{
+    Nepomuk2::setProperty(QList<QUrl>() << bookPub1.uri(), NIE::title(), QVariantList() << QLatin1String("CHANGED-TITLE_Book1"));
+    Nepomuk2::setProperty(QList<QUrl>() << br1File.uri(), NIE::title(), QVariantList() << QLatin1String("CHANGED pdf NAME"));
+    Nepomuk2::setProperty(QList<QUrl>() << bookPub2.uri(), NIE::title(), QVariantList() << QLatin1String("CHANGED-TITLE_Book2"));
+    Nepomuk2::setProperty(QList<QUrl>() << br2Note1.uri(), NIE::plainTextContent(), QVariantList() << QLatin1String("CHANGED note 1 content"));
+
+    QTest::qWait(5000); // wait for job to be finished
+
+//    NepomukSyncClient client2;
+
+//    client2.setProviderSettings( psd );
+//    client2.setProject( pimoProject );
+
+    QSignalSpy spy(&client, SIGNAL(finished()));
+    QSignalSpy spy2(&client, SIGNAL(error(QString)) );
+
+    client.exportData();
+
+    while (spy.count() == 0 && spy2.count() == 0) {
+        QTest::qWait(200);
+    }
+
+    QVERIFY2(spy2.count() == 0, "Error during zotero download / item import");
+
+    //TODO: download data from zotero and check that it got changed
+}
+
+void SyncZoteroWrite::deleteTest()
+{
+    // delete book 1 and check if it will be deleted online too
+    KJob *job = Nepomuk2::removeResources(QList<QUrl>() << bookPub1.uri() );
+    job->exec();
+    KJob *job2 = Nepomuk2::removeResources(QList<QUrl>() << bookRef1.uri() );
+    job2->exec();
+
+//    NepomukSyncClient client2;
+
+//    client2.setProviderSettings( psd );
+//    client2.setProject( pimoProject );
+
+    QSignalSpy spy(&client, SIGNAL(finished()));
+    QSignalSpy spy2(&client, SIGNAL(error(QString)) );
+
+    client.exportData();
+
+    while (spy.count() == 0 && spy2.count() == 0) {
+        QTest::qWait(200);
+    }
+
+    QVERIFY2(spy2.count() == 0, "Error during zotero item deletion");
+}
+
+void SyncZoteroWrite::serverChangeTest()
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::information(0, QString("QMessageBox::information()"), QString("Please change the item on the server"));
+    if (reply != QMessageBox::Ok) {
+        qDebug() << "cancel";
+        QFAIL("Failed to change item on the server, can't test this case");
+    }
+
+//    NepomukSyncClient client2;
+
+//    client2.setProviderSettings( psd );
+//    client2.setProject( pimoProject );
+
+    QSignalSpy spy(&client, SIGNAL(finished()));
+    QSignalSpy spy2(&client, SIGNAL(error(QString)) );
+
+    client.exportData();
+
+    while (spy.count() == 0 && spy2.count() == 0) {
+        QTest::qWait(200);
+    }
+
+    QVERIFY2(spy2.count() == 0, "Error during zotero download / item import");
+
+
+}
+
 void SyncZoteroWrite::cleanupTestCase()
 {
     // remove all data created by this unittest from the nepomuk database again
-//    KJob *job = Nepomuk2::removeDataByApplication();
-//    if(!job->exec()) {
-//        qWarning() << job->errorString();
-//        QFAIL("Cleanup did not work");
-//    }
+    KJob *job = Nepomuk2::removeDataByApplication();
+    if(!job->exec()) {
+        qWarning() << job->errorString();
+        QFAIL("Cleanup did not work");
+    }
+}
+void SyncZoteroWrite::statusOutput(const QString &msg)
+{
+    qDebug() << "STATUS :: " << msg;
+}
+
+void SyncZoteroWrite::errorOutput(const QString &msg)
+{
+    qDebug() << "ERROR :: " << msg;
 }
 
 #include "synczoterowrite.moc"
