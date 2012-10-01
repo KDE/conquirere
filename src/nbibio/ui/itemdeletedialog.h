@@ -40,14 +40,15 @@ public:
     explicit ItemDeleteDialog(Mode mode, QWidget *parent = 0);
     ~ItemDeleteDialog();
 
-    void setItems(QList<Nepomuk2::Resource> items);
+    void setItems(const QList<Nepomuk2::Resource> & items);
+    void setItems(const QVariantList &items);
 
 private slots:
     void showDetails();
 
 private:
-    void localDeleteDetails(QList<Nepomuk2::Resource> items);
-    void serverDeleteDetails(QList<Nepomuk2::Resource> items);
+    void localDeleteDetails(const QList<Nepomuk2::Resource> &items);
+    void serverDeleteDetails(const QVariantList &items);
 
 
     Ui::ItemDeleteDialog *ui;

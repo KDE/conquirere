@@ -61,6 +61,7 @@ ItemMergeDialog::ItemMergeDialog(QWidget *parent)
     QVBoxLayout *localGroupboxLayout = new QVBoxLayout();
     ui->groupBoxLocal->setLayout(localGroupboxLayout);
 
+    //REFACTOR: bibtex keytranslations from common global class
     m_keyTranslate.insert(QLatin1String("abstract"), i18n("Abstract"));
     m_keyTranslate.insert(QLatin1String("annote"), i18n("Annotation"));
     m_keyTranslate.insert(QLatin1String("archive"), i18n("Archive"));

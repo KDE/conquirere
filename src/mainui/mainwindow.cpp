@@ -256,6 +256,27 @@ void MainWindow::showConqSettings()
     csd.exec();
 }
 
+void MainWindow::backgroundSyncCollections()
+{
+    KProgressDialog *m_kpd = new KProgressDialog;
+    m_kpd->setMinimumWidth(400);
+    BackgroundSync *backgroundSyncManager = new BackgroundSync;
+    backgroundSyncManager->setLibraryManager( m_libraryManager );
+
+//    backgroundSyncManager->setLibraryToSyncWith(m_curLibrary);
+
+    connect(backgroundSyncManager, SIGNAL(progress(int)), this, SLOT(setSyncProgress(int)));
+    connect(backgroundSyncManager, SIGNAL(progressStatus(QString)), this, SLOT(setSyncStatus(QString)));
+    connect(backgroundSyncManager, SIGNAL(allSyncTargetsFinished()), this, SLOT(syncFinished()));
+    connect(m_kpd, SIGNAL(cancelClicked()), backgroundSyncManager, SLOT(cancelSync()));
+
+    backgroundSyncManager->startSync();
+
+    m_kpd->exec();
+
+    delete m_kpd;
+}
+
 void MainWindow::connectKPartGui(KParts::Part * part)
 {
     // this cause the screen to flicker as it rebuilds the GUI
@@ -477,7 +498,7 @@ void MainWindow::setupActions()
     triggerBackgroundSyncAction->setText(i18n("Synchronize Collection"));
     triggerBackgroundSyncAction->setIcon(KIcon(QLatin1String("view-refresh")));
     actionCollection()->addAction(QLatin1String("db_background_sync"), triggerBackgroundSyncAction);
-    connect(triggerBackgroundSyncAction, SIGNAL(triggered(bool)), m_libraryManager, SLOT(startFullSync()));
+    connect(triggerBackgroundSyncAction, SIGNAL(triggered(bool)), this, SLOT(backgroundSyncCollections()));
 
     // other database actions
     KAction* dbCheckAction = new KAction(this);

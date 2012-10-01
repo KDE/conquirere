@@ -40,7 +40,23 @@ ItemDeleteDialog::~ItemDeleteDialog()
     delete ui;
 }
 
-void ItemDeleteDialog::setItems(QList<Nepomuk2::Resource> items)
+void ItemDeleteDialog::setItems(const QList<Nepomuk2::Resource> & items)
+{
+    switch(m_mode) {
+    case LocalDelete:
+        ui->infoLabel->setText(i18n("%1 items are deleted on the server.\n\nDo you want to delete them locally too?\nOtherwise they will be uploaded again with the next sync.", items.size()));
+        break;
+    case ServerDelete:
+        ui->infoLabel->setText(i18n("%1 items are deleted locally.\n\nDo you want to delete them on the server too?\nOtherwise they will be downloaded again with the next sync.", items.size()));
+        break;
+    case ServerGroupRemoval:
+        ui->infoLabel->setText(i18n("%1 items are removed from the local project.\n\nDo you want to remove them from the server group too?.\nOtherwise they will be attached to the group again with the next sync.", items.size()));
+        break;
+    }
+    localDeleteDetails(items);
+}
+
+void ItemDeleteDialog::setItems(const QVariantList &items)
 {
     switch(m_mode) {
     case LocalDelete:
@@ -54,15 +70,7 @@ void ItemDeleteDialog::setItems(QList<Nepomuk2::Resource> items)
         break;
     }
 
-    switch(m_mode) {
-    case LocalDelete:
-        localDeleteDetails(items);
-        break;
-    case ServerDelete:
-    case ServerGroupRemoval:
-        serverDeleteDetails(items);
-        break;
-    }
+    serverDeleteDetails(items);
 }
 
 void ItemDeleteDialog::showDetails()
@@ -75,7 +83,7 @@ void ItemDeleteDialog::showDetails()
     }
 }
 
-void ItemDeleteDialog::localDeleteDetails(QList<Nepomuk2::Resource> items)
+void ItemDeleteDialog::localDeleteDetails(const QList<Nepomuk2::Resource> &items)
 {
     QString details;
     foreach(const Nepomuk2::Resource &syncResource, items) {
@@ -105,8 +113,9 @@ void ItemDeleteDialog::localDeleteDetails(QList<Nepomuk2::Resource> items)
     ui->detailsLabel->setWordWrap(true);
 }
 
-void ItemDeleteDialog::serverDeleteDetails(QList<Nepomuk2::Resource> items)
+void ItemDeleteDialog::serverDeleteDetails(const QVariantList &items)
 {
+    /*
     QString details;
     foreach(const Nepomuk2::Resource &syncResource, items) {
         QUrl syncType = syncResource.property(Nepomuk2::Vocabulary::SYNC::syncDataType()).toUrl();
@@ -127,8 +136,9 @@ void ItemDeleteDialog::serverDeleteDetails(QList<Nepomuk2::Resource> items)
     }
 
     details.chop(2);
+    */
 
-    ui->detailsLabel->setText(details);
+    ui->detailsLabel->setText( i18n("Delete %1 Files from the server",items.size()) );
     ui->detailsLabel->setWordWrap(true);
 }
 

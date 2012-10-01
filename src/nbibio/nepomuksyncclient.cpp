@@ -50,7 +50,6 @@ NepomukSyncClient::NepomukSyncClient(QObject *parent)
 {
     connect(this, SIGNAL(pushNextItem()), this, SLOT(pushNewItemCache()) );
     connect(this, SIGNAL(deleteNextItem()), this, SLOT(deleteItemsCache()) );
-
 }
 
 void NepomukSyncClient::setProviderSettings(const ProviderSyncDetails &psd)
@@ -78,6 +77,7 @@ void NepomukSyncClient::cancel()
 
 void NepomukSyncClient::importData()
 {
+    kDebug() << "##### START DOWNLOAD ###### m_currentStep" << m_currentStep;
     clearInternalData();
 
     if(!m_storage) {
@@ -93,7 +93,7 @@ void NepomukSyncClient::importData()
     }
 
     if(m_psd.syncMode != Full_Sync) {
-        m_syncSteps = 8;
+        m_syncSteps = 5;
         m_currentStep = 0;
     }
 
@@ -116,8 +116,9 @@ void NepomukSyncClient::dataDownloadFinished()
 
     // Step 2: check if we removed some entries from the server and need to remove them locally too
     m_currentStep++;
-    calculateProgress(0);
-    findRemovedEntries();
+    if( !m_cacheDownloaded.isEmpty()) {
+        findRemovedEntries();
+    }
     calculateProgress(100);
 
     kDebug() << "We need to remove" << m_tmpUserDeleteRequest.size() << "files locally, beacuse they are removed from the server";
@@ -194,6 +195,7 @@ void NepomukSyncClient::findRemovedEntries()
 
 void NepomukSyncClient::deleteLocalFiles(bool deleteThem)
 {
+    //TODO: this method needs to be implemented a lot nicer
     if(m_cancel) { emit finished(); return; }
 
     // step 3 delete either some local resources or the sync part to upload it again
@@ -213,37 +215,36 @@ void NepomukSyncClient::deleteLocalFiles(bool deleteThem)
 
         if(m_cancel) { emit finished(); return; }
 
+        QUrl syncDataType = syncResource.property( SYNC::syncDataType() ).toUrl();
+        kDebug() << "check sync resource "<< syncResource.uri() << "of type " << syncDataType;
+
         if(deleteThem) {
             // if we operate on the system library remove the resources completely
             // if we operate only on a project, remove only the isRelated part
             // after all, the resource could be part of a different group too
-            Nepomuk2::Resource mainResource;
-            QUrl syncDataType = syncResource.property( SYNC::syncDataType() ).toUrl();
-
-            kDebug() << "check sync resource of type " << syncDataType;
-
-            bool deleteFileFromDisk = false;
+            // also if we have a resource of type BibResource, remove also any Notes/file resources with it
             if( syncDataType == SYNC::Note()) {
-                mainResource = syncResource.property( SYNC::note() ).toResource();
+                Nepomuk2::Resource noteResource = syncResource.property( SYNC::note() ).toResource();
+
+                if(m_project.isValid()) {
+                    Nepomuk2::removeProperty(QList<QUrl>() << noteResource.uri(), NAO::isRelated(), QVariantList() << m_project.uri());
+                }
+                else {
+                    Nepomuk2::removeResources( QList<QUrl>() << noteResource.uri() << syncResource.uri() );
+                }
             }
             else if( syncDataType == SYNC::Attachment()) {
-                mainResource = syncResource.property( SYNC::attachment() ).toResource();
-                deleteFileFromDisk = true;
-            }
-            else {
-                mainResource = syncResource.property( SYNC::publication() ).toResource();
-            }
+                Nepomuk2::Resource attachmentResource = syncResource.property( SYNC::attachment() ).toResource();
 
-            if(m_project.isValid()) {
-                //FIXME: remove project link also from collections / Series that have no other publication in the project
-                Nepomuk2::removeProperty(QList<QUrl>() << mainResource.uri(), NAO::isRelated(), QVariantList() << m_project.uri());
-            }
-            else {
-                Nepomuk2::removeResources( QList<QUrl>() << mainResource.uri(), Nepomuk2::RemoveSubResoures );
+                if(m_project.isValid()) {
+                    Nepomuk2::removeProperty(QList<QUrl>() << attachmentResource.uri(), NAO::isRelated(), QVariantList() << m_project.uri());
+                }
+                else {
+                    Nepomuk2::removeResources( QList<QUrl>() << attachmentResource.uri() << syncResource.uri() );
+                    // delete file from disk
 
-                if(deleteFileFromDisk) {
                     //get the file url
-                    QUrl fileUrl = mainResource.property(NIE::url()).toUrl();
+                    QUrl fileUrl = attachmentResource.property(NIE::url()).toUrl();
                     QString localFile = fileUrl.toLocalFile();
 
                     if(localFile.startsWith(QLatin1String("file://"))) {
@@ -256,9 +257,51 @@ void NepomukSyncClient::deleteLocalFiles(bool deleteThem)
                     }
                 }
             }
+            // BibResource, so delete reference/publication/notes/attachments
+            else {
+                Nepomuk2::Resource publication = syncResource.property( SYNC::publication() ).toResource();
+                Nepomuk2::Resource reference = syncResource.property( SYNC::publication() ).toResource();
+                if(m_project.isValid()) {
+                    Nepomuk2::removeProperty(QList<QUrl>() << reference.uri() << publication.uri(), NAO::isRelated(), QVariantList() << m_project.uri());
+                }
+                else {
 
-            QList<QUrl> resUri; resUri << syncResource.uri();
-            Nepomuk2::removeResources(resUri);
+                    // if the publication has no other reference attached to it, delete it too
+                    QList<Nepomuk2::Resource> referencesList = publication.property( NBIB::reference() ).toResourceList();
+                    if( referencesList.size() == 1) {
+                        Nepomuk2::removeResources( QList<QUrl>() << publication.uri() << syncResource.uri() );
+
+                        // delete all files file from disk
+                        QList<Nepomuk2::Resource> fileList = publication.property( NBIB::isPublicationOf()).toResourceList();
+                        foreach(const Nepomuk2::Resource &r, fileList) {
+
+                            //get the file url
+                            QUrl fileUrl = r.property(NIE::url()).toUrl();
+                            QString localFile = fileUrl.toLocalFile();
+
+                            if(localFile.startsWith(QLatin1String("file://"))) {
+                                QString localFilePath = localFile.remove( QLatin1String("file://") );
+                                QFile localFile( localFilePath );
+
+                                if(!localFile.remove()) {
+                                    kDebug() << "file " << localFilePath << "could not be removed";
+                                }
+                            }
+                            Nepomuk2::removeResources( QList<QUrl>() << r.uri() );
+                        }
+
+                        // also remove any sync information for child nodes (notes/files)
+                        // child files/notes are deleted via nao:hasSubresource when the publication is removed
+                        QList<Nepomuk2::Resource> syncRelated = syncResource.property(NAO::isRelated()).toResourceList();
+                        QList<QUrl> syncurls;
+                        foreach(const Nepomuk2::Resource &r, syncRelated) {
+                            syncurls << r.uri();
+                        }
+                        Nepomuk2::removeResources( QList<QUrl>() << syncurls );
+                    }
+                    Nepomuk2::removeResources( QList<QUrl>() << reference.uri() << syncResource.uri() );
+                }
+            }
         }
         else {
             // the user decided to keep the file in his storage so he wants to upload it again next time he uploads.
@@ -309,14 +352,7 @@ void NepomukSyncClient::readDownloadSyncAfterDelete()
 
     if(m_cancel) { emit finished(); return; }
 
-    if(!m_tmpUserMergeRequest.isEmpty()) {
-        if(m_psd.mergeMode == Manual) {
-            emit userMerge(m_tmpUserMergeRequest);
-        }
-        else {
-            fixMergingItems();
-        }
-    }
+    fixMergingItems();
 
     if(m_cancel) { emit finished(); return; }
 
@@ -344,20 +380,13 @@ void NepomukSyncClient::readDownloadSyncAfterDelete()
     else {
         kDebug() << "no new items for the import found";
         m_currentStep++; // skip step 5 for the push new data to zotero
-        m_currentStep++; // step for 6 the merging
         calculateProgress(50);
     }
 
     if(m_cancel) { emit finished(); return; }
 
-    // wait until the user merged all entries on its own
-    if(m_tmpUserMergeRequest.size() > 0) {
-        emit status(i18n("wait until user merge is finished"));
-    }
-    else {
-        m_downloadFinished = true;
-        endSyncStep();
-    }
+    m_downloadFinished = true;
+    endSyncStep();
 }
 
 void NepomukSyncClient::findDuplicates(QList<Nepomuk2::Resource> &existingItems)
@@ -496,6 +525,7 @@ void NepomukSyncClient::fixMergingItems()
             // we need to wait for the user to finish in endSyncStep()
         }
         else {
+            kDebug() << "automatic merging of the faulty entries";
             m_mergeFinished = true;
             //FIXME: implement automatic merging
             //TODO: calculate propper progress here
@@ -550,6 +580,8 @@ void NepomukSyncClient::mergeFinished()
 
 void NepomukSyncClient::endSyncStep()
 {
+    kDebug() << "#############################################################";
+    kDebug() << " End Sync :: " << m_mergeFinished << m_downloadFinished << m_uploadFinished;
     if( !m_mergeFinished ) {
         emit status(i18n("Wait until user merge is finished"));
     }
@@ -564,7 +596,6 @@ void NepomukSyncClient::endSyncStep()
                 emit finished();
             }
             else {
-                if(m_cancel) { emit finished(); return; }
                 exportData();
             }
         }
@@ -581,6 +612,7 @@ void NepomukSyncClient::endSyncStep()
 
 void NepomukSyncClient::exportData()
 {
+    kDebug() << "##### START Upload ###### m_currentStep" << m_currentStep;
     clearInternalData();
 
     if(!m_storage) {
@@ -592,13 +624,15 @@ void NepomukSyncClient::exportData()
         m_storage->setProviderSettings(m_psd);
     }
     else {
-        disconnect( m_storage );
+        m_storage->disconnect();
     }
 
     if(m_psd.syncMode != Full_Sync) {
         m_syncSteps = 3;
         m_currentStep = 0;
     }
+
+    kDebug() << "sync steps :: " << m_syncSteps << "current step :: " << m_currentStep;
 
     emit status( i18n("Fetch data from Nepomuk") );
     calculateProgress(0);
@@ -769,6 +803,8 @@ void NepomukSyncClient::pushNewItemCache()
         kDebug() << "upload next reference";
         m_tmpCurPushedItem = m_tmpPushItemList.takeFirst().toMap();
 
+        kDebug() << m_tmpCurPushedItem;
+
         emit status( i18n("Upload item: %1", m_tmpCurPushedItem.value(QLatin1String("title")).toString()) );
         m_storage->pushItems( QVariantList() << m_tmpCurPushedItem, m_psd.collection );
     }
@@ -912,14 +948,27 @@ void NepomukSyncClient::deleteItemsCache()
         endSyncStep();
     }
     else {
+        if(m_psd.askBeforeDeletion) {
+            emit askForServerDeletion( m_pushDeleteItems );
+        }
+        else {
+            deleteServerFiles(true);
+        }
+    }
+}
+
+void NepomukSyncClient::deleteServerFiles(bool deleteThem)
+{
+    if( deleteThem) {
         m_storage->deleteItems( m_pushDeleteItems );
+    }
+    else {
+        deleteItemFinished();
     }
 }
 
 void NepomukSyncClient::deleteItemFinished()
 {
-    kDebug() << "all items deleted sucessfully";
-
     //now we can also delete all ServerSyncData resources locally
     QList<QUrl> ssdList;
     foreach(const QVariant &v, m_pushDeleteItems) {
@@ -953,7 +1002,7 @@ void NepomukSyncClient::syncData()
 
     m_psd.syncMode = Full_Sync;
 
-    m_syncSteps = 11;
+    m_syncSteps = 8;
     m_currentStep = 0;
 
     importData();
@@ -965,6 +1014,7 @@ void NepomukSyncClient::calculateProgress(int value)
 
     curProgress += (qreal)(100.0/m_syncSteps) * m_currentStep;
 
+    kDebug() << "all steps ::" << m_syncSteps << " curStep" << m_currentStep << " value" << value;
     emit progress(curProgress);
 }
 
@@ -982,10 +1032,7 @@ void NepomukSyncClient::clearInternalData()
     m_pushRemoveFromCollection.clear();
     m_pushDeleteItems.clear();
 
-//    m_syncSteps = 0;
-//    m_currentStep = 0;
     m_cancel = false;
-
     m_mergeFinished = false;
     m_downloadFinished = false;
     m_uploadFinished = false;

@@ -65,6 +65,7 @@ public slots:
 
     // other helping slots
     void connectKPartGui(KParts::Part * part);
+    void backgroundSyncCollections();
 
     /**
       * This will be called from the LibraryWidget and reflects the users choice of new data to display

@@ -385,6 +385,9 @@ void ZoteroSync::pushItemCache()
         m_reply = m_qnam.put(request, writeJsonContent(QVariantList() << m_cacheItemEditUpload, true));
         connect(m_reply, SIGNAL(finished()),this, SLOT(itemPushFinished()));
     }
+    else if( m_idsForCollectionAdd.isEmpty() ) {
+        addItemsToCollection(m_idsForCollectionAdd, m_currentCollection);
+    }
     else {
         emit finished();
     }
@@ -480,6 +483,7 @@ void ZoteroSync::deleteItemCache()
 void ZoteroSync::addItemsToCollection(const QStringList &ids, const QString &collection)
 {
     resetState();
+    m_idsForCollectionAdd.empty();
 
     //POST /users/1/collections/QRST9876/items
     //ABCD2345 BCDE3456 CDEF4567 DEFG5678
@@ -645,6 +649,11 @@ QByteArray ZoteroSync::writeJsonContent(const QVariantList &items, bool updateIt
         QString entryType;
         if(entry.contains(QLatin1String("articletype"))) {
             entryType = entry.value(QLatin1String("articletype")).toString();
+
+            entryType = entryType.replace(QLatin1String("journal"), QLatin1String("journalArticle"));
+            entryType = entryType.replace(QLatin1String("magazine"), QLatin1String("magazineArticle"));
+            entryType = entryType.replace(QLatin1String("newspaper"), QLatin1String("newspaperArticle"));
+            entryType = entryType.replace(QLatin1String("encyclopedia"), QLatin1String("encyclopediaArticle"));
         }
         else {
             entryType = entry.value(QLatin1String("bibtexentrytype")).toString();
@@ -876,7 +885,6 @@ void ZoteroSync::itemsRequestFinished() // response from several item requests
 
 QVariantMap ZoteroSync::readItemEntry(QXmlStreamReader &xmlReader)
 {
-    kDebug() << "found an entry, try to parse it";
     QVariantMap entry;
 
     bool finishEntry = false;
@@ -1233,8 +1241,12 @@ void ZoteroSync::itemPushFinished()
 
         if(xmlReader.name() == QLatin1String("entry")) {
             m_returnedData.append( readItemEntry(xmlReader) );
+        }
+    }
 
-            break;
+    if( !m_currentCollection.isEmpty() ) {
+        foreach(const QVariant &v, m_returnedData) {
+            m_idsForCollectionAdd << v.toMap().value(QLatin1String("sync-key")).toString();
         }
     }
 

@@ -21,11 +21,13 @@
 #include <QObject>
 
 #include "core/projectsettings.h"
-//#include "nbibio/nbibsync.h"
+#include "nbibio/storageglobals.h"
+#include "nbibio/nepomuksyncclient.h"
+
+class NepomukSyncClient;
 
 class LibraryManager;
 class Library;
-class NBibSync;
 class QThread;
 
 /**
@@ -81,15 +83,14 @@ public slots:
     void startSync();
 
 private slots:
-//    void startSync(const ProviderSyncDetails &psd);
+    void startSync(const ProviderSyncDetails &psd);
     void currentSyncFinished();
-/*
-    void popLocalDeletionQuestion(QList<SyncDetails> items);
-    void popServerDeletionQuestion(QList<SyncDetails> items);
-    void popGroupRemovalQuestion(QList<SyncDetails> items);
-    void popMergeDialog(QList<SyncDetails> items);
+
+    void popLocalDeletionQuestion(const QList<Nepomuk2::Resource> &items);
+    void popServerDeletionQuestion(const QVariantList &items);
+//    void popGroupRemovalQuestion(QList<SyncDetails> items);
+    void popMergeDialog(const QList<SyncMergeDetails> &items);
     void cancelSync();
-    */
 
     /**
       * press the 0-100 from several syncs into an overal 0-100
@@ -99,11 +100,12 @@ private slots:
 private:
     bool findPasswordInKWallet(ProviderSyncDetails &psd);
 
+    ProviderSyncDetails m_currentPsd;
+    NepomukSyncClient *m_nepomukSyncClient;
+
     LibraryManager *m_libraryManager;
     Library *m_libraryToSync;
     QThread *m_syncThread;
-    NBibSync *m_syncNepomuk;
-    ProviderSyncDetails m_currentPsd;
 
     int m_syncSteps;
     int m_curStep;

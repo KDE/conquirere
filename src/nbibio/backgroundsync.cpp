@@ -23,11 +23,6 @@
 #include "nbibio/ui/itemdeletedialog.h"
 #include "nbibio/ui/itemmergedialog.h"
 
-//#include "onlinestorage/storageinfo.h"
-
-//#include "nbibio/zotero/synczoteronepomuk.h"
-//#include "nbibio/bibtex/synckbibtexfile.h"
-
 #include <KDE/KMessageBox>
 #include <KWallet/Wallet>
 #include <KDE/KDebug>
@@ -40,7 +35,6 @@ BackgroundSync::BackgroundSync(QObject *parent)
     , m_libraryManager(0)
     , m_libraryToSync(0)
     , m_syncThread(0)
-    , m_syncNepomuk(0)
     , m_syncSteps(1)
     , m_curStep(0)
 {
@@ -48,8 +42,6 @@ BackgroundSync::BackgroundSync(QObject *parent)
 
 BackgroundSync::~BackgroundSync()
 {
-//    m_syncThread->deleteLater();
-    delete m_syncNepomuk;
 }
 
 void BackgroundSync::setLibraryManager(LibraryManager *lm)
@@ -82,78 +74,75 @@ void BackgroundSync::startSync()
     }
     else {
         m_syncSteps = m_syncList.size();
+        ProviderSyncDetails psd = m_syncList.first();
+        startSync(psd);
     }
-
-    ProviderSyncDetails psd = m_syncList.first();
-
-    bool found = findPasswordInKWallet(psd);
-
-//    startSync(psd);
 }
 
-/*
+
 void BackgroundSync::startSync(const ProviderSyncDetails &psd)
 {
-//    kDebug() << "start to sync" << m_libraryToSync->settings()->name() << "with" << psd.providerInfo->providerName();
-    kDebug() << "user" << psd.userName;
-    kDebug() << "pwd" << psd.pwd;
-    kDebug() << "collection" << psd.collection;
     m_currentPsd = psd;
-//    delete m_syncNepomuk;
-    if(psd.providerInfo->providerId() == QLatin1String("zotero")) {
-        m_syncNepomuk = new SyncZoteroNepomuk;
-    }
-    else if(psd.providerInfo->providerId() == QLatin1String("kbibtexfile")) {
-        m_syncNepomuk = new SyncKBibTeXFile;
+
+    if( !findPasswordInKWallet(m_currentPsd) ) {
+        kError() << "Could not find password for sync";
+        currentSyncFinished();
+        return;
     }
 
-    m_syncNepomuk->setProviderDetails(psd);
-    m_syncNepomuk->setSystemLibrary(m_libraryManager->systemLibrary());
+    // configure the provider via provider id
+    delete m_nepomukSyncClient;
+    m_nepomukSyncClient = new NepomukSyncClient();
+
     if(m_libraryToSync) {
-        m_syncNepomuk->setLibraryToSyncWith(m_libraryToSync);
+        m_nepomukSyncClient->setProject( m_libraryToSync->settings()->projectThing() );
+        kDebug() << "Sync project library" << m_libraryToSync->settings()->projectThing().genericLabel();
+    }
+    else {
+        kDebug() << "Sync System Library";
     }
 
-    // connect the sync handler with the outside world
-    connect(m_syncNepomuk, SIGNAL(progress(int)), this, SLOT(calculateProgress(int)));
-    connect(m_syncNepomuk, SIGNAL(progressStatus(QString)), this, SIGNAL(progressStatus(QString)));
+    kDebug() << "user" << m_currentPsd.userName;
+    kDebug() << "pwd" << m_currentPsd.pwd;
 
-    connect(m_syncNepomuk, SIGNAL(askForLocalDeletion(QList<SyncDetails>)), this, SLOT(popLocalDeletionQuestion(QList<SyncDetails>)));
-    connect(this, SIGNAL(deleteLocalFiles(bool)), m_syncNepomuk, SLOT(deleteLocalFiles(bool)));
-    connect(m_syncNepomuk, SIGNAL(askForServerDeletion(QList<SyncDetails>)), this, SLOT(popServerDeletionQuestion(QList<SyncDetails>)));
-    connect(this, SIGNAL(deleteServerFiles(bool)), m_syncNepomuk, SLOT(deleteServerFiles(bool)));
-    connect(m_syncNepomuk, SIGNAL(askForGroupRemoval(QList<SyncDetails>)), this, SLOT(popGroupRemovalQuestion(QList<SyncDetails>)));
-    connect(this, SIGNAL(removeGroupFiles(bool)), m_syncNepomuk, SLOT(deleteFromGroup(bool)));
+    m_nepomukSyncClient->setProviderSettings(m_currentPsd);
 
+    connect(m_nepomukSyncClient, SIGNAL(progress(int)), this, SLOT( calculateProgress(int)) );
+    //connect(m_nepomukSyncClient, SIGNAL(status(QString)), infoLabel, SLOT(setText(QString)));
 
-    connect(m_syncNepomuk, SIGNAL(userMerge(QList<SyncDetails>)), this, SLOT(popMergeDialog(QList<SyncDetails>)));
-    connect(this, SIGNAL(mergeFinished()), m_syncNepomuk, SLOT(mergeFinished()));
+    connect(m_nepomukSyncClient, SIGNAL(askForLocalDeletion(QList<Nepomuk2::Resource>)), this, SLOT(popLocalDeletionQuestion(QList<Nepomuk2::Resource>)) );
+    connect(this, SIGNAL(deleteLocalFiles(bool)), m_nepomukSyncClient, SLOT(deleteLocalFiles(bool)));
 
-    connect(m_syncNepomuk, SIGNAL(syncFinished()), this, SLOT(currentSyncFinished()));
+    connect(m_nepomukSyncClient, SIGNAL(askForServerDeletion(QVariantList)), this, SLOT(popServerDeletionQuestion(QVariantList)));
+    connect(this, SIGNAL(deleteServerFiles(bool)), m_nepomukSyncClient, SLOT(deleteServerFiles(bool)));
+
+    connect(m_nepomukSyncClient, SIGNAL(userMerge(QList<SyncMergeDetails>)), this, SLOT(popMergeDialog(QList<SyncMergeDetails>)) );
+    connect(this, SIGNAL(mergeFinished()), m_nepomukSyncClient, SLOT(mergeFinished()));
 
     delete m_syncThread;
     m_syncThread = new QThread;
-    m_syncNepomuk->moveToThread(m_syncThread);
+    m_nepomukSyncClient->moveToThread(m_syncThread);
 
     //what mode should we use?
     switch(psd.syncMode) {
     case Download_Only:
-        connect(m_syncThread, SIGNAL(started()),m_syncNepomuk, SLOT(startDownload()) );
+        connect(m_syncThread, SIGNAL(started()),m_nepomukSyncClient, SLOT(importData()) );
         break;
     case Upload_Only:
-        connect(m_syncThread, SIGNAL(started()),m_syncNepomuk, SLOT(startUpload()) );
+        connect(m_syncThread, SIGNAL(started()),m_nepomukSyncClient, SLOT(exportData()) );
         break;
     case Full_Sync:
-        connect(m_syncThread, SIGNAL(started()),m_syncNepomuk, SLOT(startSync()) );
+        connect(m_syncThread, SIGNAL(started()),m_nepomukSyncClient, SLOT(syncData()) );
         break;
     }
-
-    connect(m_syncNepomuk, SIGNAL(syncFinished()), m_syncThread, SLOT(quit()));
+    connect(m_nepomukSyncClient, SIGNAL(finished()), m_syncThread, SLOT(quit()));
+    connect(m_syncThread, SIGNAL(finished()), this, SLOT(currentSyncFinished()));
 
     m_syncThread->start();
 }
-*/
-/*
-void BackgroundSync::popLocalDeletionQuestion(QList<SyncDetails> items)
+
+
+void BackgroundSync::popLocalDeletionQuestion(const QList<Nepomuk2::Resource> &items)
 {
     QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::LocalDelete);
 
@@ -170,7 +159,7 @@ void BackgroundSync::popLocalDeletionQuestion(QList<SyncDetails> items)
     delete idd;
 }
 
-void BackgroundSync::popServerDeletionQuestion(QList<SyncDetails> items)
+void BackgroundSync::popServerDeletionQuestion(const QVariantList &items)
 {
     QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::ServerDelete);
 
@@ -186,7 +175,7 @@ void BackgroundSync::popServerDeletionQuestion(QList<SyncDetails> items)
 
     delete idd;
 }
-
+/*
 void BackgroundSync::popGroupRemovalQuestion(QList<SyncDetails> items)
 {
     QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::ServerGroupRemoval);
@@ -203,8 +192,8 @@ void BackgroundSync::popGroupRemovalQuestion(QList<SyncDetails> items)
 
     delete idd;
 }
-
-void BackgroundSync::popMergeDialog(QList<SyncDetails> items)
+*/
+void BackgroundSync::popMergeDialog(const QList<SyncMergeDetails> &items)
 {
     ItemMergeDialog imd;
 
@@ -222,10 +211,12 @@ void BackgroundSync::popMergeDialog(QList<SyncDetails> items)
 
 void BackgroundSync::cancelSync()
 {
-    m_syncNepomuk->cancel();
+    m_nepomukSyncClient->cancel();
     m_syncList.clear();
+    m_syncThread->quit();
+    m_syncThread->deleteLater();
 }
-*/
+
 void BackgroundSync::calculateProgress(int value)
 {
     qreal curProgress = ((qreal)value * 1.0/m_syncSteps);
@@ -238,10 +229,10 @@ void BackgroundSync::calculateProgress(int value)
 void BackgroundSync::currentSyncFinished()
 {
     m_curStep++;
-    delete m_syncNepomuk;
-    m_syncNepomuk = 0;
-//    m_syncThread->deleteLater();
-//    m_syncThread = 0;
+    delete m_nepomukSyncClient;
+    m_nepomukSyncClient = 0;
+    m_syncThread->deleteLater();
+    m_syncThread = 0;
 
     m_syncList.takeFirst();
 
@@ -250,9 +241,10 @@ void BackgroundSync::currentSyncFinished()
         kDebug() << "finished the sync process";
         return;
     }
-
-    ProviderSyncDetails psd = m_syncList.first();
-//    startSync(psd);
+    else {
+        ProviderSyncDetails psd = m_syncList.first();
+        startSync(psd);
+    }
 }
 
 bool BackgroundSync::findPasswordInKWallet(ProviderSyncDetails &psd)
@@ -263,6 +255,8 @@ bool BackgroundSync::findPasswordInKWallet(ProviderSyncDetails &psd)
     pwdKey.append(psd.userName);
     pwdKey.append(QLatin1String(":"));
     pwdKey.append(psd.url);
+
+    kDebug() << "find password for " << pwdKey;
 
     KWallet::Wallet *m_wallet;
 

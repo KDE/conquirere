@@ -128,30 +128,25 @@ void ProgressPage::initializePage()
 
     ProviderSyncDetails psd = ssw->sp->providerSettings->providerSettingsDetails();
 
-    //TODO: add NepomukSyncClient
     // configure the provider via provider id
     delete m_nepomukSyncClient;
     m_nepomukSyncClient = new NepomukSyncClient();
 
     m_nepomukSyncClient->setProviderSettings(psd);
-//    m_nepomukSyncClient->setProject();
-
-//    m_nepomukSyncClient->setSystemLibrary(ssw->libraryManager->systemLibrary());
-//    m_nepomukSyncClient->setLibraryToSyncWith(ssw->libraryManager->systemLibrary());
 
     connect(m_nepomukSyncClient, SIGNAL(progress(int)), progressBar, SLOT(setValue(int)));
     connect(m_nepomukSyncClient, SIGNAL(status(QString)), infoLabel, SLOT(setText(QString)));
 
-    connect(m_nepomukSyncClient, SIGNAL(askForLocalDeletion(QList<Nepomuk2::Resource>)), this, SLOT(popLocalDeletionQuestion(QList<Nepomuk2::Resource>)));
+    connect(m_nepomukSyncClient, SIGNAL(askForLocalDeletion(QList<Nepomuk2::Resource>)), this, SLOT(popLocalDeletionQuestion(QList<Nepomuk2::Resource>)) );
     connect(this, SIGNAL(deleteLocalFiles(bool)), m_nepomukSyncClient, SLOT(deleteLocalFiles(bool)));
-    connect(m_nepomukSyncClient, SIGNAL(askForServerDeletion(QList<Nepomuk2::Resource>)), this, SLOT(popServerDeletionQuestion(QList<Nepomuk2::Resource>)));
-    connect(this, SIGNAL(deleteServerFiles(bool)), m_nepomukSyncClient, SLOT(deleteServerFiles(bool)));
-    connect(m_nepomukSyncClient, SIGNAL(askForGroupRemoval(QList<Nepomuk2::Resource>)), this, SLOT(popGroupRemovalQuestion(QList<Nepomuk2::Resource>)));
-    connect(this, SIGNAL(removeGroupFiles(bool)), m_nepomukSyncClient, SLOT(deleteFromGroup(bool)));
 
-    connect(m_nepomukSyncClient, SIGNAL(userMerge(QList<SyncMergeDetails>&)), this, SLOT(popMergeDialog(QList<SyncMergeDetails>&)));
+    connect(m_nepomukSyncClient, SIGNAL(askForServerDeletion(QVariantList)), this, SLOT(popServerDeletionQuestion(QVariantList)));
+    connect(this, SIGNAL(deleteServerFiles(bool)), m_nepomukSyncClient, SLOT(deleteServerFiles(bool)));
+
+    connect(m_nepomukSyncClient, SIGNAL(userMerge(QList<SyncMergeDetails>)), this, SLOT(popMergeDialog(QList<SyncMergeDetails>)) );
     connect(this, SIGNAL(mergeFinished()), m_nepomukSyncClient, SLOT(mergeFinished()));
-    connect(m_nepomukSyncClient, SIGNAL(syncFinished()), this, SLOT(syncFinished()));
+
+    connect(m_nepomukSyncClient, SIGNAL(finished()), this, SLOT(syncFinished()));
 
     QThread *newThread = new QThread;
     m_nepomukSyncClient->moveToThread(newThread);
@@ -172,7 +167,7 @@ void ProgressPage::initializePage()
     newThread->start();
 }
 
-void ProgressPage::popLocalDeletionQuestion(QList<Nepomuk2::Resource> items)
+void ProgressPage::popLocalDeletionQuestion(const QList<Nepomuk2::Resource> &items)
 {
     QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::LocalDelete);
 
@@ -189,7 +184,7 @@ void ProgressPage::popLocalDeletionQuestion(QList<Nepomuk2::Resource> items)
     delete idd;
 }
 
-void ProgressPage::popServerDeletionQuestion(QList<Nepomuk2::Resource> items)
+void ProgressPage::popServerDeletionQuestion(const QVariantList &items)
 {
     QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::ServerDelete);
 
@@ -206,7 +201,7 @@ void ProgressPage::popServerDeletionQuestion(QList<Nepomuk2::Resource> items)
     delete idd;
 }
 
-void ProgressPage::popGroupRemovalQuestion(QList<Nepomuk2::Resource> items)
+void ProgressPage::popGroupRemovalQuestion(const QList<Nepomuk2::Resource> &items)
 {
     QPointer<ItemDeleteDialog> idd = new ItemDeleteDialog(ItemDeleteDialog::ServerGroupRemoval);
 

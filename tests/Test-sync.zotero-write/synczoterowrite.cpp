@@ -97,7 +97,7 @@ void SyncZoteroWrite::initTestCase()
     // prepare zotero to have 1 item in the collection 3BEJ4A2M
     // the item needs 2 notes and 1 file attachment
     psd.providerId = QString("zotero");
-    psd.userName = QString("879781");
+    psd.userName = QString("");
     psd.pwd = QString("Zqbpsll0iJXGuRJbJAHnGern");
     psd.url = QString("users");
 //    psd.collection = QString("3BEJ4A2M");

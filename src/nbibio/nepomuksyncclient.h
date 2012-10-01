@@ -53,14 +53,15 @@ signals:
       *
       * call deleteLocalFiles() when the user made his choice to proceed sync
       */
-    void askForLocalDeletion(QList<Nepomuk2::Resource> &listOfRemovedResources);
+    void askForLocalDeletion(const QList<Nepomuk2::Resource> &listOfRemovedResources);
+    void askForServerDeletion(const QVariantList &toBeDeleted);
 
     /**
       * emitted when the user needs to decide how to merge certain items
       *
       * call mergeFinished() when the user finished merging (merging should be done directly in nepomuk)
       */
-    void userMerge(QList<SyncMergeDetails> &itemsThatNeedMerge);
+    void userMerge(const QList<SyncMergeDetails> &itemsThatNeedMerge);
 
     void finished();
 
@@ -82,6 +83,7 @@ public slots:
     void syncData();
 
     void deleteLocalFiles(bool deleteThem);
+    void deleteServerFiles(bool deleteThem);
     void mergeFinished();
 
 private slots:

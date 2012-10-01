@@ -95,9 +95,9 @@ signals:
 private slots:
     bool isComplete() const;
 
-    void popLocalDeletionQuestion(QList<Nepomuk2::Resource> items);
-    void popServerDeletionQuestion(QList<Nepomuk2::Resource> items);
-    void popGroupRemovalQuestion(QList<Nepomuk2::Resource> items);
+    void popLocalDeletionQuestion( const QList<Nepomuk2::Resource> &items);
+    void popServerDeletionQuestion(const QVariantList &items);
+    void popGroupRemovalQuestion(const QList<Nepomuk2::Resource> &items);
     void popMergeDialog(const QList<SyncMergeDetails> &items);
     void syncFinished();
 
