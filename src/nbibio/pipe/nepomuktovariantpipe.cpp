@@ -698,7 +698,7 @@ void NepomukToVariantPipe::setUrl(Nepomuk2::Resource publication)
         else {
             key = QLatin1String("localfile");
             if(l!=0) {
-                key.append( QLatin1String("-") + QString::number(r));
+                key.append( QLatin1String("-") + QString::number(l));
             }
             l++;
         }
