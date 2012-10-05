@@ -986,8 +986,8 @@ void ZoteroSync::readJsonContent(const QString &json, QVariantMap &entry)
             QString tagList;
             foreach (const QVariant &tag, i.value().toList()) {
                 QVariantMap tagMap = tag.toMap();
-                QString tag = tagMap.value(QLatin1String("tag")).toString();
-                tagList.append( tag );
+                QString tagString = tagMap.value(QLatin1String("tag")).toString();
+                tagList.append( tagString );
                 tagList.append( QLatin1String(";") );
             }
 

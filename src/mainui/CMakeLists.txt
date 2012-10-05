@@ -100,7 +100,6 @@ target_link_libraries(mainui
         core
         nbibio
         propertywidgets
-        onlinestorage
 )
  
 install( TARGETS mainui  ${INSTALL_TARGETS_DEFAULT_ARGS} )
