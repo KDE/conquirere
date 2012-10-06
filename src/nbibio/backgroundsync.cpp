@@ -32,6 +32,7 @@
 
 BackgroundSync::BackgroundSync(QObject *parent)
     : QObject(parent)
+    , m_nepomukSyncClient(0)
     , m_libraryManager(0)
     , m_libraryToSync(0)
     , m_syncThread(0)

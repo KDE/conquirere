@@ -258,7 +258,7 @@ void MainWindow::showConqSettings()
 
 void MainWindow::backgroundSyncCollections()
 {
-    KProgressDialog *m_kpd = new KProgressDialog;
+    m_kpd = new KProgressDialog;
     m_kpd->setMinimumWidth(400);
     BackgroundSync *backgroundSyncManager = new BackgroundSync;
     backgroundSyncManager->setLibraryManager( m_libraryManager );
@@ -272,9 +272,14 @@ void MainWindow::backgroundSyncCollections()
 
     backgroundSyncManager->startSync();
 
-    m_kpd->exec();
+    //if syncFinished was called beforehand, this might fail ..
+    //happens when nothing to sync is available
+    if( m_kpd ) {
+        m_kpd->exec();
 
-    delete m_kpd;
+        delete m_kpd;
+        m_kpd = 0;
+    }
 }
 
 void MainWindow::connectKPartGui(KParts::Part * part)
