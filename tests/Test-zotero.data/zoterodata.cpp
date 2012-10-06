@@ -15,12 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-
-//#include "../testdatadir.h"
+#include "../testdatadir.h"
 
 #include "nbibio/storageglobals.h"
 #include "nbibio/provider/zotero/zoterosync.h"
+
+#include "nbibio/bibtex/bibteximporter.h"
+#include "nbibio/bibtex/bibtexvariant.h"
 
 #include <QtTest>
 #include <QtDebug>
@@ -54,44 +55,49 @@ void ZoteroData::initTestCase()
     psd.userName = QString("879781");
     psd.pwd = QString("Zqbpsll0iJXGuRJbJAHnGern");
     psd.url = QString("users");
-    psd.collection = QString("VZA7KBSZ"); // data-test from conqtest
+    psd.collection = QString("D4EJCUQW");
     psd.syncMode = Download_Only;
     psd.mergeMode = UseServer;
     psd.askBeforeDeletion = false;
     psd.importAttachments = false;
     psd.exportAttachments = false;
 
+    //TODO create new collection for this
+
     client.setProviderSettings( psd );
 }
 
 void ZoteroData::importExportTest_data()
 {
-    QTest::addColumn<QVariantMap>("bibentry");
+    // Get bibfile for the import test
+    QStringList errorReadFile;
 
-    //TODO: read all zoterotest entries from a file
-    QVariantMap artwork;
-    artwork.insert(QLatin1String("artworkSize"), QLatin1String("UNITTEST-artworkSize"));
-    artwork.insert(QLatin1String("accessDate"), QLatin1String("2011-05-05"));
-    artwork.insert(QLatin1String("bibtexentrytype"), QLatin1String("artwork"));
-    artwork.insert(QLatin1String("language"), QLatin1String("UNITTEST-language"));
-    artwork.insert(QLatin1String("title"), QLatin1String("UNITTEST-title"));
-    artwork.insert(QLatin1String("archiveLocation"), QLatin1String("UNITTEST-archiveLocation"));
-    //artwork.insert(QLatin1String("notes"), QLatin1String("UNITTEST-"));
-    artwork.insert(QLatin1String("copyright"), QLatin1String("UNITTEST-copyright"));
-    artwork.insert(QLatin1String("libraryCatalog"), QLatin1String("UNITTEST-libraryCatalog"));
-    artwork.insert(QLatin1String("shortTitle"), QLatin1String("UNITTEST-shortTitle"));
-    artwork.insert(QLatin1String("date"), QLatin1String("UNITTEST-date"));
-    artwork.insert(QLatin1String("keywords"), QLatin1String("UNITTEST-Tag1;UNITTEST-Tag2;UNITTEST-Tag3"));
-    artwork.insert(QLatin1String("url"), QLatin1String("UNITTEST-url"));
-    artwork.insert(QLatin1String("artworkMedium"), QLatin1String("UNITTEST-artworkMedium"));
-    artwork.insert(QLatin1String("abstract"), QLatin1String("UNITTEST-abstract"));
-    artwork.insert(QLatin1String("author"), QLatin1String("UNITTEST-AFist1 UNITTEST-ALast1;UNITTEST-AFist2 UNITTEST-ALast2"));
-    artwork.insert(QLatin1String("contributor"), QLatin1String("UNITTEST-CFist1 UNITTEST-CLast1;UNITTEST-CFist2 UNITTEST-CLast2"));
-    artwork.insert(QLatin1String("extra"), QLatin1String("UNITTEST-extra"));
-    artwork.insert(QLatin1String("archive"), QLatin1String("UNITTEST-archive"));
-    artwork.insert(QLatin1String("lccn"), QLatin1String("UNITTEST-lccn"));
-    //artwork.insert(QLatin1String("attachments"), QLatin1String("UNITTEST-"));
-    QTest::newRow("artwork") << artwork;
+    QString testFileDir = TESTDATADIR + QLatin1String("/data/generic_zotero.bib");
+    BibTexImporter nbImBib;
+    nbImBib.readBibFile(testFileDir, &errorReadFile);
+
+    if(!errorReadFile.isEmpty()) {
+        qWarning() << errorReadFile;
+        QFAIL("Errors occurred while reading the bibfile");
+    }
+
+    File *bibFileToCheck = nbImBib.bibFile();
+    QVERIFY( bibFileToCheck != 0 );
+
+    // pipe article in the bibfile into a QVariantList
+    QVariantList bibList = BibTexVariant::toVariant(*bibFileToCheck);
+
+    if( bibList.isEmpty() ) {
+        QFAIL("No publication exported to QVariantList");
+    }
+
+    // and add each entry to the TestData
+    QTest::addColumn<QVariantMap>("bibentry");
+    foreach(const QVariant &v, bibList) {
+        QVariantMap entry = v.toMap();
+        entry.remove(QLatin1String("note")); // note not supported in normal query, uses extra child item
+        QTest::newRow( entry.value(QLatin1String("bibtexentrytype")).toString().toAscii() ) << entry;
+    }
 }
 
 void ZoteroData::importExportTest()
@@ -122,14 +128,19 @@ void ZoteroData::importExportTest()
     while(i.hasNext()) {
         i.next();
 
-        if( !currentItem.contains(i.key()) ) {
+        if( !currentItem.contains(i.key().toLower()) ) {
             error = true;
             errorString << QLatin1String("Key missing ::" + i.key().toAscii());
+            errorString << QLatin1String("\n");
 
         }
         else if( currentItem.value(i.key()) != i.value()) {
+            if( i.key() == QLatin1String("bibtexcitekey")) // citekey is the zotero unique id, this changes with every new upload
+                continue;
+
             error = true;
-            errorString << QLatin1String("Value not the same :: shouldbe: " + i.value().toString().toAscii() + " | is: " + currentItem.value(i.key()).toString().toAscii());
+            errorString << i.key() + QLatin1String("-Value not the same :: shouldbe: " + i.value().toString().toAscii() + " | is: " + currentItem.value(i.key()).toString().toAscii());
+            errorString << QLatin1String("\n");
         }
     }
 
