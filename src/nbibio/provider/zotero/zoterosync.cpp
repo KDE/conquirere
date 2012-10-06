@@ -30,6 +30,7 @@
 #include <QSslConfiguration>
 
 #include <KDE/KUrl>
+#include <KDE/KStandardDirs>
 #include <KDE/KMimeType>
 #include <KDE/KIO/CopyJob>
 #include <KDE/KLocalizedString>
@@ -47,8 +48,8 @@ ZoteroSync::ZoteroSync(QObject *parent)
     qRegisterMetaType<CollectionInfo>("CollectionInfo");
     qRegisterMetaType<QList<CollectionInfo> >("QList<CollectionInfo>");
 
-    //FIXME: relative path for provider.ini
-    KConfig keyMapping("/home/joerg/Development/KDE/conquirere/src/nbibio/provider/zotero/zoteromapping.ini", KConfig::SimpleConfig);
+    KStandardDirs::locate("data", "conquirere/provider");
+    KConfig keyMapping(KStandardDirs::locate("data", "conquirere/provider/zoteromapping.ini"), KConfig::SimpleConfig);
 
     QStringList groups = keyMapping.groupList();
 
@@ -81,6 +82,9 @@ ZoteroSync::ZoteroSync(QObject *parent)
         m_defaultKeys.insert(groupName, defaultKeyList);
         m_toZoteroMapping.insert(groupName, keyMapping);
     }
+
+    if(m_fromZoteroMapping.isEmpty())
+        kWarning() << "could not load zoteromapping.ini from" << KStandardDirs::locate("data", "conquirere/provider/zoteromapping.ini");
 }
 
 QString ZoteroSync::providerId() const
