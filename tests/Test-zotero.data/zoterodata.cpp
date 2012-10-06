@@ -55,48 +55,49 @@ void ZoteroData::initTestCase()
     psd.userName = QString("879781");
     psd.pwd = QString("Zqbpsll0iJXGuRJbJAHnGern");
     psd.url = QString("users");
-    psd.collection = QString("D4EJCUQW");
     psd.syncMode = Download_Only;
     psd.mergeMode = UseServer;
     psd.askBeforeDeletion = false;
     psd.importAttachments = false;
     psd.exportAttachments = false;
 
-    //TODO create new collection for this
-
     client.setProviderSettings( psd );
 }
 
 void ZoteroData::importExportTest_data()
 {
-    // Get bibfile for the import test
-    QStringList errorReadFile;
+    QStringList dataList;
+    dataList << TESTDATADIR + QLatin1String("/data/generic_zotero.bib");
+    dataList << TESTDATADIR + QLatin1String("/data/generic_zotero_extended.bib");
 
-    QString testFileDir = TESTDATADIR + QLatin1String("/data/generic_zotero.bib");
-    BibTexImporter nbImBib;
-    nbImBib.readBibFile(testFileDir, &errorReadFile);
+    foreach(const QString &testFileDir, dataList) {
+        // Get bibfile for the import test
+        QStringList errorReadFile;
+        BibTexImporter nbImBib;
+        nbImBib.readBibFile(testFileDir, &errorReadFile);
 
-    if(!errorReadFile.isEmpty()) {
-        qWarning() << errorReadFile;
-        QFAIL("Errors occurred while reading the bibfile");
-    }
+        if(!errorReadFile.isEmpty()) {
+            qWarning() << errorReadFile;
+            QFAIL("Errors occurred while reading the bibfile");
+        }
 
-    File *bibFileToCheck = nbImBib.bibFile();
-    QVERIFY( bibFileToCheck != 0 );
+        File *bibFileToCheck = nbImBib.bibFile();
+        QVERIFY( bibFileToCheck != 0 );
 
-    // pipe article in the bibfile into a QVariantList
-    QVariantList bibList = BibTexVariant::toVariant(*bibFileToCheck);
+        // pipe article in the bibfile into a QVariantList
+        QVariantList bibList = BibTexVariant::toVariant(*bibFileToCheck);
 
-    if( bibList.isEmpty() ) {
-        QFAIL("No publication exported to QVariantList");
-    }
+        if( bibList.isEmpty() ) {
+            QFAIL("No publication exported to QVariantList");
+        }
 
-    // and add each entry to the TestData
-    QTest::addColumn<QVariantMap>("bibentry");
-    foreach(const QVariant &v, bibList) {
-        QVariantMap entry = v.toMap();
-        entry.remove(QLatin1String("note")); // note not supported in normal query, uses extra child item
-        QTest::newRow( entry.value(QLatin1String("bibtexentrytype")).toString().toAscii() ) << entry;
+        // and add each entry to the TestData
+        QTest::addColumn<QVariantMap>("bibentry");
+        foreach(const QVariant &v, bibList) {
+            QVariantMap entry = v.toMap();
+            entry.remove(QLatin1String("note")); // note not supported in normal query, uses extra child item
+            QTest::newRow( entry.value(QLatin1String("bibtexentrytype")).toString().toAscii() ) << entry;
+        }
     }
 }
 
@@ -135,7 +136,9 @@ void ZoteroData::importExportTest()
 
         }
         else if( currentItem.value(i.key()) != i.value()) {
-            if( i.key() == QLatin1String("bibtexcitekey")) // citekey is the zotero unique id, this changes with every new upload
+            // citekey is the zotero unique id, this changes with every new upload
+            // tags are not returned in the same order, easier to ignore them here
+            if( i.key() == QLatin1String("bibtexcitekey") || i.key() == QLatin1String("keywords"))
                 continue;
 
             error = true;
@@ -145,7 +148,10 @@ void ZoteroData::importExportTest()
     }
 
     if(error) {
-        qDebug() << errorString;
+        qWarning() << errorString;
+
+        qWarning() << "############## original result";
+        qWarning() << currentItem;
         QFAIL("Downloaded Item is different from uploaded");
     }
 }

@@ -78,7 +78,7 @@ ZoteroSync::ZoteroSync(QObject *parent)
                 keyMapping.insert(localkey, key.trimmed());
             }
         }
-        m_fromZoteroMapping.insert(groupName, entryMap);
+        m_fromZoteroMapping.insert(groupName.toLower(), entryMap);
         m_defaultKeys.insert(groupName, defaultKeyList);
         m_toZoteroMapping.insert(groupName, keyMapping);
     }
@@ -650,6 +650,7 @@ QByteArray ZoteroSync::writeJsonContent(const QVariantList &items, bool updateIt
     foreach(const QVariant &item, items) {
         QVariantMap entry = item.toMap();
 
+        //TODO: zotero itemType conversion in zoteromapping.ini
         QString entryType;
         if(entry.contains(QLatin1String("articletype"))) {
             entryType = entry.value(QLatin1String("articletype")).toString();
@@ -658,9 +659,15 @@ QByteArray ZoteroSync::writeJsonContent(const QVariantList &items, bool updateIt
             entryType = entryType.replace(QLatin1String("magazine"), QLatin1String("magazineArticle"));
             entryType = entryType.replace(QLatin1String("newspaper"), QLatin1String("newspaperArticle"));
             entryType = entryType.replace(QLatin1String("encyclopedia"), QLatin1String("encyclopediaArticle"));
+            entryType = entryType.replace(QLatin1String("forum"), QLatin1String("forumPost"));
+            entryType = entryType.replace(QLatin1String("blog"), QLatin1String("blogPost"));
         }
         else {
             entryType = entry.value(QLatin1String("bibtexentrytype")).toString();
+            entryType = entryType.replace(QLatin1String("misc"), QLatin1String("document"));
+            entryType = entryType.replace(QLatin1String("inproceedings"), QLatin1String("conferencePaper"));
+            entryType = entryType.replace(QLatin1String("script"), QLatin1String("manuscript"));
+            entryType = entryType.replace(QLatin1String("incollection"), QLatin1String("bookSection"));
         }
 
         if(entryType.isEmpty()) {
@@ -695,7 +702,7 @@ QVariantMap ZoteroSync::transformToJsonMap(const QString &entryType, const QVari
     QVariantMap jsonMap;
 
     // first get the right mappingentry
-    QVariantMap mapping = m_fromZoteroMapping.value(entryType).toMap();
+    QVariantMap mapping = m_fromZoteroMapping.value(entryType.toLower()).toMap();
 
     // now foreach entry in the mapping find the right entry in the item map
     QMapIterator<QString, QVariant> i(mapping);
@@ -756,9 +763,8 @@ QVariantMap ZoteroSync::transformToJsonMap(const QString &entryType, const QVari
         // otherwise insert the direct entry
         else {
             QString itemKey = i.value().toString();
-            QString itemValue = item.value(itemKey, QString()).toString();
+            QString itemValue = item.value(itemKey.toLower(), QString()).toString();
             jsonMap.insert(i.key(), itemValue);
-
         }
     }
 
@@ -971,7 +977,7 @@ void ZoteroSync::readJsonContent(const QString &json, QVariantMap &entry)
     entry.insert(QLatin1String("bibtexcitekey"), citeKey);
 
     QString zoteroType;
-    QVariantMap keyTranslation = m_fromZoteroMapping.value( result.value( QLatin1String("itemType") ).toString()).toMap();
+    QVariantMap keyTranslation = m_fromZoteroMapping.value( result.value( QLatin1String("itemType") ).toString().toLower()).toMap();
     QStringList creators = keyTranslation.value(QLatin1String("creators")).toString().split(QLatin1String(";"));
     QVariantMap creatorTranslation;
 
@@ -1002,6 +1008,7 @@ void ZoteroSync::readJsonContent(const QString &json, QVariantMap &entry)
         //##########################################################################
         //# change the entry type to something bibtex offers if possible
 
+        //TODO: zotero itemType conversion in zoteromapping.ini
         else if(i.key() == QLatin1String("itemType")) {
             zoteroType = i.value().toString().toLower();
 
@@ -1083,7 +1090,7 @@ void ZoteroSync::readJsonContent(const QString &json, QVariantMap &entry)
             // here either the transformed key name from the lookup table is used
             // or if nothing is found the key from zotero is used
             QString key = keyTranslation.value(i.key(), i.key()).toString();
-            entry.insert(key, text);
+            entry.insert(key.toLower(), text);
         }
     }
 
