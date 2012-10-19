@@ -17,7 +17,6 @@ ADD_DEPENDENCIES(conquirere nbibio)
 
 target_link_libraries(conquirere
         nepomukcore
-        nepomuksync
 # include static libs from conquirere
         ontology
         core
