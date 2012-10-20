@@ -26,7 +26,6 @@ target_link_libraries(TEST-core.model
         ${NEPOMUK_LIBRARIES}
         ${NEPOMUK_QUERY_LIBRARIES}
         nepomukcore
-        nepomuksync
 
 #include kbibtex
         ${KBIBTEX_LIBRARIES}

@@ -31,7 +31,6 @@ target_link_libraries(Test-nbibio.variant2nepomuk
         ${NEPOMUK_LIBRARIES}
         ${NEPOMUK_QUERY_LIBRARIES}
         nepomukcore
-        nepomuksync
 
         ${NEPOMUK_METADATA_EXTRACTOR_LIBS}
 

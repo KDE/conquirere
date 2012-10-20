@@ -31,7 +31,6 @@ target_link_libraries(Test-nbibio.nepomuk2variant
         ${NEPOMUK_LIBRARIES}
         ${NEPOMUK_QUERY_LIBRARIES}
         nepomukcore
-        nepomuksync
 
 #include kbibtex
         ${KBIBTEX_LIBRARIES}
