@@ -27,7 +27,7 @@
 
 int main(int argc, char *argv[])
 {
-    Nepomuk2::ResourceManager::instance()->init();
+    //Nepomuk2::ResourceManager::instance()->init();
 
     KAboutData aboutData( "conquirere", 0,
                           ki18n("Conquirere"), VERSION,
