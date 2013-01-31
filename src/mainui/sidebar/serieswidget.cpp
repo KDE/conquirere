@@ -21,11 +21,11 @@
 #include "globals.h"
 #include "core/library.h"
 #include "core/projectsettings.h"
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 
 #include "listpartswidget.h"
 
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 #include <Nepomuk2/DataManagement>
 #include <Nepomuk2/StoreResourcesJob>

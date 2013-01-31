@@ -1,0 +1,165 @@
+/**
+@mainpage Conquirere Overview
+
+@author Jörg Ehrichs <joerg.ehrichs@gmx.de>
+
+<p><b>
+Overview |
+\ref ontology |
+\ref sync |
+\ref hacking |
+</b></p>
+
+\section overview The General Idea
+
+Conquirere is a program to organize documents and their publication data together with some other useful information connected to it.
+
+The user can add all necessary publication data <i>(authors, publisher, publication date and so on)</i> and create references to it that point at a specific document or even a specific chapter/page in the document.
+
+The publication data can be imported/exported from/to BibTeX and used by any other program that understands the BibTeX format.
+Additional publications can be searched via the @c MetaData @c Extractor @c websearch functionality.
+
+Furthermore notes and bookmarks can be organized and connected to a specific publication.
+
+When the user wants to research a new topic, a new project can be created and the already existing informations can be connected to it. This allows to reuse existing data in the Nepomuk storage and avoids duplication.
+
+Documents can stay at one place on the hard drive and easily found via Conquirere.
+
+In the future Conquirere will allow to annotate specific parts in a document and act as a full blown research helper. Also extracting keywords and find new content based on the existing content will be in the scope of this program. For backup purposes integration with Zotero, Mendeley and ownCloud will be added too.
+
+*/
+
+/** \page ontology Bibliographic Ontology
+
+<p><b>
+\ref index |
+Bibliographic Ontology |
+\ref sync |
+\ref hacking |
+</b></p>
+
+\section ontology_overview Overview
+
+The bibliographic ontology <i>(NBIB namespace)</i> defines how the data is saved in the nepomuk storage.
+
+The important files are in the @c ontology @c directory. The ontology is in the file @c ontology/nbib.trig.
+
+Have a look at the <i>bibo_mapping.txt</i>, <i>bibtex_mapping.txt</i> to get a clue how all this is working and connected with each other.
+
+An UML overview of the ontology can be seen below. These are the main parts of this ontology
+\image html design_overview.jpeg "ontology overview"
+
+To specify the publications any further, there exist more detailed ontology for any kind of articles
+\image html nbib_articles.jpeg "Article related"
+
+Here is a small list of other publications that can be handled by this ontology
+\image html nbib_other.jpeg "others"
+
+The ontology part below is used for law related publications
+\image html nbib_law.jpeg "Law related"
+
+Have a look into the \ref nbibio section to find out more about the import/export of nbib data.
+Also check the \ref core , NepomukModel and QueryClient to see how the data is fetched from Nepomuk and presented to the user.
+
+*/
+
+/** \page sync Sync Ontology
+
+<p><b>
+\ref index|
+\ref ontology |
+sync ontology |
+\ref hacking |
+</b></p>
+
+\section ontology_overview Overview
+
+The Sync ontology is used to keep the Nepomuk data in sync with any onlinestorage supported by Conquirere <i>(currently only Zotero)</i>.
+In order to unique identify the correct resource and all its connected parts and also find out if the resource was deleted addition @c ServerSyncData resources are. created.
+
+A small overview of the ontology is shown below:
+\image html sync_ontology.jpeg "ontology overview"
+
+A small use-case example for Zotero would look like this:
+\image html sync_zotero_example.jpeg "Zotero example"
+
+In here you can see that several ServerSyncData objects are created. The reason for this is the fact that in Zotero each Note and file attachment has its own unique
+identifier and is specified as child of the parent publication. In the same way the data is added to Nepomuk.
+
+When the data is synced with Zotero the correct ServerSyncData objects are created.
+Via the @c sync:id the correct publication/attachment/note can be identified and the @c sync:etag tells us if the data was changed on the server side since the
+last sync.
+
+For the implementation of the Zotero Sync have a look into the \ref nbibio section.
+
+The important parts are:
+\li NepomukSyncClient - bridge between Nepomuk and the provider that uploads/downloads data
+\li OnlineStorage - Abstract base class for all provider
+\li ZoteroSync - Zotero storage provider implementation
+
+*/
+
+/** \page hacking Source structure
+
+<p><b>
+\ref index |
+\ref ontology |
+\ref sync |
+Source structure |
+</b></p>
+
+\section hacking_overview Source structure
+
+In the case you want to help developing this program or fix some bugs the following stuff will help you get started.
+
+The heart of Conquirere is the Nepomuk storage and the developed \ref ontology & \ref sync.
+
+The source part is split into a few areas:
+ - \ref core - Fetching data from Nepomuk, prepare data for the display, Project Management
+ - \ref nbibio - Import, Export and onlinestorage syncronization
+ - \ref widgets - Helping widgets to show/edit the publication properties
+ - mainui
+
+\subsection src_mainui src/mainui
+
+This part contains all classes related to the look and feel of the applications.
+These consits of the BibTeXImportWizard and BibTexExportDialog as a frontend for the \ref src_nbibio.
+Also several QDockWidget classes that contain all the user interaction parts.
+
+Most noticeable are the:
+\li LibraryManager - manages all opened Library instances
+\li LibraryWidget - lists all open Library instances and their content.
+\li WebSearchWidget - frontend for KBibTeX websearch
+\li DocumentPreview - integrates KPart elements to display documents inside Conquirere.
+\li ResourceTableWidget - the center view that offers a QTableView to display all NepomukModel data
+\li WelcomeWidget - shows a KHtml part to display some library informations
+
+\subsection src_sidebar src/mainui/sidebar
+
+The SidebarWidget is an intelligent QDockwidget that shows content related widget for the actual view.
+Which Widget is shown depends on the selection made in the LibraryWidget for example if the user selects all publications in the LibraryWidget the PublicationWidget is shown.
+The informations that are displayed depends on the Nepomuk::Resource selected in the ResourceTableWidget.
+All this stuff is connected via signal/slots in the coresponding classes.
+
+Some important widgets are:
+\li DocumentWidget
+\li PublicationWidget
+\li ReferenceWidget
+\li NoteWidget
+
+Also when more than 1 Nepomuk::Resource  is selected the MergeResourcesWidget is shown that lets the user merge several Nepomuk::Resources into 1.
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -18,7 +18,7 @@
 #include "searchwidget.h"
 #include "ui_searchwidget.h"
 
-#include <nepomukmetadataextractor/extractorfactory.h>
+#include <nepomuk-webminer/extractorfactory.h>
 
 #include <Nepomuk2/ResourceManager>
 #include <Soprano/Model>
@@ -392,10 +392,10 @@ void SearchWidget::setupUi()
     KConfig config;
     KConfigGroup searchSettingsGroup( &config, QLatin1String("SearchSettings") );
 
-    m_ef = new NepomukMetaDataExtractor::Extractor::ExtractorFactory;
-    QList<NepomukMetaDataExtractor::Extractor::WebExtractor::Info> plugins = m_ef->listAvailablePlugins(QLatin1String("publication"));
+    m_ef = new NepomukWebMiner::Extractor::ExtractorFactory;
+    QList<NepomukWebMiner::Extractor::WebExtractor::Info> plugins = m_ef->listAvailablePlugins(QLatin1String("publication"));
 
-    foreach(const NepomukMetaDataExtractor::Extractor::WebExtractor::Info & info, plugins) {
+    foreach(const NepomukWebMiner::Extractor::WebExtractor::Info & info, plugins) {
         QListWidgetItem *item = new QListWidgetItem(info.name, ui->listWebEngines);
 
         item->setCheckState(searchSettingsGroup.readEntry(info.identifier, false) ? Qt::Checked : Qt::Unchecked);

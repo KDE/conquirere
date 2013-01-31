@@ -21,7 +21,7 @@
 #include "core/library.h"
 #include "core/projectsettings.h"
 
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 
 #include "propertywidgets/stringedit.h"
 #include "propertywidgets/contactedit.h"

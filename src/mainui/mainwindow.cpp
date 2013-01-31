@@ -20,11 +20,12 @@
 #include "core/library.h"
 #include "core/projectsettings.h"
 
-#include "librarymanager.h"
+#include "core/librarymanager.h"
 #include "welcomewidget.h"
 #include "resourcetablewidget.h"
 #include "splashscreen.h"
 
+#include "settings/projectsettingsdialog.h"
 #include "settings/conquireresettingsdialog.h"
 
 #include "sidebar/sidebarwidget.h"
@@ -38,10 +39,12 @@
 #include "docklets/documentpreview.h"
 #include "docklets/searchwidget.h"
 
-#include "sync/backgroundsync.h"
-#include "sync/storagesyncwizard.h"
+#include "nbibio/backgroundsync.h"
+#include "nbibio/ui/storagesyncwizard.h"
+#include "nbibio/ui/bibteximportwizard.h"
+#include "nbibio/ui/bibtexexportdialog.h"
 
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 #include <KDE/KApplication>
 #include <KDE/KAction>
@@ -189,20 +192,45 @@ void MainWindow::closeLibrarySelection()
     m_libraryManager->closeLibrary(selectedLib);
 }
 
-void MainWindow::importZotero()
+void MainWindow::openSettings(Library *l)
 {
-    m_libraryManager->importData( LibraryManager::Zotero_Sync);
+    if(l->libraryType() == Library_Project) {
+        ProjectSettingsDialog settingsDialog;
+        settingsDialog.setProjectSettings(l->settings());
+
+        settingsDialog.exec();
+    }
+    else {
+        ConquirereSettingsDialog csd;
+        csd.setProjectSettings(l->settings());
+
+        csd.exec();
+    }
 }
 
-void MainWindow::exportZotero()
+void MainWindow::fileImport(Library *l)
 {
-    m_libraryManager->exportData(LibraryManager::Zotero_Sync);
+    BibTeXImportWizard bid;
+    bid.setLibraryManager(m_libraryManager);
+    bid.setImportLibrary(l);
+    bid.setupUi();
+    bid.exec();
 }
 
-void MainWindow::syncStorage()
+void MainWindow::fileExport(Library *l)
+{
+    BibTexExportDialog bed;
+    bed.setInitialFileType(BibTexExporter::EXPORT_BIBTEX);
+    bed.setLibraryManager(m_libraryManager);
+    bed.setExportLibrary(l);
+    bed.exec();
+}
+
+void MainWindow::storageSync(Library *l)
 {
     StorageSyncWizard ssw;
 
+    //FIXME: set library for storage sync
     ssw.setLibraryManager(m_libraryManager);
 
     ssw.exec();
@@ -226,6 +254,32 @@ void MainWindow::showConqSettings()
     csd.setProjectSettings(m_libraryManager->systemLibrary()->settings());
 
     csd.exec();
+}
+
+void MainWindow::backgroundSyncCollections()
+{
+    m_kpd = new KProgressDialog;
+    m_kpd->setMinimumWidth(400);
+    BackgroundSync *backgroundSyncManager = new BackgroundSync;
+    backgroundSyncManager->setLibraryManager( m_libraryManager );
+
+//    backgroundSyncManager->setLibraryToSyncWith(m_curLibrary);
+
+    connect(backgroundSyncManager, SIGNAL(progress(int)), this, SLOT(setSyncProgress(int)));
+    connect(backgroundSyncManager, SIGNAL(progressStatus(QString)), this, SLOT(setSyncStatus(QString)));
+    connect(backgroundSyncManager, SIGNAL(allSyncTargetsFinished()), this, SLOT(syncFinished()));
+    connect(m_kpd, SIGNAL(cancelClicked()), backgroundSyncManager, SLOT(cancelSync()));
+
+    backgroundSyncManager->startSync();
+
+    //if syncFinished was called beforehand, this might fail ..
+    //happens when nothing to sync is available
+    if( m_kpd ) {
+        m_kpd->exec();
+
+        delete m_kpd;
+        m_kpd = 0;
+    }
 }
 
 void MainWindow::connectKPartGui(KParts::Part * part)
@@ -428,27 +482,28 @@ void MainWindow::setupActions()
     importBibTexAction->setText(i18n("Import from File"));
     importBibTexAction->setIcon(KIcon(QLatin1String("document-import")));
     actionCollection()->addAction(QLatin1String("db_import_file"), importBibTexAction);
-    connect(importBibTexAction, SIGNAL(triggered(bool)),m_libraryManager, SLOT(importData()));
+    connect(importBibTexAction, SIGNAL(triggered(bool)),m_libraryManager, SLOT(doImportFile()) );
 
     // export section
     KAction* exportBibTexAction = new KAction(this);
     exportBibTexAction->setText(i18n("Export to File"));
     exportBibTexAction->setIcon(KIcon(QLatin1String("document-export")));
     actionCollection()->addAction(QLatin1String("db_export_file"), exportBibTexAction);
-    connect(exportBibTexAction, SIGNAL(triggered(bool)),m_libraryManager, SLOT(exportData()));
+    connect(exportBibTexAction, SIGNAL(triggered(bool)),m_libraryManager, SLOT(doExportFile()) );
 
     // sync actions
     KAction* syncZoteroAction = new KAction(this);
     syncZoteroAction->setText(i18n("External Storage Sync"));
     syncZoteroAction->setIcon(KIcon(QLatin1String("svn-update")));
     actionCollection()->addAction(QLatin1String("db_sync_storage"), syncZoteroAction);
-    connect(syncZoteroAction, SIGNAL(triggered(bool)),this, SLOT(syncStorage()));
+    connect(syncZoteroAction, SIGNAL(triggered(bool)),m_libraryManager, SLOT(doSyncStorage()) );
 
+    //FIXME: full sync (background sync)
     KAction* triggerBackgroundSyncAction = new KAction(this);
     triggerBackgroundSyncAction->setText(i18n("Synchronize Collection"));
     triggerBackgroundSyncAction->setIcon(KIcon(QLatin1String("view-refresh")));
     actionCollection()->addAction(QLatin1String("db_background_sync"), triggerBackgroundSyncAction);
-    connect(triggerBackgroundSyncAction, SIGNAL(triggered(bool)), this, SLOT(startFullSync()));
+    connect(triggerBackgroundSyncAction, SIGNAL(triggered(bool)), this, SLOT(backgroundSyncCollections()));
 
     // other database actions
     KAction* dbCheckAction = new KAction(this);
@@ -502,6 +557,10 @@ void MainWindow::setupMainWindow()
     m_libraryManager = new LibraryManager;
     connect(m_libraryManager, SIGNAL(libraryAdded(Library*)), this, SLOT(openLibrary(Library*)));
     connect(m_libraryManager, SIGNAL(libraryRemoved(QUrl)), this, SLOT(closeLibrary(QUrl)));
+    connect(m_libraryManager, SIGNAL(exportFile(Library*)), this, SLOT(fileExport(Library*)) );
+    connect(m_libraryManager, SIGNAL(importFile(Library*)), this, SLOT(fileImport(Library*)) );
+    connect(m_libraryManager, SIGNAL(syncStorage(Library*)), this, SLOT(storageSync(Library*)) );
+    connect(m_libraryManager, SIGNAL(openSettings(Library*)), this, SLOT(openSettings(Library*)) );
 
     // we start by applying all hidden sections from the "OnRestart" key to the real hidden part
     // without ths difference, we could end up badly when the user chanegs the hiddens election and

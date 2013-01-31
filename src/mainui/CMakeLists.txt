@@ -1,6 +1,5 @@
 
 set(mainui_LIB_SRCS
-    librarymanager.cpp
     resourcetablewidget.cpp
     tableviewmenu.cpp
     mainwindow.cpp
@@ -28,14 +27,6 @@ set(mainui_LIB_SRCS
     settings/systemsyncsettings.cpp
     settings/providerselectionwidget.cpp
     settings/appearancesettings.cpp
-
-    sync/bibtexexportdialog.cpp
-    sync/bibteximportwizard.cpp
-    sync/synczoterodialog.cpp
-    sync/backgroundsync.cpp
-    sync/storagesyncwizard.cpp
-    sync/itemdeletedialog.cpp
-    sync/itemmergedialog.cpp
 
     sidebar/sidebarwidget.cpp
     sidebar/sidebarcomponent.cpp
@@ -76,12 +67,6 @@ kde4_add_ui_files( mainui_LIB_SRCS
                    settings/providerselectionwidget.ui
                    settings/appearancesettings.ui
 
-                   sync/bibtexexportdialog.ui
-                   sync/bibteximportwizard.ui
-                   sync/storagesyncwizard.ui
-                   sync/itemdeletedialog.ui
-                   sync/itemmergedialog.ui
-
                    sidebar/referencewidget.ui
                    sidebar/listpublicationsdialog.ui
                    sidebar/publicationwidget.ui
@@ -102,18 +87,19 @@ kde4_add_ui_files( mainui_LIB_SRCS
 )
 
 kde4_add_library( mainui STATIC ${mainui_LIB_SRCS} )
+ADD_DEPENDENCIES(mainui config)
+ADD_DEPENDENCIES(mainui core)
 ADD_DEPENDENCIES(mainui nbibio)
 
 target_link_libraries(mainui
-        #nepomukmetadataextractor
     ${NEPOMUK_METADATA_EXTRACTOR_LIBS}
 
 # include static libs from conquirere
         ontology
+        config
         core
         nbibio
         propertywidgets
-        onlinestorage
 )
  
 install( TARGETS mainui  ${INSTALL_TARGETS_DEFAULT_ARGS} )

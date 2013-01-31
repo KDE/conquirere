@@ -20,11 +20,11 @@
 
 #include <KDE/KDebug>
 
-#include <nepomukmetadataextractor/krossextractor.h>
-#include <nepomukmetadataextractor/publicationpipe.h>
+#include <nepomuk-webminer/krossextractor.h>
+#include <nepomuk-webminer/publicationpipe.h>
 
-using namespace NepomukMetaDataExtractor::Extractor;
-using namespace NepomukMetaDataExtractor::Pipe;
+using namespace NepomukWebMiner::Extractor;
+using namespace NepomukWebMiner::Pipe;
 
 SearchResultInfoWidget::SearchResultInfoWidget(QWidget *parent) :
     SidebarComponent(parent),

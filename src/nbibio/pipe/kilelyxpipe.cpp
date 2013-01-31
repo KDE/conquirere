@@ -17,7 +17,7 @@
 
 #include "kilelyxpipe.h"
 
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 #include "nbib.h"
 #include <Nepomuk2/Resource>

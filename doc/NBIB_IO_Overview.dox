@@ -1,0 +1,40 @@
+/**
+\page nbibio NBIB-io Overview 
+
+The nbib io part is handling 2 different use cases.
+\li \ref nbibimexport
+\li \ref nbibsync
+
+Thus this part handles all interaction to get the publication data in and out od the Nepomuk storage.
+Beside the necessary core files, also all Ui elements necessary to intact with them are put into this module.
+
+\section nbibimexport Im-/Export
+
+The import / export is responsible for file syncronization via @c KBibTeX . All formarts supported by @c KBibTeX are supported.
+Most notably the @c .bib file format that is widely used by LaTeX and other programs.
+
+The source is spilt into a few different areas.
+\li @c bibtex handles the loading/saving of bibtex file formats and transform them into a QVariantList taht can be used by all other parts
+\li @c pipe handles Nepomuk2::Resource transitions and transform them from/to QVariantList
+
+In order to import data into Nepomuk the @c MetaDataExtractor is reused that already offers a way to import QVariantList/QVariantMap data into the Nepomuk db.
+An additional Layer VariantToNepomukPipe is added to deal with @c Attachment @c Note objects as well as @c SeverSyncData objects that have to be added
+to deal with @c Zotero syncronization and onlinestorage syncronization in general.
+
+\image html nbibio_overview.jpeg "Import / Export modules"
+
+
+\section nbibsync Onlinestorage Sync
+
+The other big part of the nbibio module is the syncronization with any supported onlinestorage.
+This is realized by the NepomukSyncClient that manages all steps necessary to to this. <i>(Reading data from Nepomuk, pushing it online, merging the results and write back the data to Nepomuk)</i>
+
+The ProviderSyncDetails define which OnlineStorage is used and all data necessary to retrieve/write data to the storage.
+
+Currently the only supported provider is @c Zotero via the ZoteroSync .In the future there will also be @c Mendeley support and plain file data (@c bibtex @c files) on a local or remote storage.
+
+The user intaction is done by the @c ui classes. Started from the StorageSyncWizard and if additional informations are necessary in the sync steps via the ItemDeleteDialog or ItemMergeDialog
+
+\image html nbibio_sync_overview.jpeg "Sync modules"
+
+*/

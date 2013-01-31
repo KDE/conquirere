@@ -1,6 +1,10 @@
+
+
+
 set(core_LIB_SRCS
     projectsettings.cpp
     library.cpp
+    librarymanager.cpp
     dirwatcher.cpp
     tagcloud.cpp
 
@@ -29,16 +33,10 @@ set(core_LIB_SRCS
 )
 
 kde4_add_library( core STATIC ${core_LIB_SRCS} )
-ADD_DEPENDENCIES(core nbibio)
-
+ADD_DEPENDENCIES(core config)
 
 target_link_libraries(core
-#include kbibtex
-        ${KBIBTEX_LIBRARIES}
-        #kbibtexio
-        #kbibtexnetworking
-        #kbibtexgui
-        #kbibtexproc
+        config
 )
 
 install( TARGETS core ${INSTALL_TARGETS_DEFAULT_ARGS} )

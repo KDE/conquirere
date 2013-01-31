@@ -27,7 +27,7 @@
 #include "sro/nbib/series.h"
 #include "sro/nbib/collection.h"
 
-#include "nbib.h"
+#include "ontology/nbib.h"
 #include <Nepomuk2/Vocabulary/NIE>
 #include <Nepomuk2/Variant>
 #include <KDE/KDebug>

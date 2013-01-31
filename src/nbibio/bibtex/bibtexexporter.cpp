@@ -32,7 +32,7 @@
 #include <kbibtex/fileexporterxslt.h>
 #include <kbibtex/fileexporterbibtex.h>
 
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 BibTexExporter::BibTexExporter()
     : m_fileType(EXPORT_BIBTEX)

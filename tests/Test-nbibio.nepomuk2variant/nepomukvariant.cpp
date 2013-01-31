@@ -43,9 +43,10 @@
 #include <QtDebug>
 
 /**
- * @brief UnitTest for the nbibio exporter Nepomuk -> Bibtex
+ * @file nepomukvariant.cpp
+ * @test UnitTest for the nbibio exporter Nepomuk -> Bibtex
+ *       checks: a few defined test cases.
  *
- * checks: a few defined test cases.
  * for a full data driven test see Test-nbibio.bibtex2bibtex
  */
 class NepomukVariant: public QObject

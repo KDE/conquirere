@@ -19,10 +19,6 @@
 #include "ui_providerselectionwidget.h"
 
 #include "core/projectsettings.h"
-#include "onlinestorage/storageinfo.h"
-
-#include <Akonadi/CollectionFetchJob>
-#include <Akonadi/CollectionFetchScope>
 
 #include <KDE/KGlobalSettings>
 #include <KDE/KMessageBox>
@@ -41,8 +37,6 @@ ProviderSelectionWidget::ProviderSelectionWidget(QWidget *parent) :
     connect(ui->addButton, SIGNAL(clicked()), this, SLOT(addProvider()));
     ui->removeButton->setIcon(KIcon("list-remove"));
     connect(ui->removeButton, SIGNAL(clicked()), this, SLOT(removeProvider()));
-
-    fetchAkonadiCollection();
 }
 
 ProviderSelectionWidget::~ProviderSelectionWidget()
@@ -54,7 +48,7 @@ void ProviderSelectionWidget::setProjectSettings(ProjectSettings *ps)
 {
     m_settings = ps;
 
-    //resetSettings(); called by overlying widgets
+//    resetSettings(); called by overlying widgets
 }
 
 void ProviderSelectionWidget::resetSettings()
@@ -64,7 +58,9 @@ void ProviderSelectionWidget::resetSettings()
     QList<ProviderSyncDetails> syncList = m_settings->allProviderSyncDetails();
 
     foreach(const ProviderSyncDetails & psd, syncList) {
-        QListWidgetItem *qlwi = new QListWidgetItem(psd.providerInfo->providerIcon(), psd.providerInfo->providerName());
+        //FIXME: get provider icon and name from provider ID
+        //QListWidgetItem *qlwi = new QListWidgetItem(psd.providerInfo->providerIcon(), psd.providerInfo->providerName());
+        QListWidgetItem *qlwi = new QListWidgetItem(psd.providerId);
         qlwi->setData(PROVIDER_UUID, psd.uuid);
         ui->listProvider->addItem(qlwi);
     }
@@ -87,15 +83,9 @@ void ProviderSelectionWidget::editProvider()
     ProviderSyncDetails oldPsd = m_settings->providerSyncDetails(uuid);
 
     KDialog dlg;
-    ProviderSettings ps(&dlg, true);
+    ProviderSettings ps(&dlg);
     ps.setProviderSettingsDetails(oldPsd);
     dlg.setMainWidget(&ps);
-
-    ps.setAkonadiContactDetails(m_contactList);
-    ps.setAkonadiEventDetails(m_eventList);
-
-    connect(this, SIGNAL(addContactCollection(QList<ProviderSettings::AkonadiDetails>)), &ps, SLOT(setAkonadiContactDetails(QList<ProviderSettings::AkonadiDetails>)));
-    connect(this, SIGNAL(addEventCollection(QList<ProviderSettings::AkonadiDetails>)), &ps, SLOT(setAkonadiEventDetails(QList<ProviderSettings::AkonadiDetails>)));
 
     int ret = dlg.exec();
 
@@ -104,7 +94,9 @@ void ProviderSelectionWidget::editProvider()
 
         m_settings->setProviderSyncDetails(newPsd, uuid);
 
-        QString itemName = newPsd.providerInfo->providerName();
+        //FIXME: get provider icon and name from provider ID
+//        QString itemName = newPsd.providerInfo->providerName();
+        QString itemName = newPsd.providerId;
         qlwi->setText(itemName);
 
         ps.savePasswordInKWallet();
@@ -115,21 +107,17 @@ void ProviderSelectionWidget::addProvider()
 {
     KDialog dlg;
 
-    ProviderSettings ps(&dlg, true);
+    ProviderSettings ps(&dlg);
     dlg.setMainWidget(&ps);
-
-    ps.setAkonadiContactDetails(m_contactList);
-    ps.setAkonadiEventDetails(m_eventList);
-
-    connect(this, SIGNAL(addContactCollection(QList<ProviderSettings::AkonadiDetails>)), &ps, SLOT(setAkonadiContactDetails(QList<ProviderSettings::AkonadiDetails>)));
-    connect(this, SIGNAL(addEventCollection(QList<ProviderSettings::AkonadiDetails>)), &ps, SLOT(setAkonadiEventDetails(QList<ProviderSettings::AkonadiDetails>)));
 
     int ret = dlg.exec();
 
     if(ret == KDialog::Accepted) {
         ProviderSyncDetails newPsd = ps.providerSettingsDetails();
         QString uuid = m_settings->setProviderSyncDetails(newPsd, QString());
-        QListWidgetItem *qlwi = new QListWidgetItem(newPsd.providerInfo->providerIcon(), newPsd.providerInfo->providerName());
+        //FIXME: get provider icon and name from provider ID
+//        QListWidgetItem *qlwi = new QListWidgetItem(newPsd.providerInfo->providerIcon(), newPsd.providerInfo->providerName());
+        QListWidgetItem *qlwi = new QListWidgetItem(newPsd.providerId);
         qlwi->setData(PROVIDER_UUID, uuid);
         ui->listProvider->addItem(qlwi);
         ps.savePasswordInKWallet();
@@ -151,44 +139,3 @@ void ProviderSelectionWidget::removeProvider()
     m_settings->removeProviderSyncDetails(uuid);
 }
 
-void ProviderSelectionWidget::fetchAkonadiCollection()
-{
-    // fetching all collections containing contacts recursively, starting at the root collection
-    Akonadi::CollectionFetchJob *job = new Akonadi::CollectionFetchJob( Akonadi::Collection::root(), Akonadi::CollectionFetchJob::Recursive, this );
-    job->fetchScope().setContentMimeTypes( QStringList() << "application/x-vnd.kde.contactgroup" );
-    connect( job, SIGNAL(collectionsReceived(Akonadi::Collection::List)),
-             this, SLOT(akonadiContactCollectionFetched(Akonadi::Collection::List)) );
-
-    Akonadi::CollectionFetchJob *job2 = new Akonadi::CollectionFetchJob( Akonadi::Collection::root(), Akonadi::CollectionFetchJob::Recursive, this );
-    job2->fetchScope().setContentMimeTypes( QStringList() << "x-vnd.akonadi.calendar.event" << "application/x-vnd.akonadi.calendar.todo" );
-    connect( job2, SIGNAL(collectionsReceived(Akonadi::Collection::List)),
-             this, SLOT(akonadiEventCollectionFetched(Akonadi::Collection::List)) );
-}
-
-void ProviderSelectionWidget::akonadiContactCollectionFetched(const Akonadi::Collection::List &list)
-{
-    m_contactList.clear();
-
-    foreach(const Akonadi::Collection & c, list) {
-        ProviderSettings::AkonadiDetails ad;
-        ad.collectionName = c.name();
-        ad.collectionID = c.id();
-        m_contactList.append(ad);
-    }
-
-    emit addContactCollection(m_contactList);
-}
-
-void ProviderSelectionWidget::akonadiEventCollectionFetched(const Akonadi::Collection::List &list)
-{
-    m_eventList.clear();
-
-    foreach(const Akonadi::Collection & c, list) {
-        ProviderSettings::AkonadiDetails ad;
-        ad.collectionName = c.name();
-        ad.collectionID = c.id();
-        m_eventList.append(ad);
-    }
-
-    emit addEventCollection(m_eventList);
-}

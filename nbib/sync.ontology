@@ -1,8 +1,0 @@
-[Ontology]
-Version=0.1
-Name=Sync NBIB Ontology
-Comment=Describes all necessary parts to keep the publication from NBIB insync with an online storage such as zotero
-Namespace=http://www.example.com/sync#
-Path=/usr/share/ontology/nie/sync.trig
-MimeType=application/x-trig
-Type=Data

@@ -23,6 +23,8 @@
 
 #include <Nepomuk2/Resource>
 
+#include "nbibio/storageglobals.h"
+
 class NepomukToVariantPipe : public QObject
 {
     Q_OBJECT
@@ -47,7 +49,7 @@ public:
       * For example @BachelorThesis becomes Masterthesis
       */
     void useStrictTypes(bool strict);
-    void setSyncDetails(const QString &url, const QString &userid);
+    void setSyncProviderDetails(const ProviderSyncDetails &psd);
 
     /**
       * Includes the nepomuk resource uri for the publication and reference to the bibtex output
@@ -102,8 +104,7 @@ private:
     QVariantMap m_curEntryMap;
     bool m_strict;
     bool m_addNepomukUris;
-    QString m_syncUrl;
-    QString m_syncUserId;
+    ProviderSyncDetails m_psd;
 
     qreal m_percentPerResource;
 };

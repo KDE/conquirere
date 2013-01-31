@@ -18,7 +18,7 @@
 #include "librarywidget.h"
 #include "ui_librarywidget.h"
 
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 #include "mainui/settings/projectsettingsdialog.h"
 #include "mainui/docklets/searchwidget.h"
 
@@ -29,7 +29,7 @@
 #include "qlibrarytreewidgetitem.h"
 #include "projecttreedelegate.h"
 
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 #include <KDE/KStandardDirs>
 
@@ -205,7 +205,8 @@ void LibraryWidget::exportToFile()
     if(!selectedLibrary) {
         return;
     }
-    m_libraryManager->exportData(selectedLibrary);
+
+    m_libraryManager->doExportFile(selectedLibrary);
 }
 
 void LibraryWidget::importFromFile()
@@ -215,7 +216,8 @@ void LibraryWidget::importFromFile()
     if(!selectedLibrary) {
         return;
     }
-    m_libraryManager->importData(selectedLibrary);
+
+    m_libraryManager->doImportFile(selectedLibrary);
 }
 
 void LibraryWidget::openSettings()
@@ -225,7 +227,7 @@ void LibraryWidget::openSettings()
     if(!selectedLibrary) {
         return;
     }
-    m_libraryManager->openSettings(selectedLibrary);
+    m_libraryManager->doOpenSettings(selectedLibrary);
 }
 
 void LibraryWidget::closeProject()

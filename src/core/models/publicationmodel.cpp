@@ -18,7 +18,7 @@
 #include "publicationmodel.h"
 
 #include "../queryclients/publicationquery.h"
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 #include <KDE/KIcon>
 

@@ -1,0 +1,121 @@
+format 74
+
+classcanvas 128004 class_ref 144388 // NepomukSyncClient
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 579 166 2000
+end
+classcanvas 128132 class_ref 144516 // OnlineStorage
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 797 166 2000
+end
+classcanvas 128388 class_ref 144644 // ZoteroSync
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 970 166 2000
+end
+classcanvas 128516 class_ref 144772 // ProviderSettings
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 321 258 2000
+end
+classcanvas 128644 class_ref 144900 // StorageSyncWizard
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 177 163 2000
+end
+classcanvas 128900 class_ref 145156 // ItemDeleteDialog
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 54 258 2000
+end
+classcanvas 129028 class_ref 145284 // ItemMergeDialog
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 188 258 2000
+end
+packagecanvas 130052 
+  package_ref 141572 // ui
+    xyzwh 49 124 2000 421 195
+end
+classcanvas 130308 class_ref 145924 // ProviderSyncDetails
+  draw_all_relations default hide_attributes no hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 511 258 2000
+end
+packagecanvas 130948 
+  package_ref 141956 // provider
+    xyzwh 771 124 2000 317 183
+end
+classcanvas 131460 class_ref 145028 // BackgroundSync
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 716 384 2000
+end
+note 131844 "For all opened libraries it will sync all saved sync details automatically without ui"
+  xyzwh 705 463 2000 245 83
+classcanvas 132100 class_ref 146052 // MendeleySync
+  draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+  xyz 797 250 2000
+end
+relationcanvas 129412 relation_ref 144644 // <dependency>
+  decenter_begin 800
+  decenter_end 580
+  from ref 128644 z 2001 to point 127 197
+  line 129924 z 2001 to ref 128900
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 129540 relation_ref 144772 // <dependency>
+  from ref 128644 z 2001 to ref 129028
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 129668 relation_ref 144900 // <dependency>
+  decenter_begin 800
+  decenter_end 328
+  from ref 128644 z 2001 to point 361 197
+  line 129796 z 2001 to ref 128516
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 130180 relation_ref 145028 // <generalisation>
+  from ref 128388 z 2001 to ref 128132
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 130436 relation_ref 145156 // <aggregation>
+  from ref 128516 z 2001 to point 383 407
+  line 131332 z 2001 to ref 130308
+  no_role_a no_role_b
+  multiplicity_a_pos 492 419 3000 no_multiplicity_b
+end
+relationcanvas 130692 relation_ref 145284 // <aggregation>
+  decenter_begin 58
+  from ref 128004 z 2001 to ref 130308
+  no_role_a no_role_b
+  multiplicity_a_pos 569 231 3000 no_multiplicity_b
+end
+relationcanvas 130820 relation_ref 145412 // <aggregation>
+  from ref 128004 z 2001 to ref 128132
+  no_role_a no_role_b
+  multiplicity_a_pos 778 198 3000 no_multiplicity_b
+end
+relationcanvas 131076 relation_ref 145540 // <aggregation>
+  decenter_end 444
+  from ref 128644 z 2001 to ref 128004
+  no_role_a no_role_b
+  multiplicity_a_pos 560 195 3000 no_multiplicity_b
+end
+relationcanvas 131588 relation_ref 145668 // <aggregation>
+  from ref 131460 z 2001 to ref 130308
+  no_role_a no_role_b
+  multiplicity_a_pos 675 416 3000 no_multiplicity_b
+end
+relationcanvas 131716 relation_ref 145796 // <aggregation>
+  decenter_begin 67
+  decenter_end 941
+  from ref 131460 z 2001 to ref 128004
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 132228 relation_ref 145924 // <generalisation>
+  from ref 132100 z 2001 to ref 128132
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+line 131972 -_-_ decenter_begin 318
+  from ref 131844 z 2001 to ref 131460
+end

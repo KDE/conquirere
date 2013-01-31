@@ -25,7 +25,7 @@
 
 #include <KDE/KSharedConfigPtr>
 
-#include "onlinestorage/storageglobals.h"
+#include "nbibio/storageglobals.h"
 
 class Library;
 

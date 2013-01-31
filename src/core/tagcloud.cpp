@@ -19,7 +19,7 @@
 
 #include "library.h"
 #include "projectsettings.h"
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 #include <Nepomuk2/Variant>
 #include <Nepomuk2/ResourceManager>

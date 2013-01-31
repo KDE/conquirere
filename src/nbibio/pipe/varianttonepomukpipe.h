@@ -20,8 +20,15 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QVariantList>
+#include <QtCore/QVariantMap>
 
 #include <Nepomuk2/Resource>
+#include <Nepomuk2/SimpleResource>
+#include <Nepomuk2/SimpleResourceGraph>
+
+#include "../storageglobals.h"
+
+class OnlineStorage;
 
 class VariantToNepomukPipe : public QObject
 {
@@ -30,13 +37,13 @@ public:
     explicit VariantToNepomukPipe(QObject *parent = 0);
 
     /**
-      * Does the piping action
+      * Does the piping action of new tems
       *
       * @p resources list of publications
       */
     void pipeExport(QVariantList &publicationList);
 
-    void setSyncDetails(const QString &url, const QString &userid);
+    void setSyncStorageProvider(OnlineStorage *storage);
 
     /**
       * if the @p projectThing is valid all imported data will be related via @c pimo:isRelated to the project
@@ -48,12 +55,28 @@ signals:
 
 private:
     void importNote(const QVariantMap &noteEntry);
+    /**
+     * @brief import a new file attachment and downloads its content
+     * @param attachmentEntry
+     */
     void importAttachment(const QVariantMap &attachmentEntry);
 
+    /**
+     * @brief Adds Zotero Sync details to the newly created nbib:Reference and nbib:Publication
+     * @param publicationResource the created nbib:Publication Resources
+     * @param referenceResource the created nbib:Reference Resources
+     * @param item the original QVariantMap item that was used to create the publication/reference
+     *
+     * @todo check how this step can be simplified. Currently a blocking save is added to first create the ServerSyncData object and than connect it.
+     *       there seems to be a bug that prevents doing this in one step via SimpleResourceGraph
+     */
+    void addStorageSyncDetails(Nepomuk2::Resource &publicationResource, Nepomuk2::Resource &referenceResource, const QVariantMap &item);
+    void addStorageSyncDetails(Nepomuk2::Resource attachment, const QVariantMap &item);
+
 private:
-    QString m_syncUrl;
-    QString m_syncUserId;
+    OnlineStorage *m_storage;
     Nepomuk2::Resource m_projectThing;
+
 };
 
 #endif // VARIANTTONEPOMUKPIPE_H

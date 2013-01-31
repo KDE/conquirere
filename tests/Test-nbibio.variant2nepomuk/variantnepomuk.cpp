@@ -41,9 +41,10 @@ using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
 /**
- * @brief UnitTest for the nbibio exporter Nepomuk -> Bibtex
+ * @file variantnepomuk.cpp
+ * @test UnitTest for the nbibio exporter Nepomuk -> Bibtex
+ *       checks: a few defined test cases.
  *
- * checks: a few defined test cases.
  * for a full data driven test see Test-nbibio.bibtex2bibtex
  */
 class VariantNepomuk: public QObject
@@ -55,15 +56,7 @@ private slots:
     void initTestCase();
 
     void importArticleTest();
-
     //TODO: Add more publication types for unittest nepomuk import
-//    void exportBookTest();
-//    void exportBookletTest();
-//    void exportInBookTest();
-//    void exportInCollectionTest();
-//    void exportProceedingsTest();
-//    void exportInProceedingsTest();
-//    void exportTechreportTest();
 
     void cleanupTestCase();
 
@@ -93,6 +86,7 @@ void VariantNepomuk::checknames(const Nepomuk2::Resource &r, QStringList &names,
 
 void VariantNepomuk::importArticleTest()
 {
+    QDateTime startDate = QDateTime::currentDateTime();
     QVariantList list;
     QVariantMap entryMap;
     entryMap.insert(QLatin1String("bibtexentrytype"), QString::fromUtf8("article"));
@@ -125,12 +119,14 @@ void VariantNepomuk::importArticleTest()
 
     // now try to find the resource in Nepomuk again
 
-    //TODO: limit search by creation date just in case the article exist already from a previous entry
     // search for the imported reference
     QString query = QString::fromLatin1("select ?r where {"
                                         "?r a nbib:Reference ."
                                         "OPTIONAL { ?r nbib:citeKey ?t . }"
                                         "FILTER regex(?t, \"^UNITTEST-article\") ."
+
+                                        "?r nao:created ?created ."
+                                        "FILTER ( ?created > \"" + startDate.toString(Qt::ISODate).toLatin1() + "\"^^xsd:dateTime ) ."
                                         "}");
     Soprano::Model* model = Nepomuk2::ResourceManager::instance()->mainModel();
     Soprano::QueryResultIterator it = model->executeQuery( query, Soprano::Query::QueryLanguageSparql );
@@ -280,166 +276,15 @@ void VariantNepomuk::importArticleTest()
         QFAIL("Backlink broken. journal does not link back to journalissue");
     }
 }
-/*
-void VariantNepomuk::exportBookTest()
-{
-    Nepomuk2::Resource ref = Nepomuk2::Resource( bookReferenceUri );
 
-    QVariantMap entryMap;
-    entryMap.insert(QLatin1String("bibtexentrytype"), QString::fromUtf8("book"));
-    entryMap.insert(QLatin1String("bibtexcitekey"), QString::fromUtf8("UNITTEST-book"));
-    entryMap.insert(QLatin1String("author"), QString::fromUtf8("UNITTEST-Author"));
-    entryMap.insert(QLatin1String("date"), QString::fromUtf8("1986-04-03T12:12:12Z"));
-    entryMap.insert(QLatin1String("edition"), QString::fromUtf8("UNITTEST-second"));
-    entryMap.insert(QLatin1String("editor"), QString::fromUtf8("UNITTEST-Editor"));
-    entryMap.insert(QLatin1String("issn"), QString::fromUtf8("UNITTEST-ISSN"));
-    entryMap.insert(QLatin1String("month"), QString::fromUtf8("apr"));
-    entryMap.insert(QLatin1String("number"), QString::fromUtf8("UNITTEST-number"));
-    entryMap.insert(QLatin1String("publisher"), QString::fromUtf8("UNITTEST-Publisher"));
-    entryMap.insert(QLatin1String("series"), QString::fromUtf8("UNITTEST-Series"));
-    entryMap.insert(QLatin1String("title"), QString::fromUtf8("UNITTEST-book"));
-    entryMap.insert(QLatin1String("volume"), QString::fromUtf8("UNITTEST-volume"));
-    entryMap.insert(QLatin1String("year"), QString::fromUtf8("1986"));
-
-    checkEquality(ref, entryMap);
-}
-
-void VariantNepomuk::exportBookletTest()
-{
-    Nepomuk2::Resource ref = Nepomuk2::Resource( bookletReferenceUri );
-
-    QVariantMap entryMap;
-    entryMap.insert(QLatin1String("bibtexentrytype"), QString::fromUtf8("booklet"));
-    entryMap.insert(QLatin1String("bibtexcitekey"), QString::fromUtf8("UNITTEST-booklet"));
-    entryMap.insert(QLatin1String("author"), QString::fromUtf8("UNITTEST-Author"));
-    entryMap.insert(QLatin1String("date"), QString::fromUtf8("1986-04-03T12:12:12Z"));
-    entryMap.insert(QLatin1String("edition"), QString::fromUtf8("UNITTEST-second"));
-    entryMap.insert(QLatin1String("editor"), QString::fromUtf8("UNITTEST-Editor"));
-    entryMap.insert(QLatin1String("howpublished"), QString::fromUtf8("UNITTEST-how published"));
-    entryMap.insert(QLatin1String("issn"), QString::fromUtf8("UNITTEST-ISSN"));
-    entryMap.insert(QLatin1String("month"), QString::fromUtf8("apr"));
-    entryMap.insert(QLatin1String("series"), QString::fromUtf8("UNITTEST-Series"));
-    entryMap.insert(QLatin1String("title"), QString::fromUtf8("UNITTEST-book"));
-    entryMap.insert(QLatin1String("year"), QString::fromUtf8("1986"));
-
-    checkEquality(ref, entryMap);
-}
-
-void VariantNepomuk::exportInBookTest()
-{
-    Nepomuk2::Resource ref = Nepomuk2::Resource( inBookReferenceUri );
-
-    QVariantMap entryMap;
-    entryMap.insert(QLatin1String("bibtexentrytype"), QString::fromUtf8("inbook"));
-    entryMap.insert(QLatin1String("bibtexcitekey"), QString::fromUtf8("UNITTEST-inBook"));
-    entryMap.insert(QLatin1String("author"), QString::fromUtf8("UNITTEST-Author"));
-    entryMap.insert(QLatin1String("date"), QString::fromUtf8("1986-04-03T12:12:12Z"));
-    entryMap.insert(QLatin1String("edition"), QString::fromUtf8("UNITTEST-second"));
-    entryMap.insert(QLatin1String("editor"), QString::fromUtf8("UNITTEST-Editor"));
-    entryMap.insert(QLatin1String("month"), QString::fromUtf8("apr"));
-    entryMap.insert(QLatin1String("publisher"), QString::fromUtf8("UNITTEST-Publisher"));
-    entryMap.insert(QLatin1String("title"), QString::fromUtf8("UNITTEST-inbook"));
-    entryMap.insert(QLatin1String("year"), QString::fromUtf8("1986"));
-
-    checkEquality(ref, entryMap);
-}
-
-void VariantNepomuk::exportInCollectionTest()
-{
-    Nepomuk2::Resource ref = Nepomuk2::Resource( inCollectionReferenceUri );
-
-    QVariantMap entryMap;
-    entryMap.insert(QLatin1String("bibtexentrytype"), QString::fromUtf8("incollection"));
-    entryMap.insert(QLatin1String("bibtexcitekey"), QString::fromUtf8("UNITTEST-inCollection"));
-    entryMap.insert(QLatin1String("author"), QString::fromUtf8("UNITTEST-Author"));
-    entryMap.insert(QLatin1String("bookauthor"), QString::fromUtf8("UNITTEST-BookAuthor"));
-    entryMap.insert(QLatin1String("booktitle"), QString::fromUtf8("UNITTEST-incollection"));
-    entryMap.insert(QLatin1String("chapter"), QString::fromUtf8("UNITTEST-II"));
-    entryMap.insert(QLatin1String("chaptername"), QString::fromUtf8("UNITTEST-Chapter-Title"));
-    entryMap.insert(QLatin1String("date"), QString::fromUtf8("1986-04-03T12:12:12Z"));
-    entryMap.insert(QLatin1String("edition"), QString::fromUtf8("UNITTEST-second"));
-    entryMap.insert(QLatin1String("editor"), QString::fromUtf8("UNITTEST-Editor"));
-    entryMap.insert(QLatin1String("month"), QString::fromUtf8("apr"));
-    entryMap.insert(QLatin1String("publisher"), QString::fromUtf8("UNITTEST-Publisher"));
-    entryMap.insert(QLatin1String("title"), QString::fromUtf8("UNITTEST-Chapter-Title"));
-    entryMap.insert(QLatin1String("year"), QString::fromUtf8("1986"));
-
-    checkEquality(ref, entryMap);
-}
-
-void VariantNepomuk::exportProceedingsTest()
-{
-    Nepomuk2::Resource ref = Nepomuk2::Resource( proceedingsReferenceUri );
-
-    QVariantMap entryMap;
-    entryMap.insert(QLatin1String("bibtexentrytype"), QString::fromUtf8("proceedings"));
-    entryMap.insert(QLatin1String("bibtexcitekey"), QString::fromUtf8("UNITTEST-proceedings"));
-    entryMap.insert(QLatin1String("date"), QString::fromUtf8("1986-04-03T12:12:12Z"));
-    entryMap.insert(QLatin1String("event"), QString::fromUtf8("UNITTEST-Title"));
-    entryMap.insert(QLatin1String("issn"), QString::fromUtf8("UNITTEST-ISSN"));
-    entryMap.insert(QLatin1String("month"), QString::fromUtf8("apr"));
-    entryMap.insert(QLatin1String("organization"), QString::fromUtf8("UNITTEST-Organization"));
-    entryMap.insert(QLatin1String("pages"), QString::fromUtf8("1-999"));
-    entryMap.insert(QLatin1String("publisher"), QString::fromUtf8("UNITTEST-Publisher"));
-    entryMap.insert(QLatin1String("series"), QString::fromUtf8("UNITTEST-Series"));
-    entryMap.insert(QLatin1String("title"), QString::fromUtf8("UNITTEST-Title: A Proceedings"));
-    entryMap.insert(QLatin1String("year"), QString::fromUtf8("1986"));
-
-    checkEquality(ref, entryMap);
-}
-
-void VariantNepomuk::exportInProceedingsTest()
-{
-    Nepomuk2::Resource ref = Nepomuk2::Resource( inProceedingsReferenceUri );
-
-    QVariantMap entryMap;
-    entryMap.insert(QLatin1String("bibtexentrytype"), QString::fromUtf8("inproceedings"));
-    entryMap.insert(QLatin1String("bibtexcitekey"), QString::fromUtf8("UNITTEST-inproceedings"));
-    entryMap.insert(QLatin1String("author"), QString::fromUtf8("UNITTEST-Author"));
-    entryMap.insert(QLatin1String("booktitle"), QString::fromUtf8("UNITTEST-Title: A Proceedings"));
-    entryMap.insert(QLatin1String("date"), QString::fromUtf8("1986-04-03T12:12:12Z"));
-    entryMap.insert(QLatin1String("doi"), QString::fromUtf8("10.4204/EPTCS"));
-    entryMap.insert(QLatin1String("editor"), QString::fromUtf8("UNITTEST-Editor"));
-    entryMap.insert(QLatin1String("event"), QString::fromUtf8("UNITTEST-Title"));
-    entryMap.insert(QLatin1String("howpublished"), QString::fromUtf8("UNITTEST-Howpublished"));
-    entryMap.insert(QLatin1String("issn"), QString::fromUtf8("UNITTEST-ISSN"));
-    entryMap.insert(QLatin1String("journal"), QString::fromUtf8("UNITTEST-Series"));
-    entryMap.insert(QLatin1String("month"), QString::fromUtf8("apr"));
-    entryMap.insert(QLatin1String("pages"), QString::fromUtf8("1-999"));
-    entryMap.insert(QLatin1String("title"), QString::fromUtf8("UNITTEST-Title: An Inproceedings"));
-    entryMap.insert(QLatin1String("year"), QString::fromUtf8("1986"));
-
-    checkEquality(ref, entryMap);
-}
-
-void VariantNepomuk::exportTechreportTest()
-{
-    Nepomuk2::Resource ref = Nepomuk2::Resource( techreportReferenceUri );
-
-    QVariantMap entryMap;
-    entryMap.insert(QLatin1String("bibtexentrytype"), QString::fromUtf8("techreport"));
-    entryMap.insert(QLatin1String("bibtexcitekey"), QString::fromUtf8("UNITTEST-techreport"));
-    entryMap.insert(QLatin1String("author"), QString::fromUtf8("UNITTEST-Author"));
-    entryMap.insert(QLatin1String("date"), QString::fromUtf8("1986-04-03T12:12:12Z"));
-    entryMap.insert(QLatin1String("howpublished"), QString::fromUtf8("UNITTEST-how published"));
-    entryMap.insert(QLatin1String("institution"), QString::fromUtf8("UNITTEST-Publisher"));
-    entryMap.insert(QLatin1String("month"), QString::fromUtf8("apr"));
-    entryMap.insert(QLatin1String("organization"), QString::fromUtf8("UNITTEST-Organization"));
-    entryMap.insert(QLatin1String("title"), QString::fromUtf8("UNITTEST-techreport"));
-    entryMap.insert(QLatin1String("type"), QString::fromUtf8("UNITTEST-publication-type"));
-    entryMap.insert(QLatin1String("year"), QString::fromUtf8("1986"));
-
-    checkEquality(ref, entryMap);
-}
-*/
 void VariantNepomuk::cleanupTestCase()
 {
     // remove all data created by this unittest from the nepomuk database again
-//    KJob *job = Nepomuk2::removeDataByApplication();
-//    if(!job->exec()) {
-//        qWarning() << job->errorString();
-//        QFAIL("Cleanup did not work");
-//    }
+    KJob *job = Nepomuk2::removeDataByApplication();
+    if(!job->exec()) {
+        qWarning() << job->errorString();
+        QFAIL("Cleanup did not work");
+    }
 }
 
 #include "variantnepomuk.moc"

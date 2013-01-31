@@ -53,17 +53,19 @@ public slots:
     void closeLibrarySelection();
 
     // database menu
-    void importZotero();
-    void exportZotero();
-    void syncStorage();
+    void fileImport(Library *l);
+    void fileExport(Library *l);
+    void storageSync(Library *l);
 
     void dbCheck();
     void dbBackup();
 
+    void openSettings(Library *l);
     void showConqSettings();
 
     // other helping slots
     void connectKPartGui(KParts::Part * part);
+    void backgroundSyncCollections();
 
     /**
       * This will be called from the LibraryWidget and reflects the users choice of new data to display

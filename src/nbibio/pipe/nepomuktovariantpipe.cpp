@@ -61,9 +61,6 @@ void NepomukToVariantPipe::pipeExport(QList<Nepomuk2::Resource> resources)
         Nepomuk2::Resource reference;
         Nepomuk2::Resource publication;
 
-        //BUG: not all types are fetched correctly, fixed in 4.9.1
-        resource.types();
-
         // first check if we operate on a Reference or a Publication
         if(resource.hasType( NBIB::Reference() )) {
             // we have a Reference
@@ -71,15 +68,11 @@ void NepomukToVariantPipe::pipeExport(QList<Nepomuk2::Resource> resources)
             publication = reference.property(NBIB::publication()).toResource();
         }
         else {
-            //we have a publication and no idea what reference to use with it
+            // we have a publication and no idea what reference to use with it.
             // we will extract as many information as possible anyway
             // or we try to export pimo:Note or some attachment information
             publication = resource;
         }
-
-        //BUG: not all types are fetched correctly, fixed in 4.9.1
-        publication.types();
-        reference.types();
 
         QString citeKey = reference.property(NBIB::citeKey()).toString();
         if(citeKey.isEmpty()) {
@@ -88,13 +81,14 @@ void NepomukToVariantPipe::pipeExport(QList<Nepomuk2::Resource> resources)
             citeKeyNumer++;
         }
 
+        // here we decide what kind of item we have (Note, Attachment or one of the many publication types)
         QString entryType = retrieveEntryType(reference, publication);
         if(entryType.isEmpty()) {
             kWarning() << "unknown entry type for the bibtex export with citekey" << citeKey;
             continue;
         }
 
-        //collect nepomuk content
+        //add general bibtex identifier
         m_curEntryMap.insert(QLatin1String("bibtexcitekey"), citeKey);
         m_curEntryMap.insert(QLatin1String("bibtexentrytype"), entryType.toLower());
 
@@ -246,8 +240,6 @@ QString NepomukToVariantPipe::retrieveEntryType(Nepomuk2::Resource reference, Ne
     // handle special articles
     else if(publication.hasType(NBIB::Article())) {
         Nepomuk2::Resource collection = publication.property(NBIB::collection()).toResource();
-        //BUG:: Not all types are fetched, fixed in 4.9.1
-        collection.types();
         if(collection.hasType(NBIB::Proceedings())) {
             type = QLatin1String("Inproceedings"); //article in some proceedings paper
         }
@@ -343,15 +335,15 @@ void NepomukToVariantPipe::collectContent(Nepomuk2::Resource reference, Nepomuk2
     setValue(publication, NBIB::legalStatus(), QLatin1String("legalstatus"));
     setValue(publication, NBIB::filingDate(), QLatin1String("filingdate"));
     setValue(publication, NBIB::archive(), QLatin1String("archive"));
-    setValue(publication, NBIB::archiveLocation(), QLatin1String("archiveLocation"));
-    setValue(publication, NBIB::libraryCatalog(), QLatin1String("libraryCatalog"));
+    setValue(publication, NBIB::archiveLocation(), QLatin1String("archivelocation"));
+    setValue(publication, NBIB::libraryCatalog(), QLatin1String("librarycatalog"));
     setValue(publication, NBIB::shortTitle(), QLatin1String("shorttitle"));
     setValue(publication, NBIB::numberOfPages(), QLatin1String("numpages"));
     setValue(publication, NBIB::numberOfVolumes(), QLatin1String("numberofvolumes"));
     setValue(publication, NBIB::mapScale(), QLatin1String("scale"));
     setValue(publication, NBIB::history(), QLatin1String("history"));
 
-    // Zotero additions
+    // Online storage additions
     setSyncDetails(publication);
 }
 
@@ -360,35 +352,38 @@ void NepomukToVariantPipe::collectNoteContent(Nepomuk2::Resource note)
     setValue(note, NIE::plainTextContent(), QLatin1String("note"));
     setKewords(note);
 
-    // Zotero additions
+    // Online storage additions
     setSyncDetails(note);
 
-    // if we don't have a zotero key we might need to add a new item and need to know the parent of it first
-    if(m_curEntryMap.contains("zoteroKey")) {
-        return;
-    }
+    // get sync parent information
 
+    // two cases can happen here
+    // a) the note is already uploaded to the storage, so it is easy to find the parent
+    // b) the note is not yet uploaded, but the parent publication is.
+
+    // TODO: check if it is faster to search for the right entry via SPARQL instead of iteratoing over all availabe resources
     QList<Nepomuk2::Resource> parents = note.property(NAO::isRelated()).toResourceList();
-
     foreach( const Nepomuk2::Resource &r, parents) {
         QList<Nepomuk2::Resource> sycList = r.property(SYNC::serverSyncData()).toResourceList();
 
         // only add the sync details from the right storage
         foreach(const Nepomuk2::Resource &parentSync, sycList) {
-            if(parentSync.property(SYNC::provider()).toString() != QString("zotero")) { //TODO: make syncobject possible for others too
+            if(parentSync.property(SYNC::provider()).toString() != m_psd.providerId) {
                 continue;
             }
-            if(parentSync.property(SYNC::userId()).toString() != m_syncUserId) {
+            if(parentSync.property(SYNC::userId()).toString() != m_psd.userName) {
                 continue;
             }
-            if(parentSync.property(SYNC::url()).toString() != m_syncUrl) {
+            if(parentSync.property(SYNC::url()).toString() != m_psd.url) {
                 continue;
             }
 
             //now we have the right object, write down parent sync details
 
-            QString updated = parentSync.property(SYNC::id()).toString();
-            m_curEntryMap.insert(QLatin1String("zoteroParent"), updated);
+            QString parentId = parentSync.property(SYNC::id()).toString();
+            m_curEntryMap.insert(QLatin1String("sync-parent"), parentId);
+
+            kDebug() << "found a sync-parent with id" << parentId;
 
             return; // stop here
         }
@@ -406,11 +401,12 @@ void NepomukToVariantPipe::collectAttachmentContent(Nepomuk2::Resource attachmen
     setValue(attachment, NUAO::lastUsage(), QLatin1String("accessDate"));
 
     QString linkMode;
+    // TODO: linkMode={imported_file,imported_url,linked_file,linked_url} how to check for *_url?
     if(attachment.hasType(NFO::RemoteDataObject())) {
-        linkMode = '1';
+        linkMode = QLatin1String("linked_file");
     }
     else {
-        linkMode = '0';
+        linkMode = QLatin1String("imported_file");
     }
 
     m_curEntryMap.insert(QLatin1String("linkMode"), linkMode);
@@ -422,33 +418,35 @@ void NepomukToVariantPipe::collectAttachmentContent(Nepomuk2::Resource attachmen
     // Zotero additions
     setSyncDetails(attachment);
 
-    // if we don't have a zotero key we might need to add a new item and need to know the parent of it first
-    // because attachments are always a child of an existing parent item
-    if(m_curEntryMap.contains("zoteroKey")) {
-        return;
-    }
+    // get sync parent information
 
+    // two cases can happen here
+    // a) the note is already uploaded to the storage, so it is easy to find the parent
+    // b) the note is not yet uploaded, but the parent publication is.
+
+    // TODO: check if it is faster to search for the right entry via SPARQL instead of iteratoing over all availabe resources
     QList<Nepomuk2::Resource> parents = attachment.property(NBIB::publishedAs()).toResourceList();
-
     foreach( const Nepomuk2::Resource &r, parents) {
         QList<Nepomuk2::Resource> sycList = r.property(SYNC::serverSyncData()).toResourceList();
 
         // only add the sync details from the right storage
         foreach(const Nepomuk2::Resource &parentSync, sycList) {
-            if(parentSync.property(SYNC::provider()).toString() != QString("zotero")) { //TODO make this possible for others too
+            if(parentSync.property(SYNC::provider()).toString() != m_psd.providerId) {
                 continue;
             }
-            else if(parentSync.property(SYNC::userId()).toString() != m_syncUserId) {
+            if(parentSync.property(SYNC::userId()).toString() != m_psd.userName) {
                 continue;
             }
-            else if(parentSync.property(SYNC::url()).toString() != m_syncUrl) {
+            if(parentSync.property(SYNC::url()).toString() != m_psd.url) {
                 continue;
             }
 
             //now we have the right object, write down parent sync details
 
-            QString updated = parentSync.property(SYNC::id()).toString();
-            m_curEntryMap.insert(QLatin1String("zoteroParent"), updated);
+            QString parentId = parentSync.property(SYNC::id()).toString();
+            m_curEntryMap.insert(QLatin1String("sync-parent"), parentId);
+
+            kDebug() << "found a sync-parent with id" << parentId;
 
             return; // stop here
         }
@@ -610,9 +608,6 @@ void NepomukToVariantPipe::setPublisher(Nepomuk2::Resource publication)
 {
     QString publisherEntry = QLatin1String("publisher");
     QList<Nepomuk2::Resource> publisher = publication.property(NCO::publisher()).toResourceList();
-
-    //BUG: not all types are fetched. Fixed in 4.9.1
-    publication.types();
 
     if(publication.hasType(NBIB::Thesis())) {
         publisherEntry = QLatin1String("school");
@@ -836,8 +831,6 @@ void NepomukToVariantPipe::setNote(Nepomuk2::Resource publication)
 
     int i=0;
     foreach(const Nepomuk2::Resource & r, resourceList) {
-        //BUG: not all types are fetched correctly fixed in 4.9.1
-        r.types();
         if( !r.hasType( PIMO::Note() ) ) { continue; }
 
         if(i == 0) {
@@ -870,37 +863,42 @@ void NepomukToVariantPipe::setKewords( Nepomuk2::Resource publication)
 
 void NepomukToVariantPipe::setSyncDetails(Nepomuk2::Resource publication)
 {
-    //FIXME: reenable syncdetail search
-    return;
     kDebug() << "search for sync details" << publication.genericLabel();
     QList<Nepomuk2::Resource> sycList = publication.property(SYNC::serverSyncData()).toResourceList();
+
+    // nothing to add so return
+    if(sycList.isEmpty()) {
+        kDebug() << "Resource has no ServerSyncData attached";
+        return;
+    }
 
     QUrl syncDataType;
     if(publication.hasType(PIMO::Note())) {
         syncDataType = SYNC::Note();
     }
-    else if(publication.hasType(NBIB::Reference()) || publication.hasType(NBIB::Publication())) {
-        syncDataType = SYNC::BibResource();
-    }
-    else{
+    else if(publication.hasType(NFO::Document()) || publication.hasType(NFO::FileDataObject()) ) {
         syncDataType = SYNC::Attachment();
     }
+//    else if(publication.hasType(NBIB::Reference()) || publication.hasType(NBIB::Publication())) {
+    else {
+        syncDataType = SYNC::BibResource();
+    }
 
-    // only add the sync details the right storage
+    // only add the sync details from the right storage
     foreach(const Nepomuk2::Resource &r, sycList) {
-        if(r.property(SYNC::provider()).toString() != QString("zotero")) { //TODO: make this possible for others too
+        if(r.property(SYNC::provider()).toString() != m_psd.providerId) {
             continue;
         }
-        if(r.property(SYNC::userId()).toString() != m_syncUserId) {
+        if(r.property(SYNC::userId()).toString() != m_psd.userName) {
             continue;
         }
-        if(r.property(SYNC::url()).toString() != m_syncUrl) {
+        if(r.property(SYNC::url()).toString() != m_psd.url) {
             continue;
         }
         // this step is necessary to find the right sync detail resource when we double type.
         // As we might have Attachment and bibresource on the same nepomukresource (double typed)
         if(r.property(SYNC::syncDataType()).toUrl() != syncDataType) {
-            kDebug() << "wrong data type";
+            kDebug() << "wrong data type" << r.property(SYNC::syncDataType()).toUrl() << "should be" << syncDataType;
             continue;
         }
 
@@ -909,22 +907,25 @@ void NepomukToVariantPipe::setSyncDetails(Nepomuk2::Resource publication)
 
         //now we have the right object, write down sync details
         QString etag = r.property(SYNC::etag()).toString();
-        m_curEntryMap.insert(QLatin1String("zoteroEtag"), etag);
+        m_curEntryMap.insert(QLatin1String("sync-etag"), etag);
 
         QString key = r.property(SYNC::id()).toString();
-        m_curEntryMap.insert(QLatin1String("zoteroKey"), key);
+        m_curEntryMap.insert(QLatin1String("sync-key"), key);
 
         QString updated = r.property(NUAO::lastModification()).toString();
-        m_curEntryMap.insert(QLatin1String("zoteroUpdated"), updated);
+        m_curEntryMap.insert(QLatin1String("sync-updated"), updated);
+
+        if(m_addNepomukUris) {
+            m_curEntryMap.insert(QLatin1String("nepomuk-ssd-uri"), r.uri());
+        }
 
         break;
     }
 }
 
-void NepomukToVariantPipe::setSyncDetails(const QString &url, const QString &userid)
+void NepomukToVariantPipe::setSyncProviderDetails(const ProviderSyncDetails &psd)
 {
-    m_syncUrl = url;
-    m_syncUserId = userid;
+    m_psd = psd;
 }
 
 void NepomukToVariantPipe::addNepomukUries(bool addThem)
@@ -934,15 +935,9 @@ void NepomukToVariantPipe::addNepomukUries(bool addThem)
 
 void NepomukToVariantPipe::setArticleType(Nepomuk2::Resource publication)
 {
-    //BUG: not all types are fetched correctly. Fixed in 4.9.1
-    publication.types();
-
     if(publication.hasType(NBIB::Article())) {
         QString articleType;
         Nepomuk2::Resource collection = publication.property(NBIB::collection()).toResource();
-
-        //BUG: not all types are fetched correctly. Fixed in 4.9.1
-        collection.types();
 
         if(collection.hasType(NBIB::JournalIssue())) {
             articleType = QLatin1String("journal"); //article in some proceedings paper

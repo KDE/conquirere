@@ -18,7 +18,7 @@
 #include "eventmodel.h"
 
 #include "../queryclients/eventquery.h"
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 #include <QModelIndex>
 

@@ -42,9 +42,10 @@
 #include <QtDebug>
 
 /**
- * @brief UnitTest for the Library Project and its Project settings
+ * @file coremodel.cpp
  *
- * checks: creation/change/removala and deletion of the library and some resoruces
+ * @test UnitTest for the Library table models.
+ *       checks: benchmark loading and ResourceWatcher adding/changing of entries
  */
 class CoreModel: public QObject
 {
@@ -132,7 +133,7 @@ void CoreModel::addPublicationTest()
 
     QDateTime publicationDate = QDateTime::fromString("1986-04-03T12:12:12Z", Qt::ISODate);
 
-    Nepomuk2::NBIB::Publication book;
+    Nepomuk2::NBIB::Book book;
     book.setTitle(QLatin1String("UNITTEST-book"));
     book.addCreator(author.uri());
     book.addEditor(editor.uri());
@@ -171,7 +172,6 @@ void CoreModel::addPublicationTest()
     QCOMPARE(addeditor, QLatin1String("UNITTEST-Editor"));
 }
 
-//BUG: test fails see https://bugs.kde.org/show_bug.cgi?id=306108
 void CoreModel::changePublicationTest()
 {
     NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Publication)->sourceModel() );
@@ -186,6 +186,14 @@ void CoreModel::changePublicationTest()
 
     // check that the data was actually changed in the model
     QVERIFY(waitForSignal(publicationModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), 10000));
+
+    // @see BUG: https://bugs.kde.org/show_bug.cgi?id=306108
+    // The reason this is required, is cause the Resource class is also updated via
+    // dbus, and we have no way of controlling which slot would be called first.
+    QEventLoop loop;
+    QTimer::singleShot( 500, &loop, SLOT(quit()) );
+    loop.exec();
+
     QString changedTitle = publicationModel->data( publicationModel->index(lastEntry,PublicationQuery::Column_Title), Qt::DisplayRole).toString();
 
     QCOMPARE(changedTitle, QLatin1String("UNITTEST-Changed-Name"));
@@ -198,6 +206,7 @@ void CoreModel::addSeriesTest()
     // lets add a very simple book
     Nepomuk2::SimpleResourceGraph graph;
 
+    //BUG: ResourceWatcher does not seem to work with subtypes. adding Journal does not show a change, Series does
     Nepomuk2::NBIB::Journal journal;
     journal.setTitle(QLatin1String("UNITTEST-journal"));
 
@@ -206,7 +215,7 @@ void CoreModel::addSeriesTest()
     Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNone);
 
     // check that the data was actually added to the model
-    QVERIFY(waitForSignal(seriesModel, SIGNAL(dataSizeChaged(int)), 10000));
+    QVERIFY(waitForSignal(seriesModel, SIGNAL(dataSizeChaged(int)), 50000));
 
     // now check if the data was correctly added t othe model
     int lastEntry = seriesModel->rowCount()-1;

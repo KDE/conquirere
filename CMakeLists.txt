@@ -22,7 +22,7 @@ find_package(NepomukCore REQUIRED)
 find_package(QJSON REQUIRED)
 #set(KBIBTEX_MIN_VERSION "0.6.0")
 find_package(KBibTeX REQUIRED)
-find_package(NepomukMetadataExtractor REQUIRED)
+find_package(NepomukWebMiner REQUIRED)
 
 include (NepomukAddOntologyClasses)
 include (KDE4Defaults)
@@ -39,18 +39,18 @@ include_directories (
                      ${NEPOMUK_INCLUDE_DIR}
                      ${NEPOMUKEXTRAS_INCLUDE_DIR}
                      ${KBIBTEX_INCLUDE_DIRS}
-                     ${NEPOMUK_METADATA_EXTRACTOR_INCLUDE_DIRS}
-                     ${NEPOMUK_METADATA_EXTRACTOR_INCLUDE_DIRS}/nepomukmetadataextractor/
+                     ${NEPOMUK_WEBMINER_INCLUDE_DIRS}
+                     ${NEPOMUK_WEBMINER_INCLUDE_DIRS}/nepomuk-webminer/
 
                      ${CMAKE_SOURCE_DIR}
                      ${CMAKE_SOURCE_DIR}/src
                      ${CMAKE_SOURCE_DIR}/src/sro
                      ${CMAKE_SOURCE_DIR}/src/mainui
-                     ${CMAKE_SOURCE_DIR}/nbib
                      ${CMAKE_BINARY_DIR}
+                     ${CMAKE_BINARY_DIR}/ontology
                      ${CMAKE_BINARY_DIR}/src
                      ${CMAKE_BINARY_DIR}/src/mainui
-                     ${CMAKE_BINARY_DIR}/nbib
+                     ${CMAKE_BINARY_DIR}/src/nbibio/ui
 )
 
 # Set a version that will be used if we're not building from git
@@ -73,10 +73,9 @@ configure_file(${conquirere_SOURCE_DIR}/version.h.in ${conquirere_BINARY_DIR}/ve
 
 message(STATUS "Found kbibtex: ${KBIBTEX_LIBRARIES}")
 
-add_subdirectory( nbib )
+add_subdirectory( ontology )
 add_subdirectory( src )
 add_subdirectory( html )
-add_subdirectory( xslt )
 add_subdirectory( icons )
 add_subdirectory( icons/app )
 add_subdirectory( icons/actions )

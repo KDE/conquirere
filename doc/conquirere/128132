@@ -1,6 +1,6 @@
 format 74
 "core" // core
-  revision 1
+  revision 2
   modified_by 4 "joerg"
   // class settings
   //class diagram settings
@@ -190,6 +190,10 @@ ${inlines}
 "
 	    classrelation_ref 129284 // <aggregation>
       end
+
+      classrelation 144900 // <aggregation>
+	relation_ref 144004 // <aggregation>
+      end
     end
 
     class 128772 "TagCloud"
@@ -243,6 +247,31 @@ ${inlines}
       idl_decl ""
       explicit_switch_type ""
       
+    end
+
+    class 144260 "LibraryManager"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      classrelation 144772 // <aggregation>
+	relation 144004 o---
+	  a role_name "" multiplicity "*" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 144772 // <aggregation>
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 144900 // <aggregation>
+      end
     end
   end
 

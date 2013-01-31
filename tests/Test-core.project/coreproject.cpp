@@ -39,9 +39,10 @@
 #include <QtDebug>
 
 /**
- * @brief UnitTest for the Library Project and its Project settings
+ * @file coreproject.cpp
  *
- * checks: creation/change/removala and deletion of the library and some resoruces
+ * @test UnitTest for the Library, Project and its Project settings
+ *       checks: creation/change/removal and deletion of the library and some resoruces
  */
 class CoreProject: public QObject
 {
@@ -164,6 +165,7 @@ void CoreProject::addResourceProjectTest()
     QVERIFY2( articleAdded, "Article not added to the project");
 
     /*
+     //TODO: instead of adding collection/Sereis to the project, the model should list them automatically when the article is in the project
     // will not be added automatically
     bool proceedingsAdded = proceedingsCheck.isRelateds().contains(pimoProject);
     QVERIFY2( proceedingsAdded, "Proceedings not added to the project");
@@ -172,7 +174,7 @@ void CoreProject::addResourceProjectTest()
     QVERIFY2( seriesAdded, "Series not added to the project");
     */
 
-    QEXPECT_FAIL("", "res.types not loaded correctly, should be fixed in 4.9.1", Continue);
+    //QEXPECT_FAIL("", "res.types not loaded correctly, should be fixed in 4.9.1", Continue);
     bool referenceAdded = referenceCheck.isRelateds().contains(pimoProject);
     QVERIFY2( referenceAdded, "Reference not added to the project");
 }

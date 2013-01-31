@@ -20,9 +20,9 @@
 
 #include "core/library.h"
 #include "core/projectsettings.h"
-#include "mainui/sync/backgroundsync.h"
+#include "nbibio/backgroundsync.h"
 
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 
 #include "mainui/dialogs/newprojectwizard.h"
 
@@ -102,17 +102,17 @@ void LibraryInfoWidget::deleteButtonClicked()
 
 void LibraryInfoWidget::importData()
 {
-    libraryManager()->importData(m_curLibrary);
+    libraryManager()->doImportFile(m_curLibrary);
 }
 
 void LibraryInfoWidget::exportData()
 {
-    libraryManager()->exportData(m_curLibrary);
+    libraryManager()->doExportFile(m_curLibrary);
 }
 
 void LibraryInfoWidget::openSettings()
 {
-    libraryManager()->openSettings(m_curLibrary);
+    libraryManager()->doOpenSettings(m_curLibrary);
 }
 
 void LibraryInfoWidget::syncData()
@@ -162,7 +162,6 @@ void LibraryInfoWidget::syncFinished()
 {
     delete m_kpd;
     m_kpd = 0;
-    kDebug() << "cleanup again";
 
     BackgroundSync *bs = qobject_cast<BackgroundSync *>(sender());
     if(bs)

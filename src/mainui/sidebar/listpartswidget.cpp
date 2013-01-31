@@ -21,7 +21,7 @@
 #include "addchapterdialog.h"
 #include "publicationwidget.h"
 #include "listpublicationsdialog.h"
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 #include "core/library.h"
 
 #include <Nepomuk2/DataManagement>

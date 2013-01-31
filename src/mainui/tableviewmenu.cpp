@@ -20,7 +20,7 @@
 #include "core/library.h"
 #include "core/projectsettings.h"
 
-#include "mainui/librarymanager.h"
+#include "core/librarymanager.h"
 
 #include "nbibio/bibtex/bibtexvariant.h"
 #include "nbibio/pipe/clipboardpipe.h"

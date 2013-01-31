@@ -17,7 +17,7 @@
 
 #include "queryclient.h"
 
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 #include "globals.h"
 #include "../library.h"
 #include "../projectsettings.h"
@@ -90,6 +90,7 @@ void QueryClient::resourceTypeChanged (const Nepomuk2::Resource &resource, const
 void QueryClient::resourceRemoved(const QUrl & uri, const QList<QUrl>& types)
 {
     Q_UNUSED(types);
+    kDebug() << "resourcewatchern resource deleted" << uri;
 
     emit removeCacheEntries(QList<QUrl>() << uri);
 }
@@ -115,6 +116,13 @@ void QueryClient::resourceCreated(const Nepomuk2::Resource & resource, const QLi
 
 void QueryClient::updateCacheEntry(const Nepomuk2::Resource &resource)
 {
+    //BUG: since 4.9.1 propertyChanged/resourceTypeRemoved signal is called together with resourceRemoved.
+    //     This will fill the removed resource again into the table model
+    if( !resource.exists() ) {
+        kDebug() << "resourcewatcher send change for removed resource";
+        return;
+    }
+
     kDebug() << "resourcewatcher found change for" << resource.genericLabel();
 
     QList<CachedRowEntry> newCache;

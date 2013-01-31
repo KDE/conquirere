@@ -24,12 +24,12 @@
 #include <kbibtex/entry.h>
 #include <kbibtex/macro.h>
 
-#include <nepomukmetadataextractor/nepomukpipe.h>
+#include <nepomuk-webminer/nepomukpipe.h>
 
 #include <KDE/KDebug>
 #include <QtCore/QMapIterator>
 
-using namespace NepomukMetaDataExtractor::Pipe;
+using namespace NepomukWebMiner::Pipe;
 
 QVariantList BibTexVariant::toVariant(const File &bibtexFile)
 {

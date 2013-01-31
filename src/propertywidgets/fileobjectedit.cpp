@@ -178,9 +178,6 @@ void FileObjectEdit::addItemInfo(QListWidgetItem *i, const Nepomuk2::Resource &r
     KUrl url(resource.property(NIE::url()).toString());
     QString showString = url.prettyUrl(KUrl::RemoveTrailingSlash);
 
-    //BUG: not all resource types are fetched correctly, fixed in 4.9.1
-    resource.types();
-
     if( resource.hasType(Nepomuk2::Vocabulary::NFO::Website()) || resource.hasType(Nepomuk2::Vocabulary::NFO::WebDataObject())
         || url.scheme() == QLatin1String("http")) {
         icon = KMimeType::favIconForUrl(url);

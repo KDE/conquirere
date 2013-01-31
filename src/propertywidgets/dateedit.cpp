@@ -22,7 +22,7 @@
 #include <Nepomuk2/DataManagement>
 #include <Nepomuk2/StoreResourcesJob>
 
-#include "nbib.h"
+#include "ontology/nbib.h"
 #include <Nepomuk2/Variant>
 
 #include <KDE/KDatePicker>

@@ -18,7 +18,7 @@
 #include "seriesmodel.h"
 
 #include "../queryclients/seriesquery.h"
-#include "nbibio/conquirere.h"
+#include "config/conquirere.h"
 
 #include <QModelIndex>
 
