@@ -21,7 +21,7 @@
 #include "sidebarcomponent.h"
 
 #include "core/models/searchresultmodel.h"
-#include <nepomukmetadataextractor/batchextractor.h>
+#include <nepomuk-webminer/batchextractor.h>
 
 #include <Nepomuk2/Resource>
 
@@ -51,7 +51,7 @@ private slots:
 private:
     Ui::SearchResultInfoWidget *ui;
     SearchResultModel::SRCachedRowEntry m_currentEntry;
-    NepomukMetaDataExtractor::UI::BatchExtractor m_extractor;
+    NepomukWebMiner::UI::BatchExtractor m_extractor;
 };
 
 #endif // SEARCHRESULTINFOWIDGET_H

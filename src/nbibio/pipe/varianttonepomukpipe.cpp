@@ -18,7 +18,7 @@
 #include "varianttonepomukpipe.h"
 
 #include "nbibio/provider/onlinestorage.h"
-#include <nepomukmetadataextractor/publicationpipe.h>
+#include <nepomuk-webminer/publicationpipe.h>
 
 #include <KDE/KJob>
 
@@ -93,7 +93,7 @@ void VariantToNepomukPipe::pipeExport(QVariantList &publicationList)
                 importedPublication.second = publicationEntry.value(QLatin1String("nepomuk-reference-uri")).toUrl();
             }
             else {
-                NepomukMetaDataExtractor::Pipe::PublicationPipe publicationPipe;
+                NepomukWebMiner::Pipe::PublicationPipe publicationPipe;
 
                 // either conquirere or one of the unittests (overrides "metadata-extractor" component)
                 publicationPipe.overrideComponentName( KGlobal::mainComponent().componentName() );
@@ -240,7 +240,7 @@ void VariantToNepomukPipe::importAttachment(const QVariantMap &attachmentEntry)
         }
 
         QString accessdate = attachmentEntry.value("accessdate").toString();
-        QDateTime dateTime = NepomukMetaDataExtractor::Pipe::NepomukPipe::createDateTime( accessdate );
+        QDateTime dateTime = NepomukWebMiner::Pipe::NepomukPipe::createDateTime( accessdate );
 
         if(dateTime.isValid()) {
             QString date = dateTime.toString(Qt::ISODate);

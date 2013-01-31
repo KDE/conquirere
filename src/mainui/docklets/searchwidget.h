@@ -29,7 +29,7 @@ namespace Ui {
     class SearchWidget;
 }
 
-namespace NepomukMetaDataExtractor {
+namespace NepomukWebMiner {
 namespace Extractor {
 class ExtractorFactory;
 class WebExtractor;
@@ -88,8 +88,8 @@ private:
     KAction *m_actionOpenHomepage;
     SearchResultModel *m_searchResultModel;
 
-    NepomukMetaDataExtractor::Extractor::ExtractorFactory *m_ef;
-    NepomukMetaDataExtractor::Extractor::WebExtractor *m_currentWebExtractor;
+    NepomukWebMiner::Extractor::ExtractorFactory *m_ef;
+    NepomukWebMiner::Extractor::WebExtractor *m_currentWebExtractor;
     QStringList m_pluginList;
     int m_currentExtractor;
     int m_maxProgress;

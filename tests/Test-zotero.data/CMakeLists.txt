@@ -28,7 +28,6 @@ target_link_libraries(Test-zotero.data
         ${NEPOMUK_LIBRARIES}
         ${NEPOMUK_QUERY_LIBRARIES}
         nepomukcore
-        nepomuksync
 
 #include kbibtex
         ${KBIBTEX_LIBRARIES}

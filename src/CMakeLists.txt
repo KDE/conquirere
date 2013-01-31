@@ -42,12 +42,11 @@ target_link_libraries(conquirere
         ${NEPOMUK_LIBRARIES}
         ${NEPOMUK_QUERY_LIBRARIES}
         nepomukcore
-        nepomuksync
 
 #include kbibtex
         ${KBIBTEX_LIBRARIES}
 
-        ${NEPOMUK_METADATA_EXTRACTOR_LIBS}
+        ${NEPOMUK_WEBMINER_LIBS}
 )
 
 install(TARGETS conquirere DESTINATION ${BIN_INSTALL_DIR})

@@ -40,7 +40,7 @@
 #include "nbibio/bibtex/bibtexvariant.h"
 
 #include <kbibtex/findpdfui.h>
-#include <nepomukmetadataextractor/fetcherdialog.h>
+#include <nepomuk-webminer/fetcherdialog.h>
 
 #include <Nepomuk2/Resource>
 #include <Nepomuk2/Variant>
@@ -60,7 +60,7 @@
 
 using namespace Soprano::Vocabulary;
 using namespace Nepomuk2::Vocabulary;
-using namespace NepomukMetaDataExtractor::UI;
+using namespace NepomukWebMiner::UI;
 
 SidebarWidget::SidebarWidget(QWidget *parent)
     : QWidget(parent)

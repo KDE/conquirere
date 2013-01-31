@@ -46,7 +46,7 @@ target_link_libraries(nbibio
     zoterosync
 
     # additional libs
-    ${NEPOMUK_METADATA_EXTRACTOR_LIBS}
+    ${NEPOMUK_WEBMINER_LIBS}
 )
 
 install( TARGETS nbibio ${INSTALL_TARGETS_DEFAULT_ARGS} )

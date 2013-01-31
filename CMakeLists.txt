@@ -22,7 +22,7 @@ find_package(NepomukCore REQUIRED)
 find_package(QJSON REQUIRED)
 #set(KBIBTEX_MIN_VERSION "0.6.0")
 find_package(KBibTeX REQUIRED)
-find_package(NepomukMetadataExtractor REQUIRED)
+find_package(NepomukWebMiner REQUIRED)
 
 include (NepomukAddOntologyClasses)
 include (KDE4Defaults)
@@ -39,8 +39,8 @@ include_directories (
                      ${NEPOMUK_INCLUDE_DIR}
                      ${NEPOMUKEXTRAS_INCLUDE_DIR}
                      ${KBIBTEX_INCLUDE_DIRS}
-                     ${NEPOMUK_METADATA_EXTRACTOR_INCLUDE_DIRS}
-                     ${NEPOMUK_METADATA_EXTRACTOR_INCLUDE_DIRS}/nepomukmetadataextractor/
+                     ${NEPOMUK_WEBMINER_INCLUDE_DIRS}
+                     ${NEPOMUK_WEBMINER_INCLUDE_DIRS}/nepomuk-webminer/
 
                      ${CMAKE_SOURCE_DIR}
                      ${CMAKE_SOURCE_DIR}/src
