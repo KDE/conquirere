@@ -335,8 +335,8 @@ void NepomukToVariantPipe::collectContent(Nepomuk2::Resource reference, Nepomuk2
     setValue(publication, NBIB::legalStatus(), QLatin1String("legalstatus"));
     setValue(publication, NBIB::filingDate(), QLatin1String("filingdate"));
     setValue(publication, NBIB::archive(), QLatin1String("archive"));
-    setValue(publication, NBIB::archiveLocation(), QLatin1String("archiveLocation"));
-    setValue(publication, NBIB::libraryCatalog(), QLatin1String("libraryCatalog"));
+    setValue(publication, NBIB::archiveLocation(), QLatin1String("archivelocation"));
+    setValue(publication, NBIB::libraryCatalog(), QLatin1String("librarycatalog"));
     setValue(publication, NBIB::shortTitle(), QLatin1String("shorttitle"));
     setValue(publication, NBIB::numberOfPages(), QLatin1String("numpages"));
     setValue(publication, NBIB::numberOfVolumes(), QLatin1String("numberofvolumes"));

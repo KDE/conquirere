@@ -54,10 +54,11 @@ private slots:
 private:
     struct MergedResults {
         Nepomuk2::Resource localSyncResource;
-        QSharedPointer<Entry> localEntry;
-        Entry * originalServerEntry;
-        Entry * serverChanges;
-        Entry * mergedChanges;
+        QVariantMap localEntry;
+        QVariantMap serverEntry;
+        QStringList differendKeys;
+
+        QVariantMap mergedChanges;
     };
 
     void showItem(int index);

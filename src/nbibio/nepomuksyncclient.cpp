@@ -50,6 +50,9 @@ NepomukSyncClient::NepomukSyncClient(QObject *parent)
 {
     connect(this, SIGNAL(pushNextItem()), this, SLOT(pushNewItemCache()) );
     connect(this, SIGNAL(deleteNextItem()), this, SLOT(deleteItemsCache()) );
+
+    qRegisterMetaType<SyncMergeDetails>("SyncMergeDetails");
+    qRegisterMetaType<QList<SyncMergeDetails> >("QList<SyncMergeDetails>");
 }
 
 void NepomukSyncClient::setProviderSettings(const ProviderSyncDetails &psd)
@@ -391,6 +394,7 @@ void NepomukSyncClient::readDownloadSyncAfterDelete()
 
 void NepomukSyncClient::findDuplicates(QList<Nepomuk2::Resource> &existingItems)
 {
+    kDebug() << "check duplicates for" << m_cacheDownloaded.size();
     // for each downloaded item from zotero we try to find the item in the local storage
     // we can identify this via the unique zotero Key
 
@@ -420,11 +424,12 @@ void NepomukSyncClient::findDuplicates(QList<Nepomuk2::Resource> &existingItems)
         QList<Nepomuk2::Resource> queryResult;
         while( it.next() ) {
             Soprano::BindingSet p = it.current();
-            queryResult << Nepomuk2::Resource(p.value(QLatin1String("?r")).toString());
+            queryResult << Nepomuk2::Resource(p.value(QLatin1String("r")).toString());
         }
 
         // nothing found, means we have a new entry
         if(queryResult.isEmpty()) {
+            kDebug() << "new entry found";
             m_newEntries.append(entry);
         }
         // we found something, means we need to check if it changed on the server
@@ -435,8 +440,10 @@ void NepomukSyncClient::findDuplicates(QList<Nepomuk2::Resource> &existingItems)
 
             Nepomuk2::Resource syncResource = queryResult.first();
 
-            QString localEtag = syncResource.property( SYNC::etag()).toString();
+            QString localEtag = syncResource.property( SYNC::etag() ).toString();
             QString serverEtag = entry.value( QLatin1String("sync-etag") ).toString();
+
+            kDebug() << "existing entry found. Local etag" << localEtag << "| server etag" << serverEtag;
 
             // Here we change some values depending if the syncdata represents a BibResource, Note or Attachment.
             // Because when we check the isRelated  part we need to check different resources in this case
@@ -451,7 +458,7 @@ void NepomukSyncClient::findDuplicates(QList<Nepomuk2::Resource> &existingItems)
             if(resourceType == SYNC::BibResource()) {
                 Nepomuk2::Resource publication = syncResource.property( SYNC::publication()).toResource();
                 Nepomuk2::Resource reference = syncResource.property( SYNC::reference()).toResource();
-                if(reference.isValid() && publication.isValid()) {
+                if(reference.isValid()) {
                     addToExisting.append(publication);
                     addToExisting.append(reference);
                     validExistingData = true;
@@ -532,9 +539,10 @@ void NepomukSyncClient::fixMergingItems()
 //            foreach(const SyncMergeDetails &sd, m_tmpUserMergeRequest) {
 //                mergePipe.merge(sd.syncResource, sd.externalResource, m_psd.mergeMode);
 //            }
-        }
 
-        m_tmpUserMergeRequest.clear();
+            m_mergeFinished = true;
+            m_tmpUserMergeRequest.clear();
+        }
     }
     else {
         m_mergeFinished = true;
@@ -612,6 +620,9 @@ void NepomukSyncClient::endSyncStep()
 
 void NepomukSyncClient::exportData()
 {
+    kDebug() << "##################### export disabled #############";
+    emit finished();
+    return;
     kDebug() << "##### START Upload ###### m_currentStep" << m_currentStep;
     clearInternalData();
 

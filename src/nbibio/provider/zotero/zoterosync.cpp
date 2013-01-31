@@ -692,8 +692,6 @@ QByteArray ZoteroSync::writeJsonContent(const QVariantList &items, bool updateIt
         json = serializer.serialize(jsonMap);
     }
 
-    kDebug() << json;
-
     return json;
 }
 

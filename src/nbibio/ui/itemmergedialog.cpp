@@ -19,13 +19,10 @@
 #include "ui_itemmergedialog.h"
 
 #include "globals.h"
-//#include "nbibio/pipe/bibtextonepomukpipe.h"
+
 #include "core/library.h"
 #include "core/projectsettings.h"
-
-#include <kbibtex/element.h>
-#include <kbibtex/entry.h>
-#include <kbibtex/value.h>
+#include "nbibio/pipe/nepomuktovariantpipe.h"
 
 #include "sync.h"
 #include "nbib.h"
@@ -37,6 +34,7 @@
 #include <KDE/KComboBox>
 #include <KDE/KDebug>
 
+#include <QtCore/QList>
 #include <QtGui/QScrollArea>
 #include <QtGui/QFormLayout>
 
@@ -146,30 +144,59 @@ ItemMergeDialog::~ItemMergeDialog()
 
 void ItemMergeDialog::setItemsToMerge(const QList<SyncMergeDetails> &items)
 {
+    NepomukToVariantPipe ntvp;
 
     foreach(const SyncMergeDetails &sd, items) {
-        Nepomuk2::Resource publication;
+        Nepomuk2::Resource resource;
 
         QUrl syncType = sd.syncResource.property(SYNC::syncDataType()).toUrl();
 
         if( syncType == SYNC::Note()) {
-            publication = sd.syncResource.property(SYNC::note()).toResource();
+            resource = sd.syncResource.property(SYNC::note()).toResource();
         }
         else if ( syncType == SYNC::Attachment()) {
-            publication = sd.syncResource.property(SYNC::attachment()).toResource();
+            resource = sd.syncResource.property(SYNC::attachment()).toResource();
         }
         else {
-            publication = sd.syncResource.property(SYNC::reference()).toResource();
+            resource = sd.syncResource.property(SYNC::reference()).toResource();
         }
-/*
- //FIXME: fix merge ite mdialog
+
+        ntvp.pipeExport(QList<Nepomuk2::Resource>() << resource);
+        QVariantList localExportedList = ntvp.variantList();
         MergedResults mr;
         mr.localSyncResource = sd.syncResource;
-        mr.originalServerEntry = sd.externalResource;
-        mr.serverChanges = BibTexToNepomukPipe::getDiff(publication, sd.externalResource, false, mr.localEntry);
-        mr.mergedChanges = mr.serverChanges;
+        mr.localEntry = localExportedList.first().toMap();
+        mr.serverEntry = sd.externalResource;
+
+        // get each key that has a different content
+        //TODO: put this into NepomukToVariantPipe ?
+        QMapIterator<QString, QVariant> i(mr.serverEntry);
+         while (i.hasNext()) {
+             i.next();
+
+             QString keyToCheck = i.key().toLower();
+
+             // the server item has no content, and the key does not exist in the local storage
+             if( i.value().toString().isEmpty() && !mr.localEntry.contains(keyToCheck) ) {
+                 continue;
+             }
+
+             if( i.value() != mr.localEntry.value(keyToCheck) ) {
+                 QVariant localValue = mr.localEntry.value(keyToCheck);
+                 // exception for date handling
+                 if(keyToCheck == QLatin1String("accessdate")) {
+                     // ignore if server is 2012-01-12 and local is 2012-01-13T00:00:00Z
+                     if(localValue.toString().startsWith(i.value().toString()))
+                         continue;
+                 }
+
+                 //TODO: for names/tags check also different order of the entry
+                 // otherwise add the entry differeces
+                 mr.differendKeys << keyToCheck;
+             }
+         }
+
         m_mergeResults.append(mr);
-        */
     }
 
     ui->previousButton->setEnabled(false);
@@ -234,6 +261,7 @@ void ItemMergeDialog::showPrevious()
 
 void ItemMergeDialog::finish()
 {
+    kDebug() << "finish ... merge all differences";
     /*
     BibTexToNepomukPipe btnp;
     btnp.setSyncDetails(m_psd.url, m_psd.userName);
@@ -246,8 +274,9 @@ void ItemMergeDialog::finish()
         btnp.mergeManual(mr.localSyncResource, mr.mergedChanges);
     }
 
-    accept();
     */
+
+    accept();
 }
 
 void ItemMergeDialog::replaceSelection()
@@ -260,12 +289,13 @@ void ItemMergeDialog::replaceSelection()
     QString key = cb->itemData(index).toString();
 
     if(index == 0) { // stick to local
-        mr.mergedChanges->remove( key );
+        mr.mergedChanges.remove( key );
     }
     else { // select server changes
-        mr.mergedChanges->insert( key , mr.originalServerEntry->value(key)); // i need to take the entry from originalServerEntry because the entry from serverChanges
-                                                                             // got altered somehow and only has 1 of the several entries (so only 1 instead of 4 authors)
+        mr.mergedChanges.insert( key , mr.serverEntry.value(key));
     }
+
+    m_mergeResults.replace(m_currentItem, mr);
 }
 
 void ItemMergeDialog::showItem(int index)
@@ -279,8 +309,9 @@ void ItemMergeDialog::showItem(int index)
 
     QUrl syncType = mr.localSyncResource.property(SYNC::syncDataType()).toUrl();
 
-    kDebug() << "sync type" << syncType << "entry item type" << mr.mergedChanges->type();
+    kDebug() << "sync type" << syncType << "entry item type" << mr.localEntry.value(QLatin1String("bibtexentrytype"));
 
+    //TODO: put icon stuff in MergeResource creation
     if( syncType == SYNC::Note()) {
         publication = mr.localSyncResource.property(SYNC::note()).toResource();
         ui->itemIcon->setPixmap(KIcon("knotes").pixmap(22,22));
@@ -307,33 +338,29 @@ void ItemMergeDialog::showItem(int index)
     QFormLayout *localLayout = new QFormLayout();
     localData->setLayout(localLayout);
 
-    // now we fill the groupboxes with the different values
-    QMapIterator<QString, Value> i(*mr.serverChanges);
-    while (i.hasNext()) {
-        i.next();
-
-        if( i.key().startsWith(QLatin1String("zotero")))
+    foreach(const QString &key, mr.differendKeys) {
+        if(key.startsWith( QLatin1String("sync-") ))
             continue;
 
-        Value serverValue = i.value();
+        QString localValue = mr.localEntry.value(key).toString();
+        QString serverValue = mr.serverEntry.value(key).toString();
 
         // add server row
-        QLabel *valueLabel = new QLabel( PlainTextValue::text(serverValue) );
-        serverLayout->addRow(QLatin1String("<b>") + m_keyTranslate.value(i.key().toLower()) + QLatin1String(":</b>"), valueLabel);
+        serverLayout->addRow(QLatin1String("<b>") + m_keyTranslate.value(key, key) + QLatin1String(":</b>"), new QLabel(serverValue));
+
 
         //add local row
         KComboBox *cb = new KComboBox;
-        Value localValue = mr.localEntry->value(i.key());
-        cb->addItem( PlainTextValue::text( localValue ), i.key() );
-        cb->addItem( PlainTextValue::text( serverValue ), i.key() );
-        localLayout->addRow(QLatin1String("<b>") + m_keyTranslate.value(i.key().toLower()) + QLatin1String(":</b>"), cb);
+        cb->addItem( localValue, key );
+        cb->addItem( serverValue, key );
+        localLayout->addRow(QLatin1String("<b>") + m_keyTranslate.value(key, key) + QLatin1String(":</b>"), cb);
 
         connect(cb, SIGNAL(currentIndexChanged(int)), this, SLOT(replaceSelection()));
 
         // automatically select localvalue as default
-        mr.mergedChanges->insert( i.key() , localValue);
+        mr.mergedChanges.insert( key , localValue);
 
-        kDebug() << "insert key" << i.key() << "with" << PlainTextValue::text(i.value());
+        kDebug() << "insert key" << key << "with" << localValue;
     }
 
     // complete server groupbox

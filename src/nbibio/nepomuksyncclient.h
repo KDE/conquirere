@@ -31,6 +31,9 @@ struct SyncMergeDetails {
     QVariantMap        externalResource;
 };
 
+Q_DECLARE_METATYPE(SyncMergeDetails)
+Q_DECLARE_METATYPE(QList<SyncMergeDetails>)
+
 class NepomukSyncClient : public QObject
 {
     Q_OBJECT
