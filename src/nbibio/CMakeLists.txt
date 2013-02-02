@@ -34,22 +34,26 @@ kde4_add_ui_files( nbibio_LIB_SRCS
     ui/providersettings.ui
 )
 
-kde4_add_library( nbibio STATIC ${nbibio_LIB_SRCS} )
+kde4_add_library(conquirere-nbibio STATIC ${nbibio_LIB_SRCS} )
 
-target_link_libraries(nbibio
+target_link_libraries(conquirere-nbibio
     # include static libs from conquirere
-    ontology
-    core
+    conquirere-ontology
+    conquirere-core
 
     # storage provider
-    syncProvider
-    zoterosync
+    conquirere-syncProvider
+    conquirere-zoterosync
 
     # additional libs
-        ${NEPOMUK_CORE_LIBRARIES}
-    nepomukcore
+    ${NEPOMUK_CORE_LIBRARY}
+
     ${NEPOMUK_WEBMINER_LIBS}
+
+    ${KDE4_AKONADI_LIBS}
+    ${KDE4_KABC_LIBS}
+    akonadi-contact
 )
 
-install( TARGETS nbibio ${INSTALL_TARGETS_DEFAULT_ARGS} )
+#install( TARGETS nbibio ${INSTALL_TARGETS_DEFAULT_ARGS} )
 

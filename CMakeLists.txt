@@ -40,7 +40,7 @@ include_directories (
                      #${KDEPIMLIBS_INCLUDE_DIRS}
                      ${KBIBTEX_INCLUDE_DIRS}
                      ${NEPOMUK_WEBMINER_INCLUDE_DIRS}
-                     #${NEPOMUK_WEBMINER_INCLUDE_DIRS}/nepomuk-webminer/
+                     ${NEPOMUK_WEBMINER_INCLUDE_DIRS}/nepomuk-webminer/
 
                      ${CMAKE_SOURCE_DIR}
                      ${CMAKE_SOURCE_DIR}/src

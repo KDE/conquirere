@@ -26,7 +26,5 @@ kde4_add_ui_files( propertywidgets_LIB_SRCS
                    fileobjecteditdialog.ui
 )
 
-kde4_add_library( propertywidgets STATIC ${propertywidgets_LIB_SRCS} )
- 
-install( TARGETS propertywidgets  ${INSTALL_TARGETS_DEFAULT_ARGS} )
+kde4_add_library(conquirere-propertywidgets STATIC ${propertywidgets_LIB_SRCS} )
 

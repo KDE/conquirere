@@ -7,7 +7,7 @@ kde4_add_unit_test(TEST-core.model
 target_link_libraries(TEST-core.model
 # include static libs from conquirere
        # ontology
-        core
+        conquirere-core
         #nbibio
         #propertywidgets
         #onlinestorage

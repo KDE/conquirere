@@ -16,7 +16,7 @@
  */
 
 #include "version.h"
-//#include "mainui/mainwindow.h"
+#include "mainui/mainwindow.h"
 
 #include <KDE/KApplication>
 #include <KDE/KAboutData>
@@ -27,9 +27,8 @@
 
 int main(int argc, char *argv[])
 {
-  return 0;
     //Nepomuk2::ResourceManager::instance()->init();
-/*
+
     KAboutData aboutData( "conquirere", 0,
                           ki18n("Conquirere"), VERSION,
                           ki18n("Research Helper Tool"),
@@ -47,5 +46,5 @@ int main(int argc, char *argv[])
     window->show();
 
     return app.exec();
-    */
+
 }
