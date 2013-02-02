@@ -46,6 +46,8 @@ target_link_libraries(nbibio
     zoterosync
 
     # additional libs
+        ${NEPOMUK_CORE_LIBRARIES}
+    nepomukcore
     ${NEPOMUK_WEBMINER_LIBS}
 )
 

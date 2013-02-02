@@ -93,6 +93,8 @@ ADD_DEPENDENCIES(mainui nbibio)
 
 target_link_libraries(mainui
     ${NEPOMUK_METADATA_EXTRACTOR_LIBS}
+        ${NEPOMUK_CORE_LIBRARIES}
+        nepomukcore
 
 # include static libs from conquirere
         ontology

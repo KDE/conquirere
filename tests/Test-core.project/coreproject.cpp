@@ -30,6 +30,8 @@
 #include <Soprano/Model>
 #include <Soprano/QueryResultIterator>
 
+#include <Nepomuk2/Vocabulary/NIE>
+#include "ontology/nbib.h"
 #include "sro/nbib/series.h"
 #include "sro/nbib/article.h"
 #include "sro/nbib/proceedings.h"
@@ -53,12 +55,13 @@ private slots:
     void initTestCase();
 
     void createProjectTest();
+    /*
     void loadProjectTest();
     void addResourceProjectTest();
     void removeResourceProjectTest();
     void changeProjectTest();
     void deleteProjectTest();
-
+*/
     void cleanupTestCase();
 
 private:
@@ -78,15 +81,37 @@ QTEST_MAIN(CoreProject)
 
 void CoreProject::initTestCase() {
 
+    l= 0;
+    ps = 0;
+
     testName = QString::fromUtf8("UNITTEST-Project");
     testDescription = QString::fromUtf8("UNITTEST Description üäö+.-!§$%");
 
     //insert some test publication
     Nepomuk2::SimpleResourceGraph graph;
+    Nepomuk2::SimpleResource s;
+//    s.addType(Nepomuk2::Vocabulary::NBIB::Series());
+    s.addType(Nepomuk2::Vocabulary::NIE::InformationElement());
 
+    s.setProperty(Nepomuk2::Vocabulary::NIE::title(), QLatin1String("UNITTEST-Series-Title"));
+
+    qDebug() << "##############################";
+
+    graph << s;
+    qDebug() << graph;
+
+/*
     Nepomuk2::NBIB::Series series;
+
+    graph << series;
+    qDebug() << graph;
+
     series.setTitle(QLatin1String("UNITTEST-Series-Title"));
 
+    qDebug() << "##############################";
+    graph << series;
+    qDebug() << graph;
+/*
     Nepomuk2::NBIB::Proceedings proceedings;
     proceedings.setTitle(QLatin1String("UNITTEST-Proceedings-Title"));
     proceedings.addInSeries(series.uri());
@@ -94,26 +119,30 @@ void CoreProject::initTestCase() {
 
     Nepomuk2::NBIB::Article article;
     article.setTitle(QLatin1String("UNITTEST-Article-Title"));
-    article.setCollection(proceedings.uri());
+    //article.setCollection(proceedings.uri());
 
     Nepomuk2::NBIB::Reference reference;
     reference.setCiteKey(QLatin1String("UNITTEST-Citekey"));
-    reference.setPublication(article.uri());
-    article.addReference(reference.uri());
+    //reference.setPublication(article.uri());
+    //article.addReference(reference.uri());
 
-    graph << article << reference << proceedings << series;
+    graph << article;// << reference << proceedings << series;
+
+    qDebug() << graph;
+    */
 
     Nepomuk2::StoreResourcesJob* srj = Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNone);
 
     if(!srj->exec()) {
+        qDebug() << srj->errorString();
         QFAIL("Could not insert test publication into Nepomuk");
     }
 
     // save the real nepomuk uris for later use
-    articleUri = srj->mappings().value(article.uri());
-    proceedingsUri = srj->mappings().value(proceedings.uri());
-    seriesUri = srj->mappings().value(series.uri());
-    referenceUri = srj->mappings().value(reference.uri());
+//    articleUri = srj->mappings().value(article.uri());
+//    proceedingsUri = srj->mappings().value(proceedings.uri());
+//    seriesUri = srj->mappings().value(series.uri());
+//    referenceUri = srj->mappings().value(reference.uri());
 }
 
 void CoreProject::createProjectTest() {
@@ -121,6 +150,8 @@ void CoreProject::createProjectTest() {
     //########################################################
     //# Create a new library
 
+    l = new Library();
+    /*
     pimoProject = Library::createLibrary(testName, testDescription, QString(""));
 
     QVERIFY2( pimoProject.isValid(), "pimoProject for the library is NOT Valid" );
@@ -128,8 +159,9 @@ void CoreProject::createProjectTest() {
 
     if( !pimoProject.exists() )
         QFAIL("Without working project all other tests will fail too.");
+        */
 }
-
+/*
 void CoreProject::loadProjectTest() {
 
     //########################################################
@@ -173,7 +205,7 @@ void CoreProject::addResourceProjectTest()
     bool seriesAdded = seriesCheck.isRelateds().contains(pimoProject);
     QVERIFY2( seriesAdded, "Series not added to the project");
     */
-
+/*
     //QEXPECT_FAIL("", "res.types not loaded correctly, should be fixed in 4.9.1", Continue);
     bool referenceAdded = referenceCheck.isRelateds().contains(pimoProject);
     QVERIFY2( referenceAdded, "Reference not added to the project");
@@ -242,7 +274,7 @@ void CoreProject::deleteProjectTest()
 
     QVERIFY2( !pimoProject.exists(), "Project was not deleted correctly");
 }
-
+*/
 void CoreProject::cleanupTestCase()
 {
     // remove all data created by this unittest from the nepomuk database again

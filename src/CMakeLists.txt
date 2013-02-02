@@ -3,9 +3,9 @@
 
 add_subdirectory( config )
 add_subdirectory( core )
-add_subdirectory( nbibio )
-add_subdirectory( mainui )
-add_subdirectory( propertywidgets )
+#add_subdirectory( nbibio )
+#add_subdirectory( mainui )
+#add_subdirectory( propertywidgets )
 
 set(conquirere_SRCS
     main.cpp
@@ -19,12 +19,12 @@ ADD_DEPENDENCIES(conquirere config)
 
 target_link_libraries(conquirere
 # include static libs from conquirere
-        ontology
-        config
-        core
-        nbibio
-        propertywidgets
-        mainui
+#        ontology
+#        config
+#        core
+#        nbibio
+#        propertywidgets
+#        mainui
 
 # include general kde libs
         ${KDE4_KDECORE_LIBS}
@@ -34,14 +34,12 @@ target_link_libraries(conquirere
         ${KDE4_KHTML_LIBS}
 
 #include akonadi stuff
-        ${KDE4_AKONADI_LIBS}
-        ${KDE4_KABC_LIBS}
-        akonadi-contact
+        #${KDE4_AKONADI_LIBS}
+        #${KDE4_KABC_LIBS}
+        #akonadi-contact
 
 #include nepomuk
-        ${NEPOMUK_LIBRARIES}
-        ${NEPOMUK_QUERY_LIBRARIES}
-        nepomukcore
+        ${NEPOMUK_CORE_LIBRARY}
 
 #include kbibtex
         ${KBIBTEX_LIBRARIES}

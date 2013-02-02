@@ -34,11 +34,15 @@ set(core_LIB_SRCS
 
 kde4_add_library( core STATIC ${core_LIB_SRCS} )
 ADD_DEPENDENCIES(core config)
+ADD_DEPENDENCIES(core ontology)
 
 target_link_libraries(core
         config
+        ontology
+        
+        #${NEPOMUK_CORE_LIBRARY}
 )
 
-install( TARGETS core ${INSTALL_TARGETS_DEFAULT_ARGS} )
+#install( TARGETS core ${INSTALL_TARGETS_DEFAULT_ARGS} )
 
 

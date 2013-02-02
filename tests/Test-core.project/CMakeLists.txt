@@ -8,9 +8,9 @@ target_link_libraries(TEST-core.project
 # include static libs from conquirere
         ontology
         core
-        nbibio
+        #nbibio
         #propertywidgets
-        onlinestorage
+        #onlinestorage
         #mainui
 
 # include general kde libs
@@ -23,9 +23,7 @@ target_link_libraries(TEST-core.project
         ${QT_QTTEST_LIBRARY}
 
 #include nepomuk
-        ${NEPOMUK_LIBRARIES}
-        ${NEPOMUK_QUERY_LIBRARIES}
-        nepomukcore
+        ${NEPOMUK_CORE_LIBRARY}
 
 #include kbibtex
         ${KBIBTEX_LIBRARIES}

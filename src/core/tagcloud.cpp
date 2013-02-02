@@ -153,7 +153,7 @@ void TagCloud::generateCloud()
                                         "}"
                                         "Order By DESC (?count)"
                                         "LIMIT 20");
-
+/*
     Soprano::Model* model = Nepomuk2::ResourceManager::instance()->mainModel();
     Soprano::QueryResultIterator it = model->executeQuery( query, Soprano::Query::QueryLanguageSparql );
 
@@ -164,7 +164,7 @@ void TagCloud::generateCloud()
         m_tagCloud.append(QPair<int, QString>( p.value("count").toString().toInt() / 2,
                                               p.value("label").toString()));
     }
-
+*/
     emit tagCloudChanged();
 }
 
