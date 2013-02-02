@@ -6,11 +6,11 @@ kde4_add_unit_test(TEST-core.model
 
 target_link_libraries(TEST-core.model
 # include static libs from conquirere
-        ontology
-        core
-        nbibio
+       # ontology
+        conquirere-core
+        #nbibio
         #propertywidgets
-        onlinestorage
+        #onlinestorage
         #mainui
 
 # include general kde libs
@@ -23,9 +23,7 @@ target_link_libraries(TEST-core.model
         ${QT_QTTEST_LIBRARY}
 
 #include nepomuk
-        ${NEPOMUK_LIBRARIES}
-        ${NEPOMUK_QUERY_LIBRARIES}
-        nepomukcore
+        ${NEPOMUK_CORE_LIBRARY}
 
 #include kbibtex
         ${KBIBTEX_LIBRARIES}

@@ -86,22 +86,24 @@ kde4_add_ui_files( mainui_LIB_SRCS
                    sidebar/listcitedsources.ui
 )
 
-kde4_add_library( mainui STATIC ${mainui_LIB_SRCS} )
-ADD_DEPENDENCIES(mainui config)
-ADD_DEPENDENCIES(mainui core)
-ADD_DEPENDENCIES(mainui nbibio)
+kde4_add_library(conquirere-mainui STATIC ${mainui_LIB_SRCS} )
+ADD_DEPENDENCIES(conquirere-mainui conquirere-config)
+ADD_DEPENDENCIES(conquirere-mainui conquirere-core)
+ADD_DEPENDENCIES(conquirere-mainui conquirere-nbibio)
 
-target_link_libraries(mainui
-    ${NEPOMUK_METADATA_EXTRACTOR_LIBS}
+target_link_libraries(conquirere-mainui
 
 # include static libs from conquirere
-        ontology
-        config
-        core
-        nbibio
-        propertywidgets
+        conquirere-ontology
+        conquirere-config
+        conquirere-core
+        conquirere-nbibio
+        conquirere-propertywidgets
+
+        ${NEPOMUK_WEBMINER_LIBS}
+        ${NEPOMUK_CORE_LIBRARY}
 )
  
-install( TARGETS mainui  ${INSTALL_TARGETS_DEFAULT_ARGS} )
+#install( TARGETS mainui  ${INSTALL_TARGETS_DEFAULT_ARGS} )
 
 

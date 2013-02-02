@@ -23,7 +23,7 @@
 #include <KDE/KCmdLineArgs>
 #include <KDE/KLocale>
 
-#include <Nepomuk2/ResourceManager>
+//#include <Nepomuk2/ResourceManager>
 
 int main(int argc, char *argv[])
 {
@@ -46,4 +46,5 @@ int main(int argc, char *argv[])
     window->show();
 
     return app.exec();
+
 }

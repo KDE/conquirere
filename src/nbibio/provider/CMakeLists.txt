@@ -6,7 +6,7 @@ set(syncprovider_LIB_SRCS
     onlinestorage.cpp
 )
 
-kde4_add_library( syncProvider STATIC ${syncprovider_LIB_SRCS} )
+kde4_add_library(conquirere-syncProvider STATIC ${syncprovider_LIB_SRCS} )
 
-install( TARGETS syncProvider ${INSTALL_TARGETS_DEFAULT_ARGS} )
+#install( TARGETS conquirere-syncProvider ${INSTALL_TARGETS_DEFAULT_ARGS} )
 

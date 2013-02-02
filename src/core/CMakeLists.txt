@@ -32,13 +32,14 @@ set(core_LIB_SRCS
     queryclients/eventquery.cpp
 )
 
-kde4_add_library( core STATIC ${core_LIB_SRCS} )
-ADD_DEPENDENCIES(core config)
+kde4_add_library(conquirere-core STATIC ${core_LIB_SRCS} )
+ADD_DEPENDENCIES(conquirere-core conquirere-config)
+ADD_DEPENDENCIES(conquirere-core conquirere-ontology)
 
-target_link_libraries(core
-        config
+target_link_libraries(conquirere-core
+        conquirere-config
+        conquirere-ontology
+
+        ${KDE4_KIO_LIBS}
+        ${NEPOMUK_CORE_LIBRARY}
 )
-
-install( TARGETS core ${INSTALL_TARGETS_DEFAULT_ARGS} )
-
-

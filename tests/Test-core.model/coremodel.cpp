@@ -135,7 +135,7 @@ void CoreModel::addPublicationTest()
 
     Nepomuk2::NBIB::Book book;
     book.setTitle(QLatin1String("UNITTEST-book"));
-    book.addCreator(author.uri());
+    //book.addCreator(author.uri());
     book.addEditor(editor.uri());
     book.addPublisher( publisher.uri() );
     book.setPublicationDate( publicationDate );

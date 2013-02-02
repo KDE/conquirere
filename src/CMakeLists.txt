@@ -15,16 +15,16 @@ kde4_add_app_icon(conquirere_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/../icons/hi*-app-
 kde4_add_executable(conquirere ${conquirere_SRCS})
 
 ADD_DEPENDENCIES(conquirere version)
-ADD_DEPENDENCIES(conquirere config)
+ADD_DEPENDENCIES(conquirere conquirere-config)
 
 target_link_libraries(conquirere
 # include static libs from conquirere
-        ontology
-        config
-        core
-        nbibio
-        propertywidgets
-        mainui
+        conquirere-ontology
+        conquirere-config
+        conquirere-core
+        conquirere-nbibio
+        conquirere-propertywidgets
+        conquirere-mainui
 
 # include general kde libs
         ${KDE4_KDECORE_LIBS}
@@ -33,20 +33,13 @@ target_link_libraries(conquirere
         ${KDE4_KPARTS_LIBS}
         ${KDE4_KHTML_LIBS}
 
-#include akonadi stuff
-        ${KDE4_AKONADI_LIBS}
-        ${KDE4_KABC_LIBS}
-        akonadi-contact
-
 #include nepomuk
-        ${NEPOMUK_LIBRARIES}
-        ${NEPOMUK_QUERY_LIBRARIES}
-        nepomukcore
+        ${NEPOMUK_CORE_LIBRARY}
+        ${NEPOMUK_WEBMINER_LIBS}
 
 #include kbibtex
         ${KBIBTEX_LIBRARIES}
 
-        ${NEPOMUK_WEBMINER_LIBS}
 )
 
 install(TARGETS conquirere DESTINATION ${BIN_INSTALL_DIR})

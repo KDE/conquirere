@@ -10,11 +10,11 @@ set(CMAKE_MODULE_PATH
 
 ENABLE_TESTING()
 
-set(KDE_MIN_VERSION "4.5.80")  # for the < 4.2 macro
-find_package(KDE4 REQUIRED)
+set(KDE_MIN_VERSION "4.9.90")  # for the < 4.2 macro
+find_package(KDE4 4.9.0 REQUIRED)
 find_package(KdepimLibs REQUIRED)
 
-set(SDO_MIN_VERSION "0.8.1")
+set(SDO_MIN_VERSION "0.10.0")
 find_package(SharedDesktopOntologies)
 find_package(Soprano)
 find_package(NepomukCore REQUIRED)
@@ -24,9 +24,9 @@ find_package(QJSON REQUIRED)
 find_package(KBibTeX REQUIRED)
 find_package(NepomukWebMiner REQUIRED)
 
-include (NepomukAddOntologyClasses)
-include (KDE4Defaults)
-include (MacroLibrary)
+include(NepomukAddOntologyClasses)
+include(KDE4Defaults)
+include(MacroLibrary)
 
 add_definitions (${QT_DEFINITIONS} ${KDE4_DEFINITIONS} -DQT_STRICT_ITERATORS )
 #add_definitions( -DQT_NO_CAST_FROM_ASCII )
@@ -35,9 +35,9 @@ add_definitions(-DQT_USE_FAST_CONCATENATION -DQT_USE_FAST_OPERATOR_PLUS)
 
 include_directories (
                      ${KDE4_INCLUDES}
-                     ${KDEPIMLIBS_INCLUDE_DIRS}
-                     ${NEPOMUK_INCLUDE_DIR}
-                     ${NEPOMUKEXTRAS_INCLUDE_DIR}
+                     ${SOPRANO_INCLUDE_DIR}
+                     ${NEPOMUK_CORE_INCLUDE_DIR}
+                     #${KDEPIMLIBS_INCLUDE_DIRS}
                      ${KBIBTEX_INCLUDE_DIRS}
                      ${NEPOMUK_WEBMINER_INCLUDE_DIRS}
                      ${NEPOMUK_WEBMINER_INCLUDE_DIRS}/nepomuk-webminer/
@@ -72,6 +72,9 @@ endif()
 configure_file(${conquirere_SOURCE_DIR}/version.h.in ${conquirere_BINARY_DIR}/version.h @ONLY)
 
 message(STATUS "Found kbibtex: ${KBIBTEX_LIBRARIES}")
+
+message(STATUS "Found NEPOMUK_LIBRARIES: ${NEPOMUK_CORE_LIBRARY}")
+message(STATUS "Found NEPOMUK_CORE_INCLUDE_DIR: ${NEPOMUK_CORE_INCLUDE_DIR}")
 
 add_subdirectory( ontology )
 add_subdirectory( src )

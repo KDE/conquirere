@@ -6,9 +6,7 @@ nepomuk_add_ontology_classes(ontology_LIB_SRCS ONTOLOGIES ${CMAKE_SOURCE_DIR}/on
 soprano_add_ontology(ontology_LIB_SRCS ${CMAKE_SOURCE_DIR}/ontology/nbib.trig "NBIB" "Nepomuk2::Vocabulary" "trig")
 soprano_add_ontology(ontology_LIB_SRCS ${CMAKE_SOURCE_DIR}/ontology/sync.trig "SYNC" "Nepomuk2::Vocabulary" "trig")
 
-kde4_add_library( ontology STATIC ${ontology_LIB_SRCS} )
-
-install( TARGETS ontology  ${INSTALL_TARGETS_DEFAULT_ARGS} )
+kde4_add_library( conquirere-ontology STATIC ${ontology_LIB_SRCS} )
 
 # -------------------------------------------
 # install the ontology

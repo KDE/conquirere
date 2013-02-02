@@ -30,6 +30,8 @@
 #include <Soprano/Model>
 #include <Soprano/QueryResultIterator>
 
+#include <Nepomuk2/Vocabulary/NIE>
+#include "ontology/nbib.h"
 #include "sro/nbib/series.h"
 #include "sro/nbib/article.h"
 #include "sro/nbib/proceedings.h"
@@ -76,14 +78,16 @@ private:
 
 QTEST_MAIN(CoreProject)
 
-void CoreProject::initTestCase() {
+void CoreProject::initTestCase()
+{
+    l= 0;
+    ps = 0;
 
     testName = QString::fromUtf8("UNITTEST-Project");
     testDescription = QString::fromUtf8("UNITTEST Description üäö+.-!§$%");
 
     //insert some test publication
     Nepomuk2::SimpleResourceGraph graph;
-
     Nepomuk2::NBIB::Series series;
     series.setTitle(QLatin1String("UNITTEST-Series-Title"));
 
@@ -106,6 +110,7 @@ void CoreProject::initTestCase() {
     Nepomuk2::StoreResourcesJob* srj = Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNone);
 
     if(!srj->exec()) {
+        qDebug() << srj->errorString();
         QFAIL("Could not insert test publication into Nepomuk");
     }
 
