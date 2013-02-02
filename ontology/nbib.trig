@@ -235,7 +235,7 @@ nbib: {
 
     nbib:Script
           a       rdfs:Class ;
-          rdfs:comment "The script for something (a lecture for ecxample)" ;
+          rdfs:comment "The script for something (a lecture for example)" ;
           rdfs:label "Script" ;
           rdfs:subClassOf nbib:Publication .
 
@@ -275,7 +275,7 @@ nbib: {
 
     nbib:DocumentPart
           a       rdfs:Class ;
-          rdfs:comment "a part of an document, mostly Chapters but alsow quotes etc. These don't have to be available as real file extracts but can also be linked to a real file, if available" ;
+          rdfs:comment "A part of an document, mostly Chapters but also quotes etc. These don't have to be available as real file exrtacts but can also be linked to a real file, if available" ;
           rdfs:label "Document Part" ;
           rdfs:subClassOf nie:InformationElement .
 
@@ -542,7 +542,7 @@ nbib: {
     nbib:legislation
           a       rdf:Property ;
           rdfs:domain nbib:CodeOfLaw ;
-          rdfs:comment "links to a legislation (Bill, Statute) in a Code of Law" ;
+          rdfs:comment "Links to a legislation (Bill, Statute) in a Code of Law" ;
           rdfs:label "Legislation" ;
           rdfs:range nbib:Legislation .
 
@@ -768,7 +768,7 @@ nbib: {
     nbib:number
           a       rdf:Property ;
           rdfs:domain nbib:Publication ;
-          rdfs:comment "The '(issue) number' of a journal, magazine, or tech-report, pr the publicl aw Number of a Statute or the number of a patent etc" ;
+          rdfs:comment "The '(issue) number' of a journal, magazine, or tech-report, or the public law Number of a Statute or the number of a patent etc" ;
           rdfs:label "Issue Number" ;
           rdfs:range xsd:string ;
           nrl:maxCardinality 1 .
@@ -779,6 +779,7 @@ nbib: {
           rdfs:comment "The organization that held the conference where the proceedings comes from or that is otherwise responsible for the publication" ;
           rdfs:label "Organization" ;
           rdfs:range nco:OrganizationContact ;
+          nrl:inverseProperty nbib:conference ;
           nrl:maxCardinality 1 .
 
     nbib:event
@@ -894,7 +895,7 @@ nbib: {
     nbib:inSeries
           a       rdf:Property ;
           rdfs:domain nbib:Publication ;
-          rdfs:comment "The series the publication was published in. (for example a series of books, a series of lecture notes, a journal series" ;
+          rdfs:comment "The series the publication was published in. (for example a series of books, a series of lecture notes, a journal series)" ;
           rdfs:label "inSeries" ;
           rdfs:range nbib:Series ;
           rdfs:subPropertyOf nie:hasLogicalPart ;

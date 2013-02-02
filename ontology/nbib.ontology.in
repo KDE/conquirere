@@ -1,7 +1,7 @@
 [Ontology]
 Version=0.1
-Name=Nepomuk BibTex Ontology
-Comment=The Nepomuk BibTex Ontology describes the bibliographic information of a document in the BibTEx format.
+Name=Nepomuk BibTeX Ontology
+Comment=The Nepomuk BibTex Ontology describes the bibliographic information of a document in the BibTeX format.
 Namespace=http://www.example.com/nbib#
 Path=${ONTO_INSTALL_DIR}/nbib.trig
 MimeType=application/x-trig
