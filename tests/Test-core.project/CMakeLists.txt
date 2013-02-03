@@ -5,6 +5,9 @@ kde4_add_unit_test(TEST-core.project
 )
 
 target_link_libraries(TEST-core.project
+#include nepomuk
+        ${NEPOMUK_CORE_LIBRARY}
+
 # include static libs from conquirere
         conquirere-ontology
         conquirere-config
@@ -19,9 +22,6 @@ target_link_libraries(TEST-core.project
         ${KDE4_KIO_LIBS}
 
         ${QT_QTTEST_LIBRARY}
-
-#include nepomuk
-        ${NEPOMUK_CORE_LIBRARY}
 
 #include kbibtex
         ${KBIBTEX_LIBRARIES}

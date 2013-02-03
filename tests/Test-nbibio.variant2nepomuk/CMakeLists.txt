@@ -5,20 +5,21 @@ kde4_add_unit_test(Test-nbibio.variant2nepomuk
 )
 
 target_link_libraries(Test-nbibio.variant2nepomuk
+#include nepomuk
+        ${NEPOMUK_CORE_LIBRARY}
+        ${NEPOMUK_WEBMINER_LIBRARY}
+
 # include static libs from conquirere
-        ontology
-        core
-        nbibio
-        propertywidgets
-        onlinestorage
-        mainui
+        conquirere-ontology
+        conquirere-core
+        conquirere-nbibio
+        conquirere-propertywidgets
+        conquirere-mainui
 
 # include general kde libs
         ${KDE4_KDECORE_LIBS}
         ${KDE4_KDEUI_LIBS}
         ${KDE4_KIO_LIBS}
-        #${KDE4_KPARTS_LIBS}
-        #${KDE4_KHTML_LIBS}
 
         ${QT_QTTEST_LIBRARY}
 
@@ -26,13 +27,6 @@ target_link_libraries(Test-nbibio.variant2nepomuk
         ${KDE4_AKONADI_LIBS}
         ${KDE4_KABC_LIBS}
         akonadi-contact
-
-#include nepomuk
-        ${NEPOMUK_LIBRARIES}
-        ${NEPOMUK_QUERY_LIBRARIES}
-        nepomukcore
-
-        ${NEPOMUK_METADATA_EXTRACTOR_LIBS}
 
 #include kbibtex
         ${KBIBTEX_LIBRARIES}

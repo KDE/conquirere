@@ -5,9 +5,12 @@ kde4_add_unit_test(Test-zotero.simple
 )
 
 target_link_libraries(Test-zotero.simple
+#include nepomuk
+        ${NEPOMUK_CORE_LIBRARY}
+
 # include static sync libs
-        core
-        nbibio
+        conquirere-core
+        conquirere-nbibio
 
 # include general kde libs
         ${KDE4_KDECORE_LIBS}
@@ -16,9 +19,4 @@ target_link_libraries(Test-zotero.simple
 
         ${QT_QTTEST_LIBRARY}
 
-#include nepomuk
-        ${NEPOMUK_LIBRARIES}
-        ${NEPOMUK_QUERY_LIBRARIES}
-        nepomukcore
-        nepomuksync
 )

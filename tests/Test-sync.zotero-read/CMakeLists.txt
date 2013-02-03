@@ -6,10 +6,13 @@ kde4_add_unit_test(Test-sync.zotero-read
 )
 
 target_link_libraries(Test-sync.zotero-read
+#include nepomuk
+        ${NEPOMUK_CORE_LIBRARY}
+
 # include static sync libs
-        ontology
-        core
-        nbibio
+        conquirere-ontology
+        conquirere-core
+        conquirere-nbibio
 
 # include general kde libs
         ${KDE4_KDECORE_LIBS}
@@ -22,11 +25,6 @@ target_link_libraries(Test-sync.zotero-read
         ${KDE4_AKONADI_LIBS}
         ${KDE4_KABC_LIBS}
         akonadi-contact
-
-#include nepomuk
-        ${NEPOMUK_LIBRARIES}
-        ${NEPOMUK_QUERY_LIBRARIES}
-        nepomukcore
 
 #include kbibtex
         ${KBIBTEX_LIBRARIES}

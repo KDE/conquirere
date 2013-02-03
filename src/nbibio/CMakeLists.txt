@@ -47,12 +47,13 @@ target_link_libraries(conquirere-nbibio
 
     # additional libs
     ${NEPOMUK_CORE_LIBRARY}
-
     ${NEPOMUK_WEBMINER_LIBS}
 
     ${KDE4_AKONADI_LIBS}
     ${KDE4_KABC_LIBS}
     akonadi-contact
+
+    ${QT_QTNETWORK_LIBRARY}
 )
 
 #install( TARGETS nbibio ${INSTALL_TARGETS_DEFAULT_ARGS} )

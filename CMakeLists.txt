@@ -8,7 +8,7 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_SOURCE_DIR}/cmake/modules
 )
 
-ENABLE_TESTING()
+#ENABLE_TESTING()
 
 set(KDE_MIN_VERSION "4.9.90")  # for the < 4.2 macro
 find_package(KDE4 4.9.0 REQUIRED)
