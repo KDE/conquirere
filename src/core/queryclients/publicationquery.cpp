@@ -19,9 +19,8 @@
 #include "../library.h"
 #include "../projectsettings.h"
 
-#include "globals.h"
-
 #include "config/conquirere.h"
+#include "config/bibglobals.h"
 
 #include <KDE/KIcon>
 
@@ -57,7 +56,7 @@ void PublicationQuery::startFetchData()
     m_newWatcher = new Nepomuk2::ResourceWatcher(this);
     m_newWatcher->addType(Nepomuk2::Vocabulary::NBIB::Publication());
 
-    if(m_library->libraryType() == Library_Project) {
+    if(m_library->libraryType() == BibGlobals::Library_Project) {
         m_newWatcher->addProperty(Soprano::Vocabulary::NAO::isRelated());
         connect(m_newWatcher, SIGNAL(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)),
                 this, SLOT(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)) );
@@ -97,13 +96,13 @@ QList<CachedRowEntry> PublicationQuery::queryNepomuk()
     QString hideTypes;
     // add a filter to hide several publication types
     foreach(int i, ConqSettings::hiddenNbibPublications()) {
-        hideTypes.append(QString(" FILTER NOT EXISTS { ?r a <%1> . } ").arg(BibEntryTypeURL.at(i).toString()));
+        hideTypes.append(QString(" FILTER NOT EXISTS { ?r a <%1> . } ").arg(BibGlobals::BibEntryTypeURL((BibGlobals::BibEntryType)i).toString()));
     }
 
     // helping string to filter for all documents that are related to the current project
     QString projectRelated;
     QString projectTag;
-    if(m_library->libraryType() == Library_Project) {
+    if(m_library->libraryType() == BibGlobals::Library_Project) {
         projectRelated = QString("?r nao:isRelated  <%1> .").arg(m_library->settings()->projectThing().uri().toString());
         projectTag = QString("UNION { ?r nao:hasTag  <%1> . }").arg(m_library->settings()->projectTag().uri().toString() );
     }
@@ -199,6 +198,7 @@ QList<CachedRowEntry> PublicationQuery::queryNepomuk()
         cre.decorationColums = createDecorationData(i.value());
         cre.resource = Nepomuk2::Resource::fromResourceUri( KUrl( i.key() ) );
         cre.timestamp = QDateTime::currentDateTime();
+        cre.resourceType = detectResourceType(cre.resource);
         newCache.append(cre);
 
         m_resourceWatcher->addResource( cre.resource );
@@ -248,8 +248,8 @@ QVariantList PublicationQuery::createDisplayData(const QStringList & item) const
             foreach(const QString s, item.at(i).split(";")) {
                 typeList.append(QUrl(s));
             }
-            BibEntryType type = BibEntryTypeFromUrl(typeList);
-            QString typeSting = BibEntryTypeTranslation.at(type);
+            BibGlobals::BibEntryType type = BibGlobals::BibEntryTypeFromUrl(typeList);
+            QString typeSting = BibGlobals::BibEntryTypeTranslation(type);
 
             newEntry = typeSting;
 
@@ -324,8 +324,8 @@ QVariantList PublicationQuery::createDisplayData(const Nepomuk2::Resource & res)
         QVariant newEntry;
         switch(i) {
         case Column_ResourceType: {
-            BibEntryType type = BibEntryTypeFromUrl(res);
-            QString typeSting = BibEntryTypeTranslation.at(type);
+            BibGlobals::BibEntryType type = BibGlobals::BibEntryTypeFromUrl(res);
+            QString typeSting = BibGlobals::BibEntryTypeTranslation(type);
 
             newEntry = typeSting;
             break;
@@ -450,4 +450,9 @@ QVariantList PublicationQuery::createDecorationData(const Nepomuk2::Resource & r
     }
 
     return decorationList;
+}
+
+uint PublicationQuery::detectResourceType(const Nepomuk2::Resource & res) const
+{
+    return (uint)BibGlobals::BibEntryTypeFromUrl(res);
 }

@@ -18,8 +18,6 @@
 #ifndef SIDEBARCOMPONENT_H
 #define SIDEBARCOMPONENT_H
 
-#include "globals.h"
-
 #include <Nepomuk2/Resource>
 
 #include <QtGui/QWidget>

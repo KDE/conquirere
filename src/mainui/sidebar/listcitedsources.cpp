@@ -18,7 +18,7 @@
 #include "listcitedsources.h"
 #include "ui_listcitedsources.h"
 
-#include "globals.h"
+#include "config/bibglobals.h"
 
 #include "core/librarymanager.h"
 #include "listpublicationsdialog.h"
@@ -81,8 +81,8 @@ void ListCitedSources::setResource(Nepomuk2::Resource resource)
         QListWidgetItem *i = new QListWidgetItem();
         Nepomuk2::Resource publication = r.property(NBIB::publication()).toResource();
 
-        BibEntryType bet = BibEntryTypeFromUrl(publication);
-        i->setIcon( KIcon(BibEntryTypeIcon.at(bet)) );
+        BibGlobals::BibEntryType bet = BibGlobals::BibEntryTypeFromUrl(publication);
+        i->setIcon( KIcon(BibGlobals::BibEntryTypeIcon(bet)) );
 
         QString citeKey = r.property(NBIB::citeKey()).toString();
         QString title = publication.property(NIE::title()).toString();
@@ -123,8 +123,8 @@ void ListCitedSources::editReference()
 
     Nepomuk2::Resource publication = reference.property(NBIB::publication()).toResource();
 
-    BibEntryType bet = BibEntryTypeFromUrl(publication);
-    i->setIcon( KIcon(BibEntryTypeIcon.at(bet)) );
+    BibGlobals::BibEntryType bet = BibGlobals::BibEntryTypeFromUrl(publication);
+    i->setIcon( KIcon(BibGlobals::BibEntryTypeIcon(bet)) );
 
     QString citeKey = reference.property(NBIB::citeKey()).toString();
     QString title = publication.property(NIE::title()).toString();
@@ -141,7 +141,7 @@ void ListCitedSources::addReference()
 {
     QPointer<ListPublicationsDialog> lpd = new ListPublicationsDialog(this);
 
-    lpd->setListMode(Resource_Reference, Max_BibTypes);
+    lpd->setListMode(BibGlobals::Resource_Reference, BibGlobals::Max_BibTypes);
     lpd->setLibraryManager(m_libraryManager);
 
     int ret = lpd->exec();
@@ -158,8 +158,8 @@ void ListCitedSources::addReference()
 
         QListWidgetItem *i = new QListWidgetItem();
 
-        BibEntryType bet = BibEntryTypeFromUrl(publication);
-        i->setIcon( KIcon(BibEntryTypeIcon.at(bet)) );
+        BibGlobals::BibEntryType bet = BibGlobals::BibEntryTypeFromUrl(publication);
+        i->setIcon( KIcon(BibGlobals::BibEntryTypeIcon(bet)) );
 
         QString citeKey = selectedReference.property(NBIB::citeKey()).toString();
         QString title = publication.property(NIE::title()).toString();

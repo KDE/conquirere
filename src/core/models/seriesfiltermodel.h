@@ -18,7 +18,7 @@
 #ifndef SERIESFILTERMODEL_H
 #define SERIESFILTERMODEL_H
 
-#include "globals.h"
+#include "config/bibglobals.h"
 
 #include <QtGui/QSortFilterProxyModel>
 
@@ -36,13 +36,13 @@ public:
     /**
       * The @p SeriesType to filter for
       */
-    void setResourceFilter(SeriesType filter);
+    void setResourceFilter(BibGlobals::SeriesType filter);
 
 protected:
      bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
 private:
-    SeriesType m_curFilter;
+    BibGlobals::SeriesType m_curFilter;
 };
 
 #endif // SERIESFILTERMODEL_H

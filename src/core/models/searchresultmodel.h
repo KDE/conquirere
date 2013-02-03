@@ -18,9 +18,9 @@
 #ifndef SEARCHRESULTMODEL_H
 #define SEARCHRESULTMODEL_H
 
-#include "globals.h"
-
 #include <KDE/KIcon>
+
+#include <Nepomuk2/Resource>
 
 #include <QtCore/QAbstractTableModel>
 #include <QtCore/QList>

@@ -80,7 +80,7 @@ void ResourceTableWidget::setSearchResultModel(SearchResultModel* srm)
     m_searchResultModel->setSourceModel(srm);
 }
 
-void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType filter, Library *p)
+void ResourceTableWidget::switchView(BibGlobals::ResourceSelection selection, BibGlobals::BibEntryType filter, Library *p)
 {
     m_selection = selection;
 
@@ -91,7 +91,7 @@ void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType f
     else {
         SeriesFilterModel * pfm = qobject_cast<SeriesFilterModel *>(p->viewModel(selection));
         if(pfm) {
-            pfm->setResourceFilter(SeriesType(filter));
+            pfm->setResourceFilter(BibGlobals::SeriesType(filter));
         }
     }
 
@@ -109,8 +109,8 @@ void ResourceTableWidget::switchView(ResourceSelection selection, BibEntryType f
     }
 
     switch(m_selection) {
-    case Resource_Event:
-    case Resource_Series:
+    case BibGlobals::Resource_Event:
+    case BibGlobals::Resource_Series:
         m_documentView->setItemDelegateForColumn(3, m_htmlDelegate);
         break;
     default:

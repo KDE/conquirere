@@ -18,7 +18,7 @@
 #ifndef LIBRARY_H
 #define LIBRARY_H
 
-#include "globals.h"
+#include "config/bibglobals.h"
 
 #include <Nepomuk2/Resource>
 
@@ -79,7 +79,7 @@ public:
       * @p projectFile the .ini project file
       * @p type the type of the library
       */
-    void loadLibrary(const QString & projectFile, LibraryType type = Library_Project);
+    void loadLibrary(const QString & projectFile, BibGlobals::LibraryType type = BibGlobals::Library_Project);
 
     /**
      * @brief Load the system library with all resources in the Nepomuk database
@@ -102,7 +102,7 @@ public:
       *
       * @return Either @c System or @c Project
       */
-    LibraryType libraryType() const;
+    BibGlobals::LibraryType libraryType() const;
 
     /**
       * brief Deletes the current project library
@@ -147,14 +147,14 @@ public:
       *
       * @return The abstract table model used to connect to a tableview
       */
-    QSortFilterProxyModel* viewModel(ResourceSelection selection);
+    QSortFilterProxyModel* viewModel(BibGlobals::ResourceSelection selection);
 
     /**
       * @brief Returns all available tablemodels as a map sorted by its Content
       *
       * @see ResourceSelection
       */
-    QMap<ResourceSelection, QSortFilterProxyModel*> viewModels();
+    QMap<BibGlobals::ResourceSelection, QSortFilterProxyModel*> viewModels();
 
 private slots:
     /**
@@ -173,13 +173,13 @@ private:
       */
     void setupModels();
 
-    LibraryType m_libraryType;
+   BibGlobals:: LibraryType m_libraryType;
     ProjectSettings *m_projectSettings;
 
     DirWatcher *m_dirWatcher;
     TagCloud *m_tagCloud;
 
-    QMap<ResourceSelection, QSortFilterProxyModel*> m_resources;
+    QMap<BibGlobals::ResourceSelection, QSortFilterProxyModel*> m_resources;
 
 };
 

@@ -106,7 +106,7 @@ void NoteWidget::newButtonClicked()
     saveNote();
 
     Library *curUsedLib = libraryManager()->currentUsedLibrary();
-    if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
+    if(curUsedLib && curUsedLib->libraryType() == BibGlobals::Library_Project) {
         curUsedLib->addResource( m_note );
     }
 

@@ -18,7 +18,6 @@
 #ifndef NEPOMUKMODEL_H
 #define NEPOMUKMODEL_H
 
-#include "globals.h"
 #include "core/queryclients/queryclient.h"
 
 #include <Nepomuk2/Resource>

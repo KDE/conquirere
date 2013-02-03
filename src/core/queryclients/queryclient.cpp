@@ -18,7 +18,7 @@
 #include "queryclient.h"
 
 #include "config/conquirere.h"
-#include "globals.h"
+#include "config/bibglobals.h"
 #include "../library.h"
 #include "../projectsettings.h"
 #include "../models/nepomukmodel.h"
@@ -64,7 +64,7 @@ void QueryClient::propertyChanged (const Nepomuk2::Resource &resource, const Nep
 
     // see if we need to add / remove the changed resource from the project model
     if(property.uri() == Soprano::Vocabulary::NAO::isRelated() ) {
-        if(m_library->libraryType() == Library_Project) {
+        if(m_library->libraryType() == BibGlobals::Library_Project) {
             if(addedValues.contains( m_library->settings()->projectThing().uri().toString() )) {
                 kDebug() << resource.genericLabel() << "added to" << m_library->settings()->projectThing().genericLabel();
                 updateCacheEntry(resource);
@@ -107,6 +107,7 @@ void QueryClient::resourceCreated(const Nepomuk2::Resource & resource, const QLi
     cre.displayColums = createDisplayData(resource);
     cre.decorationColums = createDecorationData(resource);
     cre.resource = resource;
+    cre.resourceType = detectResourceType(resource);
     newCache.append(cre);
     m_resourceWatcher->stop(); //TODO: check if stopping resourceWatcher is necessary
     m_resourceWatcher->addResource(resource);
@@ -132,6 +133,7 @@ void QueryClient::updateCacheEntry(const Nepomuk2::Resource &resource)
     cre.displayColums = createDisplayData(resource);
     cre.decorationColums = createDecorationData(resource);
     cre.resource = resource;
+    cre.resourceType = detectResourceType(resource);
     newCache.append(cre);
 
     emit updateCacheEntries(newCache);

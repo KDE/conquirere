@@ -18,10 +18,10 @@
 #ifndef LIBRARYWIDGET_H
 #define LIBRARYWIDGET_H
 
-#include "globals.h"
-
 #include <QtGui/QWidget>
 #include <QtCore/QList>
+
+#include "config/bibglobals.h"
 
 class LibraryManager;
 class Library;
@@ -47,7 +47,7 @@ public:
     SearchResultModel* searchResultModel();
 
 signals:
-    void newSelection(ResourceSelection selection, BibEntryType filter, Library *p);
+    void newSelection(BibGlobals::ResourceSelection selection, BibGlobals::BibEntryType filter, Library *p);
     void showSearchResults();
 
 private slots:
@@ -68,7 +68,7 @@ private:
     Library *libForAction();
     void setupUi();
     void setupLibraryTree(QLibraryTreeWidgetItem *root, Library *p);
-    void connectModelSignals(QLibraryTreeWidgetItem *root, Library *p, ResourceSelection resourceType);
+    void connectModelSignals(QLibraryTreeWidgetItem *root, Library *p, BibGlobals::ResourceSelection resourceType);
 
     Ui::LibraryWidget *ui;
     QLibraryTreeWidgetItem *m_systemRoot;

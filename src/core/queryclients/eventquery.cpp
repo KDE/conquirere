@@ -20,8 +20,6 @@
 #include "../library.h"
 #include "../projectsettings.h"
 
-#include "globals.h"
-
 #include <Nepomuk2/Variant>
 
 #include <Nepomuk2/ResourceManager>
@@ -58,7 +56,7 @@ void EventQuery::startFetchData()
     m_newWatcher->addType(Nepomuk2::Vocabulary::NCAL::Event());
     m_newWatcher->addProperty(Nepomuk2::Vocabulary::NBIB::eventPublication());
 
-    if(m_library->libraryType() == Library_Project) {
+    if(m_library->libraryType() == BibGlobals::Library_Project) {
         m_newWatcher->addProperty(Soprano::Vocabulary::NAO::isRelated());
     }
     connect(m_newWatcher, SIGNAL(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)),
@@ -99,7 +97,7 @@ QList<CachedRowEntry> EventQuery::queryNepomuk()
     // helping string to filter for all documents that are related to the current project
     QString projectRelated;
     QString projectTag;
-    if(m_library->libraryType() == Library_Project) {
+    if(m_library->libraryType() == BibGlobals::Library_Project) {
         projectRelated = QString("?r nao:isRelated  <%1> .").arg(m_library->settings()->projectThing().uri().toString());
         projectTag = QString("UNION { ?r nao:hasTag  <%1> . }").arg(m_library->settings()->projectTag().uri().toString() );
     }
@@ -177,6 +175,7 @@ QList<CachedRowEntry> EventQuery::queryNepomuk()
         cre.decorationColums = createDecorationData(i.value());
         cre.resource = Nepomuk2::Resource::fromResourceUri( KUrl( i.key() ) );
         cre.timestamp = QDateTime::currentDateTime();
+        cre.resourceType = detectResourceType(cre.resource);
         newCache.append(cre);
 
         m_resourceWatcher->addResource( cre.resource );
@@ -349,4 +348,10 @@ QVariantList EventQuery::createDecorationData(const Nepomuk2::Resource & resourc
     }
 
     return decorationList;
+}
+
+uint EventQuery::detectResourceType(const Nepomuk2::Resource & res) const
+{
+    Q_UNUSED(res)
+    return 0;
 }

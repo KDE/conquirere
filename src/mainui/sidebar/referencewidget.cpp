@@ -258,7 +258,7 @@ void ReferenceWidget::newButtonClicked()
     // first ask the user which publication he want to reference
     // never a good idea to have a reference that does not belong to a publication
     QPointer<ListPublicationsDialog> lpd = new ListPublicationsDialog(this);
-    lpd->setListMode(Resource_Publication, Max_BibTypes);
+    lpd->setListMode(BibGlobals::Resource_Publication, BibGlobals::Max_BibTypes);
     lpd->setLibraryManager(libraryManager());
 
     int ret = lpd->exec();
@@ -302,7 +302,7 @@ void ReferenceWidget::newButtonClicked()
     Nepomuk2::addProperty(resUri, NAO::hasSubResource(), value);
 
     Library *curUsedLib = libraryManager()->currentUsedLibrary();
-    if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
+    if(curUsedLib && curUsedLib->libraryType() == BibGlobals::Library_Project) {
         curUsedLib->addResource( newReferenceResource );
     }
 

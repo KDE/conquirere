@@ -26,7 +26,7 @@
 #include <Nepomuk2/Variant>
 #include <Soprano/Vocabulary/NAO>
 
-#include <QDBusInterface>
+#include <QtDBus/QDBusInterface>
 
 DirWatcher::DirWatcher(QObject *parent)
 : QObject(parent)

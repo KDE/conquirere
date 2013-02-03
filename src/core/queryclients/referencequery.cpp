@@ -20,11 +20,10 @@
 #include "../library.h"
 #include "../projectsettings.h"
 
-#include "globals.h"
-
 #include <KDE/KIcon>
 
 #include "config/conquirere.h"
+#include "config/bibglobals.h"
 
 #include <Nepomuk2/Variant>
 
@@ -57,7 +56,7 @@ void ReferenceQuery::startFetchData()
     m_newWatcher = new Nepomuk2::ResourceWatcher(this);
     m_newWatcher->addType(Nepomuk2::Vocabulary::NBIB::Reference());
 
-    if(m_library->libraryType() == Library_Project) {
+    if(m_library->libraryType() == BibGlobals::Library_Project) {
         m_newWatcher->addProperty(Soprano::Vocabulary::NAO::isRelated());
         connect(m_newWatcher, SIGNAL(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)),
                 this, SLOT(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)) );
@@ -97,13 +96,13 @@ QList<CachedRowEntry> ReferenceQuery::queryNepomuk()
     QString hideTypes;
     // add a filter to hide several publication types
     foreach(int i, ConqSettings::hiddenNbibPublications()) {
-        hideTypes.append(QString(" FILTER NOT EXISTS { ?pub a <%1> . } ").arg(BibEntryTypeURL.at(i).toString()));
+        hideTypes.append(QString(" FILTER NOT EXISTS { ?pub a <%1> . } ").arg(BibGlobals::BibEntryTypeURL((BibGlobals::BibEntryType)i).toString()));
     }
 
     // helping string to filter for all documents that are related to the current project
     QString projectRelated;
     QString projectTag;
-    if(m_library->libraryType() == Library_Project) {
+    if(m_library->libraryType() == BibGlobals::Library_Project) {
         projectRelated = QString("?r nao:isRelated  <%1> .").arg(m_library->settings()->projectThing().uri().toString());
         projectTag = QString("UNION { ?r nao:hasTag  <%1> . }").arg(m_library->settings()->projectTag().uri().toString() );
     }
@@ -202,6 +201,7 @@ QList<CachedRowEntry> ReferenceQuery::queryNepomuk()
         cre.decorationColums = createDecorationData(i.value());
         cre.resource = Nepomuk2::Resource::fromResourceUri( KUrl( i.key() ) );
         cre.timestamp = QDateTime::currentDateTime();
+        cre.resourceType = detectResourceType(cre.resource);
         newCache.append(cre);
 
         m_resourceWatcher->addResource( cre.resource );
@@ -252,8 +252,8 @@ QVariantList ReferenceQuery::createDisplayData(const QStringList & item) const
             foreach(const QString s, item.at(i).split(";")) {
                 typeList.append(QUrl(s));
             }
-            BibEntryType type = BibEntryTypeFromUrl(typeList);
-            QString typeSting = BibEntryTypeTranslation.at(type);
+            BibGlobals::BibEntryType type = BibGlobals::BibEntryTypeFromUrl(typeList);
+            QString typeSting = BibGlobals::BibEntryTypeTranslation(type);
 
             newEntry = typeSting;
 
@@ -326,8 +326,8 @@ QVariantList ReferenceQuery::createDisplayData(const Nepomuk2::Resource & res) c
         switch(i) {
         case Column_ResourceType: {
 
-            BibEntryType type = BibEntryTypeFromUrl(publication);
-            QString typeSting = BibEntryTypeTranslation.at(type);
+            BibGlobals::BibEntryType type = BibGlobals::BibEntryTypeFromUrl(publication);
+            QString typeSting = BibGlobals::BibEntryTypeTranslation(type);
 
             newEntry = typeSting;
             break;
@@ -443,4 +443,11 @@ QVariantList ReferenceQuery::createDecorationData(const Nepomuk2::Resource & res
     }
 
     return decorationList;
+}
+
+uint ReferenceQuery::detectResourceType(const Nepomuk2::Resource & res) const
+{
+    Q_UNUSED(res)
+
+    return 0;
 }

@@ -98,14 +98,14 @@ void TagCloud::setup()
     QString hideTypes;
     // add a filter to hide several publication types
     foreach(int i, ConqSettings::hiddenNbibPublications()) {
-        hideTypes.append(QString(" FILTER NOT EXISTS { ?r a <%1> . } ").arg(BibEntryTypeURL.at(i).toString()));
+        hideTypes.append(QString(" FILTER NOT EXISTS { ?r a <%1> . } ").arg(BibGlobals::BibEntryTypeURL((BibGlobals::BibEntryType)i).toString()));
     }
 
     // fetch all publications for this library
     // helping string to filter for all documents that are related to the current project
     QString projectRelated;
     QString projectTag;
-    if(m_library->libraryType() == Library_Project) {
+    if(m_library->libraryType() == BibGlobals::Library_Project) {
         projectRelated = QString("?r nao:isRelated  <%1> .").arg(m_library->settings()->projectThing().uri().toString());
         projectTag = QString("UNION { ?r nao:hasTag  <%1> . }").arg(m_library->settings()->projectTag().uri().toString() );
     }
@@ -135,12 +135,12 @@ void TagCloud::generateCloud()
     QString hideTypes;
     // add a filter to hide several publication types
     foreach(int i, ConqSettings::hiddenNbibPublications()) {
-        hideTypes.append(QString(" FILTER NOT EXISTS { ?r a <%1> . } ").arg(BibEntryTypeURL.at(i).toString()));
+        hideTypes.append(QString(" FILTER NOT EXISTS { ?r a <%1> . } ").arg(BibGlobals::BibEntryTypeURL((BibGlobals::BibEntryType)i).toString()));
     }
 
     QString projectRelated;
     QString projectTag;
-    if(m_library->libraryType() == Library_Project) {
+    if(m_library->libraryType() == BibGlobals::Library_Project) {
         projectRelated = QString("?r nao:isRelated  <%1> .").arg(m_library->settings()->projectThing().uri().toString());
         projectTag = QString("UNION { ?r nao:hasTag  <%1> . }").arg(m_library->settings()->projectTag().uri().toString() );
     }

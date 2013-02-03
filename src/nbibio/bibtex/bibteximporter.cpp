@@ -17,7 +17,7 @@
 
 #include "bibteximporter.h"
 
-#include "globals.h"
+#include "config/bibglobals.h"
 
 #include "bibtex/bibtexvariant.h"
 #include "pipe/varianttonepomukpipe.h"
@@ -66,7 +66,7 @@ bool BibTexImporter::load(QIODevice *iodevice, QStringList *errorLog)
     case EXPORT_BIBTEX:
     {
         FileImporterBibTeX *bibImporter = new FileImporterBibTeX;
-        bibImporter->setKeysForPersonDetection(keysForPersonDetection);
+        bibImporter->setKeysForPersonDetection(BibGlobals::keysForPersonDetection());
         importer = bibImporter;
         break;
     }
@@ -124,7 +124,7 @@ bool BibTexImporter::readBibFile(const QString & filename, QStringList *errorLog
     }
 
     FileImporterBibTeX *importer = new FileImporterBibTeX;
-    importer->setKeysForPersonDetection(keysForPersonDetection);
+    importer->setKeysForPersonDetection(BibGlobals::keysForPersonDetection());
     connect(importer, SIGNAL(progress(int,int)), this, SLOT(calculateImportProgress(int,int)));
 
     m_importedEntries = importer->load(&bibFile);

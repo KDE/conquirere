@@ -17,7 +17,7 @@
 
 #include "bibtexvariant.h"
 
-#include "globals.h"
+#include "config/bibglobals.h"
 
 #include <kbibtex/file.h>
 #include <kbibtex/value.h>
@@ -123,7 +123,7 @@ File *BibTexVariant::fromVariant(const QVariantList &bibtexList)
             if(i.key() == QLatin1String("bibtexcitekey") || i.key() == QLatin1String("bibtexentrytype")) {
                 continue;
             }
-            if(keysForPersonDetection.contains(i.key()) || i.key() == QLatin1String("author") || i.key() == QLatin1String("editor")) {
+            if(BibGlobals::keysForPersonDetection().contains(i.key()) || i.key() == QLatin1String("author") || i.key() == QLatin1String("editor")) {
                 Value personValue;
                 QList<NepomukPipe::NepomukPipe::Name> personList = NepomukPipe::splitPersonList( i.value().toString() );
 

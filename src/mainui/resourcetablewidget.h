@@ -18,11 +18,10 @@
 #ifndef RESOURCETABLEWIDGET_H
 #define RESOURCETABLEWIDGET_H
 
-#include "globals.h"
+#include "config/bibglobals.h"
+#include "core/models/searchresultmodel.h"
 
 #include <Nepomuk2/Resource>
-
-#include "core/models/searchresultmodel.h"
 
 #include <QtGui/QWidget>
 #include <QtGui/QItemSelection>
@@ -62,7 +61,7 @@ signals:
     void selectedMultipleResources(QList<Nepomuk2::Resource> resourceList);
 
 public slots:
-    void switchView(ResourceSelection selection, BibEntryType filter, Library *p);
+    void switchView(BibGlobals::ResourceSelection selection, BibGlobals::BibEntryType filter, Library *p);
     void showSearchResult();
     void selectedResource( const QItemSelection & selected, const QItemSelection & deselected );
 
@@ -82,7 +81,7 @@ private:
     KLineEdit *m_searchBox;
     KComboBox *m_searchSelection;
     QTableView *m_documentView;
-    ResourceSelection m_selection;
+    BibGlobals::ResourceSelection m_selection;
     QSortFilterProxyModel* m_searchResultModel;
 
     HtmlDelegate *m_htmlDelegate;

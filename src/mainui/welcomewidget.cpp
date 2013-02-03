@@ -17,6 +17,7 @@
 
 #include "welcomewidget.h"
 
+#include "config/bibglobals.h"
 #include "../core/library.h"
 #include "../core/projectsettings.h"
 #include "../core/tagcloud.h"
@@ -60,7 +61,7 @@ void WelcomeWidget::setupGui()
 
     generateHtml();
 
-    QMap<ResourceSelection, QSortFilterProxyModel*> models = m_library->viewModels();
+    QMap<BibGlobals::ResourceSelection, QSortFilterProxyModel*> models = m_library->viewModels();
 
     foreach (QSortFilterProxyModel *model, models) {
         QAbstractItemModel *aim = model->sourceModel();
@@ -75,7 +76,7 @@ void WelcomeWidget::setupGui()
 
 void WelcomeWidget::updateStatistics()
 {
-    QMapIterator<ResourceSelection, QSortFilterProxyModel*> i(m_library->viewModels());
+    QMapIterator<BibGlobals::ResourceSelection, QSortFilterProxyModel*> i(m_library->viewModels());
     while (i.hasNext()) {
         i.next();
 
@@ -85,54 +86,54 @@ void WelcomeWidget::updateStatistics()
 
         QString jsFunction;
         switch(i.key()) {
-        case Resource_Document:
+        case BibGlobals::Resource_Document:
             jsFunction = QLatin1String("makeTxt('countdocuments','");
             jsFunction.append(rowCount);
             jsFunction.append(QLatin1String("')"));
             break;
-        case Resource_Mail:
+        case BibGlobals::Resource_Mail:
             jsFunction = QLatin1String("makeTxt('countmail','");
             jsFunction.append(rowCount);
             jsFunction.append(QLatin1String("')"));
             break;
-        case Resource_Media:
+        case BibGlobals::Resource_Media:
             jsFunction = QLatin1String("makeTxt('countmedia','");
             jsFunction.append(rowCount);
             jsFunction.append(QLatin1String("')"));
             break;
-        case Resource_Reference:
+        case BibGlobals::Resource_Reference:
             jsFunction = QLatin1String("makeTxt('countreference','");
             jsFunction.append(rowCount);
             jsFunction.append(QLatin1String("')"));
             break;
-        case Resource_Publication:
+        case BibGlobals::Resource_Publication:
             jsFunction = QLatin1String("makeTxt('countpublication','");
             jsFunction.append(rowCount);
             jsFunction.append(QLatin1String("')"));
             break;
-        case Resource_Website:
+        case BibGlobals::Resource_Website:
             jsFunction = QLatin1String("makeTxt('countbookmark','");
             jsFunction.append(rowCount);
             jsFunction.append(QLatin1String("')"));
             break;
-        case Resource_Note:
+        case BibGlobals::Resource_Note:
             jsFunction = QLatin1String("makeTxt('countnote','");
             jsFunction.append(rowCount);
             jsFunction.append(QLatin1String("')"));
             break;
-        case Resource_Event:
+        case BibGlobals::Resource_Event:
             jsFunction = QLatin1String("makeTxt('countevents','");
             jsFunction.append(rowCount);
             jsFunction.append(QLatin1String("')"));
             break;
-        case Resource_Series:
+        case BibGlobals::Resource_Series:
             jsFunction = QLatin1String("makeTxt('countseries','");
             jsFunction.append(rowCount);
             jsFunction.append(QLatin1String("')"));
             break;
-        case Resource_SearchResults:
-        case Resource_Library:
-        case Max_ResourceTypes:
+        case BibGlobals::Resource_SearchResults:
+        case BibGlobals::Resource_Library:
+        case BibGlobals::Max_ResourceTypes:
             break;
         }
         m_htmlPart->executeScript(m_htmlPart->htmlDocument(), jsFunction );
@@ -162,7 +163,7 @@ void WelcomeWidget::updateTagCloud()
 void WelcomeWidget::generateHtml()
 {
     QString htmlTemplate;
-    if(m_library->libraryType() == Library_System) {
+    if(m_library->libraryType() == BibGlobals::Library_System) {
         htmlTemplate = QLatin1String("html/index_system.html");
     }
     else {
@@ -184,7 +185,7 @@ void WelcomeWidget::generateHtml()
 
     QString libraryName;
     QString libraryIntro;
-    if(m_library->libraryType() == Library_System) {
+    if(m_library->libraryType() == BibGlobals::Library_System) {
         libraryName = i18n("System Library");
         libraryIntro = i18n("The system library contains all known documents, publications, notes and so on that are stored in the Nepomuk Storage");
     }
@@ -200,7 +201,7 @@ void WelcomeWidget::generateHtml()
     htmlPage.replace(QLatin1String("#STATISTICHEADER#"), i18n("Statistics"));
     htmlPage.replace(QLatin1String("#TAGCLOUDHEADER#"), i18n("Topic Cloud"));
 
-    if(m_library->libraryType() == Library_System) {
+    if(m_library->libraryType() == BibGlobals::Library_System) {
         htmlPage.replace(QLatin1String("#LATESTPROJECTSHEADER#"), i18n("Latest Research"));
         htmlPage.replace(QLatin1String("#LATESTPROJECTS#"), QString());
     }

@@ -18,7 +18,7 @@
 #ifndef PUBLICATIONFILTERMODEL_H
 #define PUBLICATIONFILTERMODEL_H
 
-#include "globals.h"
+#include "config/bibglobals.h"
 
 #include <QtGui/QSortFilterProxyModel>
 
@@ -37,13 +37,13 @@ public:
     /**
       * The @c BibEntryType type to @p filter
       */
-    void setResourceFilter(BibEntryType filter);
+    void setResourceFilter(BibGlobals::BibEntryType filter);
 
 protected:
      bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const;
 
 private:
-    BibEntryType m_curFilter;
+    BibGlobals::BibEntryType m_curFilter;
 };
 
 #endif // PUBLICATIONFILTERMODEL_H

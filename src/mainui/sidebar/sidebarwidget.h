@@ -18,7 +18,7 @@
 #ifndef SIDEBARWIDGET_H
 #define SIDEBARWIDGET_H
 
-#include "globals.h"
+#include "config/bibglobals.h"
 
 #include "core/models/searchresultmodel.h"
 
@@ -67,7 +67,7 @@ public slots:
       * @p filter some additional filter like Article, Book etc
       * @p library the library to use
       */
-    void newSelection(ResourceSelection selection, BibEntryType filter, Library *library);
+    void newSelection(BibGlobals::ResourceSelection selection, BibGlobals::BibEntryType filter, Library *library);
 
     /**
       * Special case to show the data from

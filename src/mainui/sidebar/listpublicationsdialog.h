@@ -18,7 +18,7 @@
 #ifndef LISTPUBLICATIONSDIALOG_H
 #define LISTPUBLICATIONSDIALOG_H
 
-#include "globals.h"
+#include "config/bibglobals.h"
 
 #include <Nepomuk2/Resource>
 
@@ -48,7 +48,7 @@ public:
     explicit ListPublicationsDialog(QWidget *parent = 0);
     virtual ~ListPublicationsDialog();
 
-    void setListMode(ResourceSelection selection, BibEntryType filter);
+    void setListMode(BibGlobals::ResourceSelection selection, BibGlobals::BibEntryType filter);
 
     void setLibraryManager(LibraryManager *lm);
 
@@ -75,8 +75,8 @@ private:
     Ui::ListPublicationsDialog *ui;
 
     LibraryManager *m_libraryManager;
-    ResourceSelection m_selection;
-    BibEntryType m_filter;
+    BibGlobals::ResourceSelection m_selection;
+    BibGlobals::BibEntryType m_filter;
     HtmlDelegate *m_htmlDelegate;
 };
 

@@ -21,13 +21,13 @@
 
 SeriesFilterModel::SeriesFilterModel(QObject *parent)
     : QSortFilterProxyModel(parent)
-    , m_curFilter(Max_SeriesTypes)
+    , m_curFilter(BibGlobals::Max_SeriesTypes)
 {
     setDynamicSortFilter(false); // setting this to true slows down the view a lot
     setFilterCaseSensitivity(Qt::CaseInsensitive);
 }
 
-void SeriesFilterModel::setResourceFilter(SeriesType filter)
+void SeriesFilterModel::setResourceFilter(BibGlobals::SeriesType filter)
 {
     m_curFilter = filter;
     invalidate();
@@ -39,10 +39,10 @@ bool SeriesFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourc
 
     QModelIndex typeIndex = sourceModel()->index(sourceRow, SeriesQuery::Column_ResourceType, sourceParent);
 
-    QString type = sourceModel()->data(typeIndex).toString();
-    SeriesType typeEnum = (SeriesType)SeriesTypeTranslation.indexOf(type);
+    uint type = sourceModel()->data(typeIndex, Qt::UserRole + 1).toUInt();
+    BibGlobals::SeriesType typeEnum = (BibGlobals::SeriesType)type;
 
-    if(m_curFilter != Max_SeriesTypes) {
+    if(m_curFilter != BibGlobals::Max_SeriesTypes) {
         return regexpCheck && (typeEnum == m_curFilter);
     }
 

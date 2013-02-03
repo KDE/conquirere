@@ -21,13 +21,13 @@
 
 PublicationFilterModel::PublicationFilterModel(QObject *parent)
     : QSortFilterProxyModel(parent)
-    , m_curFilter(Max_BibTypes)
+    , m_curFilter(BibGlobals::Max_BibTypes)
 {
     setDynamicSortFilter(false); // setting this to true slows down the view a lot
     setFilterCaseSensitivity(Qt::CaseInsensitive);
 }
 
-void PublicationFilterModel::setResourceFilter(BibEntryType filter)
+void PublicationFilterModel::setResourceFilter(BibGlobals::BibEntryType filter)
 {
     m_curFilter = filter;
     invalidate();
@@ -39,31 +39,31 @@ bool PublicationFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &
 
     QModelIndex typeIndex = sourceModel()->index(sourceRow, PublicationQuery::Column_ResourceType, sourceParent);
 
-    QString type = sourceModel()->data(typeIndex).toString();
-    BibEntryType typeEnum = (BibEntryType)BibEntryTypeTranslation.indexOf(type);
+    uint type = sourceModel()->data(typeIndex, Qt::UserRole + 1).toUInt();
+    BibGlobals::BibEntryType typeEnum = (BibGlobals::BibEntryType)type;
 
-    if(m_curFilter == Max_BibTypes) {
+    if(m_curFilter == BibGlobals::Max_BibTypes) {
         return regexpCheck;
     }
     // alsow show subtypes
-    if(m_curFilter == BibType_Collection) {
-        return regexpCheck && (typeEnum == BibType_Collection ||
-                               typeEnum == BibType_Proceedings ||
-                               typeEnum == BibType_JournalIssue ||
-                               typeEnum == BibType_MagazinIssue ||
-                               typeEnum == BibType_NewspaperIssue ||
-                               typeEnum == BibType_Blog ||
-                               typeEnum == BibType_Forum ||
-                               typeEnum == BibType_WebPage ||
-                               typeEnum == BibType_CodeOfLaw ||
-                               typeEnum == BibType_CourtReporter );
+    if(m_curFilter == BibGlobals::BibType_Collection) {
+        return regexpCheck && (typeEnum == BibGlobals::BibType_Collection ||
+                               typeEnum == BibGlobals::BibType_Proceedings ||
+                               typeEnum == BibGlobals::BibType_JournalIssue ||
+                               typeEnum == BibGlobals::BibType_MagazinIssue ||
+                               typeEnum == BibGlobals::BibType_NewspaperIssue ||
+                               typeEnum == BibGlobals::BibType_Blog ||
+                               typeEnum == BibGlobals::BibType_Forum ||
+                               typeEnum == BibGlobals::BibType_WebPage ||
+                               typeEnum == BibGlobals::BibType_CodeOfLaw ||
+                               typeEnum == BibGlobals::BibType_CourtReporter );
     }
     // alsow show subtypes
-    if(m_curFilter == BibType_Article) {
-        return regexpCheck && (typeEnum == BibType_Article ||
-                               typeEnum == BibType_ForumPost ||
-                               typeEnum == BibType_BlogPost ||
-                               typeEnum == BibType_WebSite );
+    if(m_curFilter == BibGlobals::BibType_Article) {
+        return regexpCheck && (typeEnum == BibGlobals::BibType_Article ||
+                               typeEnum == BibGlobals::BibType_ForumPost ||
+                               typeEnum == BibGlobals::BibType_BlogPost ||
+                               typeEnum == BibGlobals::BibType_WebSite );
     }
 
     return regexpCheck && (typeEnum == m_curFilter);

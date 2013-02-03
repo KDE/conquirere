@@ -18,7 +18,7 @@
 #include "publicationwidget.h"
 #include "ui_publicationwidget.h"
 
-#include "globals.h"
+#include "config/bibglobals.h"
 
 #include "core/library.h"
 #include "core/projectsettings.h"
@@ -121,7 +121,7 @@ void PublicationWidget::setResource(Nepomuk2::Resource & resource)
         emit hasReference(true);
     }
 
-    BibEntryType entryType = BibEntryTypeFromUrl(m_publication);
+    BibGlobals::BibEntryType entryType = BibGlobals::BibEntryTypeFromUrl(m_publication);
 
     int index = ui->editEntryType->findData(entryType);
     ui->editEntryType->setCurrentIndex(index);
@@ -203,12 +203,12 @@ Nepomuk2::Resource PublicationWidget::resource()
 void PublicationWidget::newBibEntryTypeSelected(int index)
 {
     KComboBox *kcb = qobject_cast<KComboBox *>(sender());
-    BibEntryType entryType = (BibEntryType)kcb->itemData(index).toInt();
+    BibGlobals::BibEntryType entryType = (BibGlobals::BibEntryType)kcb->itemData(index).toInt();
 
     selectLayout(entryType);
 
     // update resource
-    QUrl newEntryUrl = BibEntryTypeURL.at(entryType);
+    QUrl newEntryUrl = BibGlobals::BibEntryTypeURL(entryType);
     if(!m_publication.hasType(newEntryUrl)) {
         // create the full hierarchy
         //DEBUG this seems wrong, but is currently the only way to preserve type hierarchy
@@ -219,64 +219,64 @@ void PublicationWidget::newBibEntryTypeSelected(int index)
 
         // add another hierarchy if the newEntryUrl is not a direct subclass of NBIB::Publication()
         switch(entryType) {
-        case BibType_Dictionary:
+        case BibGlobals::BibType_Dictionary:
             newtype.append(NBIB::Book());
             break;
-        case BibType_MagazinIssue:
-        case BibType_NewspaperIssue:
-        case BibType_JournalIssue:
-        case BibType_Proceedings:
-        case BibType_Encyclopedia:
-        case BibType_CodeOfLaw:
-        case BibType_CourtReporter:
-        case BibType_WebSite:
-        case BibType_Blog:
-        case BibType_Forum:
+        case BibGlobals::BibType_MagazinIssue:
+        case BibGlobals::BibType_NewspaperIssue:
+        case BibGlobals::BibType_JournalIssue:
+        case BibGlobals::BibType_Proceedings:
+        case BibGlobals::BibType_Encyclopedia:
+        case BibGlobals::BibType_CodeOfLaw:
+        case BibGlobals::BibType_CourtReporter:
+        case BibGlobals::BibType_WebSite:
+        case BibGlobals::BibType_Blog:
+        case BibGlobals::BibType_Forum:
             newtype.append(NBIB::Collection());
             break;
-        case BibType_Bachelorthesis:
-        case BibType_Mastersthesis:
-        case BibType_Phdthesis:
+        case BibGlobals::BibType_Bachelorthesis:
+        case BibGlobals::BibType_Mastersthesis:
+        case BibGlobals::BibType_Phdthesis:
             newtype.append(NBIB::Thesis());
             break;
-        case BibType_Techreport:
+        case BibGlobals::BibType_Techreport:
             newtype.append(NBIB::Report());
             break;
-        case BibType_BlogPost:
-        case BibType_ForumPost:
-        case BibType_WebPage:
+        case BibGlobals::BibType_BlogPost:
+        case BibGlobals::BibType_ForumPost:
+        case BibGlobals::BibType_WebPage:
             newtype.append(NBIB::Article());
             break;
-        case BibType_Bill:
-        case BibType_Statute:
+        case BibGlobals::BibType_Bill:
+        case BibGlobals::BibType_Statute:
             newtype.append(NBIB::Legislation());
             newtype.append(NBIB::LegalDocument());
             break;
-        case BibType_Decision:
-        case BibType_Brief:
+        case BibGlobals::BibType_Decision:
+        case BibGlobals::BibType_Brief:
             newtype.append(NBIB::LegalCaseDocument());
             newtype.append(NBIB::LegalDocument());
             break;
             //ignore the following cases, as they are a direct subtype of nbib:publication and as such no need to add
             // another hirachry entry is necessary
-        case BibType_Article:
-        case BibType_Book:
-        case BibType_Booklet:
-        case BibType_Collection:
-        case BibType_Thesis:
-        case BibType_Report:
-        case BibType_Electronic:
-        case BibType_Script:
-        case BibType_Misc:
-        case BibType_Standard:
-        case BibType_Patent:
-        case BibType_Legislation:
-        case BibType_LegalCaseDocument:
-        case BibType_Presentation:
-        case BibType_Unpublished:
-        case BibType_Map:
-        case BibType_Manual:
-        case Max_BibTypes:
+        case BibGlobals::BibType_Article:
+        case BibGlobals::BibType_Book:
+        case BibGlobals::BibType_Booklet:
+        case BibGlobals::BibType_Collection:
+        case BibGlobals::BibType_Thesis:
+        case BibGlobals::BibType_Report:
+        case BibGlobals::BibType_Electronic:
+        case BibGlobals::BibType_Script:
+        case BibGlobals::BibType_Misc:
+        case BibGlobals::BibType_Standard:
+        case BibGlobals::BibType_Patent:
+        case BibGlobals::BibType_Legislation:
+        case BibGlobals::BibType_LegalCaseDocument:
+        case BibGlobals::BibType_Presentation:
+        case BibGlobals::BibType_Unpublished:
+        case BibGlobals::BibType_Map:
+        case BibGlobals::BibType_Manual:
+        case BibGlobals::Max_BibTypes:
             break;
         }
 
@@ -342,7 +342,7 @@ void PublicationWidget::newButtonClicked()
     Nepomuk2::Resource newPublicationResource = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( newPublication.uri() ) );
 
     Library *curUsedLib = libraryManager()->currentUsedLibrary();
-    if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
+    if(curUsedLib && curUsedLib->libraryType() == BibGlobals::Library_Project) {
         curUsedLib->addResource( newPublicationResource );
     }
 
@@ -486,14 +486,12 @@ void PublicationWidget::changeRating(int newRating)
 
 void PublicationWidget::setupWidget()
 {
-    int i=0;
-    foreach(const QString &s, BibEntryTypeTranslation) {
+
+    for(int i=0; i < BibGlobals::Max_BibTypes; i++) {
         if(ConqSettings::hiddenNbibPublications().contains(i)) {
-            i++;
             continue;
         }
-        ui->editEntryType->addItem(s,(BibEntryType)i);
-        i++;
+        ui->editEntryType->addItem(BibGlobals::BibEntryTypeTranslation((BibGlobals::BibEntryType)i),(BibGlobals::BibEntryType)i);
     }
 
     connect(ui->editEntryType, SIGNAL(currentIndexChanged(int)), this, SLOT(newBibEntryTypeSelected(int)));
@@ -650,22 +648,22 @@ void PublicationWidget::showDetailDialog(Nepomuk2::Resource & resource, const QU
 kDebug() << propertyUrl;
     QPointer<ListPublicationsDialog> lpd = new ListPublicationsDialog(this);
     if(propertyUrl == NBIB::inSeries()) {
-        lpd->setListMode(Resource_Series, BibEntryType(Max_SeriesTypes));
+        lpd->setListMode(BibGlobals::Resource_Series, BibGlobals::BibEntryType(BibGlobals::Max_SeriesTypes));
     }
     else if(propertyUrl == NBIB::codeOfLaw()) {
-        lpd->setListMode(Resource_Publication, BibType_CodeOfLaw);
+        lpd->setListMode(BibGlobals::Resource_Publication, BibGlobals::BibType_CodeOfLaw);
     }
     else if(propertyUrl == NBIB::courtReporter()) {
-        lpd->setListMode(Resource_Publication, BibType_CourtReporter);
+        lpd->setListMode(BibGlobals::Resource_Publication, BibGlobals::BibType_CourtReporter);
     }
     else if(propertyUrl == NBIB::collection()) {
-        lpd->setListMode(Resource_Publication, BibType_Collection);
+        lpd->setListMode(BibGlobals::Resource_Publication, BibGlobals::BibType_Collection);
     }
     else if(propertyUrl == NBIB::event()) {
-        lpd->setListMode(Resource_Event, Max_BibTypes);
+        lpd->setListMode(BibGlobals::Resource_Event, BibGlobals::Max_BibTypes);
     }
     else {
-        lpd->setListMode(Resource_Reference, Max_BibTypes);
+        lpd->setListMode(BibGlobals::Resource_Reference, BibGlobals::Max_BibTypes);
     }
 
     lpd->setLibraryManager(libraryManager());
@@ -731,85 +729,85 @@ kDebug() << propertyUrl;
     delete lpd;
 }
 
-void PublicationWidget::selectLayout(BibEntryType entryType)
+void PublicationWidget::selectLayout(BibGlobals::BibEntryType entryType)
 {
     switch(entryType) {
-    case BibType_Article:
-    case BibType_WebPage:
+    case BibGlobals::BibType_Article:
+    case BibGlobals::BibType_WebPage:
         layoutArticle();
         break;
-    case BibType_ForumPost:
-    case BibType_BlogPost:
+    case BibGlobals::BibType_ForumPost:
+    case BibGlobals::BibType_BlogPost:
         layoutArticleExtra();
         break;
-    case BibType_Book:
-    case BibType_Booklet:
-    case BibType_Dictionary:
+    case BibGlobals::BibType_Book:
+    case BibGlobals::BibType_Booklet:
+    case BibGlobals::BibType_Dictionary:
         layoutBook();
         break;
-    case BibType_Collection:
-    case BibType_Encyclopedia:
-    case BibType_JournalIssue:
-    case BibType_NewspaperIssue:
-    case BibType_MagazinIssue:
-    case BibType_Proceedings:
-    case BibType_Forum:
-    case BibType_Blog:
-    case BibType_WebSite:
+    case BibGlobals::BibType_Collection:
+    case BibGlobals::BibType_Encyclopedia:
+    case BibGlobals::BibType_JournalIssue:
+    case BibGlobals::BibType_NewspaperIssue:
+    case BibGlobals::BibType_MagazinIssue:
+    case BibGlobals::BibType_Proceedings:
+    case BibGlobals::BibType_Forum:
+    case BibGlobals::BibType_Blog:
+    case BibGlobals::BibType_WebSite:
         layoutCollection();
         break;
-    case BibType_Bachelorthesis:
-    case BibType_Mastersthesis:
-    case BibType_Phdthesis:
-    case BibType_Thesis:
+    case BibGlobals::BibType_Bachelorthesis:
+    case BibGlobals::BibType_Mastersthesis:
+    case BibGlobals::BibType_Phdthesis:
+    case BibGlobals::BibType_Thesis:
         layoutThesis();
         break;
-    case BibType_Report:
-    case BibType_Techreport:
+    case BibGlobals::BibType_Report:
+    case BibGlobals::BibType_Techreport:
         layoutReport();
         break;
-    case BibType_Electronic:
-    case BibType_Presentation:
+    case BibGlobals::BibType_Electronic:
+    case BibGlobals::BibType_Presentation:
         layoutElectronic();
         break;
-    case BibType_Script:
+    case BibGlobals::BibType_Script:
         layoutScript();
         break;
-    case BibType_Unpublished:
+    case BibGlobals::BibType_Unpublished:
         layoutUnpublished();
         break;
-    case BibType_Misc:
+    case BibGlobals::BibType_Misc:
         layoutMisc();
         break;
-    case BibType_Manual:
+    case BibGlobals::BibType_Manual:
         layoutManual();
         break;
-    case BibType_Standard:
+    case BibGlobals::BibType_Standard:
         layoutStandard();
         break;
-    case BibType_Patent:
+    case BibGlobals::BibType_Patent:
         layoutPatent();
         break;
-    case BibType_CodeOfLaw:
+    case BibGlobals::BibType_CodeOfLaw:
         layoutCodeOfLaw();
         break;
-    case BibType_CourtReporter:
+    case BibGlobals::BibType_CourtReporter:
         layoutCourtReporter();
         break;
-    case BibType_Legislation:
-    case BibType_Bill:
-    case BibType_Statute:
+    case BibGlobals::BibType_Legislation:
+    case BibGlobals::BibType_Bill:
+    case BibGlobals::BibType_Statute:
         layoutLegislation();
         break;
-    case BibType_Map:
+    case BibGlobals::BibType_Map:
         layoutMap();
         break;
-    case BibType_Brief:
-    case BibType_Decision:
-    case BibType_LegalCaseDocument:
+    case BibGlobals::BibType_Brief:
+    case BibGlobals::BibType_Decision:
+    case BibGlobals::BibType_LegalCaseDocument:
         layoutCase();
         break;
-    case Max_BibTypes:
+    case BibGlobals::Max_BibTypes:
         break;
     }
 }

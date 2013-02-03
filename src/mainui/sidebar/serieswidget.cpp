@@ -18,7 +18,7 @@
 #include "serieswidget.h"
 #include "ui_serieswidget.h"
 
-#include "globals.h"
+#include "config/bibglobals.h"
 #include "core/library.h"
 #include "core/projectsettings.h"
 #include "core/librarymanager.h"
@@ -77,7 +77,7 @@ void SeriesWidget::setResource(Nepomuk2::Resource & resource)
         setEnabled(true);
     }
 
-    SeriesType seriesType = SeriesTypeFromUrl(m_series);
+    BibGlobals::SeriesType seriesType = BibGlobals::SeriesTypeFromUrl(m_series);
 
     int index = ui->editType->findData(seriesType);
     ui->editType->setCurrentIndex(index);
@@ -94,10 +94,10 @@ void SeriesWidget::setResource(Nepomuk2::Resource & resource)
 void SeriesWidget::newSeriesTypeSelected(int index)
 {
     // change the seriestype of the resource
-    SeriesType entryType = (SeriesType)ui->editType->itemData(index).toInt();
+    BibGlobals::SeriesType entryType = (BibGlobals::SeriesType)ui->editType->itemData(index).toInt();
 
     // update resource
-    QUrl newEntryUrl = SeriesTypeURL.at(entryType);
+    QUrl newEntryUrl = BibGlobals::SeriesTypeURL(entryType);
      if(!m_series.hasType(newEntryUrl)) {
         // create the full hierarchy
         //DEBUG this seems wrong, but is currently the only way to preserve type hierarchy
@@ -107,14 +107,14 @@ void SeriesWidget::newSeriesTypeSelected(int index)
 
         // add another hierarchy if the newEntryUrl is not a direct subclass of NBIB::Series()
         switch(entryType) {
-        case SeriesType_BookSeries:
-        case SeriesType_Journal:
-        case SeriesType_Magazin:
-        case SeriesType_Newspaper:
+        case BibGlobals::SeriesType_BookSeries:
+        case BibGlobals::SeriesType_Journal:
+        case BibGlobals::SeriesType_Magazin:
+        case BibGlobals::SeriesType_Newspaper:
             newtype.append(Nepomuk2::Vocabulary::NBIB::Series());
             break;
-        case SeriesType_Series:
-        case Max_SeriesTypes:
+        case BibGlobals::SeriesType_Series:
+        case BibGlobals::Max_SeriesTypes:
             break;
         }
 
@@ -128,11 +128,11 @@ void SeriesWidget::newSeriesTypeSelected(int index)
 
         foreach(Nepomuk2::Resource r, collectionResource) { // krazy:exclude=foreach
             switch(entryType) {
-            case SeriesType_Series:
-            case Max_SeriesTypes:
+            case BibGlobals::SeriesType_Series:
+            case BibGlobals::Max_SeriesTypes:
                 // don't change anything
                 break;
-            case SeriesType_BookSeries:
+            case BibGlobals::SeriesType_BookSeries:
             {
                 // this changes the resource from a collection to a Book
                 // (might run into some bad stuff when articles are attached to it)
@@ -141,19 +141,19 @@ void SeriesWidget::newSeriesTypeSelected(int index)
                 r.setTypes(x.types());
                 break;
             }
-            case SeriesType_Journal:
+            case BibGlobals::SeriesType_Journal:
             {
                 Nepomuk2::Resource x(QUrl(), Nepomuk2::Vocabulary::NBIB::JournalIssue());
                 r.setTypes(x.types());
                 break;
             }
-            case SeriesType_Magazin:
+            case BibGlobals::SeriesType_Magazin:
             {
                 Nepomuk2::Resource x(QUrl(), Nepomuk2::Vocabulary::NBIB::MagazinIssue());
                 r.setTypes(x.types());
                 break;
             }
-            case SeriesType_Newspaper:
+            case BibGlobals::SeriesType_Newspaper:
             {
                 Nepomuk2::Resource x(QUrl(), Nepomuk2::Vocabulary::NBIB::NewspaperIssue());
                 r.setTypes(x.types());
@@ -185,7 +185,7 @@ void SeriesWidget::newButtonClicked()
     Nepomuk2::Resource newSeriesResource = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( newSeries.uri() ) );
 
     Library *curUsedLib = libraryManager()->currentUsedLibrary();
-    if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
+    if(curUsedLib && curUsedLib->libraryType() == BibGlobals::Library_Project) {
         curUsedLib->addResource( newSeriesResource );
     }
 
@@ -215,15 +215,11 @@ void SeriesWidget::changeRating(int newRating)
 
 void SeriesWidget::setupWidget()
 {
-    int i=0;
-    foreach(const QString &s, SeriesTypeTranslation) {
+    for(int i=0;i<BibGlobals::Max_SeriesTypes;i++) {
         if(ConqSettings::hiddenNbibSeries().contains(i)) {
-            i++;
             continue;
         }
-
-        ui->editType->addItem(s,(SeriesType)i);
-        i++;
+        ui->editType->addItem(BibGlobals::SeriesTypeTranslation((BibGlobals::SeriesType)i),(BibGlobals::SeriesType)i);
     }
 
     connect(ui->editType, SIGNAL(currentIndexChanged(int)), this, SLOT(newSeriesTypeSelected(int)));

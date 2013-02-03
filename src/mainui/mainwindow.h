@@ -18,9 +18,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "globals.h"
-
 #include <KParts/MainWindow>
+
+#include "config/bibglobals.h"
 
 class LibraryManager;
 class Library;
@@ -70,7 +70,7 @@ public slots:
     /**
       * This will be called from the LibraryWidget and reflects the users choice of new data to display
       */
-    void switchView(ResourceSelection selection, BibEntryType filter, Library *p);
+    void switchView(BibGlobals::ResourceSelection selection, BibGlobals::BibEntryType filter, Library *p);
 
     /**
       * This will be called from the LibraryWidget when user clicks on "Search Results" or from the SearchWidget when  a new search was started

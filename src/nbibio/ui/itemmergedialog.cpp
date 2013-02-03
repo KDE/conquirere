@@ -18,7 +18,7 @@
 #include "itemmergedialog.h"
 #include "ui_itemmergedialog.h"
 
-#include "globals.h"
+#include "config/bibglobals.h"
 
 #include "core/library.h"
 #include "core/projectsettings.h"
@@ -323,8 +323,8 @@ void ItemMergeDialog::showItem(int index)
     else {
         publication = mr.localSyncResource.property(SYNC::publication()).toResource();
         reference = mr.localSyncResource.property(SYNC::reference()).toResource();
-        BibEntryType bet = BibEntryTypeFromUrl(publication);
-        ui->itemIcon->setPixmap(KIcon(BibEntryTypeIcon.at(bet)).pixmap(22,22));
+        BibGlobals::BibEntryType bet = BibGlobals::BibEntryTypeFromUrl(publication);
+        ui->itemIcon->setPixmap(KIcon(BibGlobals::BibEntryTypeIcon(bet)).pixmap(22,22));
     }
 
     ui->itemTitle->setText( publication.property(NIE::title()).toString());

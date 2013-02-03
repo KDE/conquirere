@@ -28,6 +28,7 @@
 #include <KDE/KJob>
 #include "sro/pimo/event.h"
 
+#include "nbib.h"
 #include <Nepomuk2/Vocabulary/NIE>
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk2/Vocabulary/NFO>
@@ -137,7 +138,7 @@ void EventWidget::newButtonClicked()
     Nepomuk2::Resource newEventResource = Nepomuk2::Resource::fromResourceUri( srj->mappings().value( newEvent.uri() ) );
 
     Library *curUsedLib = libraryManager()->currentUsedLibrary();
-    if(curUsedLib && curUsedLib->libraryType() == Library_Project) {
+    if(curUsedLib && curUsedLib->libraryType() == BibGlobals::Library_Project) {
         curUsedLib->addResource( newEventResource );
     }
 

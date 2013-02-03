@@ -50,8 +50,8 @@
 ListPublicationsDialog::ListPublicationsDialog(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::ListPublicationsDialog)
-    , m_selection(Resource_Publication)
-    , m_filter(Max_BibTypes)
+    , m_selection(BibGlobals::Resource_Publication)
+    , m_filter(BibGlobals::Max_BibTypes)
 {
     ui->setupUi(this);
 
@@ -85,7 +85,7 @@ ListPublicationsDialog::~ListPublicationsDialog()
     //reset filter for the mainview again
     PublicationFilterModel * pfm = qobject_cast<PublicationFilterModel *>(m_libraryManager->systemLibrary()->viewModel(m_selection));
     if(pfm) {
-        pfm->setResourceFilter(Max_BibTypes);
+        pfm->setResourceFilter(BibGlobals::Max_BibTypes);
         pfm->setFilterKeyColumn(0);
         pfm->setFilterRegExp(QLatin1String(""));
     }
@@ -104,47 +104,47 @@ void ListPublicationsDialog::setLibraryManager(LibraryManager *lm)
     }
 }
 
-void ListPublicationsDialog::setListMode(ResourceSelection selection, BibEntryType filter)
+void ListPublicationsDialog::setListMode(BibGlobals::ResourceSelection selection, BibGlobals::BibEntryType filter)
 {
     m_selection = selection;
     m_filter = filter;
 
     switch(selection) {
-    case Resource_Document:
+    case BibGlobals::Resource_Document:
         ui->label->setText(i18n("Please select one of the available documents."));
         ui->createNew->setEnabled(false);
         break;
-    case Resource_Mail:
+    case BibGlobals::Resource_Mail:
         ui->label->setText(i18n("Please select one of the available mails."));
         ui->createNew->setEnabled(false);
         break;
-    case Resource_Media:
+    case BibGlobals::Resource_Media:
         ui->label->setText(i18n("Please select one of the available media objects or create a new one."));
         break;
-    case Resource_Reference:
+    case BibGlobals::Resource_Reference:
         ui->label->setText(i18n("Please select one of the available references or create a new one."));
         break;
-    case Resource_Publication:
+    case BibGlobals::Resource_Publication:
         ui->label->setText(i18n("Please select one of the available publications or create a new one."));
         break;
-    case Resource_Series:
+    case BibGlobals::Resource_Series:
         ui->label->setText(i18n("Please select one of the available series or create a new one."));
         break;
-    case Resource_Website:
+    case BibGlobals::Resource_Website:
         ui->label->setText(i18n("Please select one of the available websites or create a new one."));
         break;
-    case Resource_Note:
+    case BibGlobals::Resource_Note:
         ui->label->setText(i18n("Please select one of the available notes or create a new one."));
         break;
-    case Resource_Event:
+    case BibGlobals::Resource_Event:
         ui->label->setText(i18n("Please select one of the available events or create a new one."));
         break;
-    case Resource_SearchResults:
-    case Resource_Library:
+    case BibGlobals::Resource_SearchResults:
+    case BibGlobals::Resource_Library:
         ui->createNew->setEnabled(false);
         // nothing ... shouldn't happen anyway
         break;
-    case Max_ResourceTypes:
+    case BibGlobals::Max_ResourceTypes:
         break;
     }
 }
@@ -270,14 +270,14 @@ void ListPublicationsDialog::showLibraryModel(Library *p)
     else {
         SeriesFilterModel * pfm = qobject_cast<SeriesFilterModel *>(p->viewModel(m_selection));
         if(pfm) {
-            pfm->setResourceFilter(SeriesType(m_filter));
+            pfm->setResourceFilter(BibGlobals::SeriesType(m_filter));
         }
     }
 
 
     switch(m_selection) {
-    case Resource_Event:
-    case Resource_Series:
+    case BibGlobals::Resource_Event:
+    case BibGlobals::Resource_Series:
         ui->tableView->setItemDelegateForColumn(3, m_htmlDelegate);
         break;
     default:
@@ -357,30 +357,30 @@ void ListPublicationsDialog::createNew()
 
     switch(m_selection) {
     //case Resource_Media:
-    case Resource_Reference:
+    case BibGlobals::Resource_Reference:
         sbcWidget = new ReferenceWidget(createNewWidget);
         break;
-    case Resource_Publication:
+    case BibGlobals::Resource_Publication:
         sbcWidget = new PublicationWidget(createNewWidget);
         break;
-    case Resource_Series:
+    case BibGlobals::Resource_Series:
         sbcWidget = new SeriesWidget(createNewWidget);
         break;
-    case Resource_Website:
+    case BibGlobals::Resource_Website:
         sbcWidget = new ReferenceWidget(createNewWidget);
         break;
-    case Resource_Note:
+    case BibGlobals::Resource_Note:
         sbcWidget = new NoteWidget(createNewWidget);
         break;
-    case Resource_Event:
+    case BibGlobals::Resource_Event:
         sbcWidget = new EventWidget(createNewWidget);
         break;
-    case Resource_Document:
-    case Resource_Mail:
-    case Resource_SearchResults:
-    case Resource_Media:
-    case Resource_Library:
-    case Max_ResourceTypes:
+    case BibGlobals::Resource_Document:
+    case BibGlobals::Resource_Mail:
+    case BibGlobals::Resource_SearchResults:
+    case BibGlobals::Resource_Media:
+    case BibGlobals::Resource_Library:
+    case BibGlobals::Max_ResourceTypes:
         // nothing ... shouldn't happen anyway
         break;
     }

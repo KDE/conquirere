@@ -34,6 +34,7 @@ struct CachedRowEntry {
     QVariantList decorationColums;
     Nepomuk2::Resource resource;
     QDateTime timestamp;
+    uint resourceType; /**< saved type taht can be cases to BibEntryType or SeriesEntryType */
 };
 
 Q_DECLARE_METATYPE(CachedRowEntry)
@@ -83,6 +84,8 @@ protected:
 
     virtual QVariantList createDisplayData(const Nepomuk2::Resource & res) const = 0;
     virtual QVariantList createDecorationData(const Nepomuk2::Resource & res) const = 0;
+
+    virtual uint detectResourceType(const Nepomuk2::Resource & res) const = 0;
 
     Library *m_library;
     Nepomuk2::ResourceWatcher *m_resourceWatcher;

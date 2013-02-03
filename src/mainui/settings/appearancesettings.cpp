@@ -18,7 +18,7 @@
 #include "appearancesettings.h"
 #include "ui_appearancesettings.h"
 
-#include "globals.h"
+#include "config/bibglobals.h"
 #include "config/conquirere.h"
 
 #include <QtGui/QListWidget>
@@ -48,13 +48,13 @@ void AppearanceSettings::resetSettings()
    ui->cb_splashScreen->setChecked( ConqSettings::splashScreen() );
 
     // categories part
-    for(int i=0; i < Max_SeriesTypes; i++) {
+    for(int i=0; i < BibGlobals::Max_SeriesTypes; i++) {
         QListWidgetItem *listItem = new QListWidgetItem();
-        listItem->setText(SeriesTypeTranslation.at(i));
-        listItem->setIcon(KIcon(SeriesTypeIcon.at(i)));
+        listItem->setText(BibGlobals::SeriesTypeTranslation((BibGlobals::SeriesType)i));
+        listItem->setIcon(KIcon(BibGlobals::SeriesTypeIcon((BibGlobals::SeriesType)i)));
 
-        listItem->setData(Role_ResourceType,Resource_Series);
-        listItem->setData(Role_ResourceFilter,SeriesType(i));
+        listItem->setData(BibGlobals::Role_ResourceType,BibGlobals::Resource_Series);
+        listItem->setData(BibGlobals::Role_ResourceFilter,BibGlobals::SeriesType(i));
 
         if(ConqSettings::hiddenNbibSeriesOnRestart().contains(i)) {
             ui->hiddenSelector->selectedListWidget()->addItem(listItem);
@@ -64,13 +64,13 @@ void AppearanceSettings::resetSettings()
         }
     }
 
-    for(int i=0; i < Max_BibTypes; i++) {
+    for(int i=0; i < BibGlobals::Max_BibTypes; i++) {
         QListWidgetItem *listItem = new QListWidgetItem();
-        listItem->setText(BibEntryTypeTranslation.at(i));
-        listItem->setIcon(KIcon(BibEntryTypeIcon.at(i)));
+        listItem->setText(BibGlobals::BibEntryTypeTranslation((BibGlobals::BibEntryType)i));
+        listItem->setIcon(KIcon(BibGlobals::BibEntryTypeIcon((BibGlobals::BibEntryType)i)));
 
-        listItem->setData(Role_ResourceType,Resource_Publication);
-        listItem->setData(Role_ResourceFilter,BibEntryType(i));
+        listItem->setData(BibGlobals::Role_ResourceType,BibGlobals::Resource_Publication);
+        listItem->setData(BibGlobals::Role_ResourceFilter,BibGlobals::BibEntryType(i));
 
         if(ConqSettings::hiddenNbibPublicationsOnRestart().contains(i)) {
             ui->hiddenSelector->selectedListWidget()->addItem(listItem);
@@ -89,11 +89,11 @@ void AppearanceSettings::applySettings()
     int maxItems = ui->hiddenSelector->selectedListWidget()->count();
     for(int i=0; i < maxItems; i++) {
         QListWidgetItem *listItem = ui->hiddenSelector->selectedListWidget()->item(i);
-        if(listItem->data(Role_ResourceType).toInt() == (int)Resource_Publication) {
-            hiddenPublications.append( listItem->data(Role_ResourceFilter).toInt() );
+        if(listItem->data(BibGlobals::Role_ResourceType).toInt() == (int)BibGlobals::Resource_Publication) {
+            hiddenPublications.append( listItem->data(BibGlobals::Role_ResourceFilter).toInt() );
         }
-        else if(listItem->data(Role_ResourceType).toInt() == (int)Resource_Series) {
-            hiddenSeries.append( listItem->data(Role_ResourceFilter).toInt() );
+        else if(listItem->data(BibGlobals::Role_ResourceType).toInt() == (int)BibGlobals::Resource_Series) {
+            hiddenSeries.append( listItem->data(BibGlobals::Role_ResourceFilter).toInt() );
         }
     }
 

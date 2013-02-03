@@ -67,7 +67,7 @@ void ProjectSettings::loadSettings(const QString &projectFile)
         kDebug() << "use project tag with name " << name << "valid?" << m_projectTag.exists() << m_projectTag.isValid();
     }
 
-    if(!m_pimoThing.isValid() && m_library->libraryType() != Library_System) {
+    if(!m_pimoThing.isValid() && m_library->libraryType() != BibGlobals::Library_System) {
         kDebug() << "Warning loaded project without valid PIMO::Project() resource @ project" << name;
     }
 }

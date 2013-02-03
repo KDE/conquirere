@@ -17,7 +17,7 @@
 
 #include "searchresultmodel.h"
 
-#include <kbibtex/entry.h>
+#include "config/bibglobals.h"
 
 #include <KDE/KGlobalSettings>
 #include <KDE/KStandardDirs>
@@ -370,19 +370,16 @@ QString SearchResultModel::translateEntryType(const QString & typeList) const
 KIcon SearchResultModel::iconizeEntryType(const QString & typeList, const QString & url) const
 {
     if(typeList.toLower().contains("publication")) {
-        //BibEntryType type = BibEntryTypeFromUrl(resource);
-        return KIcon(BibEntryTypeIcon.at(BibType_Book));
+        return KIcon(BibGlobals::BibEntryTypeIcon(BibGlobals::BibType_Book));
     }
     if(typeList.toLower().contains("article")) {
-        //BibEntryType type = BibEntryTypeFromUrl(resource);
-        return KIcon(BibEntryTypeIcon.at(BibType_Article));
+        return KIcon(BibGlobals::BibEntryTypeIcon(BibGlobals::BibType_Article));
     }
     if(typeList.toLower().contains("inproceedings")) {
-        //BibEntryType type = BibEntryTypeFromUrl(resource);
-        return KIcon(BibEntryTypeIcon.at(BibType_Proceedings));
+        return KIcon(BibGlobals::BibEntryTypeIcon(BibGlobals::BibType_Proceedings));
     }
     if(typeList.toLower().contains("book")) {
-        return KIcon(BibEntryTypeIcon.at(BibType_Book));
+        return KIcon(BibGlobals::BibEntryTypeIcon(BibGlobals::BibType_Book));
     }
     if(typeList.toLower().contains("document")) {
         KUrl path( url );

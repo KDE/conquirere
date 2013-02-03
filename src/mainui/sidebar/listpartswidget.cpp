@@ -133,8 +133,8 @@ void ListPartsWidget::setResource(Nepomuk2::Resource resource)
         }
 
         if(m_partType != Chapter) {
-            BibEntryType bet = BibEntryTypeFromUrl(r);
-            i->setIcon( KIcon(BibEntryTypeIcon.at(bet)) );
+            BibGlobals::BibEntryType bet = BibGlobals::BibEntryTypeFromUrl(r);
+            i->setIcon( KIcon(BibGlobals::BibEntryTypeIcon(bet)) );
         }
 
         i->setText(showString);
@@ -234,8 +234,8 @@ void ListPartsWidget::editPart()
     }
 
     if(m_partType != Chapter) {
-        BibEntryType bet = BibEntryTypeFromUrl(resourceToEdit);
-        i->setIcon( KIcon(BibEntryTypeIcon.at(bet)) );
+        BibGlobals::BibEntryType bet = BibGlobals::BibEntryTypeFromUrl(resourceToEdit);
+        i->setIcon( KIcon(BibGlobals::BibEntryTypeIcon(bet)) );
     }
 
     i->setText(showNewString);
@@ -492,8 +492,8 @@ void ListPartsWidget::addToSeries()
         QString showString = showSeriesOfString(tempResource);
 
         if(m_partType != Chapter) {
-            BibEntryType bet = BibEntryTypeFromUrl(tempResource);
-            i->setIcon( KIcon(BibEntryTypeIcon.at(bet)) );
+            BibGlobals::BibEntryType bet = BibGlobals::BibEntryTypeFromUrl(tempResource);
+            i->setIcon( KIcon(BibGlobals::BibEntryTypeIcon(bet)) );
         }
 
         i->setText(showString);
@@ -587,8 +587,8 @@ void ListPartsWidget::addToCollection()
         QString showString = showArticleString(tempResource);
 
         if(m_partType != Chapter) {
-            BibEntryType bet = BibEntryTypeFromUrl(tempResource);
-            i->setIcon( KIcon(BibEntryTypeIcon.at(bet)) );
+            BibGlobals::BibEntryType bet = BibGlobals::BibEntryTypeFromUrl(tempResource);
+            i->setIcon( KIcon(BibGlobals::BibEntryTypeIcon(bet)) );
         }
 
         i->setText(showString);
@@ -663,8 +663,8 @@ void ListPartsWidget::addToEvent()
         QListWidgetItem *i = new QListWidgetItem();
 
         if(m_partType != Chapter) {
-            BibEntryType bet = BibEntryTypeFromUrl(publication);
-            i->setIcon( KIcon(BibEntryTypeIcon.at(bet)) );
+            BibGlobals::BibEntryType bet = BibGlobals::BibEntryTypeFromUrl(publication);
+            i->setIcon( KIcon(BibGlobals::BibEntryTypeIcon(bet)) );
         }
 
         i->setText(publication.property(NIE::title()).toString());

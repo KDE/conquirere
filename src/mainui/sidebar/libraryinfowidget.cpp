@@ -62,7 +62,7 @@ void LibraryInfoWidget::setLibrary(Library *p)
     ui->nameLabel->setText(p->settings()->name());
     ui->descriptionLabel->setText(p->settings()->description());
 
-    if(p->libraryType() == Library_System) {
+    if(p->libraryType() == BibGlobals::Library_System) {
         ui->deleteButton->setEnabled(false);
         ui->closeButton->setEnabled(false);
     }

@@ -76,7 +76,7 @@ using namespace Soprano::Vocabulary;
 
 Library::Library()
     : QObject(0)
-    , m_libraryType(Library_Project)
+    , m_libraryType(BibGlobals::Library_Project)
     , m_dirWatcher(0)
     , m_tagCloud(0)
 {
@@ -188,7 +188,7 @@ QString Library::createIniFile(Nepomuk2::Resource &pimoProject, const QString & 
     return iniFile;
 }
 
-void Library::loadLibrary(const QString & projectFile, LibraryType type)
+void Library::loadLibrary(const QString & projectFile, BibGlobals::LibraryType type)
 {
     Q_ASSERT_X( !m_tagCloud, "loadLibrary", "tagCloud exist already ... means we loaded this library beforehand already");
 
@@ -218,7 +218,7 @@ void Library::loadSystemLibrary( )
         m_projectSettings->setName(i18nc("name of the system library","System Library"));
     }
 
-    loadLibrary(iniFile, Library_System);
+    loadLibrary(iniFile, BibGlobals::Library_System);
 }
 
 void Library::loadLibrary(Nepomuk2::Resource & pimoProject)
@@ -247,7 +247,7 @@ ProjectSettings * Library::settings()
     return m_projectSettings;
 }
 
-LibraryType Library::libraryType() const
+BibGlobals::LibraryType Library::libraryType() const
 {
     return m_libraryType;
 }
@@ -274,7 +274,7 @@ void Library::deleteLibrary()
 
 void Library::addResource(const Nepomuk2::Resource & res)
 {
-    if(m_libraryType == Library_System) {
+    if(m_libraryType == BibGlobals::Library_System) {
         kWarning() << "can't add resources to system library";
         return;
     }
@@ -335,7 +335,7 @@ void Library::addResource(const Nepomuk2::Resource & res)
 
 void Library::removeResource(const Nepomuk2::Resource & res)
 {
-    Q_ASSERT_X( m_libraryType == Library_Project, "removeResource", "can't remove resources from system library");
+    Q_ASSERT_X( m_libraryType == BibGlobals::Library_Project, "removeResource", "can't remove resources from system library");
 
     QList<QUrl> resourceUris;
     resourceUris << res.uri();
@@ -391,12 +391,12 @@ void Library::deleteResource(const Nepomuk2::Resource & resource )
             SIGNAL(result(KJob*)), this, SLOT(nepomukDMSfinishedInfo(KJob*)));
 }
 
-QSortFilterProxyModel* Library::viewModel(ResourceSelection selection)
+QSortFilterProxyModel* Library::viewModel(BibGlobals::ResourceSelection selection)
 {
     return m_resources.value(selection);
 }
 
-QMap<ResourceSelection, QSortFilterProxyModel*> Library::viewModels()
+QMap<BibGlobals::ResourceSelection, QSortFilterProxyModel*> Library::viewModels()
 {
     return m_resources;
 }
@@ -421,40 +421,40 @@ void Library::setupModels()
     QSortFilterProxyModel *documentFilter = new QSortFilterProxyModel;
     documentFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     documentFilter->setSourceModel(documentModel);
-    m_resources.insert(Resource_Document, documentFilter);
+    m_resources.insert(BibGlobals::Resource_Document, documentFilter);
 
     ReferenceModel *referencesModel = new ReferenceModel;
     referencesModel->setLibrary(this);
     PublicationFilterModel *referenceFilter = new PublicationFilterModel;
     referenceFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     referenceFilter->setSourceModel(referencesModel);
-    m_resources.insert(Resource_Reference, referenceFilter);
+    m_resources.insert(BibGlobals::Resource_Reference, referenceFilter);
 
     PublicationModel *publicationModel = new PublicationModel;
     publicationModel->setLibrary(this);
     PublicationFilterModel *publicationFilter = new PublicationFilterModel;
     publicationFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     publicationFilter->setSourceModel(publicationModel);
-    m_resources.insert(Resource_Publication, publicationFilter);
+    m_resources.insert(BibGlobals::Resource_Publication, publicationFilter);
 
     SeriesModel *seriesModel = new SeriesModel;
     seriesModel->setLibrary(this);
     SeriesFilterModel *seriesFilter = new SeriesFilterModel;
     seriesFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     seriesFilter->setSourceModel(seriesModel);
-    m_resources.insert(Resource_Series, seriesFilter);
+    m_resources.insert(BibGlobals::Resource_Series, seriesFilter);
 
     NoteModel *noteModel = new NoteModel;
     noteModel->setLibrary(this);
     QSortFilterProxyModel *noteFilter = new QSortFilterProxyModel;
     noteFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     noteFilter->setSourceModel(noteModel);
-    m_resources.insert(Resource_Note, noteFilter);
+    m_resources.insert(BibGlobals::Resource_Note, noteFilter);
 
     EventModel *eventModel = new EventModel;
     eventModel->setLibrary(this);
     QSortFilterProxyModel *eventFilter = new QSortFilterProxyModel;
     eventFilter->setFilterCaseSensitivity(Qt::CaseInsensitive);
     eventFilter->setSourceModel(eventModel);
-    m_resources.insert(Resource_Event, eventFilter);
+    m_resources.insert(BibGlobals::Resource_Event, eventFilter);
 }

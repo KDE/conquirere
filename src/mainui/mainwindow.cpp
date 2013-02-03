@@ -194,7 +194,7 @@ void MainWindow::closeLibrarySelection()
 
 void MainWindow::openSettings(Library *l)
 {
-    if(l->libraryType() == Library_Project) {
+    if(l->libraryType() == BibGlobals::Library_Project) {
         ProjectSettingsDialog settingsDialog;
         settingsDialog.setProjectSettings(l->settings());
 
@@ -291,10 +291,10 @@ void MainWindow::connectKPartGui(KParts::Part * part)
     createGUI(part);
 }
 
-void MainWindow::switchView(ResourceSelection selection, BibEntryType filter, Library *selectedLibrary)
+void MainWindow::switchView(BibGlobals::ResourceSelection selection, BibGlobals::BibEntryType filter, Library *selectedLibrary)
 {
     // This case means we show the Welcome widget for the selected library
-    if(selection == Resource_Library) {
+    if(selection == BibGlobals::Resource_Library) {
         m_tableWidget->hide();
 
         //hide all welcome widgets in case we switch from one library to another
@@ -379,7 +379,7 @@ void MainWindow::openLibrary(Library *l)
         actionCollection()->action(QLatin1String("close_project"))->setEnabled(true);
     }
 
-    switchView(Resource_Library, Max_BibTypes, l);
+    switchView(BibGlobals::Resource_Library, BibGlobals::Max_BibTypes, l);
 }
 
 void MainWindow::closeLibrary(const QUrl &projectThingUrl)
@@ -395,7 +395,7 @@ void MainWindow::closeLibrary(const QUrl &projectThingUrl)
         w->deleteLater();
     }
 
-    switchView(Resource_Library, Max_BibTypes, m_libraryManager->systemLibrary());
+    switchView(BibGlobals::Resource_Library, BibGlobals::Max_BibTypes, m_libraryManager->systemLibrary());
 }
 
 void MainWindow::startFullSync()
@@ -628,8 +628,8 @@ void MainWindow::setupMainWindow()
     m_middleSplitter->setSizes(hideDocPreviewSizes);
 
 
-    connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,BibEntryType,Library*)),
-            m_sidebarWidget, SLOT(newSelection(ResourceSelection,BibEntryType,Library*)));
+    connect(m_libraryWidget, SIGNAL(newSelection(BibGlobals::ResourceSelection,BibGlobals::BibEntryType,Library*)),
+            m_sidebarWidget, SLOT(newSelection(BibGlobals::ResourceSelection,BibGlobals::BibEntryType,Library*)));
 
     connect(m_tableWidget, SIGNAL(selectedResource(Nepomuk2::Resource&, bool)),
             m_sidebarWidget, SLOT(setResource(Nepomuk2::Resource&)));
@@ -652,8 +652,8 @@ void MainWindow::setupMainWindow()
     connect(m_documentPreview, SIGNAL(activateKPart(KParts::Part*)),
             this, SLOT(connectKPartGui(KParts::Part*)));
 
-    connect(m_libraryWidget, SIGNAL(newSelection(ResourceSelection,BibEntryType,Library*)),
-            this, SLOT(switchView(ResourceSelection,BibEntryType,Library*)));
+    connect(m_libraryWidget, SIGNAL(newSelection(BibGlobals::ResourceSelection,BibGlobals::BibEntryType,Library*)),
+            this, SLOT(switchView(BibGlobals::ResourceSelection,BibGlobals::BibEntryType,Library*)));
 }
 
 void MainWindow::setupLibrary( SplashScreen *splash )
@@ -664,5 +664,5 @@ void MainWindow::setupLibrary( SplashScreen *splash )
     l->loadSystemLibrary( );
     m_libraryManager->addSystemLibrary(l);
 
-    m_sidebarWidget->newSelection(Resource_Library, Max_BibTypes, l);
+    m_sidebarWidget->newSelection(BibGlobals::Resource_Library, BibGlobals::Max_BibTypes, l);
 }

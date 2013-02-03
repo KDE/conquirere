@@ -49,6 +49,7 @@
 #include <Nepomuk2/Vocabulary/NFO>
 #include <Nepomuk2/Vocabulary/NIE>
 #include <Nepomuk2/Vocabulary/NMO>
+#include "nbib.h"
 
 #include <KDE/KGlobalSettings>
 #include <KDE/KDebug>
@@ -377,7 +378,7 @@ void SidebarWidget::hasReference(bool reference)
     ui->removeReference->setEnabled(reference);
 }
 
-void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filter, Library *selectedLibrary)
+void SidebarWidget::newSelection(BibGlobals::ResourceSelection selection, BibGlobals::BibEntryType filter, Library *selectedLibrary)
 {
     Q_UNUSED(filter);
 
@@ -410,7 +411,7 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
     disconnect(ui->removeReference, SIGNAL(clicked()) );
 
     switch(selection) {
-    case Resource_Library:
+    case BibGlobals::Resource_Library:
     {
         m_stackedLayout->setCurrentWidget(m_libraryInfoWidget);
         m_libraryInfoWidget->setLibrary(selectedLibrary);
@@ -418,7 +419,7 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         ui->titleLabel->setText(i18nc("Header for the library details","Library"));
         break;
     }
-    case Resource_Document:
+    case BibGlobals::Resource_Document:
     {
         m_stackedLayout->setCurrentWidget(m_documentWidget);
         m_currentWidget = m_documentWidget;
@@ -434,14 +435,14 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         connect(ui->removePublication, SIGNAL(clicked()), m_documentWidget, SLOT(removePublication()));
         break;
     }
-    case Resource_Mail:
+    case BibGlobals::Resource_Mail:
     {
         m_stackedLayout->setCurrentWidget(m_mailWidget);
         m_currentWidget = m_mailWidget;
         ui->titleLabel->setText(i18nc("Header for the mail details","Mail"));
         break;
     }
-    case Resource_Reference:
+    case BibGlobals::Resource_Reference:
     {
         m_stackedLayout->setCurrentWidget(m_referenceWidget);
         m_currentWidget = m_referenceWidget;
@@ -452,7 +453,7 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         ui->lineFindPdf->setVisible(true);
         break;
     }
-    case Resource_Note:
+    case BibGlobals::Resource_Note:
     {
         m_stackedLayout->setCurrentWidget(m_noteWidget);
         m_currentWidget = m_noteWidget;
@@ -461,7 +462,7 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         ui->deleteButton->setToolTip(i18n("Delete note"));
         break;
     }
-    case Resource_Event:
+    case BibGlobals::Resource_Event:
     {
         m_stackedLayout->setCurrentWidget(m_eventWidget);
         m_currentWidget = m_eventWidget;
@@ -470,7 +471,7 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         ui->deleteButton->setToolTip(i18n("Delete event"));
         break;
     }
-    case Resource_Publication:
+    case BibGlobals::Resource_Publication:
     {
         m_stackedLayout->setCurrentWidget(m_publicationWidget);
         m_currentWidget = m_publicationWidget;
@@ -487,7 +488,7 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         connect(ui->removeReference, SIGNAL(clicked()), m_publicationWidget, SLOT(removeReference()));
         break;
     }
-    case Resource_Series:
+    case BibGlobals::Resource_Series:
     {
         m_stackedLayout->setCurrentWidget(m_seriesWidget);
         m_currentWidget = m_seriesWidget;
@@ -496,62 +497,62 @@ void SidebarWidget::newSelection(ResourceSelection selection, BibEntryType filte
         ui->deleteButton->setToolTip(i18n("Delete series"));
         break;
     }
-    case Resource_SearchResults:
+    case BibGlobals::Resource_SearchResults:
     {
         m_stackedLayout->setCurrentWidget(m_searchResultInfoWidget);
         m_currentWidget = m_searchResultInfoWidget;
         ui->titleLabel->setText(i18nc("Header for the search result details","Search Results"));
         break;
     }
-    case Resource_Website:
-    case Resource_Media:
+    case BibGlobals::Resource_Website:
+    case BibGlobals::Resource_Media:
         kDebug() << "todo not implemented yet";
         break;
-    case Max_ResourceTypes:
+    case BibGlobals::Max_ResourceTypes:
         qFatal("Max resourcetypes should never be used here");
     }
 }
 
 void SidebarWidget::showSearchResults()
 {
-    newSelection(Resource_SearchResults, Max_BibTypes, m_libraryManager->systemLibrary());
+    newSelection(BibGlobals::Resource_SearchResults, BibGlobals::Max_BibTypes, m_libraryManager->systemLibrary());
     m_searchResultVisible = true;
 }
 
 void SidebarWidget::findResourceSelection(Nepomuk2::Resource & resource)
 {
-    ResourceSelection selection;
-    BibEntryType filter = Max_BibTypes;
+    BibGlobals::ResourceSelection selection;
+    BibGlobals::BibEntryType filter = BibGlobals::Max_BibTypes;
 
     if(!resource.isValid()) {
-        selection = Resource_SearchResults;
+        selection = BibGlobals::Resource_SearchResults;
     }
     else if(resource.hasType(NBIB::Publication())) {
-       selection = Resource_Publication;
+       selection = BibGlobals::Resource_Publication;
     }
     else if(resource.hasType(NBIB::Series())) {
-        selection = Resource_Series;
+        selection = BibGlobals::Resource_Series;
     }
     else if(resource.hasType(NBIB::Reference())) {
-        selection = Resource_Reference;
+        selection = BibGlobals::Resource_Reference;
     }
     else if(resource.hasType(PIMO::Note())) {
-        selection = Resource_Note;
+        selection = BibGlobals::Resource_Note;
     }
     else if(resource.hasType(NMO::Email())) {
-        selection = Resource_Mail;
+        selection = BibGlobals::Resource_Mail;
     }
     else if(resource.hasType(NFO::Website())) {
-        selection = Resource_Website;
+        selection = BibGlobals::Resource_Website;
     }
     else if(resource.hasType(NFO::Bookmark())) {
-        selection = Resource_Website;
+        selection = BibGlobals::Resource_Website;
     }
     else if(resource.hasType(PIMO::Event())) {
-        selection = Resource_Event;
+        selection = BibGlobals::Resource_Event;
     }
     else {
-        selection = Resource_Document;
+        selection = BibGlobals::Resource_Document;
     }
 
     newSelection(selection, filter, m_libraryManager->systemLibrary());

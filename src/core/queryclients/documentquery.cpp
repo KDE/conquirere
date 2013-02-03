@@ -19,8 +19,6 @@
 #include "../library.h"
 #include "../projectsettings.h"
 
-#include "globals.h"
-
 #include <KDE/KIcon>
 
 #include <Nepomuk2/Variant>
@@ -59,7 +57,7 @@ void DocumentQuery::startFetchData()
     m_newWatcher->addType(Nepomuk2::Vocabulary::NFO::Spreadsheet());
     m_newWatcher->addType(Nepomuk2::Vocabulary::NFO::MindMap());
 
-    if(m_library->libraryType() == Library_Project) {
+    if(m_library->libraryType() == BibGlobals::Library_Project) {
         m_newWatcher->addProperty(Soprano::Vocabulary::NAO::isRelated());
         connect(m_newWatcher, SIGNAL(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)),
                 this, SLOT(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)) );
@@ -100,7 +98,7 @@ QList<CachedRowEntry> DocumentQuery::queryNepomuk()
     // helping string to filter for all documents that are related to the current project
     QString projectRelated;
     QString projectTag;
-    if(m_library->libraryType() == Library_Project) {
+    if(m_library->libraryType() == BibGlobals::Library_Project) {
         projectRelated = QString("?r nao:isRelated  <%1> .").arg(m_library->settings()->projectThing().uri().toString());
         projectTag = QString("UNION { ?r nao:hasTag  <%1> . }").arg(m_library->settings()->projectTag().uri().toString() );
     }
@@ -182,6 +180,7 @@ QList<CachedRowEntry> DocumentQuery::queryNepomuk()
         cre.decorationColums = createDecorationData(i.value());
         cre.resource = Nepomuk2::Resource::fromResourceUri( KUrl( i.key() ) );
         cre.timestamp = QDateTime::currentDateTime();
+        cre.resourceType = detectResourceType(cre.resource);
         newCache.append(cre);
 
         m_resourceWatcher->addResource( cre.resource );
@@ -395,4 +394,10 @@ QVariantList DocumentQuery::createDecorationData(const Nepomuk2::Resource & res)
     }
 
     return decorationList;
+}
+
+uint DocumentQuery::detectResourceType(const Nepomuk2::Resource & res) const
+{
+    Q_UNUSED(res);
+    return 0;
 }

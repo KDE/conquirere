@@ -78,6 +78,11 @@ QVariant NepomukModel::data(const QModelIndex &index, int role) const
         return columnList.at(index.column());
     }
 
+    else if(role == Qt::UserRole + 1) { //TODO: define fixed unum for the resourceType role
+        CachedRowEntry entryCache = m_modelCacheData.at(index.row());
+        return entryCache.resourceType;
+    }
+
     return QVariant();
 }
 

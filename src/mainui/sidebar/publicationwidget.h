@@ -19,6 +19,7 @@
 #define PUBLICATIONWIDGET_H
 
 #include "sidebarcomponent.h"
+#include "config/bibglobals.h"
 
 #include <Nepomuk2/Resource>
 
@@ -88,7 +89,7 @@ private slots:
 private:
     void setupWidget();
 
-    void selectLayout(BibEntryType entryType);
+    void selectLayout(BibGlobals::BibEntryType entryType);
     void layoutArticle();
     void layoutArticleExtra();
     void layoutBook();

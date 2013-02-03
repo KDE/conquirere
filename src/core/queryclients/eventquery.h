@@ -66,6 +66,8 @@ private:
     QVariantList createDisplayData(const Nepomuk2::Resource & resource) const;
     QVariantList createDecorationData(const Nepomuk2::Resource & resource) const;
 
+    uint detectResourceType(const Nepomuk2::Resource & res) const;
+
     Nepomuk2::ResourceWatcher* m_newWatcher;
     QFutureWatcher<QList<CachedRowEntry> > *m_futureWatcher;
 };
