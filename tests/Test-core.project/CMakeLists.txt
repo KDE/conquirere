@@ -1,10 +1,10 @@
 
 
-kde4_add_unit_test(TEST-core.project
+kde4_add_unit_test(Test-core.project
   coreproject.cpp
 )
 
-target_link_libraries(TEST-core.project
+target_link_libraries(Test-core.project
 #include nepomuk
         ${NEPOMUK_CORE_LIBRARY}
 

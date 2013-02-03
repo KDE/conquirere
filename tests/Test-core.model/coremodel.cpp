@@ -18,8 +18,6 @@
 #include "core/library.h"
 #include "core/models/nepomukmodel.h"
 
-#include <QtGui/QSortFilterProxyModel>
-
 #include <Nepomuk2/Variant>
 #include <Nepomuk2/Resource>
 #include <Nepomuk2/DataManagement>
@@ -37,9 +35,15 @@
 #include "sro/nbib/reference.h"
 
 #include "core/queryclients/publicationquery.h"
+#include "core/queryclients/seriesquery.h"
+
+#include <QtGui/QSortFilterProxyModel>
 
 #include <QtTest>
 #include <QtDebug>
+#include <KDE/KDebug>
+
+#include <qtest_kde.h>
 
 /**
  * @file coremodel.cpp
@@ -66,10 +70,10 @@ private:
     Library *l;
 };
 
-QTEST_MAIN(CoreModel)
+QTEST_KDEMAIN_CORE(CoreModel)
 
-void CoreModel::benchmarkSystemModelTest() {
-
+void CoreModel::benchmarkSystemModelTest()
+{
     //########################################################
     //# Load library based on pimoProject resource again
 
@@ -117,11 +121,11 @@ void CoreModel::benchmarkSystemModelTest() {
 void CoreModel::addPublicationTest()
 {
     NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Publication)->sourceModel() );
+    QSignalSpy dataSizeChangedSignal(publicationModel, SIGNAL(dataSizeChaged(int)));
 
     // lets add a very simple book
     Nepomuk2::SimpleResourceGraph graph;
 
-    //BUG: ResourceWatcher does not seem to work with subtypes. adding book does not show a change, Publication does
     Nepomuk2::NCO::Contact editor;
     editor.setFullname(QLatin1String("UNITTEST-Editor"));
 
@@ -133,27 +137,39 @@ void CoreModel::addPublicationTest()
 
     QDateTime publicationDate = QDateTime::fromString("1986-04-03T12:12:12Z", Qt::ISODate);
 
+    //BUG: ResourceWatcher does not seem to work with subtypes. adding book does not show a change, Publication does
+    // works if we double type on our own. seems the resourcewatcher checks before the storage adds all the parent types
     Nepomuk2::NBIB::Book book;
+    //book.addType(Nepomuk2::Vocabulary::NBIB::Publication()); //add this again to make test work
     book.setTitle(QLatin1String("UNITTEST-book"));
-    //book.addCreator(author.uri());
+    book.addCreator(author.uri());
     book.addEditor(editor.uri());
     book.addPublisher( publisher.uri() );
     book.setPublicationDate( publicationDate );
 
     Nepomuk2::NBIB::Reference bookReference;
     bookReference.setCiteKey(QLatin1String("UNITTEST-bookCiteKey"));
-
     bookReference.setPublication( book.uri() );
     book.addReference(bookReference.uri());
 
     graph << book << bookReference << editor << author << publisher;
 
-    Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNone);
+    Nepomuk2::StoreResourcesJob* srj = Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNone);
 
-    // check that the data was actually added to the model
-    QVERIFY(waitForSignal(publicationModel, SIGNAL(dataSizeChaged(int)), 10000));
+    if(!srj->exec()) {
+        qDebug() << srj->errorString();
+        QFAIL("Could not insert test publication into Nepomuk");
+    }
 
-    // now check if the data was correctly added t othe model
+    // we wait here so the last element in the model is really the newly added publication
+    QEventLoop loop;
+    QTimer::singleShot( 500, &loop, SLOT(quit()) );
+    loop.exec();
+
+    //check that the signal was emitted
+    QCOMPARE(dataSizeChangedSignal.count(), 1);
+
+    // now check if the data was correctly added to the model
     int lastEntry = publicationModel->rowCount()-1;
     QString addresourceType = publicationModel->data( publicationModel->index(lastEntry,PublicationQuery::Column_ResourceType), Qt::DisplayRole).toString();
     QString addtitle = publicationModel->data( publicationModel->index(lastEntry,PublicationQuery::Column_Title), Qt::DisplayRole).toString();
@@ -163,7 +179,7 @@ void CoreModel::addPublicationTest()
     QString addcitekey = publicationModel->data( publicationModel->index(lastEntry,PublicationQuery::Column_CiteKey), Qt::DisplayRole).toString();
     QString addeditor = publicationModel->data( publicationModel->index(lastEntry,PublicationQuery::Column_Editor), Qt::DisplayRole).toString();
 
-    QCOMPARE(addresourceType, QLatin1String("Misc"));
+    QCOMPARE(addresourceType, QLatin1String("Book"));
     QCOMPARE(addtitle, QLatin1String("UNITTEST-book"));
     QCOMPARE(addauthor, QLatin1String("UNITTEST-Author"));
     QCOMPARE(addpublisher, QLatin1String("UNITTEST-Publisher"));
@@ -175,6 +191,8 @@ void CoreModel::addPublicationTest()
 void CoreModel::changePublicationTest()
 {
     NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Publication)->sourceModel() );
+    qRegisterMetaType<QModelIndex>("QModelIndex");
+    QSignalSpy dataChangedSignal(publicationModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
 
     QVERIFY2( publicationModel->rowCount() != 0, "No resources in the model that can be changed");
 
@@ -182,17 +200,25 @@ void CoreModel::changePublicationTest()
     int lastEntry = publicationModel->rowCount()-1;
     Nepomuk2::Resource entry = publicationModel->documentResource(publicationModel->index(lastEntry,PublicationQuery::Column_ResourceType));
 
-    Nepomuk2::setProperty(QList<QUrl>() << entry.uri(), Nepomuk2::Vocabulary::NIE::title(),QVariantList() << QLatin1String("UNITTEST-Changed-Name"));
+    QVERIFY2(entry.isValid() && entry.exists(), "No valid publication was retrieved from the model");
 
-    // check that the data was actually changed in the model
-    QVERIFY(waitForSignal(publicationModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), 10000));
+    KJob* job = Nepomuk2::setProperty(QList<QUrl>() << entry.uri(), Nepomuk2::Vocabulary::NIE::title(),QVariantList() << QLatin1String("UNITTEST-Changed-Name"));
+
+    if(!job->exec()) {
+        qDebug() << job->errorString();
+        QFAIL("Could not change the name of the publication");
+    }
 
     // @see BUG: https://bugs.kde.org/show_bug.cgi?id=306108
     // The reason this is required, is cause the Resource class is also updated via
     // dbus, and we have no way of controlling which slot would be called first.
     QEventLoop loop;
-    QTimer::singleShot( 500, &loop, SLOT(quit()) );
+    QTimer::singleShot( 1000, &loop, SLOT(quit()) );
     loop.exec();
+
+    //check that the signal was emitted
+    // as we do wait 500ms this signal was definitly emitted inbetween too
+    QCOMPARE(dataChangedSignal.count(), 1);
 
     QString changedTitle = publicationModel->data( publicationModel->index(lastEntry,PublicationQuery::Column_Title), Qt::DisplayRole).toString();
 
@@ -202,25 +228,38 @@ void CoreModel::changePublicationTest()
 void CoreModel::addSeriesTest()
 {
     NepomukModel *seriesModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Series)->sourceModel() );
+    QSignalSpy dataSizeChangedSignal(seriesModel, SIGNAL(dataSizeChaged(int)));
 
     // lets add a very simple book
     Nepomuk2::SimpleResourceGraph graph;
 
     //BUG: ResourceWatcher does not seem to work with subtypes. adding Journal does not show a change, Series does
+    // works if we double type on our own. seems the resourcewatcher checks before the storage adds all the parent types
     Nepomuk2::NBIB::Journal journal;
+    //journal.addType(Nepomuk2::Vocabulary::NBIB::Series()); //add this again to make test work
     journal.setTitle(QLatin1String("UNITTEST-journal"));
 
     graph << journal;
 
-    Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNone);
+    Nepomuk2::StoreResourcesJob* srj = Nepomuk2::storeResources(graph,Nepomuk2::IdentifyNone);
 
-    // check that the data was actually added to the model
-    QVERIFY(waitForSignal(seriesModel, SIGNAL(dataSizeChaged(int)), 50000));
+    if(!srj->exec()) {
+        qDebug() << srj->errorString();
+        QFAIL("Could not insert test journal into Nepomuk");
+    }
+
+    // we wait here so the last element in the model is really the newly added publication
+    QEventLoop loop;
+    QTimer::singleShot( 1000, &loop, SLOT(quit()) );
+    loop.exec();
+
+    //check that the signal was emitted
+    QCOMPARE(dataSizeChangedSignal.count(), 1);
 
     // now check if the data was correctly added t othe model
     int lastEntry = seriesModel->rowCount()-1;
-    QString addresourceType = seriesModel->data( seriesModel->index(lastEntry,PublicationQuery::Column_ResourceType), Qt::DisplayRole).toString();
-    QString addtitle = seriesModel->data( seriesModel->index(lastEntry,PublicationQuery::Column_Title), Qt::DisplayRole).toString();
+    QString addresourceType = seriesModel->data( seriesModel->index(lastEntry,SeriesQuery::Column_ResourceType), Qt::DisplayRole).toString();
+    QString addtitle = seriesModel->data( seriesModel->index(lastEntry,SeriesQuery::Column_Title), Qt::DisplayRole).toString();
 
     QCOMPARE(addresourceType, QLatin1String("Journal"));
     QCOMPARE(addtitle, QLatin1String("UNITTEST-journal"));
@@ -229,19 +268,37 @@ void CoreModel::addSeriesTest()
 void CoreModel::changeSeriesTest()
 {
     NepomukModel *seriesModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Series)->sourceModel() );
+    qRegisterMetaType<QModelIndex>("QModelIndex");
+    QSignalSpy dataChangedSignal(seriesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
 
     QVERIFY2( seriesModel->rowCount() != 0, "No resources in the model that can be changed");
 
     // get the last added resource
     int lastEntry = seriesModel->rowCount()-1;
-    Nepomuk2::Resource entry = seriesModel->documentResource(seriesModel->index(lastEntry,PublicationQuery::Column_ResourceType));
+    Nepomuk2::Resource entry = seriesModel->documentResource(seriesModel->index(lastEntry,SeriesQuery::Column_ResourceType));
 
-    Nepomuk2::setProperty(QList<QUrl>() << entry.uri(), Nepomuk2::Vocabulary::NIE::title(),QVariantList() << QLatin1String("UNITTEST-Changed-Name"));
+    QVERIFY2(entry.isValid() && entry.exists(), "No valid series was retrieved from the model");
 
-    // check that the data was actually changed in the model
-    QVERIFY(waitForSignal(seriesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), 10000));
-    QString changedTitle = seriesModel->data( seriesModel->index(lastEntry,PublicationQuery::Column_Title), Qt::DisplayRole).toString();
+    KJob *job = Nepomuk2::setProperty(QList<QUrl>() << entry.uri(), Nepomuk2::Vocabulary::NIE::title(),QVariantList() << QLatin1String("UNITTEST-Changed-Name"));
 
+    if(!job->exec()) {
+        qDebug() << job->errorString();
+        QFAIL("Could not change the name of the journal");
+    }
+
+    // @see BUG: https://bugs.kde.org/show_bug.cgi?id=306108
+    // The reason this is required, is cause the Resource class is also updated via
+    // dbus, and we have no way of controlling which slot would be called first.
+    QEventLoop loop;
+    QTimer::singleShot( 500, &loop, SLOT(quit()) );
+    loop.exec();
+
+    //check that the signal was emitted
+    // as we do wait 500ms this signal was definitly emitted inbetween too
+    QCOMPARE(dataChangedSignal.count(), 1);
+
+    // get the changed resource and check the new name
+    QString changedTitle = seriesModel->data( seriesModel->index(lastEntry,SeriesQuery::Column_Title), Qt::DisplayRole).toString();
     QCOMPARE(changedTitle, QLatin1String("UNITTEST-Changed-Name"));
 }
 
@@ -254,7 +311,7 @@ void CoreModel::cleanupTestCase()
         QFAIL("Cleanup did not work");
     }
 
-    delete l;
+//    delete l;
 }
 
 bool CoreModel::waitForSignal(QObject *sender, const char *signal, int timeout) {

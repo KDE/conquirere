@@ -35,6 +35,8 @@
 #include <QtTest>
 #include <QtDebug>
 
+#include <qtest_kde.h>
+
 using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
@@ -60,7 +62,7 @@ private:
     QString itemToFetch;
 };
 
-QTEST_MAIN(SyncZoteroRead)
+QTEST_KDEMAIN_CORE(SyncZoteroRead)
 
 void SyncZoteroRead::initTestCase()
 {

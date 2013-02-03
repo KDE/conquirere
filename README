@@ -29,7 +29,7 @@ This allows to create a big semantic publication data and connect it with docume
 #################################################################
 # Dependencies:
 * Nepomuk
-** with nbib.ontology ~ see end of README
+** with nbib.ontology
 ** with sync.ontology
 
 * KDE Pim libs
@@ -61,13 +61,13 @@ make install
 
 and start via $HOME/bin/conquirere
 
-#################################################################
-# install necessary ontology
-copy
-nbib/nbib.trig
-nbib/nbib.ontology
-nbib/sync.trig
-nbib/sync.ontology
 
-into
-/usr/share/ontology/nie
+#################################################################
+# Running the unittests
+
+mkdir build
+cd build
+cmake ../ -DCMAKE_BUILD_TYPE=debug -DKDE4_BUILD_TESTS=ON
+make
+
+and start via "ctest -VV"

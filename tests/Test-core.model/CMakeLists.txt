@@ -1,10 +1,10 @@
 
 
-kde4_add_unit_test(TEST-core.model
+kde4_add_unit_test(Test-core.model
   coremodel.cpp
 )
 
-target_link_libraries(TEST-core.model
+target_link_libraries(Test-core.model
 #include nepomuk
         ${NEPOMUK_CORE_LIBRARY}
 
@@ -14,11 +14,11 @@ target_link_libraries(TEST-core.model
 # include general kde libs
         ${KDE4_KDECORE_LIBS}
         ${KDE4_KDEUI_LIBS}
-        ${KDE4_KIO_LIBS}
+        #${KDE4_KIO_LIBS}
 
         ${QT_QTTEST_LIBRARY}
 
 #include kbibtex
-        ${KBIBTEX_LIBRARIES}
+        #${KBIBTEX_LIBRARIES}
 
 )

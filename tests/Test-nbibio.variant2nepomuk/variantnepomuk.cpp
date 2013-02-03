@@ -37,6 +37,8 @@
 #include <QtTest>
 #include <QtDebug>
 
+#include <qtest_kde.h>
+
 using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
@@ -64,7 +66,7 @@ private:
     void checknames(const Nepomuk2::Resource &r, QStringList &names, const QUrl &property);
 };
 
-QTEST_MAIN(VariantNepomuk)
+QTEST_KDEMAIN_CORE(VariantNepomuk)
 
 void VariantNepomuk::initTestCase()
 {

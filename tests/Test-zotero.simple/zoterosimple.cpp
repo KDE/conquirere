@@ -23,6 +23,8 @@
 #include <QtTest>
 #include <QtDebug>
 
+#include <qtest_kde.h>
+
 /**
  * @file zoterosimple.cpp
  * @test Unittest to test the Zotero provider functionality
@@ -57,7 +59,7 @@ private:
     QVariantMap m_currentItem;
 };
 
-QTEST_MAIN(ZoteroSimple)
+QTEST_KDEMAIN_CORE(ZoteroSimple)
 
 void ZoteroSimple::initTestCase()
 {

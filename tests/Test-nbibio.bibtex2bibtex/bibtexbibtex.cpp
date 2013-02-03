@@ -42,6 +42,7 @@
 
 #include <QtTest>
 #include <QtDebug>
+#include <qtest_kde.h>
 
 using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
@@ -65,7 +66,7 @@ private slots:
     void cleanupTestCase();
 };
 
-QTEST_MAIN(BibtexBibtex)
+QTEST_KDEMAIN_CORE(BibtexBibtex)
 
 void BibtexBibtex::importExportTest_data()
 {

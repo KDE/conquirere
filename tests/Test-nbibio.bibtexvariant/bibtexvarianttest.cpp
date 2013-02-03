@@ -27,6 +27,7 @@
 #include <kbibtex/fileexporterbibtex.h>
 #include <QtTest>
 #include <QtDebug>
+#include <qtest_kde.h>
 
 /**
  *@file bibtexvarianttest.cpp
@@ -55,7 +56,7 @@ private:
     QVariantList bibEntryListToCheck;
 };
 
-QTEST_MAIN(BibtexVariantTest)
+QTEST_KDEMAIN_CORE(BibtexVariantTest)
 
 void BibtexVariantTest::initTestCase()
 {

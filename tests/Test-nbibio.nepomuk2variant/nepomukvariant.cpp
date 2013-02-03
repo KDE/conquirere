@@ -41,6 +41,7 @@
 
 #include <QtTest>
 #include <QtDebug>
+#include <qtest_kde.h>
 
 /**
  * @file nepomukvariant.cpp
@@ -83,7 +84,7 @@ private:
 
 };
 
-QTEST_MAIN(NepomukVariant)
+QTEST_KDEMAIN_CORE(NepomukVariant)
 
 void NepomukVariant::initTestCase()
 {

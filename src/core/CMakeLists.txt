@@ -40,6 +40,7 @@ target_link_libraries(conquirere-core
         conquirere-config
         conquirere-ontology
 
+        ${KDE4_KDEUI_LIBS}
         ${KDE4_KIO_LIBS}
         ${NEPOMUK_CORE_LIBRARY}
 )

@@ -40,6 +40,9 @@
 #include <QtTest>
 #include <QtDebug>
 
+#include <kdebug.h>
+#include <qtest_kde.h>
+
 /**
  * @file coreproject.cpp
  *
@@ -76,7 +79,7 @@ private:
     QUrl referenceUri;
 };
 
-QTEST_MAIN(CoreProject)
+QTEST_KDEMAIN_CORE(CoreProject)
 
 void CoreProject::initTestCase()
 {

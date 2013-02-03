@@ -52,6 +52,7 @@ void QueryClient::setLibrary(Library *selectedLibrary)
 
 void QueryClient::propertyChanged (const Nepomuk2::Resource &resource, const Nepomuk2::Types::Property &property, const QVariantList &addedValues, const QVariantList &removedValues)
 {
+    kDebug() << "propertyChanged resource" << resource.uri();
     Q_UNUSED(property);
 
     // @see https://bugs.kde.org/show_bug.cgi?id=306108

@@ -128,6 +128,7 @@ void NepomukModel::addCacheData(const QList<CachedRowEntry> &entries)
 
 void NepomukModel::removeCacheData( QList<QUrl> urls )
 {
+    kDebug() << "removeCacheData" << urls;
     foreach(const QUrl &url, urls) {
         //iterate through the full list of entries and find the one we are going to remove
         int i = 0;
@@ -160,6 +161,7 @@ void NepomukModel::removeCacheData( QList<QUrl> urls )
 
 void NepomukModel::updateCacheData(const QList<CachedRowEntry> &entries)
 {
+    kDebug() << "updateCacheData";
     foreach(const CachedRowEntry &entry, entries) {
 
         int pos = m_lookupCache.value(entry.resource.uri().toString(), -1);

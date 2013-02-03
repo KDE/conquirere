@@ -46,6 +46,8 @@
 #include <QtTest>
 #include <QtDebug>
 
+#include <qtest_kde.h>
+
 using namespace Nepomuk2::Vocabulary;
 using namespace Soprano::Vocabulary;
 
@@ -90,7 +92,7 @@ private:
     Nepomuk2::Resource br2Note2;
 };
 
-QTEST_MAIN(SyncZoteroWrite)
+QTEST_KDEMAIN_CORE(SyncZoteroWrite)
 
 void SyncZoteroWrite::initTestCase()
 {

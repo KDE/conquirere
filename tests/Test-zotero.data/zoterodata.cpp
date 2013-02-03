@@ -26,6 +26,8 @@
 #include <QtTest>
 #include <QtDebug>
 
+#include <qtest_kde.h>
+
 /**
  * @file zoterodata.cpp
  * @test Data driven unittest for the zotero read/write
@@ -48,7 +50,7 @@ private:
     QVariantMap currentItem;
 };
 
-QTEST_MAIN(ZoteroData)
+QTEST_KDEMAIN_CORE(ZoteroData)
 
 void ZoteroData::initTestCase()
 {

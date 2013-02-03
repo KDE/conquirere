@@ -66,6 +66,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QFileInfoList>
+#include <QtGui/QSortFilterProxyModel>
 
 const QString DOCPATH = I18N_NOOP2("Name of the documents folder to store user library documents","documents");  /**< @todo TODO: make this configurable */
 const QString NOTEPATH = I18N_NOOP2("Name of the notes folder to store user library documents","notes");     /**< @todo TODO: make this configurable */
