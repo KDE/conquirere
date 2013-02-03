@@ -106,7 +106,7 @@ void EventWidget::setResource(Nepomuk2::Resource & resource)
         ui->frameWidget->setEnabled(true);
     }
 
-    ui->editRating->setRating(m_eventThing.rating());
+    ui->editRating->setRating((int)m_eventThing.rating());
     ui->editTags->setResource(m_eventThing);
     ui->editAttendee->setResource(m_eventThing);
     ui->editName->setResource(m_eventThing);
@@ -165,7 +165,7 @@ void EventWidget::deleteButtonClicked()
 
 void EventWidget::changeRating(int newRating)
 {
-    if(newRating == m_eventThing.rating() ) {
+    if(newRating == (int)m_eventThing.rating() ) {
         return;
     }
 

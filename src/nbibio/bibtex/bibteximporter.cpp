@@ -61,7 +61,9 @@ void BibTexImporter::setFileType(BibTexImporter::FileType selectedFileType)
 
 bool BibTexImporter::load(QIODevice *iodevice, QStringList *errorLog)
 {
-    FileImporter *importer;
+    Q_UNUSED(errorLog);
+
+    FileImporter *importer = 0;
     switch(m_selectedFileType) {
     case EXPORT_BIBTEX:
     {
@@ -173,6 +175,8 @@ QList<EntryClique*> BibTexImporter::duplicates()
 
 bool BibTexImporter::pipeToNepomuk(QStringList *errorLog)
 {
+    Q_UNUSED(errorLog);
+
     // pipe bibtex file to variant
     QVariantList list = BibTexVariant::toVariant( *m_importedEntries );
 

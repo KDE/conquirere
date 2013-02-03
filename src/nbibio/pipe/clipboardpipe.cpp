@@ -91,6 +91,9 @@ void ClipboardPipe::pipeExport(const QVariantList & bibEntries)
             case ConqSettings::EnumReferenceCommand::citep_:
                 text.append(QLatin1String("\\citep*{") + citeKey + QLatin1String("} "));
                 break;
+            case ConqSettings::EnumReferenceCommand::COUNT:
+                kDebug() << "ConqSettings::EnumReferenceCommand::COUNT used. this should never happen";
+                break;
             }
         }
         if(ConqSettings::referenceCommand() == ConqSettings::EnumReferenceCommand::none) {
@@ -181,6 +184,9 @@ void ClipboardPipe::pipeExport(QList<Nepomuk2::Resource> resources)
                 break;
             case ConqSettings::EnumReferenceCommand::citep_:
                 text.append(QLatin1String("\\citep*{") + citeKey + QLatin1String("} "));
+                break;
+            case ConqSettings::EnumReferenceCommand::COUNT:
+                kDebug() << "ConqSettings::EnumReferenceCommand::COUNT used. this should never happen";
                 break;
             }
         }

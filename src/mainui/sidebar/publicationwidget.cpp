@@ -132,7 +132,7 @@ void PublicationWidget::setResource(Nepomuk2::Resource & resource)
     saveAnnotationContent(); // save previous annotation content, to be save here
     ui->editAnnotText->document()->clear();
 
-    ui->editRating->setRating(m_publication.rating());
+    ui->editRating->setRating((int)m_publication.rating());
 
     selectLayout(entryType);
 
@@ -475,7 +475,7 @@ void PublicationWidget::saveAnnotationContent()
 
 void PublicationWidget::changeRating(int newRating)
 {
-    if(newRating == m_publication.rating() ) {
+    if(newRating == (int)m_publication.rating() ) {
         return;
     }
 
@@ -583,7 +583,7 @@ void PublicationWidget::setupWidget()
     ui->editPubMed->setPropertyUrl( NBIB::pubMed() );
     ui->editDOI->setPropertyUrl( NBIB::doi() );
 
-    connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
+    connect(ui->editRating, SIGNAL(ratingChanged(uint)), this, SLOT(changeRating(int)));
     connect(ui->editAnnot, SIGNAL(selectedAnnotation(Nepomuk2::Resource&)), this, SLOT(newAnnotationSelected(Nepomuk2::Resource&)));
 }
 

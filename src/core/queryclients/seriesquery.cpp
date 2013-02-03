@@ -265,6 +265,8 @@ QVariantList SeriesQuery::createDisplayData(const QStringList & item) const
 
 QVariantList SeriesQuery::createDecorationData(const QStringList & item) const
 {
+    Q_UNUSED(item);
+
     QVariantList decorationList;
     decorationList.reserve(Max_columns-1);
 
@@ -331,6 +333,8 @@ QVariantList SeriesQuery::createDisplayData(const Nepomuk2::Resource & res) cons
 
 QVariantList SeriesQuery::createDecorationData(const Nepomuk2::Resource & res) const
 {
+    Q_UNUSED(res);
+
     QVariantList decorationList;
     decorationList.reserve(Max_columns-1);
 

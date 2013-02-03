@@ -8,7 +8,6 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_SOURCE_DIR}/cmake/modules
 )
 
-
 # CTest setup
 # ===============================================================================================
 ENABLE_TESTING()

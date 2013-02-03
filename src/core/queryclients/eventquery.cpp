@@ -255,6 +255,8 @@ QVariantList EventQuery::createDisplayData(const QStringList & item) const
 
 QVariantList EventQuery::createDecorationData(const QStringList & item) const
 {
+    Q_UNUSED(item);
+
     QVariantList decorationList;
     decorationList.reserve(Max_columns-1);
 

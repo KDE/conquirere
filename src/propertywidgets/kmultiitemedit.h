@@ -33,7 +33,7 @@ public:
     void setNepomukCompleterLabel(KUrl label);
 
 public slots:
-    void setCompletedText( const QString& t, bool marked );
+    virtual void setCompletedText( const QString& t, bool marked );
 
 protected slots:
     void makeCompletion (const QString &substring);

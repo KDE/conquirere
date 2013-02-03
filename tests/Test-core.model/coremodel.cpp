@@ -80,12 +80,12 @@ void CoreModel::benchmarkSystemModelTest()
     l = new Library();
     l->loadSystemLibrary();
 
-    NepomukModel *documentModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Document)->sourceModel() );
-    NepomukModel *referenceModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Reference)->sourceModel() );
-    NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Publication)->sourceModel() );
-    NepomukModel *seriesModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Series)->sourceModel() );
-    NepomukModel *noteModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Note)->sourceModel() );
-    NepomukModel *eventModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Event)->sourceModel() );
+    NepomukModel *documentModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Document)->sourceModel() );
+    NepomukModel *referenceModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Reference)->sourceModel() );
+    NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Publication)->sourceModel() );
+    NepomukModel *seriesModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Series)->sourceModel() );
+    NepomukModel *noteModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Note)->sourceModel() );
+    NepomukModel *eventModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Event)->sourceModel() );
 
     QBENCHMARK {
         documentModel->startFetchData();
@@ -120,7 +120,7 @@ void CoreModel::benchmarkSystemModelTest()
 
 void CoreModel::addPublicationTest()
 {
-    NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Publication)->sourceModel() );
+    NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Publication)->sourceModel() );
     QSignalSpy dataSizeChangedSignal(publicationModel, SIGNAL(dataSizeChaged(int)));
 
     // lets add a very simple book
@@ -190,7 +190,7 @@ void CoreModel::addPublicationTest()
 
 void CoreModel::changePublicationTest()
 {
-    NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Publication)->sourceModel() );
+    NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Publication)->sourceModel() );
     qRegisterMetaType<QModelIndex>("QModelIndex");
     QSignalSpy dataChangedSignal(publicationModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
 
@@ -227,7 +227,7 @@ void CoreModel::changePublicationTest()
 
 void CoreModel::addSeriesTest()
 {
-    NepomukModel *seriesModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Series)->sourceModel() );
+    NepomukModel *seriesModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Series)->sourceModel() );
     QSignalSpy dataSizeChangedSignal(seriesModel, SIGNAL(dataSizeChaged(int)));
 
     // lets add a very simple book
@@ -267,7 +267,7 @@ void CoreModel::addSeriesTest()
 
 void CoreModel::changeSeriesTest()
 {
-    NepomukModel *seriesModel = qobject_cast<NepomukModel *>( l->viewModel(Resource_Series)->sourceModel() );
+    NepomukModel *seriesModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Series)->sourceModel() );
     qRegisterMetaType<QModelIndex>("QModelIndex");
     QSignalSpy dataChangedSignal(seriesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
 

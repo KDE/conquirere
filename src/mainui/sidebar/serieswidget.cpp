@@ -88,7 +88,7 @@ void SeriesWidget::setResource(Nepomuk2::Resource & resource)
     ui->editAnnot->setResource(m_series);
 
     // set rating
-    ui->editRating->setRating(m_series.rating());
+    ui->editRating->setRating((int)m_series.rating());
 }
 
 void SeriesWidget::newSeriesTypeSelected(int index)
@@ -203,7 +203,7 @@ void SeriesWidget::deleteButtonClicked()
 
 void SeriesWidget::changeRating(int newRating)
 {
-    if(newRating == m_series.rating() ) {
+    if(newRating == (int)m_series.rating() ) {
         return;
     }
 

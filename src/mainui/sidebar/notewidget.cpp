@@ -76,7 +76,7 @@ void NoteWidget::setResource(Nepomuk2::Resource & resource)
     // discard simply shows the original content before saving any changes
     discardNote();
 
-    ui->editRating->setRating(m_note.rating());
+    ui->editRating->setRating((int)m_note.rating());
     ui->editTags->setResource(m_note);
 }
 
@@ -159,7 +159,7 @@ void NoteWidget::discardNote()
 
 void NoteWidget::changeRating(int newRating)
 {
-    if(newRating == m_note.rating() ) {
+    if(newRating == (int)m_note.rating() ) {
         return;
     }
 

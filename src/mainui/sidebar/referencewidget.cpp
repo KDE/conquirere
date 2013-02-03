@@ -104,7 +104,7 @@ void ReferenceWidget::setResource(Nepomuk2::Resource & resource)
         enableReferenceDetails();
 
         Nepomuk2::Resource pub = m_reference.property(NBIB::publication()).toResource();
-        ui->editRating->setRating(pub.rating());
+        ui->editRating->setRating( (int) pub.rating()); //unit setRating is deprecated
     }
     else {
         setEnabled(false);
@@ -323,7 +323,7 @@ void ReferenceWidget::changeRating(int newRating)
 {
     Nepomuk2::Resource publication = m_reference.property(NBIB::publication()).toResource();
 
-    if(newRating != publication.rating()) {
+    if(newRating != (int)publication.rating()) {
         publication.setRating(newRating);
     }
 }
