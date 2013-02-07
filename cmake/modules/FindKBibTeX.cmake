@@ -59,7 +59,14 @@ if (KBIBTEXIO_LIBRARY AND KBIBTEXGUI_LIBRARY AND KBIBTEXNETWORKING_LIBRARY AND K
     set(KBIBTEX_LIBRARIES ${KBIBTEXIO_LIBRARY} ${KBIBTEXGUI_LIBRARY} ${KBIBTEXNETWORKING_LIBRARY} ${KBIBTEXPROC_LIBRARY})
 endif(KBIBTEXIO_LIBRARY AND KBIBTEXGUI_LIBRARY AND KBIBTEXNETWORKING_LIBRARY AND KBIBTEXPROC_LIBRARY AND KBIBTEX_INCLUDE_DIRS)
 
-message(STATUS "libraries" ${KBIBTEX_LIBRARIES})
+# the header were only exported starting with 0.5
+# as there is no other file to read/check for the versions string, we use this "workaround" at the moment
+set(KBIBTEX_VERSION "0.4.0")
+if(KBIBTEX_INCLUDE_DIRS)
+  set(KBIBTEX_VERSION "0.5.0")
+endif(KBIBTEX_INCLUDE_DIRS)
+
+message(STATUS "Found KBibTeX" ${KBIBTEX_LIBRARIES} " Version (" ${KBIBTEX_VERSION} ")")
 
 # set version variables
 # todo find a way to do propper version check ...

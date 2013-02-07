@@ -27,7 +27,7 @@ find_package(Soprano)
 find_package(NepomukCore REQUIRED)
 
 find_package(QJSON REQUIRED)
-set(KBIBTEX_MIN_VERSION "0.4.0")
+set(KBIBTEX_MIN_VERSION "0.5.0")
 find_package(KBibTeX REQUIRED)
 set(NEPOMUK_WEBMINER_MIN_VERSION "0.4.0")
 find_package(NepomukWebMiner REQUIRED)
@@ -38,7 +38,7 @@ include(MacroLibrary)
 
 macro_log_feature(SHAREDDESKTOPONTOLOGIES_FOUND "Shared desktop ontologies" "Desktop ontologies" "http://oscaf.sourceforge.net" TRUE ${SDO_MIN_VERSION} "Ontologies necessary for the Nepomuk semantic desktop.")
 macro_log_feature(NEPOMUK_WEBMINER_FOUND "Nepomuk-WebMiner" "Internet lookup/search" "https://projects.kde.org/projects/extragear/base/nepomuk-webminer" TRUE ${NEPOMUK_WEBMINER_MIN_VERSION} "WebMiner is necessary for the publication/metadata search.")
-macro_log_feature(KBIBTEX_FOUND "KBibTeX" ".bib file handling" "http://home.gna.org/kbibtex/" TRUE ${KBIBTEX_MIN_VERSION} "KBibTeX is necessary for thi im/export of .bib files.")
+macro_log_feature(KBIBTEX_FOUND "KBibTeX" ".bib file handling" "http://home.gna.org/kbibtex/" TRUE ${KBIBTEX_MIN_VERSION} "KBibTeX is necessary for the im/export of .bib files.")
 
 
 
