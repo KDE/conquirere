@@ -15,7 +15,7 @@
 namespace Nepomuk2 {
 namespace NCO {
 /**
- * An entity occuring on a contact list (usually interpreted as 
+ * An entity occurring on a contact list (usually interpreted as 
  * an nco:Contact) 
  */
 class ContactListDataObject : public virtual NIE::DataObject

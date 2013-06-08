@@ -15,7 +15,7 @@
 namespace Nepomuk2 {
 namespace NMO {
 /**
- * A message. Could be an email, instant messanging message, SMS 
+ * A message. Could be an email, instant messaging message, SMS 
  * message etc. 
  */
 class Message : public virtual NIE::InformationElement

@@ -149,7 +149,7 @@ void NepomukSyncClient::dataDownloadFinished()
 void NepomukSyncClient::findRemovedEntries()
 {
     // ok here we ask nepomuk to give us all sync:ServerSyncData resources that have a publication that is related
-    // the the current "project in use" and is valid for the current zotero sync object
+    // to the current "project in use" and is valid for the current zotero sync object
     // but has not a sync-key that is in the list of keys from the "zoteroData" file
 
     // this means we have more sync objects in nepomuk than returned from the server and thus these elements must be removed locally
@@ -714,7 +714,7 @@ void NepomukSyncClient::exportData()
     //----------------------------------------------------------------------------------------------------
     //Step 1c) Get all deleted items
     //         Means all ServerSyncData objects that fit the provider details but have no valid reference/note/attachment anymore
-    //         These resources got deleted localy and must be deleted online too
+    //         These resources got deleted locally and must be deleted online too
 
     QString query4 = "select distinct ?r ?id ?etag where {"
             "?r a sync:ServerSyncData."
@@ -823,7 +823,7 @@ void NepomukSyncClient::pushNewItemCache()
 
 void NepomukSyncClient::newItemUploadFinished()
 {
-    kDebug() << "item upload sucessful";
+    kDebug() << "item upload successful";
     QVariantList retrievedDataList = m_storage->data();
 
     if( retrievedDataList.isEmpty()) {
@@ -919,7 +919,7 @@ void NepomukSyncClient::newItemUploadFinished()
 
         kDebug() << "export " << m_tmpPushFilesItemList.size() << "files for the current publication" << m_tmpCurPushedItem.value(QLatin1String("title")).toString();
 
-        // we setup all note/file upload informations, remove m_tmpCurPushedItem information so once note/file upload is finished
+        // we setup all note/file upload information, remove m_tmpCurPushedItem information so once note/file upload is finished
         // we can start with the next reference
         m_tmpCurPushedItem.clear();
     }

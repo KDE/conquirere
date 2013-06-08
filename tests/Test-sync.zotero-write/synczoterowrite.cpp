@@ -61,7 +61,7 @@ using namespace Soprano::Vocabulary;
  * One without note/file attachments
  * Another with 2 notes and 1 file attachment
  *
- * After a sucessfull upload check that all nepomuk items have ServerSyncData attached and the linking between the mis correct
+ * After a successful upload check that all nepomuk items have ServerSyncData attached and the linking between the mis correct
  */
 class SyncZoteroWrite: public QObject
 {

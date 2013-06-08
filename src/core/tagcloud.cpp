@@ -159,7 +159,7 @@ void TagCloud::generateCloud()
 
     while( it.next() ) {
         Soprano::BindingSet p = it.current();
-        // the count will be devided by 2 beacuse the SPARQL results in double counting
+        // the count will be divided by 2 beacuse the SPARQL results in double counting
         // seems any ?label will be listed twice as muc has it really appears
         m_tagCloud.append(QPair<int, QString>( p.value("count").toString().toInt() / 2,
                                               p.value("label").toString()));

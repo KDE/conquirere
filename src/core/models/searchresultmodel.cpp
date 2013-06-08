@@ -327,7 +327,7 @@ QVariantList SearchResultModel::createToolTipData(const QVariantMap &entryMap) c
 
 QString SearchResultModel::translateEntryType(const QString & typeList) const
 {
-    //REFACTOR: nepomuk types to usefull string
+    //REFACTOR: nepomuk types to useful string
     if(typeList.toLower().contains("publication")) {
         return i18nc("General publication type","Publication");
         //BibEntryType type = BibEntryTypeFromUrl(resource);

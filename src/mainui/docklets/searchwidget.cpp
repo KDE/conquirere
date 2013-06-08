@@ -458,7 +458,7 @@ QVariantList SearchWidget::queryNepomuk(const QString &query)
                      << p.value("star").toString() << p.value("url").toString();
         }
         else {
-            // add additional info to existing resource (as a list splitted by ;
+            // add additional info to existing resource (as a list split by ;)
             QString type = p.value("type").toString();
             if(!type.isEmpty() && !curEntry.at(3).contains(type))
                 curEntry.replace(3, QString("%1;%2").arg(curEntry.at(3)).arg(type) );
@@ -473,8 +473,8 @@ QVariantList SearchWidget::queryNepomuk(const QString &query)
         count++;
     }
 
-    // now tha twe have combined all search results properly.
-    // press the min the same form as we get the web results, so we jus tneed 1 way to add the dta to teh searchresult model
+    // now that we have combined all search results properly.
+    // press the min the same form as we get the web results, so we just need 1 way to add the dta to teh searchresult model
 
     QVariantList finalResultList;
     QMapIterator<QString, QStringList> i(resultList);

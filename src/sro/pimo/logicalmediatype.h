@@ -17,7 +17,7 @@ namespace PIMO {
 /**
  * Logical media types represent the content aspect of information 
  * elements e.g. a flyer, a contract, a promotional video, a todo 
- * list. The user can create new logical media types dependend 
+ * list. The user can create new logical media types dependent 
  * on their domain: a salesman will need MarketingFlyer, Offer, 
  * Invoice while a student might create Report, Thesis and Homework. 
  * This is independent from the information element and data object 

@@ -92,7 +92,7 @@ void NepomukVariant::initTestCase()
     Nepomuk2::SimpleResourceGraph graph;
 
     //##############################################
-    // General stuff usefull for any publication
+    // General stuff useful for any publication
     Nepomuk2::NCO::Contact author;
     author.setFullname(QLatin1String("UNITTEST-Author"));
 

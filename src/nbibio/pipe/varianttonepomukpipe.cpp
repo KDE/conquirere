@@ -316,7 +316,7 @@ void VariantToNepomukPipe::addStorageSyncDetails(Nepomuk2::Resource &publication
         kDebug() << srj->errorString();
     }
     else {
-        kDebug() << "Publication sync resource created sucessfully";
+        kDebug() << "Publication sync resource created successfully";
 
         QUrl syncUrl = srj->mappings().value( serverSyncData.uri() );
 

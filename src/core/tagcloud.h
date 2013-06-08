@@ -51,7 +51,7 @@ public:
     ~TagCloud();
 
     /**
-     * @return Returns the list of tags with the label and number of occurence
+     * @return Returns the list of tags with the label and number of occurrence
      */
     QList<QPair<int, QString> > tagCloud();
 

@@ -17,7 +17,7 @@ namespace NFO {
  * means that the InformationElement has been encrypted and couldn't 
  * be decrypted by the extraction software, thus no content is 
  * available. nfo:decryptedStatus means that decryption was 
- * successfull and the content is available. 
+ * successful and the content is available. 
  */
 class EncryptionStatus : public virtual Nepomuk2::SimpleResource
 {
