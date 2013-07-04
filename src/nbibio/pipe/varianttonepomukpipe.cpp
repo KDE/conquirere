@@ -99,7 +99,7 @@ void VariantToNepomukPipe::pipeExport(QVariantList &publicationList)
                 publicationPipe.overrideComponentName( KGlobal::mainComponent().componentName() );
 
                 publicationPipe.setProjectPimoThing(m_projectThing);
-                publicationPipe.pipeImport( publicationEntry );
+                publicationPipe.import( publicationEntry );
 
                 importedPublication = publicationPipe.importedPublication();
             }
