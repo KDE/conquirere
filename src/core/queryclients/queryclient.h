@@ -61,6 +61,7 @@ public:
 
 public slots:
     virtual void startFetchData() = 0;
+    virtual void stopFetchData() = 0;
 
 signals:
     void newCacheEntries(const QList<CachedRowEntry> &entries) const;

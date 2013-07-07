@@ -38,7 +38,8 @@
 #include <KDE/KDebug>
 
 EventQuery::EventQuery(QObject *parent)
-    : QueryClient(parent)
+    : QueryClient(parent),
+      m_newWatcher(0)
 {
 }
 
@@ -48,8 +49,25 @@ EventQuery::~EventQuery()
     delete m_newWatcher;
 }
 
+void EventQuery::stopFetchData()
+{
+    if(m_newWatcher) {
+        m_newWatcher->stop();
+        delete m_newWatcher;
+        m_newWatcher = 0;
+    }
+
+    if(m_resourceWatcher) {
+        m_resourceWatcher->stop();
+        delete m_resourceWatcher;
+        m_resourceWatcher = 0;
+    }
+}
+
 void EventQuery::startFetchData()
 {
+    stopFetchData();
+
     // keep track of newly added resources
     m_newWatcher = new Nepomuk2::ResourceWatcher(this);
 

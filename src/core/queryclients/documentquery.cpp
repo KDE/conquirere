@@ -38,8 +38,9 @@
 
 #include <KDE/KDebug>
 
-DocumentQuery::DocumentQuery(QObject *parent) :
-    QueryClient(parent)
+DocumentQuery::DocumentQuery(QObject *parent)
+    : QueryClient(parent),
+      m_newWatcher(0)
 {
 }
 
@@ -49,8 +50,25 @@ DocumentQuery::~DocumentQuery()
     delete m_newWatcher;
 }
 
+void DocumentQuery::stopFetchData()
+{
+    if(m_newWatcher) {
+        m_newWatcher->stop();
+        delete m_newWatcher;
+        m_newWatcher = 0;
+    }
+
+    if(m_resourceWatcher) {
+        m_resourceWatcher->stop();
+        delete m_resourceWatcher;
+        m_resourceWatcher = 0;
+    }
+}
+
 void DocumentQuery::startFetchData()
 {
+    stopFetchData();
+
     // keep track of newly added resources
     m_newWatcher = new Nepomuk2::ResourceWatcher(this);
     m_newWatcher->addType(Nepomuk2::Vocabulary::NFO::PaginatedTextDocument());

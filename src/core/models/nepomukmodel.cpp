@@ -119,6 +119,7 @@ Nepomuk2::Resource NepomukModel::documentResource(const QModelIndex &selection)
 void NepomukModel::addCacheData(const QList<CachedRowEntry> &entries)
 {
     kDebug() << "add" << entries.size() << "new entries to model" << objectName() << ". Current size" << m_modelCacheData.size();
+
     if(entries.size() > 0) {
         beginInsertRows(QModelIndex(), m_modelCacheData.size(), m_modelCacheData.size() + entries.size()-1);
         foreach(const CachedRowEntry &cre, entries) {

@@ -401,6 +401,14 @@ QMap<BibGlobals::ResourceSelection, QSortFilterProxyModel*> Library::viewModels(
     return m_resources;
 }
 
+void Library::modelStartFetching()
+{
+    foreach(QSortFilterProxyModel *m, m_resources.values()) {
+        NepomukModel *model = qobject_cast<NepomukModel *>( m->sourceModel() );
+        model->startFetchData();
+    }
+}
+
 TagCloud *Library::tagCloud()
 {
     return m_tagCloud;

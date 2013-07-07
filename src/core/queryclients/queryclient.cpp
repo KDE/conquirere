@@ -52,7 +52,7 @@ void QueryClient::setLibrary(Library *selectedLibrary)
 
 void QueryClient::propertyChanged (const Nepomuk2::Resource &resource, const Nepomuk2::Types::Property &property, const QVariantList &addedValues, const QVariantList &removedValues)
 {
-    kDebug() << "propertyChanged resource" << resource.uri();
+    kDebug() << "propertyChanged resource" << resource.uri() << resource.genericLabel() << property << addedValues;
     Q_UNUSED(property);
 
     // @see https://bugs.kde.org/show_bug.cgi?id=306108
@@ -107,6 +107,7 @@ void QueryClient::resourceCreated(const Nepomuk2::Resource & resource, const QLi
     cre.displayColums = createDisplayData(resource);
     cre.decorationColums = createDecorationData(resource);
     cre.resource = resource;
+    cre.resource.setWatchEnabled(true); // without this, property changes will not be detected
     cre.resourceType = detectResourceType(resource);
     newCache.append(cre);
     m_resourceWatcher->stop(); //TODO: check if stopping resourceWatcher is necessary

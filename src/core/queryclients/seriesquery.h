@@ -50,6 +50,7 @@ public:
 
 public slots:
     void startFetchData();
+    void stopFetchData();
 
 private slots:
     void finishedQuery();

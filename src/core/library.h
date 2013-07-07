@@ -156,6 +156,11 @@ public:
       */
     QMap<BibGlobals::ResourceSelection, QSortFilterProxyModel*> viewModels();
 
+    /**
+     * @brief Starts resource fetching for all availabe view models
+     */
+    void modelStartFetching();
+
 private slots:
     /**
      * @brief Small helper function to print the error string when the nepomuk DMS call failed

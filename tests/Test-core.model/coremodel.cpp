@@ -27,6 +27,7 @@
 #include <KDE/KJob>
 
 #include <Nepomuk2/Vocabulary/NIE>
+#include "nbib.h"
 #include "sro/nbib/book.h"
 #include "sro/nbib/publication.h"
 #include "sro/nbib/journal.h"
@@ -56,14 +57,16 @@ class CoreModel: public QObject
     Q_OBJECT
 
 private slots:
+    void initTestCase();
 
-    void benchmarkSystemModelTest();
     void addPublicationTest();
     void changePublicationTest();
     void addSeriesTest();
     void changeSeriesTest();
 
     void cleanupTestCase();
+
+
 private:
     bool waitForSignal(QObject *sender, const char *signal, int timeout = 1000);
 
@@ -72,54 +75,22 @@ private:
 
 QTEST_KDEMAIN_CORE(CoreModel)
 
-void CoreModel::benchmarkSystemModelTest()
+void CoreModel::initTestCase()
 {
-    //########################################################
-    //# Load library based on pimoProject resource again
-
     l = new Library();
     l->loadSystemLibrary();
+    l->modelStartFetching();
 
-    NepomukModel *documentModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Document)->sourceModel() );
-    NepomukModel *referenceModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Reference)->sourceModel() );
-    NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Publication)->sourceModel() );
-    NepomukModel *seriesModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Series)->sourceModel() );
-    NepomukModel *noteModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Note)->sourceModel() );
-    NepomukModel *eventModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Event)->sourceModel() );
-
-    QBENCHMARK {
-        documentModel->startFetchData();
-        QVERIFY(waitForSignal(documentModel, SIGNAL(queryFinished()), 10000));
-
-        referenceModel->startFetchData();
-        QVERIFY(waitForSignal(referenceModel, SIGNAL(queryFinished()), 10000));
-
-        publicationModel->startFetchData();
-        QVERIFY(waitForSignal(publicationModel, SIGNAL(queryFinished()), 10000));
-
-        seriesModel->startFetchData();
-        QVERIFY(waitForSignal(seriesModel, SIGNAL(queryFinished()), 10000));
-
-        noteModel->startFetchData();
-        QVERIFY(waitForSignal(noteModel, SIGNAL(queryFinished()), 10000));
-
-        eventModel->startFetchData();
-        QVERIFY(waitForSignal(eventModel, SIGNAL(queryFinished()), 10000));
-    }
-
-    qDebug() << "#################################################";
-    qDebug() << "Number of documents :: " << documentModel->rowCount();
-    qDebug() << "Number of references :: " << referenceModel->rowCount();
-    qDebug() << "Number of publications :: " << publicationModel->rowCount();
-    qDebug() << "Number of Series :: " << seriesModel->rowCount();
-    qDebug() << "Number of Notes :: " << noteModel->rowCount();
-    qDebug() << "Number of events :: " << eventModel->rowCount();
-    qDebug() << "#################################################";
-
+    // we wait here to ensure the models are loaded correctly
+    QEventLoop loop;
+    QTimer::singleShot( 500, &loop, SLOT(quit()) );
+    loop.exec();
 }
 
 void CoreModel::addPublicationTest()
 {
+    kDebug() << "######################################################################################################";
+
     NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Publication)->sourceModel() );
     QSignalSpy dataSizeChangedSignal(publicationModel, SIGNAL(dataSizeChaged(int)));
 
@@ -137,10 +108,7 @@ void CoreModel::addPublicationTest()
 
     QDateTime publicationDate = QDateTime::fromString("1986-04-03T12:12:12Z", Qt::ISODate);
 
-    //BUG: ResourceWatcher does not seem to work with subtypes. adding book does not show a change, Publication does
-    // works if we double type on our own. seems the resourcewatcher checks before the storage adds all the parent types
     Nepomuk2::NBIB::Book book;
-    //book.addType(Nepomuk2::Vocabulary::NBIB::Publication()); //add this again to make test work
     book.setTitle(QLatin1String("UNITTEST-book"));
     book.addCreator(author.uri());
     book.addEditor(editor.uri());
@@ -190,6 +158,8 @@ void CoreModel::addPublicationTest()
 
 void CoreModel::changePublicationTest()
 {
+    kDebug() << "######################################################################################################";
+
     NepomukModel *publicationModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Publication)->sourceModel() );
     qRegisterMetaType<QModelIndex>("QModelIndex");
     QSignalSpy dataChangedSignal(publicationModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
@@ -213,12 +183,12 @@ void CoreModel::changePublicationTest()
     // The reason this is required, is cause the Resource class is also updated via
     // dbus, and we have no way of controlling which slot would be called first.
     QEventLoop loop;
-    QTimer::singleShot( 1000, &loop, SLOT(quit()) );
+    QTimer::singleShot( 500, &loop, SLOT(quit()) );
     loop.exec();
 
     //check that the signal was emitted
     // as we do wait 500ms this signal was definitly emitted inbetween too
-    QCOMPARE(dataChangedSignal.count(), 1);
+    QVERIFY(dataChangedSignal.count() >= 1);
 
     QString changedTitle = publicationModel->data( publicationModel->index(lastEntry,PublicationQuery::Column_Title), Qt::DisplayRole).toString();
 
@@ -227,16 +197,15 @@ void CoreModel::changePublicationTest()
 
 void CoreModel::addSeriesTest()
 {
+    kDebug() << "######################################################################################################";
+
     NepomukModel *seriesModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Series)->sourceModel() );
     QSignalSpy dataSizeChangedSignal(seriesModel, SIGNAL(dataSizeChaged(int)));
 
     // lets add a very simple book
     Nepomuk2::SimpleResourceGraph graph;
 
-    //BUG: ResourceWatcher does not seem to work with subtypes. adding Journal does not show a change, Series does
-    // works if we double type on our own. seems the resourcewatcher checks before the storage adds all the parent types
     Nepomuk2::NBIB::Journal journal;
-    //journal.addType(Nepomuk2::Vocabulary::NBIB::Series()); //add this again to make test work
     journal.setTitle(QLatin1String("UNITTEST-journal"));
 
     graph << journal;
@@ -267,6 +236,8 @@ void CoreModel::addSeriesTest()
 
 void CoreModel::changeSeriesTest()
 {
+    kDebug() << "######################################################################################################";
+
     NepomukModel *seriesModel = qobject_cast<NepomukModel *>( l->viewModel(BibGlobals::Resource_Series)->sourceModel() );
     qRegisterMetaType<QModelIndex>("QModelIndex");
     QSignalSpy dataChangedSignal(seriesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
@@ -290,12 +261,12 @@ void CoreModel::changeSeriesTest()
     // The reason this is required, is cause the Resource class is also updated via
     // dbus, and we have no way of controlling which slot would be called first.
     QEventLoop loop;
-    QTimer::singleShot( 500, &loop, SLOT(quit()) );
+    QTimer::singleShot( 1000, &loop, SLOT(quit()) );
     loop.exec();
 
     //check that the signal was emitted
     // as we do wait 500ms this signal was definitly emitted inbetween too
-    QCOMPARE(dataChangedSignal.count(), 1);
+    QVERIFY(dataChangedSignal.count() >= 1);
 
     // get the changed resource and check the new name
     QString changedTitle = seriesModel->data( seriesModel->index(lastEntry,SeriesQuery::Column_Title), Qt::DisplayRole).toString();
@@ -311,7 +282,7 @@ void CoreModel::cleanupTestCase()
         QFAIL("Cleanup did not work");
     }
 
-//    delete l;
+    delete l;
 }
 
 bool CoreModel::waitForSignal(QObject *sender, const char *signal, int timeout) {

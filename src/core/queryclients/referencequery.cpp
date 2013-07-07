@@ -40,7 +40,8 @@
 #include <QtCore/QtConcurrentRun>
 
 ReferenceQuery::ReferenceQuery(QObject *parent)
-    : QueryClient(parent)
+    : QueryClient(parent),
+      m_newWatcher(0)
 {
 }
 
@@ -50,8 +51,25 @@ ReferenceQuery::~ReferenceQuery()
     delete m_newWatcher;
 }
 
+void ReferenceQuery::stopFetchData()
+{
+    if(m_newWatcher) {
+        m_newWatcher->stop();
+        delete m_newWatcher;
+        m_newWatcher = 0;
+    }
+
+    if(m_resourceWatcher) {
+        m_resourceWatcher->stop();
+        delete m_resourceWatcher;
+        m_resourceWatcher = 0;
+    }
+}
+
 void ReferenceQuery::startFetchData()
 {
+    stopFetchData();
+
     // keep track of newly added resources
     m_newWatcher = new Nepomuk2::ResourceWatcher(this);
     m_newWatcher->addType(Nepomuk2::Vocabulary::NBIB::Reference());
