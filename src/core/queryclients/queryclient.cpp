@@ -59,7 +59,7 @@ void QueryClient::propertyChanged (const Nepomuk2::Resource &resource, const Nep
     // The reason this is required, is cause the Resource class is also updated via
     // dbus, and we have no way of controlling which slot would be called first.
     QEventLoop loop;
-    QTimer::singleShot( 500, &loop, SLOT(quit()) );
+    QTimer::singleShot( 1000, &loop, SLOT(quit()) );
     loop.exec();
 
     // see if we need to add / remove the changed resource from the project model
@@ -104,14 +104,14 @@ void QueryClient::resourceCreated(const Nepomuk2::Resource & resource, const QLi
     QList<CachedRowEntry> newCache;
 
     CachedRowEntry cre;
-    cre.displayColums = createDisplayData(resource);
-    cre.decorationColums = createDecorationData(resource);
     cre.resource = resource;
     cre.resource.setWatchEnabled(true); // without this, property changes will not be detected
-    cre.resourceType = detectResourceType(resource);
+    cre.displayColums = createDisplayData(cre.resource);
+    cre.decorationColums = createDecorationData(cre.resource);
+    cre.resourceType = detectResourceType(cre.resource);
     newCache.append(cre);
     m_resourceWatcher->stop(); //TODO: check if stopping resourceWatcher is necessary
-    m_resourceWatcher->addResource(resource);
+    m_resourceWatcher->addResource(cre.resource);
     m_resourceWatcher->start();
 
     emit newCacheEntries(newCache);
@@ -131,10 +131,11 @@ void QueryClient::updateCacheEntry(const Nepomuk2::Resource &resource)
     QList<CachedRowEntry> newCache;
 
     CachedRowEntry cre;
-    cre.displayColums = createDisplayData(resource);
-    cre.decorationColums = createDecorationData(resource);
     cre.resource = resource;
-    cre.resourceType = detectResourceType(resource);
+    cre.resource .setWatchEnabled(true);
+    cre.displayColums = createDisplayData(cre.resource);
+    cre.decorationColums = createDecorationData(cre.resource);
+    cre.resourceType = detectResourceType(cre.resource);
     newCache.append(cre);
 
     emit updateCacheEntries(newCache);

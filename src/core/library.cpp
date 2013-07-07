@@ -345,6 +345,17 @@ void Library::removeResource(const Nepomuk2::Resource & res)
         resourceUris << r.uri();
     }
 
+    // if we added a publication, add also all its references and the pdf to the project
+    if(res.hasType(Nepomuk2::Vocabulary::NBIB::Publication())) {
+
+        QList<Nepomuk2::Resource> refs = res.property(Nepomuk2::Vocabulary::NBIB::reference()).toResourceList();
+        kDebug() << "##### remove isRelated for" << refs.size() << "references" ;
+
+        foreach(const Nepomuk2::Resource r, refs) {
+            resourceUris << r.uri();
+        }
+    }
+
     QVariantList propertyUris;
     propertyUris << m_projectSettings->projectThing().uri();
     Nepomuk2::removeProperty(resourceUris, NAO::isRelated(), propertyUris);

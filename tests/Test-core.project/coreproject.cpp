@@ -100,6 +100,7 @@ void CoreProject::initTestCase()
     series.addSeriesOf(proceedings.uri());
 
     Nepomuk2::NBIB::Article article;
+    article.addType(Nepomuk2::Vocabulary::NBIB::Publication());
     article.setTitle(QLatin1String("UNITTEST-Article-Title"));
     article.setCollection(proceedings.uri());
 
@@ -159,28 +160,18 @@ void CoreProject::loadProjectTest() {
 void CoreProject::addResourceProjectTest()
 {
     Nepomuk2::Resource articleCheck(articleUri);
+    articleCheck.setWatchEnabled(true);
     l->addResource(articleCheck);
 
-    // wait untill the asynchronous addProperty finished
+    // wait until the asynchronous addProperty finished
     QTest::qWait(5000);
 
     // now check if the resource and all its connected components are really added to the
-    Nepomuk2::Resource proceedingsCheck(proceedingsUri);
-    Nepomuk2::Resource seriesCheck(seriesUri);
     Nepomuk2::Resource referenceCheck(referenceUri);
+    referenceCheck.setWatchEnabled(true);
 
     bool articleAdded = articleCheck.isRelateds().contains(pimoProject);
     QVERIFY2( articleAdded, "Article not added to the project");
-
-    /*
-     //TODO: instead of adding collection/Sereis to the project, the model should list them automatically when the article is in the project
-    // will not be added automatically
-    bool proceedingsAdded = proceedingsCheck.isRelateds().contains(pimoProject);
-    QVERIFY2( proceedingsAdded, "Proceedings not added to the project");
-
-    bool seriesAdded = seriesCheck.isRelateds().contains(pimoProject);
-    QVERIFY2( seriesAdded, "Series not added to the project");
-    */
 
     //QEXPECT_FAIL("", "res.types not loaded correctly, should be fixed in 4.9.1", Continue);
     bool referenceAdded = referenceCheck.isRelateds().contains(pimoProject);
@@ -190,6 +181,7 @@ void CoreProject::addResourceProjectTest()
 void CoreProject::removeResourceProjectTest()
 {
     Nepomuk2::Resource articleCheck(articleUri);
+    articleCheck.setWatchEnabled(true);
     l->removeResource(articleCheck);
 
     // wait until the asynchronous removeProperty finished

@@ -289,6 +289,7 @@ QVariantList PublicationQuery::createDisplayData(const QStringList & item) const
         case Column_Publisher:
         case Column_Editor:
             newEntry = item.at(i);
+            kDebug() << "change item" << i << "to" << newEntry;
             break;
         default:
             newEntry = QVariant();
