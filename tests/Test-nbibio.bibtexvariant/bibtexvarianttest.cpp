@@ -151,6 +151,9 @@ void BibtexVariantTest::exportTest()
     //Now iterate over all lines in the  original file and check if the exported has the same line
     int line = 0;
     foreach(const QString &originalLine, originalFile) {
+        if(  exportedFile.at(line).startsWith("\tauthor")) //names will be rearranged during export, thus this will result in a false positive
+            continue;
+
         QCOMPARE(originalLine, exportedFile.at(line));
         line++;
     }

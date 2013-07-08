@@ -257,7 +257,7 @@ QString NepomukToVariantPipe::retrieveEntryType(Nepomuk2::Resource reference, Ne
     // all other cases
     else {
         //FIXME: not everything here is misc type, use global function to get the correct type
-        //REFACTOR: Add function for type detection t oglobal static class
+        //REFACTOR: Add function for type detection to global static class
         type = QLatin1String("Misc");
     }
 
@@ -612,7 +612,7 @@ void NepomukToVariantPipe::setPublisher(Nepomuk2::Resource publication)
     if(publication.hasType(NBIB::Thesis())) {
         publisherEntry = QLatin1String("school");
     }
-    else if(publication.hasType(NBIB::Report())) {
+    else if(publication.hasType(NBIB::Report()) || publication.hasType(NBIB::Techreport())) {
         publisherEntry = QLatin1String("institution");
     }
 
