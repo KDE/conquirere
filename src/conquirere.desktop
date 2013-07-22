@@ -2,6 +2,7 @@
 Name=Conquirere
 Name[cs]=Conquirere
 Name[de]=Conquirere
+Name[el]=Conquirere
 Name[es]=Conquirere
 Name[et]=Conquirere
 Name[fi]=Conquirere
@@ -27,6 +28,7 @@ Icon=conquirere
 Type=Application
 Terminal=false
 GenericName=Conquirere Research Helper Tool
+GenericName[el]=Βοηθητικό εργαλείο έρευνας Conquirere
 GenericName[es]=Herramienta del asistente de investigación Conquirere
 GenericName[et]=Conquirere uuringuabiline
 GenericName[fi]=Conquirere, tutkimuksen aputyökalu
