@@ -1,5 +1,6 @@
 [Desktop Entry]
 Name=Conquirere
+Name[bs]=Conquirere
 Name[cs]=Conquirere
 Name[de]=Conquirere
 Name[el]=Conquirere
@@ -28,6 +29,7 @@ Icon=conquirere
 Type=Application
 Terminal=false
 GenericName=Conquirere Research Helper Tool
+GenericName[bs]=Conquirere alat za pomoć u istraživanju
 GenericName[el]=Βοηθητικό εργαλείο έρευνας Conquirere
 GenericName[es]=Herramienta del asistente de investigación Conquirere
 GenericName[et]=Conquirere uuringuabiline
