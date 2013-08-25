@@ -59,7 +59,7 @@ private slots:
       */
     void enableReferenceDetails();
     void deleteButtonClicked();
-    void changeRating(int newRating);
+    void changeRating(uint newRating);
 
 private:
     Nepomuk2::Resource m_reference;

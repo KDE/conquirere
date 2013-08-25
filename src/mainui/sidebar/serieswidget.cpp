@@ -201,9 +201,9 @@ void SeriesWidget::deleteButtonClicked()
     setResource(invalid);
 }
 
-void SeriesWidget::changeRating(int newRating)
+void SeriesWidget::changeRating(uint newRating)
 {
-    if(newRating == (int)m_series.rating() ) {
+    if(newRating == m_series.rating() ) {
         return;
     }
 
@@ -227,5 +227,5 @@ void SeriesWidget::setupWidget()
     ui->editIssn->setPropertyUrl( Nepomuk2::Vocabulary::NBIB::issn() );
     ui->editTitle->setPropertyUrl( Nepomuk2::Vocabulary::NIE::title() );
 
-    connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
+    connect(ui->editRating, SIGNAL(ratingChanged(uint)), this, SLOT(changeRating(uint)));
 }

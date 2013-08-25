@@ -76,7 +76,7 @@ private slots:
     /**
       * Updates the rating of the Series to @p newRating
       */
-    void changeRating(int newRating);
+    void changeRating(uint newRating);
 
 private:
     void setupWidget();

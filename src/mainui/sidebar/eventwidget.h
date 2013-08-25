@@ -69,7 +69,7 @@ private slots:
       */
     void deleteButtonClicked();
 
-    void changeRating(int newRating);
+    void changeRating(uint newRating);
 
 private:
     Ui::EventWidget *ui;

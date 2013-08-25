@@ -77,7 +77,7 @@ ReferenceWidget::ReferenceWidget(QWidget *parent)
     ui->pagesEdit->setPropertyCardinality(PropertyEdit::UNIQUE_PROPERTY);
 
     //connect signal/slots
-    connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
+    connect(ui->editRating, SIGNAL(ratingChanged(uint)), this, SLOT(changeRating(uint)));
 
     connect(ui->publicationEdit, SIGNAL(textChanged(QString)), this, SLOT(enableReferenceDetails()));
     connect(ui->publicationEdit, SIGNAL(externalEditRequested(Nepomuk2::Resource&,QUrl)), this, SLOT(showPublicationList(Nepomuk2::Resource&,QUrl)));
@@ -319,11 +319,11 @@ void ReferenceWidget::deleteButtonClicked()
     setResource(emptyResource);
 }
 
-void ReferenceWidget::changeRating(int newRating)
+void ReferenceWidget::changeRating(uint newRating)
 {
     Nepomuk2::Resource publication = m_reference.property(NBIB::publication()).toResource();
 
-    if(newRating != (int)publication.rating()) {
+    if(newRating != publication.rating()) {
         publication.setRating(newRating);
     }
 }

@@ -50,7 +50,7 @@ EventWidget::EventWidget(QWidget *parent)
     ui->editTags->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
     ui->editTags->setPropertyUrl( NAO::hasTag() );
 
-    connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
+    connect(ui->editRating, SIGNAL(ratingChanged(uint)), this, SLOT(changeRating(uint)));
 
     ui->editAttendee->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
     ui->editAttendee->setPropertyUrl( PIMO::attendee() );
@@ -163,9 +163,9 @@ void EventWidget::deleteButtonClicked()
     setResource(invalid);
 }
 
-void EventWidget::changeRating(int newRating)
+void EventWidget::changeRating(uint newRating)
 {
-    if(newRating == (int)m_eventThing.rating() ) {
+    if(newRating == m_eventThing.rating() ) {
         return;
     }
 

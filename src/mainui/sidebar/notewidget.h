@@ -54,7 +54,7 @@ public slots:
 private slots:
     void saveNote();
     void discardNote();
-    void changeRating(int newRating);
+    void changeRating(uint newRating);
 
 private:
     Nepomuk2::Resource m_note;

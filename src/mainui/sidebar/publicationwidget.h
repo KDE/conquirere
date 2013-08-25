@@ -82,7 +82,7 @@ private slots:
     void saveAnnotationContent();
 
 
-    void changeRating(int newRating);
+    void changeRating(uint newRating);
     void editContactDialog(Nepomuk2::Resource & resource, const QUrl & propertyUrl);
     void showDetailDialog(Nepomuk2::Resource & resource, const QUrl & propertyUrl);
 

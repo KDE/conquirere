@@ -49,7 +49,7 @@ NoteWidget::NoteWidget(QWidget *parent)
 
     ui->editTags->setPropertyCardinality(PropertyEdit::MULTIPLE_PROPERTY);
     ui->editTags->setPropertyUrl( NAO::hasTag() );
-    connect(ui->editRating, SIGNAL(ratingChanged(int)), this, SLOT(changeRating(int)));
+    connect(ui->editRating, SIGNAL(ratingChanged(uint)), this, SLOT(changeRating(uint)));
 }
 
 NoteWidget::~NoteWidget()
@@ -157,9 +157,9 @@ void NoteWidget::discardNote()
     ui->editContent->document()->setHtml(content);
 }
 
-void NoteWidget::changeRating(int newRating)
+void NoteWidget::changeRating(uint newRating)
 {
-    if(newRating == (int)m_note.rating() ) {
+    if(newRating == m_note.rating() ) {
         return;
     }
 
