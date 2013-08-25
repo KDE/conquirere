@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Jörg Ehrichs <joerg.ehrichs@gmx.de>
+ * Copyright 2013 Jörg Ehrichs <joerg.ehrichs@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,40 +15,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONQUIRERESETTINGSDIALOG_H
-#define CONQUIRERESETTINGSDIALOG_H
+#ifndef LIBRARYSETTINGS_H
+#define LIBRARYSETTINGS_H
 
-#include <KDE/KPageDialog>
+#include <QtGui/QWidget>
 
-class AppearanceSettings;
+namespace Ui {
 class LibrarySettings;
-class ExportSettings;
-class SystemSyncSettings;
-class ProjectSettings;
+}
 
-class ConquirereSettingsDialog : public KPageDialog
+class LibrarySettings : public QWidget
 {
     Q_OBJECT
+    
 public:
-    explicit ConquirereSettingsDialog(QWidget *parent = 0);
-    virtual ~ConquirereSettingsDialog();
+    explicit LibrarySettings(QWidget *parent = 0);
+    ~LibrarySettings();
 
-    void setProjectSettings(ProjectSettings *ps);
-
-public slots:
+signals:
     void contentChanged();
 
+public slots:
+    void resetSettings();
+    void applySettings();
+
 private slots:
-    void applyChanges();
+    void addWhiteListFolder();
+    void removeCurrentWhiteListFolder();
+    void disableDocumentMimeType();
+    void forceTypesOnDocumentDisable();
 
 private:
-    void setupPages();
+    Ui::LibrarySettings *ui;
 
-    AppearanceSettings *m_appearanceSettings;
-    LibrarySettings    *m_librarySettings;
-    ExportSettings     *m_exportSettings;
-    SystemSyncSettings *m_systemSyncSettings;
-
+    void setupGui();
 };
 
-#endif // CONQUIRERESETTINGSDIALOG_H
+#endif // LIBRARYSETTINGS_H

@@ -28,7 +28,37 @@
       <default>true</default>
     </entry>
   </group>
-  
+
+  <group name="Library">
+    <entry name="ShowSystemLibraryOnStartUp" type="Bool">
+      <label>Should the system library be loaded on startup.</label>
+      <default>true</default>
+    </entry>
+    <entry name="SystemLibraryWhiteList" type="StringList">
+      <label>Limit the system library to documents in the whitelist. When empty, all known documenst will be listed</label>
+    </entry>
+    <entry name="ShowDocumentsType" type="Bool">
+      <label>Include Nepomuks nfo::Document in document list.</label>
+      <default>false</default>
+    </entry>
+    <entry name="ShowPlainTextDocumentsType" type="Bool">
+      <label>Include Nepomuks nfo::PlainTextDocument in document list.</label>
+      <default>false</default>
+    </entry>
+    <entry name="ShowSpreadsheetType" type="Bool">
+      <label>Include Nepomuks nfo::Spreadsheet in document list.</label>
+      <default>true</default>
+    </entry>
+    <entry name="ShowMindMapType" type="Bool">
+      <label>Include Nepomuks nfo::MindMap in document list.</label>
+      <default>true</default>
+    </entry>
+    <entry name="ShowPaginatedTextDocumentType" type="Bool">
+      <label>Include Nepomuks nfo::PaginatedTextDocument in document list.</label>
+      <default>true</default>
+    </entry>
+  </group>
+
   <group name="Background-Sync">
     <entry name="EnableBackgroundSync" type="Bool">
       <label>Enable Background Sync.</label>

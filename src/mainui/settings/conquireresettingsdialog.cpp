@@ -18,6 +18,7 @@
 #include "conquireresettingsdialog.h"
 
 #include "appearancesettings.h"
+#include "librarysettings.h"
 #include "exportsettings.h"
 #include "systemsyncsettings.h"
 
@@ -72,6 +73,15 @@ void ConquirereSettingsDialog::setupPages()
 
     KPageWidgetItem *asitem = addPage( m_appearanceSettings, i18n( "Appearance" ) );
     asitem->setIcon( KIcon( "view-choose" ) );
+
+    m_librarySettings = new LibrarySettings();
+    connect(this, SIGNAL(applyClicked()), m_librarySettings, SLOT(applySettings()));
+    connect(this, SIGNAL(resetClicked()), m_librarySettings, SLOT(resetSettings()));
+    connect(this, SIGNAL(okClicked()), m_librarySettings, SLOT(applySettings()));
+    connect(m_librarySettings, SIGNAL(contentChanged()), this, SLOT(contentChanged()));
+
+    KPageWidgetItem *libsitem = addPage( m_librarySettings, i18n( "Library" ) );
+    libsitem->setIcon( KIcon( "folder-database" ) );
 
     m_exportSettings = new ExportSettings();
     connect(this, SIGNAL(applyClicked()), m_exportSettings, SLOT(applySettings()));

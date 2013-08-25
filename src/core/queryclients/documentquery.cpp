@@ -18,6 +18,7 @@
 #include "documentquery.h"
 #include "../library.h"
 #include "../projectsettings.h"
+#include "config/conquirere.h"
 
 #include <KDE/KIcon>
 
@@ -116,9 +117,43 @@ QList<CachedRowEntry> DocumentQuery::queryNepomuk()
     // helping string to filter for all documents that are related to the current project
     QString projectRelated;
     QString projectTag;
+    QString restrictedFolders;
     if(m_library->libraryType() == BibGlobals::Library_Project) {
         projectRelated = QString("?r nao:isRelated  <%1> .").arg(m_library->settings()->projectThing().uri().toString());
         projectTag = QString("UNION { ?r nao:hasTag  <%1> . }").arg(m_library->settings()->projectTag().uri().toString() );
+    }
+    else {
+        QStringList folderWhiteList = ConqSettings::systemLibraryWhiteList();
+        if(!folderWhiteList.isEmpty()) {
+            restrictedFolders  = QString("FILTER regex(?folder, \"(%1)\" ) .").arg(folderWhiteList.join(QLatin1String("|")));
+        }
+    }
+
+    //helping string to restrict the document mimetypes based on nepomuks NFO classification
+    QStringList allowedNepomukTypes;
+    if(ConqSettings::showDocumentsType()) {
+        allowedNepomukTypes << QLatin1String("nfo:Document");
+    }
+    if(ConqSettings::showPaginatedTextDocumentType()) {
+        allowedNepomukTypes << QLatin1String("nfo:PaginatedTextDocument");
+    }
+    if(ConqSettings::showPlainTextDocumentsType()) {
+        allowedNepomukTypes << QLatin1String("nfo:PlainTextDocument");
+    }
+    if(ConqSettings::showMindMapType()) {
+        allowedNepomukTypes << QLatin1String("nfo:MindMap");
+    }
+    if(ConqSettings::showSpreadsheetType()) {
+        allowedNepomukTypes << QLatin1String("nfo:Spreadsheet");
+    }
+
+    QString filterForTypes;
+
+    if( !allowedNepomukTypes.isEmpty() ) {
+        filterForTypes = QString("FILTER(?v1 in (%1)) .").arg(allowedNepomukTypes.join(QLatin1String(", ")));
+    }
+    else {
+        qWarning() << "No nepomuk document types specified in the configuration file.";
     }
 
     // first fetch all publications
@@ -126,7 +161,7 @@ QList<CachedRowEntry> DocumentQuery::queryNepomuk()
     // for each rdf:type and each connected author/publisher/editor we get the resource as result
     QString query = QString::fromLatin1("select distinct ?r ?title ?star ?publication ?date ?folder ?reviewed where { {"
                                         "?r a ?v1 ."
-                                        "FILTER(?v1 in (nfo:PaginatedTextDocument, nfo:Spreadsheet, nfo:MindMap )) ."
+                                        + filterForTypes.toLatin1() +
 
                                         "OPTIONAL { ?r nao:prefLabel ?reviewed . }" //FIXME: add reviewed to query, implement it first. tagging?
 
@@ -134,6 +169,7 @@ QList<CachedRowEntry> DocumentQuery::queryNepomuk()
                                         "OPTIONAL { ?r nao:numericRating ?star . }"
                                         "OPTIONAL { ?r nie:lastModified ?date . }"
                                         "?r nie:url ?folder ."
+                                        + restrictedFolders.toLatin1() +
                                         "OPTIONAL { ?r nbib:publishedAs ?publication . }"
                                         + projectRelated.toLatin1() + " }" + projectTag.toLatin1() +
                                         "}");

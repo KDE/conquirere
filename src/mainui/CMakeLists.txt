@@ -27,6 +27,7 @@ set(mainui_LIB_SRCS
     settings/systemsyncsettings.cpp
     settings/providerselectionwidget.cpp
     settings/appearancesettings.cpp
+    settings/librarysettings.cpp
 
     sidebar/sidebarwidget.cpp
     sidebar/sidebarcomponent.cpp
@@ -66,6 +67,7 @@ kde4_add_ui_files( mainui_LIB_SRCS
                    settings/systemsyncsettings.ui
                    settings/providerselectionwidget.ui
                    settings/appearancesettings.ui
+                   settings/librarysettings.ui
 
                    sidebar/referencewidget.ui
                    sidebar/listpublicationsdialog.ui
