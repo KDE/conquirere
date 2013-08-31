@@ -32,9 +32,10 @@
 struct CachedRowEntry {
     QVariantList displayColums;
     QVariantList decorationColums;
-    Nepomuk2::Resource resource;
+    Nepomuk2::Resource resource;  //DEPRECATED: remove Nepomuk2::Resource from CachedRowEntry
+    QUrl uri;
     QDateTime timestamp;
-    uint resourceType; /**< saved type taht can be cases to BibEntryType or SeriesEntryType */
+    uint resourceType; /**< saved type that can be cases to BibEntryType or SeriesEntryType */
 };
 
 Q_DECLARE_METATYPE(CachedRowEntry)
@@ -54,6 +55,11 @@ class QueryClient : public QObject
 {
     Q_OBJECT
 public:
+    enum UpdateType {
+        NEW_RESOURCE_DATA,
+        UPDATE_RESOURCE_DATA
+    };
+
     explicit QueryClient(QObject *parent = 0);
     virtual ~QueryClient();
 
@@ -62,6 +68,7 @@ public:
 public slots:
     virtual void startFetchData() = 0;
     virtual void stopFetchData() = 0;
+    virtual void updateCacheEntry(const QUrl &uri, const QueryClient::UpdateType &updateType) = 0;
 
 signals:
     void newCacheEntries(const QList<CachedRowEntry> &entries) const;
@@ -77,16 +84,14 @@ private slots:
     void resourceRemoved(const QUrl & uri, const QList<QUrl>& types);
     void resourceCreated(const Nepomuk2::Resource & resource, const QList<QUrl>& types);
 
-protected:
-    void updateCacheEntry(const Nepomuk2::Resource &resource);
+    //import sparql processed data
+    void finishedInitialQuery();
+    void finishedUpdateQuery();
+    void finishedNewResourceQuery();
 
+protected:
     virtual QVariantList createDisplayData(const QStringList & item) const = 0;
     virtual QVariantList createDecorationData(const QStringList & item) const = 0;
-
-    virtual QVariantList createDisplayData(const Nepomuk2::Resource & res) const = 0;
-    virtual QVariantList createDecorationData(const Nepomuk2::Resource & res) const = 0;
-
-    virtual uint detectResourceType(const Nepomuk2::Resource & res) const = 0;
 
     Library *m_library;
     Nepomuk2::ResourceWatcher *m_resourceWatcher;

@@ -34,6 +34,7 @@
 #include <KDE/KIcon>
 
 #include <QtCore/QtConcurrentRun>
+#include <QtCore/QFutureWatcher>
 
 #include <KDE/KDebug>
 
@@ -74,6 +75,7 @@ void EventQuery::startFetchData()
     m_newWatcher->addType(Nepomuk2::Vocabulary::NCAL::Event());
     m_newWatcher->addProperty(Nepomuk2::Vocabulary::NBIB::eventPublication());
 
+    //DEPRECATED: remove library dependency for queryclient subclasses
     if(m_library->libraryType() == BibGlobals::Library_Project) {
         m_newWatcher->addProperty(Soprano::Vocabulary::NAO::isRelated());
     }
@@ -101,14 +103,14 @@ void EventQuery::startFetchData()
     connect(m_resourceWatcher, SIGNAL(resourceRemoved(QUrl,QList<QUrl>)),
             this, SLOT(resourceRemoved(QUrl,QList<QUrl>)) );
 
-    QFuture<QList<CachedRowEntry> > future = QtConcurrent::run(this, &EventQuery::queryNepomuk);
-    m_futureWatcher = new QFutureWatcher<QList<CachedRowEntry> >();
+    QFuture<QList<CachedRowEntry> > future = QtConcurrent::run(this, &EventQuery::initialQueryNepomuk);
+    QFutureWatcher<QList<CachedRowEntry> > *futureWatcher = new QFutureWatcher<QList<CachedRowEntry> >();
 
-    m_futureWatcher->setFuture(future);
-    connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(finishedQuery()));
+    futureWatcher->setFuture(future);
+    connect(futureWatcher, SIGNAL(finished()),this, SLOT(finishedInitialQuery()));
 }
 
-QList<CachedRowEntry> EventQuery::queryNepomuk()
+QList<CachedRowEntry> EventQuery::initialQueryNepomuk()
 {
     QTime startTime = QTime::currentTime();
 
@@ -136,6 +138,57 @@ QList<CachedRowEntry> EventQuery::queryNepomuk()
 
                                         "}");
 
+    QList<CachedRowEntry> newCache = processQueryResults(query);
+
+    QTime endTime = QTime::currentTime();
+    kDebug() << "add" << newCache.size() << "entries after" << startTime.msecsTo(endTime) << "msec";
+
+    return newCache;
+}
+
+void EventQuery::updateCacheEntry(const QUrl &uri, const QueryClient::UpdateType &updateType)
+{
+    QFuture<QList<CachedRowEntry> > future = QtConcurrent::run(this, &EventQuery::updateQueryNepomuk, uri);
+    QFutureWatcher<QList<CachedRowEntry> > *updateQueryWatcher = new QFutureWatcher<QList<CachedRowEntry> >();
+
+    updateQueryWatcher->setFuture(future);
+
+    if(updateType == UPDATE_RESOURCE_DATA) {
+        connect(updateQueryWatcher, SIGNAL(finished()),this, SLOT(finishedUpdateQuery()));
+    }
+    else {
+        connect(updateQueryWatcher, SIGNAL(finished()),this, SLOT(finishedNewResourceQuery()));
+    }
+}
+
+QList<CachedRowEntry> EventQuery::updateQueryNepomuk(const QUrl &uri)
+{
+    QTime startTime = QTime::currentTime();
+
+    // first fetch all publications
+    // this will lead to duplicates as we fetch for author names and types too
+    // for each rdf:type and each connected author/publisher/editor we get the resource as result
+
+    //If you update this, also update initialQueryNepomuk and processQueryResults and the enum ColumnList and the EventModel
+    QString query = QString::fromLatin1("select distinct ?title ?star ?date ?publication where { {"
+                                        "%1 nbib:eventpublication ?pub ."
+                                        "OPTIONAL { ?pub nie:title ?publication . }"
+
+                                        "OPTIONAL { %1 nie:title ?title . }"
+                                        "OPTIONAL { %1 nao:numericRating ?star . }"
+                                        "OPTIONAL { %1 ncal:date ?date . }"
+                                        "}").arg( Soprano::Node::resourceToN3( uri ) );
+
+    QList<CachedRowEntry> newCache = processQueryResults(query, uri);
+
+    QTime endTime = QTime::currentTime();
+    kDebug() << "update" << newCache.size() << "entries after" << startTime.msecsTo(endTime) << "msec";
+
+    return newCache;
+}
+
+QList<CachedRowEntry> EventQuery::processQueryResults(const QString &query, const QUrl &uri)
+{
     Soprano::Model* model = Nepomuk2::ResourceManager::instance()->mainModel();
     Soprano::QueryResultIterator it = model->executeQuery( query, Soprano::Query::QueryLanguageSparql );
 
@@ -178,7 +231,13 @@ QList<CachedRowEntry> EventQuery::queryNepomuk()
         }
 
         // and save the result back into the map
-        resultList.insert(p.value("r").toString(), curEntry);
+        if(p.value("r").isEmpty()) {
+            Q_ASSERT(!uri.isEmpty());
+            resultList.insert(uri.toString(), curEntry);
+        }
+        else {
+            resultList.insert(p.value("r").toString(), curEntry);
+        }
     }
 
     // now create the cache entries from all returned search results
@@ -187,45 +246,17 @@ QList<CachedRowEntry> EventQuery::queryNepomuk()
     while (i.hasNext()) {
         i.next();
 
-        // create the cache entries for each search result
         CachedRowEntry cre;
+        cre.uri = QUrl( i.key() );
         cre.displayColums = createDisplayData(i.value());
         cre.decorationColums = createDecorationData(i.value());
-        cre.resource = Nepomuk2::Resource::fromResourceUri( KUrl( i.key() ) );
+        cre.resource = Nepomuk2::Resource::fromResourceUri( cre.uri  );
         cre.timestamp = QDateTime::currentDateTime();
-        cre.resourceType = detectResourceType(cre.resource);
+        cre.resourceType = 0; //Unused
         newCache.append(cre);
-
-        m_resourceWatcher->addResource( cre.resource );
     }
-
-    QTime endTime = QTime::currentTime();
-    kDebug() << "add" << newCache.size() << "entries after" << startTime.msecsTo(endTime) << "msec";
 
     return newCache;
-}
-
-void EventQuery::finishedQuery()
-{
-    QList<CachedRowEntry> results = m_futureWatcher->future().result();
-
-    // add all results to the ResourceWatcher
-    foreach(const CachedRowEntry &cre, results) {
-        m_resourceWatcher->addResource( cre.resource );
-    }
-
-    emit newCacheEntries(results);
-
-    //don't start the watcher if we have no resources to watch
-    // will be started from the queryclient.h when updateResource inserts new items
-    if( !m_resourceWatcher->resources().isEmpty()) {
-        m_resourceWatcher->start();
-    }
-
-    emit queryFinished();
-
-    delete m_futureWatcher;
-    m_futureWatcher = 0;
 }
 
 QVariantList EventQuery::createDisplayData(const QStringList & item) const
@@ -284,94 +315,4 @@ QVariantList EventQuery::createDecorationData(const QStringList & item) const
     }
 
     return decorationList;
-}
-
-QVariantList EventQuery::createDisplayData(const Nepomuk2::Resource & resource) const
-{
-    QVariantList displayList;
-    displayList.reserve(Max_columns-1);
-
-    for(int i = 0; i < Max_columns; i++) {
-        QVariant newEntry;
-        switch(i) {
-        case Column_Publication: {
-            QList<Nepomuk2::Resource> publicationList = resource.property(Nepomuk2::Vocabulary::NBIB::eventPublication()).toResourceList();
-
-            QString pubString;
-            if(!publicationList.isEmpty()) {
-                //create content for the HTMLDelegate looks a lot better when several publication are being displayed
-                pubString = QLatin1String("<font size=\"85%\">");
-                foreach(const Nepomuk2::Resource & r, publicationList) {
-                    pubString.append("&#8226; ");
-                    pubString.append( r.property(Nepomuk2::Vocabulary::NIE::title()).toString() );
-                    pubString.append("<br/>");
-                }
-                pubString.chop(5);
-                pubString.append(QLatin1String("</font>"));
-            }
-
-            newEntry = pubString;
-            break;
-        }
-        case Column_Title: {
-            QString titleSting = resource.property(Nepomuk2::Vocabulary::NIE::title()).toString();
-
-            newEntry = titleSting;
-            break;
-        }
-        case Column_Date: {
-            QString dateString = resource.property(Nepomuk2::Vocabulary::NCAL::date()).toString();
-
-            QDateTime date = QDateTime::fromString(dateString, Qt::ISODate);
-            if(date.isValid()) {
-                newEntry = date.toString("dd.MM.yyyy");
-            }
-            else {
-                newEntry = dateString;
-            }
-            break;
-        }
-        case Column_StarRate: {
-            int rating = resource.property(Soprano::Vocabulary::NAO::numericRating()).toInt();
-
-            newEntry = rating;
-            break;
-        }
-        default:
-            newEntry = QVariant();
-        }
-
-        displayList.append(newEntry);
-    }
-
-    return displayList;
-}
-
-QVariantList EventQuery::createDecorationData(const Nepomuk2::Resource & resource) const
-{
-    QVariantList decorationList;
-    decorationList.reserve(Max_columns-1);
-
-    for(int i = 0; i < Max_columns; i++) {
-        QVariant newEntry;
-//        switch(i) {
-//        case Column_Akonadi: {
-//            //TODO: find out if event is also available in akonadi
-//            Nepomuk2::Resource event = resource.property(Nepomuk2::Vocabulary::PIMO::groundingOccurrence()).toResource();
-//            if(resource.hasType(Nepomuk2::Vocabulary::NCAL::Event()) || event.isValid()) {
-//                newEntry = KIcon(QLatin1String("akonadi"));
-//            }
-//        }
-//        }
-    decorationList.append(newEntry);
-
-    }
-
-    return decorationList;
-}
-
-uint EventQuery::detectResourceType(const Nepomuk2::Resource & res) const
-{
-    Q_UNUSED(res)
-    return 0;
 }

@@ -124,7 +124,7 @@ void NepomukModel::addCacheData(const QList<CachedRowEntry> &entries)
         beginInsertRows(QModelIndex(), m_modelCacheData.size(), m_modelCacheData.size() + entries.size()-1);
         foreach(const CachedRowEntry &cre, entries) {
             m_modelCacheData.append(cre);
-            m_lookupCache.insert(cre.resource.uri().toString(), m_modelCacheData.size()-1);
+            m_lookupCache.insert(cre.uri.toString(), m_modelCacheData.size()-1);
         }
         endInsertRows();
     }
@@ -139,7 +139,7 @@ void NepomukModel::removeCacheData( QList<QUrl> urls )
         //iterate through the full list of entries and find the one we are going to remove
         int i = 0;
         foreach(const CachedRowEntry & cre, m_modelCacheData) {
-            if(!cre.resource.isValid() || cre.resource.uri() == url) {
+            if(cre.uri == url) {
 
                 beginRemoveRows(QModelIndex(), i, i );
                 m_modelCacheData.removeAt(i);
@@ -167,10 +167,10 @@ void NepomukModel::removeCacheData( QList<QUrl> urls )
 
 void NepomukModel::updateCacheData(const QList<CachedRowEntry> &entries)
 {
-    kDebug() << "updateCacheData";
     foreach(const CachedRowEntry &entry, entries) {
 
-        int pos = m_lookupCache.value(entry.resource.uri().toString(), -1);
+        kDebug() << "updateCacheData :: " << entry.uri.toString();
+        int pos = m_lookupCache.value(entry.uri.toString(), -1);
         if(pos < 0) {
             QList<CachedRowEntry> e;
             e << entry;

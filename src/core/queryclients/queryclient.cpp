@@ -26,9 +26,7 @@
 #include "nbib.h"
 #include <Soprano/Vocabulary/NAO>
 #include <Nepomuk2/Variant>
-
-#include <QtCore/QEventLoop>
-#include <QtCore/QTimer>
+#include <QtCore/QFutureWatcher>
 
 QueryClient::QueryClient(QObject *parent)
     :QObject(parent)
@@ -41,8 +39,6 @@ QueryClient::QueryClient(QObject *parent)
 
 QueryClient::~QueryClient()
 {
-    m_resourceWatcher->stop();
-    delete m_resourceWatcher;
 }
 
 void QueryClient::setLibrary(Library *selectedLibrary)
@@ -55,19 +51,12 @@ void QueryClient::propertyChanged (const Nepomuk2::Resource &resource, const Nep
     kDebug() << "propertyChanged resource" << resource.uri() << resource.genericLabel() << property << addedValues;
     Q_UNUSED(property);
 
-    // @see https://bugs.kde.org/show_bug.cgi?id=306108
-    // The reason this is required, is cause the Resource class is also updated via
-    // dbus, and we have no way of controlling which slot would be called first.
-    QEventLoop loop;
-    QTimer::singleShot( 1000, &loop, SLOT(quit()) );
-    loop.exec();
-
     // see if we need to add / remove the changed resource from the project model
     if(property.uri() == Soprano::Vocabulary::NAO::isRelated() ) {
         if(m_library->libraryType() == BibGlobals::Library_Project) {
             if(addedValues.contains( m_library->settings()->projectThing().uri().toString() )) {
                 kDebug() << resource.genericLabel() << "added to" << m_library->settings()->projectThing().genericLabel();
-                updateCacheEntry(resource);
+                updateCacheEntry(resource.uri(), QueryClient::UPDATE_RESOURCE_DATA);
             }
             else if(removedValues.contains( m_library->settings()->projectThing().uri().toString() )) {
                 kDebug() << resource.genericLabel() << "removed from" << m_library->settings()->projectThing().genericLabel();
@@ -77,7 +66,7 @@ void QueryClient::propertyChanged (const Nepomuk2::Resource &resource, const Nep
         //else {...} ignore this case for system library
     }
     else {
-        updateCacheEntry(resource);
+        updateCacheEntry(resource.uri(), QueryClient::UPDATE_RESOURCE_DATA);
     }
 }
 
@@ -85,7 +74,7 @@ void QueryClient::resourceTypeChanged (const Nepomuk2::Resource &resource, const
 {
     Q_UNUSED(type);
 
-    updateCacheEntry(resource);
+    updateCacheEntry(resource.uri(), QueryClient::UPDATE_RESOURCE_DATA);
 }
 
 void QueryClient::resourceRemoved(const QUrl & uri, const QList<QUrl>& types)
@@ -101,44 +90,54 @@ void QueryClient::resourceCreated(const Nepomuk2::Resource & resource, const QLi
     Q_UNUSED(types);
     kDebug() << "resourcewatcher new resource found" << resource.genericLabel();
 
-    QList<CachedRowEntry> newCache;
-
-    CachedRowEntry cre;
-    cre.resource = resource;
-    cre.resource.setWatchEnabled(true); // without this, property changes will not be detected
-    cre.displayColums = createDisplayData(cre.resource);
-    cre.decorationColums = createDecorationData(cre.resource);
-    cre.resourceType = detectResourceType(cre.resource);
-    newCache.append(cre);
-    m_resourceWatcher->stop(); //TODO: check if stopping resourceWatcher is necessary
-    m_resourceWatcher->addResource(cre.resource);
-    m_resourceWatcher->start();
-
-    emit newCacheEntries(newCache);
+    updateCacheEntry(resource.uri(), QueryClient::NEW_RESOURCE_DATA);
 }
 
-void QueryClient::updateCacheEntry(const Nepomuk2::Resource &resource)
+void QueryClient::finishedInitialQuery()
 {
-    //BUG: since 4.9.1 propertyChanged/resourceTypeRemoved signal is called together with resourceRemoved.
-    //     This will fill the removed resource again into the table model
-    if( !resource.exists() ) {
-        kDebug() << "resourcewatcher send change for removed resource";
-        return;
+    QFutureWatcher<QList<CachedRowEntry> > *updateQueryWatcher = dynamic_cast<QFutureWatcher<QList<CachedRowEntry> > *>(sender());
+    QList<CachedRowEntry> results = updateQueryWatcher->future().result();
+
+    foreach(const CachedRowEntry &cre, results) {
+        m_resourceWatcher->addResource( cre.uri );
     }
 
-    kDebug() << "resourcewatcher found change for" << resource.genericLabel();
+    emit newCacheEntries(results);
 
-    QList<CachedRowEntry> newCache;
+    //don't start the watcher if we have no resources to watch
+    // will be started from the queryclient.h when updateResource inserts new items
+    if( !m_resourceWatcher->resources().isEmpty()) {
+        m_resourceWatcher->start();
+    }
 
-    CachedRowEntry cre;
-    cre.resource = resource;
-    cre.resource .setWatchEnabled(true);
-    cre.displayColums = createDisplayData(cre.resource);
-    cre.decorationColums = createDecorationData(cre.resource);
-    cre.resourceType = detectResourceType(cre.resource);
-    newCache.append(cre);
+    emit queryFinished();
 
-    emit updateCacheEntries(newCache);
+    delete updateQueryWatcher;
 }
 
+void QueryClient::finishedUpdateQuery()
+{
+    QFutureWatcher<QList<CachedRowEntry> > *updateQueryWatcher = dynamic_cast<QFutureWatcher<QList<CachedRowEntry> > *>(sender());
+    QList<CachedRowEntry> results = updateQueryWatcher->future().result();
+
+    emit updateCacheEntries(results);
+
+    delete updateQueryWatcher;
+}
+
+void QueryClient::finishedNewResourceQuery()
+{
+    QFutureWatcher<QList<CachedRowEntry> > *updateQueryWatcher = dynamic_cast<QFutureWatcher<QList<CachedRowEntry> > *>(sender());
+    QList<CachedRowEntry> results = updateQueryWatcher->future().result();
+
+    m_resourceWatcher->stop(); //TODO: check if stopping resourceWatcher is necessary
+    foreach(const CachedRowEntry &cre, results) {
+        m_resourceWatcher->addResource( cre.uri );
+    }
+    m_resourceWatcher->start();
+
+    emit newCacheEntries(results);
+
+    delete updateQueryWatcher;
+}
 

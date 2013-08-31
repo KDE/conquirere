@@ -30,6 +30,7 @@
 #include <Soprano/Vocabulary/NAO>
 
 #include <QtCore/QtConcurrentRun>
+#include <QtCore/QFutureWatcher>
 
 #include <KDE/KDebug>
 
@@ -68,6 +69,7 @@ void NoteQuery::startFetchData()
     m_newWatcher = new Nepomuk2::ResourceWatcher(this);
     m_newWatcher->addType(Nepomuk2::Vocabulary::PIMO::Note());
 
+    //DEPRECATED: remove library dependency for queryclient subclasses
     if(m_library->libraryType() == BibGlobals::Library_Project) {
         m_newWatcher->addProperty(Soprano::Vocabulary::NAO::isRelated());
         connect(m_newWatcher, SIGNAL(propertyChanged(Nepomuk2::Resource,Nepomuk2::Types::Property,QVariantList,QVariantList)),
@@ -94,14 +96,14 @@ void NoteQuery::startFetchData()
     connect(m_resourceWatcher, SIGNAL(resourceRemoved(QUrl,QList<QUrl>)),
             this, SLOT(resourceRemoved(QUrl,QList<QUrl>)) );
 
-    QFuture<QList<CachedRowEntry> > future = QtConcurrent::run(this, &NoteQuery::queryNepomuk);
-    m_futureWatcher = new QFutureWatcher<QList<CachedRowEntry> >();
+    QFuture<QList<CachedRowEntry> > future = QtConcurrent::run(this, &NoteQuery::initialQueryNepomuk);
+    QFutureWatcher<QList<CachedRowEntry> > *futureWatcher = new QFutureWatcher<QList<CachedRowEntry> >();
 
-    m_futureWatcher->setFuture(future);
-    connect(m_futureWatcher, SIGNAL(finished()),this, SLOT(finishedQuery()));
+    futureWatcher->setFuture(future);
+    connect(futureWatcher, SIGNAL(finished()),this, SLOT(finishedInitialQuery()));
 }
 
-QList<CachedRowEntry> NoteQuery::queryNepomuk()
+QList<CachedRowEntry> NoteQuery::initialQueryNepomuk()
 {
     QTime startTime = QTime::currentTime();
 
@@ -130,6 +132,58 @@ QList<CachedRowEntry> NoteQuery::queryNepomuk()
 
                                         "}");
 
+    QList<CachedRowEntry> newCache = processQueryResults(query);
+
+    QTime endTime = QTime::currentTime();
+    kDebug() << "add" << newCache.size() << "entries after" << startTime.msecsTo(endTime) << "msec";
+
+    return newCache;
+}
+
+void NoteQuery::updateCacheEntry(const QUrl &uri, const QueryClient::UpdateType &updateType)
+{
+    QFuture<QList<CachedRowEntry> > future = QtConcurrent::run(this, &NoteQuery::updateQueryNepomuk, uri);
+    QFutureWatcher<QList<CachedRowEntry> > *updateQueryWatcher = new QFutureWatcher<QList<CachedRowEntry> >();
+
+    updateQueryWatcher->setFuture(future);
+
+    if(updateType == UPDATE_RESOURCE_DATA) {
+        connect(updateQueryWatcher, SIGNAL(finished()),this, SLOT(finishedUpdateQuery()));
+    }
+    else {
+        connect(updateQueryWatcher, SIGNAL(finished()),this, SLOT(finishedNewResourceQuery()));
+    }
+}
+
+QList<CachedRowEntry> NoteQuery::updateQueryNepomuk(const QUrl &uri)
+{
+    QTime startTime = QTime::currentTime();
+
+    // first fetch all publications
+    // this will lead to duplicates as we fetch for author names and types too
+    // for each rdf:type and each connected author/publisher/editor we get the resource as result
+
+    //If you update this, also update initialQueryNepomuk and processQueryResults and the enum ColumnList and the NoteModel
+    QString query = QString::fromLatin1("select distinct ?title ?star ?date ?tags where {"
+                                        "OPTIONAL { %1 nao:prefLabel ?reviewed . }" //FIXME: add reviewed to query, implement it first. tagging?
+
+                                        "OPTIONAL { %1 nie:title ?title . }"
+                                        "OPTIONAL { %1 nao:numericRating ?star . }"
+                                        "OPTIONAL { %1 nao:lastModified ?date . }"
+                                        "OPTIONAL { %1 nao:hasTag ?t . }"
+                                        "OPTIONAL { ?t nao:prefLabel ?tag . }"
+                                        "}").arg( Soprano::Node::resourceToN3( uri ) );
+
+    QList<CachedRowEntry> newCache = processQueryResults(query, uri);
+
+    QTime endTime = QTime::currentTime();
+    kDebug() << "update" << newCache.size() << "entries after" << startTime.msecsTo(endTime) << "msec";
+
+    return newCache;
+}
+
+QList<CachedRowEntry> NoteQuery::processQueryResults(const QString &query, const QUrl &uri)
+{
     Soprano::Model* model = Nepomuk2::ResourceManager::instance()->mainModel();
     Soprano::QueryResultIterator it = model->executeQuery( query, Soprano::Query::QueryLanguageSparql );
 
@@ -169,7 +223,13 @@ QList<CachedRowEntry> NoteQuery::queryNepomuk()
         }
 
         // and save the result back into the map
-        resultList.insert(p.value("r").toString(), curEntry);
+        if(p.value("r").isEmpty()) {
+            Q_ASSERT(!uri.isEmpty());
+            resultList.insert(uri.toString(), curEntry);
+        }
+        else {
+            resultList.insert(p.value("r").toString(), curEntry);
+        }
     }
 
     // now create the cache entries from all returned search results
@@ -178,45 +238,17 @@ QList<CachedRowEntry> NoteQuery::queryNepomuk()
     while (i.hasNext()) {
         i.next();
 
-        // create the cache entries for each search result
         CachedRowEntry cre;
+        cre.uri = QUrl( i.key() );
         cre.displayColums = createDisplayData(i.value());
         cre.decorationColums = createDecorationData(i.value());
-        cre.resource = Nepomuk2::Resource::fromResourceUri( KUrl( i.key() ) );
+        cre.resource = Nepomuk2::Resource::fromResourceUri( cre.uri  );
         cre.timestamp = QDateTime::currentDateTime();
-        cre.resourceType = detectResourceType(cre.resource);
+        cre.resourceType = 0; //UNUSED
         newCache.append(cre);
-
-        m_resourceWatcher->addResource( cre.resource );
     }
-
-    QTime endTime = QTime::currentTime();
-    kDebug() << "add" << newCache.size() << "entries after" << startTime.msecsTo(endTime) << "msec";
 
     return newCache;
-}
-
-void NoteQuery::finishedQuery()
-{
-    QList<CachedRowEntry> results = m_futureWatcher->future().result();
-
-    // add all results to the ResourceWatcher
-    foreach(const CachedRowEntry &cre, results) {
-        m_resourceWatcher->addResource( cre.resource );
-    }
-
-    emit newCacheEntries(results);
-
-    //don't start the watcher if we have no resources to watch
-    // will be started from the queryclient.h when updateResource inserts new items
-    if( !m_resourceWatcher->resources().isEmpty()) {
-        m_resourceWatcher->start();
-    }
-
-    emit queryFinished();
-
-    delete m_futureWatcher;
-    m_futureWatcher = 0;
 }
 
 QVariantList NoteQuery::createDisplayData(const QStringList & item) const
@@ -264,83 +296,4 @@ QVariantList NoteQuery::createDecorationData(const QStringList & item) const
     }
 
     return decorationList;
-}
-
-QVariantList NoteQuery::createDisplayData(const Nepomuk2::Resource & res) const
-{
-    QVariantList displayList;
-    displayList.reserve(Max_columns-1);
-
-    for(int i = 0; i < Max_columns; i++) {
-        QVariant newEntry;
-        switch(i) {
-        case Column_Title: {
-            QString titleSting = res.property(Soprano::Vocabulary::NAO::prefLabel()).toString();
-
-            newEntry = titleSting;
-            break;
-        }
-        case Column_Date: {
-            Nepomuk2::Resource note = res.property(Nepomuk2::Vocabulary::PIMO::groundingOccurrence()).toResource();
-
-            QString dateString = note.property(Soprano::Vocabulary::NAO::lastModified()).toString();
-            if(dateString.isEmpty()) {
-                dateString = res.property(Soprano::Vocabulary::NAO::created()).toString();
-            }
-
-            QDateTime date = QDateTime::fromString(dateString, Qt::ISODate);
-            if(date.isValid()) {
-                newEntry = date.toString("dd.MM.yyyy hh:mm:ss");
-            }
-            else {
-                newEntry = dateString;
-            }
-            break;
-        }
-        case Column_Tags: {
-            QString tagString;
-            QList<Nepomuk2::Resource> tagList = res.property(Soprano::Vocabulary::NAO::hasTag()).toResourceList();
-
-            foreach(const Nepomuk2::Resource & nr, tagList) {
-                tagString.append(nr.property(Soprano::Vocabulary::NAO::prefLabel()).toString());
-                tagString.append(QLatin1String("; "));
-            }
-            tagString.chop(2);
-            newEntry = tagString;
-            break;
-        }
-        case Column_StarRate: {
-            int rating = res.rating();
-            newEntry = rating;
-            break;
-        }
-        default:
-            newEntry = QVariant();
-        }
-
-        displayList.append(newEntry);
-    }
-
-    return displayList;
-}
-
-QVariantList NoteQuery::createDecorationData(const Nepomuk2::Resource & res) const
-{
-    Q_UNUSED(res);
-
-    QVariantList decorationList;
-    decorationList.reserve(Max_columns-1);
-
-    for(int i = 0; i < Max_columns; i++) {
-        decorationList.append(QVariant());
-    }
-
-    return decorationList;
-}
-
-uint NoteQuery::detectResourceType(const Nepomuk2::Resource & res) const
-{
-    Q_UNUSED(res)
-
-    return 0;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Jörg Ehrichs <joerg.ehrichs@gmx.de>
+ * Copyright 2013 Jörg Ehrichs <joerg.ehrichs@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +20,6 @@
 
 #include "queryclient.h"
 
-#include <QtCore/QFutureWatcher>
 #include <QtCore/QList>
 
 namespace Nepomuk2 {
@@ -57,25 +56,21 @@ public:
 public slots:
     void startFetchData();
     void stopFetchData();
+    void updateCacheEntry(const QUrl &uri, const QueryClient::UpdateType &updateType);
 
-private slots:
-    void finishedQuery();
-
-private:
-    QList<CachedRowEntry> queryNepomuk();
-
+protected:
     // creates cache entries from Soprano:Model search
     QVariantList createDisplayData(const QStringList & item) const;
     QVariantList createDecorationData(const QStringList & item) const;
 
-    // creates cache entry from resource handed via resourcewatcher
-    QVariantList createDisplayData(const Nepomuk2::Resource & res) const;
-    QVariantList createDecorationData(const Nepomuk2::Resource & res) const;
+    uint detectResourceType(const QString &typeList) const;
 
-    uint detectResourceType(const Nepomuk2::Resource & res) const;
+private:
+    QList<CachedRowEntry> initialQueryNepomuk();
+    QList<CachedRowEntry> updateQueryNepomuk(const QUrl &uri);
+    QList<CachedRowEntry> processQueryResults(const QString &query, const QUrl &uri = QUrl());
 
     Nepomuk2::ResourceWatcher* m_newWatcher;
-    QFutureWatcher<QList<CachedRowEntry> > *m_futureWatcher;
 };
 
 #endif // PUBLICATIONQUERY_H
