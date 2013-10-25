@@ -48,6 +48,7 @@ add_definitions (${QT_DEFINITIONS} ${KDE4_DEFINITIONS} -DQT_STRICT_ITERATORS )
 #add_definitions( -DQT_NO_CAST_FROM_ASCII )
 add_definitions(-DQT_NO_CAST_TO_ASCII )
 add_definitions(-DQT_USE_FAST_CONCATENATION -DQT_USE_FAST_OPERATOR_PLUS)
+add_definitions(-DDISABLE_NEPOMUK_LEGACY)
 
 
 # Set a version that will be used if we're not building from git
@@ -63,7 +64,7 @@ if(EXISTS "${conquirere_SOURCE_DIR}/.git")
                     OUTPUT_VARIABLE conquirere_git_revision)
 
     string(REGEX REPLACE "\n" "" conquirere_git_revision "${conquirere_git_revision}")
-    string(REGEX REPLACE "^v(.*)" "\\1" VERSION ${conquirere_git_revision})
+    string(REGEX REPLACE "^v(.*)" "\\\\1" VERSION ${conquirere_git_revision})
   endif()
 endif()
 
